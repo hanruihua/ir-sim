@@ -13,7 +13,7 @@ setup(
         'pynput',
         'imageio',
         'pathlib',
-        'cvxpy'
+        'cvxpy',
     ],
     description="A python based robot simulator framework for the intelligent robotics navigation and learning",
     author="Han Ruihua",
