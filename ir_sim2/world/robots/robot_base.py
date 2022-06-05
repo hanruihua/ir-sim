@@ -103,9 +103,21 @@ class robot_base:
         elif self.arrive_mode == 'state':
             return np.linalg.norm(self.state - self.goal) <= self.goal_threshold
 
-        
-    def collision_check_point():
+    def collision_check_point(self, point):
         pass
+        #  def inside(self, obs, point):
+        #     # Ao<=b
+        #     assert point.shape == (2, 1)
+        #     return self.cone(obs.A @ point - obs.b, obs.cone)
+
+        # def cone(self, point, cone='R_positive'):
+        #     # cone: R_positive, norm2
+        #     if cone == 'R_positive':
+        #         return (point<=0).all()
+        #     elif cone == 'norm2':
+        #         return np.squeeze( np.linalg.norm(point[0:-1]) - point[-1] ) <= 0
+
+        # return self.A @ point - self.b <= 
 
     def collision_check_opt():
         pass
