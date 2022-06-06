@@ -3,14 +3,13 @@ from math import inf
 import logging
 
 class robot_base:
-    def __init__(self, id, shape='circle', model_type='diff', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
+    def __init__(self, id, shape='circle', robot_type='diff', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
 
         """
             type = 'diff', 'omni', 'ackermann' 
         """
-
         self.id = int(id)
-        self.type = model_type
+        self.type = robot_type
         self.step_time = step_time
 
         self.state_dim = state_dim
@@ -19,7 +18,7 @@ class robot_base:
 
         self.init_state = kwargs.get('state', np.zeros(state_dim))
         self.init_vel = kwargs.get('vel', np.zeros(vel_dim))
-        self.init_goal_state = kwargs.get('goal', np.ones(state_dim))
+        self.init_goal_state = kwargs.get('goal', np.ones(goal_dim))
 
         if isinstance(self.init_state, list): 
             self.init_state = np.array(init_state, ndmin=2).T
@@ -47,6 +46,10 @@ class robot_base:
 
         # noise
         self.noise = kwargs.get('noise', False)
+
+        # Generalized inequalities
+        self.G, self.g = self.gen_inequal()
+        self.cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
         # # sensor
         # lidar_args = kwargs.get('lidar2d', None)
@@ -76,7 +79,7 @@ class robot_base:
 
         if vel[0, 0] < self.vel_limit[0] or vel[1, 0] > self.vel_limit[1]:
             vel = np.clip(vel, self.vel_limit[0], self.vel_limit[1])
-            logging.warning("The velocity is clipped within the limit")
+            logging.warning("The velocity is clipped within the limit", self.vel_limit)
             
         if stop:
             if self.arrive_flag or self.collision_flag:
@@ -90,13 +93,6 @@ class robot_base:
         self.state = state
         self.vel = vel
     
-    def dynamics(self, vel):
-
-        """ vel: the input velocity
-            return: the next state
-        """
-        raise NotImplementedError
-
     def arrive(self):
         if self.arrive_mode == 'position':
             return np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold
@@ -104,7 +100,9 @@ class robot_base:
             return np.linalg.norm(self.state - self.goal) <= self.goal_threshold
 
     def collision_check_point(self, point):
-        pass
+        # utilize the generalized inequality to judge the collision with a point
+        assert point.shape == position_dim
+        return robot_base.InCone(self.G @ point - self.g, self.cone_type)
         #  def inside(self, obs, point):
         #     # Ao<=b
         #     assert point.shape == (2, 1)
@@ -119,8 +117,33 @@ class robot_base:
 
         # return self.A @ point - self.b <= 
 
-    def collision_check_opt():
+    def collision_check_opt(self):
         pass
+    
+    @staticmethod
+    def InCone(point, cone_type='Rpositive'):
+        if cone_type == 'Rpositive':
+            return (point<=0).all()
+        elif cone_type == 'norm2':
+            return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
+
+    def dynamics(self, vel):
+
+        """ vel: the input velocity
+            return: the next state
+        """
+        raise NotImplementedError
+
+    def gen_inequal(self):
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g, 
+        # self.G, self.g = self.gen_inequal()
+        raise NotImplementedError
+        
+    
+    
+
+
+
 
 
 
