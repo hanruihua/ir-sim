@@ -1,16 +1,26 @@
-class Bird:
-    #鸟有翅膀
-    def isWing(self):
-        print("鸟有翅膀")
-    #鸟会飞
-    def fly(self):
-        print("鸟会飞")
-class Ostrich(Bird):
-    # 重写Bird类的fly()方法
-    def fly(self, a):
-        print("鸵鸟不会飞")
-        print(a)
-# 创建Ostrich对象
-ostrich = Ostrich()
-#调用 Bird 类中的 fly() 方法
-ostrich.fly(1)
+class Car():
+    wheels = None
+    def __init__(self, price, color):
+        print(120)
+        self.price = price
+        self.color = color
+        self.w = Car.wheels
+
+class Car_s(Car):
+    wheels = 4
+    def __init__(self, price, color):
+        super(Car_s, self).__init__(price, color)
+        
+        self.ww = Car_s.wheels
+
+car_1 = Car_s(15000, "red")
+car_2 = Car_s(15030, "green")
+
+# car_1.wheels = 10
+car_2.wheels = 11
+# Car.wheels = 1
+Car.wheels = 1
+
+print(car_1.wheels)
+print(car_2.wheels)
+print(car_2.w)
