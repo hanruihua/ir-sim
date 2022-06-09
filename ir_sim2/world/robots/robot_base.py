@@ -2,7 +2,7 @@ import numpy as np
 from math import inf
 import logging
 
-class robot_base:
+class RobotBase:
     def __init__(self, id, shape='circle', robot_type='diff', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
 
         """
@@ -20,14 +20,9 @@ class robot_base:
         self.init_vel = kwargs.get('vel', np.zeros(vel_dim))
         self.init_goal_state = kwargs.get('goal', np.ones(goal_dim))
 
-        if isinstance(self.init_state, list): 
-            self.init_state = np.array(init_state, ndmin=2).T
-
-        if isinstance(self.init_vel, list): 
-            self.init_vel = np.array(self.init_vel, ndmin=2).T
-
-        if isinstance(self.init_goal_state, list): 
-            self.init_goal_state = np.array(self.init_goal_state, ndmin=2).T
+        if isinstance(self.init_state, list): self.init_state = np.c_[init_state]
+        if isinstance(self.init_vel, list): self.init_vel = np.c_[self.init_vel]
+        if isinstance(self.init_goal_state, list): self.init_goal_state = np.c_[self.init_goal_state]
 
         self.state = self.init_state
         self.goal = self.init_goal_state
@@ -36,7 +31,15 @@ class robot_base:
         self.shape = shape   # shape list: ['circle', 'rectangle', 'polygon']
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
         
-        self.vel_limit = kwargs.get('vel_limit', [-inf, inf])
+        amin = np.c_[[4, 10]]
+        amax = np.c_[[5, 20]]
+
+        self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
+        self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
+
+        if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
+        if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
+
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
         
         # flag
@@ -51,6 +54,8 @@ class robot_base:
         self.G, self.g = self.gen_inequal()
         self.cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
+        # sensor
+        self.lidar = None
         # # sensor
         # lidar_args = kwargs.get('lidar2d', None)
 
@@ -72,15 +77,13 @@ class robot_base:
 
             return: 
         """
-        if isinstance(vel, list): 
-            vel = np.array(vel, ndmin=2).T
-        
+        if isinstance(vel, list): vel = np.c_[vel]
+            
         assert vel.shape == self.vel_dim
 
-        if vel[0, 0] < self.vel_limit[0] or vel[1, 0] > self.vel_limit[1]:
-            vel = np.clip(vel, self.vel_limit[0], self.vel_limit[1])
+        if (vel < self.vel_min).any() or (vel > self.vel_max).any():
+            vel = np.clip(vel, self.vel_min, self.vel_max)
             logging.warning("The velocity is clipped within the limit", self.vel_limit)
-            
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
@@ -103,6 +106,7 @@ class robot_base:
         # utilize the generalized inequality to judge the collision with a point
         assert point.shape == position_dim
         return robot_base.InCone(self.G @ point - self.g, self.cone_type)
+
         #  def inside(self, obs, point):
         #     # Ao<=b
         #     assert point.shape == (2, 1)
@@ -138,7 +142,15 @@ class robot_base:
         # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g, 
         # self.G, self.g = self.gen_inequal()
         raise NotImplementedError
-        
+    
+    def robot_plot(self,):
+        # plot the robot in the map
+        raise NotImplementedError
+
+    def reset(self):
+        self.state = self.init_state
+        self.vel = self.init_vel
+        self.goal_state = self.init_goal_state
     
     
 
