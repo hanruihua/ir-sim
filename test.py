@@ -1,26 +1,20 @@
-class Car():
-    wheels = None
-    def __init__(self, price, color):
-        print(120)
-        self.price = price
-        self.color = color
-        self.w = Car.wheels
+import numpy as np
 
-class Car_s(Car):
-    wheels = 4
-    def __init__(self, price, color):
-        super(Car_s, self).__init__(price, color)
-        
-        self.ww = Car_s.wheels
+a = np.c_[[100, 100]]
+amin = np.c_[[4, 10]]
+amax = np.c_[[5, 20]]
+# amin =
 
-car_1 = Car_s(15000, "red")
-car_2 = Car_s(15030, "green")
+# b = np.c_[a]
+print(a.shape)
 
-# car_1.wheels = 10
-car_2.wheels = 11
-# Car.wheels = 1
-Car.wheels = 1
+if (a < amin).any(): print('min')
+if (a > amax).any(): print('max')
 
-print(car_1.wheels)
-print(car_2.wheels)
-print(car_2.w)
+# min = np.array([[3], [3]])
+
+# max = np.array([[5], [7]])
+
+c = np.clip(a, amin, amax)
+
+print(c)
