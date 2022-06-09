@@ -34,12 +34,16 @@ class env_base:
 
         self.plot = plot
         self.components = dict()
-
         self.init_environment(**kwargs)
+
 
     
     def init_environment(self):
-        pass
+        
+        if self.plot:
+            
+
+
 
     
 
