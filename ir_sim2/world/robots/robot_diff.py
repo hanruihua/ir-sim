@@ -7,9 +7,7 @@ from math import sin, cos, pi
 class RobotDiff(RobotBase):
 
     robot_type = 'diff'
-    robot_color = 'g'
 
-    
     def __init__(self, id, shape='circle', step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
         super(robot_diff, self).__init__(id=id, shape=shape, robot_type=robot_diff.robot_type, step_time=step_time, **kwargs)
         self.radius = radius
@@ -40,7 +38,7 @@ class RobotDiff(RobotBase):
         self.g_collision = np.array( [0], [0], [-self.radius_collision] )
         return G, g
 
-    def draw_robot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=False, show_text=True, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=False, show_text=True, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -81,7 +79,7 @@ class RobotDiff(RobotBase):
                 y_value = [y, point[1]]
                 lidar_line_list.append(ax.plot(x_value, y_value, color = 'b', alpha=0.5))
         
-    def clear_robot(self):
+    def plot_clear(self):
         for patch in self.plot_patch_list:
             patch.remove()
         for line in self.plot_line_list:
