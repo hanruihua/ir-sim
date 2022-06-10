@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 
 from PIL import Image
 from pynput import keyboard
+from env_plot import EnvPlot
 
-class env_base:
+class EnvBase:
     def __init__(self, world_name=None, plot=True, control_mode='auto', **kwargs):
 
         # plot
@@ -36,11 +37,10 @@ class env_base:
         self.components = dict()
         self.init_environment(**kwargs)
 
-
-    
     def init_environment(self):
         
-        if self.plot:
+        # if self.plot:
+
             
 
 
