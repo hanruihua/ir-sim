@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 from PIL import Image
 from pynput import keyboard
-from env_plot import EnvPlot
+from ir_sim2.env import EnvPlot
 
 class EnvBase:
     def __init__(self, world_name=None, plot=True, control_mode='auto', **kwargs):
@@ -37,9 +37,23 @@ class EnvBase:
         self.components = dict()
         self.init_environment(**kwargs)
 
-    def init_environment(self):
-        
+    def init_environment(self, **kwargs):
+        # full=False, keep_path=False, 
+        # kwargs: full: False,  full windows plot
+        #         keep_path, keep a residual
+        #         robot kwargs:
+        #         obstacle kwargs:
+
+        if self.plot:
+            self.world_plot = EnvPlot(width=self.__width, height=self.__height, components=self.components, offset_x = self.offset_x, offset_y=self.offset_y, **kwargs)
         # if self.plot:
+        #     # self.world_plot = 
+    
+    def show(self, **kwargs):
+        self.world_plot.draw_components(**kwargs)
+        self.world_plot.show()
+
+
 
             
 
