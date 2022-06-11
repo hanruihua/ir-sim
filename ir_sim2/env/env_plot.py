@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 
 class EnvPlot:
     def __init__(self, width=10, height=10, components=dict(), full=False, keep_path=False, offset_x = 0, offset_y=0, **kwargs):
