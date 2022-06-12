@@ -7,9 +7,10 @@ from math import sin, cos, pi
 class RobotDiff(RobotBase):
 
     robot_type = 'diff'
+    robot_shape = 'circle'
 
-    def __init__(self, id, shape='circle', step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
-        super(robot_diff, self).__init__(id=id, shape=shape, robot_type=robot_diff.robot_type, step_time=step_time, **kwargs)
+    def __init__(self, id, step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
+        super(RobotDiff, self).__init__(id=id, step_time=step_time, **kwargs)
         self.radius = radius
         self.radius_collision = radius + radius_exp
         self.vel_omni = np.zeros(self.vel_dim)

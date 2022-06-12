@@ -3,13 +3,16 @@ from math import inf
 import logging
 
 class RobotBase:
-    def __init__(self, id, shape='circle', robot_type='diff', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
+
+    robot_type = 'diff'  # omni, acker
+    robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
+
+    def __init__(self, id, shape='circle', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
 
         """
             type = 'diff', 'omni', 'ackermann' 
         """
         self.id = int(id)
-        self.type = robot_type
         self.step_time = step_time
 
         self.state_dim = state_dim
@@ -27,8 +30,7 @@ class RobotBase:
         self.state = self.init_state
         self.goal = self.init_goal_state
         self.vel = self.init_vel
-
-        self.shape = shape   # shape list: ['circle', 'rectangle', 'polygon']
+        
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
         
         amin = np.c_[[4, 10]]
