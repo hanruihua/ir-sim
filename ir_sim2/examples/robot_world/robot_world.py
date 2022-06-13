@@ -1,8 +1,7 @@
+from ir_sim2.env import EnvBase
 
-from ir_sim.env import EnvBase
 
-world_name = 'robot_world.yaml'
-env = EnvBase(world_name = world_name, plot=True, robot_mode='diff')
+env = EnvBase(world_name = 'robot_world.yaml')
 
 for i in range(300):
 

@@ -26,8 +26,8 @@ class EnvBase:
             with open(world_name) as file:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
-                robot_group_args = com_list.get('robot', dict())
-                obstacle_group_args = com_list.get('obstacle', dict())
+                robot_args = com_list.get('robot', dict())
+                obstacle_args = com_list.get('obstacle', dict())
 
         world_args.update(kwargs.get('world_args', dict()))
         robot_args.update(kwargs.get('robot_args', dict()))
@@ -83,7 +83,7 @@ class EnvBase:
 
         self.draw_components(**kwargs)    
     
-    def draw_components(self):
+    def draw_components(self, **kwargs):
         # for 
         pass
     

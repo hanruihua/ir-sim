@@ -10,7 +10,8 @@ class RobotAcker(RobotBase):
         self.shape = shape # length, width, wheelbase, wheelbase_w
         self.angular_point = self.cal_angular_point(shape)
         self.psi_limit = psi_limit
-    
+        
+
     def cal_init_angular_point(self, shape):
         pass
 

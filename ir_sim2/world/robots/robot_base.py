@@ -7,7 +7,7 @@ class RobotBase:
     robot_type = 'diff'  # omni, acker
     robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
 
-    def __init__(self, id, shape='circle', state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
+    def __init__(self, id, state_dim=(3,1), vel_dim=(2, 1), goal_dim=(3, 1), position_dim=(2,1), step_time=0.1, **kwargs):
 
         """
             type = 'diff', 'omni', 'ackermann' 

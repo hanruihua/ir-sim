@@ -9,11 +9,11 @@ class RobotDiff(RobotBase):
     robot_type = 'diff'
     robot_shape = 'circle'
 
-    def __init__(self, id, step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
+    def __init__(self, id, state, vel, goal, radius=0.2, radius_exp=0.1,  vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
 
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        super(RobotDiff, self).__init__(id=id, step_time=step_time, **kwargs)
+        super(RobotDiff, self).__init__(id=id, state=state, vel=vel, goal=goal, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
         self.vel_omni = np.zeros(self.vel_dim)
 

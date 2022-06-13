@@ -1,0 +1,15 @@
+world:
+  world_height: 50
+  world_width: 50
+  step_time: 0.1
+  xy_resolution: 0.1 # meter
+  yaw_resolution: 5 # degree
+  world_map: 'map_100_100.png'
+
+cars:
+  number: 1
+  car_shape_list: [[4.6, 1.6, 3, 1.6]]  # length, width, wheelbase, wheelbase_width
+  car_state_list: [[1, 1, 0, 0]]
+  car_goal_list: [[40, 40, 0]]
+  limit: [5, 2]
+
