@@ -16,24 +16,28 @@ class EnvRobot:
         
         if robot_number > 0:
             if distribute_mode == 'manual':
-                # init_state_lis
-                # if 'radius_list' and 'init_state_list' and 'goal_list' in kwargs.keys():
+                # line
+
                 init_state_list = kwargs.get('init_state_list', np.arange(robot_number))
+                init_goal_list = kwargs.get('init_state_list', np.arange(robot_number)[::-1])
             else:
                 pass
             
         for id in range(robot_number):
             # id, shape='circle', step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], 
             if robot_class.robot_shape == 'circle':
-                robot = robot_class(id=id, step_time=step_time, radius=radius_list[i], **kwargs)   
+                robot = robot_class(id=id, step_time=step_time, radius=kwargs['radius_list'][id], **kwargs)   
             elif robot_class.robot_shape == 'rectangle':
                 robot = robot_class(id=id, step_time=step_time, **kwargs)  
 
             self.robot_list.append(robot)
 
-    def init_distribute(self, number, distribute_mode='opposite'):
+    def init_distribute(self, number, distribute_mode='line'):
+        
         pass
 
+
+    
 
     def collision_check(self):
         pass

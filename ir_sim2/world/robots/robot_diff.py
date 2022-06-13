@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from robot_base import RobotBase
+from .robot_base import RobotBase
 from math import sin, cos, pi
 
 class RobotDiff(RobotBase):
@@ -10,9 +10,11 @@ class RobotDiff(RobotBase):
     robot_shape = 'circle'
 
     def __init__(self, id, step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
-        super(RobotDiff, self).__init__(id=id, step_time=step_time, **kwargs)
+
         self.radius = radius
         self.radius_collision = radius + radius_exp
+        super(RobotDiff, self).__init__(id=id, step_time=step_time, **kwargs)
+        
         self.vel_omni = np.zeros(self.vel_dim)
 
         self.plot_patch_list = []
@@ -35,8 +37,8 @@ class RobotDiff(RobotBase):
     def gen_inequal(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone
         G = np.array([ [1, 0], [0, 1], [0, 0] ])
-        g = np.array( [0], [0], [-self.radius] )
-        self.g_collision = np.array( [0], [0], [-self.radius_collision] )
+        g = np.array( [ [0], [0], [-self.radius] ] )
+        self.g_collision = np.array( [ [0], [0], [-self.radius_collision] ])
         return G, g
 
     def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=False, show_text=True, show_traj=False, traj_type='-g', fontsize=10, **kwargs):

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from robot_base import RobotBase
+from .robot_base import RobotBase
 from math import sin, cos, pi
 
 class RobotAcker(RobotBase):
