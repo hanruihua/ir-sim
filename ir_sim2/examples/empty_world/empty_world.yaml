@@ -7,8 +7,8 @@ world:
   world_map: 'map_100_100.png'
 
 robot:
-  robot_number: 1
-  robot_type: 'robot_diff' # robot_omni, robot_diff 
+  number: 1
+  type: 'robot_diff' # robot_omni, robot_diff 
   dis_mode: 'manual' # random, circular, 
   robot_init_mode: 0 # 0 custom, 1 single row, 2, random, 3 circle
   init_state_list: [[1, 1, 0]]

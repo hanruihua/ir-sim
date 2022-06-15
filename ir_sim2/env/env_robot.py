@@ -4,46 +4,44 @@ import numpy as np
 
 class EnvRobot:
     # a group of robots
-    def __init__(self, robot_class, robot_number=1, distribute_mode='manual', step_time=0.1, **kwargs):
+    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.1, **kwargs):
 
-        self.robot_number = robot_number
+        self.number = number
         self.robot_class = robot_class
-        self.robot_type = robot_class.robot_type
+        self.type = robot_class.robot_type
         self.robot_list = []
         self.step_time = step_time
 
-        self.dis_mode = distribute_mode # 'manual', 'circular', 'random', 'opposite'
+        self.distribute = distribute # 'manual', 'circular', 'random', 'opposite'
         
-        if robot_number > 0:
-            if distribute_mode == 'manual':
-                # line
+        if distribute == 'manual':
+            # line
+            state_list = kwargs.get('state_list', np.arange(number))
+            goal_list = kwargs.get('goal_list', np.arange(number)[::-1])
+            radius_list = kwargs.get('radius_list', [0.2] * number)
+            radius_exp = kwargs.get('radius_list', [0.1] * number)
 
-                init_state_list = kwargs.get('init_state_list', np.arange(robot_number))
-                init_goal_list = kwargs.get('init_state_list', np.arange(robot_number)[::-1])
-            else:
-                pass
-            
-        for id in range(robot_number):
-            # id, shape='circle', step_time=0.1, radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], 
+            if isinstance(radius_list, float): radius_list = [radius_list] * number
+            if isinstance(radius_exp, float): radius_exp = [radius_exp] * number
+        else:
+            pass
+        
+        if number > 0:
             if robot_class.robot_shape == 'circle':
-                robot = robot_class(id=id, step_time=step_time, radius=kwargs['radius_list'][id], **kwargs)   
+                for id, radius, state, goal in zip(range(number), radius_list, state_list, goal_list):
+                    robot = robot_class(id=id, state=state, goal=goal, radius=radius, **kwargs)
+                    self.robot_list.append(robot) 
             elif robot_class.robot_shape == 'rectangle':
-                robot = robot_class(id=id, step_time=step_time, **kwargs)  
+                pass
+            #     robot = robot_class(id=id, step_time=step_time, **kwargs)  
 
-            self.robot_list.append(robot)
-
-    def init_distribute(self, number, distribute_mode='line'):
-        
+    def init_distribute(self, number, distribute='line'):
         pass
-
-
-    
 
     def collision_check(self):
         pass
 
     def move(self, vel_list=[], **vel_kwargs):
-
         # vel_kwargs: 
         #   diff:
         #       vel_type = 'diff', 'omni'
@@ -55,5 +53,11 @@ class EnvRobot:
 
         for robot, vel in zip(self.robot_list, vel_list):
             robot.move(vel, **vel_kwargs)
-
-        
+    
+    def plot(self, ax, **kwargs):
+        for robot in self.robot_list:
+            robot.plot(ax, **kwargs)
+    
+    def plot_clear(self, ax):
+        for robot in self.robot_list:
+            robot.plot_clear(ax)

@@ -26,8 +26,8 @@ class EnvBase:
             with open(world_name) as file:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
-                robot_args = com_list.get('robot', dict())
-                obstacle_args = com_list.get('obstacle', dict())
+                robot_args = com_list.get('robots', dict())
+                obstacle_args = com_list.get('obstacles', dict())
 
         world_args.update(kwargs.get('world_args', dict()))
         robot_args.update(kwargs.get('robot_args', dict()))
@@ -56,23 +56,30 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.robot_group = EnvRobot(EnvBase.robot_factory[self.robot_args['robot_type']], step_time=self.step_time, **self.robot_args)
+        self.robot_group = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
         self.robot = self.robot_group.robot_list[0]
 
         # plot
         if self.plot:
-            self.fig, self.ax = plt.subplots()
             self.init_plot(**kwargs)
-
+            # self.fig, self.ax = plt.subplots()
+        
         self.components['robot_group'] = self.robot_group
 
-    def robots_step(self, vel_list, group_id=0):
-        self.robot_group[group_id].move(vel_list)
+    
+    def robots_step(self, vel_list):
+        self.robot_group.move(vel_list)
         
-    def render(self):
-        pass
+    def render(self, time=0.0001, **kwargs):
+
+        if self.plot:
+            self.robot_group.plot(self.ax, **kwargs) 
+            plt.pause(time)
+            self.robot_group.plot_clear(self.ax)
+
 
     def init_plot(self, **kwargs):
+        self.fig, self.ax = plt.subplots()
 
         self.ax.set_aspect('equal')
         self.ax.set_xlim(self.offset_x, self.offset_x + self.__width)
@@ -81,7 +88,7 @@ class EnvBase:
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
 
-        self.draw_components(**kwargs)    
+        # self.draw_components(**kwargs)    
     
     def draw_components(self, **kwargs):
         # for 

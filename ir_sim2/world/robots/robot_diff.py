@@ -2,20 +2,24 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from .robot_base import RobotBase
-from math import sin, cos, pi
+from math import sin, cos, pi, atan2
 
 class RobotDiff(RobotBase):
 
-    robot_type = 'diff'
-    robot_shape = 'circle'
+    robot_type = 'diff'  # omni, acker
+    robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
+    state_dim = (3, 1) # the state dimension 
+    vel_dim = (2, 1)  # the velocity dimension 
+    goal_dim = (3, 1) # the goal dimension 
+    position_dim=(2,1) # the position dimension 
 
-    def __init__(self, id, state, vel, goal, radius=0.2, radius_exp=0.1,  vel_min=[-2, -2], vel_max=[2, 2], **kwargs):
+    def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        super(RobotDiff, self).__init__(id=id, state=state, vel=vel, goal=goal, vel_min=vel_min, vel_max=vel_max, **kwargs)
+        super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
-        self.vel_omni = np.zeros(self.vel_dim)
+        self.vel_omni = np.zeros((2, 1))
 
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -26,13 +30,36 @@ class RobotDiff(RobotBase):
         # vel_tpe: 'diff' or 'omni'
         if vel_type == 'omni':
             self.vel_omni = vel
-            self.vel=RobotDiff.omni_to_diff(self.state, vel, **kwargs)
-            self.state = RobotDiff.motion_diff(self.state, self.vel, step_time, noise, alpha)
+            self.vel=RobotDiff.omni_to_diff(self.state, vel, self.vel_max[1, 0], **kwargs)
+            self.state = RobotDiff.motion_diff(self.state, self.vel, self.step_time, noise, alpha)
 
         elif vel_type == 'diff':
-            self.state = RobotDiff.motion_diff(self.state, vel, step_time, noise, alpha)
+            self.state = RobotDiff.motion_diff(self.state, vel, self.step_time, noise, alpha)
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(self.state, self.vel) 
+
+    def cal_des_vel(self, tolerance=0.12):
+
+        if self.arrive_mode == 'position':
+            dis, radian = RobotDiff.relative_position(self.state, self.goal)
+            robot_radian = self.state[2, 0]
+            w_opti = 0
+
+            diff_radian = RobotDiff.wraptopi( radian - robot_radian )
+
+            if diff_radian > tolerance: w_opti = self.vel_max[1, 0]
+            elif diff_radian < - tolerance: w_opti = - self.vel_max[1, 0]
+
+            if dis < self.goal_threshold:
+                v_opti, w_opti = 0, 0
+            else:
+                v_opti = self.vel_max[0, 0] * cos(diff_radian)
+                if v_opti < 0: v_opti = 0
+                
+            return np.array([[v_opti], [w_opti]])
+
+        elif self.arrive_mode == 'state':
+            pass
 
     def gen_inequal(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone
@@ -41,7 +68,7 @@ class RobotDiff(RobotBase):
         self.g_collision = np.array( [ [0], [0], [-self.radius_collision] ])
         return G, g
 
-    def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=False, show_text=True, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -76,23 +103,27 @@ class RobotDiff(RobotBase):
             y_list = [self.previous_state[1, 0], self.state[1, 0]]   
             ax.plot(x_list, y_list, traj_type)
 
-        if self.lidar is not None and show_lidar:
-            for point in robot.lidar.inter_points[:, :]:
-                x_value = [x, point[0]]
-                y_value = [y, point[1]]
-                lidar_line_list.append(ax.plot(x_value, y_value, color = 'b', alpha=0.5))
+        # if self.lidar is not None and show_lidar:
+        #     for point in robot.lidar.inter_points[:, :]:
+        #         x_value = [x, point[0]]
+        #         y_value = [y, point[1]]
+        #         lidar_line_list.append(ax.plot(x_value, y_value, color = 'b', alpha=0.5))
         
-    def plot_clear(self):
+    def plot_clear(self, ax):
         for patch in self.plot_patch_list:
             patch.remove()
         for line in self.plot_line_list:
             line.pop(0).remove()
+
+        self.plot_patch_list = []
+        self.plot_line_list = []
+        ax.texts.clear()
     
     # reference: probabilistic robotics[book], motion model P127
     @classmethod
     def motion_diff(cls, current_state, vel, sampletime, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):
         
-        assert current_state.shape == self.state_dim and vel.shape == self.vel_dim and cls.robot_type == 'diff'
+        assert current_state.shape == cls.state_dim and vel.shape == cls.vel_dim and cls.robot_type == 'diff'
 
         if noise:
             std_linear = np.sqrt(alpha[0] * (vel[0, 0] ** 2) + alpha[1] * (vel[1, 0] ** 2))
@@ -127,16 +158,16 @@ class RobotDiff(RobotBase):
         return np.array([[vx], [vy]])
 
     @staticmethod
-    def omni_to_diff(state, vel_omni, guarantee_time = 0.2, tolerance = 0.1, mini_speed=0.02):
-        speed = sqrt(vel_omni[0, 0] ** 2 + vel_omni[1, 0] ** 2)
+    def omni_to_diff(state, vel_omni, w_max=2, guarantee_time = 0.2, tolerance = 0.1, mini_speed=0.02):
+        speed = np.sqrt(vel_omni[0, 0] ** 2 + vel_omni[1, 0] ** 2)
         
-        if speed <= 0.01:
-            return np.zeros(self.vel_dim)
+        if speed <= mini_speed:
+            return np.zeros(RobotDiff.vel_dim)
 
         vel_radians = atan2(vel_omni[1, 0], vel_omni[0, 0])
-        robot_radians = self.state[2, 0]
+        robot_radians = state[2, 0]
         diff_radians = robot_radians - vel_radians
-        w_max = self.vel_max[1, 0]
+        # w_max = self.vel_max[1, 0]
 
         diff_radians = RobotDiff.wraptopi(diff_radians)
 
@@ -150,16 +181,8 @@ class RobotDiff(RobotBase):
     
         return np.array([[v], [w]])
     
-    @staticmethod
-    def wraptopi(radian):
+   
 
-        while radian > pi:
-            radian = radian - 2 * pi
-
-        while radian < -pi:
-            radian = radian + 2 * pi
-
-        return radian
 
 
 
