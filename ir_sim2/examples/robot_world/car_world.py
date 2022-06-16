@@ -1,12 +1,13 @@
 from ir_sim2.env import EnvBase
 
-world_name = 'car_world.yaml'
-env = EnvBase(world_name = world_name, plot=True, init_mode=0, robot_mode='diff')
+env = EnvBase(world_name = 'car_world.yaml')
 
 for i in range(300):
-    des_vel = env.car.cal_des_vel()
+    des_vel = env.cal_des_vel()
+    env.step(des_vel)
+    env.render(0.05)
 
-    env.robot_step(des_vel)
-    env.render()
+    if env.done():
+        break
 
 env.show()

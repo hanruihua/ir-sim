@@ -1,11 +1,15 @@
 from ir_sim2.env import EnvBase
 
-
 env = EnvBase(world_name = 'robot_world.yaml')
 
 for i in range(300):
 
-    des_vel = env.robot.cal_des_vel()
-    env.robot.move(des_vel)
+    des_vel = env.cal_des_vel()
+    env.step(des_vel)
     env.render(0.05)
+
+    if env.done():
+        break
+
+env.show()
     

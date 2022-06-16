@@ -1,6 +1,6 @@
 import numpy as np
 from math import inf, pi, atan2
-import logging
+from ir_sim2.log.Logger import Logger
 
 class RobotBase:
 
@@ -51,6 +51,8 @@ class RobotBase:
         self.G, self.g = self.gen_inequal()
         self.cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
+        self.log = Logger('robot.log', level='info')
+
         # sensor
         self.lidar = None
         # if lidar_args is not None:
@@ -73,17 +75,17 @@ class RobotBase:
         """
         if isinstance(vel, list): vel = np.c_[vel]
             
-        assert vel.shape == self.vel_dim
+        assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 
         if (vel < self.vel_min).any() or (vel > self.vel_max).any():
             vel = np.clip(vel, self.vel_min, self.vel_max)
-            logging.warning("The velocity is clipped to be %s", vel.tolist())
+            self.log.logger.warning("The velocity is clipped to be %s", vel.tolist())
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
 
         self.trajectory.append(self.state)
-        self.dynamics(vel, **kwargs)
+        self.state = self.dynamics(self.state, vel, **kwargs)
         self.arrive_flag = self.arrive()
     
     def update_info(self, state, vel):
@@ -93,13 +95,13 @@ class RobotBase:
     
     def arrive(self):
         if self.arrive_mode == 'position':
-            return np.linalg.norm(self.state[0:RobotBase.position_dim[0]] - self.goal[0:RobotBase.position_dim[0]]) <= self.goal_threshold
+            return np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold
         elif self.arrive_mode == 'state':
-            return np.linalg.norm(self.state - self.goal) <= self.goal_threshold
+            return np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold
 
     def collision_check_point(self, point):
         # utilize the generalized inequality to judge the collision with a point
-        assert point.shape == RobotBase.position_dim
+        assert point.shape == self.position_dim
         return RobotBase.InCone(self.G @ point - self.g, self.cone_type)
 
         #  def inside(self, obs, point):
@@ -116,9 +118,6 @@ class RobotBase:
 
         # return self.A @ point - self.b <= 
 
-    def collision_check_opt(self):
-        pass
-    
     @staticmethod
     def InCone(point, cone_type='Rpositive'):
         if cone_type == 'Rpositive':
@@ -142,7 +141,11 @@ class RobotBase:
         # calculate the desired velocity
         raise NotImplementedError
 
-    def robot_plot(self,):
+    def plot(self, ax, **kwargs):
+        # plot the robot in the map
+        raise NotImplementedError
+    
+    def plot_clear(self):
         # plot the robot in the map
         raise NotImplementedError
 

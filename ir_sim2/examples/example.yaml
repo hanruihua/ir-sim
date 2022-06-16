@@ -16,6 +16,18 @@ robots:
   vel_min: [0, -1.5]
   vel_max: [1.5, 1.5]
 
+sta_obstacles:
+  number: 1
+  type: 
+  distribute: 'manual' # random, circular
+  position_list: 
+
+dyn_obstacles:
+  number: 1
+  type: 
+  distribute: 
+  state_list: 
+
 
   
 

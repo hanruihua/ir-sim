@@ -8,10 +8,10 @@ class RobotDiff(RobotBase):
 
     robot_type = 'diff'  # omni, acker
     robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
-    state_dim = (3, 1) # the state dimension 
-    vel_dim = (2, 1)  # the velocity dimension 
-    goal_dim = (3, 1) # the goal dimension 
-    position_dim=(2,1) # the position dimension 
+    state_dim = (3, 1) # the state dimension, x, y, theta(heading direction)
+    vel_dim = (2, 1)  # the velocity dimension, linear and angular velocity
+    goal_dim = (3, 1) # the goal dimension, x, y, theta
+    position_dim=(2,1) # the position dimension, x, y 
 
     def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 
@@ -24,19 +24,21 @@ class RobotDiff(RobotBase):
         self.plot_patch_list = []
         self.plot_line_list = []
 
-    def dynamics(self, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
+    def dynamics(self, state, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
         # vel_tpe: 'diff' or 'omni'
         if vel_type == 'omni':
             self.vel_omni = vel
-            self.vel=RobotDiff.omni_to_diff(self.state, vel, self.vel_max[1, 0], **kwargs)
-            self.state = RobotDiff.motion_diff(self.state, self.vel, self.step_time, noise, alpha)
+            self.vel=RobotDiff.omni_to_diff(state, vel, self.vel_max[1, 0], **kwargs)
+            new_state = RobotDiff.motion_diff(state, self.vel, self.step_time, noise, alpha)
 
         elif vel_type == 'diff':
-            self.state = RobotDiff.motion_diff(self.state, vel, self.step_time, noise, alpha)
+            new_state = RobotDiff.motion_diff(state, vel, self.step_time, noise, alpha, **kwargs)
             self.vel = vel
-            self.vel_omni = RobotDiff.diff_to_omni(self.state, self.vel) 
+            self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
+        
+        return new_state
 
     def cal_des_vel(self, tolerance=0.12):
 
@@ -99,10 +101,10 @@ class RobotDiff(RobotBase):
             self.plot_patch_list.append(goal_circle)
 
         if show_traj:
-            x_list = [self.previous_state[0, 0], self.state[0, 0]]  
-            y_list = [self.previous_state[1, 0], self.state[1, 0]]   
-            ax.plot(x_list, y_list, traj_type)
-
+            x_list = [t[0, 0] for t in self.trajectory]
+            y_list = [t[1, 0] for t in self.trajectory]
+            self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
+            
         # if self.lidar is not None and show_lidar:
         #     for point in robot.lidar.inter_points[:, :]:
         #         x_value = [x, point[0]]

@@ -1,3 +1,4 @@
+import logging
 import sys
 import yaml
 import numpy as np
@@ -7,6 +8,7 @@ from PIL import Image
 from pynput import keyboard
 from .env_robot import EnvRobot
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni
+from ir_sim2.log.Logger import Logger
 
 class EnvBase:
 
@@ -47,6 +49,8 @@ class EnvBase:
         self.components = dict()
         self.init_environment(**kwargs)
 
+        self.log = Logger('robot.log', level='info')
+
         if control_mode == 'keyboard':
             pass
 
@@ -56,46 +60,84 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.robot_group = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
-        self.robot = self.robot_group.robot_list[0]
+        self.env_robot = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        self.robot_list = self.env_robot.robot_list
+        self.robot = self.robot_list[0]
 
         # plot
         if self.plot:
-            self.init_plot(**kwargs)
+            self.fig, self.ax = plt.subplots()
+            self.init_plot(self.ax, **kwargs)
             # self.fig, self.ax = plt.subplots()
         
-        self.components['robot_group'] = self.robot_group
+        self.components['env_robot'] = self.env_robot
 
-    
-    def robots_step(self, vel_list):
-        self.robot_group.move(vel_list)
+    def cal_des_vel(self, **kwargs):
+        return [robot.cal_des_vel(**kwargs) for robot in self.robot_list]
         
+    def robots_step(self, vel_list, **kwargs):
+        self.env_robot.move(vel_list, **kwargs)
+
+    def step(self, vel_list, **kwargs):
+        self.robots_step(vel_list, **kwargs)
+
+    def done(self):
+        if self.env_robot.arrive():
+            self.log.logger.info('All robots arrive at the goal positions')
+        if self.env_robot.collision():
+            self.log.logger.warning('Collisions Occur')
+        return self.env_robot.arrive()
+    
+    def done_list(self):
+        return self.env_robot.arrive_list()
+
     def render(self, time=0.0001, **kwargs):
 
         if self.plot:
-            self.robot_group.plot(self.ax, **kwargs) 
+            # self.env_robot.plot(self.ax, **kwargs) 
+            self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(time)
-            self.robot_group.plot_clear(self.ax)
+            self.clear_components(self.ax, mode='dynamic', **kwargs)
+            # self.env_robot.plot_clear(self.ax)
 
-
-    def init_plot(self, **kwargs):
-        self.fig, self.ax = plt.subplots()
-
-        self.ax.set_aspect('equal')
-        self.ax.set_xlim(self.offset_x, self.offset_x + self.__width)
-        self.ax.set_ylim(self.offset_y, self.offset_y + self.__height)
+    def init_plot(self, ax, **kwargs):
+        ax.set_aspect('equal')
+        ax.set_xlim(self.offset_x, self.offset_x + self.__width)
+        ax.set_ylim(self.offset_y, self.offset_y + self.__height)
         
-        self.ax.set_xlabel("x [m]")
-        self.ax.set_ylabel("y [m]")
+        ax.set_xlabel("x [m]")
+        ax.set_ylabel("y [m]")
 
-        # self.draw_components(**kwargs)    
+        self.draw_components(ax, mode='static', **kwargs)
     
-    def draw_components(self, **kwargs):
-        # for 
+    def draw_components(self, ax, mode='all', **kwargs):
+        # mode: static, dynamic, all
+        if mode == 'static':
+            pass
+        elif mode == 'dynamic':
+            self.env_robot.plot(ax, **kwargs)
+            # obstacle
+        elif mode == 'all':
+            self.env_robot.plot(ax, **kwargs)
+            # obstacle
+        else:
+            self.logger.error('error input of the draw mode')
+
+    def clear_components(self, ax, mode='all', **kwargs):
+        if mode == 'dynamic':
+            self.env_robot.plot_clear(ax)
+        elif mode == 'static':
+            pass
+        elif mode == 'all':
+            plt.cla()
+        
+    # def draw_dynamic_components(self, ax, **kwargs):
+    #     self.env_robot.plot(ax, **kwargs) 
+
+    def draw_static_components(self, ax, **kwargs):
         pass
-    
 
-    def show(self, **kwargs):
+    def show(self):
         plt.show()
 
 
