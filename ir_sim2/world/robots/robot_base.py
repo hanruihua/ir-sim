@@ -1,5 +1,5 @@
 import numpy as np
-from math import inf, pi, atan2
+from math import inf, pi, atan2, sin, cos
 from ir_sim2.log.Logger import Logger
 
 class RobotBase:
@@ -153,6 +153,14 @@ class RobotBase:
         self.state = self.init_state
         self.vel = self.init_vel
         self.goal_state = self.init_goal_state
+
+
+    @staticmethod
+    def get_transform(position, orientation):
+        rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
+        trans = position
+        return rot, trans
+
 
     @staticmethod
     def wraptopi(radian):

@@ -15,7 +15,7 @@ class RobotAcker(RobotBase):
 
     def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -4], vel_max=[4, 4], vel_type='steer', **kwargs):
 
-        self.angular_point = RobotAcker.cal_angular_point(shape)
+        self.init_angular_point = RobotAcker.cal_angular_point(shape)
 
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
@@ -55,6 +55,10 @@ class RobotAcker(RobotBase):
         new_state = state + d_state * self.step_time
 
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
+
+        # update angular_point
+        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        self.angular_point = rot @ self.init_angular_point + trans
 
         return new_state
 
@@ -151,15 +155,17 @@ class RobotAcker(RobotBase):
                 return np.array([[v_opt], [steer_opt]])
 
     def gen_inequal(self):
+
         G = np.zeros((4, 2)) 
         h = np.zeros((4, 1)) 
+        
         for i in range(4):
             if i + 1 < 4:
-                pre_point = self.angular_point[:, i]
-                next_point = self.angular_point[:, i+1]
+                pre_point = self.init_angular_point[:, i]
+                next_point = self.init_angular_point[:, i+1]
             else:
-                pre_point = self.angular_point[:, i]
-                next_point = self.angular_point[:, 0]
+                pre_point = self.init_angular_point[:, i]
+                next_point = self.init_angular_point[:, 0]
             
             diff = next_point - pre_point
             
@@ -173,8 +179,101 @@ class RobotAcker(RobotBase):
 
         return G, h
 
-    def plot(self):
-        pass
+    def plot(self, ax, ):
+        # cur_angular_point = 
+        start_x = self.angular_point[0, 0]
+        start_y = self.angular_point[1, 0]
+        r_phi = self.state[2, 0]
+
+
+
+
+    def draw_car(self, car, goal_color='c', goal_l=2, text=False, show_lidar=True, show_traj=False, traj_type='-g', show_goal=True, **kwargs):
+
+        x = car.ang_pos[0, 0]
+        y = car.ang_pos[1, 0]
+        r_phi=car.state[2, 0]
+
+        r_phi_ang = 180*r_phi/pi
+
+        line_rad_f = car.state[3, 0] + car.state[2, 0]
+        line_rad_b = car.state[2, 0]
+
+        gx = car.goal[0, 0]
+        gy = car.goal[1, 0]
+        gdx = goal_l*cos(car.goal[2, 0])
+        gdy = goal_l*sin(car.goal[2, 0])
+        # self.car_line_list = []
+        self.car_img_show_list = []
+
+        # for i in range(4):
+
+        #     if 0 < i < 3:
+        #         # wx = car.wheel_pos[0, i]
+        #         # wy = car.wheel_pos[1, i]
+        #         wx = car.ang_pos[0, i]
+        #         wy = car.ang_pos[1, i]
+
+        #         lx0 = wx + line_length * cos(line_rad_f) / 2
+        #         ly0 = wy + line_length * sin(line_rad_f) / 2
+
+        #         lx1 = wx - line_length * cos(line_rad_f) / 2
+        #         ly1 = wy - line_length * sin(line_rad_f) / 2
+                
+        #         self.car_line_list.append(self.ax.plot([lx0, lx1], [ly0, ly1], 'k-')) 
+
+        #     else:
+        #         # wx = car.wheel_pos[0, i]
+        #         # wy = car.wheel_pos[1, i]
+        #         wx = car.ang_pos[0, i]
+        #         wy = car.ang_pos[1, i]
+
+        #         lx0 = wx + line_length * cos(line_rad_b) / 2
+        #         ly0 = wy + line_length * sin(line_rad_b) / 2
+
+        #         lx1 = wx - line_length * cos(line_rad_b) / 2
+        #         ly1 = wy - line_length * sin(line_rad_b) / 2
+
+        #         self.car_line_list.append(self.ax.plot([lx0, lx1], [ly0, ly1], 'k-'))
+                
+        car_rect = mpl.patches.Rectangle(xy=(x, y), width=car.length, height=car.width, angle=r_phi_ang, edgecolor='y', fill=False)
+        if show_goal:
+            goal_arrow = mpl.patches.Arrow(x=gx, y=gy, dx=gdx, dy=gdy, color=goal_color)
+            self.car_plot_list.append(goal_arrow)
+            self.ax.add_patch(goal_arrow)
+
+        self.car_plot_list.append(car_rect)
+        self.ax.add_patch(car_rect)
+        
+        
+        # car image show
+        
+        car_img = self.ax.imshow(self.init_car_img, extent=[x, x+car.length, y, y+car.width])
+        degree = car.state[2, 0] * 180 / pi
+        trans_data = mtransforms.Affine2D().rotate_deg_around(x, y, degree) + self.ax.transData
+        car_img.set_transform(trans_data)
+        self.car_img_show_list.append(car_img)
+
+        if text:
+            self.ax.text(x - 0.5, y, 'c'+ str(car.id), fontsize = 10, color = 'k')
+            self.ax.text(car.goal[0, 0] + 0.3, car.goal[1, 0], 'cg'+ str(car.id), fontsize = 12, color = 'k')
+
+        if show_traj:
+            x_list = [car.previous_state[0, 0], car.state[0, 0]]  
+            y_list = [car.previous_state[1, 0], car.state[1, 0]]   
+            
+            self.ax.plot(x_list, y_list, traj_type)
+
+        if car.lidar is not None and show_lidar:
+            for point in car.lidar.inter_points[:, :]:
+                
+                x_value = [car.state[0, 0], point[0]]
+                y_value = [car.state[1, 0], point[1]]
+
+                self.lidar_line_list.append(self.ax.plot(x_value, y_value, color = 'b', alpha=0.5))
+
+
+
     
     @staticmethod
     def cal_angular_point(shape):        
