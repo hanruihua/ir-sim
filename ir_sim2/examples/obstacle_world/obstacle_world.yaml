@@ -6,8 +6,8 @@ world:
   offset_y: 0
 
 robots:
-  number: 2
   type: 'robot_diff'  # # robot_omni, robot_diff 
+  number: 2
   distribute: 'manual' # random, circular, 
   state_list: [[1, 1, 0], [2, 1, 0]]
   goal_list: [[7, 7, 0], [7, 2, 0]]
@@ -17,11 +17,23 @@ robots:
   vel_max: [1.5, 1.5]
 
 obstacles:
-  - number: 
-    type: 'circle'
-  
-  - number:
-    type:
+  - type: 'circle'
+    number: 2
+    distribute: 'manual' # random, circular
+    motion: 'dynamic'
+    motion_mode: 'wander' # wander, 
+    motion_range: []
+    
+  - type: 'polygon'
+    number: 2
+    motion: 'static'
+    point_list: [[], []]
+
+  - type: 'map'
+    reso: '0.1'
+    map_image: 'map_100_100.png'
+
+  - 
     
     
   
