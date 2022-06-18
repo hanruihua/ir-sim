@@ -36,7 +36,7 @@ class EnvPlot:
         # for obstacle in self.components['obstacles']:
         #     obstacle.plot(**kwargs)
 
-    def clear_components(self, ):
+    def clear_components(self, **kwargs):
         self.ax.texts.clear()
 
         for robot in self.components['robots']:

@@ -145,7 +145,7 @@ class RobotBase:
         # plot the robot in the map
         raise NotImplementedError
     
-    def plot_clear(self):
+    def plot_clear(self, ax):
         # plot the robot in the map
         raise NotImplementedError
 

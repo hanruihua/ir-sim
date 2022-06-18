@@ -35,13 +35,12 @@ class EnvRobot:
             if robot_class.robot_shape == 'circle':
                 for id, radius, state, goal in zip(range(number), radius_list, state_list, goal_list):
                     robot = robot_class(id=id, state=state, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
-                     
+                    self.robot_list.append(robot)
             elif robot_class.robot_shape == 'rectangle':
                 for id, shape, state, goal in zip(range(number), shape_list, state_list, goal_list): 
                     robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
-
-            self.robot_list.append(robot)
-
+                    self.robot_list.append(robot)
+            
     def init_distribute(self, number, distribute='line'):
         pass
 

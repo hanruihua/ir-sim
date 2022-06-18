@@ -29,11 +29,11 @@ class EnvBase:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
                 robot_args = com_list.get('robots', dict())
-                obstacle_args = com_list.get('obstacles', dict())
+                obstacle_args_list = com_list.get('obstacles', [dict()])
 
         world_args.update(kwargs.get('world_args', dict()))
         robot_args.update(kwargs.get('robot_args', dict()))
-        obstacle_args.update(kwargs.get('obstacle_args', dict()))
+        [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
 
         # world args
         self.__height = world_args.get('world_height', 10)
@@ -43,6 +43,7 @@ class EnvBase:
         self.offset_y = world_args.get('offset_y', 0)
 
         self.robot_args = robot_args
+        # self.robot_args_list = robot_args_list
         self.obstacle_args = obstacle_args
 
         self.plot = plot
@@ -61,6 +62,9 @@ class EnvBase:
         #         robot kwargs:
         #         obstacle kwargs:
         self.env_robot = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        # self.env_robot_list = [EnvRobot(EnvBase.robot_factory[ra['type']], step_time=self.step_time, **ra) for ra in self.robot_args_list]
+
+        # default robots 
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0]
 
@@ -70,6 +74,7 @@ class EnvBase:
             self.init_plot(self.ax, **kwargs)
             # self.fig, self.ax = plt.subplots()
         
+        # self.components['env_robot_list'] = self.env_robot_list
         self.components['env_robot'] = self.env_robot
 
     def cal_des_vel(self, **kwargs):
@@ -94,12 +99,10 @@ class EnvBase:
     def render(self, time=0.0001, **kwargs):
 
         if self.plot:
-            # self.env_robot.plot(self.ax, **kwargs) 
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(time)
             self.clear_components(self.ax, mode='dynamic', **kwargs)
-            # self.env_robot.plot_clear(self.ax)
-
+            
     def init_plot(self, ax, **kwargs):
         ax.set_aspect('equal')
         ax.set_xlim(self.offset_x, self.offset_x + self.__width)
@@ -131,13 +134,9 @@ class EnvBase:
         elif mode == 'all':
             plt.cla()
         
-    # def draw_dynamic_components(self, ax, **kwargs):
-    #     self.env_robot.plot(ax, **kwargs) 
 
-    def draw_static_components(self, ax, **kwargs):
-        pass
-
-    def show(self):
+    def show(self, **kwargs):
+        self.draw_components(self.ax, mode='dynamic', **kwargs)
         plt.show()
 
 

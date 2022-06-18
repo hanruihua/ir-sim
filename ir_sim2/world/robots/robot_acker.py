@@ -1,8 +1,12 @@
+import os
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from .robot_base import RobotBase
 from math import sin, cos, pi, tan
+from matplotlib import image
+
 
 class RobotAcker(RobotBase):
 
@@ -26,8 +30,9 @@ class RobotAcker(RobotBase):
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
-        # self.plot_patch_list = []
-        # self.plot_line_list = []
+        self.plot_patch_list = []
+        # self.car_img_show_list = []
+        self.plot_line_list = []
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics
@@ -61,41 +66,6 @@ class RobotAcker(RobotBase):
         self.angular_point = rot @ self.init_angular_point + trans
 
         return new_state
-
-#     # reference: Modern Robotics: Mechanics, Planning, and Control[book], 13.3.1.3 car-like robot
-# def motion_ackermann(state, wheelbase=1, vel=np.zeros((2, 1)), steer_limit=pi/2, step_time=0.1, ack_mode='default', theta_trans=True):
-    
-#     # motion_mode: default: vel: linear velocity, angular velocity of steer
-#     #              steer:   vel：linear velocity, steer angle
-#     #              simplify: vel: linear velocity, rotation rate, do not consider the steer angle    
-    
-#     phi = state[2, 0]  
-#     psi = state[3, 0] 
-    
-#     if ack_mode == 'default':
-#         co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1] ])
-#         d_state = co_matrix @ vel
-#         new_state = state + d_state * step_time
-    
-#     elif ack_mode == 'steer':
-#         co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 0] ])
-#         d_state = co_matrix @ vel
-#         new_state = state + d_state * step_time
-#         new_state[3, 0] = np.clip(vel[1, 0], -steer_limit, steer_limit)
-
-#     elif ack_mode == 'simplify':
-
-#         new_state = np.zeros((4, 1))
-#         co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [0, 1] ])
-#         d_state = co_matrix @ vel
-#         new_state[0:3] = state[0:3] + d_state * step_time
-
-#     if theta_trans:
-#         new_state[2, 0] = wraptopi(new_state[2, 0]) 
-        
-#     new_state[3, 0] = np.clip(new_state[3, 0], -steer_limit, steer_limit) 
-
-#     return new_state
 
     def cal_des_vel(self, tolerance=0.02):
         if self.arrive_mode == 'position':
@@ -143,6 +113,7 @@ class RobotAcker(RobotBase):
                 steer_opt = 0
 
                 diff_radian = RobotAcker.wraptopi( radian - robot_radian )
+                # diff_radian = 
 
                 if diff_radian > -tolerance and diff_radian < tolerance: diff_radian = 0
 
@@ -150,7 +121,7 @@ class RobotAcker(RobotBase):
                     v_opt, steer_opt = 0, 0
                 else:
                     v_opt = self.vel_max[0, 0]
-                    steer_opt = diff_radian
+                    steer_opt = np.clip(diff_radian, -self.psi_limit, self.psi_limit) 
                 
                 return np.array([[v_opt], [steer_opt]])
 
@@ -178,110 +149,64 @@ class RobotAcker(RobotBase):
             h[i, 0] = c 
 
         return G, h
-
-    def plot(self, ax, ):
+ 
+    def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', **kwargs):
         # cur_angular_point = 
         start_x = self.angular_point[0, 0]
         start_y = self.angular_point[1, 0]
         r_phi = self.state[2, 0]
-
-
-
-
-    def draw_car(self, car, goal_color='c', goal_l=2, text=False, show_lidar=True, show_traj=False, traj_type='-g', show_goal=True, **kwargs):
-
-        x = car.ang_pos[0, 0]
-        y = car.ang_pos[1, 0]
-        r_phi=car.state[2, 0]
-
         r_phi_ang = 180*r_phi/pi
 
-        line_rad_f = car.state[3, 0] + car.state[2, 0]
-        line_rad_b = car.state[2, 0]
+        # car_image_path = Path(current_file_frame).parent / 'car0.png'
+        car_image_path = os.path.dirname(__file__) + '/' + 'car0.png'
+        car_img_read = image.imread(car_image_path)
 
-        gx = car.goal[0, 0]
-        gy = car.goal[1, 0]
-        gdx = goal_l*cos(car.goal[2, 0])
-        gdy = goal_l*sin(car.goal[2, 0])
-        # self.car_line_list = []
-        self.car_img_show_list = []
-
-        # for i in range(4):
-
-        #     if 0 < i < 3:
-        #         # wx = car.wheel_pos[0, i]
-        #         # wy = car.wheel_pos[1, i]
-        #         wx = car.ang_pos[0, i]
-        #         wy = car.ang_pos[1, i]
-
-        #         lx0 = wx + line_length * cos(line_rad_f) / 2
-        #         ly0 = wy + line_length * sin(line_rad_f) / 2
-
-        #         lx1 = wx - line_length * cos(line_rad_f) / 2
-        #         ly1 = wy - line_length * sin(line_rad_f) / 2
-                
-        #         self.car_line_list.append(self.ax.plot([lx0, lx1], [ly0, ly1], 'k-')) 
-
-        #     else:
-        #         # wx = car.wheel_pos[0, i]
-        #         # wy = car.wheel_pos[1, i]
-        #         wx = car.ang_pos[0, i]
-        #         wy = car.ang_pos[1, i]
-
-        #         lx0 = wx + line_length * cos(line_rad_b) / 2
-        #         ly0 = wy + line_length * sin(line_rad_b) / 2
-
-        #         lx1 = wx - line_length * cos(line_rad_b) / 2
-        #         ly1 = wy - line_length * sin(line_rad_b) / 2
-
-        #         self.car_line_list.append(self.ax.plot([lx0, lx1], [ly0, ly1], 'k-'))
-                
-        car_rect = mpl.patches.Rectangle(xy=(x, y), width=car.length, height=car.width, angle=r_phi_ang, edgecolor='y', fill=False)
-        if show_goal:
-            goal_arrow = mpl.patches.Arrow(x=gx, y=gy, dx=gdx, dy=gdy, color=goal_color)
-            self.car_plot_list.append(goal_arrow)
-            self.ax.add_patch(goal_arrow)
-
-        self.car_plot_list.append(car_rect)
-        self.ax.add_patch(car_rect)
-        
-        
-        # car image show
-        
-        car_img = self.ax.imshow(self.init_car_img, extent=[x, x+car.length, y, y+car.width])
-        degree = car.state[2, 0] * 180 / pi
-        trans_data = mtransforms.Affine2D().rotate_deg_around(x, y, degree) + self.ax.transData
+        car_img = ax.imshow(car_img_read, extent=[start_x, start_x+self.shape[0], start_y, start_y+self.shape[1]])
+        trans_data = mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang) + ax.transData
         car_img.set_transform(trans_data)
-        self.car_img_show_list.append(car_img)
+        # self.car_img_show_list.append(car_img)
+        self.plot_patch_list.append(car_img)
+        
+        if show_goal:
+            goal_arrow = mpl.patches.Arrow(x=self.goal[0, 0], y=self.goal[1, 0], dx=goal_l*cos(self.goal[2, 0]), dy=goal_l*sin(self.goal[2, 0]), color=goal_color)
+            ax.add_patch(goal_arrow)
+            self.plot_patch_list.append(goal_arrow)
 
-        if text:
-            self.ax.text(x - 0.5, y, 'c'+ str(car.id), fontsize = 10, color = 'k')
-            self.ax.text(car.goal[0, 0] + 0.3, car.goal[1, 0], 'cg'+ str(car.id), fontsize = 12, color = 'k')
+        if show_trail:
+            car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False)
+            ax.add_patch(car_rect)
+        
+        if show_text:
+            ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
+            ax.text(self.goal[0, 0] + 0.3, self.goal[1, 0], 'cg'+ str(self.id), fontsize = 12, color = 'k')
 
         if show_traj:
-            x_list = [car.previous_state[0, 0], car.state[0, 0]]  
-            y_list = [car.previous_state[1, 0], car.state[1, 0]]   
-            
-            self.ax.plot(x_list, y_list, traj_type)
-
-        if car.lidar is not None and show_lidar:
-            for point in car.lidar.inter_points[:, :]:
-                
-                x_value = [car.state[0, 0], point[0]]
-                y_value = [car.state[1, 0], point[1]]
-
-                self.lidar_line_list.append(self.ax.plot(x_value, y_value, color = 'b', alpha=0.5))
-
-
-
+            x_list = [t[0, 0] for t in self.trajectory]
+            y_list = [t[1, 0] for t in self.trajectory]
+            self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
+        
+        if show_lidar:
+            pass    
     
+    def plot_clear(self, ax):
+        for patch in self.plot_patch_list:
+            patch.remove()
+        for line in self.plot_line_list:
+            line.pop(0).remove()
+
+        self.car_img_show_list = []
+        self.plot_patch_list = []
+        self.plot_line_list = []
+        ax.texts.clear()
+            
+
     @staticmethod
     def cal_angular_point(shape):        
         # angular point when the robot is in the zeros point
         # counterclockwise
         # shape [length, width, wheelbase, wheelbase_w]
         start_x = -(shape[0] - shape[2])/2
-        start_y = -(shape[1] - shape[3])/2
+        start_y = -shape[1]/2
 
         point0 = np.array([ [start_x], [start_y] ]) # left bottom point
         point1 = np.array([ [start_x+shape[0]], [start_y] ])

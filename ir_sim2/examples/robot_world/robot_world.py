@@ -1,6 +1,8 @@
 from ir_sim2.env import EnvBase
 
-env = EnvBase(world_name = 'robot_world.yaml')
+robot_args = {'number': 12}
+
+env = EnvBase(world_name = 'robot_world.yaml', robot_args=robot_args)
 
 for i in range(300):
 

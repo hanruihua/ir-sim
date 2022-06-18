@@ -1,0 +1,28 @@
+world:
+  world_height: 10
+  world_width: 10
+  step_time: 0.1
+  offset_x: 0
+  offset_y: 0
+
+robots:
+  number: 2
+  type: 'robot_diff'  # # robot_omni, robot_diff 
+  distribute: 'manual' # random, circular, 
+  state_list: [[1, 1, 0], [2, 1, 0]]
+  goal_list: [[7, 7, 0], [7, 2, 0]]
+  radius_list: 0.2
+  radius_exp_list: 0.1
+  vel_min: [0, -1.5]
+  vel_max: [1.5, 1.5]
+
+obstacles:
+  - number: 
+    type: 'circle'
+  
+  - number:
+    type:
+    
+    
+  
+
