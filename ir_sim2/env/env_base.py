@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from pynput import keyboard
 from .env_robot import EnvRobot
+from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni
 from ir_sim2.log.Logger import Logger
 
@@ -43,8 +44,7 @@ class EnvBase:
         self.offset_y = world_args.get('offset_y', 0)
 
         self.robot_args = robot_args
-        # self.robot_args_list = robot_args_list
-        self.obstacle_args = obstacle_args
+        self.obstacle_args_list = obstacle_args_list
 
         self.plot = plot
         self.components = dict()
@@ -62,6 +62,7 @@ class EnvBase:
         #         robot kwargs:
         #         obstacle kwargs:
         self.env_robot = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        self.env_obstacle_list = [ EnvObstacle()]
         # self.env_robot_list = [EnvRobot(EnvBase.robot_factory[ra['type']], step_time=self.step_time, **ra) for ra in self.robot_args_list]
 
         # default robots 
