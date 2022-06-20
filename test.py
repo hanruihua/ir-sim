@@ -1,7 +1,18 @@
-import numpy as np
+# import sympy import Point, Polygon
+from sympy import Point, Polygon
+  
+# creating points using Point()
+p1, p2, p3, p4 = map(Point, [(0, 2), (0, 0), (1, 0), (1, 2)])
 
-a = np.arange(10)
+p1, p2, p3, p4 = map(Point, [(0, 5), (0, 0), (1, 0), (1, 2)])
+  
+# creating polygon using Polygon()
+poly = Polygon(p1, p2, p3, p4)
+  
+# using distance()
+shortestDistance = poly.distance(Point(3, 5))
 
-# a.update(b)
+temp = 2 * shortestDistance
 
-print(np.arange(10)[::-1])
+print(float(shortestDistance))
+print(temp)
