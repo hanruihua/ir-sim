@@ -13,6 +13,7 @@ class RobotDiff(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x, y, theta
     position_dim=(2,1) # the position dimension, x, y 
     dynamic = True
+    cone_type = 'norm2' # 'Rpositive'; 'norm2' 
 
     def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 

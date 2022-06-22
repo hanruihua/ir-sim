@@ -21,7 +21,7 @@ class EnvBase:
         # world_name: path of the yaml
         # plot: True or False
         # control_mode: auto, keyboard
-        # 
+
         world_args, robot_args, obstacle_args = dict(), dict(), dict() 
 
         if world_name != None:
@@ -68,6 +68,9 @@ class EnvBase:
         # default robots 
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
+        
+        # default obstacles
+
 
         # plot
         if self.plot:
@@ -87,10 +90,13 @@ class EnvBase:
     def obstacles_step(self, **kwargs):
         [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
 
-    def step(self, vel_list, **kwargs):
+    def step(self, vel_list=[], **kwargs):
         self.robots_step(vel_list, **kwargs)
         self.obstacles_step(**kwargs)
-        
+
+    def collision_check(self):
+        pass
+
     def done(self):
         if self.env_robot.arrive():
             self.log.logger.info('All robots arrive at the goal positions')

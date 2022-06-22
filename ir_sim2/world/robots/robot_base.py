@@ -11,6 +11,7 @@ class RobotBase:
     goal_dim = (3, 1) # the goal dimension 
     position_dim=(2,1) # the position dimension 
     dynamic = True
+    cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
     def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
 
@@ -52,7 +53,6 @@ class RobotBase:
 
         # Generalized inequalities
         self.G, self.g = self.gen_inequal()
-        self.cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
         self.log = Logger('robot.log', level='info')
 

@@ -26,8 +26,7 @@ class EnvObstacle:
                 for id, radius, point, goal in zip(range(number), radius_list, point_list, goal_list):
                     obstacle = obs_class(id=id, point=point, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
                     self.obs_cir_list.append(obstacle)
-                    # id, center=np.zeros((2, 1)), radius=0.2, dynamic=True, sport='wander', cone_type='norm2', **kwargs
-
+                    
         elif obs_class.obstacle_type == 'obstacle_map':
             pass
 
@@ -38,12 +37,24 @@ class EnvObstacle:
                 [obs.move_goal(**kwargs) for obs in self.obs_cir_list]
             elif self.sport == 'wander':
                 [obs.move_wander(**kwargs) for obs in self.obs_cir_list]
+            
 
     def collision_check(self):
         pass
     
     def collision_check(self, robot, obstacle):
         pass
+    
+    def collision_check_point(self, point):
+
+        collision = False
+
+        if self.obs_class.obstacle_type == 'obstacle_circle':
+            for obs in self.obs_cir_list:
+                if obs.collision_check_point(point):
+                    collision = True
+        
+        return collision
 
     def plot(self, ax, **kwargs):
         if self.obs_class.obstacle_type == 'obstacle_circle':

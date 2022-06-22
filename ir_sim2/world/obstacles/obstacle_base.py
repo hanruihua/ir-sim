@@ -26,7 +26,7 @@ class ObstacleBase:
         # generalized inequality over the norm cone
         # x<=_k x_c
         assert point.shape == self.point_dim
-        return ObstacleBase.InCone(point, self.cone_type)
+        return ObstacleBase.InCone(self.A @ point - self.b, self.cone_type)
 
     def gen_matrix(self):
         # discreted model denoted by matrix

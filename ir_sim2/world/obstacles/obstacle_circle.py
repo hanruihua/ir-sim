@@ -76,8 +76,6 @@ class ObstacleCircle(ObstacleBase):
 
         return np.array([[vx], [vy]])
 
-
-
     def gen_inequal(self):
         A = np.array([ [1, 0], [0, 1], [0, 0] ])
         b = np.row_stack((self.point, -self.radius * np.ones((1,1))))
