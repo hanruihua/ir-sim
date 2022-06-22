@@ -10,6 +10,7 @@ class RobotBase:
     vel_dim = (2, 1)  # the velocity dimension 
     goal_dim = (3, 1) # the goal dimension 
     position_dim=(2,1) # the position dimension 
+    dynamic = True
 
     def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
 
@@ -31,7 +32,9 @@ class RobotBase:
         self.goal = self.init_goal_state
         self.vel = self.init_vel
         self.trajectory = []
-        
+
+        assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
+
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
         self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
         self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
@@ -102,7 +105,11 @@ class RobotBase:
     def collision_check_point(self, point):
         # utilize the generalized inequality to judge the collision with a point
         assert point.shape == self.position_dim
-        return RobotBase.InCone(self.G @ point - self.g, self.cone_type)
+
+        rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        trans_point = np.linalg.inv(rot) @ ( point - trans)
+
+        return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
 
         #  def inside(self, obs, point):
         #     # Ao<=b

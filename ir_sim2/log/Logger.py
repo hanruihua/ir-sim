@@ -24,16 +24,20 @@ class Logger(object):
         # S 秒
         # M 分
         # H 小时
-        # D 天、
+        # D 天
         # W 每星期（interval==0时代表星期一）
         # midnight 每天凌晨
         th.setFormatter(format_str)#设置文件里写入的格式
+
+        if (self.logger.hasHandlers()):
+            self.logger.handlers.clear()
+
         self.logger.addHandler(sh) #把对象加到logger里
         self.logger.addHandler(th)
 
 if __name__ == '__main__':
-    log = Logger('all.log',level='info')
-    log.logger.info('debug')
+    log = Logger('robot.log',level='info')
+    log.logger.debug('debug')
     log.logger.info('info')
     log.logger.warning('warning')
     log.logger.error('error')

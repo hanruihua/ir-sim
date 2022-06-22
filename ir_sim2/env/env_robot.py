@@ -4,7 +4,7 @@ import numpy as np
 
 class EnvRobot:
     # a group of robots
-    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.1, **kwargs):
+    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.1, random_bear=False, **kwargs):
 
         self.number = number
         self.robot_class = robot_class
@@ -13,11 +13,12 @@ class EnvRobot:
         self.step_time = step_time
 
         self.distribute = distribute # 'manual', 'circular', 'random', 'opposite'
-        
+        self.random_bear = random_bear
+
         if distribute == 'manual':
             if robot_class.robot_shape == 'circle':
-                state_list = kwargs.get('state_list', np.arange(number))
-                goal_list = kwargs.get('goal_list', np.arange(number)[::-1])
+                state_list = kwargs.get('state_list', None)
+                goal_list = kwargs.get('goal_list', None)
                 radius_list = kwargs.get('radius_list', [0.2] * number)
                 radius_exp = kwargs.get('radius_exp_list', [0.1] * number)
 
@@ -25,8 +26,8 @@ class EnvRobot:
                 if isinstance(radius_exp, float): radius_exp = [radius_exp] * number
 
             if robot_class.robot_shape == 'rectangle':
-                state_list = kwargs.get('state_list', np.arange(number))
-                goal_list = kwargs.get('goal_list', np.arange(number)[::-1])
+                state_list = kwargs.get('state_list', None)
+                goal_list = kwargs.get('goal_list', None)
                 shape_list = kwargs.get('shape_list', [[4.6, 1.6, 3, 1.6]]*number)
         else:
            pass
@@ -42,8 +43,10 @@ class EnvRobot:
                     self.robot_list.append(robot)
             
     def init_distribute(self, number, distribute='line'):
-        pass
 
+        if distribute == 'line':
+            pass
+        
     def collision_check(self):
         # robot.collision_flag
         pass

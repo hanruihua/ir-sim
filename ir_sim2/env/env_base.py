@@ -8,12 +8,13 @@ from PIL import Image
 from pynput import keyboard
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
-from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni
+from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle
 from ir_sim2.log.Logger import Logger
 
 class EnvBase:
 
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
+    obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': None}
 
     def __init__(self, world_name=None, plot=True, control_mode='auto', **kwargs):
         
@@ -30,7 +31,7 @@ class EnvBase:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
                 robot_args = com_list.get('robots', dict())
-                obstacle_args_list = com_list.get('obstacles', [dict()])
+                obstacle_args_list = com_list.get('obstacles', [])
 
         world_args.update(kwargs.get('world_args', dict()))
         robot_args.update(kwargs.get('robot_args', dict()))
@@ -61,13 +62,12 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.env_robot = EnvRobot(EnvBase.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
-        self.env_obstacle_list = [ EnvObstacle()]
-        # self.env_robot_list = [EnvRobot(EnvBase.robot_factory[ra['type']], step_time=self.step_time, **ra) for ra in self.robot_args_list]
-
+        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
+       
         # default robots 
         self.robot_list = self.env_robot.robot_list
-        self.robot = self.robot_list[0]
+        self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
 
         # plot
         if self.plot:
@@ -84,9 +84,13 @@ class EnvBase:
     def robots_step(self, vel_list, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
 
+    def obstacles_step(self, **kwargs):
+        [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+
     def step(self, vel_list, **kwargs):
         self.robots_step(vel_list, **kwargs)
-
+        self.obstacles_step(**kwargs)
+        
     def done(self):
         if self.env_robot.arrive():
             self.log.logger.info('All robots arrive at the goal positions')
@@ -117,12 +121,14 @@ class EnvBase:
     def draw_components(self, ax, mode='all', **kwargs):
         # mode: static, dynamic, all
         if mode == 'static':
-            pass
+            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if not env_obs.dynamic]
         elif mode == 'dynamic':
             self.env_robot.plot(ax, **kwargs)
-            # obstacle
+            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if env_obs.dynamic]
+
         elif mode == 'all':
             self.env_robot.plot(ax, **kwargs)
+            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list]
             # obstacle
         else:
             self.logger.error('error input of the draw mode')
@@ -130,8 +136,11 @@ class EnvBase:
     def clear_components(self, ax, mode='all', **kwargs):
         if mode == 'dynamic':
             self.env_robot.plot_clear(ax)
+            [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+
         elif mode == 'static':
             pass
+        
         elif mode == 'all':
             plt.cla()
         

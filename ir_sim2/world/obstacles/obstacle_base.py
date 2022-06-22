@@ -1,20 +1,22 @@
 import numpy as np
+from math import atan2, pi
 
 class ObstacleBase:
-
-    obstacle_type = 'circle' # circle, polygon
+    obstacle_type = 'obstacle_circle' # circle, polygon
+    obstacle_shape = 'circle'  # circle, polygon
     point_dim = (2, 1) # the point dimension, x, y
     vel_dim = (2, 1) # the velocity dimension, linear and angular velocity
     goal_dim = (2, 1) # the goal dimension, x, y, theta
     convex = False
+    cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, points=[], resolution=0.1, cone_type='Rpositive', **kwargs):
+    def __init__(self, id, resolution=0.1, step_time=0.1, dynamic=False, **kwargs):
         # self.shape
-        self.points = points
+        self.id = int(id)
         self.reso = resolution
-
+        self.step_time = step_time
+        self.dynamic = dynamic
         self.A, self.b = self.gen_inequal()
-        self.cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
         self.obstacle_matrix = self.gen_matrix()
         
     def collision_check(self):
@@ -23,12 +25,12 @@ class ObstacleBase:
     def collision_check_point(self, point):
         # generalized inequality over the norm cone
         # x<=_k x_c
-        assert point.shape == (2, 1)
-        
-        return ObstacleBase.InCone(point, self.cone_type='Rpositive')
+        assert point.shape == self.point_dim
+        return ObstacleBase.InCone(point, self.cone_type)
 
     def gen_matrix(self):
-        pass
+        # discreted model denoted by matrix
+        raise NotImplementedError
 
     def gen_inequal(self):
         # Calculate the matrix A and b for the Generalized inequality: G @ point <_k g, 
@@ -48,4 +50,23 @@ class ObstacleBase:
         elif cone_type == 'norm2':
             return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
 
-    # def 
+    @staticmethod
+    def relative_position(position1, position2, topi=True):
+        diff = position2[0:ObstacleBase.point_dim[0]]-position1[0:ObstacleBase.point_dim[0]]
+        dis = np.linalg.norm(diff)
+        radian = atan2(diff[1, 0], diff[0, 0])
+
+        if topi: radian = ObstacleBase.wraptopi(radian)
+
+        return dis, radian  
+
+    @staticmethod
+    def wraptopi(radian):
+
+        while radian > pi:
+            radian = radian - 2 * pi
+
+        while radian < -pi:
+            radian = radian + 2 * pi
+
+        return radian

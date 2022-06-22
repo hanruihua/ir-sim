@@ -17,21 +17,28 @@ robots:
   vel_max: [1.5, 1.5]
 
 obstacles:
-  - type: 'circle'
+  - type: 'obstacle_circle'
     number: 2
     distribute: 'manual' # random, circular
-    motion: 'dynamic'
-    motion_mode: 'wander' # wander, 
-    motion_range: []
+    dynamic: False
+    sport: 'wander' # default, wander, patrol
+    sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
+    point_list: [[6, 9], [3, 4]]
+    goal_list: [[4, 1], [9, 9]]
+    radius_list: [0.3, 0.5]
+    vel_min: [-1, -1]
+    vel_max: [1, 1]
     
-  - type: 'polygon'
-    number: 2
-    motion: 'static'
-    point_list: [[], []]
+  # - type: 'obstacle_polygon'
+  #   number: 0
+  #   distribute: 'manual'
+  #   dynamic: False
+  #   motion: 'static'
+  #   point_list: [[], []]
 
-  - type: 'map'
-    reso: '0.1'
-    map_image: 'map_100_100.png'
+  # - type: 'obstacle_map'
+  #   reso: '0.1'
+  #   map_image: 'map_100_100.png'
 
     
     
