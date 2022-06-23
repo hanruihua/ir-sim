@@ -82,7 +82,7 @@ class RobotDiff(RobotBase):
         lidar_line_list = []
 
         robot_circle = mpl.patches.Circle(xy=(x, y), radius = self.radius, color = robot_color)
-        robot_circle.set_zorder(2)
+        robot_circle.set_zorder(3)
 
         ax.add_patch(robot_circle)
         if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'k')
@@ -91,6 +91,7 @@ class RobotDiff(RobotBase):
         # arrow
         theta = self.state[2][0]
         arrow = mpl.patches.Arrow(x, y, 0.5*cos(theta), 0.5*sin(theta), width = 0.6)
+        arrow.set_zorder(3)
         ax.add_patch(arrow)
         self.plot_patch_list.append(arrow)
 

@@ -1,5 +1,5 @@
 import numpy as np
-from math import atan2, pi
+from math import atan2, pi, sin, cos
 
 class ObstacleBase:
     obstacle_type = 'obstacle_circle' # circle, polygon
@@ -30,7 +30,8 @@ class ObstacleBase:
 
     def gen_matrix(self):
         # discreted model denoted by matrix
-        raise NotImplementedError
+        # raise NotImplementedError
+        pass
 
     def gen_inequal(self):
         # Calculate the matrix A and b for the Generalized inequality: G @ point <_k g, 
@@ -70,3 +71,9 @@ class ObstacleBase:
             radian = radian + 2 * pi
 
         return radian
+
+    @staticmethod
+    def get_transform(position, orientation):
+        rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
+        trans = position
+        return rot, trans

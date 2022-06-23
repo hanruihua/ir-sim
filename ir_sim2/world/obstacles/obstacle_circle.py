@@ -38,7 +38,6 @@ class ObstacleCircle(ObstacleBase):
 
         self.sport = sport  # default, wander, patrol 
         self.plot_patch_list = []
-        self.dynamic = dynamic
         self.arrive_flag = False
     
     def move(self, vel, **kwargs):

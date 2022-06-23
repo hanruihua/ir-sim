@@ -29,12 +29,13 @@ obstacles:
     vel_min: [-1, -1]
     vel_max: [1, 1]
     
-  # - type: 'obstacle_polygon'
-  #   number: 0
-  #   distribute: 'manual'
-  #   dynamic: False
-  #   motion: 'static'
-  #   point_list: [[], []]
+  - type: 'obstacle_polygon'
+    number: 1
+    distribute: 'manual' # mouse, random
+    dynamic: False
+    points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    state_list: [ [0, 0, 0], ]   # transform of the points 
+    
 
   # - type: 'obstacle_map'
   #   reso: '0.1'
