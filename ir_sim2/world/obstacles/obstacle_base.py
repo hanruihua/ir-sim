@@ -3,14 +3,14 @@ from math import atan2, pi, sin, cos
 
 class ObstacleBase:
     obstacle_type = 'obstacle_circle' # circle, polygon
-    obstacle_shape = 'circle'  # circle, polygon
+    appearance = 'circle'  # circle, polygon
     point_dim = (2, 1) # the point dimension, x, y
     vel_dim = (2, 1) # the velocity dimension, linear and angular velocity
     goal_dim = (2, 1) # the goal dimension, x, y, theta
     convex = False
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, resolution=0.1, step_time=0.1, dynamic=False, **kwargs):
+    def __init__(self, id, resolution=0.1, step_time=0.01, dynamic=False, **kwargs):
         # self.shape
         self.id = int(id)
         self.reso = resolution

@@ -5,7 +5,7 @@ from ir_sim2.log.Logger import Logger
 class RobotBase:
 
     robot_type = 'diff'  # omni, acker
-    robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
+    appearance = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
     state_dim = (3, 1) # the state dimension 
     vel_dim = (2, 1)  # the velocity dimension 
     goal_dim = (3, 1) # the goal dimension 
@@ -40,6 +40,7 @@ class RobotBase:
         self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
         self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
+        self.collision_threshold = kwargs.get('collision_threshold', 0.001)
         if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
         if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
 
@@ -111,26 +112,22 @@ class RobotBase:
 
         return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
 
-        #  def inside(self, obs, point):
-        #     # Ao<=b
-        #     assert point.shape == (2, 1)
-        #     return self.cone(obs.A @ point - obs.b, obs.cone)
+    def collision_check_obstacle(self, obstacle):
 
-        # def cone(self, point, cone='R_positive'):
-        #     # cone: R_positive, norm2
-        #     if cone == 'R_positive':
-        #         return (point<=0).all()
-        #     elif cone == 'norm2':
-        #         return np.squeeze( np.linalg.norm(point[0:-1]) - point[-1] ) <= 0
+        if self.appearance == 'circle':
+            if obstacle.appearance == 'circle':
+                if self.cir_cir_min_distance(obstacle) < self.collision_threshold: 
+                    return True
+            
+            if obstacle.appearance == 'polygon':
+                pass
 
-        # return self.A @ point - self.b <= 
 
-    @staticmethod
-    def InCone(point, cone_type='Rpositive'):
-        if cone_type == 'Rpositive':
-            return (point<=0).all()
-        elif cone_type == 'norm2':
-            return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
+    def cir_cir_min_distance(self, cir_obs):
+        return np.linalg.norm( self.state[0:self.position_dim[0]] - cir_obs.point) - (self.radius + cir_obs.radius)
+
+    def cir_poly_min_distance(self, poly_obs):
+        pass
 
     def dynamics(self, vel):
 
@@ -161,6 +158,12 @@ class RobotBase:
         self.vel = self.init_vel
         self.goal_state = self.init_goal_state
 
+    @staticmethod
+    def InCone(point, cone_type='Rpositive'):
+        if cone_type == 'Rpositive':
+            return (point<=0).all()
+        elif cone_type == 'norm2':
+            return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
 
     @staticmethod
     def get_transform(position, orientation):

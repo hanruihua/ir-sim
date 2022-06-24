@@ -4,7 +4,7 @@ import matplotlib as mpl
 
 class ObstaclePolygon(ObstacleBase):
     obstacle_type = 'obstacle_polygon' # circle, polygon
-    obstacle_shape = 'polygon'  # circle, polygon
+    appearance = 'polygon'  # circle, polygon
     point_dim = (2, 1) # the point dimension, x, y
     vel_dim = None # the velocity dimension, linear and angular velocity
     goal_dim = None # the goal dimension, x, y, theta

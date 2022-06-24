@@ -13,7 +13,7 @@ class ObstacleCircle(ObstacleBase):
     convex = True
     cone_type = 'norm2' # 'Rpositive'; 'norm2' 
     
-    def __init__(self, id, point=np.zeros((2, 1)), goal=np.ones((2, 1)), radius=0.2, step_time=0.1, dynamic=True, sport='wander', **kwargs):
+    def __init__(self, id, point=np.zeros((2, 1)), goal=np.ones((2, 1)), radius=0.2, step_time=0.01, dynamic=True, sport='wander', **kwargs):
 
         if isinstance(point, list): point = np.c_[point]
         if isinstance(goal, list): goal = np.c_[goal]

@@ -16,7 +16,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, control_mode='auto', **kwargs):
+    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', **kwargs):
         
         # world_name: path of the yaml
         # plot: True or False
@@ -40,7 +40,8 @@ class EnvBase:
         # world args
         self.__height = world_args.get('world_height', 10)
         self.__width = world_args.get('world_width', 10) 
-        self.step_time = world_args.get('step_time', 0.1) 
+        self.step_time = world_args.get('step_time', 0.01) 
+        self.sample_time = world_args.get('sample_time', 0.1)
         self.offset_x = world_args.get('offset_x', 0) 
         self.offset_y = world_args.get('offset_y', 0)
 
@@ -52,6 +53,12 @@ class EnvBase:
         self.init_environment(**kwargs)
 
         self.log = Logger('robot.log', level='info')
+        self.logging = logging
+
+        self.count = 0
+        self.sampling = True
+        self.arrive_flag = False
+        self.collision_flag = False
 
         if control_mode == 'keyboard':
             pass
@@ -70,8 +77,6 @@ class EnvBase:
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
         
         # default obstacles
-
-
         # plot
         if self.plot:
             self.fig, self.ax = plt.subplots()
@@ -82,8 +87,8 @@ class EnvBase:
         self.components['env_robot'] = self.env_robot
 
     def cal_des_vel(self, **kwargs):
-        return [robot.cal_des_vel(**kwargs) for robot in self.robot_list]
-        
+        return self.env_robot.cal_des_vel(**kwargs)
+         
     def robots_step(self, vel_list, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
 
@@ -93,25 +98,41 @@ class EnvBase:
     def step(self, vel_list=[], **kwargs):
         self.robots_step(vel_list, **kwargs)
         self.obstacles_step(**kwargs)
+        self.count += 1
+        self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+
+    def step_count(self, **kwargs):
+        self.count += 1
+        self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
     def collision_check(self):
-        pass
+        return any([self.env_robot.collision_check(env_obstacle) for env_obstacle in self.env_obstacle_list])
 
-    def done(self):
+    def done(self, collision_check=True):
+        
         if self.env_robot.arrive():
-            self.log.logger.info('All robots arrive at the goal positions')
-        if self.env_robot.collision():
-            self.log.logger.warning('Collisions Occur')
-        return self.env_robot.arrive()
+            self.arrive_flag = True
+            if self.logging: self.log.logger.info('All robots arrive at the goal positions')
+        if collision_check and self.collision_check():
+            self.collision_flag = True
+            if self.logging: self.log.logger.warning('Collisions occur')
+
+        return self.arrive_flag or self.collision_flag
     
     def done_list(self):
         return self.env_robot.arrive_list()
 
-    def render(self, time=0.0001, **kwargs):
-
+    def render(self, pause_time=0.0001, **kwargs):
+        
+        if self.plot and self.sampling:
+            self.draw_components(self.ax, mode='dynamic', **kwargs)
+            plt.pause(pause_time)
+            self.clear_components(self.ax, mode='dynamic', **kwargs)
+    
+    def render_once(self, pause_time=0.0001, **kwargs):
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
-            plt.pause(time)
+            plt.pause(pause_time)
             self.clear_components(self.ax, mode='dynamic', **kwargs)
             
     def init_plot(self, ax, **kwargs):
@@ -152,9 +173,13 @@ class EnvBase:
         
 
     def show(self, **kwargs):
-        self.draw_components(self.ax, mode='dynamic', **kwargs)
-        plt.show()
+        if self.plot:
+            self.draw_components(self.ax, mode='dynamic', **kwargs)
+            plt.show()
 
+    def reset(self):
+        self.env_robot.reset()
+        [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
 
 
             

@@ -4,7 +4,7 @@ import numpy as np
 
 class EnvRobot:
     # a group of robots
-    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.1, random_bear=False, **kwargs):
+    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.01, random_bear=False, **kwargs):
 
         self.number = number
         self.robot_class = robot_class
@@ -46,10 +46,12 @@ class EnvRobot:
 
         if distribute == 'line':
             pass
-        
-    def collision_check(self):
-        # robot.collision_flag
-        pass
+    
+    def cal_des_vel(self, **kwargs):
+        return [robot.cal_des_vel(**kwargs) for robot in self.robot_list]
+
+    def collision_check(self, env_obstacle):
+        return any([r.collision_check_obstacle(o) for r, o in zip(self.robot_list, env_obstacle.obs_list)])
 
     def arrive(self):
         return all([r.arrive_flag for r in self.robot_list])

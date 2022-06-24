@@ -20,7 +20,7 @@ class EnvObstacle:
                 point_list = kwargs.get('point_list', None)
                 goal_list = kwargs.get('goal_list', None)
                 radius_list = kwargs.get('radius_list', [0.2] * number)
-
+                
                 if isinstance(radius_list, float): radius_list = [radius_list] * number
 
             if number > 0:

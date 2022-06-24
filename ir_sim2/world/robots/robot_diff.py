@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from .robot_base import RobotBase
-from math import sin, cos, pi, atan2
+from math import sin, cos, pi, atan2, inf
 
 class RobotDiff(RobotBase):
 
@@ -15,6 +15,8 @@ class RobotDiff(RobotBase):
     dynamic = True
     cone_type = 'norm2' # 'Rpositive'; 'norm2' 
 
+    coefficient_vel = np.zeros((3, 2))
+
     def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 
         self.radius = radius
@@ -22,7 +24,6 @@ class RobotDiff(RobotBase):
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
-
         self.plot_patch_list = []
         self.plot_line_list = []
 
@@ -43,27 +44,28 @@ class RobotDiff(RobotBase):
         return new_state
 
     def cal_des_vel(self, tolerance=0.12):
+        # calculate desire velocity
+        des_vel = np.zeros((2, 1))
 
         if self.arrive_mode == 'position':
-            dis, radian = RobotDiff.relative_position(self.state, self.goal)
-            robot_radian = self.state[2, 0]
-            w_opti = 0
 
-            diff_radian = RobotDiff.wraptopi( radian - robot_radian )
-
-            if diff_radian > tolerance: w_opti = self.vel_max[1, 0]
-            elif diff_radian < - tolerance: w_opti = - self.vel_max[1, 0]
+            dis, radian = RobotDiff.relative_position(self.state, self.goal)      
 
             if dis < self.goal_threshold:
-                v_opti, w_opti = 0, 0
+                return des_vel
             else:
-                v_opti = self.vel_max[0, 0] * cos(diff_radian)
-                if v_opti < 0: v_opti = 0
-                
-            return np.array([[v_opti], [w_opti]])
+                diff_radian = RobotDiff.wraptopi( radian - self.state[2, 0] )
+                des_vel[0, 0] = np.clip(self.vel_max[0, 0] * cos(diff_radian), 0, inf) 
+
+                if abs(diff_radian) < tolerance:
+                    des_vel[1, 0] = 0
+                else:
+                    des_vel[1, 0] = self.vel_max[1, 0] * (diff_radian / abs(diff_radian))
 
         elif self.arrive_mode == 'state':
             pass
+
+        return des_vel
 
     def gen_inequal(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone
@@ -124,9 +126,10 @@ class RobotDiff(RobotBase):
         self.plot_line_list = []
         ax.texts.clear()
     
-    # reference: probabilistic robotics[book], motion model P127
+
+    # reference: Modern Robotics[book], P523 
     @classmethod
-    def motion_diff(cls, current_state, vel, sampletime, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):
+    def motion_diff(cls, current_state, vel, step_time, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):
         
         assert current_state.shape == cls.state_dim and vel.shape == cls.vel_dim and cls.robot_type == 'diff'
 
@@ -138,21 +141,13 @@ class RobotDiff(RobotBase):
         else:
             real_vel = vel
 
-        vt = float(real_vel[0, 0])
-        omegat = float(real_vel[1, 0])
-        theta = float(cls.wraptopi(current_state[2, 0]))
+        cls.coefficient_vel[0, 0] = cos(current_state[2, 0])
+        cls.coefficient_vel[1, 0] = sin(current_state[2, 0])
+        cls.coefficient_vel[2, 1] = 1
 
-        if omegat >= 0.01 or omegat <= -0.01:
-            ratio = vt/omegat
-            next_state = current_state + np.array([ [-ratio * sin(theta) + ratio * sin(theta + omegat * sampletime)], 
-                                        [ratio * cos(theta) - ratio * cos(theta + omegat * sampletime)], 
-                                        [omegat * sampletime]])
-        else:
-            next_state = current_state + np.array([[vt * sampletime * cos(theta)], [vt * sampletime * sin(theta)], [0]])
+        next_state = current_state + cls.coefficient_vel @ real_vel * step_time
 
-        next_state[2, 0] =  float(cls.wraptopi(next_state[2, 0])) 
-        
-        return next_state 
+        return next_state
 
     @staticmethod
     def diff_to_omni(state, vel_diff):
@@ -185,6 +180,37 @@ class RobotDiff(RobotBase):
         if v<0: v = 0
     
         return np.array([[v], [w]])
+    
+    # reference: probabilistic robotics[book], motion model P127 
+    @classmethod
+    def motion_diff_old(cls, current_state, vel, step_time, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):
+        
+        assert current_state.shape == cls.state_dim and vel.shape == cls.vel_dim and cls.robot_type == 'diff'
+
+        if noise:
+            std_linear = np.sqrt(alpha[0] * (vel[0, 0] ** 2) + alpha[1] * (vel[1, 0] ** 2))
+            std_angular = np.sqrt(alpha[2] * (vel[0, 0] ** 2) + alpha[3] * (vel[1, 0] ** 2))
+            # gamma = alpha[4] * (vel[0, 0] ** 2) + alpha[5] * (vel[1, 0] ** 2)
+            real_vel = vel + np.random.normal([[0], [0]], scale = [[std_linear], [std_angular]])
+        else:
+            real_vel = vel
+
+        vt = float(real_vel[0, 0])
+        omegat = float(real_vel[1, 0])
+        theta = float(cls.wraptopi(current_state[2, 0]))
+
+        if omegat >= 0.01 or omegat <= -0.01:
+            ratio = vt/omegat
+            next_state = current_state + np.array([ [-ratio * sin(theta) + ratio * sin(theta + omegat * step_time)], 
+                                        [ratio * cos(theta) - ratio * cos(theta + omegat * step_time)], 
+                                        [omegat * step_time]])
+        else:
+            # move in a straight line
+            next_state = current_state + np.array([[vt * step_time * cos(theta)], [vt * step_time * sin(theta)], [0]])
+
+        next_state[2, 0] =  float(cls.wraptopi(next_state[2, 0])) 
+        
+        return next_state 
     
    
 

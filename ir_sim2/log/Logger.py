@@ -11,7 +11,7 @@ class Logger(object):
         'crit':logging.CRITICAL
     }
 
-    def __init__(self, filename, level='info', when='D', backCount=3, fmt='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'):
+    def __init__(self, filename, level='info', when='D', backCount=3, fmt='%(asctime)s - %(levelname)s: %(message)s - %(pathname)s[line:%(lineno)d]'):
         full_file = os.path.dirname(__file__) + '/' + filename
         self.logger = logging.getLogger(full_file)
         format_str = logging.Formatter(fmt) # log format
