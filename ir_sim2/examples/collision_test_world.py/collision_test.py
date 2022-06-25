@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 env = EnvBase(world_name = 'collision_test.yaml')
 
 def on_move(event):
-    des_vel = env.cal_des_vel()
-    env.step(des_vel)
-    env.render(0.05)
     if event.inaxes:
         x = event.xdata
         y = event.ydata
