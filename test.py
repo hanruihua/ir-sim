@@ -1,36 +1,19 @@
 import numpy as np
 import time
 from multiprocessing import Pool
+from math import sqrt
 
-s1 = time.time()
-for i in range(3000):
-    a = np.array([[3], [1]]) + np.array([[5], [2]])
-print(time.time()-s1)
+a = np.array([[2], [1]])
+b = np.array([[5], [6]])
 
-s2 = time.time()
-b = np.array([[3], [1]])  
-c = np.array([[5], [2]])
+start_time = time.time()
+for i in range(10000):
+    dis = np.linalg.norm(a - b)
+print('1', time.time()-start_time)
 
-for i in range(3000):
-    b[0,0] = 0
-    c[1, 0] = 10
-    a = b + c
+start_time = time.time()
+for i in range(10000):
+    dis = sqrt( (a[0, 0] - b[0, 0])**2 + (a[1, 0] - b[1, 0])**2 )
+print('2', time.time()-start_time)
 
-print(time.time()-s2)
-
-s3 = time.time()
-b = np.zeros((3, 1))
-c = np.zeros((3, 1))
-for i in range(3000):
-    
-    b[0, 0] = 3
-    b[1, 0] = 1
-
-    
-    c[0, 0] = 3
-    c[1, 0] = 1
-
-    a = b + c
-
-print(time.time()-s3)
 
