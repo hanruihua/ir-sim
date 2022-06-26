@@ -1,6 +1,16 @@
 import numpy as np
 from math import inf, pi, atan2, sin, cos
 from ir_sim2.log.Logger import Logger
+from collections import namedtuple
+from ir_sim2.util import collision_dectection_geo as cdg 
+
+# define geometry point and segment for collision detection.
+# point [x, y]
+# segment [point1, point2]
+# polygon [point1, point2, point3...]
+# circle [x, y, r]
+point_geometry = namedtuple('point', ['x', 'y'])
+circle_geometry = namedtuple('circle', ['x', 'y', 'r'])
 
 class RobotBase:
 
@@ -40,7 +50,7 @@ class RobotBase:
         self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
         self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
-        self.collision_threshold = kwargs.get('collision_threshold', 0.001)
+        # self.collision_threshold = kwargs.get('collision_threshold', 0.001)
         if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
         if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
 
@@ -55,6 +65,7 @@ class RobotBase:
         # Generalized inequalities
         self.G, self.g = self.gen_inequal()
 
+        # log
         self.log = Logger('robot.log', level='info')
 
         # sensor
@@ -113,20 +124,30 @@ class RobotBase:
         return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
 
     def collision_check_obstacle(self, obstacle):
-
+        
         if self.appearance == 'circle':
+            robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
+
             if obstacle.appearance == 'circle':
-                if self.cir_cir_min_distance(obstacle) < self.collision_threshold: 
-                    return True
-            
+                obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)  
+                if cdg.collision_cir_cir(robot_circle, obs_circle): return True 
+                    
             if obstacle.appearance == 'polygon':
-                pass
+                obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
+                if cdg.collision_cir_poly(robot_circle, obs_poly): return True
+        
+        if self.appearance == 'polygon':
+            robot_polygon = []
+            pass
+        
+        return False
 
 
     def cir_cir_min_distance(self, cir_obs):
         return np.linalg.norm( self.state[0:self.position_dim[0]] - cir_obs.point) - (self.radius + cir_obs.radius)
 
     def cir_poly_min_distance(self, poly_obs):
+        robot_point = self.state[0:self.position_dim[0]]
         pass
 
     def dynamics(self, vel):
