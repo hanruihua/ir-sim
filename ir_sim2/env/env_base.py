@@ -101,6 +101,7 @@ class EnvBase:
         self.obstacles_step(**kwargs)
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+        
 
     def step_count(self, **kwargs):
         self.count += 1

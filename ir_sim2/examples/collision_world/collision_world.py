@@ -2,8 +2,9 @@ from ir_sim2.env import EnvBase
 import time 
 import numpy as np
 
-env = EnvBase(world_name = 'collision_world.yaml', plot=True)
+env = EnvBase(world_name = 'collision_world.yaml', plot=False, logging=False)
 
+start_time= time.time()
 for i in range(3000):
 
     if i % 10==0: vel = env.cal_des_vel()
@@ -12,6 +13,7 @@ for i in range(3000):
     
     if env.done():
         env.render_once()
-        break
+        # break
 
+print( time.time()-start_time)
 env.show()

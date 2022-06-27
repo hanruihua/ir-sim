@@ -16,7 +16,29 @@ def collision_cir_cir(circle1, circle2):
 
 # 
 def collision_cir_poly(circle, polygon):
-    pass
+    polygon.append(polygon[0])
 
-def collision_cir_point(circle, point):
-    pass
+    for i in range(len(polygon)-1):
+        segment = [ polygon[i], polygon[i+1] ]
+        if collision_cir_seg(circle, segment): 
+            return True
+    
+    return False
+
+def collision_cir_seg(circle, segment):
+    # reference: https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+    point = np.array([circle.x, circle.y])
+    sp = np.array([segment[0].x, segment[0].y])
+    ep = np.array([segment[1].x, segment[1].y])
+    
+    l2 = (ep - sp) @ (ep - sp)
+
+    if (l2 == 0.0): return sqrt( (circle.x - segment[0].x)**2 + (circle.y - segment[0].y)**2 ) < circle.r
+    
+    t = max(0, min(1, ((point-sp) @ (ep-sp)) / l2 ))
+
+    projection = sp + t * (ep-sp)
+    relative = projection - point
+
+    return sqrt( relative[0]**2 + relative[1]**2 ) < circle.r
+
