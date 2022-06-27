@@ -16,7 +16,7 @@ class EnvRobot:
         self.random_bear = random_bear
 
         if distribute == 'manual':
-            if robot_class.robot_shape == 'circle':
+            if robot_class.appearance == 'circle':
                 state_list = kwargs.get('state_list', None)
                 goal_list = kwargs.get('goal_list', None)
                 radius_list = kwargs.get('radius_list', [0.2] * number)
@@ -25,7 +25,7 @@ class EnvRobot:
                 if isinstance(radius_list, float): radius_list = [radius_list] * number
                 if isinstance(radius_exp, float): radius_exp = [radius_exp] * number
 
-            if robot_class.robot_shape == 'rectangle':
+            if robot_class.appearance == 'rectangle':
                 state_list = kwargs.get('state_list', None)
                 goal_list = kwargs.get('goal_list', None)
                 shape_list = kwargs.get('shape_list', [[4.6, 1.6, 3, 1.6]]*number)
@@ -33,11 +33,11 @@ class EnvRobot:
            pass
 
         if number > 0:
-            if robot_class.robot_shape == 'circle':
+            if robot_class.appearance == 'circle':
                 for id, radius, state, goal in zip(range(number), radius_list, state_list, goal_list):
                     robot = robot_class(id=id, state=state, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
                     self.robot_list.append(robot)
-            elif robot_class.robot_shape == 'rectangle':
+            elif robot_class.appearance == 'rectangle':
                 for id, shape, state, goal in zip(range(number), shape_list, state_list, goal_list): 
                     robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
                     self.robot_list.append(robot)

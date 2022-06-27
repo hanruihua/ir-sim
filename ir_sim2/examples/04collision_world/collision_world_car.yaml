@@ -1,0 +1,50 @@
+world:
+  world_height: 50
+  world_width: 50
+  step_time: 0.01  # for robot motion 100Hz
+  sample_time: 0.05  # for render and data extraction 20 Hz 
+  offset_x: 0
+  offset_y: 0
+
+robots:
+  number: 1
+  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
+  distribute: 'manual' # random, circular
+  shape_list: [[4.6, 1.6, 3, 1.6]] # shape: length, width, wheelbase, wheelbase_w
+  state_list: [[10, 10, 0, 0], [2, 1, 0, 0]]
+  goal_list: [[40, 40, 0], [7, 2, 0]]
+  vel_type: 'steer' #  'steer', 'angular', 'simplify'
+  vel_min: [-4, -1]
+  vel_max: [4, 1]
+  psi_limit: 1
+  arrive_mode: 'state' # position, state
+
+obstacles:
+  - type: 'obstacle_circle'
+    number: 0
+    distribute: 'manual' # random, circular
+    dynamic: True
+    sport: 'wander' # default, wander, patrol
+    sport_range: [0, 0, 50, 50]  # xmin xmax ymin ymax  (if sport 'wander')
+    point_list: [[20, 20], [30, 40]]
+    goal_list: [[4, 1], [9, 9]]
+    radius_list: [3, 1]
+    vel_min: [-1, -1]
+    vel_max: [1, 1]
+    
+  - type: 'obstacle_polygon'
+    number: 1
+    distribute: 'manual' # mouse, random
+    dynamic: False
+    points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    state_list: [ [20, 20, 0], ]   # transform of the points 
+    
+
+  # - type: 'obstacle_map'
+  #   reso: '0.1'
+  #   map_image: 'map_100_100.png'
+
+    
+    
+  
+

@@ -10,13 +10,13 @@ robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
   distribute: 'manual' # random, circular
   shape_list: [[4.6, 1.6, 3, 1.6]] # shape: length, width, wheelbase, wheelbase_w
-  state_list: [[0, 0, 0, 0], [2, 1, 0, 0]]
+  state_list: [[5, 5, 0, 0], [2, 1, 0, 0]]
   goal_list: [[40, 40, 0], [7, 2, 0]]
   vel_type: 'steer' #  'steer', 'angular', 'simplify'
   vel_min: [-4, -1]
   vel_max: [4, 1]
   psi_limit: 1
-  arrive_mode: 'state' # position, state
+  arrive_mode: 'position' # position, state
 
 
 

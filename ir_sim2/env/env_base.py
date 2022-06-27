@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 
 from PIL import Image
 from pynput import keyboard
+from multiprocessing import Process
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon
 from ir_sim2.log.Logger import Logger
-
 
 class EnvBase:
 
@@ -101,7 +101,7 @@ class EnvBase:
         self.obstacles_step(**kwargs)
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
-        
+
 
     def step_count(self, **kwargs):
         self.count += 1

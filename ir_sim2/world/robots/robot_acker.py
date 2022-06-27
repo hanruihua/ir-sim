@@ -11,7 +11,7 @@ from matplotlib import image
 class RobotAcker(RobotBase):
 
     robot_type = 'acker'  # omni, acker
-    robot_shape = 'rectangle'  # shape list: ['circle', 'rectangle', 'polygon']
+    appearance = 'rectangle'  # shape list: ['circle', 'rectangle', 'polygon']
     state_dim = (4, 1) # the state dimension,  x,y, phi(heading direction), psi(steering angle) 
     vel_dim = (2, 1)  # the velocity dimension, linear velocity, steering angle (or angular velocity)
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
@@ -44,8 +44,7 @@ class RobotAcker(RobotBase):
 
         if self.vel_type == 'steer':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-            state[3, 0] = 0
-    
+            
             if vel[1, 0] > self.psi_limit or vel[1, 0] < -self.psi_limit:
                 self.log.logger.info('The psi is clipped to be %s', vel[1, 0])
                 vel[1, 0] = np.clip(vel[1, 0], -self.psi_limit, self.psi_limit)
@@ -59,6 +58,8 @@ class RobotAcker(RobotBase):
         d_state = co_matrix @ vel
         new_state = state + d_state * self.step_time
 
+        if self.vel_type == 'steer': state[3, 0] = vel[1, 0]
+
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
         # update angular_point
@@ -71,7 +72,7 @@ class RobotAcker(RobotBase):
         if self.arrive_mode == 'position':
             if self.vel_type == 'steer':
                 dis, radian = RobotAcker.relative_position(self.state, self.goal)
-                robot_radian = self.state[2, 0]
+                robot_radian = self.state[2, 0] + self.state[3, 0]
                 steer_opt = 0
 
                 diff_radian = RobotAcker.wraptopi( radian - robot_radian )
@@ -88,20 +89,21 @@ class RobotAcker(RobotBase):
 
             elif self.vel_type == 'angular':
                 dis, radian = RobotAcker.relative_position(self.state, self.goal)
-                robot_radian = self.state[2, 0]
+                robot_radian = self.state[2, 0] + self.state[3, 0]
                 w_opti = 0
 
                 diff_radian = RobotAcker.wraptopi( radian - robot_radian )
 
                 if diff_radian > tolerance: w_opti = self.vel_max[1, 0]
                 elif diff_radian < - tolerance: w_opti = - self.vel_max[1, 0]
+                else: w_opti = 0
 
                 if dis < self.goal_threshold:
                     v_opti, w_opti = 0, 0
                 else:
                     v_opti = self.vel_max[0, 0] * cos(diff_radian)
                     if v_opti < 0: v_opti = 0
-                
+
                 return np.array([[v_opti], [w_opti]])
 
         elif self.arrive_mode == 'state':
@@ -109,7 +111,7 @@ class RobotAcker(RobotBase):
             # temp test, may change in the future
             if self.vel_type == 'steer':
                 dis, radian = RobotAcker.relative_position(self.state, self.goal)
-                robot_radian = self.state[2, 0]
+                robot_radian = self.state[2, 0] + self.state[3, 0]
                 steer_opt = 0
 
                 diff_radian = RobotAcker.wraptopi( radian - robot_radian )

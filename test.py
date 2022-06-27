@@ -1,19 +1,30 @@
-import numpy as np
+import matplotlib.pyplot as plt
+import multiprocessing as mp
+import random
+import numpy
 import time
-from multiprocessing import Pool
-from math import sqrt
 
-a = np.array([[2], [1]])
-b = np.array([[5], [6]])
+def worker(q):
+    plt.ion()
+    ln, = plt.plot([], [])
+    plt.show()
 
-start_time = time.time()
-for i in range(10000):
-    dis = np.linalg.norm(a - b)
-print('1', time.time()-start_time)
+    while True:
+        obj = q.get()
+        n = obj + 0
+        print("sub : got:"), n
 
-start_time = time.time()
-for i in range(10000):
-    dis = sqrt( (a[0, 0] - b[0, 0])**2 + (a[1, 0] - b[1, 0])**2 )
-print('2', time.time()-start_time)
+        ln.set_xdata(numpy.append(ln.get_xdata(), n))
+        ln.set_ydata(numpy.append(ln.get_ydata(), n))
+        plt.draw()
 
+if __name__ == '__main__':
+    queue = mp.Queue()
+    p = mp.Process(target=worker, args=(queue,))
+    p.start()
 
+    while True:
+        n = random.random() * 5
+        print("main: put:"), n
+        queue.put(n)
+        time.sleep(1.0)

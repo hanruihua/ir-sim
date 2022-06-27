@@ -63,14 +63,10 @@ class EnvObstacle:
     
     def collision_check_point(self, point):
 
-        collision = False
-
-        if self.obs_class.obstacle_type == 'obstacle_circle':
-            for obs in self.obs_cir_list:
-                if obs.collision_check_point(point):
-                    collision = True
+        for obs in self.obs_list:
+            if obs.collision_check_point(point): return True
         
-        return collision
+        return False
 
     def plot(self, ax, **kwargs):
         [obs.plot(ax, **kwargs) for obs in self.obs_list]

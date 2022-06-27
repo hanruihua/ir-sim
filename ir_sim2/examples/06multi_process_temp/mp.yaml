@@ -37,6 +37,12 @@ obstacles:
     points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
     state_list: [ [3, 3, 0], ]   # transform of the points 
     
+
   # - type: 'obstacle_map'
   #   reso: '0.1'
   #   map_image: 'map_100_100.png'
+
+    
+    
+  
+

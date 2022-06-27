@@ -1,7 +1,8 @@
 world:
   world_height: 10
   world_width: 10
-  step_time: 0.1
+  step_time: 0.01  # for robot motion 100Hz
+  sample_time: 0.05  # for render and data extraction 20 Hz 
   offset_x: 0
   offset_y: 0
 
@@ -29,12 +30,13 @@ obstacles:
     vel_min: [-1, -1]
     vel_max: [1, 1]
     
-  # - type: 'obstacle_polygon'
-  #   number: 0
-  #   distribute: 'manual'
-  #   dynamic: False
-  #   motion: 'static'
-  #   point_list: [[], []]
+  - type: 'obstacle_polygon'
+    number: 1
+    distribute: 'manual' # mouse, random
+    dynamic: False
+    points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    state_list: [ [3, 3, 0], ]   # transform of the points 
+    
 
   # - type: 'obstacle_map'
   #   reso: '0.1'

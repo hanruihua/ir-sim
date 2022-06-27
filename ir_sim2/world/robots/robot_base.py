@@ -136,19 +136,19 @@ class RobotBase:
                 obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
                 if cdg.collision_cir_poly(robot_circle, obs_poly): return True
         
-        if self.appearance == 'polygon':
-            robot_polygon = []
-            pass
-        
+        # ackermann robot
+        if self.appearance == 'polygon' or self.appearance == 'rectangle':
+            robot_poly = [ point_geometry(ap[0], ap[1]) for ap in self.angular_point.T]
+
+            if obstacle.appearance == 'circle':
+                obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)
+                if cdg.collision_cir_poly(obs_circle, robot_poly): return True
+            
+            if obstacle.appearance == 'polygon':
+                obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
+                if cdg.collision_poly_poly(robot_poly, obs_poly): return True
+
         return False
-
-
-    def cir_cir_min_distance(self, cir_obs):
-        return np.linalg.norm( self.state[0:self.position_dim[0]] - cir_obs.point) - (self.radius + cir_obs.radius)
-
-    def cir_poly_min_distance(self, poly_obs):
-        robot_point = self.state[0:self.position_dim[0]]
-        pass
 
     def dynamics(self, vel):
 

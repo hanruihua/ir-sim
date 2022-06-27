@@ -7,7 +7,7 @@ from math import sin, cos, pi, atan2, inf
 class RobotDiff(RobotBase):
 
     robot_type = 'diff'  # omni, acker
-    robot_shape = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
+    appearance = 'circle'  # shape list: ['circle', 'rectangle', 'polygon']
     state_dim = (3, 1) # the state dimension, x, y, theta(heading direction)
     vel_dim = (2, 1)  # the velocity dimension, linear and angular velocity
     goal_dim = (3, 1) # the goal dimension, x, y, theta
