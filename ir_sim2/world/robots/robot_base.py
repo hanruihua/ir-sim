@@ -23,7 +23,7 @@ class RobotBase:
     dynamic = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
+    def __init__(self, id, state, vel, goal, step_time=0.1, log_level='info', **kwargs):
 
         """
             type = 'diff', 'omni', 'ackermann' 
@@ -66,8 +66,8 @@ class RobotBase:
         self.G, self.g = self.gen_inequal()
 
         # log
-        self.log = Logger('robot.log', level='info')
-
+        self.log = Logger('robot.log', level=log_level)
+        self.log_level = log_level
         # sensor
         self.lidar = None
         # if lidar_args is not None:
@@ -114,6 +114,45 @@ class RobotBase:
         elif self.arrive_mode == 'state':
             return np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold
 
+    def collision_check_object(self, obj):
+        
+        if self.appearance == 'circle':
+            robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
+            if obj.appearance == 'circle':
+                obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
+                if cdg.collision_cir_cir(robot_circle, obj_circle): 
+                    self.collision_flag = True
+                    self.log.logger.warning('collision of robot with id %d', self.id)
+                    # print('collision of robot with id', self.id)
+                    return True
+                    
+            if obj.appearance == 'polygon':
+                obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
+                if cdg.collision_cir_poly(robot_circle, obj_poly): 
+                    self.collision_flag = True
+                    self.log.logger.warning('collision of robot with id %d', self.id)
+                    return True
+        
+        # ackermann robot
+        if self.appearance == 'polygon' or self.appearance == 'rectangle':
+            robot_poly = [ point_geometry(v[0], v[1]) for v in self.vertex.T]
+
+            if obj.appearance == 'circle':
+                obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
+                if cdg.collision_cir_poly(obj_circle, robot_poly): 
+                    self.collision_flag = True
+                    self.log.logger.warning('collision of robot with id %d', self.id)
+                    return True
+            
+            if obj.appearance == 'polygon':
+                obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
+                if cdg.collision_poly_poly(robot_poly, obj_poly):
+                    self.collision_flag = True
+                    self.log.logger.warning('collision of robot with id %d', self.id)
+                    return True
+
+        return False
+
     def collision_check_point(self, point):
         # utilize the generalized inequality to judge the collision with a point
         assert point.shape == self.position_dim
@@ -123,32 +162,38 @@ class RobotBase:
 
         return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
 
-    def collision_check_obstacle(self, obstacle):
+    # def collision_check_obstacle(self, obstacle):
         
-        if self.appearance == 'circle':
-            robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
+    #     if self.appearance == 'circle':
+    #         robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
 
-            if obstacle.appearance == 'circle':
-                obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)  
-                if cdg.collision_cir_cir(robot_circle, obs_circle): return True 
+    #         if obstacle.appearance == 'circle':
+    #             obs_circle = circle_geometry(obstacle.center[0, 0], obstacle.center[1, 0], obstacle.radius)  
+    #             if cdg.collision_cir_cir(robot_circle, obs_circle): 
+    #                 self.collision_flag = True
+    #                 print('robot collision id', self.id)
+    #                 return True
                     
-            if obstacle.appearance == 'polygon':
-                obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-                if cdg.collision_cir_poly(robot_circle, obs_poly): return True
+    #         if obstacle.appearance == 'polygon':
+    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
+    #             if cdg.collision_cir_poly(robot_circle, obs_poly): 
+    #                 self.collision_flag = True
+    #                 print('robot collision id', self.id)
+    #                 return True
         
-        # ackermann robot
-        if self.appearance == 'polygon' or self.appearance == 'rectangle':
-            robot_poly = [ point_geometry(ap[0], ap[1]) for ap in self.angular_point.T]
+    #     # ackermann robot
+    #     if self.appearance == 'polygon' or self.appearance == 'rectangle':
+    #         robot_poly = [ point_geometry(ap[0], ap[1]) for ap in self.vertex.T]
 
-            if obstacle.appearance == 'circle':
-                obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)
-                if cdg.collision_cir_poly(obs_circle, robot_poly): return True
+    #         if obstacle.appearance == 'circle':
+    #             obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)
+    #             if cdg.collision_cir_poly(obs_circle, robot_poly): return True
             
-            if obstacle.appearance == 'polygon':
-                obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-                if cdg.collision_poly_poly(robot_poly, obs_poly): return True
+    #         if obstacle.appearance == 'polygon':
+    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
+    #             if cdg.collision_poly_poly(robot_poly, obs_poly): return True
 
-        return False
+    #     return False
 
     def dynamics(self, vel):
 

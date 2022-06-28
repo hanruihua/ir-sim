@@ -19,14 +19,16 @@ class RobotDiff(RobotBase):
 
     def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 
+        # shape args
         self.radius = radius
         self.radius_collision = radius + radius_exp
+        self.center = state[0:2]
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
         self.plot_patch_list = []
         self.plot_line_list = []
-
+        
     def dynamics(self, state, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
@@ -41,6 +43,8 @@ class RobotDiff(RobotBase):
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
+        self.center = new_state[0:2]
+
         return new_state
 
     def cal_des_vel(self, tolerance=0.12):
@@ -87,7 +91,7 @@ class RobotDiff(RobotBase):
         robot_circle.set_zorder(3)
 
         ax.add_patch(robot_circle)
-        if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'k')
+        if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
         self.plot_patch_list.append(robot_circle)
 
         # arrow

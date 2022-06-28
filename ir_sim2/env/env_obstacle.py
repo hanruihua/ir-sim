@@ -17,15 +17,15 @@ class EnvObstacle:
             self.obs_cir_list = []
 
             if distribute == 'manual':
-                point_list = kwargs.get('point_list', None)
+                center_list = kwargs.get('center_list', None)
                 goal_list = kwargs.get('goal_list', None)
                 radius_list = kwargs.get('radius_list', [0.2] * number)
                 
                 if isinstance(radius_list, float): radius_list = [radius_list] * number
 
             if number > 0:
-                for id, radius, point, goal in zip(range(number), radius_list, point_list, goal_list):
-                    obstacle = obs_class(id=id, point=point, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
+                for id, radius, center, goal in zip(range(number), radius_list, center_list, goal_list):
+                    obstacle = obs_class(id=id, center=center, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
                     self.obs_cir_list.append(obstacle)
                     self.obs_list.append(obstacle)
 

@@ -17,7 +17,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', **kwargs):
+    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', **kwargs):
         
         # world_name: path of the yaml
         # plot: True or False
@@ -51,16 +51,16 @@ class EnvBase:
 
         self.plot = plot
         self.components = dict()
-        self.init_environment(**kwargs)
-
-        self.log = Logger('robot.log', level='info')
+        
+        self.log_level = log_level
+        self.log = Logger('robot.log', level=log_level)
         self.logging = logging
+
+        self.init_environment(**kwargs)
 
         self.count = 0
         self.sampling = True
-        self.arrive_flag = False
-        self.collision_flag = False
-
+        
         if control_mode == 'keyboard':
             pass
 
@@ -70,7 +70,7 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, log_level=self.log_level, **self.robot_args)
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
        
         # default robots 
@@ -102,28 +102,37 @@ class EnvBase:
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
-
     def step_count(self, **kwargs):
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
     def collision_check(self):
-        return any([self.env_robot.collision_check(env_obstacle) for env_obstacle in self.env_obstacle_list])
+        collision_list = [self.env_robot.collision_check_list(env_obstacle) for env_obstacle in self.env_obstacle_list]
+        return any(any(c) for c in collision_list)
 
-    def done(self, collision_check=True):
+    def done(self, mode='all', collision_check=True):
+        # mode: any; any robot done, return done
+        #       all; all robots done, return done
+        done_list = self.done_list(collision_check)
+
+        if mode == 'all':
+            return all(done_list)
+        elif mode == 'any':
+            return any(done_list)
+
+    def done_list(self, collision_check=True):
+
+        arrive_flags = self.env_robot.arrive_list()
+
+        if collision_check:
+            self.collision_check()
+            collision_flags = self.env_robot.collision_list()
+        else:
+            collision_flags = [False] * len(arrive_flags)
         
-        if self.env_robot.arrive():
-            self.arrive_flag = True
-            if self.logging: self.log.logger.info('All robots arrive at the goal positions')
-        if collision_check and self.collision_check():
-            self.collision_flag = True
-            if self.logging: self.log.logger.warning('Collisions occur')
-
-        return self.arrive_flag or self.collision_flag
+        done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
+        return done_list
     
-    def done_list(self):
-        return self.env_robot.arrive_list()
-
     def render(self, pause_time=0.0001, **kwargs):
         
         if self.plot and self.sampling:

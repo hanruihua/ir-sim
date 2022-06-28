@@ -19,7 +19,7 @@ class RobotAcker(RobotBase):
 
     def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -4], vel_max=[4, 4], vel_type='steer', **kwargs):
 
-        self.init_angular_point = RobotAcker.cal_angular_point(shape)
+        self.init_vertex = RobotAcker.cal_vertex(shape)
 
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
@@ -62,9 +62,9 @@ class RobotAcker(RobotBase):
 
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
-        # update angular_point
+        # update vertex
         rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
-        self.angular_point = rot @ self.init_angular_point + trans
+        self.vertex = rot @ self.init_vertex + trans
 
         return new_state
 
@@ -134,11 +134,11 @@ class RobotAcker(RobotBase):
         
         for i in range(4):
             if i + 1 < 4:
-                pre_point = self.init_angular_point[:, i]
-                next_point = self.init_angular_point[:, i+1]
+                pre_point = self.init_vertex[:, i]
+                next_point = self.init_vertex[:, i+1]
             else:
-                pre_point = self.init_angular_point[:, i]
-                next_point = self.init_angular_point[:, 0]
+                pre_point = self.init_vertex[:, i]
+                next_point = self.init_vertex[:, 0]
             
             diff = next_point - pre_point
             
@@ -153,9 +153,9 @@ class RobotAcker(RobotBase):
         return G, h
  
     def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', **kwargs):
-        # cur_angular_point = 
-        start_x = self.angular_point[0, 0]
-        start_y = self.angular_point[1, 0]
+        # cur_vertex = 
+        start_x = self.vertex[0, 0]
+        start_y = self.vertex[1, 0]
         r_phi = self.state[2, 0]
         r_phi_ang = 180*r_phi/pi
 
@@ -203,7 +203,7 @@ class RobotAcker(RobotBase):
             
 
     @staticmethod
-    def cal_angular_point(shape):        
+    def cal_vertex(shape):        
         # angular point when the robot is in the zeros point
         # counterclockwise
         # shape [length, width, wheelbase, wheelbase_w]

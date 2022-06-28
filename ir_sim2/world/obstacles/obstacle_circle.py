@@ -13,15 +13,15 @@ class ObstacleCircle(ObstacleBase):
     convex = True
     cone_type = 'norm2' # 'Rpositive'; 'norm2' 
     
-    def __init__(self, id, point=np.zeros((2, 1)), goal=np.ones((2, 1)), radius=0.2, step_time=0.01, dynamic=True, sport='wander', **kwargs):
+    def __init__(self, id, center=np.zeros((2, 1)), goal=np.ones((2, 1)), radius=0.2, step_time=0.01, dynamic=True, sport='wander', **kwargs):
 
-        if isinstance(point, list): point = np.c_[point]
+        if isinstance(center, list): center = np.c_[center]
         if isinstance(goal, list): goal = np.c_[goal]
 
-        self.point = point
+        self.center = center
         self.radius = radius
 
-        assert point.shape == self.point_dim and goal.shape == self.goal_dim
+        assert center.shape == self.point_dim and goal.shape == self.goal_dim
 
         super(ObstacleCircle, self).__init__(id=id, step_time=step_time, **kwargs)
 
@@ -41,7 +41,7 @@ class ObstacleCircle(ObstacleBase):
         self.arrive_flag = False
     
     def move(self, vel, **kwargs):
-        self.point = self.point + vel * self.step_time
+        self.center = self.center + vel * self.step_time
         self.A, self.b = self.gen_inequal()
     
     def move_goal(self, **kwargs):
@@ -59,11 +59,11 @@ class ObstacleCircle(ObstacleBase):
         self.move(des_vel)
 
     def arrive(self):
-        return np.linalg.norm(self.point - self.goal) <= self.goal_threshold
+        return np.linalg.norm(self.center - self.goal) <= self.goal_threshold
 
     def cal_des_vel(self):
         
-        dis, radian = ObstacleCircle.relative_position(self.point, self.goal, topi=False)
+        dis, radian = ObstacleCircle.relative_position(self.center, self.goal, topi=False)
         
         if dis > self.goal_threshold:
             vx = self.vel_max[0, 0] * cos(radian)
@@ -77,7 +77,7 @@ class ObstacleCircle(ObstacleBase):
 
     def gen_inequal(self):
         A = np.array([ [1, 0], [0, 1], [0, 0] ])
-        b = np.row_stack((self.point, -self.radius * np.ones((1,1))))
+        b = np.row_stack((self.center, -self.radius * np.ones((1,1))))
 
         return A, b
 
@@ -90,7 +90,7 @@ class ObstacleCircle(ObstacleBase):
         pass
 
     def plot(self, ax, obs_cir_color='k', **kwargs): 
-        obs_circle = mpl.patches.Circle(xy=(self.point[0, 0], self.point[1, 0]), radius = self.radius, color = obs_cir_color)
+        obs_circle = mpl.patches.Circle(xy=(self.center[0, 0], self.center[1, 0]), radius = self.radius, color = obs_cir_color)
         obs_circle.set_zorder(2)
         ax.add_patch(obs_circle)
         self.plot_patch_list.append(obs_circle)
