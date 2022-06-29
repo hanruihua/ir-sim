@@ -78,17 +78,21 @@ class EnvRobot:
             
         return False
 
-    def collision_check_list(self, env_obstacle):
+    def collision_check_list(self, env_obstacle_list):
         # return the list of collision flags
         collision_list = []
+        obs_list = []
+
+        for env_obs in env_obstacle_list:
+            obs_list.extend(env_obs.obs_list)
 
         for i, robot in enumerate(self.robot_list):
             other_robot_list = [o_robot for j, o_robot in enumerate(self.robot_list) if j != i]
-            object_list = env_obstacle.obs_list + other_robot_list
+            object_list = obs_list + other_robot_list
             collision_list.append(self.collision_check_obj_list(robot, object_list))
-
+        
         return collision_list
-
+    
     def collision_check_obj_list(self, robot, object_list):
 
         for obj in object_list:

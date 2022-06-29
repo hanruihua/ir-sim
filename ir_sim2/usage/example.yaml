@@ -7,26 +7,29 @@ world:
   offset_y: 0
 
 robots:
-  type: 'robot_diff'  # # robot_omni, robot_diff 
-  number: 2
-  distribute: 'manual' # random, circular, 
-  state_list: [[1, 1, 0], [2, 1, 0]]
-  goal_list: [[7, 7, 0], [7, 2, 0]]
-  radius_list: 0.2
-  radius_exp_list: 0.1
+  type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
+  number: 10
+  distribute: 'circular' # manual, random, circular, line
+  circular: [5, 5, 4]  # for circular distribute, x, y radius
+  random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
+  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
+  goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
+  shape_list: 0.2   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
+  # general property
+  radius_exp: 0.1  
   vel_min: [0, -1.5]
   vel_max: [1.5, 1.5]
 
 obstacles:
   - type: 'obstacle_circle'
     number: 2
-    distribute: 'manual' # random, circular
+    distribute: 'manual' # manual, random, circular, line
     dynamic: True
     sport: 'wander' # default, wander, patrol
     sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
-    point_list: [[6, 9], [3, 4]]
+    center_list: [[6, 4], [3, 4]]
     goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.3, 0.5]
+    radius_list: [0.1, 0.5]
     vel_min: [-1, -1]
     vel_max: [1, 1]
     
@@ -37,6 +40,8 @@ obstacles:
     points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
     state_list: [ [3, 3, 0], ]   # transform of the points 
     
+
   # - type: 'obstacle_map'
   #   reso: '0.1'
   #   map_image: 'map_100_100.png'
+

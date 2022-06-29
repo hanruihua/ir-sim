@@ -107,8 +107,8 @@ class EnvBase:
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
     def collision_check(self):
-        collision_list = [self.env_robot.collision_check_list(env_obstacle) for env_obstacle in self.env_obstacle_list]
-        return any(any(c) for c in collision_list)
+        collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
+        return any(collision_list)
 
     def done(self, mode='all', collision_check=True):
         # mode: any; any robot done, return done

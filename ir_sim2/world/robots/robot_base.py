@@ -3,6 +3,7 @@ from math import inf, pi, atan2, sin, cos
 from ir_sim2.log.Logger import Logger
 from collections import namedtuple
 from ir_sim2.util import collision_dectection_geo as cdg 
+import time
 
 # define geometry point and segment for collision detection.
 # point [x, y]
@@ -101,8 +102,9 @@ class RobotBase:
 
         self.trajectory.append(self.state)
         self.state = self.dynamics(self.state, vel, **kwargs)
-        self.arrive_flag = self.arrive()
-    
+
+        self.arrive()
+        
     def update_info(self, state, vel):
         # update the information of the robot manually
         self.state = state
@@ -110,27 +112,30 @@ class RobotBase:
     
     def arrive(self):
         if self.arrive_mode == 'position':
-            return np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold
+            if np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold:
+                if not self.arrive_flag: self.log.logger.info('robot %d arrive at the goal', self.id)
+                self.arrive_flag = True
+
         elif self.arrive_mode == 'state':
-            return np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold
+            if np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold:
+                if not self.arrive_flag: self.log.logger.info('robot %d arrive at the goal', self.id)
+                self.arrive_flag = True
 
     def collision_check_object(self, obj):
-        
         if self.appearance == 'circle':
             robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
-                if cdg.collision_cir_cir(robot_circle, obj_circle): 
+                if cdg.collision_cir_cir(robot_circle, obj_circle):
+                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id) 
                     self.collision_flag = True
-                    self.log.logger.warning('collision of robot with id %d', self.id)
-                    # print('collision of robot with id', self.id)
                     return True
                     
             if obj.appearance == 'polygon':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_cir_poly(robot_circle, obj_poly): 
+                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
                     self.collision_flag = True
-                    self.log.logger.warning('collision of robot with id %d', self.id)
                     return True
         
         # ackermann robot
@@ -140,15 +145,15 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
                 if cdg.collision_cir_poly(obj_circle, robot_poly): 
+                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
                     self.collision_flag = True
-                    self.log.logger.warning('collision of robot with id %d', self.id)
                     return True
             
             if obj.appearance == 'polygon':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_poly_poly(robot_poly, obj_poly):
+                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
                     self.collision_flag = True
-                    self.log.logger.warning('collision of robot with id %d', self.id)
                     return True
 
         return False
