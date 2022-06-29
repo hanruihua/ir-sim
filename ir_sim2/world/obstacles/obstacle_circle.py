@@ -21,6 +21,8 @@ class ObstacleCircle(ObstacleBase):
         self.center = center
         self.radius = radius
 
+        self.init_center = center
+
         assert center.shape == self.point_dim and goal.shape == self.goal_dim
 
         super(ObstacleCircle, self).__init__(id=id, step_time=step_time, **kwargs)

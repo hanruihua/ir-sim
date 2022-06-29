@@ -38,6 +38,9 @@ class ObstacleBase:
         # self.G, self.g = self.gen_inequal()
         raise NotImplementedError
     
+    def reset(self):
+        self.center = self.init_center
+
     def plot(self):
         raise NotImplementedError
 

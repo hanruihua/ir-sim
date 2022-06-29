@@ -68,6 +68,10 @@ class EnvObstacle:
         
         return False
 
+    def reset(self):
+        if self.dynamic:
+            [obs.reset() for obs in self.obs_list]
+
     def plot(self, ax, **kwargs):
         [obs.plot(ax, **kwargs) for obs in self.obs_list]
  

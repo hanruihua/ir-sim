@@ -167,6 +167,14 @@ class RobotBase:
 
         return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
 
+    def reset(self):
+        self.state = self.init_state
+        self.goal = self.init_goal_state
+        self.vel = self.init_vel
+
+        self.collision_flag = False
+        self.arrive_flag = False
+
     # def collision_check_obstacle(self, obstacle):
         
     #     if self.appearance == 'circle':
