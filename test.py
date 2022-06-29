@@ -4,4 +4,8 @@ import random
 import numpy
 import time
 
-print(mp.cpu_count())
+a = [[1]]
+
+b = a *10
+
+print(b)
