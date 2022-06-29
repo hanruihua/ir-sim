@@ -10,7 +10,7 @@ A python based robot simulator framework for the intelligent robotics navigation
 - [x] collision check
 - [ ] gif generation
 - [x] multi robots mode
-- [ ] multi-process to handle the multi robots and obstacles (need to study)
+~~ multi-process to handle the multi robots and obstacles (need to study) ~~
 - [ ] sensor lidar
 - [ ] line obstacle
 - [ ] env reset
