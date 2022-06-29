@@ -18,6 +18,7 @@ class EnvRobot:
 
         shape_list = kwargs.get('shape_list', [0.2] * number if robot_class.appearance == 'circle' else [[4.6, 1.6, 3, 1.6]]*number)
         if isinstance(shape_list, float): shape_list = [shape_list] * number
+        if len(shape_list) == 1: shape_list = shape_list * number
 
         if distribute == 'manual':
             # if robot_class.appearance == 'circle':
@@ -39,7 +40,7 @@ class EnvRobot:
             goal_list = kwargs['goal_list']
             
         else:
-            state_list, goal_list = self.init_distribute(number, distribute, robot_class.appearance, **kwargs)
+            state_list, goal_list = self.init_distribute(number, distribute, robot_class.robot_type, **kwargs)
 
         if number > 0:
             if robot_class.appearance == 'circle':
@@ -51,17 +52,20 @@ class EnvRobot:
                     robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
                     self.robot_list.append(robot)
             
-    def init_distribute(self, number, distribute='line', appearance='circle', **kwargs):
-
+    def init_distribute(self, number, distribute='line', robot_type='diff', **kwargs):
+        
         if distribute == 'line':
             pass
-
+        
         elif distribute == 'circular':
             cx, cy, cr = kwargs['circular']  # x, y, radius
             theta_space = np.linspace(0, 2*pi, number, endpoint=False)
-
-            state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [theta + pi]]) for theta in theta_space]
             goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [theta + pi]]) for theta in theta_space]
+
+            if robot_type == 'diff':
+                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [theta + pi]]) for theta in theta_space]
+            elif robot_type == 'acker':
+                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [theta + pi], [0]]) for theta in theta_space]
 
         return state_list, goal_list
     
@@ -101,6 +105,9 @@ class EnvRobot:
 
         return False
     
+    def reset(self):
+        [robot.reset() for robot in self.robot_list]
+
     def arrive(self):
         return all([r.arrive_flag for r in self.robot_list])
 

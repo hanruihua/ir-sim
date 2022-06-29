@@ -192,6 +192,10 @@ class EnvBase:
         self.env_robot.reset()
         [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
 
+    # def reset(self, done_list=None, mode='all'):
+    #     if done_list is None:
+    #         self.env_robot.reset()
+    #         [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
 
             
 
