@@ -2,7 +2,6 @@
 
 A python based robot simulator framework for the intelligent robotics navigation and learning
 
-
 ### To do list
 
 - [x] Basic framework
