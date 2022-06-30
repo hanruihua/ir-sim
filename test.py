@@ -4,8 +4,12 @@ import random
 import numpy
 import time
 
-a = [[1]]
+a = [1]
 
-b = a *10
+b = [2, 3]
 
-print(b)
+c = [4, 5, 6]
+
+
+
+print(a)
