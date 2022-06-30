@@ -105,8 +105,11 @@ class EnvRobot:
 
         return False
     
-    def reset(self):
-        [robot.reset() for robot in self.robot_list]
+    def reset(self, id=-1):
+        if id == -1:
+            [robot.reset() for robot in self.robot_list]
+        else:
+            [robot.reset() for robot in self.robot_list if robot.id == id]
 
     def arrive(self):
         return all([r.arrive_flag for r in self.robot_list])
@@ -115,6 +118,7 @@ class EnvRobot:
         return [r.arrive_flag for r in self.robot_list]
     
     def collision_list(self):
+        t = [r.collision_flag for r in self.robot_list]
         return [r.collision_flag for r in self.robot_list]
 
     def collision(self):

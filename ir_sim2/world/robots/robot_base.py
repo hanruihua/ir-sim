@@ -127,14 +127,14 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
                 if cdg.collision_cir_cir(robot_circle, obj_circle):
-                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id) 
+                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id) 
                     self.collision_flag = True
                     return True
                     
             if obj.appearance == 'polygon' or self.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_cir_poly(robot_circle, obj_poly): 
-                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
+                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
         
@@ -145,14 +145,14 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
                 if cdg.collision_cir_poly(obj_circle, robot_poly): 
-                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
+                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
             
             if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_poly_poly(robot_poly, obj_poly):
-                    if not self.collision_flag: self.log.logger.warning('robot id %d collision', self.id)
+                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
 
@@ -231,11 +231,6 @@ class RobotBase:
     def plot_clear(self, ax):
         # plot the robot in the map
         raise NotImplementedError
-
-    def reset(self):
-        self.state = self.init_state
-        self.vel = self.init_vel
-        self.goal_state = self.init_goal_state
 
     @staticmethod
     def InCone(point, cone_type='Rpositive'):

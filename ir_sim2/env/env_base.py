@@ -11,13 +11,18 @@ from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon
 from ir_sim2.log.Logger import Logger
+import time
+import os
+import imageio
+import shutil
+from pathlib import Path
 
 class EnvBase:
 
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', **kwargs):
+    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', save_ani=False, **kwargs):
         
         # world_name: path of the yaml
         # plot: True or False
@@ -60,6 +65,10 @@ class EnvBase:
 
         self.count = 0
         self.sampling = True
+
+        self.save_ani = save_ani  
+        self.image_path = Path(sys.path[0] + '/' + 'image')  
+        self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
         if control_mode == 'keyboard':
             pass
@@ -110,7 +119,7 @@ class EnvBase:
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
         return any(collision_list)
 
-    def done(self, mode='all', collision_check=True):
+    def done(self, mode='all', collision_check=True) -> bool:
         # mode: any; any robot done, return done
         #       all; all robots done, return done
         done_list = self.done_list(collision_check)
@@ -133,13 +142,38 @@ class EnvBase:
         done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
         return done_list
     
+    def reset(self, done_list=None, mode='any'):
+        # mode:  if done list is not None
+        #   any: reset the env when any robot done
+        #   all: reset env when all robots done
+        #   single: reset one robot who has done, depending on the done list
+        if done_list is None: self.reset_all()
+        else:
+            if mode == 'any' and any(done_list):
+                self.reset_all()   
+            elif mode == 'all' and all(done_list):
+                self.reset_all()
+            elif mode == 'single':
+                [self.reset_single(i) for i, done in enumerate(done_list) if done]
+    
+    def reset_all(self):
+        self.env_robot.reset()
+        [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+    
+    def reset_single(self, id):
+        self.env_robot.reset(id)
+
     def render(self, pause_time=0.0001, **kwargs):
         
-        if self.plot and self.sampling:
-            self.draw_components(self.ax, mode='dynamic', **kwargs)
-            plt.pause(pause_time)
-            self.clear_components(self.ax, mode='dynamic', **kwargs)
-    
+        if self.plot: 
+            if self.sampling:
+                self.draw_components(self.ax, mode='dynamic', **kwargs)
+                plt.pause(pause_time)
+
+                if self.save_ani: self.save_gif_figure(**kwargs)
+
+                self.clear_components(self.ax, mode='dynamic', **kwargs)
+
     def render_once(self, pause_time=0.0001, **kwargs):
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
@@ -181,16 +215,40 @@ class EnvBase:
         
         elif mode == 'all':
             plt.cla()
-        
 
     def show(self, **kwargs):
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.show()
 
-    def reset(self):
-        self.env_robot.reset()
-        [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+    def save_gif_figure(self, format='png', **kwargs):
+
+        if not self.image_path.exists(): self.image_path.mkdir()
+
+        order = str(self.count).zfill(3)
+        plt.savefig(str(self.image_path)+'/'+order+'.'+format, format=format, **kwargs)
+
+    def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True):
+        
+        if not self.ani_path.exists(): self.ani_path.mkdir()
+            
+        images = list(self.image_path.glob('*.png'))
+        images.sort()
+        image_list = []
+        for i, file_name in enumerate(images):
+
+            if i == 0: continue
+
+            image_list.append(imageio.imread(file_name))
+            if i == len(images) - 1:
+                for j in range(keep_len):
+                    image_list.append(imageio.imread(file_name))
+
+        imageio.mimsave(str(self.ani_path)+'/'+ ani_name+'.gif', image_list)
+        print('Create animation successfully')
+
+        if rm_fig_path: shutil.rmtree(self.image_path)
+
 
     # def reset(self, done_list=None, mode='all'):
     #     if done_list is None:
