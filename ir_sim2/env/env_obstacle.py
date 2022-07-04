@@ -22,6 +22,7 @@ class EnvObstacle:
                 radius_list = kwargs.get('radius_list', [0.2] * number)
                 
                 if isinstance(radius_list, float): radius_list = [radius_list] * number
+                if len(radius_list) < number: radius_list.extend([radius_list[-1]]* (number - len(radius_list)) )
 
             if number > 0:
                 for id, radius, center, goal in zip(range(number), radius_list, center_list, goal_list):
@@ -33,12 +34,12 @@ class EnvObstacle:
             self.obs_poly_list = []
 
             if distribute == 'manual':
-                points_list = kwargs.get('points_list', None)
+                vertex_list = kwargs.get('vertex_list', None)
                 state_list = kwargs.get('state_list', np.zeros((3, 1)))
                 
             if number > 0:
-                for id, state, points in zip(range(number), state_list, points_list):
-                    obstacle = obs_class(id=id, state=state, points=points, **kwargs) 
+                for id, state, vertex in zip(range(number), state_list, vertex_list):
+                    obstacle = obs_class(id=id, state=state, vertex=vertex, **kwargs) 
                     self.obs_poly_list.append(obstacle)
                     self.obs_list.append(obstacle)
 

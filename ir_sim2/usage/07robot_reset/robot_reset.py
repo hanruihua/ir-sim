@@ -3,8 +3,8 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'robot_reset_car.yaml', plot=False, log_level='warning')
-# env = EnvBase(world_name = 'robot_reset.yaml', plot=False, log_level='warning')
+# env = EnvBase(world_name = 'robot_reset_car.yaml', plot=True, log_level='warning')
+env = EnvBase(world_name = 'robot_reset.yaml', plot=True, log_level='warning')
 
 start_time = time.time()
 for i in range(3000):

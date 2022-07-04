@@ -16,6 +16,7 @@ import os
 import imageio
 import shutil
 from pathlib import Path
+from math import sin, cos
 
 class EnvBase:
 
@@ -43,7 +44,7 @@ class EnvBase:
         robot_args.update(kwargs.get('robot_args', dict()))
         [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
 
-        # world args
+        # world, robot, obstacle, args
         self.__height = world_args.get('world_height', 10)
         self.__width = world_args.get('world_width', 10) 
         self.step_time = world_args.get('step_time', 0.01) 
@@ -54,9 +55,14 @@ class EnvBase:
         self.robot_args = robot_args
         self.obstacle_args_list = obstacle_args_list
 
+        # plot
         self.plot = plot
+        self.dyna_line_list = []
+
+        # components
         self.components = dict()
         
+        # log
         self.log_level = log_level
         self.log = Logger('robot.log', level=log_level)
         self.logging = logging
@@ -114,6 +120,20 @@ class EnvBase:
     def step_count(self, **kwargs):
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+
+    def get_robot_list(self):
+        return self.env_robot.robot_list
+
+    def get_obs_list(self, obs_type=None):
+        # obs_type： obstacle_circle； obstacle_polygon
+
+        obs_list = []
+        if obs_type is not None:
+            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list]
+        else:
+            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list if env_obs.obs_class == obs_type]
+        
+        return obs_list
 
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
@@ -209,12 +229,41 @@ class EnvBase:
         if mode == 'dynamic':
             self.env_robot.plot_clear(ax)
             [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+            [line.pop(0).remove() for line in self.dyna_line_list]
 
+            self.dyna_line_list = []
+            
         elif mode == 'static':
             pass
         
         elif mode == 'all':
             plt.cla()
+
+    def draw_trajectory(self, traj, style='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
+        # traj: a list of points
+        if isinstance(traj, list):
+            path_x_list = [p[0, 0] for p in traj]
+            path_y_list = [p[1, 0] for p in traj]
+        elif isinstance(traj, np.ndarray):
+            # raw*column: points * num
+            path_x_list = [p[0] for p in traj.T]
+            path_y_list = [p[1] for p in traj.T]
+
+        line = self.ax.plot(path_x_list, path_y_list, style, label=label, **kwargs)
+
+        if show_direction:
+            if isinstance(traj, list):
+                u_list = [cos(p[2, 0]) for p in traj]
+                y_list = [sin(p[2, 0]) for p in traj]
+            elif isinstance(traj, np.ndarray):
+                u_list = [cos(p[2]) for p in traj.T]
+                y_list = [sin(p[2]) for p in traj.T]
+
+            self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
+
+        if refresh:
+            self.dyna_line_list.append(line)
+
 
     def show(self, **kwargs):
         if self.plot:

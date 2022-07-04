@@ -120,17 +120,16 @@ class RobotDiff(RobotBase):
         #         y_value = [y, point[1]]
         #         lidar_line_list.append(ax.plot(x_value, y_value, color = 'b', alpha=0.5))
         
-    def plot_clear(self, ax):
-        for patch in self.plot_patch_list:
-            patch.remove()
-        for line in self.plot_line_list:
-            line.pop(0).remove()
+    # def plot_clear(self, ax):
+    #     for patch in self.plot_patch_list:
+    #         patch.remove()
+    #     for line in self.plot_line_list:
+    #         line.pop(0).remove()
 
-        self.plot_patch_list = []
-        self.plot_line_list = []
-        ax.texts.clear()
+    #     self.plot_patch_list = []
+    #     self.plot_line_list = []
+    #     ax.texts.clear()
     
-
     # reference: Modern Robotics[book], P523 
     @classmethod
     def motion_diff(cls, current_state, vel, step_time, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):

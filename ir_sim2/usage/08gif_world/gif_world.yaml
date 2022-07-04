@@ -29,7 +29,7 @@ obstacles:
     sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
     center_list: [[6, 4], [3, 4]]
     goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.1, 0.5]
+    radius_list: [0.1, 0.5] # radius list will be extended if the length of list less than number
     vel_min: [-1, -1]
     vel_max: [1, 1]
     

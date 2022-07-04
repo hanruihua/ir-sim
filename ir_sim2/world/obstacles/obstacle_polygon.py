@@ -11,17 +11,16 @@ class ObstaclePolygon(ObstacleBase):
     convex = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state=[0, 0, 0], points=[], dynamic=False, **kwargs):
+    def __init__(self, id, state=[0, 0, 0], vertex=[], dynamic=False, **kwargs):
         
         if isinstance(state, list): state = np.c_[state]
         self.state = state
 
-        self.init_vertex = np.vstack(points).T
+        self.init_vertex = np.vstack(vertex).T
 
         rot, trans = ObstaclePolygon.get_transform(self.state[0:2], self.state[2, 0])
 
         self.vertex =  rot @ self.init_vertex + trans 
-        # self.points = 
         super(ObstaclePolygon, self).__init__(id=id, dynamic=dynamic, **kwargs)
 
         self.plot_patch_list = []

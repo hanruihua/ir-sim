@@ -20,13 +20,16 @@ class RobotAcker(RobotBase):
     def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -4], vel_max=[4, 4], vel_type='steer', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
-
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
+        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        self.vertex = rot @ self.init_vertex + trans
+
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
         self.wheelbase = shape[2]
         self.psi_limit = psi_limit
+        self.speed_limit = self.vel_max[0, 0]
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
@@ -166,7 +169,6 @@ class RobotAcker(RobotBase):
         car_img = ax.imshow(car_img_read, extent=[start_x, start_x+self.shape[0], start_y, start_y+self.shape[1]])
         trans_data = mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang) + ax.transData
         car_img.set_transform(trans_data)
-        # self.car_img_show_list.append(car_img)
         self.plot_patch_list.append(car_img)
         
         if show_goal:
@@ -190,18 +192,16 @@ class RobotAcker(RobotBase):
         if show_lidar:
             pass    
     
-    def plot_clear(self, ax):
-        for patch in self.plot_patch_list:
-            patch.remove()
-        for line in self.plot_line_list:
-            line.pop(0).remove()
+    # def plot_clear(self, ax):
+    #     for patch in self.plot_patch_list:
+    #         patch.remove()
+    #     for line in self.plot_line_list:
+    #         line.pop(0).remove()
 
-        self.car_img_show_list = []
-        self.plot_patch_list = []
-        self.plot_line_list = []
-        ax.texts.clear()
+    #     self.plot_patch_list = []
+    #     self.plot_line_list = []
+    #     ax.texts.clear()
             
-
     @staticmethod
     def cal_vertex(shape):        
         # angular point when the robot is in the zeros point

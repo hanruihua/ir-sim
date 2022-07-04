@@ -232,6 +232,14 @@ class RobotBase:
         # plot the robot in the map
         raise NotImplementedError
 
+    def plot_clear(self, ax):
+        [patch.remove() for patch in self.plot_patch_list]
+        [line.pop(0).remove() for line in self.plot_line_list]
+
+        self.plot_patch_list = []
+        self.plot_line_list = []
+        ax.texts.clear()
+
     @staticmethod
     def InCone(point, cone_type='Rpositive'):
         if cone_type == 'Rpositive':

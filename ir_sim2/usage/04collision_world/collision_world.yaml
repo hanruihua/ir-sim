@@ -24,7 +24,7 @@ obstacles:
     dynamic: True
     sport: 'wander' # default, wander, patrol
     sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
-    point_list: [[6, 9], [3, 4]]
+    center_list: [[6, 9], [3, 4]]
     goal_list: [[4, 1], [9, 9]]
     radius_list: [0.3, 0.5]
     vel_min: [-1, -1]
@@ -34,7 +34,7 @@ obstacles:
     number: 1
     distribute: 'manual' # mouse, random
     dynamic: False
-    points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
     state_list: [ [3, 3, 0], ]   # transform of the points 
     
 
