@@ -124,7 +124,7 @@ class EnvBase:
     def get_robot_list(self):
         return self.env_robot.robot_list
 
-    def get_obs_list(self, obs_type=None):
+    def get_obstacle_list(self, obs_type=None):
         # obs_type： obstacle_circle； obstacle_polygon
 
         obs_list = []
