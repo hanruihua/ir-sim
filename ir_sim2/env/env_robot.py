@@ -133,8 +133,11 @@ class EnvRobot:
         #       alpha = [0.01, 0, 0, 0.01, 0, 0], noise for diff
         #   omni:
         #       control_std = [0.01, 0.01], noise for omni
-        for robot, vel in zip(self.robot_list, vel_list):
-            robot.move(vel, **vel_kwargs)
+        if not isinstance(vel_list, list):
+            self.robot_list[0].move(vel_list, **vel_kwargs)  
+        else:
+            for robot, vel in zip(self.robot_list, vel_list):
+                robot.move(vel, **vel_kwargs)
     
     def plot(self, ax, **kwargs):
         for robot in self.robot_list:
