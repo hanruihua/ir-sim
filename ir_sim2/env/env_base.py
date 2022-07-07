@@ -23,7 +23,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', save_ani=False, **kwargs):
+    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', save_ani=False, **kwargs) -> None:
         
         # world_name: path of the yaml
         # plot: True or False

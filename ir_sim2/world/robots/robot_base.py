@@ -93,6 +93,8 @@ class RobotBase:
             
         assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 
+        vel = np.around(vel, 2)
+
         if (vel < self.vel_min).any() or (vel > self.vel_max).any():
             vel = np.clip(vel, self.vel_min, self.vel_max)
             self.log.logger.warning("The velocity is clipped to be %s", vel.tolist())

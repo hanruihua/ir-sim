@@ -61,7 +61,7 @@ class RobotAcker(RobotBase):
         d_state = co_matrix @ vel
         new_state = state + d_state * self.step_time
 
-        if self.vel_type == 'steer': state[3, 0] = vel[1, 0]
+        if self.vel_type == 'steer': new_state[3, 0] = vel[1, 0]
 
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
