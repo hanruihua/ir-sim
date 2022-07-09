@@ -129,9 +129,9 @@ class EnvBase:
 
         obs_list = []
         if obs_type is not None:
-            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list]
-        else:
             [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list if env_obs.obs_class == obs_type]
+        else:
+            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list]
         
         return obs_list
 
