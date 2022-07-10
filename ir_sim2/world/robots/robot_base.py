@@ -58,7 +58,6 @@ class RobotBase:
         # flag
         self.arrive_flag = False
         self.collision_flag = False
-        self.cone = None
 
         # noise
         self.noise = kwargs.get('noise', False)
