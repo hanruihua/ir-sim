@@ -11,7 +11,7 @@ for i in range(3000):
 
     if i % 10==0: vel = env.cal_des_vel()
     env.step(vel)
-    env.render(0.00001, show_text=True)
+    env.render(0.00001, show_text=True, show_traj=True)
 
     if env.done('any'): 
         env.reset()

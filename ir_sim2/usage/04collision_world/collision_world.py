@@ -9,10 +9,10 @@ for i in range(3000):
 
     if i % 10==0: vel = env.cal_des_vel()
     env.step(vel)
-    env.render(0.001)
+    env.render(0.001, show_traj=True)
     
     if env.done():
         env.render_once()
         break
 
-env.show()
+env.show(show_traj=True)

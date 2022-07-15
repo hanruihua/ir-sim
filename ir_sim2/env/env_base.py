@@ -264,11 +264,14 @@ class EnvBase:
         if refresh:
             self.dyna_line_list.append(line)
 
-
-    def show(self, **kwargs):
+    def show(self, save_fig=False, fig_name='fig.png', **kwargs):
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
+            
+            if save_fig: self.fig.savefig(fig_name)
+
             plt.show()
+
 
     def save_gif_figure(self, format='png', **kwargs):
 

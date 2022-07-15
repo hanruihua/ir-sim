@@ -33,7 +33,7 @@ obstacles:
     number: 1
     distribute: 'manual' # mouse, random
     dynamic: False
-    points_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
     state_list: [ [0, 0, 0], ]   # transform of the points 
     
 
