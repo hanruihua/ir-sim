@@ -29,7 +29,7 @@ class RobotAcker(RobotBase):
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
         self.wheelbase = shape[2]
         self.psi_limit = psi_limit
-        self.speed_limit = self.vel_max[0, 0]
+        self.speed_limit = float(self.vel_max[0, 0])
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 

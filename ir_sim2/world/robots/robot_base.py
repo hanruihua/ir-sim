@@ -96,7 +96,7 @@ class RobotBase:
 
         if (vel < self.vel_min).any() or (vel > self.vel_max).any():
             vel = np.clip(vel, self.vel_min, self.vel_max)
-            self.log.logger.warning("The velocity is clipped to be %s", vel.tolist())
+            # self.log.logger.warning("The velocity is clipped to be %s", vel.tolist())
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
