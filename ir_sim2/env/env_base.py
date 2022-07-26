@@ -1,29 +1,26 @@
 import logging
 import sys
 import yaml
+import imageio
+import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
+from pathlib import Path
+from math import sin, cos
 from PIL import Image
 from pynput import keyboard
-from multiprocessing import Process
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon
-from ir_sim2.log.Logger import Logger
-import time
-import os
-import imageio
-import shutil
-from pathlib import Path
-from math import sin, cos
+# from ir_sim2.log.Logger import Logger
 
 class EnvBase:
 
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, logging=True, control_mode='auto', log_level='info', save_ani=False, **kwargs) -> None:
+    def __init__(self, world_name=None, plot=True, control_mode='auto', log_level='info', save_ani=False, **kwargs) -> None:
         
         # world_name: path of the yaml
         # plot: True or False
@@ -63,9 +60,6 @@ class EnvBase:
         self.components = dict()
         
         # log
-        self.log_level = log_level
-        self.log = Logger('robot.log', level=log_level)
-        self.logging = logging
 
         self.init_environment(**kwargs)
 
@@ -85,7 +79,7 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, log_level=self.log_level, **self.robot_args)
+        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
        
         # default robots 
@@ -223,7 +217,7 @@ class EnvBase:
             [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list]
             # obstacle
         else:
-            self.logger.error('error input of the draw mode')
+            logging.error('error input of the draw mode')
 
     def clear_components(self, ax, mode='all', **kwargs):
         if mode == 'dynamic':

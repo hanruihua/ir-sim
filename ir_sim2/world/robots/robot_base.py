@@ -1,10 +1,9 @@
 import numpy as np
 from math import inf, pi, atan2, sin, cos
-from ir_sim2.log.Logger import Logger
 from collections import namedtuple
 from ir_sim2.util import collision_dectection_geo as cdg 
 import time
-
+import logging
 # define geometry point and segment for collision detection.
 # point [x, y]
 # segment [point1, point2]
@@ -65,9 +64,6 @@ class RobotBase:
         # Generalized inequalities
         self.G, self.g = self.gen_inequal()
 
-        # log
-        self.log = Logger('robot.log', level=log_level)
-        self.log_level = log_level
         # sensor
         self.lidar = None
         # if lidar_args is not None:
@@ -96,7 +92,7 @@ class RobotBase:
 
         if (vel < self.vel_min).any() or (vel > self.vel_max).any():
             vel = np.clip(vel, self.vel_min, self.vel_max)
-            # self.log.logger.warning("The velocity is clipped to be %s", vel.tolist())
+            # logging.warning("The velocity is clipped to be %s", vel.tolist())
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
@@ -114,12 +110,12 @@ class RobotBase:
     def arrive(self):
         if self.arrive_mode == 'position':
             if np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold:
-                if not self.arrive_flag: self.log.logger.info('robot %d arrive at the goal', self.id)
+                if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
                 self.arrive_flag = True
 
         elif self.arrive_mode == 'state':
             if np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold:
-                if not self.arrive_flag: self.log.logger.info('robot %d arrive at the goal', self.id)
+                if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
                 self.arrive_flag = True
 
     def collision_check_object(self, obj):
@@ -128,14 +124,14 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
                 if cdg.collision_cir_cir(robot_circle, obj_circle):
-                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id) 
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id) 
                     self.collision_flag = True
                     return True
                     
             if obj.appearance == 'polygon' or self.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_cir_poly(robot_circle, obj_poly): 
-                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
         
@@ -146,14 +142,14 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
                 if cdg.collision_cir_poly(obj_circle, robot_poly): 
-                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
             
             if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_poly_poly(robot_poly, obj_poly):
-                    if not self.collision_flag: self.log.logger.info('robot id %d collision', self.id)
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
                     self.collision_flag = True
                     return True
 
