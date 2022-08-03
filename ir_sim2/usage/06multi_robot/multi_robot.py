@@ -3,8 +3,8 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'multi_robot_car.yaml', plot=True, log_level='info')
-# env = EnvBase(world_name = 'multi_robot.yaml', plot=True, log_level='info')
+# env = EnvBase(world_name = 'multi_robot_car.yaml', plot=True, log_level='info')
+env = EnvBase(world_name = 'multi_robot.yaml', plot=True, log_level='info')
 
 for i in range(3000):
 
