@@ -20,13 +20,13 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, control_mode='auto', log_level='info', save_ani=False, **kwargs) -> None:
+    def __init__(self, world_name=None, plot=True, control_mode='auto', save_ani=False, **kwargs) -> None:
         
         # world_name: path of the yaml
         # plot: True or False
         # control_mode: auto, keyboard
 
-        world_args, robot_args, obstacle_args = dict(), dict(), dict() 
+        world_args, robot_args = dict(), dict()
 
         if world_name != None:
             world_name = sys.path[0] + '/' + world_name
@@ -79,7 +79,11 @@ class EnvBase:
         #         keep_path, keep a residual
         #         robot kwargs:
         #         obstacle kwargs:
-        self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        if self.robot_args:
+            self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
+        else:
+            self.env_robot = EnvRobot(self.robot_factory['robot_diff'], step_time=self.step_time, **self.robot_args)
+
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
        
         # default robots 
@@ -266,6 +270,16 @@ class EnvBase:
 
             plt.show()
 
+    def end(self, save_fig=False, fig_name='fig.png', ani_name='animation', **kwargs):
+        
+        if self.save_ani: self.save_animate(ani_name)
+            
+        if self.plot:
+            self.draw_components(self.ax, mode='dynamic', **kwargs)
+
+            if save_fig: self.fig.savefig(fig_name)
+
+            plt.show()
 
     def save_gif_figure(self, format='png', **kwargs):
 
