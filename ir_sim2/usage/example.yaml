@@ -1,8 +1,8 @@
 world:
   world_height: 10
   world_width: 10
-  step_time: 0.01  # for robot motion 100Hz
-  sample_time: 0.05  # for render and data extraction 20 Hz 
+  step_time: 0.1  # for robot motion 10Hz
+  sample_time: 0.1  # for render and data extraction 10 Hz 
   offset_x: 0
   offset_y: 0
 

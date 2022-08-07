@@ -18,7 +18,7 @@ def on_move(event):
                 print('collision with obstacles')
 
 binding_id = plt.connect('motion_notify_event', on_move)
-env.show()
+env.end()
 
 # for i in range(300):
 #     # des_vel = env.cal_des_vel()

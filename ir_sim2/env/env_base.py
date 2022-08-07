@@ -13,7 +13,6 @@ from pynput import keyboard
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon
-# from ir_sim2.log.Logger import Logger
 
 class EnvBase:
 
@@ -58,9 +57,6 @@ class EnvBase:
 
         # components
         self.components = dict()
-        
-        # log
-
         self.init_environment(**kwargs)
 
         self.count = 0
@@ -268,9 +264,10 @@ class EnvBase:
             
             if save_fig: self.fig.savefig(fig_name)
 
+            logging.info('Program Done')
             plt.show()
 
-    def end(self, save_fig=False, fig_name='fig.png', ani_name='animation', **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
         
         if self.save_ani: self.save_animate(ani_name)
             
@@ -279,14 +276,14 @@ class EnvBase:
 
             if save_fig: self.fig.savefig(fig_name)
 
-            plt.show()
+            if show: plt.show()
 
-    def save_gif_figure(self, format='png', **kwargs):
+    def save_gif_figure(self, save_figure_format='png', **kwargs):
 
         if not self.image_path.exists(): self.image_path.mkdir()
 
         order = str(self.count).zfill(3)
-        plt.savefig(str(self.image_path)+'/'+order+'.'+format, format=format, **kwargs)
+        plt.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
     def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True):
         
