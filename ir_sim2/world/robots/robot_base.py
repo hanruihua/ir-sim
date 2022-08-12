@@ -23,7 +23,7 @@ class RobotBase:
     dynamic = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state, vel, goal, step_time=0.1, log_level='info', **kwargs):
+    def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
 
         """
             type = 'diff', 'omni', 'ackermann' 

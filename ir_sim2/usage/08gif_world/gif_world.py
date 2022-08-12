@@ -3,22 +3,20 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-# env = EnvBase(world_name = 'gif_world_car.yaml', plot=False, log_level='warning')
-env = EnvBase(world_name = 'gif_world.yaml', plot=True, log_level='warning', save_ani=True)
+
+env = EnvBase(world_name = 'gif_world.yaml', plot=True, save_ani=True)
 
 start_time = time.time()
-for i in range(3000):
+for i in range(300):
 
     vel = env.cal_des_vel()
     env.step(vel)
-    env.render(show_text=True, bbox_inches='tight', pad_inches=0)
+    env.render(show_text=True, bbox_inches='tight', pad_inches=0.2)
 
-    if env.done('any'): 
-        # env.reset()
-        break
+    # if env.done('any'): 
+    #     # env.reset()
+    #     # break
     
-    # env.reset(env.done_list(), 'any')  # 'all'; 'any'
+    env.reset(env.done_list(), 'single')  # 'all'; 'any'; 'single'
 
-env.save_animate('ani_test')
-print('time cost', time.time() - start_time)
-env.show(show_text=True)
+env.end(ani_name='gif_world', show_text=True)
