@@ -35,7 +35,7 @@ class ObstacleBlock(ObstacleBase):
 
     def gen_inequal(self):
         
-        temp_vertex = np.c_[self.vertex, self.vertex[0:2, 0]]   
+        temp_vertex = np.c_[self.vertex[0:2], self.vertex[0:2, 0]]   
 
         point_num = self.vertex.shape[1]
         
