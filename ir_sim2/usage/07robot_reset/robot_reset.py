@@ -8,7 +8,7 @@ env = EnvBase(world_name = 'robot_reset.yaml', plot=True, save_ani=False)
 start_time = time.time()
 for i in range(3000):
 
-    if i % 10==0: vel = env.cal_des_vel()
+    vel = env.cal_des_vel()
     env.step(vel)
     env.render(0.00001, show_text=True, show_traj=False)
 

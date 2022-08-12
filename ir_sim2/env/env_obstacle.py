@@ -1,3 +1,4 @@
+from operator import length_hint
 import numpy as np
 
 class EnvObstacle:
@@ -43,11 +44,24 @@ class EnvObstacle:
                     self.obs_poly_list.append(obstacle)
                     self.obs_list.append(obstacle)
 
+        elif obs_class.obstacle_type == 'obstacle_block':
+            self.obs_block_list = []
+
+            if distribute == 'manual':
+                center_list = kwargs.get('center_list', None)
+                length_list = kwargs.get('length_list', None)
+                width_list = kwargs.get('width_list', None)
+
+            if number > 0:
+                for id, length, width, center in zip(range(number), length_list, width_list, center_list):
+                    obstacle = obs_class(id=id, center=center, length=length, width=width, step_time=self.step_time, **kwargs)
+                    self.obs_block_list.append(obstacle)
+                    self.obs_list.append(obstacle)        
+
         elif obs_class.obstacle_type == 'obstacle_map':
             pass
 
         
-
     def move(self, **kwargs):
 
         if self.dynamic:

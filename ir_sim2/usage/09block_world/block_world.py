@@ -3,8 +3,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-# env = EnvBase(world_name = 'gif_world_car.yaml', plot=False, log_level='warning')
-env = EnvBase(world_name = 'gif_world.yaml', plot=True, log_level='warning', save_ani=True)
+env = EnvBase(world_name = 'block_world.yaml', plot=True, save_ani=False)
 
 start_time = time.time()
 for i in range(3000):
@@ -19,6 +18,4 @@ for i in range(3000):
     
     # env.reset(env.done_list(), 'any')  # 'all'; 'any'
 
-env.save_animate('ani_test')
-print('time cost', time.time() - start_time)
-env.show(show_text=True)
+env.end(show_text=True)

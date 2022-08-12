@@ -128,7 +128,7 @@ class RobotBase:
                     self.collision_flag = True
                     return True
                     
-            if obj.appearance == 'polygon' or self.appearance == 'rectangle':
+            if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
                 if cdg.collision_cir_poly(robot_circle, obj_poly): 
                     if not self.collision_flag: logging.info('robot id %d collision', self.id)

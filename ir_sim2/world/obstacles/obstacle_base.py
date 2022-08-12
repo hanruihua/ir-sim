@@ -10,7 +10,7 @@ class ObstacleBase:
     convex = False
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, resolution=0.1, step_time=0.01, dynamic=False, **kwargs):
+    def __init__(self, id, resolution=0.1, step_time=0.1, dynamic=False, **kwargs):
         # self.shape
         self.id = int(id)
         self.reso = resolution

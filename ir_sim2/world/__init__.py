@@ -5,4 +5,5 @@ from ir_sim2.world.robots.robot_omni import RobotOmni
 
 from ir_sim2.world.obstacles.obstacle_circle import ObstacleCircle
 from ir_sim2.world.obstacles.obstacle_polygon import ObstaclePolygon
+from ir_sim2.world.obstacles.obstacle_block import ObstacleBlock
 

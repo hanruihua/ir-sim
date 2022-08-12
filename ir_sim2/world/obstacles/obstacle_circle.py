@@ -6,7 +6,7 @@ from math import sin, cos
 class ObstacleCircle(ObstacleBase):
 
     obstacle_type = 'obstacle_circle' # circle, polygon
-    obstacle_shape = 'circle'  # circle, polygon
+    appearance = 'circle'  # circle, polygon
     point_dim = (2, 1) # the point dimension, x, y
     vel_dim = (2, 1) # the velocity dimension, linear and angular velocity
     goal_dim = (2, 1) # the goal dimension, x, y, theta

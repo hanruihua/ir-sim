@@ -22,23 +22,31 @@ robots:
 
 obstacles:
   - type: 'obstacle_circle'
-    number: 2
+    number: 0
     distribute: 'manual' # manual, random, circular, line
     dynamic: True
     sport: 'wander' # default, wander, patrol
     sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
     center_list: [[6, 4], [3, 4]]
     goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.1, 0.5] # radius list will be extended if the length of list less than number
+    radius_list: [0.1, 0.5]
     vel_min: [-1, -1]
     vel_max: [1, 1]
     
   - type: 'obstacle_polygon'
-    number: 1
+    number: 0
     distribute: 'manual' # mouse, random
     dynamic: False
     vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
     state_list: [ [3, 3, 0], ]   # transform of the points 
+  
+  - type: 'obstacle_block'
+    number: 1
+    distribute: 'manual' # mouse, random
+    dynamic: False
+    center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
+    length_list: [1.0]
+    width_list: [1.0]
     
 
   # - type: 'obstacle_map'
