@@ -39,7 +39,7 @@ class ObstacleBlock(ObstacleBase):
 
         point_num = self.vertex.shape[1]
         
-        A = np.zeros((point_num, self.point_dim[0]))
+        A = np.zeros((point_num, 2))
         b = np.zeros((point_num, 1))
 
         for i in range(point_num):
