@@ -1,5 +1,7 @@
 from operator import length_hint
 import numpy as np
+from ir_sim2.util.util import random_points
+from math import pi
 
 class EnvObstacle:
 
@@ -47,10 +49,27 @@ class EnvObstacle:
         elif obs_class.obstacle_type == 'obstacle_block':
             self.obs_block_list = []
 
+            length_list = kwargs.get('length_list', None)
+            width_list = kwargs.get('width_list', None)
+
+            if len(length_list) < number:
+                ext_list = [length_list[-1]] * (number - len(length_list))
+                length_list.extend(ext_list)
+            
+            if len(width_list) < number:
+                ext_list = [width_list[-1]] * (number - len(width_list))
+                width_list.extend(ext_list)
+
             if distribute == 'manual':
                 center_list = kwargs.get('center_list', None)
-                length_list = kwargs.get('length_list', None)
-                width_list = kwargs.get('width_list', None)
+                
+            elif distribute == 'random':
+                # number, low, high, center_distance, max_iter=100
+                range_low = kwargs.get('range_low', [0, 0, 0])
+                range_high = kwargs.get('range_high', [10, 10, 2*pi])
+                center_distance = kwargs.get('center_distance', 1)
+
+                center_list = random_points(number, np.c_[range_low], np.c_[range_high], center_distance)
 
             if number > 0:
                 for id, length, width, center in zip(range(number), length_list, width_list, center_list):
@@ -92,6 +111,5 @@ class EnvObstacle:
  
     def plot_clear(self):
         [obs.plot_clear() for obs in self.obs_list]
-
 
 
