@@ -1,12 +1,12 @@
 import numpy as np
 from math import sqrt, inf
 
-def random_points(number, low, high, point_distance, max_iter=100):
+def random_points(number, low, high, point_distance, max_iter=500):
     # random distribute some points into a selected area with a minimum distance
     point_list = []
     iter_loop = 0
 
-    while len(point_list) <= number:
+    while len(point_list) < number:
         point = np.random.uniform(low, high)
         if min_distance(point, point_list) >= point_distance:
             point_list.append(point)
