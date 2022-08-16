@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 import random
-import numpy
+import numpy as np
 import time
 import logging
 
-a = dict()
+# a = 
 
+c = np.r_[ 1, 2]
 
-print(bool(a))
+print(c.shape)
