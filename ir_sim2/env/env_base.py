@@ -14,13 +14,14 @@ from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
 # from ir_sim2.log.Logger import Logger
+import platform
 
 class EnvBase:
 
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, control_mode='auto', save_ani=False, **kwargs) -> None:
+    def __init__(self, world_name=None, plot=True, control_mode='auto', save_ani=False, full=False, **kwargs) -> None:
         
         # world_name: path of the yaml
         # plot: True or False
@@ -69,6 +70,18 @@ class EnvBase:
         
         if control_mode == 'keyboard':
             pass
+
+        if full:
+            mode = platform.system()
+            if mode == 'Linux':
+                # mng = plt.get_current_fig_manager()
+                plt.get_current_fig_manager().full_screen_toggle()
+                # mng.resize(*mng.window.maxsize())
+                # mng.frame.Maximize(True)
+
+            elif mode == 'Windows':
+                figManager = plt.get_current_fig_manager()
+                figManager.window.showMaximized()
 
     def init_environment(self, **kwargs):
         # full=False, keep_path=False, 
@@ -270,12 +283,12 @@ class EnvBase:
 
     def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
         
-        if self.save_ani: self.save_animate(ani_name)
+        if self.save_ani: self.save_animate(ani_name, **kwargs)
             
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
 
-            if save_fig: self.fig.savefig(fig_name)
+            if save_fig: self.fig.savefig(fig_name, **kwargs)
 
             if show: plt.show()
 
@@ -286,7 +299,7 @@ class EnvBase:
         order = str(self.count).zfill(3)
         plt.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
-    def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True):
+    def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True, **kwargs):
         
         if not self.ani_path.exists(): self.ani_path.mkdir()
             
