@@ -155,7 +155,7 @@ class RobotAcker(RobotBase):
 
         return G, h
  
-    def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', **kwargs):
+    def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
         start_y = self.vertex[1, 0]
@@ -177,9 +177,13 @@ class RobotAcker(RobotBase):
             self.plot_patch_list.append(goal_arrow)
 
         if show_trail:
-            car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False)
-            ax.add_patch(car_rect)
-        
+            if trail_type == 'rectangle':
+                car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False)
+                ax.add_patch(car_rect)
+            elif trail_type == 'circle':
+                car_circle = mpl.patches.Circle(xy=(self.state[0, 0], self.state[1, 0]), radius = self.shape[1] / 2, edgecolor='red', fill=False)
+                ax.add_patch(car_circle)
+            
         if show_text:
             ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
             ax.text(self.goal[0, 0] + 0.3, self.goal[1, 0], 'cg'+ str(self.id), fontsize = 12, color = 'k')
