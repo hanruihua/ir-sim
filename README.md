@@ -2,7 +2,7 @@
 
 A python based robot simulator framework for the intelligent robotics navigation and learning
 
-### To do list
+<!-- ### To do list
 
 - [x] Basic framework
 - [x] Mobile robot movement
@@ -14,4 +14,4 @@ A python based robot simulator framework for the intelligent robotics navigation
 - [ ] map obstacle
 - [x] env reset
 - [ ] using the mouse to select the circle and polygon obstacles
-- [ ] collision check can be rewritten using Cython
+- [ ] collision check can be rewritten using Cython -->

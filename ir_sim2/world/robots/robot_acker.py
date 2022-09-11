@@ -181,7 +181,10 @@ class RobotAcker(RobotBase):
                 car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False)
                 ax.add_patch(car_rect)
             elif trail_type == 'circle':
-                car_circle = mpl.patches.Circle(xy=(self.state[0, 0], self.state[1, 0]), radius = self.shape[1] / 2, edgecolor='red', fill=False)
+                x = (min(self.vertex[0, :]) + max(self.vertex[0, :])) / 2
+                y = (min(self.vertex[1, :]) + max(self.vertex[1, :])) / 2
+
+                car_circle = mpl.patches.Circle(xy=(x, y), radius = self.shape[0] / 2, edgecolor='red', fill=False)
                 ax.add_patch(car_circle)
             
         if show_text:
