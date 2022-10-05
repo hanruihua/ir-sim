@@ -2,6 +2,21 @@
 
 A python based robot simulator framework for the intelligent robotics navigation and learning
 
+## Installation
+
+clone the repository
+
+```
+git clone https://github.com/hanruihua/Intelligent-Robot-Simulator2.git
+```
+
+install the package (ir_sim)
+
+```
+cd Intelligent-Robot-Simulator2
+pip install -e .
+```
+
 <!-- ### To do list
 
 - [x] Basic framework
