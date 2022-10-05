@@ -10,6 +10,7 @@ Test platform: Ubuntu20.04, windows10
     - numpy  
     - matplotlib 
     - cvxpy
+    - scipy
 
 ## Installation
 
