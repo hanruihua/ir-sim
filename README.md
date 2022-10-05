@@ -10,7 +10,7 @@ clone the repository
 git clone https://github.com/hanruihua/Intelligent-Robot-Simulator2.git
 ```
 
-install the package (ir_sim)
+install the package (ir_sim2)
 
 ```
 cd Intelligent-Robot-Simulator2
