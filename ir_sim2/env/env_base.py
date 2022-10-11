@@ -13,7 +13,6 @@ from pynput import keyboard
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
-# from ir_sim2.log.Logger import Logger
 import platform
 
 class EnvBase:
@@ -69,7 +68,27 @@ class EnvBase:
         self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
         if control_mode == 'keyboard':
-            pass
+            
+            self.key_lv_max = 2
+            self.key_ang_max = 2
+            self.key_lv = 0
+            self.key_ang = 0
+            self.key_id = 1
+            self.alt_flag = 0
+
+            plt.rcParams['keymap.save'].remove('s')
+            plt.rcParams['keymap.quit'].remove('q')
+            
+            self.key_vel = np.zeros(2,)
+
+            print('start to keyboard control')
+            print('w: forward', 's: backforward', 'a: turn left', 'd: turn right', 
+                  'q: decrease linear velocity', 'e: increase linear velocity',
+                  'z: decrease angular velocity', 'c: increase angular velocity',
+                  'alt+num: change current control robot id')
+                  
+            self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+            self.listener.start()
 
         if full:
             mode = platform.system()
@@ -83,6 +102,7 @@ class EnvBase:
                 figManager = plt.get_current_fig_manager()
                 figManager.window.showMaximized()
 
+    ## initialization
     def init_environment(self, **kwargs):
         # full=False, keep_path=False, 
         # kwargs: full: False,  full windows plot
@@ -320,11 +340,64 @@ class EnvBase:
 
         if rm_fig_path: shutil.rmtree(self.image_path)
 
+    ## for keyboard control
+    def on_press(self, key):
 
-    # def reset(self, done_list=None, mode='all'):
-    #     if done_list is None:
-    #         self.env_robot.reset()
-    #         [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+        try:
+
+            if key.char.isdigit() and self.alt_flag:
+
+                if int(key.char) > self.robot_number:
+                    print('out of number of robots')
+                else:
+                    self.key_id = int(key.char)
+
+            if key.char == 'w':
+                self.key_lv = self.key_lv_max
+            if key.char == 's':
+                self.key_lv = - self.key_lv_max
+            if key.char == 'a':
+                self.key_ang = self.key_ang_max
+            if key.char == 'd':
+                self.key_ang = -self.key_ang_max
+            
+            self.key_vel = np.array([self.key_lv, self.key_ang])
+
+        except AttributeError:
+            
+            if key == keyboard.Key.alt:
+                self.alt_flag = 1
+    
+    def on_release(self, key):
+        
+        try:
+            if key.char == 'w':
+                self.key_lv = 0
+            if key.char == 's':
+                self.key_lv = 0
+            if key.char == 'a':
+                self.key_ang = 0
+            if key.char == 'd':
+                self.key_ang = 0
+            if key.char == 'q':
+                self.key_lv_max = self.key_lv_max - 0.2
+                print('current lv ', self.key_lv_max)
+            if key.char == 'e':
+                self.key_lv_max = self.key_lv_max + 0.2
+                print('current lv ', self.key_lv_max)
+            
+            if key.char == 'z':
+                self.key_ang_max = self.key_ang_max - 0.2
+                print('current ang ', self.key_ang_max)
+            if key.char == 'c':
+                self.key_ang_max = self.key_ang_max + 0.2
+                print('current ang ', self.key_ang_max)
+            
+            self.key_vel = np.array([self.key_lv, self.key_ang])
+
+        except AttributeError:
+            if key == keyboard.Key.alt:
+                self.alt_flag = 0
 
             
 
