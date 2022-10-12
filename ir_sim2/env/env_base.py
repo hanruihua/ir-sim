@@ -211,7 +211,7 @@ class EnvBase:
     def reset_single(self, id):
         self.env_robot.reset(id)
 
-    def render(self, pause_time=0.0001, **kwargs):
+    def render(self, pause_time=0.05, **kwargs):
         
         if self.plot: 
             if self.sampling:
