@@ -8,7 +8,8 @@ env = EnvBase(world_name = 'teleop_world.yaml', control_mode='keyboard')
 start_time = time.time()
 for i in range(3000):
 
-    env.step(env.key_vel)
+    env.step(env.key_vel, vel_id=env.key_id)
+    print(env.key_id)
     env.render()
 
     if env.done('any'): 
@@ -16,5 +17,4 @@ for i in range(3000):
         break
     
     # env.reset(env.done_list(), 'any')  # 'all'; 'any'
-
 env.end(show_text=True)

@@ -8,7 +8,7 @@ world:
 
 robots:
   type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
-  number: 1
+  number: 2
   distribute: 'circular' # manual, random, circular, line
   circular: [5, 5, 4]  # for circular distribute, x, y radius
   random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax

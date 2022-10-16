@@ -35,10 +35,12 @@ class EnvBase:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
                 robot_args = com_list.get('robots', dict())
+                keyboard_args = com_list.get('keyboard', dict())
                 obstacle_args_list = com_list.get('obstacles', [])
 
         world_args.update(kwargs.get('world_args', dict()))
         robot_args.update(kwargs.get('robot_args', dict()))
+        keyboard_args.update(kwargs.get('keyboard_args', dict()))
         [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
 
         # world, robot, obstacle, args
@@ -69,11 +71,11 @@ class EnvBase:
         
         if control_mode == 'keyboard':
             
-            self.key_lv_max = 2
-            self.key_ang_max = 2
-            self.key_lv = 0
-            self.key_ang = 0
-            self.key_id = 1
+            self.key_lv_max = keyboard_args.get("key_lv_max", 2)
+            self.key_ang_max = keyboard_args.get("key_ang_max", 2)
+            self.key_lv = keyboard_args.get("key_lv", 0)
+            self.key_ang = keyboard_args.get("key_ang", 0)
+            self.key_id = keyboard_args.get("key_id", 1)
             self.alt_flag = 0
 
             plt.rcParams['keymap.save'].remove('s')
@@ -132,8 +134,8 @@ class EnvBase:
 
     def cal_des_vel(self, **kwargs):
         return self.env_robot.cal_des_vel(**kwargs)
-         
-    def robots_step(self, vel_list, **kwargs):
+        
+    def robots_step(self, vel_list, vel_id=None, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
 
     def obstacles_step(self, **kwargs):
@@ -149,6 +151,7 @@ class EnvBase:
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
+    # get information
     def get_robot_list(self):
         return self.env_robot.robot_list
 
@@ -163,10 +166,12 @@ class EnvBase:
         
         return obs_list
 
+    # check status
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
         return any(collision_list)
 
+    # 
     def done(self, mode='all', collision_check=True) -> bool:
         # mode: any; any robot done, return done
         #       all; all robots done, return done
@@ -190,6 +195,7 @@ class EnvBase:
         done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
         return done_list
     
+    # reset the environment
     def reset(self, done_list=None, mode='any'):
         # mode:  if done list is not None
         #   any: reset the env when any robot done
@@ -211,6 +217,7 @@ class EnvBase:
     def reset_single(self, id):
         self.env_robot.reset(id)
 
+    # environment render
     def render(self, pause_time=0.05, **kwargs):
         
         if self.plot: 
@@ -301,6 +308,7 @@ class EnvBase:
             logging.info('Program Done')
             plt.show()
 
+    # end of the loop
     def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
         
         if self.save_ani: self.save_animate(ani_name, **kwargs)
@@ -312,6 +320,7 @@ class EnvBase:
 
             if show: plt.show()
 
+    # animations
     def save_gif_figure(self, save_figure_format='png', **kwargs):
 
         if not self.image_path.exists(): self.image_path.mkdir()
@@ -340,11 +349,10 @@ class EnvBase:
 
         if rm_fig_path: shutil.rmtree(self.image_path)
 
-    ## for keyboard control
+    ## keyboard control
     def on_press(self, key):
 
         try:
-
             if key.char.isdigit() and self.alt_flag:
 
                 if int(key.char) > self.robot_number:
@@ -364,10 +372,9 @@ class EnvBase:
             self.key_vel = np.array([ [self.key_lv], [self.key_ang]])
 
         except AttributeError:
-            
-            if key == keyboard.Key.alt:
-                self.alt_flag = 1
-    
+            if "alt" in key.name:
+                self.alt_flag = True
+                
     def on_release(self, key):
         
         try:
@@ -396,8 +403,8 @@ class EnvBase:
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
-            if key == keyboard.Key.alt:
-                self.alt_flag = 0
+            if "alt" in key.name:
+                self.alt_flag = False
 
             
 

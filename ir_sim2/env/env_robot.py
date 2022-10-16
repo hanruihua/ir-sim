@@ -124,7 +124,7 @@ class EnvRobot:
     def collision(self):
         return any([r.collision_flag for r in self.robot_list])
 
-    def move(self, vel_list=[], **vel_kwargs):
+    def move(self, velocity=[], vel_id=0, **vel_kwargs):
         # vel_kwargs: 
         #   diff:
         #       vel_type = 'diff', 'omni'
@@ -133,10 +133,13 @@ class EnvRobot:
         #       alpha = [0.01, 0, 0, 0.01, 0, 0], noise for diff
         #   omni:
         #       control_std = [0.01, 0.01], noise for omni
-        if not isinstance(vel_list, list):
-            self.robot_list[0].move(vel_list, **vel_kwargs)  
+        if not isinstance(velocity, list):
+            if vel_id != 0:
+                self.robot_list[vel_id-1].move(velocity, **vel_kwargs)  
+            else:
+                print('zero velocity id')
         else:
-            for robot, vel in zip(self.robot_list, vel_list):
+            for robot, vel in zip(self.robot_list, velocity):
                 robot.move(vel, **vel_kwargs)
     
     def plot(self, ax, **kwargs):
