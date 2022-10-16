@@ -79,7 +79,7 @@ class EnvBase:
             plt.rcParams['keymap.save'].remove('s')
             plt.rcParams['keymap.quit'].remove('q')
             
-            self.key_vel = np.zeros(2,)
+            self.key_vel = np.zeros((2, 1))
 
             print('start to keyboard control')
             print('w: forward', 's: backforward', 'a: turn left', 'd: turn right', 
@@ -361,7 +361,7 @@ class EnvBase:
             if key.char == 'd':
                 self.key_ang = -self.key_ang_max
             
-            self.key_vel = np.array([self.key_lv, self.key_ang])
+            self.key_vel = np.array([ [self.key_lv], [self.key_ang]])
 
         except AttributeError:
             
@@ -393,7 +393,7 @@ class EnvBase:
                 self.key_ang_max = self.key_ang_max + 0.2
                 print('current ang ', self.key_ang_max)
             
-            self.key_vel = np.array([self.key_lv, self.key_ang])
+            self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
             if key == keyboard.Key.alt:
