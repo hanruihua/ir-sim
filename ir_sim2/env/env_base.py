@@ -121,7 +121,7 @@ class EnvBase:
         # default robots 
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
-        
+        self.robot_number = len(self.robot_list)
         # default obstacles
         # plot
         if self.plot:
@@ -135,7 +135,7 @@ class EnvBase:
     def cal_des_vel(self, **kwargs):
         return self.env_robot.cal_des_vel(**kwargs)
         
-    def robots_step(self, vel_list, vel_id=None, **kwargs):
+    def robots_step(self, vel_list, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
 
     def obstacles_step(self, **kwargs):

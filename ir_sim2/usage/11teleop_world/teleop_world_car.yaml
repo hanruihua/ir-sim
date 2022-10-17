@@ -1,22 +1,21 @@
 world:
-  world_height: 10
-  world_width: 10
-  step_time: 0.01  # for robot motion 100Hz
+  world_height: 50
+  world_width: 50
+  step_time: 0.1  # for robot motion 100Hz
   sample_time: 0.1  # for render and data extraction 20 Hz 
   offset_x: 0
   offset_y: 0
 
 robots:
-  type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
+  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
   number: 2
   distribute: 'circular' # manual, random, circular, line
-  circular: [5, 5, 4]  # for circular distribute, x, y radius
+  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
+  # general property
+  circular: [25, 25, 12]  # for circular distribute, x, y radius
   random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
   state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
   goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
-  shape_list: 0.2   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
-  goal_threshold: 0.2 # for arriving 
-  # general property
   radius_exp: 0.1  
   vel_min: [0, -1.5]
   vel_max: [1.5, 1.5]

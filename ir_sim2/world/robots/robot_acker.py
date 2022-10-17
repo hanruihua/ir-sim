@@ -49,7 +49,7 @@ class RobotAcker(RobotBase):
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
             
             if vel[1, 0] > self.psi_limit or vel[1, 0] < -self.psi_limit:
-                self.log.logger.info('The psi is clipped to be %s', vel[1, 0])
+                # self.log.logger.info('The psi is clipped to be %s', vel[1, 0])
                 vel[1, 0] = np.clip(vel[1, 0], -self.psi_limit, self.psi_limit)
 
         elif self.vel_type == 'angular':
