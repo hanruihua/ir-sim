@@ -3,7 +3,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'block_world.yaml', plot=True, save_ani=False)
+env = EnvBase(world_name = 'block_world.yaml', control_mode='keyboard')
 
 start_time = time.time()
 for i in range(3000):
