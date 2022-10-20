@@ -1,5 +1,6 @@
 from math import pi
 import numpy as np
+from ir_sim2.env import env_global
 
 class lidar2d:
     def __init__(self, range_min=0, range_max=10, angle_min=0, angle_max=pi, number=36, scan_time=0.1, noise=False, std=0.2, offset=np.zeros(3,), **kwargs) -> None:
@@ -22,8 +23,14 @@ class lidar2d:
 
         # 
 
-
     def scan_range(self, start_point=np.zeros((2, 1))):
+
+        
+
+        
+
+
+
         pass
 
 

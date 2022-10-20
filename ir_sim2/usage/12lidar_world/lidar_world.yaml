@@ -48,7 +48,7 @@ obstacles:
     distribute: 'random' # manual, mouse, random
     dynamic: False
     center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
-    length_list: [0.4]
+    length_list: [0.5]
     width_list: [0.4]
     range_low: [0.0, 0.0, -3.14]
     range_high: [10.0, 10.0, 3.14]
