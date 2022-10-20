@@ -3,6 +3,7 @@ import sys
 import yaml
 import imageio
 import shutil
+import platform
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,7 +14,7 @@ from pynput import keyboard
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
-import platform
+from ir_sim2.env import env_global
 
 class EnvBase:
 
@@ -59,7 +60,7 @@ class EnvBase:
         self.dyna_line_list = []
 
         # components
-        self.components = dict()
+        # self.components = dict()
         self.init_environment(**kwargs)
 
         self.count = 0
@@ -122,7 +123,11 @@ class EnvBase:
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
         self.robot_number = len(self.robot_list)
+
+        
         # default obstacles
+        obstacle_list = [eol.obs_list for eol in self.env_obstacle_list]
+
         # plot
         if self.plot:
             self.fig, self.ax = plt.subplots()
@@ -130,7 +135,11 @@ class EnvBase:
             # self.fig, self.ax = plt.subplots()
         
         # self.components['env_robot_list'] = self.env_robot_list
-        self.components['env_robot'] = self.env_robot
+        # self.components['env_robot'] = self.env_robot
+        env_global.robot_list = self.robot_list
+        env_global.obstacle_list = self.obstacle_list
+        
+
 
     def cal_des_vel(self, **kwargs):
         return self.env_robot.cal_des_vel(**kwargs)
@@ -146,6 +155,8 @@ class EnvBase:
         self.obstacles_step(**kwargs)
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+
+        env_global.time_increment()
 
     def step_count(self, **kwargs):
         self.count += 1
