@@ -22,13 +22,10 @@ class RobotDiff(RobotBase):
         # shape args
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        self.center = state[0:2]
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
-        self.plot_patch_list = []
-        self.plot_line_list = []
-        
+    
     def dynamics(self, state, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
@@ -43,8 +40,6 @@ class RobotDiff(RobotBase):
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
-        self.center = new_state[0:2]
-
         return new_state
 
     def cal_des_vel(self, tolerance=0.12):
@@ -78,14 +73,12 @@ class RobotDiff(RobotBase):
         self.g_collision = np.array( [ [0], [0], [-self.radius_collision] ])
         return G, g
 
-    def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
         goal_x = self.goal[0, 0]
         goal_y = self.goal[1, 0]
-
-        lidar_line_list = []
 
         robot_circle = mpl.patches.Circle(xy=(x, y), radius = self.radius, color = robot_color)
         robot_circle.set_zorder(3)
@@ -113,7 +106,8 @@ class RobotDiff(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-            
+        
+
         # if self.lidar is not None and show_lidar:
         #     for point in robot.lidar.inter_points[:, :]:
         #         x_value = [x, point[0]]

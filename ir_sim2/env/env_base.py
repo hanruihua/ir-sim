@@ -126,8 +126,8 @@ class EnvBase:
 
         
         # default obstacles
-        obstacle_list = [eol.obs_list for eol in self.env_obstacle_list]
-
+        self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
+        self.components = self.robot_list + self.obstacle_list
         # plot
         if self.plot:
             self.fig, self.ax = plt.subplots()
@@ -138,9 +138,8 @@ class EnvBase:
         # self.components['env_robot'] = self.env_robot
         env_global.robot_list = self.robot_list
         env_global.obstacle_list = self.obstacle_list
+        env_global.components = self.components
         
-
-
     def cal_des_vel(self, **kwargs):
         return self.env_robot.cal_des_vel(**kwargs)
         
@@ -155,7 +154,7 @@ class EnvBase:
         self.obstacles_step(**kwargs)
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
-
+    
         env_global.time_increment()
 
     def step_count(self, **kwargs):

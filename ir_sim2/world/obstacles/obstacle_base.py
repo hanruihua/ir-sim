@@ -32,12 +32,27 @@ class ObstacleBase:
         # discreted model denoted by matrix
         # raise NotImplementedError
         pass
-
+    
     def gen_inequal(self):
         # Calculate the matrix A and b for the Generalized inequality: G @ point <_k g, 
         # self.G, self.g = self.gen_inequal()
         raise NotImplementedError
     
+    def get_edges(self):
+
+        edge_list = []
+        ver_num = self.vertex.shape[1]
+
+        for i in range(ver_num):
+            if i < ver_num - 1:
+                edge = [ self.vertex[:, i], self.vertex[:, i+1] ]
+            else:
+                edge = [ self.vertex[:, i], self.vertex[:, 0] ]
+
+            edge_list.append(edge)
+
+        return edge_list
+
     def reset(self):
         self.center = self.init_center
 
@@ -80,3 +95,14 @@ class ObstacleBase:
         rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
         trans = position
         return rot, trans
+
+
+
+        # for i, ver in enumerate(vertex):
+        #     pass
+        # for i in range(ver_num-1):
+        #     edge = [self.vertexes[0, i], self.vertexes[1, i], self.vertexes[0, i+1], self.vertexes[1, i+1]]
+        #     self.edge_list.append(edge)
+        
+        # edge_final = [ self.vertexes[0, self.ver_num-1], self.vertexes[1, self.ver_num-1], self.vertexes[0, 0], self.vertexes[1, 0] ]
+        # self.edge_list.append(edge_final)

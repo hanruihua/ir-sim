@@ -4,6 +4,7 @@ from collections import namedtuple
 from ir_sim2.util import collision_dectection_geo as cdg 
 import time
 import logging
+from ir_sim2.world.sensors.lidar import lidar2d
 # define geometry point and segment for collision detection.
 # point [x, y]
 # segment [point1, point2]
@@ -43,6 +44,7 @@ class RobotBase:
         self.goal = self.init_goal_state
         self.vel = self.init_vel
         self.trajectory = []
+        self.center = self.init_state[0:2]
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
@@ -65,7 +67,13 @@ class RobotBase:
         self.G, self.g = self.gen_inequal()
 
         # sensor
-        self.lidar = None
+        sensor_args = kwargs.get('sensor', [])
+        self.sensors = [ lidar2d(**args) for args in sensor_args ]
+
+        # plot
+        self.plot_patch_list = []
+        self.plot_line_list = []
+
         # if lidar_args is not None:
         #     id_list = lidar_args['id_list']
 
@@ -100,6 +108,9 @@ class RobotBase:
         self.trajectory.append(self.state)
         self.state = self.dynamics(self.state, vel, **kwargs)
 
+        self.center = self.state[0:2]
+
+        self.sensor_step()
         self.arrive()
         
     def update_info(self, state, vel):
@@ -107,6 +118,11 @@ class RobotBase:
         self.state = state
         self.vel = vel
     
+    def sensor_step(self):
+        # for sensor
+        for sensor in self.sensors:
+            sensor.step(self.state[0:3], )
+
     def arrive(self):
         if self.arrive_mode == 'position':
             if np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold:
@@ -221,13 +237,28 @@ class RobotBase:
         # calculate the desired velocity
         raise NotImplementedError
 
+    def get_edges(self):
+
+        edge_list = []
+        ver_num = self.vertex.shape[1]
+
+        for i in range(ver_num):
+            if i < ver_num - 1:
+                edge = [ self.vertex[:, i], self.vertex[:, i+1] ]
+            else:
+                edge = [ self.vertex[:, i], self.vertex[:, 0] ]
+
+            edge_list.append(edge)
+
+        return edge_list
+
     def plot(self, ax, **kwargs):
         # plot the robot in the map
         raise NotImplementedError
     
-    def plot_clear(self, ax):
-        # plot the robot in the map
-        raise NotImplementedError
+    # def plot_sensors(self, ax, **kwargs):
+    #     for sensor in self.sensors:
+    #         sensor.plot(ax)
 
     def plot_clear(self, ax):
         [patch.remove() for patch in self.plot_patch_list]

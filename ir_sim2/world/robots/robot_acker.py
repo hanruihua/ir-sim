@@ -33,9 +33,6 @@ class RobotAcker(RobotBase):
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
-        self.plot_patch_list = []
-        # self.car_img_show_list = []
-        self.plot_line_list = []
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics

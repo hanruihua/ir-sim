@@ -24,6 +24,7 @@ class ObstaclePolygon(ObstacleBase):
         super(ObstaclePolygon, self).__init__(id=id, dynamic=dynamic, **kwargs)
 
         self.plot_patch_list = []
+        self.center = self.state[0:2]
 
     def gen_inequal(self):
 
