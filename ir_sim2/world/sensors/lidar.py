@@ -79,9 +79,10 @@ class lidar2d:
         
         for com in com_list:
             if com.appearance == 'circle': 
-                
+                start_time = time.time()
                 flag, int_point, lrange = range_cir_seg(com.center, com.radius, ray)
-                
+                end_time = time.time() - start_time 
+                # print('circle time,', end_time)
                 if flag and lrange < min_lrange:
                     min_lrange = lrange
                     min_int_point = int_point

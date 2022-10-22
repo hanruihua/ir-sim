@@ -33,7 +33,7 @@ robots:
 
 obstacles:
   - type: 'obstacle_circle'
-    number: 0
+    number: 10
     distribute: 'random' # manual, random, circular, line
     dynamic: False
     sport: 'default' # default, wander, patrol
@@ -52,7 +52,7 @@ obstacles:
     state_list: [ [3, 3, 0], ]   # transform of the points 
   
   - type: 'obstacle_block'
-    number: 3
+    number: 0
     distribute: 'random' # manual, mouse, random
     dynamic: False
     center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
