@@ -8,7 +8,7 @@ env = EnvBase(world_name = 'teleop_world.yaml', control_mode='keyboard')
 for i in range(3000):
 
     env.step(env.key_vel, vel_id=env.key_id)
-    env.render(show_traj=True)
+    env.render()
 
     if env.done(): 
         print('done')
