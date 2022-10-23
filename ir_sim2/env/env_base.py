@@ -88,7 +88,7 @@ class EnvBase:
             print('w: forward', 's: backforward', 'a: turn left', 'd: turn right', 
                   'q: decrease linear velocity', 'e: increase linear velocity',
                   'z: decrease angular velocity', 'c: increase angular velocity',
-                  'alt+num: change current control robot id')
+                  'alt+num: change current control robot id', 'r: reset the environment')
                   
             self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
             self.listener.start()
@@ -124,7 +124,6 @@ class EnvBase:
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
         self.robot_number = len(self.robot_list)
 
-        
         # default obstacles
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
         self.components = self.robot_list + self.obstacle_list
@@ -409,6 +408,9 @@ class EnvBase:
             if key.char == 'c':
                 self.key_ang_max = self.key_ang_max + 0.2
                 print('current ang ', self.key_ang_max)
+            
+            if key.char == 'r':
+                self.reset()
             
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
