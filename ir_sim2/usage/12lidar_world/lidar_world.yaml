@@ -43,6 +43,9 @@ obstacles:
     radius_list: [0.1, 0.5]
     vel_min: [-1, -1]
     vel_max: [1, 1]
+    range_low: [0.0, 0.0, -3.14]
+    range_high: [10.0, 10.0, 3.14]: 
+    center_distance: 1
     
   - type: 'obstacle_polygon'
     number: 0
