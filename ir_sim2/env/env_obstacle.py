@@ -18,17 +18,7 @@ class EnvObstacle:
         if obs_class.obstacle_type == 'obstacle_circle':
             
             self.obs_cir_list = []
-
-            radius_list = kwargs.get('radius_list', [0.2] * number)
-            center_list = kwargs.get('center_list', None)
-            goal_list = kwargs.get('goal_list', None)
-
-            if isinstance(radius_list, float): radius_list = [radius_list] * number
-            if len(radius_list) < number: radius_list.extend([radius_list[-1]]* (number - len(radius_list)) )
-            if len(center_list) < number: center_list.extend([center_list[-1]]* (number - len(center_list)) )
-            if len(goal_list) < number: goal_list.extend([goal_list[-1]]* (number - len(goal_list)) )
             
-
             if distribute == 'manual':
                 center_list = kwargs.get('center_list', None)
                 goal_list = kwargs.get('goal_list', None)
@@ -36,6 +26,14 @@ class EnvObstacle:
                 
                 if isinstance(radius_list, float): radius_list = [radius_list] * number
                 if len(radius_list) < number: radius_list.extend([radius_list[-1]]* (number - len(radius_list)) )
+
+            elif distribute == 'random':
+                center_list = kwargs.get('center_list', None)
+                goal_list = kwargs.get('goal_list', None)
+                radius_list = kwargs.get('radius_list', [0.2] * number)
+
+                
+
 
             if number > 0:
                 for id, radius, center, goal in zip(range(number), radius_list, center_list, goal_list):
