@@ -5,8 +5,8 @@ import sys
 from ir_sim2 import env
 from ir_sim2.env import env_global
 
-# env_global.initialize()
-env_global.time_increment()
+a = np.array([ [2], [1] ])
 
-print(env_global.time)
+b = (a<= 0)
 
+print(b)

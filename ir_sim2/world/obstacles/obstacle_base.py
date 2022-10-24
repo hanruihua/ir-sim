@@ -10,7 +10,7 @@ class ObstacleBase:
     convex = False
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, resolution=0.1, step_time=0.1, dynamic=False, **kwargs):
+    def __init__(self, id, resolution=0.01, step_time=0.1, dynamic=False, **kwargs):
         # self.shape
         self.id = int(id)
         self.reso = resolution
@@ -28,14 +28,28 @@ class ObstacleBase:
         assert point.shape == self.point_dim
         return ObstacleBase.InCone(self.A @ point - self.b, self.cone_type)
 
+    def collision_check_array(self, point_array):
+
+        assert point_array.shape[0] == 2
+
+        temp = self.A @ point_array - self.b
+
+        if self.cone_type == 'Rpositive':
+            collision_matirx = np.all(temp <= 0, axis=0)
+        elif self.cone_type == 'norm2':
+            collision_matirx = np.squeeze(np.linalg.norm(temp[0:-1], axis=0) - temp[-1]) <= 0
+
+        return collision_matirx
+
+
     def gen_matrix(self):
         # discreted model denoted by matrix
         # raise NotImplementedError
         pass
     
     def gen_inequal(self):
-        # Calculate the matrix A and b for the Generalized inequality: G @ point <_k g, 
-        # self.G, self.g = self.gen_inequal()
+        # Calculate the matrix A and b for the Generalized inequality: A @ point <_k b, 
+        # self.A, self.b = self.gen_inequal()
         raise NotImplementedError
     
     def get_edges(self):

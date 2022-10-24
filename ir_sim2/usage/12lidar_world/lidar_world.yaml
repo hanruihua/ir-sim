@@ -18,22 +18,24 @@ robots:
   goal_threshold: 0.2 # for arriving 
   # general property
   radius_exp: 0.1  
-  vel_min: [0, -1.5]
+  vel_min: [-1.5, -1.5]
   vel_max: [1.5, 1.5]
 
   sensor: 
     - type: 'lidar'
-      range_min: 0
-      range_max: 10
+      id: 0
+      range_min: 1
+      range_max: 6
       angle_range: 3.1415926
-      number: 36
+      number: 180
       noise: False
       std: 0
-      offset: [0, 0, 0]  
+      offset: [0, 0, 0]
+      reso: 0.05
 
 obstacles:
   - type: 'obstacle_circle'
-    number: 10
+    number: 0
     distribute: 'random' # manual, random, circular, line
     dynamic: False
     sport: 'default' # default, wander, patrol
@@ -43,12 +45,16 @@ obstacles:
     radius_list: [0.1, 0.5]
     vel_min: [-1, -1]
     vel_max: [1, 1]
-    range_low: [0.0, 0.0, -3.14]
-    range_high: [10.0, 10.0, 3.14]: 
+    range_low: [0.0, 0.0]     # for random distribute
+    range_high: [10.0, 10.0]
     center_distance: 1
+    random_radius: True
+    radius_low: 0.1
+    radius_high: 1
+
     
   - type: 'obstacle_polygon'
-    number: 0
+    number: 1
     distribute: 'manual' # mouse, random
     dynamic: False
     vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points

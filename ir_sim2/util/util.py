@@ -19,6 +19,11 @@ def random_points(number, low, high, point_distance, max_iter=500):
 
     return point_list
 
+def random_value(number, low=0.1, high=1):
+    return np.random.uniform(low =low, high = high, size = (number,))
+
+
+
 def min_distance(point, point_list):
 
     if len(point_list) == 0:
@@ -30,7 +35,6 @@ def min_distance(point, point_list):
 
 def distance(point1, point2):
     return sqrt(  (point1[0, 0] - point2[0, 0]) **2 + (point1[1, 0] - point2[1, 0]) ** 2 )  
-
 
     
 

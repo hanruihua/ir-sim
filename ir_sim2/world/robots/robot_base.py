@@ -64,12 +64,18 @@ class RobotBase:
         self.noise = kwargs.get('noise', False)
 
         # Generalized inequalities
-        self.G, self.g = self.gen_inequal()
+        self.G, self.h = self.gen_inequal()
 
         # sensor
         sensor_args = kwargs.get('sensor', [])
-        self.sensors = [ lidar2d(**args) for args in sensor_args ]
+        self.sensors = []
 
+        for args in sensor_args:
+            sensor_id = args.get('id', None)
+            if sensor_id is None or sensor_id == self.id:
+                self.lidar = lidar2d(robot_state=self.state, **args)
+                self.sensors.append(self.lidar)
+        
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -178,7 +184,21 @@ class RobotBase:
         rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
         trans_point = np.linalg.inv(rot) @ ( point - trans)
 
-        return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
+        return RobotBase.InCone(self.G @ trans_point - self.h, self.cone_type)
+
+    def collision_check_array(self, point_array):
+        rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        trans_array = np.linalg.inv(rot) @ ( point_array - trans)
+
+        temp = self.G @ trans_array - self.h
+
+        if self.cone_type == 'Rpositive':
+            collision_matirx = np.all(temp <= 0, axis=0)
+        elif self.cone_type == 'norm2':
+            collision_matirx = np.squeeze(np.linalg.norm(temp[0:-1], axis=0) - temp[-1]) <= 0
+
+        return collision_matirx
+
 
     def reset(self):
         self.state = self.init_state
@@ -252,13 +272,20 @@ class RobotBase:
 
         return edge_list
 
-    def plot(self, ax, **kwargs):
+    def plot(self, ax, show_sensor=True, **kwargs):
         # plot the robot in the map
+        self.plot_robot(ax, **kwargs)
+        if show_sensor: self.plot_sensors(ax, **kwargs)
+            
+    def plot_robot(self, ax, **kwargs):
         raise NotImplementedError
-    
-    # def plot_sensors(self, ax, **kwargs):
-    #     for sensor in self.sensors:
-    #         sensor.plot(ax)
+
+    def plot_sensors(self, ax, **kwargs):
+        for sensor in self.sensors:
+            plot_line_list, plot_patch_list = sensor.plot(ax)
+
+            self.plot_patch_list += plot_patch_list
+            self.plot_line_list += plot_line_list
 
     def plot_clear(self, ax):
         [patch.remove() for patch in self.plot_patch_list]

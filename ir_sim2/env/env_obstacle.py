@@ -28,12 +28,20 @@ class EnvObstacle:
                 if len(radius_list) < number: radius_list.extend([radius_list[-1]]* (number - len(radius_list)) )
 
             elif distribute == 'random':
-                center_list = kwargs.get('center_list', None)
-                goal_list = kwargs.get('goal_list', None)
-                radius_list = kwargs.get('radius_list', [0.2] * number)
 
+                range_low = kwargs.get('range_low', [0, 0, 0])
+                range_high = kwargs.get('range_high', [10, 10])
+                center_distance = kwargs.get('center_distance', 1)
                 
+                center_list = random_points(number, np.c_[range_low], np.c_[range_high], center_distance)
+                goal_list = random_points(number, np.c_[range_low], np.c_[range_high], center_distance)
 
+                if kwargs.get('random_radius', False):
+                    radius_list = np.random.uniform(low=kwargs.get('radius_low', 0.2), high = kwargs.get('radius_high', 1), size = (number,))
+                else:
+                    radius_list = kwargs.get('radius_list', [0.2] * number)
+                
+                if len(radius_list) < number: radius_list.extend([radius_list[-1]]* (number - len(radius_list)) )
 
             if number > 0:
                 for id, radius, center, goal in zip(range(number), radius_list, center_list, goal_list):

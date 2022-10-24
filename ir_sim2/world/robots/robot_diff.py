@@ -69,11 +69,11 @@ class RobotDiff(RobotBase):
     def gen_inequal(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone
         G = np.array([ [1, 0], [0, 1], [0, 0] ])
-        g = np.array( [ [0], [0], [-self.radius] ] )
-        self.g_collision = np.array( [ [0], [0], [-self.radius_collision] ])
-        return G, g
+        h = np.array( [ [0], [0], [-self.radius] ] )
+        self.h_collision = np.array( [ [0], [0], [-self.radius_collision] ])
+        return G, h
 
-    def plot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         

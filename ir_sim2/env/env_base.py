@@ -175,6 +175,9 @@ class EnvBase:
         
         return obs_list
 
+    def get_lidar_scan(self, id=0):
+        return self.env_robot.robot_list[id].lidar.range_data
+
     # check status
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)

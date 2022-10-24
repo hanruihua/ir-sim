@@ -9,14 +9,11 @@ env = EnvBase(world_name = 'lidar_world.yaml', control_mode='keyboard')
 
 for i in range(3000):
 
-    start_time = time.time()
     env.step(env.key_vel, vel_id=env.key_id)
     # vel = env.cal_des_vel()
     # env.step(vel)
-    end_time = time.time() - start_time
-    print('step time', end_time)
-    env.render(pause_time=0.000001, show_traj=False, show_text=False)
-
+    env.render(pause_time=0.001, show_traj=False, show_text=False)
+    # print(env.get_lidar_scan())
     if env.done(): 
         print('done')
         break

@@ -128,6 +128,7 @@ class RobotAcker(RobotBase):
                 return np.array([[v_opt], [steer_opt]])
 
     def gen_inequal(self):
+        # generalized inequality, inside: Gx <=_k h, norm2 cone
 
         G = np.zeros((4, 2)) 
         h = np.zeros((4, 1)) 
@@ -152,7 +153,7 @@ class RobotAcker(RobotBase):
 
         return G, h
  
-    def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
+    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
         start_y = self.vertex[1, 0]
@@ -192,10 +193,7 @@ class RobotAcker(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-        
-        if show_lidar:
-            pass    
-    
+            
     # def plot_clear(self, ax):
     #     for patch in self.plot_patch_list:
     #         patch.remove()
