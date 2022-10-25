@@ -3,7 +3,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'robot_reset.yaml', plot=False, save_ani=False)
+env = EnvBase(world_name = 'robot_reset.yaml', plot=True, save_ani=False)
 # env = EnvBase(world_name = 'robot_reset_car.yaml', plot=True, save_ani=False)
 
 start_time = time.time()

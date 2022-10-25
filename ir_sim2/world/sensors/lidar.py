@@ -29,7 +29,7 @@ class lidar2d:
         self.sample_num = int( (self.range_max - self.range_min) / reso )
         self.scan_matrix = self.init_sections()
 
-        trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state))
+        trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state[0:3]))
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
 
         self.global_intersections = rot_matrix @ self.intersections + trans_matirx
@@ -39,22 +39,6 @@ class lidar2d:
         self.noise = noise
         self.std = std
     
-    # def init_sections(self):
-
-    #     init_intersections = self.range_max * np.ones((2, self.number))
-    #     init_start_ray = self.range_min * np.ones((2, self.number))
-
-    #     for i, angle in enumerate(self.angle_list):
-    #         init_intersections[:, i] = self.range_max * np.array([ cos(angle), sin(angle) ])
-    #         init_start_ray[:, i] = self.range_min * np.array([ cos(angle), sin(angle) ])
-        
-    #     trans_matirx, rot_matrix = lidar2d.transform_matrix(*self.offset)
-
-    #     intersections = rot_matrix @ init_intersections + trans_matirx
-    #     start_ray = rot_matrix @ init_start_ray + trans_matirx
-
-    #     return intersections, start_ray
-
     def init_sections(self):
         
         temp_scan_matrix = self.range_max * np.ones((2, self.sample_num, self.number))
@@ -90,12 +74,12 @@ class lidar2d:
         temp_global_scan_matrix = np.reshape(self.global_scan_matrix, (2, self.sample_num, self.number)) 
         
         for i in range(len(closest_index_array)):   
-            self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
-            self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
-
-        # self.global_intersections[:, i] = min_int_point
-    #             self.range_data
-        # self.global_ray
+            if self.noise:
+                self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
+                self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
+            else:
+                self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
+                self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
 
     def ray_casting(self, com_list):
         
@@ -106,17 +90,28 @@ class lidar2d:
             collision_matrix = np.reshape(temp_collision_matrix, (self.sample_num, self.number))
             collision_matrix[-1, :] = True  # set the end point true
             index = np.argmax(collision_matrix == True, axis = 0) - 1  # find the cloest collision point
-            index = np.clip(index, 0, self.sample_num)
-             # be positive
+            index = np.clip(index, 0, self.sample_num)  # be positive
             index_array[i, :] = index
 
         closest_index_array = np.min(index_array, axis = 0).astype(int)
 
         return closest_index_array
 
+    # def init_sections(self):
+
+    #     init_intersections = self.range_max * np.ones((2, self.number))
+    #     init_start_ray = self.range_min * np.ones((2, self.number))
+
+    #     for i, angle in enumerate(self.angle_list):
+    #         init_intersections[:, i] = self.range_max * np.array([ cos(angle), sin(angle) ])
+    #         init_start_ray[:, i] = self.range_min * np.array([ cos(angle), sin(angle) ])
         
+    #     trans_matirx, rot_matrix = lidar2d.transform_matrix(*self.offset)
 
+    #     intersections = rot_matrix @ init_intersections + trans_matirx
+    #     start_ray = rot_matrix @ init_start_ray + trans_matirx
 
+    #     return intersections, start_ray    
 
     # def step(self, robot_state=np.zeros((3, 1))):
     #     # calculate the scan range data

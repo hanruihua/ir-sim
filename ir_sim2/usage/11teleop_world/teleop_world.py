@@ -2,8 +2,8 @@ from ir_sim2.env import EnvBase
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'teleop_world.yaml', control_mode='keyboard')
-# env = EnvBase(world_name = 'teleop_world_car.yaml', control_mode='keyboard')
+# env = EnvBase(world_name = 'teleop_world.yaml', control_mode='keyboard')
+env = EnvBase(world_name = 'teleop_world_car.yaml', control_mode='keyboard')
 
 for i in range(3000):
 
@@ -16,5 +16,5 @@ for i in range(3000):
     
     env.reset(env.done_list(), 'any')  # 'all'; 'any'
 
-print('TIME DONE')
+# print('TIME DONE')
 env.end(show_text=True)

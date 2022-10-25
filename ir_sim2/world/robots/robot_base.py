@@ -187,6 +187,7 @@ class RobotBase:
         return RobotBase.InCone(self.G @ trans_point - self.h, self.cone_type)
 
     def collision_check_array(self, point_array):
+        # point_array: (2* number)
         rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
         trans_array = np.linalg.inv(rot) @ ( point_array - trans)
 

@@ -14,7 +14,7 @@ robots:
   # general property
   circular: [25, 25, 12]  # for circular distribute, x, y radius
   random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
-  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
+  state_list: [[1, 1, 0, 0], [2, 1, 0, 0]] # for manual distribute
   goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
   radius_exp: 0.1  
   vel_min: [0, -1.5]
