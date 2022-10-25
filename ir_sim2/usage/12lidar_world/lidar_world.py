@@ -14,7 +14,7 @@ for i in range(3000):
     # env.step(vel)
     env.render(pause_time=0.001, show_traj=False, show_text=False)
     # print(env.get_lidar_scan())
-    print(env.key_vel)
+    # print(env.key_vel)
     if env.done(): 
         print('done')
         break

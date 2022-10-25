@@ -8,7 +8,7 @@ world:
 
 robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-  number: 1
+  number: 2
   distribute: 'circular' # manual, random, circular, line
   shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
   # general property
@@ -17,7 +17,7 @@ robots:
   state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
   goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
   radius_exp: 0.1  
-  vel_min: [-5, -5]
+  vel_min: [-5, -5]   # steer, angular
   vel_max: [5, 5]
 
   sensor: 

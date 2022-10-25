@@ -118,13 +118,12 @@ class EnvRobot:
         return [r.arrive_flag for r in self.robot_list]
     
     def collision_list(self):
-        t = [r.collision_flag for r in self.robot_list]
         return [r.collision_flag for r in self.robot_list]
 
     def collision(self):
         return any([r.collision_flag for r in self.robot_list])
 
-    def move(self, velocity=[], vel_id=0, **vel_kwargs):
+    def move(self, velocity=[], vel_id=1, **vel_kwargs):
         # vel_kwargs: 
         #   diff:
         #       vel_type = 'diff', 'omni'

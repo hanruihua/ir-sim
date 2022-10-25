@@ -38,20 +38,27 @@ class RobotAcker(RobotBase):
         # The ackermann robot dynamics
         # l: wheel base
         # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
-       
+        # steer:  vel, speed and steer angle
+        # angular: vel, speed and angular velocity of steer angle
+        # simplify: vel: speed and 
+
         phi = state[2, 0]  
         psi = state[3, 0]
 
         if self.vel_type == 'steer':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
             
-            if vel[1, 0] > self.psi_limit or vel[1, 0] < -self.psi_limit:
-                # self.log.logger.info('The psi is clipped to be %s', vel[1, 0])
-                vel[1, 0] = np.clip(vel[1, 0], -self.psi_limit, self.psi_limit)
+            vel[1, 0]  = -self.psi_limit
 
+            # if vel[1, 0] > self.psi_limit:
+            #     vel[1, 0] = self.psi_limit
+            # if vel[1, 0] < -self.psi_limit:
+            #     vel[1, 0] = -self.psi_limit
+            
+            print(vel[1, 0])
+                
         elif self.vel_type == 'angular':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-
         elif self.vel_type == 'simplify':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [0, 1], [0, 0] ])
         
