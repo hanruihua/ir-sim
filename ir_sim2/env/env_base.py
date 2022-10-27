@@ -72,10 +72,10 @@ class EnvBase:
         
         if control_mode == 'keyboard':
             
-            self.key_lv_max = keyboard_args.get("key_lv_max", 2)
-            self.key_ang_max = keyboard_args.get("key_ang_max", 2)
-            self.key_lv = keyboard_args.get("key_lv", 0)
-            self.key_ang = keyboard_args.get("key_ang", 0)
+            self.key_lv_max = keyboard_args.get("key_lv_max", 2.0)
+            self.key_ang_max = keyboard_args.get("key_ang_max", 1.0)
+            self.key_lv = keyboard_args.get("key_lv", 0.0)
+            self.key_ang = keyboard_args.get("key_ang", 0.0)
             self.key_id = keyboard_args.get("key_id", 1)
             self.alt_flag = 0
 

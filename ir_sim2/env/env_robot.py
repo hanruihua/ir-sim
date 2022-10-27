@@ -104,12 +104,6 @@ class EnvRobot:
                 return True
 
         return False
-    
-    def reset(self, id=-1):
-        if id == -1:
-            [robot.reset() for robot in self.robot_list]
-        else:
-            [robot.reset() for robot in self.robot_list if robot.id == id]
 
     def arrive(self):
         return all([r.arrive_flag for r in self.robot_list])
@@ -146,6 +140,19 @@ class EnvRobot:
             for robot, vel in zip(self.robot_list, velocity):
                 robot.move(vel, **vel_kwargs)
     
+
+    def reset(self, id=-1):
+        if id == -1:
+            [robot.reset() for robot in self.robot_list]
+        else:
+            [robot.reset() for robot in self.robot_list if robot.id == id]
+
+        #  # sensor step
+        # for robot in self.robot_list:
+        #     robot.sensor_step()
+
+
+
     def plot(self, ax, **kwargs):
         for robot in self.robot_list:
             robot.plot(ax, **kwargs)

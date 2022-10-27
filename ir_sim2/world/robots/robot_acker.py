@@ -23,9 +23,6 @@ class RobotAcker(RobotBase):
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
-        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
-        self.vertex = rot @ self.init_vertex + trans
-
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
         self.wheelbase = shape[2]
         self.psi_limit = psi_limit
@@ -33,6 +30,7 @@ class RobotAcker(RobotBase):
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
+        self.update_vertex()
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics
@@ -48,15 +46,15 @@ class RobotAcker(RobotBase):
         if self.vel_type == 'steer':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
             
-            vel[1, 0]  = -self.psi_limit
+            if vel[1, 0] > self.psi_limit or vel[1, 0] < -self.psi_limit:
+                print('The steer is clipped under the psi limit ', self.psi_limit)
+                vel[1, 0] = np.clip(vel[1, 0], -self.psi_limit, self.psi_limit)
 
             # if vel[1, 0] > self.psi_limit:
-            #     vel[1, 0] = self.psi_limit
+            #     vel[1,ddddd 0] = self.psi_limit
             # if vel[1, 0] < -self.psi_limit:
             #     vel[1, 0] = -self.psi_limit
-            
-            print(vel[1, 0])
-                
+                    
         elif self.vel_type == 'angular':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
         elif self.vel_type == 'simplify':
@@ -70,11 +68,14 @@ class RobotAcker(RobotBase):
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
         # update vertex
-        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
-        self.vertex = rot @ self.init_vertex + trans
+        self.update_vertex()
 
         return new_state
 
+    def update_vertex(self):
+        rot, trans = self.transform_from_state(self.state)
+        self.vertex = rot @ self.init_vertex + trans
+    
     def cal_des_vel(self, tolerance=0.02):
         if self.arrive_mode == 'position':
             if self.vel_type == 'steer':
@@ -200,7 +201,20 @@ class RobotAcker(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-            
+
+
+    def reset(self):
+        self.state = self.init_state
+        self.center = self.init_state[0:2]
+        self.goal = self.init_goal_state
+        self.vel = self.init_vel
+
+        self.collision_flag = False
+        self.arrive_flag = False
+
+        # update vertex
+        self.update_vertex()
+
     # def plot_clear(self, ax):
     #     for patch in self.plot_patch_list:
     #         patch.remove()

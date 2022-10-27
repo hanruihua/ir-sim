@@ -15,10 +15,7 @@ for i in range(3000):
     env.render(pause_time=0.001, show_traj=False, show_text=False)
     # print(env.get_lidar_scan())
     # print(env.key_vel)
-    if env.done(): 
-        print('done')
-        break
-    
-    env.reset(env.done_list(), 'any')  # 'all'; 'any'
+    if env.done():  
+        env.reset(env.done_list(), 'any')  # 'all'; 'any'
   
 env.end(show_text=True)

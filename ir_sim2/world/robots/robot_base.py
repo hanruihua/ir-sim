@@ -98,14 +98,16 @@ class RobotBase:
 
             return: 
         """
+
         if isinstance(vel, list): vel = np.c_[vel]
             
         assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 
-        vel = np.around(vel, 2)
+        vel = np.around(vel.astype(float), 2)  # make sure the vel is float
 
         if (vel < self.vel_min).any() or (vel > self.vel_max).any():
             vel = np.clip(vel, self.vel_min, self.vel_max)
+            print('Input velocity over the limit')
             # logging.warning("The velocity is clipped to be %s", vel.tolist())
         if stop:
             if self.arrive_flag or self.collision_flag:
@@ -203,6 +205,7 @@ class RobotBase:
 
     def reset(self):
         self.state = self.init_state
+        self.center = self.init_state[0:2]
         self.goal = self.init_goal_state
         self.vel = self.init_vel
 
@@ -304,11 +307,17 @@ class RobotBase:
             return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
 
     @staticmethod
-    def get_transform(position, orientation):
-        rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
+    def get_transform(position, ori_angle):
+        rot = np.array([ [cos(ori_angle), -sin(ori_angle)], [sin(ori_angle), cos(ori_angle)] ])
         trans = position
         return rot, trans
-
+    
+    @staticmethod
+    def transform_from_state(state):
+        # state 3*1: x, y, theta
+        rot = np.array([ [cos(state[2, 0]), -sin(state[2, 0])], [sin(state[2, 0]), cos(state[2, 0])] ])
+        trans = state[0:2]
+        return rot, trans
 
     @staticmethod
     def wraptopi(radian):
