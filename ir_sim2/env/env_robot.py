@@ -2,6 +2,7 @@ from ir_sim2.world import RobotDiff
 from ir_sim2.world import RobotAcker
 import numpy as np
 from math import pi, sin, cos
+from ir_sim2.util.util import WrapToPi
 
 class EnvRobot:
     # a group of robots
@@ -60,12 +61,12 @@ class EnvRobot:
         elif distribute == 'circular':
             cx, cy, cr = kwargs['circular']  # x, y, radius
             theta_space = np.linspace(0, 2*pi, number, endpoint=False)
-            goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [theta + pi]]) for theta in theta_space]
+            goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
 
             if robot_type == 'diff':
-                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [theta + pi]]) for theta in theta_space]
+                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)] ]) for theta in theta_space]
             elif robot_type == 'acker':
-                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [theta + pi], [0]]) for theta in theta_space]
+                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)], [0]]) for theta in theta_space]
 
         return state_list, goal_list
     
@@ -151,8 +152,6 @@ class EnvRobot:
         # for robot in self.robot_list:
         #     robot.sensor_step()
 
-
-
     def plot(self, ax, **kwargs):
         for robot in self.robot_list:
             robot.plot(ax, **kwargs)
@@ -160,3 +159,4 @@ class EnvRobot:
     def plot_clear(self, ax):
         for robot in self.robot_list:
             robot.plot_clear(ax)
+

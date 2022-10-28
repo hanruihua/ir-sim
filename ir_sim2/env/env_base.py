@@ -194,7 +194,7 @@ class EnvBase:
         elif mode == 'any':
             return any(done_list)
 
-    def done_list(self, collision_check=True):
+    def done_list(self, collision_check=True, **kwargs):
 
         arrive_flags = self.env_robot.arrive_list()
 
@@ -208,18 +208,19 @@ class EnvBase:
         return done_list
     
     # reset the environment
-    def reset(self, done_list=None, mode='any'):
-        # mode:  if done list is not None
-        #   any: reset the env when any robot done
-        #   all: reset env when all robots done
+    def reset(self, mode='now', **kwargs):
+        # mode: 
+        #   default: reset the env now
+        #   any: reset all the env when any robot done
+        #   all: reset all the env when all robots done
         #   single: reset one robot who has done, depending on the done list
-        if done_list is None: self.reset_all()
+        if mode == 'now':
+            self.reset_all() 
         else:
-            if mode == 'any' and any(done_list):
-                self.reset_all()   
-            elif mode == 'all' and all(done_list):
-                self.reset_all()
-            elif mode == 'single':
+            done_list = self.done_list(**kwargs)
+            if mode == 'any' and any(done_list): self.reset_all()
+            elif mode == 'all' and all(done_list): self.reset_all()
+            elif mode == 'single': 
                 [self.reset_single(i) for i, done in enumerate(done_list) if done]
     
     def reset_all(self):

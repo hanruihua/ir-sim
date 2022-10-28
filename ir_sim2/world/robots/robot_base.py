@@ -27,7 +27,7 @@ class RobotBase:
     def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
 
         """
-            type = 'diff', 'omni', 'ackermann' 
+        type = 'diff', 'omni', 'ackermann' 
         """
         self.id = int(id)
         self.step_time = step_time
@@ -52,6 +52,7 @@ class RobotBase:
         self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
         self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
+
         # self.collision_threshold = kwargs.get('collision_threshold', 0.001)
         if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
         if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
@@ -79,15 +80,6 @@ class RobotBase:
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []
-
-        # if lidar_args is not None:
-        #     id_list = lidar_args['id_list']
-
-        # if lidar_args is not None and self.id in id_list:
-        #     self.lidar = lidar2d(**lidar_args)
-        # else:
-        #     self.lidar = None
-        
 
         # self.alpha = kwargs.get('alpha', [0.03, 0, 0, 0.03, 0, 0])
         # self.control_std = kwargs.get('control_std', [0.01, 0.01])
@@ -138,7 +130,9 @@ class RobotBase:
                 self.arrive_flag = True
 
         elif self.arrive_mode == 'state':
+            print(np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal))
             if np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold:
+                
                 if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
                 self.arrive_flag = True
 

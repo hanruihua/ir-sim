@@ -12,10 +12,9 @@ for i in range(3000):
     env.step(env.key_vel, vel_id=env.key_id)
     # vel = env.cal_des_vel()
     # env.step(vel)
-    env.render(pause_time=0.001, show_traj=False, show_text=False)
+    env.render(pause_time=0.001, show_traj=False, show_text=True)
     # print(env.get_lidar_scan())
     # print(env.key_vel)
-    if env.done():  
-        env.reset(env.done_list(), 'any')  # 'all'; 'any'
-  
+    env.reset('single')
+   
 env.end(show_text=True)

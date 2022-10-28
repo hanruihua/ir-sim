@@ -8,7 +8,7 @@ world:
 
 robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-  number: 2
+  number: 3
   distribute: 'circular' # manual, random, circular, line
   shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
   # general property
