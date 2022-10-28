@@ -23,9 +23,13 @@ class EnvBase:
 
     def __init__(self, world_name=None, plot=True, control_mode='auto', save_ani=False, full=False, **kwargs) -> None:
         
-        # world_name: path of the yaml
-        # plot: True or False
-        # control_mode: auto, keyboard
+        '''
+        The main environment class for this simulator
+
+        world_name: path of the yaml
+        plot: True or False
+        control_mode: auto, keyboard
+        '''
 
         world_args, robot_args = dict(), dict()
 
@@ -61,7 +65,7 @@ class EnvBase:
 
         # components
         # self.components = dict()
-        self.init_environment(**kwargs)
+        self._init_environment(**kwargs)
 
         self.count = 0
         self.sampling = True
@@ -105,8 +109,8 @@ class EnvBase:
                 figManager = plt.get_current_fig_manager()
                 figManager.window.showMaximized()
 
-    ## initialization
-    def init_environment(self, **kwargs):
+    # region: initialization
+    def _init_environment(self, **kwargs):
         # full=False, keep_path=False, 
         # kwargs: full: False,  full windows plot
         #         keep_path, keep a residual
@@ -138,16 +142,10 @@ class EnvBase:
         env_global.robot_list = self.robot_list
         env_global.obstacle_list = self.obstacle_list
         env_global.components = self.components
-        
-    def cal_des_vel(self, **kwargs):
-        return self.env_robot.cal_des_vel(**kwargs)
-        
-    def robots_step(self, vel_list, **kwargs):
-        self.env_robot.move(vel_list, **kwargs)
 
-    def obstacles_step(self, **kwargs):
-        [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+    # endregion: initialization  
 
+    # region: step forward
     def step(self, vel_list=[], **kwargs):
         self.robots_step(vel_list, **kwargs)
         self.obstacles_step(**kwargs)
@@ -156,11 +154,25 @@ class EnvBase:
     
         env_global.time_increment()
 
+    def robots_step(self, vel_list, **kwargs):
+        self.env_robot.move(vel_list, **kwargs)
+    
+    def obstacles_step(self, **kwargs):
+        [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+
     def step_count(self, **kwargs):
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
 
-    # get information
+    def cal_des_vel(self, **kwargs):
+        return self.env_robot.cal_des_vel(**kwargs)
+
+    # endregion: step forward  
+
+    # region: get information
+    def get_size(self):
+        return self.__height, self.__width
+
     def get_robot_list(self):
         return self.env_robot.robot_list
 
@@ -177,21 +189,23 @@ class EnvBase:
 
     def get_lidar_scan(self, id=0):
         return self.env_robot.robot_list[id].lidar.range_data
+    # endregion: get information
 
-    # check status
+    # region: check status
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
         return any(collision_list)
 
-    # 
     def done(self, mode='all', collision_check=True) -> bool:
         # mode: any; any robot done, return done
         #       all; all robots done, return done
         done_list = self.done_list(collision_check)
 
         if mode == 'all':
+            print('DONE')
             return all(done_list)
         elif mode == 'any':
+            print('DONE')
             return any(done_list)
 
     def done_list(self, collision_check=True, **kwargs):
@@ -206,8 +220,9 @@ class EnvBase:
         
         done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
         return done_list
-    
-    # reset the environment
+    # endregion: check status
+
+    # region: reset the environment
     def reset(self, mode='now', **kwargs):
         # mode: 
         #   default: reset the env now
@@ -229,8 +244,9 @@ class EnvBase:
     
     def reset_single(self, id):
         self.env_robot.reset(id)
+    # endregion: reset the environment
 
-    # environment render
+    # region: environment render
     def render(self, pause_time=0.05, **kwargs):
         
         if self.plot: 
@@ -273,20 +289,6 @@ class EnvBase:
         else:
             logging.error('error input of the draw mode')
 
-    def clear_components(self, ax, mode='all', **kwargs):
-        if mode == 'dynamic':
-            self.env_robot.plot_clear(ax)
-            [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
-            [line.pop(0).remove() for line in self.dyna_line_list]
-
-            self.dyna_line_list = []
-            
-        elif mode == 'static':
-            pass
-        
-        elif mode == 'all':
-            plt.cla()
-
     def draw_trajectory(self, traj, style='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
         # traj: a list of points
         if isinstance(traj, list):
@@ -312,6 +314,20 @@ class EnvBase:
         if refresh:
             self.dyna_line_list.append(line)
 
+    def clear_components(self, ax, mode='all', **kwargs):
+        if mode == 'dynamic':
+            self.env_robot.plot_clear(ax)
+            [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+            [line.pop(0).remove() for line in self.dyna_line_list]
+
+            self.dyna_line_list = []
+            
+        elif mode == 'static':
+            pass
+        
+        elif mode == 'all':
+            plt.cla()
+
     def show(self, save_fig=False, fig_name='fig.png', **kwargs):
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
@@ -320,20 +336,9 @@ class EnvBase:
 
             logging.info('Program Done')
             plt.show()
+    # endregion: environment render
 
-    # end of the loop
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
-        
-        if self.save_ani: self.save_animate(ani_name, **kwargs)
-            
-        if self.plot:
-            self.draw_components(self.ax, mode='dynamic', **kwargs)
-
-            if save_fig: self.fig.savefig(fig_name, **kwargs)
-
-            if show: plt.show()
-
-    # animations
+    # region: animation
     def save_gif_figure(self, save_figure_format='png', **kwargs):
 
         if not self.image_path.exists(): self.image_path.mkdir()
@@ -361,8 +366,9 @@ class EnvBase:
         print('Create animation successfully')
 
         if rm_fig_path: shutil.rmtree(self.image_path)
+    # endregion: animation
 
-    ## keyboard control
+    # region: keyboard control
     def on_press(self, key):
 
         try:
@@ -421,8 +427,20 @@ class EnvBase:
         except AttributeError:
             if "alt" in key.name:
                 self.alt_flag = False
+    # endregion:keyboard control
 
+    # region: keyboard control
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
+        
+        if self.save_ani: self.save_animate(ani_name, **kwargs)
             
+        if self.plot:
+            self.draw_components(self.ax, mode='dynamic', **kwargs)
+
+            if save_fig: self.fig.savefig(fig_name, **kwargs)
+
+            if show: plt.show()
+    # endregion:keyboard control    
 
 
 
