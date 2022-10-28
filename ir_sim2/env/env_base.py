@@ -429,9 +429,8 @@ class EnvBase:
                 self.alt_flag = False
     # endregion:keyboard control
 
-    # region: keyboard control
+    # region: the end of the environment loop 
     def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
-        
         if self.save_ani: self.save_animate(ani_name, **kwargs)
             
         if self.plot:
@@ -440,9 +439,10 @@ class EnvBase:
             if save_fig: self.fig.savefig(fig_name, **kwargs)
 
             if show: plt.show()
-    # endregion:keyboard control    
+    # endregion: the end of the environment loop  
 
-
+    def off():
+        pass
 
     
 
