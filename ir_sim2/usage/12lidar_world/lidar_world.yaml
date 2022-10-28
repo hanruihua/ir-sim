@@ -52,7 +52,6 @@ obstacles:
     radius_low: 0.1
     radius_high: 1
 
-    
   - type: 'obstacle_polygon'
     number: 1
     distribute: 'manual' # mouse, random
@@ -71,8 +70,6 @@ obstacles:
     range_high: [10.0, 10.0, 3.14]
     center_distance: 1
     
-    
-
   # - type: 'obstacle_map'
   #   reso: '0.1'
   #   map_image: 'map_100_100.png'

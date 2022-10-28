@@ -12,7 +12,6 @@ for i in range(3000):
     env.step(vel)
     env.render(0.001)
 
-    print(i)
     if env.done('all'):
         env.render_once(show_text=True)
         break

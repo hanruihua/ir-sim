@@ -1,14 +1,14 @@
 world:
   world_height: 50
   world_width: 50
-  step_time: 0.1  # for robot motion 100Hz
+  step_time: 0.01  # for robot motion 100Hz
   sample_time: 0.1  # for render and data extraction 20 Hz 
   offset_x: 0
   offset_y: 0
 
 robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-  number: 3
+  number: 1
   distribute: 'circular' # manual, random, circular, line
   shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
   # general property
@@ -17,8 +17,11 @@ robots:
   state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
   goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
   radius_exp: 0.1  
-  vel_min: [-5, -1]   # steer, angular
-  vel_max: [5, 1]
+  vel_min: [-5, -0.75]   # steer, angular
+  vel_max: [5, 0.75]
+
+  # - distribute2: 'circular'
+  # - circular: [25, 25, 12] 
 
   sensor: 
     - type: 'lidar'

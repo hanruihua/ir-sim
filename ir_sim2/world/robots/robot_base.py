@@ -130,7 +130,6 @@ class RobotBase:
                 self.arrive_flag = True
 
         elif self.arrive_mode == 'state':
-            print(np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal))
             if np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold:
                 
                 if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
