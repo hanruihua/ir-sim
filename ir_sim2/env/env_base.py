@@ -202,7 +202,6 @@ class EnvBase:
         done_list = self.done_list(collision_check)
 
         if mode == 'all':
-            print('DONE')
             return all(done_list)
         elif mode == 'any':
             print('DONE')
@@ -431,6 +430,9 @@ class EnvBase:
 
     # region: the end of the environment loop 
     def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
+
+        print('DONE')
+
         if self.save_ani: self.save_animate(ani_name, **kwargs)
             
         if self.plot:

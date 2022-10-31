@@ -10,7 +10,29 @@ robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
   number: 1
   distribute: 'circular' # manual, random, circular, line
-  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
+  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_acker
+  # general property
+  circular: [25, 25, 12]  # for circular distribute, x, y radius
+  random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
+  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
+  state_list2: 
+    - [1, 1, 0]
+    - [2, 1, 0]  # for manual distribute
+  goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
+  radius_exp: 0.1  
+  vel_min: [-5, -0.75]   # steer, angular
+  vel_max: [5, 0.75]
+  distribute2: {mode: 'circular', shape: [25, 25, 12]}
+  distribute2: {mode: 'random', shape: [0, 0, 10, 10]}
+  distribute2: {mode: 'manual', shape: }
+  # - distribute2: 'circular'
+  # - circular: [25, 25, 12] 
+
+robots2:
+  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
+  number: 1
+  distribute: 'circular' # manual, random, circular, line
+  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_acker
   # general property
   circular: [25, 25, 12]  # for circular distribute, x, y radius
   random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
@@ -19,9 +41,11 @@ robots:
   radius_exp: 0.1  
   vel_min: [-5, -0.75]   # steer, angular
   vel_max: [5, 0.75]
-
+  distribute2: {mode: 'circular', shape: [25, 25, 12]}
+  distribute2: {mode: 'random', shape: [0, 0, 10, 10]}
+  distribute2: {mode: 'manual', shape: }
   # - distribute2: 'circular'
-  # - circular: [25, 25, 12] 
+  # - circular: [25, 25, 12]
 
   sensor: 
     - type: 'lidar'
