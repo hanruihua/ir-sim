@@ -1,7 +1,7 @@
 world:
   world_height: 10
   world_width: 10
-  step_time: 0.1  # for robot motion 100Hz
+  step_time: 0.01  # for robot motion 100Hz
   sample_time: 0.1  # for render and data extraction 20 Hz 
   offset_x: 0
   offset_y: 0
@@ -21,17 +21,17 @@ robots:
   vel_min: [-1.5, -1.5]
   vel_max: [1.5, 1.5]
 
-  sensor: 
-    - type: 'lidar'
-      id: 0
-      range_min: 0.1
-      range_max: 6
-      angle_range: 3.1415926
-      number: 180
-      noise: False
-      std: 0
-      offset: [0, 0, 0]
-      reso: 0.05
+  # sensor: 
+  #   - type: 'lidar'
+  #     id: 0
+  #     range_min: 0.1
+  #     range_max: 6
+  #     angle_range: 3.1415926
+  #     number: 180
+  #     noise: False
+  #     std: 0
+  #     offset: [0, 0, 0]
+  #     reso: 0.05
 
 obstacles:
   - type: 'obstacle_circle'

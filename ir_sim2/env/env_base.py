@@ -75,9 +75,9 @@ class EnvBase:
         self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
         if control_mode == 'keyboard':
-            
-            self.key_lv_max = keyboard_args.get("key_lv_max", 2.0)
-            self.key_ang_max = keyboard_args.get("key_ang_max", 1.0)
+            vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
+            self.key_lv_max = keyboard_args.get("key_lv_max", vel_max[0])
+            self.key_ang_max = keyboard_args.get("key_ang_max", vel_max[1])
             self.key_lv = keyboard_args.get("key_lv", 0.0)
             self.key_ang = keyboard_args.get("key_ang", 0.0)
             self.key_id = keyboard_args.get("key_id", 1)
