@@ -1,0 +1,80 @@
+world:
+  world_height: 10
+  world_width: 10
+  step_time: 0.01  # for robot motion 100Hz
+  sample_time: 0.1  # for render and data extraction 20 Hz 
+  offset_x: 0
+  offset_y: 0
+
+robots:
+  type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
+  number: 2
+  distribute: 'circular' # manual, random, circular, line
+  circular: [5, 5, 4]  # for circular distribute, x, y radius
+  random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
+  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
+  goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
+  shape_list: 0.2   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_diff
+  goal_threshold: 0.2 # for arriving 
+  # general property
+  radius_exp: 0.1  
+  vel_min: [-1.5, -1.5]
+  vel_max: [1.5, 1.5]
+
+  # sensor: 
+  #   - type: 'lidar'
+  #     id: 0
+  #     range_min: 0.1
+  #     range_max: 6
+  #     angle_range: 3.1415926
+  #     number: 180
+  #     noise: False
+  #     std: 0
+  #     offset: [0, 0, 0]
+  #     reso: 0.05
+
+obstacles:
+  - type: 'obstacle_circle'
+    number: 2
+    distribute: 'random' # manual, random, circular, line
+    dynamic: False
+    sport: 'default' # default, wander, patrol
+    sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
+    center_list: [[6, 4], [3, 4], [5, 4], [1, 3], [2, 5]]
+    goal_list: [[4, 1], [9, 9]]
+    radius_list: [0.1, 0.5]
+    vel_min: [-1, -1]
+    vel_max: [1, 1]
+    range_low: [0.0, 0.0]     # for random distribute
+    range_high: [10.0, 10.0]
+    center_distance: 1
+    random_radius: True
+    radius_low: 0.1
+    radius_high: 1
+
+  - type: 'obstacle_polygon'
+    number: 1
+    distribute: 'manual' # mouse, random
+    dynamic: False
+    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
+    state_list: [ [3, 3, 0], ]   # transform of the points 
+  
+  - type: 'obstacle_block'
+    number: 10
+    distribute: 'random' # manual, mouse, random
+    dynamic: False
+    center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
+    length_list: [0.5]
+    width_list: [0.4]
+    range_low: [0.0, 0.0, -3.14]
+    range_high: [10.0, 10.0, 3.14]
+    center_distance: 1
+    
+  # - type: 'obstacle_map'
+  #   reso: '0.1'
+  #   map_image: 'map_100_100.png'
+
+    
+    
+  
+
