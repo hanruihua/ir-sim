@@ -1,28 +1,29 @@
 world:
-  world_height: 50
-  world_width: 50
-  step_time: 0.01  # for robot motion 100Hz
-  sample_time: 0.1  # for render and data extraction 20 Hz 
-  offset_x: 0
-  offset_y: 0
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.01  # 100Hz calculate each step
+  sample_time: 0.1  # 20 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
 
 robots:
-  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
+  type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
   number: 1
-  distribute: 'circular' # manual, random, circular, line
-  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_acker
-  # general property
-  circular: [25, 25, 12]  # for circular distribute, x, y radius
-  random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
-  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
-  state_list2: 
-    - [1, 1, 0]
-    - [2, 1, 0]  # for manual distribute
-  goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
+  state: [1, 1, 0]  
+  radius: 0.2 # # for diff
+  shape: [4.6, 1.6, 3, 1.6] # for acker
+  goal: [9, 9]
+
+  # for multiple robots
+  distribute: {mode: 'circular', range: [25, 25, 12]}
+  distribute: {mode: 'random', range: [25, 25, 12], random_bear: False, random_shape: False}
+  distribute: {mode: 'manual', states: [[1, 1, 0], [2, 1, 0]], shapes: [[4.6, 1.6, 3, 1.6]], goals: [[7, 7, 0], [7, 2, 0]]}
+
+  # general propoerty
   radius_exp: 0.1  
   vel_min: [-5, -0.75]   # steer, angular
   vel_max: [5, 0.75]
 
+  # sensor
   sensor: 
     - type: 'lidar'
       id: 0
@@ -59,8 +60,6 @@ robots:
 #   distribute2: {mode: 'manual', shape: }
 #   # - distribute2: 'circular'
 #   # - circular: [25, 25, 12]
-
-
 
 obstacles:
   - type: 'obstacle_circle'

@@ -6,17 +6,35 @@ from ir_sim2.util.util import WrapToPi
 
 class EnvRobot:
     # a group of robots
-    def __init__(self, robot_class, number=0, distribute='manual', step_time=0.01, random_bear=False, **kwargs):
+    def __init__(self, robot_class, number=0, distribute=dict(), step_time=0.01, random_bear=False, **kwargs):
 
         self.number = number
         self.robot_class = robot_class
         self.type = robot_class.robot_type
         self.robot_list = []
         self.step_time = step_time
-
-        self.distribute = distribute # 'manual', 'circular', 'random', 'opposite'
+        
+        self.distribute = distribute # the dictory of the robot group
         self.random_bear = random_bear
 
+        if number > 0:
+            if number == 1:
+                robot = robot_class(id=0, step_time=self.step_time, **kwargs)
+                self.robot_list.append(robot)
+                
+            else:
+                self.init_distribute(number, **distribute)
+
+                if robot_class.appearance == 'circle':
+                    for id, radius, state, goal in zip(range(number), shape_list, state_list, goal_list):
+                        robot = robot_class(id=id, state=state, goal=goal, radius=radius, step_time=self.step_time, **kwargs)
+                        self.robot_list.append(robot)
+                elif robot_class.appearance == 'rectangle':
+                    for id, shape, state, goal in zip(range(number), shape_list, state_list, goal_list): 
+                        robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
+                        self.robot_list.append(robot)
+
+    
         shape_list = kwargs.get('shape_list', [0.2] * number if robot_class.appearance == 'circle' else [[4.6, 1.6, 3, 1.6]]*number)
         if isinstance(shape_list, float): shape_list = [shape_list] * number
         if len(shape_list) == 1: shape_list = shape_list * number
@@ -53,13 +71,13 @@ class EnvRobot:
                     robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
                     self.robot_list.append(robot)
             
-    def init_distribute(self, number, distribute='line', robot_type='diff', **kwargs):
+    def init_distribute(self, number, mode='manual', states=[], shapes=[], goals=[], range=[0, 0, 0, 0], robot_type='diff', random_bear=False, random_shape=False):
         
-        if distribute == 'line':
+        if mode == 'manual':
             pass
         
-        elif distribute == 'circular':
-            cx, cy, cr = kwargs['circular']  # x, y, radius
+        elif mode == 'circular':
+            cx, cy, cr = range[0:3]  # x, y, radius
             theta_space = np.linspace(0, 2*pi, number, endpoint=False)
             goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
 
@@ -67,6 +85,12 @@ class EnvRobot:
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)] ]) for theta in theta_space]
             elif robot_type == 'acker':
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)], [0]]) for theta in theta_space]
+
+        elif mode == 'line':
+            pass
+
+        elif mode =='random':
+            pass
 
         return state_list, goal_list
     

@@ -13,7 +13,7 @@ from PIL import Image
 from pynput import keyboard
 from .env_robot import EnvRobot
 from .env_obstacle import EnvObstacle
-from ir_sim2.world import RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
+from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
 from ir_sim2.env import env_global
 
 class EnvBase:
@@ -21,7 +21,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, plot=True, control_mode='auto', save_ani=False, full=False, **kwargs) -> None:
+    def __init__(self, world_name=None, world_args=dict(), robot_args = dict(), keyboard_args=dict(), obstacle_args_list = [], plot=True, control_mode='auto', save_ani=False, full=False, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -31,8 +31,7 @@ class EnvBase:
         control_mode: auto, keyboard
         '''
 
-        world_args, robot_args = dict(), dict()
-
+        # arguments
         if world_name != None:
             world_name = sys.path[0] + '/' + world_name
 
@@ -48,32 +47,29 @@ class EnvBase:
         keyboard_args.update(kwargs.get('keyboard_args', dict()))
         [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
 
-        # world, robot, obstacle, args
-        self.__height = world_args.get('world_height', 10)
-        self.__width = world_args.get('world_width', 10) 
-        self.step_time = world_args.get('step_time', 0.01) 
-        self.sample_time = world_args.get('sample_time', 0.1)
-        self.offset_x = world_args.get('offset_x', 0) 
-        self.offset_y = world_args.get('offset_y', 0)
+        # world arguments
+        self.world = world(**world_args)
+        self.step_time = self.world.step_time
 
+        # robot arguments
         self.robot_args = robot_args
+
+        # obstacle arguments
         self.obstacle_args_list = obstacle_args_list
 
         # plot
         self.plot = plot
         self.dyna_line_list = []
 
-        # components
-        # self.components = dict()
+        # initialize the environment
         self._init_environment(**kwargs)
 
-        self.count = 0
-        self.sampling = True
-
+        # animation
         self.save_ani = save_ani  
         self.image_path = Path(sys.path[0] + '/' + 'image')  
         self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
+        # keyboard control
         if control_mode == 'keyboard':
             vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
             self.key_lv_max = keyboard_args.get("key_lv_max", vel_max[0])
@@ -97,6 +93,7 @@ class EnvBase:
             self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
             self.listener.start()
 
+        # full screen
         if full:
             mode = platform.system()
             if mode == 'Linux':
@@ -112,10 +109,9 @@ class EnvBase:
     # region: initialization
     def _init_environment(self, **kwargs):
         # full=False, keep_path=False, 
-        # kwargs: full: False,  full windows plot
+        # kwargs: 
         #         keep_path, keep a residual
-        #         robot kwargs:
-        #         obstacle kwargs:
+        #         
         if self.robot_args:
             self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
         else:
@@ -131,17 +127,15 @@ class EnvBase:
         # default obstacles
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
         self.components = self.robot_list + self.obstacle_list
+
+        env_global.robot_list = self.robot_list
+        env_global.obstacle_list = self.obstacle_list
+        env_global.components = self.components
+
         # plot
         if self.plot:
             self.fig, self.ax = plt.subplots()
             self.init_plot(self.ax, **kwargs)
-            # self.fig, self.ax = plt.subplots()
-        
-        # self.components['env_robot_list'] = self.env_robot_list
-        # self.components['env_robot'] = self.env_robot
-        env_global.robot_list = self.robot_list
-        env_global.obstacle_list = self.obstacle_list
-        env_global.components = self.components
 
     # endregion: initialization  
 
@@ -149,8 +143,7 @@ class EnvBase:
     def step(self, vel_list=[], **kwargs):
         self.robots_step(vel_list, **kwargs)
         self.obstacles_step(**kwargs)
-        self.count += 1
-        self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+        self.world.step()
     
         env_global.time_increment()
 
@@ -160,18 +153,14 @@ class EnvBase:
     def obstacles_step(self, **kwargs):
         [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
 
-    def step_count(self, **kwargs):
-        self.count += 1
-        self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
-
     def cal_des_vel(self, **kwargs):
         return self.env_robot.cal_des_vel(**kwargs)
 
     # endregion: step forward  
 
     # region: get information
-    def get_size(self):
-        return self.__height, self.__width
+    def get_world_size(self):
+        return self._height, self._width
 
     def get_robot_list(self):
         return self.env_robot.robot_list
@@ -249,7 +238,7 @@ class EnvBase:
     def render(self, pause_time=0.05, **kwargs):
         
         if self.plot: 
-            if self.sampling:
+            if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 plt.pause(pause_time)
 
@@ -264,9 +253,10 @@ class EnvBase:
             self.clear_components(self.ax, mode='dynamic', **kwargs)
             
     def init_plot(self, ax, **kwargs):
-        ax.set_aspect('equal')
-        ax.set_xlim(self.offset_x, self.offset_x + self.__width)
-        ax.set_ylim(self.offset_y, self.offset_y + self.__height)
+        
+        ax.set_aspect('equal') 
+        ax.set_xlim(self.world.x_range) 
+        ax.set_ylim(self.world.y_range)
         
         ax.set_xlabel("x [m]")
         ax.set_ylabel("y [m]")
@@ -342,7 +332,7 @@ class EnvBase:
 
         if not self.image_path.exists(): self.image_path.mkdir()
 
-        order = str(self.count).zfill(3)
+        order = str(self.world.count).zfill(3)
         plt.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
     def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True, **kwargs):
