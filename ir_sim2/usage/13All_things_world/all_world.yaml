@@ -14,10 +14,10 @@ robots:
   goal: [9, 9]
 
   # for multiple robots
-  distribute: {mode: 'circular', range: [25, 25, 12]}
-  distribute: {mode: 'random', range: [25, 25, 12], random_bear: False, random_shape: False}
-  distribute: {mode: 'manual', states: [[1, 1, 0], [2, 1, 0]], shapes: [[4.6, 1.6, 3, 1.6]], goals: [[7, 7, 0], [7, 2, 0]]}
-
+  distribute: {mode: 'circular', range: [5, 5, 4], random_bear: False, random_shape: False}
+  distribute: {mode: 'random', range: [0, 10, 0, 10], random_bear: False, random_shape: False}
+  distribute: {mode: 'manual', states: [[1, 1, 0], [2, 1, 0]], shapes: [[0.2], [0.2]], goals: [[7, 7, 0], [7, 2, 0]]}
+ 
   # general propoerty
   radius_exp: 0.1  
   vel_min: [-5, -0.75]   # steer, angular
