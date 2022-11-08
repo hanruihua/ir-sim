@@ -3,6 +3,7 @@ from math import sqrt, inf, pi
 
 def random_points(number, low, high, point_distance, max_iter=500):
     # random distribute some points into a selected area with a minimum distance
+    # low: n*1   high: n*1
     point_list = []
     iter_loop = 0
 

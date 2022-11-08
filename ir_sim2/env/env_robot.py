@@ -2,7 +2,7 @@ from ir_sim2.world import RobotDiff
 from ir_sim2.world import RobotAcker
 import numpy as np
 from math import pi, sin, cos
-from ir_sim2.util.util import WrapToPi
+from ir_sim2.util.util import WrapToPi, random_points
 
 class EnvRobot:
     # a group of robots
@@ -22,7 +22,7 @@ class EnvRobot:
                 robot = robot_class(id=0, step_time=self.step_time, **kwargs)
                 self.robot_list.append(robot)
             else:
-                state_list, shape_list, goal_list = self.init_distribute(number, **distribute)
+                state_list, goal_list, shape_list = self.init_distribute(number, **distribute)
 
                 if robot_class.appearance == 'circle':
                     for id, radius, state, goal in zip(range(number), shape_list, state_list, goal_list):
@@ -70,29 +70,38 @@ class EnvRobot:
         #             robot = robot_class(id=id, state=state, goal=goal, shape=shape, step_time=self.step_time, **kwargs)
         #             self.robot_list.append(robot)
             
-    def init_distribute(self, number, mode='manual', states=[], shapes=[], goals=[], range=[0, 0, 0, 0], robot_type='diff', random_bear=False, random_shape=False):
+    def init_distribute(self, number, mode='manual', states=[], shapes=[], goals=[], circle=[5, 5, 3], rlow=[0, 0, 0], rhigh=[10, 10, 3.14], random_bear=False, random_shape=False):
         
+        shape_list = self.extend_list(shapes)   
+
         if mode == 'manual':
-            pass
-            
+            state_list = self.extend_list(states)
+            goal_list = self.extend_list(goals) 
+
         elif mode == 'circular':
-            cx, cy, cr = range[0:3]  # x, y, radius
+            cx, cy, cr = circle[0:3]  # x, y, radius
             theta_space = np.linspace(0, 2*pi, number, endpoint=False)
             goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
 
-            if robot_type == 'diff':
+            if self.type == 'diff':
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)] ]) for theta in theta_space]
-            elif robot_type == 'acker':
+            elif self.type == 'acker':
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)], [0]]) for theta in theta_space]
 
+        elif mode == 'random':
+            random_points(number, np.c_[rlow], np._c[rhigh], point_distance, max_iter=500)
+ 
         elif mode == 'line':
             pass
 
         elif mode =='random':
             pass
 
-        return state_list, goal_list
+        return state_list, goal_list, shape_list
     
+
+
+
     def cal_des_vel(self, **kwargs):
         return [robot.cal_des_vel(**kwargs) for robot in self.robot_list]
 
@@ -179,3 +188,10 @@ class EnvRobot:
         for robot in self.robot_list:
             robot.plot_clear(ax)
 
+    @staticmethod
+    def extend_list(input_list, number):
+
+        if len(input_list) < number: 
+            input_list.extend([input_list[-1]]* (number - len(input_list)) )
+
+        return input_list
