@@ -30,9 +30,10 @@ class lidar2d:
         self.scan_matrix = self.init_sections()
 
         trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state[0:3]))
-        self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
 
-        self.global_intersections = rot_matrix @ self.intersections + trans_matirx
+        # transform to the global coordinate
+        self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx 
+        self.global_intersections = rot_matrix @ self.intersections + trans_matirx 
         self.global_ray = rot_matrix @ self.ray + trans_matirx
 
         # noise
@@ -40,7 +41,7 @@ class lidar2d:
         self.std = std
     
     def init_sections(self):
-        
+        # discrete the scan to generate a scan matrix 
         temp_scan_matrix = self.range_max * np.ones((2, self.sample_num, self.number))
 
         for i, angle in enumerate(self.angle_list):
@@ -74,15 +75,16 @@ class lidar2d:
         temp_global_scan_matrix = np.reshape(self.global_scan_matrix, (2, self.sample_num, self.number)) 
         
         for i in range(len(closest_index_array)):   
-            if self.noise:
-                self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
-                self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
-            else:
-                self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
-                self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
+            self.global_intersections[:, i] = temp_global_scan_matrix[:, closest_index_array[i], i]
+            self.range_data[i] = self.range_min + (closest_index_array[i] + 2) * self.reso
+
+        if self.noise:
+            self.range_data = self.range_data + np.random.normal(0, self.std, self.range_data.shape)
+
 
     def ray_casting(self, com_list):
-        
+        # calculate the minimum distance index between global_scan_matrix and obstacles
+
         index_array = np.zeros((len(com_list), self.number))
 
         for i, com in enumerate(com_list):
@@ -94,7 +96,7 @@ class lidar2d:
             index_array[i, :] = index
 
         closest_index_array = np.min(index_array, axis = 0).astype(int)
-
+            
         return closest_index_array
 
     # def init_sections(self):

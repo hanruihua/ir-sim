@@ -24,7 +24,6 @@ def random_value(number, low=0.1, high=1):
     return np.random.uniform(low =low, high = high, size = (number,))
 
 
-
 def min_distance(point, point_list):
 
     if len(point_list) == 0:

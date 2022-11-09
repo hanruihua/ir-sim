@@ -24,7 +24,7 @@ class RobotBase:
     dynamic = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, **kwargs):
+    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], **kwargs):
 
         """
         type = 'diff', 'omni', 'ackermann' 
@@ -48,9 +48,10 @@ class RobotBase:
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
+        self.vel_min = np.c_[vel_min]
+        self.vel_max = np.c_[vel_max]
+
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
-        self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
-        self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
 
         # self.collision_threshold = kwargs.get('collision_threshold', 0.001)

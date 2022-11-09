@@ -70,6 +70,8 @@ class EnvBase:
         self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
         # keyboard control
+        self.control_mode = control_mode
+
         if control_mode == 'keyboard':
             vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
             self.key_lv_max = keyboard_args.get("key_lv_max", vel_max[0])
@@ -111,12 +113,10 @@ class EnvBase:
         # full=False, keep_path=False, 
         # kwargs: 
         #         keep_path, keep a residual
-        #         
-        if self.robot_args:
-            self.env_robot = EnvRobot(self.robot_factory[self.robot_args['type']], step_time=self.step_time, **self.robot_args)
-        else:
-            self.env_robot = EnvRobot(self.robot_factory['robot_diff'], step_time=self.step_time, **self.robot_args)
-
+        #     
+        robot_type = self.robot_args.get('type', 'robot_diff')  
+        self.env_robot = EnvRobot(self.robot_factory[robot_type], step_time=self.step_time, **self.robot_args)
+        
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
        
         # default robots 
@@ -141,7 +141,12 @@ class EnvBase:
 
     # region: step forward
     def step(self, vel_list=[], **kwargs):
-        self.robots_step(vel_list, **kwargs)
+
+        if self.control_mode == 'keyboard':
+            self.robots_step(self.key_vel, vel_id=self.key_id, **kwargs)
+        else:
+            self.robots_step(vel_list, **kwargs)
+
         self.obstacles_step(**kwargs)
         self.world.step()
     
@@ -191,9 +196,9 @@ class EnvBase:
         done_list = self.done_list(collision_check)
 
         if mode == 'all':
+            print('All DONE')
             return all(done_list)
         elif mode == 'any':
-            print('DONE')
             return any(done_list)
 
     def done_list(self, collision_check=True, **kwargs):
