@@ -9,7 +9,6 @@ from ir_sim2.util.util import WrapToPi, random_points, random_value
 from math import pi
 import random
 
-mu, sigma = 0, 0.1 # mean and standard deviation
-s = np.random.normal(mu, sigma, 1000)
+a =1 
 
-print(s.size)
+print(len(a))
