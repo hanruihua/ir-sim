@@ -11,12 +11,12 @@ robots:
 
   # for number == 1
   state: [1, 1, 0]  
-  radius: 0.2 # # for diff
-  shape: [4.6, 1.6, 3, 1.6] # for acker
+  radius: 0.2 # # for diff (default)
+  shape: [4.6, 1.6, 3, 1.6] # for acker (default)
   goal: [9, 9, 0] 
 
   # for multiple robots number>1
-  distribute: {mode: 'circular', circle: [5, 5, 4], random_bear: False, random_shape: False, radius_low: 0.1, radius_high: 1} 
+  distribute: {mode: 'circular', shapes: [0.2], circle: [5, 5, 4], random_bear: False, random_shape: False, radius_low: 0.1, radius_high: 1} 
   # distribute: {mode: 'random', rlow: [0, 0, 0], rhigh: [10, 10, 3.14], distance: 1, random_shape: True, radius_low: 0.1, radius_high: 1}
   # distribute: {mode: 'manual', states: [[1, 1, 0], [2, 1, 0]], shapes: [0.2, 0.2], goals: [[7, 7, 0], [7, 2, 0]], random_bear: False}
 
@@ -49,43 +49,30 @@ robots:
 obstacles:
   - type: 'obstacle_circle'
     number: 0
-    distribute: 'random' # manual, random, circular, line
 
+    distribute: {mode: 'random', shapes: [0.2], rlow: [0, 0], rhigh: [10, 10], distance: 1, random_shape: False, shapes_low: 0.1, shapes_high: 1} 
+    # distribute: {mode: 'manual', states: [[1, 1], [2, 1]], shapes: [0.5, 0.2]}  # shapes: radiuses 
 
-    dynamic: {sport: default, }
-    sport: 'default' # default, wander, patrol
-    sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
-    center_list: [[6, 4], [3, 4], [5, 4], [1, 3], [2, 5]]
-    goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.1, 0.5]
-    vel_min: [-1, -1]
-    vel_max: [1, 1]
-    range_low: [0.0, 0.0]     # for random distribute
-    range_high: [10.0, 10.0]
-    center_distance: 1
-    random_radius: True
-    radius_low: 0.1
-    radius_high: 1
+    # dynamic: {sport: 'wander', sport_range: [0, 0, 10, 10], vel_min: [-1, -1], vel_max: [1, 1]}
+    dynamic: {sport: 'default', goals: [[4, 1], [9, 9]], vel: [1, 1]}
+    # dynamic: {sport: 'partol', goals: [[4, 1], [9, 9]], vel: [1, 1]}
+    
+    # general property 
+
 
   - type: 'obstacle_polygon'
-    number: 1
-    distribute: 'manual' # mouse, random
-    dynamic: False
-    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
-    state_list: [ [3, 3, 0], ]   # transform of the points 
-  
-  - type: 'obstacle_block'
     number: 0
-    distribute: 'random' # manual, mouse, random
-    dynamic: False
-    center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
-    length_list: [0.5]
-    width_list: [0.4]
-    range_low: [0.0, 0.0, -3.14]
-    range_high: [10.0, 10.0, 3.14]
-    center_distance: 1
-    
-  
+    distribute: {mode: 'manual', states: [[3, 3, 0], [5, 3, 0]], shapes: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]] ]} 
+
+  - type: 'obstacle_block'
+    number: 2
+
+    # shapes: [[length, width]]
+    distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [10.0, 10.0, 3.14], distance: 1, shapes: [[0.5, 0.4], [0.4, 0.2]], random_shape: True, shapes_low: [0.1, 0.1], shapes_high: [0.8, 0.8]}
+
+    # distribute: {mode: 'manual', states: [ [4, 4, 1], [3, 6, 0] ], lengths: [0.5, 0.4], widths: [0.4, 0.2]}
+
+
   # - type: 'obstacle_map'
   #   reso: '0.1'
   #   map_image: 'map_100_100.png'

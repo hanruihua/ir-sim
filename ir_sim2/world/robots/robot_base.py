@@ -65,7 +65,7 @@ class RobotBase:
         # noise
         self.noise = kwargs.get('noise', False)
 
-        # Generalized inequalities
+        # Generalized inequalities for init position 
         self.G, self.h = self.gen_inequal()
 
         # sensor
@@ -211,39 +211,7 @@ class RobotBase:
         self.collision_flag = False
         self.arrive_flag = False
 
-    # def collision_check_obstacle(self, obstacle):
-        
-    #     if self.appearance == 'circle':
-    #         robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
-
-    #         if obstacle.appearance == 'circle':
-    #             obs_circle = circle_geometry(obstacle.center[0, 0], obstacle.center[1, 0], obstacle.radius)  
-    #             if cdg.collision_cir_cir(robot_circle, obs_circle): 
-    #                 self.collision_flag = True
-    #                 print('robot collision id', self.id)
-    #                 return True
-                    
-    #         if obstacle.appearance == 'polygon':
-    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-    #             if cdg.collision_cir_poly(robot_circle, obs_poly): 
-    #                 self.collision_flag = True
-    #                 print('robot collision id', self.id)
-    #                 return True
-        
-    #     # ackermann robot
-    #     if self.appearance == 'polygon' or self.appearance == 'rectangle':
-    #         robot_poly = [ point_geometry(ap[0], ap[1]) for ap in self.vertex.T]
-
-    #         if obstacle.appearance == 'circle':
-    #             obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)
-    #             if cdg.collision_cir_poly(obs_circle, robot_poly): return True
-            
-    #         if obstacle.appearance == 'polygon':
-    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-    #             if cdg.collision_poly_poly(robot_poly, obs_poly): return True
-
-    #     return False
-
+    
     def dynamics(self, vel):
 
         """ vel: the input velocity
@@ -252,8 +220,14 @@ class RobotBase:
         raise NotImplementedError
 
     def gen_inequal(self):
-        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g, 
-        # self.G, self.g = self.gen_inequal()
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the init position
+        # self.G, self.h = self.gen_inequal()
+        raise NotImplementedError
+    
+    def gen_inequal_global(self):
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the current position
+        # G, h = self.gen_inequal()
+        # 
         raise NotImplementedError
     
     def cal_des_vel(self):

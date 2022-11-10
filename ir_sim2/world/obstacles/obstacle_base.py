@@ -16,7 +16,7 @@ class ObstacleBase:
         self.reso = resolution
         self.step_time = step_time
         self.dynamic = dynamic
-        self.A, self.b = self.gen_inequal()
+        self.A, self.b = self.gen_inequal_global()
         self.obstacle_matrix = self.gen_matrix()
         
     def collision_check(self):
@@ -48,8 +48,13 @@ class ObstacleBase:
         pass
     
     def gen_inequal(self):
-        # Calculate the matrix A and b for the Generalized inequality: A @ point <_k b, 
-        # self.A, self.b = self.gen_inequal()
+        # Calculate the matrix A and b for the Generalized inequality: A @ point <_k b, at init position
+        # A, b = self.gen_inequal()
+        raise NotImplementedError
+    
+    def gen_inequal_global(self):
+        # Calculate the matrix A and b for the Generalized inequality: A @ point <_k b,  at current position
+        # self.A, self.b = self.gen_inequal_global()
         raise NotImplementedError
     
     def get_edges(self):

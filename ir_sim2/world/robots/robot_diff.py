@@ -72,6 +72,13 @@ class RobotDiff(RobotBase):
         h = np.array( [ [0], [0], [-self.radius] ] )
         self.h_collision = np.array( [ [0], [0], [-self.radius_collision] ])
         return G, h
+    
+    def gen_inequal_global(self):
+        # generalized inequality, inside: Gx <=_k g, norm2 cone  at current position
+        G = np.array([ [1, 0], [0, 1], [0, 0] ])
+        h = np.row_stack((self.center, -self.radius * np.ones((1,1))))
+
+        return G, h
 
     def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]

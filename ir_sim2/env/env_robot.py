@@ -34,11 +34,18 @@ class EnvRobot:
                         robot = robot_class(id=id, step_time=self.step_time, **kwargs)
                         self.robot_list.append(robot)
    
-    def init_distribute(self, number, mode='manual', states=[[0, 0, 0]], shapes=[0.2], goals=[[1, 1, 0]], circle=[5, 5, 3], rlow=[0, 0, 0], rhigh=[10, 10, 3.14], distance=1, random_bear=False, random_shape=False, radius_low=0.1, radius_high=1):
+    def init_distribute(self, number, mode='manual', states=[[0, 0, 0]], goals=[[1, 1, 0]], circle=[5, 5, 3], rlow=[0, 0, 0], rhigh=[10, 10, 3.14], distance=1, random_bear=False, random_shape=False, radius_low=0.1, radius_high=1, **kwargs):
 
         # multiple robots distribution
-        shape_list = self.extend_list(shapes, number)   
 
+        # default shapes
+        if self.type == 'diff':
+            shapes = kwargs.get('shapes', [0.2])
+        elif self.type == 'acker':
+            shapes = kwargs.get('shapes', [[4.6, 1.6, 3, 1.6]])
+
+        shape_list = self.extend_list(shapes, number) 
+        
         if mode == 'manual':
             state_list = self.extend_list(states, number)
             goal_list = self.extend_list(goals, number) 

@@ -21,7 +21,13 @@ def random_points(number, low, high, point_distance, max_iter=500):
     return point_list
 
 def random_value(number, low=0.1, high=1):
-    return np.random.uniform(low =low, high = high, size = (number,))
+
+    if isinstance(low, list):
+        low = np.array(low)
+        high = np.array(high)
+        return [np.random.uniform(low=low, high = high) for i in range(number)]
+    else:
+        return np.random.uniform(low=low, high = high, size = (number, ))
 
 
 def min_distance(point, point_list):

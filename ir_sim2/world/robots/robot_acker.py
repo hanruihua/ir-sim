@@ -160,7 +160,34 @@ class RobotAcker(RobotBase):
             h[i, 0] = c 
 
         return G, h
- 
+    
+    def gen_inequal_global(self):
+        # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
+
+        G = np.zeros((4, 2)) 
+        h = np.zeros((4, 1)) 
+        
+        for i in range(4):
+            if i + 1 < 4:
+                pre_point = self.vertex[:, i]
+                next_point = self.vertex[:, i+1]
+            else:
+                pre_point = self.vertex[:, i]
+                next_point = self.vertex[:, 0]
+            
+            diff = next_point - pre_point
+            
+            a = diff[1]
+            b = -diff[0]
+            c = a * pre_point[0] + b * pre_point[1]
+
+            G[i, 0] = a
+            G[i, 1] = b
+            h[i, 0] = c 
+
+        return G, h
+
+    
     def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
