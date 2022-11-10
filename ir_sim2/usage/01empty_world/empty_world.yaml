@@ -1,10 +1,9 @@
 world:
-  world_height: 10
-  world_width: 10
-  step_time: 0.1
-  xy_resolution: 0.01 # meter
-  yaw_resolution: 5 # degree
-  world_map: 'map_100_100.png'
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.01  # 100Hz calculate each step
+  sample_time: 0.1  # 20 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
 
 # robots:
 #   number: 0

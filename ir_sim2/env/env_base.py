@@ -28,7 +28,7 @@ class EnvBase:
 
         world_name: path of the yaml
         plot: True or False
-        control_mode: auto, keyboard
+        control_mode: auto, keyboard, desire
         '''
 
         # arguments

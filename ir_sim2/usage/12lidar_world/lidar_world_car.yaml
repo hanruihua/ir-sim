@@ -1,111 +1,76 @@
 world:
-  world_height: 50
-  world_width: 50
-  step_time: 0.01  # for robot motion 100Hz
-  sample_time: 0.1  # for render and data extraction 20 Hz 
-  offset_x: 0
-  offset_y: 0
+  height: 50  # the height of the world
+  width: 50   # the height of the world
+  step_time: 0.01  # 100Hz calculate each step
+  sample_time: 0.1  # 20 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
 
 robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-  number: 1
-  distribute: 'circular' # manual, random, circular, line
-  shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_acker
-  # general property
-  circular: [25, 25, 12]  # for circular distribute, x, y radius
-  random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
-  state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
-  state_list2: 
-    - [1, 1, 0]
-    - [2, 1, 0]  # for manual distribute
-  goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
-  radius_exp: 0.1  
-  vel_min: [-5, -0.75]   # steer, angular
-  vel_max: [5, 0.75]
+  number: 2
 
+  # for number == 1
+  state: [1, 1, 0, 0]  
+  radius: 0.2 # # for diff (default)
+  shape: [4.6, 1.6, 3, 1.6] # for acker (default)
+  goal: [9, 9, 0] 
+
+  # for multiple robots number>1
+  # distribute: {mode: 'circular', shapes: [[4.6, 1.6, 3, 1.6]], circle: [25, 25, 10], random_bear: False, random_shape: False} 
+  # distribute: {mode: 'random', rlow: [0, 0, 0, 0], rhigh: [50, 50, 3.14, 0], distance: 1}  # ackermann state 4 * 1
+  distribute: {mode: 'manual', states: [[25, 25, 0, 0], [40, 35, 0, 0]], shapes: [[4.6, 1.6, 3, 1.6]], goals: [[7, 7, 0], [7, 2, 0]], random_bear: False}
+
+  # general propoerty
+  radius_exp: 0.1  # for circle apperance
+  goal_threshold: 0.1 # judge whether arrive at the goal
+  vel_min: [-3, -0.785]   # steer, angular or v_x, v_y 
+  vel_max: [3, 0.785]     # steer, angular or v_x, v_y 
+  psi_limit: 0.785  # for ackermann steer limit
+  arrive_mode: 'position' # position, state
+  vel_type: 'steer' # for acker:  'steer': linear velocity, steer angle
+                                  #'angular': linear velocity, angular velocity of steer
+                                  # 'simplify': linear velocity, rotation rate, do not consider the steer angle 
+                    # for diff: diff: linear velocity, angular velocity
+                    #           omni: v in x and y dircetion 
+
+  # sensor
   sensor: 
     - type: 'lidar'
       id: 0
       range_min: 0
-      range_max: 6
+      range_max: 15
       angle_range: 3.1415926
-      number: 180
+      number: 100
       noise: False
-      std: 0
+      std: 1  # index of the lidar 
       offset: [0, 0, 0]
-      reso: 0.2
-  # distribute2: {mode: 'circular', shape: [25, 25, 12]}
-  # distribute2: {mode: 'random', shape: [0, 0, 10, 10]}
-  # distribute2: {mode: 'manual', shape: }
-
-  # - distribute2: 'circular'
-  # - circular: [25, 25, 12] 
-
-# robots2:
-#   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-#   number: 1
-#   distribute: 'circular' # manual, random, circular, line
-#   shape_list: [[4.6, 1.6, 3, 1.6]]   # for manual distribute, raidus (robot_diff)  (length, width wheel_base, wheel_base_) robot_acker
-#   # general property
-#   circular: [25, 25, 12]  # for circular distribute, x, y radius
-#   random: [0, 0, 10, 10] # for random distribute, xmin xmax ymin ymax
-#   state_list: [[1, 1, 0], [2, 1, 0]] # for manual distribute
-#   goal_list: [[7, 7, 0], [7, 2, 0]] # for manual distribute
-#   radius_exp: 0.1  
-#   vel_min: [-5, -0.75]   # steer, angular
-#   vel_max: [5, 0.75]
-#   distribute2: {mode: 'circular', shape: [25, 25, 12]}
-#   distribute2: {mode: 'random', shape: [0, 0, 10, 10]}
-#   distribute2: {mode: 'manual', shape: }
-#   # - distribute2: 'circular'
-#   # - circular: [25, 25, 12]
-
-
+      reso: 0.5
 
 obstacles:
   - type: 'obstacle_circle'
-    number: 0
-    distribute: 'random' # manual, random, circular, line
-    dynamic: False
-    sport: 'default' # default, wander, patrol
-    sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
-    center_list: [[6, 4], [3, 4], [5, 4], [1, 3], [2, 5]]
-    goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.1, 0.5]
-    vel_min: [-1, -1]
-    vel_max: [1, 1]
-    range_low: [0.0, 0.0]     # for random distribute
-    range_high: [10.0, 10.0]
-    center_distance: 1
-    random_radius: True
-    radius_low: 0.1
-    radius_high: 1
+    number: 2
+
+    distribute: {mode: 'random', shapes: [1.2], rlow: [0, 0], rhigh: [50, 50], distance: 2, random_shape: False, shapes_low: 0.1, shapes_high: 1} 
+    # distribute: {mode: 'manual', states: [[1, 1], [2, 1]], shapes: [0.5, 0.2]}  # shapes: radiuses 
+
+    # dynamic: {sport: 'wander', sport_range: [0, 0, 10, 10], vel: 1.5}
+    dynamic: {sport: 'default', goals: [[42, 11], [19, 29]], vel: 3}
+    # dynamic: {sport: 'partol', goals: [[4, 1], [9, 9]], vel: [1, 1]}  waiting for development
+    
+    # general property 
 
   - type: 'obstacle_polygon'
-    number: 1
-    distribute: 'manual' # mouse, random
-    dynamic: False
-    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
-    state_list: [ [3, 3, 0], ]   # transform of the points 
-  
+    number: 2
+    distribute: {mode: 'manual', states: [[13, 23, 0], [15, 43, 0]], shapes: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]] ]} 
+
   - type: 'obstacle_block'
-    number: 0
-    distribute: 'random' # manual, mouse, random
-    dynamic: False
-    center_list: [ [4, 4, 1], [4, 5, 1] ]   # init points
-    length_list: [0.5]
-    width_list: [0.4]
-    range_low: [0.0, 0.0, -3.14]
-    range_high: [10.0, 10.0, 3.14]
-    center_distance: 1
-    
-    
+    number: 4
 
-  # - type: 'obstacle_map'
-  #   reso: '0.1'
-  #   map_image: 'map_100_100.png'
+    # shapes: [[length, width]]
+    distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [50.0, 50.0, 3.14], distance: 1, shapes: [[1, 4], [4, 5]], random_shape: True, shapes_low: [3, 3], shapes_high: [18, 18]}
+
+    # distribute: {mode: 'manual', states: [ [4, 4, 1], [3, 6, 0] ], lengths: [0.5, 0.4], widths: [0.4, 0.2]}
 
     
     
   
-
