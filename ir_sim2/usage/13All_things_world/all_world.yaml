@@ -53,19 +53,18 @@ obstacles:
     distribute: {mode: 'random', shapes: [0.2], rlow: [0, 0], rhigh: [10, 10], distance: 1, random_shape: False, shapes_low: 0.1, shapes_high: 1} 
     # distribute: {mode: 'manual', states: [[1, 1], [2, 1]], shapes: [0.5, 0.2]}  # shapes: radiuses 
 
-    # dynamic: {sport: 'wander', sport_range: [0, 0, 10, 10], vel_min: [-1, -1], vel_max: [1, 1]}
-    dynamic: {sport: 'default', goals: [[4, 1], [9, 9]], vel: [1, 1]}
-    # dynamic: {sport: 'partol', goals: [[4, 1], [9, 9]], vel: [1, 1]}
+    # dynamic: {sport: 'wander', sport_range: [0, 0, 10, 10], vel: 0.5}
+    dynamic: {sport: 'default', goals: [[4, 1], [9, 9]], vel: 0.3}
+    # dynamic: {sport: 'partol', goals: [[4, 1], [9, 9]], vel: [1, 1]}  waiting
     
     # general property 
-
 
   - type: 'obstacle_polygon'
     number: 0
     distribute: {mode: 'manual', states: [[3, 3, 0], [5, 3, 0]], shapes: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]] ]} 
 
   - type: 'obstacle_block'
-    number: 2
+    number: 0
 
     # shapes: [[length, width]]
     distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [10.0, 10.0, 3.14], distance: 1, shapes: [[0.5, 0.4], [0.4, 0.2]], random_shape: True, shapes_low: [0.1, 0.1], shapes_high: [0.8, 0.8]}

@@ -10,9 +10,9 @@ class EnvObstacle:
         self.obs_class = obs_class
         self.number = number
         self.distribute = distribute
-        self.dynamic = dynamic
         self.step_time = step_time
         self.obs_list = []
+        self.dynamic = dynamic
 
         if self.number > 0:
 
@@ -78,9 +78,8 @@ class EnvObstacle:
         return state_list, shape_list
 
     def move(self):
-        pass
-        # if self.dynamic:
-        #     [obs.move(**self.dynamic) for obs in self.obs_cir_list]
+        if self.dynamic and self.number > 0: 
+            [obs.move_dynamic(**self.dynamic) for obs in self.obs_cir_list]
            
     def collision_check(self):
         pass

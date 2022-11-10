@@ -30,11 +30,11 @@ class ObstacleCircle(ObstacleBase):
         self.goal = goal
         self.goal_threshold = kwargs.get('goal_threshold', 0.2)
 
-        # self.vel_min = kwargs.get('vel_min', np.c_[[-2, -2]])
-        # self.vel_max = kwargs.get('vel_max', np.c_[[2, 2]])
+        self.vel_min = kwargs.get('vel_min', np.c_[[-2, -2]])
+        self.vel_max = kwargs.get('vel_max', np.c_[[2, 2]])
 
-        # if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
-        # if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
+        if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
+        if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
 
         self.sport_range = kwargs.get('sport_range', [0, 0, 10, 10])  # xmin ymin xmax ymax  (if sport 'wander')
 
@@ -44,10 +44,29 @@ class ObstacleCircle(ObstacleBase):
     
     def move(self, vel, **kwargs):
         self.center = self.center + vel * self.step_time
-        self.A, self.b = self.gen_inequal()
+        self.A, self.b = self.gen_inequal_global()
     
-    def move_dynamic(self, vel=0.2*np.ones((2, 1))):
-        pass
+    def move_dynamic(self, vel=0.3, sport='default', goal=[9, 9], sport_range=[0, 0, 10, 10], **kwargs):
+        # sport: default, wander
+        goals = kwargs.get('goals', None)
+        
+        if sport == 'default':
+            if goals is not None:
+                goal = goals[self.id]
+
+            des_vel = self.cal_des_vel_goal(goal, vel)
+            self.goal = goal
+            self.move(des_vel)
+        
+        elif sport == 'wander':
+
+            if self.arrive_flag:
+                temp = np.random.uniform(low=sport_range[0:2], high=sport_range[2:4])
+                self.goal = np.expand_dims(temp, axis=1)
+                self.arrive_flag = False
+
+            des_vel = self.cal_des_vel_goal(self.goal, vel)
+            self.move(des_vel)
 
     def move_goal(self, **kwargs):
         des_vel = self.cal_des_vel()
@@ -73,6 +92,23 @@ class ObstacleCircle(ObstacleBase):
         if dis > self.goal_threshold:
             vx = self.vel_max[0, 0] * cos(radian)
             vy = self.vel_max[1, 0] * sin(radian)
+        else:
+            vx = 0
+            vy = 0
+            self.arrive_flag = True
+
+        return np.array([[vx], [vy]])
+    
+    def cal_des_vel_goal(self, goal, vel):
+        
+        if isinstance(goal, list):
+            goal = np.c_[goal]
+
+        dis, radian = ObstacleCircle.relative_position(self.center, goal, topi=False)
+        
+        if dis > self.goal_threshold:
+            vx = vel * cos(radian)
+            vy = vel * sin(radian)
         else:
             vx = 0
             vy = 0
