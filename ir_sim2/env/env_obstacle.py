@@ -45,7 +45,7 @@ class EnvObstacle:
             elif obs_class.obstacle_type == 'obstacle_map':
                 pass
     
-    def init_distribute(self, number, mode='manual', states=[[0, 0, 0]], rlow=[0, 0, 0], rhigh=[10, 10, 3.14], distance=1, random_bear=False, random_shape=False, shapes_low=0.1, shapes_high=1, **kwargs):
+    def init_distribute(self, number, mode='manual', states=[[0, 0, 0]], rlow=[0, 0, 0], rhigh=[10, 10, 3.14], distance=1, random_bear=False, random_shape=False, **kwargs):
 
         if self.obs_class.obstacle_type == 'obstacle_circle':
             shapes = kwargs.get('shapes', [0.2])  # radius

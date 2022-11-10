@@ -61,8 +61,8 @@ class EnvRobot:
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)], [0]]) for theta in theta_space]
             
         elif mode == 'random':
-            state_list = random_points(number, np.c_[rlow], np.c_[rhigh], distance)
-            goal_list = random_points(number, np.c_[rlow], np.c_[rhigh], distance)
+            state_list = random_points(number, np.c_[rlow], np.c_[rhigh], distance)  # diff 3*1, acker: 4*1
+            goal_list = random_points(number, np.c_[rlow[0:3]], np.c_[rhigh[0:3]], distance)  # dim 3*1
 
         elif mode == 'line':
             pass
