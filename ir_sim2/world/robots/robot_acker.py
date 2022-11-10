@@ -17,7 +17,7 @@ class RobotAcker(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
     position_dim=(2,1) # the position dimension, x, y
 
-    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -4], vel_max=[4, 4], vel_type='steer', **kwargs):
+    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], vel_type='steer', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim

@@ -196,7 +196,6 @@ class EnvBase:
         done_list = self.done_list(collision_check)
 
         if mode == 'all':
-            print('All DONE')
             return all(done_list)
         elif mode == 'any':
             return any(done_list)

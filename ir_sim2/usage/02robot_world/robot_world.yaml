@@ -1,21 +1,17 @@
 world:
-  world_height: 10
-  world_width: 10
-  step_time: 0.1
-  sample_time: 0.1  # for render and data extraction 10 Hz 
-  offset_x: 0
-  offset_y: 0
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.01  # 100Hz calculate each step
+  sample_time: 0.1  # 20 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
 
 robots:
-  number: 2
-  type: 'robot_diff'  # # robot_omni, robot_diff 
-  distribute: 'manual' # random, circular, 
-  state_list: [[1, 1, 0], [2, 1, 0]]
-  goal_list: [[7, 7, 0], [7, 2, 0]]
-  radius_list: 0.2
-  radius_exp_list: 0.1
-  vel_min: [0, -1.5]
-  vel_max: [1.5, 1.5]
+  type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
+  number: 1
+  state: [1, 1, 0]  
+  radius: 0.2 # # for diff (default)
+  goal: [9, 9, 0] 
+
 
 
   
