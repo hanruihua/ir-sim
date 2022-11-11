@@ -21,7 +21,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, world_args=dict(), robot_args = dict(), keyboard_args=dict(), obstacle_args_list = [], plot=True, control_mode='auto', save_ani=False, full=False, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', world_args=dict(), robot_args = dict(), keyboard_args=dict(), obstacle_args_list=[], plot=True, save_ani=False, full=False, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -431,6 +431,7 @@ class EnvBase:
             
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
+            plt.pause(0.00001)
 
             if save_fig: self.fig.savefig(fig_name, **kwargs)
 

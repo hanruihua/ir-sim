@@ -1,5 +1,4 @@
 from ir_sim2.env import EnvBase
-import time 
 
 env = EnvBase('obstacle_world.yaml')
 
@@ -11,4 +10,4 @@ for i in range(300):
     if env.done():
         break
 
-env.show()
+env.end()

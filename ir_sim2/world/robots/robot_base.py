@@ -99,10 +99,10 @@ class RobotBase:
         vel = np.around(vel.astype(float), 2)  # make sure the vel is float
 
         if (vel < self.vel_min).any():
-            print('Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum limit', np.squeeze(self.vel_min).tolist() )
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum limit', np.squeeze(self.vel_min).tolist() )
 
         if (vel > self.vel_max).any():
-            print('Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum limit', np.squeeze(self.vel_max).tolist() )
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum limit', np.squeeze(self.vel_max).tolist() )
             # logging.warning("The velocity is clipped to be %s", vel.tolist())
 
         vel = np.clip(vel, self.vel_min, self.vel_max)

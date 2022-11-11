@@ -2,7 +2,7 @@ from ir_sim2.env import EnvBase
 import numpy as np
 import matplotlib.pyplot as plt
 
-env = EnvBase(world_name = 'collision_test.yaml')
+env = EnvBase('collision_test.yaml')
 
 def on_move(event):
     if event.inaxes:
@@ -20,12 +20,3 @@ def on_move(event):
 binding_id = plt.connect('motion_notify_event', on_move)
 env.end()
 
-# for i in range(300):
-#     # des_vel = env.cal_des_vel()
-#     # env.step(des_vel)
-#     env.render(0.05)
-    
-#     if env.done() or env.collision_check():
-#         break
-
-# env.show()

@@ -25,7 +25,7 @@ class ObstacleBase:
     def collision_check_point(self, point):
         # generalized inequality over the norm cone
         # x<=_k x_c
-        assert point.shape == self.point_dim
+        assert point.shape == (2, 1)
         return ObstacleBase.InCone(self.A @ point - self.b, self.cone_type)
 
     def collision_check_array(self, point_array):

@@ -188,7 +188,7 @@ class RobotAcker(RobotBase):
         return G, h
 
     
-    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
+    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
         start_y = self.vertex[1, 0]

@@ -113,7 +113,8 @@ class RobotDiff(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-    
+
+        
 
         # if self.lidar is not None and show_lidar:
         #     for point in robot.lidar.inter_points[:, :]:
