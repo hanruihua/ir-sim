@@ -22,13 +22,10 @@ class RobotDiff(RobotBase):
         # shape args
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        self.center = state[0:2]
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
-        self.plot_patch_list = []
-        self.plot_line_list = []
-        
+    
     def dynamics(self, state, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
@@ -43,8 +40,6 @@ class RobotDiff(RobotBase):
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
-        self.center = new_state[0:2]
-
         return new_state
 
     def cal_des_vel(self, tolerance=0.12):
@@ -74,18 +69,23 @@ class RobotDiff(RobotBase):
     def gen_inequal(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone
         G = np.array([ [1, 0], [0, 1], [0, 0] ])
-        g = np.array( [ [0], [0], [-self.radius] ] )
-        self.g_collision = np.array( [ [0], [0], [-self.radius_collision] ])
-        return G, g
+        h = np.array( [ [0], [0], [-self.radius] ] )
+        self.h_collision = np.array( [ [0], [0], [-self.radius_collision] ])
+        return G, h
+    
+    def gen_inequal_global(self):
+        # generalized inequality, inside: Gx <=_k g, norm2 cone  at current position
+        G = np.array([ [1, 0], [0, 1], [0, 0] ])
+        h = np.row_stack((self.center, -self.radius * np.ones((1,1))))
 
-    def plot(self, ax, robot_color = 'g', goal_color='r', show_lidar=True, show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+        return G, h
+
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
         goal_x = self.goal[0, 0]
         goal_y = self.goal[1, 0]
-
-        lidar_line_list = []
 
         robot_circle = mpl.patches.Circle(xy=(x, y), radius = self.radius, color = robot_color)
         robot_circle.set_zorder(3)
@@ -113,23 +113,7 @@ class RobotDiff(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-            
-        # if self.lidar is not None and show_lidar:
-        #     for point in robot.lidar.inter_points[:, :]:
-        #         x_value = [x, point[0]]
-        #         y_value = [y, point[1]]
-        #         lidar_line_list.append(ax.plot(x_value, y_value, color = 'b', alpha=0.5))
-        
-    # def plot_clear(self, ax):
-    #     for patch in self.plot_patch_list:
-    #         patch.remove()
-    #     for line in self.plot_line_list:
-    #         line.pop(0).remove()
 
-    #     self.plot_patch_list = []
-    #     self.plot_line_list = []
-    #     ax.texts.clear()
-    
     # reference: Modern Robotics[book], P523 
     @classmethod
     def motion_diff(cls, current_state, vel, step_time, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):

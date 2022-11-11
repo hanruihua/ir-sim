@@ -1,3 +1,4 @@
+from ir_sim2.world.world import world
 from ir_sim2.world.robots.robot_base import RobotBase
 from ir_sim2.world.robots.robot_diff import RobotDiff
 from ir_sim2.world.robots.robot_acker import RobotAcker

@@ -17,15 +17,12 @@ class RobotAcker(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
     position_dim=(2,1) # the position dimension, x, y
 
-    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -4], vel_max=[4, 4], vel_type='steer', **kwargs):
+    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], vel_type='steer', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
         
-        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
-        self.vertex = rot @ self.init_vertex + trans
-
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
         self.wheelbase = shape[2]
         self.psi_limit = psi_limit
@@ -33,15 +30,16 @@ class RobotAcker(RobotBase):
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
-        self.plot_patch_list = []
-        # self.car_img_show_list = []
-        self.plot_line_list = []
+        self.update_vertex()
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics
         # l: wheel base
         # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
-       
+        # steer:  vel, speed and steer angle
+        # angular: vel, speed and angular velocity of steer angle
+        # simplify: vel: speed and 
+
         phi = state[2, 0]  
         psi = state[3, 0]
 
@@ -49,12 +47,16 @@ class RobotAcker(RobotBase):
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
             
             if vel[1, 0] > self.psi_limit or vel[1, 0] < -self.psi_limit:
-                # self.log.logger.info('The psi is clipped to be %s', vel[1, 0])
+                print('The steer is clipped under the psi limit ', self.psi_limit)
                 vel[1, 0] = np.clip(vel[1, 0], -self.psi_limit, self.psi_limit)
 
+            # if vel[1, 0] > self.psi_limit:
+            #     vel[1,ddddd 0] = self.psi_limit
+            # if vel[1, 0] < -self.psi_limit:
+            #     vel[1, 0] = -self.psi_limit
+                    
         elif self.vel_type == 'angular':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-
         elif self.vel_type == 'simplify':
             co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [0, 1], [0, 0] ])
         
@@ -66,11 +68,14 @@ class RobotAcker(RobotBase):
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
         # update vertex
-        rot, trans = self.get_transform(self.state[0:2, 0:1], self.state[2, 0])
-        self.vertex = rot @ self.init_vertex + trans
+        self.update_vertex()
 
         return new_state
 
+    def update_vertex(self):
+        rot, trans = self.transform_from_state(self.state)
+        self.vertex = rot @ self.init_vertex + trans
+    
     def cal_des_vel(self, tolerance=0.02):
         if self.arrive_mode == 'position':
             if self.vel_type == 'steer':
@@ -131,6 +136,7 @@ class RobotAcker(RobotBase):
                 return np.array([[v_opt], [steer_opt]])
 
     def gen_inequal(self):
+        # generalized inequality, inside: Gx <=_k h, norm2 cone
 
         G = np.zeros((4, 2)) 
         h = np.zeros((4, 1)) 
@@ -154,8 +160,35 @@ class RobotAcker(RobotBase):
             h[i, 0] = c 
 
         return G, h
- 
-    def plot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, show_lidar=True, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
+    
+    def gen_inequal_global(self):
+        # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
+
+        G = np.zeros((4, 2)) 
+        h = np.zeros((4, 1)) 
+        
+        for i in range(4):
+            if i + 1 < 4:
+                pre_point = self.vertex[:, i]
+                next_point = self.vertex[:, i+1]
+            else:
+                pre_point = self.vertex[:, i]
+                next_point = self.vertex[:, 0]
+            
+            diff = next_point - pre_point
+            
+            a = diff[1]
+            b = -diff[0]
+            c = a * pre_point[0] + b * pre_point[1]
+
+            G[i, 0] = a
+            G[i, 1] = b
+            h[i, 0] = c 
+
+        return G, h
+
+    
+    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
         start_y = self.vertex[1, 0]
@@ -195,10 +228,20 @@ class RobotAcker(RobotBase):
             x_list = [t[0, 0] for t in self.trajectory]
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-        
-        if show_lidar:
-            pass    
-    
+
+
+    def reset(self):
+        self.state = self.init_state
+        self.center = self.init_state[0:2]
+        self.goal = self.init_goal_state
+        self.vel = self.init_vel
+
+        self.collision_flag = False
+        self.arrive_flag = False
+
+        # update vertex
+        self.update_vertex()
+
     # def plot_clear(self, ax):
     #     for patch in self.plot_patch_list:
     #         patch.remove()

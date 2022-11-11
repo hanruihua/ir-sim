@@ -24,12 +24,38 @@ class ObstaclePolygon(ObstacleBase):
         super(ObstaclePolygon, self).__init__(id=id, dynamic=dynamic, **kwargs)
 
         self.plot_patch_list = []
+        self.center = self.state[0:2]
 
-    def gen_inequal(self):
+    def gen_inequal_global(self):
 
         temp_vertex = np.c_[self.vertex, self.vertex[0:2, 0]]   
 
         point_num = self.vertex.shape[1]
+        
+        A = np.zeros((point_num, self.point_dim[0]))
+        b = np.zeros((point_num, 1))
+
+        for i in range(point_num):
+            cur_p = temp_vertex[0:2, i]
+            next_p = temp_vertex[0:2, i+1]
+
+            diff = next_p - cur_p
+
+            ax = diff[1]
+            by = -diff[0]
+            c = ax * cur_p[0] + by * cur_p[1]
+
+            A[i, 0] = ax
+            A[i, 1] = by
+            b[i, 0] = c
+
+        return A, b
+    
+    def gen_inequal(self):
+        # at init position
+        temp_vertex = np.c_[self.init_vertex, self.init_vertex[0:2, 0]]   
+
+        point_num = self.init_vertex.shape[1]
         
         A = np.zeros((point_num, self.point_dim[0]))
         b = np.zeros((point_num, 1))

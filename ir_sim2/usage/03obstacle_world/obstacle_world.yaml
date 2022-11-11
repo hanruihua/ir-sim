@@ -1,48 +1,23 @@
 world:
-  world_height: 10
-  world_width: 10
-  step_time: 0.1
-  sample_time: 0.1  # for render and data extraction 10 Hz 
-  offset_x: 0
-  offset_y: 0
-
-robots:
-  type: 'robot_diff'  # # robot_omni, robot_diff 
-  number: 2
-  distribute: 'manual' # random, circular, 
-  state_list: [[1, 1, 0], [2, 1, 0]]
-  goal_list: [[7, 7, 0], [7, 2, 0]]
-  radius_list: 0.2
-  radius_exp_list: 0.1
-  vel_min: [0, -1.5]
-  vel_max: [1.5, 1.5]
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.01  # 100Hz calculate each step
+  sample_time: 0.1  # 20 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
 
 obstacles:
   - type: 'obstacle_circle'
     number: 2
-    distribute: 'manual' # random, circular
-    dynamic: True
-    sport: 'wander' # default, wander, patrol
-    sport_range: [0, 0, 10, 10]  # xmin xmax ymin ymax  (if sport 'wander')
-    point_list: [[6, 9], [3, 4]]
-    goal_list: [[4, 1], [9, 9]]
-    radius_list: [0.3, 0.5]
-    vel_min: [-1, -1]
-    vel_max: [1, 1]
+    distribute: {mode: 'random', shapes: [0.2], rlow: [0, 0], rhigh: [10, 10], distance: 1, random_shape: False, shapes_low: 0.1, shapes_high: 1} 
+    dynamic: {sport: 'default', goals: [[4, 1], [9, 9]], vel: 0.3}
+    # distribute: {mode: 'manual', states: [[1, 1], [2, 1]], shapes: [0.5, 0.2]}  # shapes: radiuses 
+    # dynamic: {sport: 'wander', sport_range: [0, 0, 10, 10], vel: 0.5}
     
   - type: 'obstacle_polygon'
-    number: 1
-    distribute: 'manual' # mouse, random
-    dynamic: False
-    vertex_list: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]], ]   # init points
-    state_list: [ [0, 0, 0], ]   # transform of the points 
-    
+    number: 2
+    distribute: {mode: 'manual', states: [[3, 3, 0], [9, 3, 0]], shapes: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]] ]} 
 
-  # - type: 'obstacle_map'
-  #   reso: '0.1'
-  #   map_image: 'map_100_100.png'
-
-    
-    
-  
-
+  - type: 'obstacle_block'  # shapes: [[length, width]]
+    number: 2
+    distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [10.0, 10.0, 3.14], distance: 1, shapes: [[0.5, 0.4], [0.4, 0.2]], random_shape: True, shapes_low: [0.1, 0.1], shapes_high: [0.8, 0.8]}
+    # distribute: {mode: 'manual', states: [ [4, 4, 1], [3, 6, 0] ], lengths: [0.5, 0.4], widths: [0.4, 0.2]}

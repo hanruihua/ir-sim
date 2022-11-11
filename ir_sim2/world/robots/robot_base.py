@@ -4,6 +4,7 @@ from collections import namedtuple
 from ir_sim2.util import collision_dectection_geo as cdg 
 import time
 import logging
+from ir_sim2.world.sensors.lidar import lidar2d
 # define geometry point and segment for collision detection.
 # point [x, y]
 # segment [point1, point2]
@@ -23,10 +24,10 @@ class RobotBase:
     dynamic = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state, vel, goal, step_time=0.1, **kwargs):
+    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], **kwargs):
 
         """
-            type = 'diff', 'omni', 'ackermann' 
+        type = 'diff', 'omni', 'ackermann' 
         """
         self.id = int(id)
         self.step_time = step_time
@@ -43,13 +44,16 @@ class RobotBase:
         self.goal = self.init_goal_state
         self.vel = self.init_vel
         self.trajectory = []
+        self.center = self.init_state[0:2]
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
+        self.vel_min = np.c_[vel_min]
+        self.vel_max = np.c_[vel_max]
+
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
-        self.vel_min = kwargs.get('vel_min', np.c_[[-inf, -inf]])
-        self.vel_max = kwargs.get('vel_max', np.c_[[inf, inf]])
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
+
         # self.collision_threshold = kwargs.get('collision_threshold', 0.001)
         if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
         if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
@@ -61,19 +65,22 @@ class RobotBase:
         # noise
         self.noise = kwargs.get('noise', False)
 
-        # Generalized inequalities
-        self.G, self.g = self.gen_inequal()
+        # Generalized inequalities for init position 
+        self.G, self.h = self.gen_inequal()
 
         # sensor
-        self.lidar = None
-        # if lidar_args is not None:
-        #     id_list = lidar_args['id_list']
+        sensor_args = kwargs.get('sensor', [])
+        self.sensors = []
 
-        # if lidar_args is not None and self.id in id_list:
-        #     self.lidar = lidar2d(**lidar_args)
-        # else:
-        #     self.lidar = None
+        for args in sensor_args:
+            sensor_id = args.get('id', None)
+            if sensor_id is None or sensor_id == self.id:
+                self.lidar = lidar2d(robot_state=self.state, **args)
+                self.sensors.append(self.lidar)
         
+        # plot
+        self.plot_patch_list = []
+        self.plot_line_list = []
 
         # self.alpha = kwargs.get('alpha', [0.03, 0, 0, 0.03, 0, 0])
         # self.control_std = kwargs.get('control_std', [0.01, 0.01])
@@ -84,15 +91,22 @@ class RobotBase:
 
             return: 
         """
+
         if isinstance(vel, list): vel = np.c_[vel]
             
         assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 
-        vel = np.around(vel, 2)
+        vel = np.around(vel.astype(float), 2)  # make sure the vel is float
 
-        if (vel < self.vel_min).any() or (vel > self.vel_max).any():
-            vel = np.clip(vel, self.vel_min, self.vel_max)
+        if (vel < self.vel_min).any():
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum limit', np.squeeze(self.vel_min).tolist() )
+
+        if (vel > self.vel_max).any():
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum limit', np.squeeze(self.vel_max).tolist() )
             # logging.warning("The velocity is clipped to be %s", vel.tolist())
+
+        vel = np.clip(vel, self.vel_min, self.vel_max)
+        
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
@@ -100,6 +114,9 @@ class RobotBase:
         self.trajectory.append(self.state)
         self.state = self.dynamics(self.state, vel, **kwargs)
 
+        self.center = self.state[0:2]
+
+        self.sensor_step()
         self.arrive()
         
     def update_info(self, state, vel):
@@ -107,6 +124,11 @@ class RobotBase:
         self.state = state
         self.vel = vel
     
+    def sensor_step(self):
+        # for sensor
+        for sensor in self.sensors:
+            sensor.step(self.state[0:3], )
+
     def arrive(self):
         if self.arrive_mode == 'position':
             if np.linalg.norm(self.state[0:self.position_dim[0]] - self.goal[0:self.position_dim[0]]) <= self.goal_threshold:
@@ -115,6 +137,7 @@ class RobotBase:
 
         elif self.arrive_mode == 'state':
             if np.linalg.norm(self.state[0:self.goal_dim[0]] - self.goal) <= self.goal_threshold:
+                
                 if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
                 self.arrive_flag = True
 
@@ -162,49 +185,33 @@ class RobotBase:
         rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
         trans_point = np.linalg.inv(rot) @ ( point - trans)
 
-        return RobotBase.InCone(self.G @ trans_point - self.g, self.cone_type)
+        return RobotBase.InCone(self.G @ trans_point - self.h, self.cone_type)
+
+    def collision_check_array(self, point_array):
+        # point_array: (2* number)
+        rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        trans_array = np.linalg.inv(rot) @ ( point_array - trans)
+
+        temp = self.G @ trans_array - self.h
+
+        if self.cone_type == 'Rpositive':
+            collision_matirx = np.all(temp <= 0, axis=0)
+        elif self.cone_type == 'norm2':
+            collision_matirx = np.squeeze(np.linalg.norm(temp[0:-1], axis=0) - temp[-1]) <= 0
+
+        return collision_matirx
+
 
     def reset(self):
         self.state = self.init_state
+        self.center = self.init_state[0:2]
         self.goal = self.init_goal_state
         self.vel = self.init_vel
 
         self.collision_flag = False
         self.arrive_flag = False
 
-    # def collision_check_obstacle(self, obstacle):
-        
-    #     if self.appearance == 'circle':
-    #         robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
-
-    #         if obstacle.appearance == 'circle':
-    #             obs_circle = circle_geometry(obstacle.center[0, 0], obstacle.center[1, 0], obstacle.radius)  
-    #             if cdg.collision_cir_cir(robot_circle, obs_circle): 
-    #                 self.collision_flag = True
-    #                 print('robot collision id', self.id)
-    #                 return True
-                    
-    #         if obstacle.appearance == 'polygon':
-    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-    #             if cdg.collision_cir_poly(robot_circle, obs_poly): 
-    #                 self.collision_flag = True
-    #                 print('robot collision id', self.id)
-    #                 return True
-        
-    #     # ackermann robot
-    #     if self.appearance == 'polygon' or self.appearance == 'rectangle':
-    #         robot_poly = [ point_geometry(ap[0], ap[1]) for ap in self.vertex.T]
-
-    #         if obstacle.appearance == 'circle':
-    #             obs_circle = circle_geometry(obstacle.point[0, 0], obstacle.point[1, 0], obstacle.radius)
-    #             if cdg.collision_cir_poly(obs_circle, robot_poly): return True
-            
-    #         if obstacle.appearance == 'polygon':
-    #             obs_poly = [ point_geometry(op[0, 0], op[1, 0]) for op in obstacle.points]
-    #             if cdg.collision_poly_poly(robot_poly, obs_poly): return True
-
-    #     return False
-
+    
     def dynamics(self, vel):
 
         """ vel: the input velocity
@@ -213,21 +220,49 @@ class RobotBase:
         raise NotImplementedError
 
     def gen_inequal(self):
-        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g, 
-        # self.G, self.g = self.gen_inequal()
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the init position
+        # self.G, self.h = self.gen_inequal()
+        raise NotImplementedError
+    
+    def gen_inequal_global(self):
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the current position
+        # G, h = self.gen_inequal()
+        # 
         raise NotImplementedError
     
     def cal_des_vel(self):
         # calculate the desired velocity
         raise NotImplementedError
 
-    def plot(self, ax, **kwargs):
+    def get_edges(self):
+
+        edge_list = []
+        ver_num = self.vertex.shape[1]
+
+        for i in range(ver_num):
+            if i < ver_num - 1:
+                edge = [ self.vertex[:, i], self.vertex[:, i+1] ]
+            else:
+                edge = [ self.vertex[:, i], self.vertex[:, 0] ]
+
+            edge_list.append(edge)
+
+        return edge_list
+
+    def plot(self, ax, show_sensor=True, **kwargs):
         # plot the robot in the map
+        self.plot_robot(ax, **kwargs)
+        if show_sensor: self.plot_sensors(ax, **kwargs)
+            
+    def plot_robot(self, ax, **kwargs):
         raise NotImplementedError
-    
-    def plot_clear(self, ax):
-        # plot the robot in the map
-        raise NotImplementedError
+
+    def plot_sensors(self, ax, **kwargs):
+        for sensor in self.sensors:
+            plot_line_list, plot_patch_list = sensor.plot(ax)
+
+            self.plot_patch_list += plot_patch_list
+            self.plot_line_list += plot_line_list
 
     def plot_clear(self, ax):
         [patch.remove() for patch in self.plot_patch_list]
@@ -245,11 +280,17 @@ class RobotBase:
             return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
 
     @staticmethod
-    def get_transform(position, orientation):
-        rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
+    def get_transform(position, ori_angle):
+        rot = np.array([ [cos(ori_angle), -sin(ori_angle)], [sin(ori_angle), cos(ori_angle)] ])
         trans = position
         return rot, trans
-
+    
+    @staticmethod
+    def transform_from_state(state):
+        # state 3*1: x, y, theta
+        rot = np.array([ [cos(state[2, 0]), -sin(state[2, 0])], [sin(state[2, 0]), cos(state[2, 0])] ])
+        trans = state[0:2]
+        return rot, trans
 
     @staticmethod
     def wraptopi(radian):

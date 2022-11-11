@@ -1,13 +1,13 @@
 from ir_sim2.env import EnvBase
 
-env = EnvBase('robot_reset.yaml')
+env = EnvBase('random_world.yaml')
 
 for i in range(3000):
 
     vel = env.cal_des_vel()
     env.step(vel)
-    env.render(0.05)
+    env.render()
 
-    env.reset('single')  # 'all'; 'any'; 'single'
-
+    env.reset('single')
+    
 env.end()

@@ -14,6 +14,18 @@ robots:
   # distribute: {mode: 'random', rlow: [0, 0, 0, 0], rhigh: [50, 50, 3.14, 0], distance: 1}  # ackermann state 4 * 1
   distribute: {mode: 'manual', states: [[25, 25, 0, 0], [40, 35, 0, 0]], shapes: [[4.6, 1.6, 3, 1.6]], goals: [[27, 37, 0], [17, 42, 1]], random_bear: False}
 
+  # sensor
+  sensor: 
+    - type: 'lidar'
+      id: 0
+      range_min: 0
+      range_max: 15
+      angle_range: 3.1415926
+      number: 100
+      noise: False
+      std: 1  # index of the lidar 
+      offset: [0, 0, 0]
+      reso: 0.5
 
 obstacles:
   - type: 'obstacle_circle'

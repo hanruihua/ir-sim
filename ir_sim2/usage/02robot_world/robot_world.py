@@ -1,10 +1,9 @@
 from ir_sim2.env import EnvBase
 
-robot_args = {'number': 12}
+env = EnvBase('robot_world.yaml')
+# env = EnvBase('car_world.yaml')
 
-env = EnvBase(world_name = 'robot_world.yaml', robot_args=robot_args)
-
-for i in range(300):
+for i in range(3000):
 
     des_vel = env.cal_des_vel()
     env.step(des_vel)
@@ -13,5 +12,5 @@ for i in range(300):
     if env.done():
         break
 
-env.show()
+env.end()
     
