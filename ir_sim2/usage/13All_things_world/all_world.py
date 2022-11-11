@@ -1,7 +1,7 @@
 from ir_sim2.env import EnvBase
 
-env = EnvBase('all_world_car.yaml', control_mode='keyboard')
-# env = EnvBase('all_world.yaml', control_mode='keyboard')
+# env = EnvBase('all_world_car.yaml', control_mode='keyboard')
+env = EnvBase('all_world.yaml', control_mode='keyboard')
 
 for i in range(3000):
 
