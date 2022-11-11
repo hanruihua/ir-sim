@@ -123,10 +123,6 @@ class EnvBase:
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
         self.robot_number = len(self.robot_list)
-<<<<<<< HEAD
-=======
-
->>>>>>> dev
         # default obstacles
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
         self.components = self.robot_list + self.obstacle_list
@@ -140,11 +136,6 @@ class EnvBase:
             self.fig, self.ax = plt.subplots()
             self.init_plot(self.ax, **kwargs)
 
-<<<<<<< HEAD
-    def cal_des_vel(self, **kwargs):
-        return self.env_robot.cal_des_vel(**kwargs)
-        
-=======
     # endregion: initialization  
 
     # region: step forward
@@ -160,7 +151,6 @@ class EnvBase:
     
         env_global.time_increment()
 
->>>>>>> dev
     def robots_step(self, vel_list, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
     
@@ -191,15 +181,11 @@ class EnvBase:
         
         return obs_list
 
-<<<<<<< HEAD
-    # check status
-=======
     def get_lidar_scan(self, id=0):
         return self.env_robot.robot_list[id].lidar.range_data
     # endregion: get information
 
     # region: check status
->>>>>>> dev
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
         return any(collision_list)
@@ -227,14 +213,6 @@ class EnvBase:
         
         done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
         return done_list
-<<<<<<< HEAD
-    
-    # reset the environment
-    def reset(self, done_list=None, mode='any'):
-        # mode:  if done list is not None
-        #   any: reset the env when any robot done
-        #   all: reset env when all robots done
-=======
     # endregion: check status
 
     # region: reset the environment
@@ -243,7 +221,6 @@ class EnvBase:
         #   default: reset the env now
         #   any: reset all the env when any robot done
         #   all: reset all the env when all robots done
->>>>>>> dev
         #   single: reset one robot who has done, depending on the done list
         if mode == 'now':
             self.reset_all() 
@@ -262,11 +239,7 @@ class EnvBase:
         self.env_robot.reset(id)
     # endregion: reset the environment
 
-<<<<<<< HEAD
-    # environment render
-=======
     # region: environment render
->>>>>>> dev
     def render(self, pause_time=0.05, **kwargs):
         
         if self.plot: 
@@ -359,23 +332,7 @@ class EnvBase:
             plt.show()
     # endregion: environment render
 
-<<<<<<< HEAD
-    # end of the loop
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
-        
-        if self.save_ani: self.save_animate(ani_name, **kwargs)
-            
-        if self.plot:
-            self.draw_components(self.ax, mode='dynamic', **kwargs)
-
-            if save_fig: self.fig.savefig(fig_name, **kwargs)
-
-            if show: plt.show()
-
-    # animations
-=======
     # region: animation
->>>>>>> dev
     def save_gif_figure(self, save_figure_format='png', **kwargs):
 
         if not self.image_path.exists(): self.image_path.mkdir()
@@ -405,11 +362,7 @@ class EnvBase:
         if rm_fig_path: shutil.rmtree(self.image_path)
     # endregion: animation
 
-<<<<<<< HEAD
-    ## keyboard control
-=======
     # region: keyboard control
->>>>>>> dev
     def on_press(self, key):
 
         try:
@@ -460,24 +413,18 @@ class EnvBase:
                 self.key_ang_max = self.key_ang_max + 0.2
                 print('current ang ', self.key_ang_max)
             
-<<<<<<< HEAD
-=======
             if key.char == 'r':
                 self.reset()
             
->>>>>>> dev
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
             if "alt" in key.name:
                 self.alt_flag = False
-<<<<<<< HEAD
-=======
     # endregion:keyboard control
 
     # region: the end of the environment loop 
     def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
->>>>>>> dev
 
         print('DONE')
 
