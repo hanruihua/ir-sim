@@ -39,7 +39,7 @@ class EnvRobot:
         # multiple robots distribution
 
         # default shapes
-        if self.type == 'diff':
+        if self.type == 'diff' or self.type == 'omni':
             shapes = kwargs.get('shapes', [0.2])
         elif self.type == 'acker':
             shapes = kwargs.get('shapes', [[4.6, 1.6, 3, 1.6]])

@@ -12,10 +12,7 @@ class RobotDiff(RobotBase):
     vel_dim = (2, 1)  # the velocity dimension, linear and angular velocity
     goal_dim = (3, 1) # the goal dimension, x, y, theta
     position_dim=(2,1) # the position dimension, x, y 
-    dynamic = True
     cone_type = 'norm2' # 'Rpositive'; 'norm2' 
-
-    coefficient_vel = np.zeros((3, 2))
 
     def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
 
@@ -128,11 +125,12 @@ class RobotDiff(RobotBase):
         else:
             real_vel = vel
 
-        cls.coefficient_vel[0, 0] = cos(current_state[2, 0])
-        cls.coefficient_vel[1, 0] = sin(current_state[2, 0])
-        cls.coefficient_vel[2, 1] = 1
+        coefficient_vel = np.zeros((3, 2))
+        coefficient_vel[0, 0] = cos(current_state[2, 0])
+        coefficient_vel[1, 0] = sin(current_state[2, 0])
+        coefficient_vel[2, 1] = 1
 
-        next_state = current_state + cls.coefficient_vel @ real_vel * step_time
+        next_state = current_state + coefficient_vel @ real_vel * step_time
 
         return next_state
 

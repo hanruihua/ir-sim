@@ -21,7 +21,6 @@ class RobotBase:
     vel_dim = (2, 1)  # the velocity dimension 
     goal_dim = (3, 1) # the goal dimension 
     position_dim=(2,1) # the position dimension 
-    dynamic = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
     def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], **kwargs):

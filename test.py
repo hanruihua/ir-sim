@@ -9,10 +9,11 @@ from ir_sim2.util.util import WrapToPi, random_points, random_value
 from math import pi
 import random
 
-<<<<<<< HEAD
-print('2'.isdigit())
-=======
-a =1 
+x = np.array([[1], [2]])
 
-print(len(a))
->>>>>>> dev
+# x[0, 0] = x[1, 0]
+# x[1, 0] = x[0, 0]
+
+x[(0, 1), 0] = x[(1, 0), 0]
+
+print(x)

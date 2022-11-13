@@ -61,6 +61,9 @@ class EnvBase:
         self.plot = plot
         self.dyna_line_list = []
 
+        # keyboard control
+        self.control_mode = control_mode
+
         # initialize the environment
         self._init_environment(**kwargs)
 
@@ -69,9 +72,6 @@ class EnvBase:
         self.image_path = Path(sys.path[0] + '/' + 'image')  
         self.ani_path = Path(sys.path[0] + '/' + 'animation')
         
-        # keyboard control
-        self.control_mode = control_mode
-
         if control_mode == 'keyboard':
             vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
             self.key_lv_max = keyboard_args.get("key_lv_max", vel_max[0])
@@ -130,6 +130,7 @@ class EnvBase:
         env_global.robot_list = self.robot_list
         env_global.obstacle_list = self.obstacle_list
         env_global.components = self.components
+        env_global.control_mode = self.control_mode
 
         # plot
         if self.plot:
