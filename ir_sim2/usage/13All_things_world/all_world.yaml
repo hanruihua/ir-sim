@@ -25,7 +25,7 @@ robots:
   goal_threshold: 0.1 # judge whether arrive at the goal
   vel_min: [-3, -2]   # steer, angular or v_x, v_y 
   vel_max: [3, 2]     # steer, angular or v_x, v_y 
-  acce: [4, .inf]   # accerate for steer, angular or v_x, v_y 
+  acce: [6, .inf]   # accerate for steer, angular or v_x, v_y 
   psi_limit: 0.785  # for ackermann steer limit
   arrive_mode: 'position' # position, state
   vel_type: 'steer' # for acker:  'steer': linear velocity, steer angle

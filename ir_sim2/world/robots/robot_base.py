@@ -109,10 +109,10 @@ class RobotBase:
             print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum velocity limit', np.squeeze(self.vel_max).tolist() )
         
         if (vel > self.vel_acce_max).any():
-            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum accerate limit', np.squeeze(self.vel_acce_max).tolist() )
+            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the maximum accerate limit', np.squeeze(self.vel_acce_max).tolist() )
         
         if (vel < self.vel_acce_min).any():
-            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum accerate limit', np.squeeze(self.vel_acce_min).tolist() )
+            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the minimum accerate limit', np.squeeze(self.vel_acce_min).tolist() )
         
         vel = np.clip(vel, self.vel_acce_min, self.vel_acce_max)
         
