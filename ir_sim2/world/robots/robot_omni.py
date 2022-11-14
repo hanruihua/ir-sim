@@ -18,12 +18,12 @@ class RobotOmni(RobotBase):
 
     coefficient_vel = np.zeros((3, 2))
 
-    def __init__(self, id, state=np.zeros((2, 1)), vel=np.zeros((2, 1)), goal=np.zeros((2, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
+    def __init__(self, id, state=np.zeros((2, 1)), vel=np.zeros((2, 1)), goal=np.zeros((2, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, acce=[inf, inf], **kwargs):
 
         # shape args
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        super(RobotOmni, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
+        super(RobotOmni, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
     
@@ -108,22 +108,6 @@ class RobotOmni(RobotBase):
         next_state = current_state + vel_noise * step_time
 
         return next_state
-
-
-    # def motion_omni(current_state, vel, sampletime, noise = False, control_std = [0.01, 0.01]):
-
-    # # vel: np.array([[vel x], [vel y]])
-    # # current_state: np.array([[x], [y]])
-
-    # if noise == True:
-    #     vel_noise = vel + np.random.normal([[0], [0]], scale = [[control_std[0]], [control_std[1]]])
-    # else:
-    #     vel_noise = vel
-
-    # next_state = current_state + vel_noise * sampletime
-    
-    # return next_state 
-
     
    
 

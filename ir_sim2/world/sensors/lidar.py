@@ -28,6 +28,9 @@ class lidar2d:
         self.sample_num = int( (self.range_max - self.range_min) / reso )
         self.scan_matrix = self.init_sections()
 
+        if robot_state.shape[0] == 2 :
+            robot_state = np.vstack((robot_state, [0]))
+
         trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state[0:3]))
 
         # transform to the global coordinate
@@ -62,6 +65,9 @@ class lidar2d:
 
     def step(self, robot_state=np.zeros((3, 1))):
         # calculate the scan range data
+        if robot_state.shape[0] == 2 :
+            robot_state = np.vstack((robot_state, [0]))
+
         trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state))
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
         self.global_ray = rot_matrix @ self.ray + trans_matirx
