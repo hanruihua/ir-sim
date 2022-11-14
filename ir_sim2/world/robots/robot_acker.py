@@ -4,7 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from .robot_base import RobotBase
-from math import sin, cos, pi, tan
+from math import sin, cos, pi, tan, inf
 from matplotlib import image
 
 
@@ -17,15 +17,15 @@ class RobotAcker(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
     position_dim=(2,1) # the position dimension, x, y
 
-    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], vel_type='steer', **kwargs):
+    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], acce=[inf, inf], vel_type='steer', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
-        super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, **kwargs)
+        super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
         self.wheelbase = shape[2]
-        self.psi_limit = psi_limit
+        self.psi_limit = np.around(psi_limit, 2)
         self.speed_limit = float(self.vel_max[0, 0])
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
@@ -186,6 +186,13 @@ class RobotAcker(RobotBase):
             h[i, 0] = c 
 
         return G, h
+
+    # get information
+    def get_info(self):
+        pass
+
+
+
 
     
     def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):

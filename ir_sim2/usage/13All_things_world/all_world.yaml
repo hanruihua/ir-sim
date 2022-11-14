@@ -1,8 +1,8 @@
 world:
   height: 10  # the height of the world
   width: 10   # the height of the world
-  step_time: 0.01  # 100Hz calculate each step
-  sample_time: 0.1  # 20 Hz for render and data extraction 
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
 
 robots:
@@ -25,6 +25,7 @@ robots:
   goal_threshold: 0.1 # judge whether arrive at the goal
   vel_min: [-3, -2]   # steer, angular or v_x, v_y 
   vel_max: [3, 2]     # steer, angular or v_x, v_y 
+  acce: [4, .inf]   # accerate for steer, angular or v_x, v_y 
   psi_limit: 0.785  # for ackermann steer limit
   arrive_mode: 'position' # position, state
   vel_type: 'steer' # for acker:  'steer': linear velocity, steer angle
@@ -32,7 +33,6 @@ robots:
                                   # 'simplify': linear velocity, rotation rate, do not consider the steer angle 
                     # for diff: diff: linear velocity, angular velocity
                     #           omni: v in x and y dircetion 
-
   # sensor
   sensor: 
     - type: 'lidar'

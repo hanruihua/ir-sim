@@ -164,12 +164,15 @@ class EnvBase:
 
     # region: get information
     def get_world_size(self):
-        return self._height, self._width
+        return self.world.height, self.world.width
 
     # get information
     def get_robot_list(self):
         return self.env_robot.robot_list
 
+    def get_robot_info(self, id=0):
+        return self.env_robot.robot_list[id].get_info()
+        
     def get_obstacle_list(self, obs_type=None):
         # obs_type： obstacle_circle； obstacle_polygon
 
