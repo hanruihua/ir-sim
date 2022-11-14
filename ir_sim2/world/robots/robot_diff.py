@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 from .robot_base import RobotBase
-from math import sin, cos, pi, atan2, inf
+from math import sin, cos, atan2, inf
 
 class RobotDiff(RobotBase):
 
