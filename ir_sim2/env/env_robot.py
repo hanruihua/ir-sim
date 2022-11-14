@@ -1,5 +1,3 @@
-from ir_sim2.world import RobotDiff
-from ir_sim2.world import RobotAcker
 import numpy as np
 from math import pi, sin, cos
 from ir_sim2.util.util import WrapToPi, random_points, random_value

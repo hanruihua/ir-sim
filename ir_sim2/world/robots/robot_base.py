@@ -5,6 +5,7 @@ from ir_sim2.util import collision_dectection_geo as cdg
 import time
 import logging
 from ir_sim2.world.sensors.lidar import lidar2d
+
 # define geometry point and segment for collision detection.
 # point [x, y]
 # segment [point1, point2]
@@ -12,6 +13,7 @@ from ir_sim2.world.sensors.lidar import lidar2d
 # circle [x, y, r]
 point_geometry = namedtuple('point', ['x', 'y'])
 circle_geometry = namedtuple('circle', ['x', 'y', 'r'])
+robot_info = namedtuple('robot', 'state, velocity shape G h cone_type vel_min vel_max acce') # robot information
 
 class RobotBase:
 
@@ -23,7 +25,7 @@ class RobotBase:
     position_dim=(2,1) # the position dimension 
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], **kwargs):
+    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], acce=[inf, inf], **kwargs):
 
         """
         type = 'diff', 'omni', 'ackermann' 
@@ -47,15 +49,17 @@ class RobotBase:
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
-        self.vel_min = np.c_[vel_min]
-        self.vel_max = np.c_[vel_max]
+        self.vel_min = np.around(np.c_[vel_min], 2)
+        self.vel_max = np.around(np.c_[vel_max], 2)
+        self.acce = np.c_[acce]
+
+        self.vel_acce_min = np.maximum(self.vel_min, self.vel - self.acce * self.step_time) 
+        self.vel_acce_max = np.minimum(self.vel_max, self.vel + self.acce * self.step_time)
 
         self.arrive_mode = kwargs.get('arrive_mode', 'position') # 'state', 'position'
         self.goal_threshold = kwargs.get('goal_threshold', 0.1)
 
         # self.collision_threshold = kwargs.get('collision_threshold', 0.001)
-        if isinstance(self.vel_min, list): self.vel_min = np.c_[self.vel_min]
-        if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
 
         # flag
         self.arrive_flag = False
@@ -98,22 +102,31 @@ class RobotBase:
         vel = np.around(vel.astype(float), 2)  # make sure the vel is float
 
         if (vel < self.vel_min).any():
-            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum limit', np.squeeze(self.vel_min).tolist() )
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum velocity limit', np.squeeze(self.vel_min).tolist() )
 
         if (vel > self.vel_max).any():
-            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum limit', np.squeeze(self.vel_max).tolist() )
-            # logging.warning("The velocity is clipped to be %s", vel.tolist())
-
-        vel = np.clip(vel, self.vel_min, self.vel_max)
+            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum velocity limit', np.squeeze(self.vel_max).tolist() )
+        
+        if (vel > self.vel_acce_max).any():
+            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the maximum accerate limit', np.squeeze(self.vel_acce_max).tolist() )
+        
+        if (vel < self.vel_acce_min).any():
+            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the minimum accerate limit', np.squeeze(self.vel_acce_min).tolist() )
+        
+        vel = np.clip(vel, self.vel_acce_min, self.vel_acce_max)
         
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
 
+        self.vel = vel
         self.trajectory.append(self.state)
-        self.state = self.dynamics(self.state, vel, **kwargs)
 
+        self.state = self.dynamics(self.state, vel, **kwargs)
         self.center = self.state[0:2]
+
+        self.vel_acce_min = np.around(np.maximum(self.vel_min, self.vel - self.acce * self.step_time), 2)
+        self.vel_acce_max = np.around(np.minimum(self.vel_max, self.vel + self.acce * self.step_time), 2)
 
         self.sensor_step()
         self.arrive()
@@ -200,7 +213,6 @@ class RobotBase:
 
         return collision_matirx
 
-
     def reset(self):
         self.state = self.init_state
         self.center = self.init_state[0:2]
@@ -233,6 +245,10 @@ class RobotBase:
         # calculate the desired velocity
         raise NotImplementedError
 
+    def get_info(self):
+        # return the information of the robot: 'state, velocity shape G g cone_type vel_min vel_max acce'
+        return robot_info(self.state, self.vel, self.shape, self.G, self.h, self.cone_type, self.vel_min, self.vel_max, self.acce)
+        
     def get_edges(self):
 
         edge_list = []

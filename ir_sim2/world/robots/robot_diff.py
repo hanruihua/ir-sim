@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 from .robot_base import RobotBase
-from math import sin, cos, pi, atan2, inf
+from math import sin, cos, atan2, inf
 
 class RobotDiff(RobotBase):
 
@@ -14,12 +13,13 @@ class RobotDiff(RobotBase):
     position_dim=(2,1) # the position dimension, x, y 
     cone_type = 'norm2' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, **kwargs):
+    def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, acce=[inf, inf], **kwargs):
 
         # shape args
         self.radius = radius
         self.radius_collision = radius + radius_exp
-        super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, **kwargs)
+        self.shape = radius
+        super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
     
@@ -27,6 +27,7 @@ class RobotDiff(RobotBase):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
         # vel_tpe: 'diff' or 'omni'
+
         if vel_type == 'omni':
             self.vel_omni = vel
             self.vel=RobotDiff.omni_to_diff(state, vel, self.vel_max[1, 0], **kwargs)
@@ -51,16 +52,16 @@ class RobotDiff(RobotBase):
                 return des_vel
             else:
                 diff_radian = RobotDiff.wraptopi( radian - self.state[2, 0] )
-                des_vel[0, 0] = np.clip(self.vel_max[0, 0] * cos(diff_radian), 0, inf) 
+                des_vel[0, 0] = np.clip(self.vel_acce_max[0, 0] * cos(diff_radian), 0, inf) 
 
                 if abs(diff_radian) < tolerance:
                     des_vel[1, 0] = 0
                 else:
-                    des_vel[1, 0] = self.vel_max[1, 0] * (diff_radian / abs(diff_radian))
+                    des_vel[1, 0] = self.vel_acce_max[1, 0] * (diff_radian / abs(diff_radian))
 
         elif self.arrive_mode == 'state':
             pass
-
+        
         return des_vel
 
     def gen_inequal(self):
@@ -76,6 +77,10 @@ class RobotDiff(RobotBase):
         h = np.row_stack((self.center, -self.radius * np.ones((1,1))))
 
         return G, h
+
+    def get_info(self):
+        pass
+
 
     def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
