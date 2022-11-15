@@ -13,8 +13,9 @@ robots:
   # distribute: {mode: 'circular', shapes: [[4.6, 1.6, 3, 1.6]], circle: [25, 25, 10], random_bear: False, random_shape: False} 
   # distribute: {mode: 'random', rlow: [0, 0, 0, 0], rhigh: [50, 50, 3.14, 0], distance: 1}  # ackermann state 4 * 1
   distribute: {mode: 'manual', states: [[25, 25, 0, 0], [40, 35, 0, 0]], shapes: [[4.6, 1.6, 3, 1.6]], goals: [[27, 37, 0], [17, 42, 1]], random_bear: False}
-  vel_min: [-4, -0.785]   # linear, steer or v_x, v_y 
-  vel_max: [4, 0.785]
+  vel_min: [-8, -0.785]   # linear, steer or v_x, v_y 
+  vel_max: [8, 0.785]
+  # acce: [10, 3]
 
 obstacles:
   - type: 'obstacle_circle'
