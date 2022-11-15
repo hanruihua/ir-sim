@@ -42,7 +42,7 @@ class RobotOmni(RobotBase):
     
         return new_state
 
-    def cal_des_vel(self, tolerance=0.12):
+    def cal_des_vel(self):
         # calculate desire velocity
         dis, radian = RobotOmni.relative_position(self.state, self.goal)    
 

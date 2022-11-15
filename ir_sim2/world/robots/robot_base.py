@@ -1,9 +1,9 @@
-import numpy as np
-from math import inf, pi, atan2, sin, cos
-from collections import namedtuple
-from ir_sim2.util import collision_dectection_geo as cdg 
-import time
 import logging
+import numpy as np
+from math import inf, pi, atan2
+from collections import namedtuple
+from ir_sim2.util.util import get_transform
+from ir_sim2.util import collision_dectection_geo as cdg 
 from ir_sim2.world.sensors.lidar import lidar2d
 
 # define geometry point and segment for collision detection.
@@ -194,14 +194,14 @@ class RobotBase:
         # utilize the generalized inequality to judge the collision with a point
         assert point.shape == self.position_dim
 
-        rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        trans, rot = get_transform(self.state)
         trans_point = np.linalg.inv(rot) @ ( point - trans)
 
         return RobotBase.InCone(self.G @ trans_point - self.h, self.cone_type)
 
     def collision_check_array(self, point_array):
         # point_array: (2* number)
-        rot, trans = RobotBase.get_transform(self.state[0:2, 0:1], self.state[2, 0])
+        trans, rot = get_transform(self.state)
         trans_array = np.linalg.inv(rot) @ ( point_array - trans)
 
         temp = self.G @ trans_array - self.h
@@ -293,20 +293,7 @@ class RobotBase:
             return (point<=0).all()
         elif cone_type == 'norm2':
             return np.squeeze(np.linalg.norm(point[0:-1]) - point[-1]) <= 0
-
-    @staticmethod
-    def get_transform(position, ori_angle):
-        rot = np.array([ [cos(ori_angle), -sin(ori_angle)], [sin(ori_angle), cos(ori_angle)] ])
-        trans = position
-        return rot, trans
     
-    @staticmethod
-    def transform_from_state(state):
-        # state 3*1: x, y, theta
-        rot = np.array([ [cos(state[2, 0]), -sin(state[2, 0])], [sin(state[2, 0]), cos(state[2, 0])] ])
-        trans = state[0:2]
-        return rot, trans
-
     @staticmethod
     def wraptopi(radian):
 

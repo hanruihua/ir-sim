@@ -109,14 +109,6 @@ class ObstacleBase:
 
         return radian
 
-    @staticmethod
-    def get_transform(position, orientation):
-        rot = np.array([ [cos(orientation), -sin(orientation)], [sin(orientation), cos(orientation)] ])
-        trans = position
-        return rot, trans
-
-
-
         # for i, ver in enumerate(vertex):
         #     pass
         # for i in range(ver_num-1):
