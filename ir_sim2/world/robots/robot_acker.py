@@ -6,6 +6,7 @@ import matplotlib.transforms as mtransforms
 from .robot_base import RobotBase
 from math import sin, cos, pi, tan, inf
 from matplotlib import image
+from ir_sim2.util.util import get_transform
 
 
 class RobotAcker(RobotBase):
@@ -73,7 +74,7 @@ class RobotAcker(RobotBase):
         return new_state
 
     def update_vertex(self):
-        rot, trans = self.transform_from_state(self.state)
+        trans, rot = get_transform(self.state)
         self.vertex = rot @ self.init_vertex + trans
     
     def cal_des_vel(self, tolerance=0.02):
