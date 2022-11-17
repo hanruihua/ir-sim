@@ -244,7 +244,7 @@ class RobotBase:
             G = np.array([ [1, 0], [0, 1], [0, 0] ])
             h = np.array( [ [0], [0], [-self.radius] ] ) 
         else:
-            num = self.init_vertex.shape[0]
+            num = self.init_vertex.shape[1]
 
             G = np.zeros((num, 2)) 
             h = np.zeros((num, 1)) 
