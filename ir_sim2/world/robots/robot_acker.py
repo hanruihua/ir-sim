@@ -135,32 +135,6 @@ class RobotAcker(RobotBase):
                     steer_opt = np.clip(diff_radian, -self.psi_limit, self.psi_limit) 
                 
                 return np.array([[v_opt], [steer_opt]])
-
-    def gen_inequal(self):
-        # generalized inequality, inside: Gx <=_k h, norm2 cone
-
-        G = np.zeros((4, 2)) 
-        h = np.zeros((4, 1)) 
-        
-        for i in range(4):
-            if i + 1 < 4:
-                pre_point = self.init_vertex[:, i]
-                next_point = self.init_vertex[:, i+1]
-            else:
-                pre_point = self.init_vertex[:, i]
-                next_point = self.init_vertex[:, 0]
-            
-            diff = next_point - pre_point
-            
-            a = diff[1]
-            b = -diff[0]
-            c = a * pre_point[0] + b * pre_point[1]
-
-            G[i, 0] = a
-            G[i, 1] = b
-            h[i, 0] = c 
-
-        return G, h
     
     def gen_inequal_global(self):
         # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
@@ -188,14 +162,6 @@ class RobotAcker(RobotBase):
 
         return G, h
 
-    # get information
-    def get_info(self):
-        pass
-
-
-
-
-    
     def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
@@ -247,18 +213,10 @@ class RobotAcker(RobotBase):
         self.collision_flag = False
         self.arrive_flag = False
 
+        self.trajectory = []
+
         # update vertex
         self.update_vertex()
-
-    # def plot_clear(self, ax):
-    #     for patch in self.plot_patch_list:
-    #         patch.remove()
-    #     for line in self.plot_line_list:
-    #         line.pop(0).remove()
-
-    #     self.plot_patch_list = []
-    #     self.plot_line_list = []
-    #     ax.texts.clear()
             
     @staticmethod
     def cal_vertex(shape):        

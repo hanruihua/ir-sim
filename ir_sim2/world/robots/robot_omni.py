@@ -14,10 +14,7 @@ class RobotOmni(RobotBase):
     vel_dim = (2, 1)  # the velocity dimension, linear and angular velocity
     goal_dim = (2, 1) # the goal dimension, x, y, theta
     position_dim=(2, 1) # the position dimension, x, y 
-    cone_type = 'norm2' # 'Rpositive'; 'norm2' 
-
-    coefficient_vel = np.zeros((3, 2))
-
+    
     def __init__(self, id, state=np.zeros((2, 1)), vel=np.zeros((2, 1)), goal=np.zeros((2, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, acce=[inf, inf], **kwargs):
 
         # shape args
@@ -54,13 +51,6 @@ class RobotOmni(RobotBase):
             vy = 0
 
         return np.array([[vx], [vy]])
-
-    def gen_inequal(self):
-        # generalized inequality, inside: Gx <=_k g, norm2 cone
-        G = np.array([ [1, 0], [0, 1], [0, 0] ])
-        h = np.array( [ [0], [0], [-self.radius] ] )
-        self.h_collision = np.array( [ [0], [0], [-self.radius_collision] ])
-        return G, h
     
     def gen_inequal_global(self):
         # generalized inequality, inside: Gx <=_k g, norm2 cone  at current position

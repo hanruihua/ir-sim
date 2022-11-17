@@ -1,10 +1,11 @@
 import logging
 import numpy as np
-from math import inf, pi, atan2
+from math import inf, pi, atan2, sin, cos
 from collections import namedtuple
 from ir_sim2.util.util import get_transform
 from ir_sim2.util import collision_dectection_geo as cdg 
 from ir_sim2.world.sensors.lidar import lidar2d
+import matplotlib as mpl
 
 # define geometry point and segment for collision detection.
 # point [x, y]
@@ -23,8 +24,7 @@ class RobotBase:
     vel_dim = (2, 1)  # the velocity dimension 
     goal_dim = (3, 1) # the goal dimension 
     position_dim=(2,1) # the position dimension 
-    cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
-
+    
     def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], acce=[inf, inf], **kwargs):
 
         """
@@ -69,6 +69,11 @@ class RobotBase:
         self.noise = kwargs.get('noise', False)
 
         # Generalized inequalities for init position 
+        if self.appearance == 'circle':
+            self.cone_type = 'norm2'
+        else:
+            self.cone_type = 'Rpositive'
+        
         self.G, self.h = self.gen_inequal()
 
         # sensor
@@ -222,7 +227,8 @@ class RobotBase:
         self.collision_flag = False
         self.arrive_flag = False
 
-    
+        self.trajectory = []
+
     def dynamics(self, vel):
 
         """ vel: the input velocity
@@ -231,9 +237,37 @@ class RobotBase:
         raise NotImplementedError
 
     def gen_inequal(self):
-        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the init position
+        # Calculate the matrix G and g for the Generalized inequality: G @ point <_k h,  at the init position
         # self.G, self.h = self.gen_inequal()
-        raise NotImplementedError
+
+        if self.appearance == 'circle':  
+            G = np.array([ [1, 0], [0, 1], [0, 0] ])
+            h = np.array( [ [0], [0], [-self.radius] ] ) 
+        else:
+            num = self.init_vertex.shape[0]
+
+            G = np.zeros((num, 2)) 
+            h = np.zeros((num, 1)) 
+        
+            for i in range(num):
+                if i + 1 < num:
+                    pre_point = self.init_vertex[:, i]
+                    next_point = self.init_vertex[:, i+1]
+                else:
+                    pre_point = self.init_vertex[:, i]
+                    next_point = self.init_vertex[:, 0]
+                
+                diff = next_point - pre_point
+                
+                a = diff[1]
+                b = -diff[0]
+                c = a * pre_point[0] + b * pre_point[1]
+
+                G[i, 0] = a
+                G[i, 1] = b
+                h[i, 0] = c 
+        
+        return G, h
     
     def gen_inequal_global(self):
         # Calculate the matrix G and g for the Generalized inequality: G @ point <_k g,  at the current position
@@ -269,8 +303,36 @@ class RobotBase:
         self.plot_robot(ax, **kwargs)
         if show_sensor: self.plot_sensors(ax, **kwargs)
             
-    def plot_robot(self, ax, **kwargs):
-        raise NotImplementedError
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+
+        # default: plot circle
+
+        x = self.state[0, 0]
+        y = self.state[1, 0]
+        
+        goal_x = self.goal[0, 0]
+        goal_y = self.goal[1, 0]
+
+        robot_circle = mpl.patches.Circle(xy=(x, y), radius = self.radius, color = robot_color)
+        robot_circle.set_zorder(3)
+
+        ax.add_patch(robot_circle)
+        if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
+        self.plot_patch_list.append(robot_circle)
+
+        if show_goal:
+            goal_circle = mpl.patches.Circle(xy=(goal_x, goal_y), radius = self.radius, color=goal_color, alpha=0.5)
+            goal_circle.set_zorder(1)
+        
+            ax.add_patch(goal_circle)
+            if show_text: ax.text(goal_x + 0.3, goal_y, 'g'+ str(self.id), fontsize = fontsize, color = 'k')
+            self.plot_patch_list.append(goal_circle)
+
+        if show_traj:
+            x_list = [t[0, 0] for t in self.trajectory]
+            y_list = [t[1, 0] for t in self.trajectory]
+            self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
+
 
     def plot_sensors(self, ax, **kwargs):
         for sensor in self.sensors:

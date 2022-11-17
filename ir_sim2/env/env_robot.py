@@ -9,8 +9,10 @@ class EnvRobot:
         self.number = number
         self.robot_class = robot_class
         self.type = robot_class.robot_type
+        self.appearance = robot_class.appearance
         self.robot_list = []
         self.step_time = step_time
+        self.state_dim = robot_class.state_dim
         
         if number > 0:
             if number == 1:
@@ -37,9 +39,9 @@ class EnvRobot:
         # multiple robots distribution
 
         # default shapes
-        if self.type == 'diff' or self.type == 'omni':
+        if self.appearance == 'circle':
             shapes = kwargs.get('shapes', [0.2])
-        elif self.type == 'acker':
+        elif self.appearance == 'rectangle':
             shapes = kwargs.get('shapes', [[4.6, 1.6, 3, 1.6]])
 
         shape_list = self.extend_list(shapes, number) 
@@ -51,12 +53,20 @@ class EnvRobot:
         elif mode == 'circular':
             cx, cy, cr = circle[0:3]  # x, y, radius
             theta_space = np.linspace(0, 2*pi, number, endpoint=False)
-            goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
-
-            if self.type == 'diff':
+            
+            if self.state_dim == (3, 1):
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)] ]) for theta in theta_space]
-            elif self.type == 'acker':
+
+                goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
+    
+            elif self.state_dim == (4, 1):
                 state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr], [WrapToPi(theta + pi)], [0]]) for theta in theta_space]
+
+                goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr], [WrapToPi(theta + pi)]]) for theta in theta_space]
+
+            elif self.state_dim == (2, 1):
+                state_list = [ np.array([ [cx + cos(theta) * cr], [cy + sin(theta) * cr] ]) for theta in theta_space]
+                goal_list = [ np.array([ [cx + cos(theta + pi) * cr], [cy + sin(theta + pi) * cr] ]) for theta in theta_space]
             
         elif mode == 'random':
             state_list = random_points(number, np.c_[rlow], np.c_[rhigh], distance)  # diff 3*1, acker: 4*1
@@ -65,7 +75,7 @@ class EnvRobot:
         elif mode == 'line':
             pass
         
-        if random_shape and self.type == 'diff':
+        if random_shape and self.appearance == 'circle':
             shape_list = random_value(number, radius_low, radius_high)
         
         if random_bear:

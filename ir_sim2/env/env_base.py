@@ -21,7 +21,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, control_mode='auto', world_args=dict(), robot_args = dict(), keyboard_args=dict(), obstacle_args_list=[], plot=True, save_ani=False, full=False, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', world_args=dict(), robot_args = dict(), keyboard_args=dict(), obstacle_args_list=[], plot=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -53,6 +53,7 @@ class EnvBase:
 
         # robot arguments
         self.robot_args = robot_args
+        self.custom_robot = custom_robot
 
         # obstacle arguments
         self.obstacle_args_list = obstacle_args_list
@@ -115,7 +116,11 @@ class EnvBase:
         #         keep_path, keep a residual
         #     
         robot_type = self.robot_args.get('type', 'robot_diff')  
-        self.env_robot = EnvRobot(self.robot_factory[robot_type], step_time=self.step_time, **self.robot_args)
+
+        if robot_type == 'robot_custom':
+            self.env_robot = EnvRobot(self.custom_robot, step_time=self.step_time, **self.robot_args)
+        else:
+            self.env_robot = EnvRobot(self.robot_factory[robot_type], step_time=self.step_time, **self.robot_args)
         
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
        
