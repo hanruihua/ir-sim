@@ -44,6 +44,6 @@ The examples are in the ir-sim2/usage
 - [x] omni directional robots
 - [ ] line obstacle
 - [ ] map obstacle
-- [ ] Add custom robot model and sensor model
+- [ ] Add custom robot model
 - [ ] Add sensor: gps, odometry
 - [ ] using the mouse to select the circle and polygon obstacles
