@@ -67,6 +67,7 @@ class RobotBase:
 
         # noise
         self.noise = kwargs.get('noise', False)
+        # self.mean =  
 
         # Generalized inequalities for init position 
         if self.appearance == 'circle':

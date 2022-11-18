@@ -12,7 +12,7 @@ class RobotDiff(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x, y, theta
     position_dim=(2,1) # the position dimension, x, y 
     
-    def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, acce=[inf, inf], **kwargs):
+    def __init__(self, id, state=np.zeros((3, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), radius=0.2, radius_exp=0.1, vel_min=[-2, -2], vel_max=[2, 2], step_time=0.1, acce=[inf, inf], alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
 
         # shape args
         self.radius = radius
@@ -20,9 +20,10 @@ class RobotDiff(RobotBase):
         self.shape = radius
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
+        self.alpha = alpha
         self.vel_omni = np.zeros((2, 1))
     
-    def dynamics(self, state, vel, vel_type='diff', noise=False, alpha = [0.01, 0, 0, 0.01, 0, 0], **kwargs):
+    def dynamics(self, state, vel, vel_type='diff', **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
         # vel_tpe: 'diff' or 'omni'
@@ -30,10 +31,10 @@ class RobotDiff(RobotBase):
         if vel_type == 'omni':
             self.vel_omni = vel
             self.vel=RobotDiff.omni_to_diff(state, vel, self.vel_max[1, 0], **kwargs)
-            new_state = RobotDiff.motion_diff(state, self.vel, self.step_time, noise, alpha)
+            new_state = RobotDiff.motion_diff(state, self.vel, self.step_time, self.noise, self.alpha)
 
         elif vel_type == 'diff':
-            new_state = RobotDiff.motion_diff(state, vel, self.step_time, noise, alpha, **kwargs)
+            new_state = RobotDiff.motion_diff(state, vel, self.step_time, self.noise, self.alpha, **kwargs)
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
@@ -70,7 +71,7 @@ class RobotDiff(RobotBase):
 
         return G, h
 
-    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, show_uncertainty=True, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -104,9 +105,16 @@ class RobotDiff(RobotBase):
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
 
+
+    def estimated_state(self):
+        pass
+
+
+
+
     # reference: Modern Robotics[book], P523 
     @classmethod
-    def motion_diff(cls, current_state, vel, step_time, noise = False, alpha = [0.01, 0, 0, 0.01, 0, 0]):
+    def motion_diff(cls, current_state, vel, step_time, noise = False, alpha = [0.03, 0, 0, 0.03, 0, 0]):
         
         assert current_state.shape == cls.state_dim and vel.shape == cls.vel_dim and cls.robot_type == 'diff'
 
