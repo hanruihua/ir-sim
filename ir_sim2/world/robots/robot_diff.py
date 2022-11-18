@@ -20,9 +20,14 @@ class RobotDiff(RobotBase):
         self.shape = radius
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
-        self.alpha = alpha
+        
         self.vel_omni = np.zeros((2, 1))
-    
+        
+        if self.noise:
+            self.e_state = [self.state, np.zeros(self.state_dim)]   # estimated state
+            self.alpha = alpha
+            
+        
     def dynamics(self, state, vel, vel_type='diff', **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
@@ -38,6 +43,9 @@ class RobotDiff(RobotBase):
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
+        if self.noise:
+
+
         return new_state
 
     def cal_des_vel(self, tolerance=0.12):
