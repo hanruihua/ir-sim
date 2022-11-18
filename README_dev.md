@@ -39,11 +39,12 @@ The examples are in the ir-sim2/usage
 - [x] gif generation
 - [x] multi robots mode (collision)  
 - [x] sensor lidar
-- [x] env reset
+- [x] env res
 - [x] collision check with discrete samples
 - [x] omni directional robots
 - [ ] line obstacle
 - [ ] map obstacle
-- [ ] Add custom robot model
+- [x] Add custom robot model
 - [ ] Add sensor: gps, odometry
+- [x] Add noise (diff)
 - [ ] using the mouse to select the circle and polygon obstacles
