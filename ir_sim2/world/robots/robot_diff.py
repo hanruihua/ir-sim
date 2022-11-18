@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib as mpl
 from .robot_base import RobotBase
-from math import sin, cos, atan2, inf
+from math import sin, cos, atan2, inf, pi
+from ir_sim2.util.util import WrapToPi
 
 class RobotDiff(RobotBase):
 
@@ -20,11 +21,10 @@ class RobotDiff(RobotBase):
         self.shape = radius
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
-        
         self.vel_omni = np.zeros((2, 1))
         
         if self.noise:
-            self.e_state = [self.state, np.zeros(self.state_dim)]   # estimated state
+            self.e_state = {'mean': self.state, 'std': np.array([[0.04], [0.01]])}   # estimated state
             self.alpha = alpha
             
         
@@ -44,7 +44,7 @@ class RobotDiff(RobotBase):
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
         if self.noise:
-
+            self.e_state['mean'] = RobotDiff.motion_diff(self.e_state['mean'], vel, self.step_time, False, self.alpha, **kwargs) 
 
         return new_state
 
@@ -79,7 +79,7 @@ class RobotDiff(RobotBase):
 
         return G, h
 
-    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, show_uncertainty=True, traj_type='-g', fontsize=10, **kwargs):
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, show_uncertainty=False, traj_type='-g', fontsize=10, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -113,11 +113,21 @@ class RobotDiff(RobotBase):
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
 
+        if show_uncertainty and self.noise:
+            scale = 20
+           
+            ex = self.e_state['mean'][0, 0]
+            ey = self.e_state['mean'][1, 0]
+            etheta = self.e_state['mean'][2, 0]
+            std_x = self.e_state['std'][0, 0]
+            std_y = self.e_state['std'][1, 0]
 
-    def estimated_state(self):
-        pass
+            angle = etheta * (180 / pi)
 
-
+            ellipse = mpl.patches.Ellipse(xy=(ex, ey), width=scale*std_x, height=scale*std_y, angle=angle, facecolor='gray', alpha=0.8)
+            ellipse.set_zorder(1)
+            ax.add_patch(ellipse)
+            self.plot_patch_list.append(ellipse)
 
 
     # reference: Modern Robotics[book], P523 
@@ -140,6 +150,8 @@ class RobotDiff(RobotBase):
         coefficient_vel[2, 1] = 1
 
         next_state = current_state + coefficient_vel @ real_vel * step_time
+
+        next_state[2, 0] = WrapToPi(next_state[2, 0])
 
         return next_state
 

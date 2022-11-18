@@ -5,16 +5,16 @@ import imageio
 import shutil
 import platform
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from pathlib import Path
-from math import sin, cos
-from PIL import Image
 from pynput import keyboard
+from math import sin, cos, pi
 from .env_robot import EnvRobot
+from ir_sim2.env import env_global
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
-from ir_sim2.env import env_global
 
 class EnvBase:
 
@@ -61,6 +61,7 @@ class EnvBase:
         # plot
         self.plot = plot
         self.dyna_line_list = []
+        self.dyna_patch_list = []
 
         # keyboard control
         self.control_mode = control_mode
@@ -178,7 +179,12 @@ class EnvBase:
 
     def get_robot_info(self, id=0):
         return self.env_robot.robot_list[id].get_info()
-        
+    
+    def get_robot_estimation(self, id=0):
+        # when noise True
+        return self.env_robot.robot_list[id].e_state
+
+
     def get_obstacle_list(self, obs_type=None):
         # obs_type： obstacle_circle； obstacle_polygon
 
@@ -317,14 +323,35 @@ class EnvBase:
         if refresh:
             self.dyna_line_list.append(line)
 
+    def draw_uncertainty(self, mean, std, scale=20, facecolor='gray', refresh=True, **kwargs):
+        
+        x = mean[0, 0]
+        y = mean[1, 0]
+
+        std_x = std[0, 0]
+        std_y = std[1, 0]
+        
+        theta = mean[2, 0] if mean.shape[0] > 2 else 0
+
+        angle = theta * (180 / pi)
+        
+        ellipse = mpl.patches.Ellipse(xy=(x, y), width=scale*std_x, height=scale*std_y, angle=angle, facecolor=facecolor, **kwargs)
+        ellipse.set_zorder(1)
+        self.ax.add_patch(ellipse)
+            
+        if refresh:
+            self.dyna_patch_list.append(ellipse)
+
     def clear_components(self, ax, mode='all', **kwargs):
         if mode == 'dynamic':
             self.env_robot.plot_clear(ax)
             [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
             [line.pop(0).remove() for line in self.dyna_line_list]
+            [patch.remove() for patch in self.dyna_patch_list]
 
             self.dyna_line_list = []
-            
+            self.dyna_patch_list = []
+
         elif mode == 'static':
             pass
         
