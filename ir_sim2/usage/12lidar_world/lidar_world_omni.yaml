@@ -20,7 +20,7 @@ robots:
       # id: 0  # only id robot has 
       range_min: 0
       range_max: 5
-      angle_range: 3.1415926
+      angle_range: 6.28318530718
       number: 100
       noise: False
       std: 1  # index of the lidar 

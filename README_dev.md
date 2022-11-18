@@ -41,7 +41,9 @@ The examples are in the ir-sim2/usage
 - [x] sensor lidar
 - [x] env reset
 - [x] collision check with discrete samples
-- [ ] omni directional robots
+- [x] omni directional robots
 - [ ] line obstacle
 - [ ] map obstacle
+- [ ] Add custom robot model
+- [ ] Add sensor: gps, odometry
 - [ ] using the mouse to select the circle and polygon obstacles

@@ -1,6 +1,7 @@
 import numpy as np
 from .obstacle_base import ObstacleBase
 import matplotlib as mpl
+from ir_sim2.util.util import get_transform
 
 class ObstaclePolygon(ObstacleBase):
     obstacle_type = 'obstacle_polygon' # circle, polygon
@@ -18,7 +19,7 @@ class ObstaclePolygon(ObstacleBase):
 
         self.init_vertex = np.vstack(vertex).T
 
-        rot, trans = ObstaclePolygon.get_transform(self.state[0:2], self.state[2, 0])
+        trans, rot = get_transform(self.state)
 
         self.vertex =  rot @ self.init_vertex + trans 
         super(ObstaclePolygon, self).__init__(id=id, dynamic=dynamic, **kwargs)

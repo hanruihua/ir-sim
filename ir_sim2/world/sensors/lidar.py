@@ -2,7 +2,7 @@ from math import pi, sin, cos, sqrt
 import numpy as np
 from ir_sim2.env import env_global
 from ir_sim2.util.collision_dection_distance import range_cir_seg, range_seg_seg
-import time
+from ir_sim2.util.util import get_transform
 # from 
 
 class lidar2d:
@@ -31,7 +31,7 @@ class lidar2d:
         if robot_state.shape[0] == 2 :
             robot_state = np.vstack((robot_state, [0]))
 
-        trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state[0:3]))
+        trans_matirx, rot_matrix = get_transform(robot_state)
 
         # transform to the global coordinate
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx 
@@ -68,7 +68,7 @@ class lidar2d:
         if robot_state.shape[0] == 2 :
             robot_state = np.vstack((robot_state, [0]))
 
-        trans_matirx, rot_matrix = lidar2d.transform_matrix(*np.squeeze(robot_state))
+        trans_matirx, rot_matrix = get_transform(robot_state)
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
         self.global_ray = rot_matrix @ self.ray + trans_matirx
 
