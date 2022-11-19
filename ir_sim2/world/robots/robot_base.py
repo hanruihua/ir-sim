@@ -5,6 +5,7 @@ from collections import namedtuple
 from ir_sim2.util.util import get_transform
 from ir_sim2.util import collision_dectection_geo as cdg 
 from ir_sim2.world.sensors.lidar import lidar2d
+from ir_sim2.world.sensors.GPS import GPS
 import matplotlib as mpl
 
 # define geometry point and segment for collision detection.
@@ -84,9 +85,13 @@ class RobotBase:
         for args in sensor_args:
             sensor_id = args.get('id', None)
             if sensor_id is None or sensor_id == self.id:
-                self.lidar = lidar2d(robot_state=self.state, **args)
-                self.sensors.append(self.lidar)
-        
+
+                if args['type'] == 'lidar':
+                    self.lidar = lidar2d(robot_state=self.state, **args)
+                    self.sensors.append(self.lidar)
+                elif args['type'] == 'gps':
+                    self.gps = GPS(robot_state=self.state, **args)
+                    self.sensors.append(self.gps)
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []

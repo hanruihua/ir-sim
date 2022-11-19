@@ -23,11 +23,11 @@ class RobotDiff(RobotBase):
         
         self.vel_omni = np.zeros((2, 1))
         
+        
         if self.noise:
             self.e_state = {'mean': self.state, 'std': np.array([[0.04], [0.01]])}   # estimated state
-            self.alpha = alpha
+        self.alpha = alpha
             
-        
     def dynamics(self, state, vel, vel_type='diff', **kwargs):
         # The differential-wheel robot dynamics
         # reference: Probability robotics, motion model
@@ -39,7 +39,7 @@ class RobotDiff(RobotBase):
             new_state = RobotDiff.motion_diff(state, self.vel, self.step_time, self.noise, self.alpha)
 
         elif vel_type == 'diff':
-            new_state = RobotDiff.motion_diff(state, vel, self.step_time, self.noise, self.alpha, **kwargs)
+            new_state = RobotDiff.motion_diff(state, vel, self.step_time, self.noise, self.alpha)
             self.vel = vel
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
