@@ -472,7 +472,12 @@ class EnvBase:
 
             if save_fig: self.fig.savefig(fig_name, **kwargs)
 
-            if show: plt.show()
+            if show: 
+                plt.show(block=False)
+                print('Figure will be closed within 3 seconds.')
+                plt.pause(3)
+                plt.close()
+
     # endregion: the end of the environment loop  
 
     def off():
