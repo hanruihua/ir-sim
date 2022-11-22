@@ -111,21 +111,8 @@ class RobotBase:
         assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 
         vel = np.around(vel.astype(float), 2)  # make sure the vel is float
+        vel = self.range_check(vel, self.vel_acce_max, self.vel_acce_min)
 
-        if (vel < self.vel_min).any():
-            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the minimum velocity limit', np.squeeze(self.vel_min).tolist() )
-
-        if (vel > self.vel_max).any():
-            print('Warning: Input velocity: ', np.squeeze(vel).tolist(), 'is clipped by the maximum velocity limit', np.squeeze(self.vel_max).tolist() )
-        
-        if (vel > self.vel_acce_max).any():
-            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the maximum accerate limit', np.squeeze(self.vel_acce_max).tolist() )
-        
-        if (vel < self.vel_acce_min).any():
-            print('Info: Input velocity: ', np.squeeze(vel).tolist(), 'is gradient by the minimum accerate limit', np.squeeze(self.vel_acce_min).tolist() )
-        
-        vel = np.clip(vel, self.vel_acce_min, self.vel_acce_max)
-        
         if stop:
             if self.arrive_flag or self.collision_flag:
                 vel = np.zeros(self.vel_dim)
@@ -163,6 +150,16 @@ class RobotBase:
                 
                 if not self.arrive_flag: logging.info('robot %d arrive at the goal', self.id)
                 self.arrive_flag = True
+
+    def range_check(self, value, max, min, name='velocity'):
+        
+        if (value < min).any():
+            print('warning: ', name + ' ' + str(value) + ' is clipped by the minimum value', np.squeeze(min).tolist())
+
+        if (value > max).any():
+            print('warning: ', name + ' ' + str(value) + ' is clipped by the maximum value', np.squeeze(max).tolist())
+        
+        return np.clip(value, min, max)
 
     def collision_check_object(self, obj):
         if self.appearance == 'circle':

@@ -8,7 +8,8 @@ world:
 robots:
   type: 'robot_diff'  # # robot_omni, robot_diff, robot_acker
   number: 10
-
+  vel_min: [-2, -1.5]
+  vel_max: [2, 1.5]
   # for multiple robots number>1
   # distribute: {mode: 'circular', shapes: [0.2], circle: [5, 5, 4], random_bear: False, random_shape: False, radius_low: 0.1, radius_high: 1} 
   distribute: {mode: 'random', rlow: [0, 0, 0], rhigh: [10, 10, 3.14], distance: 1, random_shape: True, radius_low: 0.1, radius_high: 0.5}
