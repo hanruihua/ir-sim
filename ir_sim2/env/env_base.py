@@ -460,7 +460,7 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, **kwargs):
 
         print('DONE')
 
@@ -472,7 +472,12 @@ class EnvBase:
 
             if save_fig: self.fig.savefig(fig_name, **kwargs)
 
-            if show: plt.show()
+            if show: 
+                plt.show(block=False)
+                print(f'Figure will be closed within {ending_time:d} seconds.')
+                plt.pause(ending_time)
+                plt.close()
+
     # endregion: the end of the environment loop  
 
     def off():
