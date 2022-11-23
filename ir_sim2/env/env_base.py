@@ -29,6 +29,9 @@ class EnvBase:
         world_name: path of the yaml
         plot: True or False
         control_mode: auto, keyboard, desire
+        world_args: arguments of the world, including width, length...
+        robot_args: arguments of the multiple robots, including number, type...
+        keyboard_args: arguments of the keyboard control, including key_lv_max....
         '''
 
         # arguments
