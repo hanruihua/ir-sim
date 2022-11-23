@@ -79,7 +79,10 @@ class RobotDiff(RobotBase):
 
         return G, h
 
-    def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, show_uncertainty=False, traj_type='-g', fontsize=10, **kwargs):
+    def plot_robot(self, ax, robot_color = 'g', goal_color='r', 
+                    show_goal=True, show_text=False, show_traj=False, 
+                    show_uncertainty=False, traj_type='-g', fontsize=10, 
+                    arrow_width=0.6, arrow_length=0.2, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -95,7 +98,7 @@ class RobotDiff(RobotBase):
 
         # arrow
         theta = self.state[2][0]
-        arrow = mpl.patches.Arrow(x, y, 0.5*cos(theta), 0.5*sin(theta), width = 0.6)
+        arrow = mpl.patches.Arrow(x, y, arrow_length*cos(theta), arrow_length*sin(theta), width = arrow_width)
         arrow.set_zorder(3)
         ax.add_patch(arrow)
         self.plot_patch_list.append(arrow)
