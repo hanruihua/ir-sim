@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import yaml
 import imageio
@@ -32,10 +33,19 @@ class EnvBase:
         '''
 
         # arguments
-        if world_name != None:
-            world_name = sys.path[0] + '/' + world_name
+        if os.path.exists(world_name):
+            world_file_path = world_name
+        elif os.path.exists(sys.path[0] + '/' + world_name):
+            world_file_path = sys.path[0] + '/' + world_name
+        elif os.path.exists(os.getcwd() + '/' + world_name):
+            world_file_path = os.getcwd() + '/' + world_name
+        else:
+            print('No World File Found')
+            world_file_path = None
 
-            with open(world_name) as file:
+        if world_file_path != None:
+           
+            with open(world_file_path) as file:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
                 world_args = com_list.get('world', dict())
                 robot_args = com_list.get('robots', dict())

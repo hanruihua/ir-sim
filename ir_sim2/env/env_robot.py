@@ -143,10 +143,14 @@ class EnvRobot:
         #   omni:
         #       control_std = [0.01, 0.01], noise for omni
         if not isinstance(velocity, list):
-            if vel_id != 0:
-                self.robot_list[vel_id-1].move(velocity, **vel_kwargs)
-            else:
-                print('zero velocity id')
+            
+            if len(self.robot_list) >= 1:
+                if vel_id != 0:
+                    self.robot_list[vel_id-1].move(velocity, **vel_kwargs)
+                else:
+                    print('zero velocity id')
+            # else:
+            #     print('No robots')
 
             # sensor step
             for robot in self.robot_list:
