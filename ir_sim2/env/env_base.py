@@ -270,7 +270,7 @@ class EnvBase:
     # endregion: reset the environment
 
     # region: environment render
-    def render(self, pause_time=0.05, figure_args=dict(), **kwargs):
+    def render(self, pause_time=0.05, fig_args=dict(), **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
 
         if self.plot: 
@@ -278,7 +278,7 @@ class EnvBase:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 plt.pause(pause_time)
 
-                if self.save_ani: self.save_gif_figure(**figure_args)
+                if self.save_ani: self.save_gif_figure(**fig_args)
 
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
@@ -408,7 +408,7 @@ class EnvBase:
                 for j in range(keep_len):
                     image_list.append(imageio.imread(file_name))
 
-        imageio.mimsave(str(self.ani_path)+'/'+ ani_name+'.gif', image_list)
+        imageio.mimsave(str(self.ani_path)+'/'+ ani_name+'.gif', image_list, **kwargs)
         print('Create animation successfully')
 
         if rm_fig_path: shutil.rmtree(self.image_path)
@@ -476,17 +476,20 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, fig_args=dict(), ani_args=dict(), **kwargs):
+        
+        # fig_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        # ani_args: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
 
         print('DONE')
 
-        if self.save_ani: self.save_animate(ani_name, **kwargs)
+        if self.save_ani: self.save_animate(ani_name, **ani_args)
             
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(0.00001)
 
-            if save_fig: self.fig.savefig(fig_name, **kwargs)
+            if save_fig: self.fig.savefig(fig_name, **fig_args)
 
             if show: 
                 plt.show(block=False)
