@@ -392,7 +392,7 @@ class EnvBase:
         order = str(self.world.count).zfill(3)
         self.fig.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
-    def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True, **kwargs):
+    def save_animate(self, ani_name='animated', suffix='.gif', keep_len=30, rm_fig_path=True, **kwargs):
         
         if not self.ani_path.exists(): self.ani_path.mkdir()
             
@@ -408,7 +408,7 @@ class EnvBase:
                 for j in range(keep_len):
                     image_list.append(imageio.imread(file_name))
 
-        imageio.mimsave(str(self.ani_path)+'/'+ ani_name+'.gif', image_list, **kwargs)
+        imageio.mimsave(str(self.ani_path)+'/'+ ani_name + suffix, image_list, **kwargs)
         print('Create animation successfully')
 
         if rm_fig_path: shutil.rmtree(self.image_path)
@@ -476,15 +476,15 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, fig_args=dict(), ani_args=dict(), **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_args=dict(), ani_args=dict(), **kwargs):
         
         # fig_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_args: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
 
         print('DONE')
 
-        if self.save_ani: self.save_animate(ani_name, **ani_args)
-            
+        if self.save_ani: self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_args)
+ 
         if self.plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(0.00001)

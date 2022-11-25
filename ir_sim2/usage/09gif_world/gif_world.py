@@ -11,5 +11,5 @@ for i in range(100):
 
 env.end(ani_name='gif_world', show_text=True, show=False)
 # env.end(ani_name='gif_world', show_text=True, show=False, ani_args={'duration': 1, 'loop': 1})
-# ani_args for gif animation: https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil
+# ani_args for GIF animation: https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil
 
