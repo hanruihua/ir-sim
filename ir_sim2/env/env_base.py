@@ -270,14 +270,15 @@ class EnvBase:
     # endregion: reset the environment
 
     # region: environment render
-    def render(self, pause_time=0.05, **kwargs):
-        
+    def render(self, pause_time=0.05, figure_args=dict(), **kwargs):
+        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+
         if self.plot: 
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 plt.pause(pause_time)
 
-                if self.save_ani: self.save_gif_figure(**kwargs)
+                if self.save_ani: self.save_gif_figure(**figure_args)
 
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
@@ -389,7 +390,7 @@ class EnvBase:
         if not self.image_path.exists(): self.image_path.mkdir()
 
         order = str(self.world.count).zfill(3)
-        plt.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
+        self.fig.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
     def save_animate(self, ani_name='animated', keep_len=30, rm_fig_path=True, **kwargs):
         
