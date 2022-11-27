@@ -56,8 +56,6 @@ def WrapToPi(rad):
 def get_transform(state):
     # from state to rotation and transition matrix
     # state: (3, 1) or (2 ,1)
-
-    
     if state.shape == (2, 1):
         rot = np.array([ [1, 0], [0, 1] ])
         trans = state[0:2]

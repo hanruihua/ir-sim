@@ -1,6 +1,6 @@
 
 class world:
-    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0]) -> None:
+    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], landmarks=[]) -> None:
 
         self.height = height
         self.width = width

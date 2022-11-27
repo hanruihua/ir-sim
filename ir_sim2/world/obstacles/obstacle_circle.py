@@ -140,8 +140,15 @@ class ObstacleCircle(ObstacleBase):
     def gen_matrix(self):
         pass
 
-    def plot(self, ax, obs_cir_color='k', **kwargs): 
-        obs_circle = mpl.patches.Circle(xy=(self.center[0, 0], self.center[1, 0]), radius = self.radius, color = obs_cir_color)
+    def plot(self, ax, obs_cir_color='k', land_cir_color='darkorange', show_text=True, fontsize=10, **kwargs): 
+
+        if self.landmark:
+            color = land_cir_color
+            if show_text: ax.text(self.center[0, 0], self.center[1, 0], 'L'+ str(self.id), fontsize = fontsize, color = 'purple', zorder=3)
+        else:
+            color = obs_cir_color 
+
+        obs_circle = mpl.patches.Circle(xy=(self.center[0, 0], self.center[1, 0]), radius = self.radius, color = color)
         obs_circle.set_zorder(2)
         ax.add_patch(obs_circle)
         self.plot_patch_list.append(obs_circle)

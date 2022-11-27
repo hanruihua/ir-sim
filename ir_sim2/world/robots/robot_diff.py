@@ -82,7 +82,7 @@ class RobotDiff(RobotBase):
     def plot_robot(self, ax, robot_color = 'g', goal_color='r', 
                     show_goal=True, show_text=False, show_traj=False, 
                     show_uncertainty=False, traj_type='-g', fontsize=10, 
-                    arrow_width=0.6, arrow_length=0.2, **kwargs):
+                    arrow_width=0.6, arrow_length=0.4, **kwargs):
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -93,8 +93,12 @@ class RobotDiff(RobotBase):
         robot_circle.set_zorder(3)
 
         ax.add_patch(robot_circle)
-        if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
+        if show_text: 
+            r_text = ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
+            self.plot_text_list.append(r_text)
+
         self.plot_patch_list.append(robot_circle)
+        
 
         # arrow
         theta = self.state[2][0]
@@ -108,7 +112,10 @@ class RobotDiff(RobotBase):
             goal_circle.set_zorder(1)
         
             ax.add_patch(goal_circle)
-            if show_text: ax.text(goal_x + 0.3, goal_y, 'g'+ str(self.id), fontsize = fontsize, color = 'k')
+            if show_text: 
+                g_text = ax.text(goal_x + 0.3, goal_y, 'g'+ str(self.id), fontsize = fontsize, color = 'k')
+                self.plot_text_list.append(g_text)
+
             self.plot_patch_list.append(goal_circle)
 
         if show_traj:

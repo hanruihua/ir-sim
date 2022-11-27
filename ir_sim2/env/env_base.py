@@ -45,7 +45,7 @@ class EnvBase:
         elif os.path.exists(os.getcwd() + '/' + world_name):
             world_file_path = os.getcwd() + '/' + world_name
         else:
-            print('No World File Found')
+            print('Warning: No World File Found')
             world_file_path = None
 
         if world_file_path != None:
@@ -148,6 +148,7 @@ class EnvBase:
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
         self.components = self.robot_list + self.obstacle_list
 
+        # global objects through multiple files
         env_global.robot_list = self.robot_list
         env_global.obstacle_list = self.obstacle_list
         env_global.components = self.components
@@ -199,7 +200,6 @@ class EnvBase:
         # when noise True
         return self.env_robot.robot_list[id].e_state
 
-
     def get_obstacle_list(self, obs_type=None):
         # obs_type： obstacle_circle； obstacle_polygon
 
@@ -212,7 +212,10 @@ class EnvBase:
         return obs_list
 
     def get_lidar_scan(self, id=0):
-        return self.env_robot.robot_list[id].lidar.range_data
+        return self.env_robot.robot_list[id].get_lidar_scan()
+    
+    def get_landmarks(self, id=0):
+        return self.env_robot.robot_list[id].get_landmarks()
     # endregion: get information
 
     # region: check status
@@ -367,6 +370,10 @@ class EnvBase:
 
             self.dyna_line_list = []
             self.dyna_patch_list = []
+
+        if not kwargs.get('show_text', True):
+            self.ax.texts.clear()
+
 
         elif mode == 'static':
             pass

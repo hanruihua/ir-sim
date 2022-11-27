@@ -95,6 +95,7 @@ class RobotBase:
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []
+        self.plot_text_list = []
 
         # self.alpha = kwargs.get('alpha', [0.03, 0, 0, 0.03, 0, 0])
         # self.control_std = kwargs.get('control_std', [0.01, 0.01])
@@ -301,6 +302,12 @@ class RobotBase:
 
         return edge_list
 
+    def get_lidar_scan(self):
+        return self.lidar.get_LaserScan()
+
+    def get_landmarks(self):
+        return self.lidar.get_landmarks()
+
     def plot(self, ax, show_sensor=True, **kwargs):
         # plot the robot in the map
         self.plot_robot(ax, **kwargs)
@@ -347,10 +354,11 @@ class RobotBase:
     def plot_clear(self, ax):
         [patch.remove() for patch in self.plot_patch_list]
         [line.pop(0).remove() for line in self.plot_line_list]
+        [text.remove() for text in self.plot_text_list]
 
         self.plot_patch_list = []
         self.plot_line_list = []
-        ax.texts.clear()
+        self.plot_text_list = []
 
     @staticmethod
     def InCone(point, cone_type='Rpositive'):

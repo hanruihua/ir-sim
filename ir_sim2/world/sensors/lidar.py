@@ -1,20 +1,21 @@
-from math import pi, sin, cos, sqrt
+from math import pi, sin, cos, sqrt, atan2
 import numpy as np
 from ir_sim2.env import env_global
 from ir_sim2.util.collision_dection_distance import range_cir_seg, range_seg_seg
-from ir_sim2.util.util import get_transform
+from ir_sim2.util.util import get_transform, WrapToPi
 # from 
 
 class lidar2d:
     def __init__(self, robot_state=np.zeros((3, 1)), range_min=0, range_max=10, angle_range = pi, number=36, scan_time=0.1, noise=False, std=0.2, offset=[0, 0, 0], reso=0.05, **kwargs) -> None:
 
-        # scan data
+        # scan data (refernece: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html)
         self.range_min = range_min
         self.range_max = range_max
         self.angle_min = - angle_range/ 2
         self.angle_max = angle_range / 2
         self.angle_inc = angle_range / number
         self.scan_time = scan_time
+        self.time_inc = (angle_range / (2*pi) ) * scan_time / number # 
         self.range_data = range_max * np.ones(number,)
 
         # offset
@@ -30,6 +31,8 @@ class lidar2d:
 
         if robot_state.shape[0] == 2 :
             robot_state = np.vstack((robot_state, [0]))
+
+        self.robot_state = robot_state
 
         trans_matirx, rot_matrix = get_transform(robot_state)
 
@@ -50,10 +53,10 @@ class lidar2d:
 
             cur_range = self.range_min
 
-            for j in range(self.sample_num):                
+            for j in range(self.sample_num):  
+                cur_range += self.reso              
                 temp_scan_matrix[:, j, i] = cur_range * np.array([ cos(angle), sin(angle) ])
-                cur_range += self.reso
-
+                
         self.intersections = temp_scan_matrix[:, -1, :]
         self.ray = temp_scan_matrix[:, 0, :]
 
@@ -68,14 +71,16 @@ class lidar2d:
         if robot_state.shape[0] == 2 :
             robot_state = np.vstack((robot_state, [0]))
 
+        self.robot_state = robot_state
+
         trans_matirx, rot_matrix = get_transform(robot_state)
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
         self.global_ray = rot_matrix @ self.ray + trans_matirx
 
         Components = env_global.components.copy()
-        com_list = [com for com in Components if lidar2d.distance(com.center, robot_state[0:2]) >= 0.01]
+        self.com_list = [com for com in Components if lidar2d.distance(com.center, robot_state[0:2]) >= 0.01]
 
-        closest_index_array = self.ray_casting(com_list)
+        closest_index_array = self.ray_casting(self.com_list)
 
         temp_global_scan_matrix = np.reshape(self.global_scan_matrix, (2, self.sample_num, self.number)) 
         
@@ -103,6 +108,38 @@ class lidar2d:
         closest_index_array = np.min(index_array, axis = 0).astype(int)
             
         return closest_index_array
+
+    def get_LaserScan(self):
+        # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html 
+        scan_data = {}
+        scan_data['angle_min'] = self.angle_min
+        scan_data['angle_max'] = self.angle_max
+        scan_data['angle_increment'] = self.angle_inc
+        scan_data['time_increment'] = self.time_inc
+        scan_data['scan_time'] = self.scan_time
+        scan_data['range_min'] = self.range_min
+        scan_data['range_max'] = self.range_max
+        scan_data['ranges'] = self.range_data
+        scan_data['intensities'] = None
+
+        return scan_data
+
+    def get_landmarks(self):
+
+        landmarks = []
+
+        for com in self.com_list:
+            if com.landmark:
+                dis, radian = lidar2d.relative_position(com.center[0:2], self.robot_state[0:2])
+
+                ang_min = WrapToPi(self.angle_min + self.robot_state[2, 0])
+                ang_max = WrapToPi(self.angle_max + self.robot_state[2, 0])
+
+                if WrapToPi(radian - ang_min) <= 0 and WrapToPi(ang_max - radian) <= 0 and dis <= self.range_max:
+                    landmark = {'id': com.id, 'range': dis, 'angle': radian}
+                    landmarks.append(landmark)
+
+        return landmarks
 
     # def init_sections(self):
 
@@ -191,5 +228,13 @@ class lidar2d:
         return sqrt( (point1[0, 0] - point2[0, 0]) ** 2 + (point1[1, 0] - point2[1, 0]) ** 2 )
 
 
+    @staticmethod
+    def relative_position(point1, point2):
 
+        diff = point2 - point1
+
+        dis = round(sqrt( diff[0, 0] ** 2 + diff[1, 0] ** 2 ), 2)
+        radian = atan2(diff[1, 0], diff[0, 0])
+
+        return dis, radian
 
