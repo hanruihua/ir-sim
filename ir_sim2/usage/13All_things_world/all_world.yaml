@@ -70,7 +70,7 @@ obstacles:
     # shapes: [[length, width]]
     distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [10.0, 10.0, 3.14], distance: 1, shapes: [[0.5, 0.4], [0.4, 0.2]], random_shape: True, shapes_low: [0.1, 0.1], shapes_high: [0.8, 0.8]}
 
-    # distribute: {mode: 'manual', states: [ [4, 4, 1], [3, 6, 0] ], lengths: [0.5, 0.4], widths: [0.4, 0.2]}
+    # distribute: {mode: 'manual', states: [ [4, 4, 1], [3, 6, 0] ], shapes: [[0.3, 0.3], [0.5, 0.4]]}
 
 
   # - type: 'obstacle_map'

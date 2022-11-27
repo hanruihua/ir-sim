@@ -37,5 +37,5 @@ obstacles:
     # shapes: [[length, width]]
     # distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [50.0, 50.0, 3.14], distance: 1, shapes: [[1, 4], [4, 5]], random_shape: True, shapes_low: [3, 3], shapes_high: [18, 18]}
 
-    distribute: {mode: 'manual', states: [ [24, 24, 1], [43, 16, 0] ], lengths: [15, 14], widths: [4, 2]}
+    distribute: {mode: 'manual', states: [ [24, 24, 1], [43, 16, 0] ], shapes: [[0.3, 0.3], [0.5, 0.4]]}
 

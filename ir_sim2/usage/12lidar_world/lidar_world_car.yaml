@@ -44,10 +44,10 @@ obstacles:
     distribute: {mode: 'manual', states: [[13, 23, 0], [15, 43, 0]], shapes: [ [[1, 2], [3, 1.5], [4, 3], [2, 4]] ]} 
 
   - type: 'obstacle_block'
-    number: 4
+    number: 2
 
     # shapes: [[length, width]]
     # distribute: {mode: 'random', rlow: [0.0, 0.0, -3.14], rhigh: [50.0, 50.0, 3.14], distance: 1, shapes: [[1, 4], [4, 5]], random_shape: True, shapes_low: [3, 3], shapes_high: [18, 18]}
 
-    distribute: {mode: 'manual', states: [ [24, 24, 1], [43, 16, 0] ], lengths: [15, 14], widths: [4, 2]}
+    distribute: {mode: 'manual', states: [ [24, 34, 1], [43, 26, 0] ], shapes: [[5, 4], [3, 6]]}
 
