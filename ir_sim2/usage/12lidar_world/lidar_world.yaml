@@ -23,7 +23,7 @@ robots:
       angle_range: 3.1415926
       number: 100
       noise: False
-      std: 1  # index of the lidar 
+      std: 1   
       offset: [0, 0, 0]
       reso: 0.1
 

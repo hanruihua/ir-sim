@@ -22,10 +22,13 @@ class RobotDiff(RobotBase):
         super(RobotDiff, self).__init__(id, state, vel, goal, step_time, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
         self.vel_omni = np.zeros((2, 1))
-        
-        
+
+
         if self.noise:
-            self.e_state = {'mean': self.state, 'std': np.array([[0.04], [0.01]])}   # estimated state
+            self.odometry = {'mean': self.state, 'std': np.array([[0.04], [0.01]])}   # odometry
+        else:
+            self.odometry = {'mean': self.state, 'std': np.array([[0], [0]])}   # odometry
+
         self.alpha = alpha
             
     def dynamics(self, state, vel, vel_type='diff', **kwargs):
@@ -44,7 +47,9 @@ class RobotDiff(RobotBase):
             self.vel_omni = RobotDiff.diff_to_omni(state, self.vel) 
         
         if self.noise:
-            self.e_state['mean'] = RobotDiff.motion_diff(self.e_state['mean'], vel, self.step_time, False, self.alpha, **kwargs) 
+            self.odometry['mean'] = RobotDiff.motion_diff(self.odometry['mean'], vel, self.step_time, False, self.alpha, **kwargs) 
+        else:
+            self.odometry['mean'] = self.state
 
         return new_state
 
@@ -126,11 +131,11 @@ class RobotDiff(RobotBase):
         if show_uncertainty and self.noise:
             scale = 20
            
-            ex = self.e_state['mean'][0, 0]
-            ey = self.e_state['mean'][1, 0]
-            etheta = self.e_state['mean'][2, 0]
-            std_x = self.e_state['std'][0, 0]
-            std_y = self.e_state['std'][1, 0]
+            ex = self.odometry['mean'][0, 0]
+            ey = self.odometry['mean'][1, 0]
+            etheta = self.odometry['mean'][2, 0]
+            std_x = self.odometry['std'][0, 0]
+            std_y = self.odometry['std'][1, 0]
 
             angle = etheta * (180 / pi)
 

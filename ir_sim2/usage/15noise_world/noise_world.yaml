@@ -19,6 +19,20 @@ robots:
   distribute: {mode: 'random', rlow: [0, 0, 0], rhigh: [10, 10, 3.14], distance: 1, random_shape: True, radius_low: 0.1, radius_high: 0.5}
   # distribute: {mode: 'manual', states: [[1, 1, 0], [2, 1, 0]], shapes: [0.2, 0.2], goals: [[7, 7, 0], [7, 2, 0]], random_bear: False}
 
+    # sensor
+  sensor: 
+    - type: 'lidar'
+      # id: 0  # only id robot has 
+      range_min: 0
+      range_max: 5
+      angle_range: 3.1415926
+      number: 100
+      noise: False
+      std: 1   
+      offset: [0, 0, 0]
+      reso: 0.1
+
+
 obstacles:
   - type: 'obstacle_circle'
     number: 0
