@@ -95,6 +95,9 @@ class lidar2d:
     def ray_casting(self, com_list):
         # calculate the minimum distance index between global_scan_matrix and obstacles
 
+        if len(com_list) == 0:
+            return ( (self.sample_num - 2) * np.ones((self.number, )) ).astype(int)
+
         index_array = np.zeros((len(com_list), self.number))
 
         for i, com in enumerate(com_list):

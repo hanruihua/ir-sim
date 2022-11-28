@@ -198,7 +198,7 @@ class EnvBase:
     
     def get_robot_estimation(self, id=0):
         # when noise True
-        return self.env_robot.robot_list[id].e_state
+        return self.env_robot.robot_list[id].odometry
 
     def get_obstacle_list(self, obs_type=None):
         # obs_type： obstacle_circle； obstacle_polygon
