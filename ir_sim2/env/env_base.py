@@ -317,7 +317,7 @@ class EnvBase:
         else:
             logging.error('error input of the draw mode')
 
-    def draw_trajectory(self, traj, style='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
+    def draw_trajectory(self, traj, traj_type='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
         # traj: a list of points
         if isinstance(traj, list):
             path_x_list = [p[0, 0] for p in traj]
@@ -327,7 +327,7 @@ class EnvBase:
             path_x_list = [p[0] for p in traj.T]
             path_y_list = [p[1] for p in traj.T]
 
-        line = self.ax.plot(path_x_list, path_y_list, style, label=label, **kwargs)
+        line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
         if show_direction:
             if isinstance(traj, list):
