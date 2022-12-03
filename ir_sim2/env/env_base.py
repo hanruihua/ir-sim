@@ -22,7 +22,8 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, save_ani=False, full=False, custom_robot=None,   image_path=Path(sys.path[0] + '/' + 'image'), 
+    ani_path=Path(sys.path[0] + '/' + 'animation'), **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -86,8 +87,8 @@ class EnvBase:
 
         # animation
         self.save_ani = save_ani  
-        self.image_path = Path(sys.path[0] + '/' + 'image')  
-        self.ani_path = Path(sys.path[0] + '/' + 'animation')
+        self.image_path = image_path    
+        self.ani_path = ani_path
         
         if control_mode == 'keyboard':
             vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
@@ -273,13 +274,14 @@ class EnvBase:
     # endregion: reset the environment
 
     # region: environment render
-    def render(self, pause_time=0.05, fig_args=dict(), **kwargs):
+    def render(self, pause_time=0.05, fig_args=dict(), display=True, **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
 
         if self.plot: 
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
-                plt.pause(pause_time)
+                
+                if display: plt.pause(pause_time)
 
                 if self.save_ani: self.save_gif_figure(**fig_args)
 
