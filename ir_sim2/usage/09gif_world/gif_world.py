@@ -8,8 +8,8 @@ for i in range(100):
 
     vel = env.cal_des_vel()
     env.step(vel)
-    # env.render(fig_args={'bbox_inches':'tight'})
-    env.render(fig_args={'bbox_inches':'tight'}, display=False)
+    env.render(fig_args={'bbox_inches':'tight'})
+    # env.render(fig_args={'bbox_inches':'tight'}, display=False)
     env.reset('single') 
 
 env.end(ani_name='gif_world', show_text=True, show=False)
