@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from pathlib import Path
+from pathlib import Path, PurePath
 from pynput import keyboard
 from math import sin, cos, pi
 from .env_robot import EnvRobot
@@ -87,8 +87,20 @@ class EnvBase:
 
         # animation
         self.save_ani = save_ani  
-        self.image_path = image_path    
-        self.ani_path = ani_path
+
+        if isinstance(image_path, PurePath):
+            self.image_path = image_path
+        elif isinstance(image_path, str):
+            self.image_path = Path(image_path)
+        else:
+            print('error: wrong image path')
+        
+        if isinstance(ani_path, PurePath):
+            self.ani_path = ani_path
+        elif isinstance(ani_path, str):
+            self.ani_path = Path(ani_path)
+        else:
+            print('error: wrong animation path')
         
         if control_mode == 'keyboard':
             vel_max = self.robot_args.get('vel_max', [2.0, 2.0])

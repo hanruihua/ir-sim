@@ -2,7 +2,7 @@ from ir_sim2.env import EnvBase
 from pathlib import Path
 
 env = EnvBase('gif_world.yaml', save_ani=True, full=False)
-# env = EnvBase('gif_world.yaml', save_ani=True, full=False, image_path=Path('./test'), ani_path=Path('./test2'))
+# env = EnvBase('gif_world.yaml', save_ani=True, full=False, image_path='./test', ani_path=Path('./test2'))
 
 for i in range(100):
 
