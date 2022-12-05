@@ -42,9 +42,10 @@ The examples are in the ir-sim2/usage
 - [x] env res
 - [x] collision check with discrete samples
 - [x] omni directional robots
+- [x] Add custom robot model
+- [x] Add sensor: gps, odometry
+- [x] Add noise (diff)
 - [ ] line obstacle
 - [ ] map obstacle
-- [x] Add custom robot model
-- [ ] Add sensor: gps, odometry
-- [x] Add noise (diff)
 - [ ] using the mouse to select the circle and polygon obstacles
+- [ ] Add the data monitor
