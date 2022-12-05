@@ -341,7 +341,8 @@ class EnvBase:
             path_x_list = [p[0] for p in traj.T]
             path_y_list = [p[1] for p in traj.T]
 
-        line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
+        if self.plot: 
+            line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
         if show_direction:
             if isinstance(traj, list):
@@ -353,8 +354,18 @@ class EnvBase:
 
             self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
 
-        if refresh:
+        if refresh and self.plot: 
             self.dyna_line_list.append(line)
+
+    # def draw_data(self, data, new_figure=True, show=True, label='default', **kwargs):
+    #     # data: list of values
+    #     if new_figure:
+    #         fig, ax = plt.subplots()
+    #     else:
+    #         ax = self.ax
+
+    #     ax.plot(data, label=label, **kwargs)
+    #     if show: plt.show()
 
     def draw_uncertainty(self, mean, std, scale=20, facecolor='gray', refresh=True, **kwargs):
         
@@ -387,7 +398,6 @@ class EnvBase:
 
         if not kwargs.get('show_text', True):
             self.ax.texts.clear()
-
 
         elif mode == 'static':
             pass
