@@ -139,6 +139,9 @@ class lidar2d:
                 ang_max = WrapToPi(self.angle_max + self.robot_state[2, 0])
 
                 if WrapToPi(radian - ang_min) <= 0 and WrapToPi(ang_max - radian) <= 0 and dis <= self.range_max:
+                    if self.noise:
+                        dis += np.random.normal(0, self.std)
+                        radian += np.random.normal(0, self.std)
                     landmark = {'id': com.id, 'range': dis, 'angle': radian}
                     landmarks.append(landmark)
 
