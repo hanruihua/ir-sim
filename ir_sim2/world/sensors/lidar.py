@@ -133,12 +133,12 @@ class lidar2d:
 
         for com in self.com_list:
             if com.landmark:
-                dis, radian = lidar2d.relative_position(com.center[0:2], self.robot_state[0:2])
+                dis, radian = lidar2d.relative_position(self.robot_state[0:2], com.center[0:2])
 
                 ang_min = WrapToPi(self.angle_min + self.robot_state[2, 0])
                 ang_max = WrapToPi(self.angle_max + self.robot_state[2, 0])
 
-                if WrapToPi(radian - ang_min) <= 0 and WrapToPi(ang_max - radian) <= 0 and dis <= self.range_max:
+                if WrapToPi(radian - ang_min) >= 0 and WrapToPi(ang_max - radian) >= 0 and dis <= self.range_max:
                     if self.noise:
                         dis += np.random.normal(0, self.std)
                         radian += np.random.normal(0, self.std)
