@@ -143,7 +143,15 @@ class EnvBase:
         # full=False, keep_path=False, 
         # kwargs: 
         #         keep_path, keep a residual
-        #     
+        # 
+        
+        # default obstacles
+        self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
+        self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
+        
+        env_global.obstacle_list = self.obstacle_list
+
+        # default robots
         robot_type = self.robot_args.get('type', 'robot_diff')  
 
         if robot_type == 'robot_custom':
@@ -151,19 +159,15 @@ class EnvBase:
         else:
             self.env_robot = EnvRobot(self.robot_factory[robot_type], step_time=self.step_time, **self.robot_args)
         
-        self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
-       
         # default robots 
         self.robot_list = self.env_robot.robot_list
         self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
         self.robot_number = len(self.robot_list)
-        # default obstacles
-        self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
+       
         self.components = self.robot_list + self.obstacle_list
 
         # global objects through multiple files
         env_global.robot_list = self.robot_list
-        env_global.obstacle_list = self.obstacle_list
         env_global.components = self.components
         env_global.control_mode = self.control_mode
 
