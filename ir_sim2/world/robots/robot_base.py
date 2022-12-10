@@ -186,7 +186,9 @@ class RobotBase:
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
                 if cdg.collision_cir_poly(obj_circle, robot_poly): 
-                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+                    if not self.collision_flag: 
+                        logging.info('robot id %d collision', self.id)
+                    
                     self.collision_flag = True
                     return True
             
