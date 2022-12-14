@@ -52,6 +52,18 @@ def WrapToPi(rad):
         rad = rad + 2 * pi
     
     return rad
+
+def WrapToRegion(rad, range):
+    # transform the rad to defined range, 
+    # the length of range should be 2 * pi
+    assert(len(range) >= 2 and range[1] - range[0] == 2*pi)
+    while rad > range[1]:
+        rad = rad - 2 * pi
+    
+    while rad < range[0]:
+        rad = rad + 2 * pi
+    
+    return rad
     
 def get_transform(state):
     # from state to rotation and transition matrix
