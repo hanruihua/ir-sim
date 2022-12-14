@@ -7,6 +7,8 @@ from ir_sim2.util import collision_dectection_geo as cdg
 from ir_sim2.world.sensors.lidar import lidar2d
 from ir_sim2.world.sensors.GPS import GPS
 import matplotlib as mpl
+from ir_sim2.util.util import WrapToRegion
+
 
 # define geometry point and segment for collision detection.
 # point [x, y]
@@ -26,7 +28,7 @@ class RobotBase:
     goal_dim = (3, 1) # the goal dimension 
     position_dim=(2,1) # the position dimension 
     
-    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], acce=[inf, inf], **kwargs):
+    def __init__(self, id, state, vel, goal=np.zeros(goal_dim), step_time=0.1, vel_min=[-inf, -inf], vel_max=[inf, inf], acce=[inf, inf], angle_range=[-pi, pi], **kwargs):
 
         """
         type = 'diff', 'omni', 'ackermann' 
@@ -50,6 +52,7 @@ class RobotBase:
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
+        self.angle_range = angle_range
         self.vel_min = np.around(np.c_[vel_min], 2)
         self.vel_max = np.around(np.c_[vel_max], 2)
         self.acce = np.c_[acce]
@@ -127,7 +130,10 @@ class RobotBase:
         self.vel_acce_min = np.around(np.maximum(self.vel_min, self.vel - self.acce * self.step_time), 2)
         self.vel_acce_max = np.around(np.minimum(self.vel_max, self.vel + self.acce * self.step_time), 2)
 
+        self.mid_process()
+
         self.sensor_step()
+        self.post_process()
         self.arrive()
         
     def update_info(self, state, vel):
@@ -139,6 +145,13 @@ class RobotBase:
         # for sensor
         for sensor in self.sensors:
             sensor.step(self.state[0:3], )
+
+    def mid_process(self):
+        if self.angle_range is not None:
+            self.state[2, 0] = WrapToRegion(self.state[2, 0], self.angle_range)
+
+    def post_process(self):
+        pass
 
     def arrive(self):
         if self.arrive_mode == 'position':
