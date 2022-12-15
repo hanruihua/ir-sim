@@ -502,11 +502,13 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', show=True, ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_args=dict(), ani_args=dict(), **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_args=dict(), ani_args=dict(), **kwargs):
         
         # fig_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_args: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
         print('DONE')
+
+        show = kwargs.get('show', self.display)
 
         if self.plot:
 
