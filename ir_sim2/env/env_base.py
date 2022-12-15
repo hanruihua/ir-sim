@@ -22,7 +22,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, save_ani=False, full=False, custom_robot=None,   image_path=Path(sys.path[0] + '/' + 'image'), 
+    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None,   image_path=Path(sys.path[0] + '/' + 'image'), 
     ani_path=Path(sys.path[0] + '/' + 'animation'), **kwargs) -> None:
         
         '''
@@ -76,6 +76,7 @@ class EnvBase:
 
         # plot
         self.plot = plot
+        self.display = display
         self.dyna_line_list = []
         self.dyna_patch_list = []
 
@@ -297,7 +298,7 @@ class EnvBase:
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 
-                if display: plt.pause(pause_time)
+                if self.display: plt.pause(pause_time)
 
                 if self.save_ani: self.save_gif_figure(**fig_args)
 
@@ -505,16 +506,16 @@ class EnvBase:
         
         # fig_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_args: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
-
         print('DONE')
 
-        if self.save_ani: self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_args)
- 
         if self.plot:
-            self.draw_components(self.ax, mode='dynamic', **kwargs)
-            plt.pause(0.00001)
 
-            if save_fig: self.fig.savefig(fig_name, **fig_args)
+            if self.save_ani: self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_args)
+
+            if save_fig: 
+                self.draw_components(self.ax, mode='dynamic', **kwargs)
+                plt.pause(0.00001)
+                self.fig.savefig(fig_name, **fig_args)
 
             if show: 
                 plt.show(block=False)
