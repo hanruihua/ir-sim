@@ -291,7 +291,7 @@ class EnvBase:
     # endregion: reset the environment
 
     # region: environment render
-    def render(self, pause_time=0.05, fig_args=dict(), display=True, **kwargs):
+    def render(self, pause_time=0.05, fig_args=dict(), **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
 
         if self.plot: 
