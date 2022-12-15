@@ -22,7 +22,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None,   image_path=Path(sys.path[0] + '/' + 'image'), 
+    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, image_path=Path(sys.path[0] + '/' + 'image'), 
     ani_path=Path(sys.path[0] + '/' + 'animation'), **kwargs) -> None:
         
         '''
@@ -86,9 +86,9 @@ class EnvBase:
         # initialize the environment
         self._init_environment(**kwargs)
 
-        # animation
+        # animation and arguments:
         self.save_ani = save_ani  
-
+        
         if isinstance(image_path, PurePath):
             self.image_path = image_path
         elif isinstance(image_path, str):
@@ -293,6 +293,10 @@ class EnvBase:
     # region: environment render
     def render(self, pause_time=0.05, fig_args=dict(), **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        # default figure arguments
+        
+        dpi = kwargs.get('dpi', 300)
+        bbox_inches = kwargs.get('bbox_inches', 'tight')
 
         if self.plot: 
             if self.world.sampling:
@@ -300,7 +304,7 @@ class EnvBase:
                 
                 if self.display: plt.pause(pause_time)
 
-                if self.save_ani: self.save_gif_figure(**fig_args)
+                if self.save_ani: self.save_gif_figure(bbox_inches=bbox_inches, dpi=dpi, **fig_args)
 
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
@@ -509,6 +513,8 @@ class EnvBase:
         print('DONE')
 
         show = kwargs.get('show', self.display)
+        dpi = kwargs.get('dpi', 600)
+        bbox_inches = kwargs.get('bbox_inches', 'tight')
 
         if self.plot:
 
@@ -517,7 +523,7 @@ class EnvBase:
             if save_fig: 
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 plt.pause(0.00001)
-                self.fig.savefig(fig_name, **fig_args)
+                self.fig.savefig(fig_name, bbox_inches=bbox_inches, dpi=dpi, **fig_args)
 
             if show: 
                 plt.show(block=False)
