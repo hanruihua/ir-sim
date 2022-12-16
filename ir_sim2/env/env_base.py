@@ -424,10 +424,10 @@ class EnvBase:
 
             if i == 0: continue
 
-            image_list.append(imageio.imread(file_name))
+            image_list.append(imageio.imread(str(file_name)))
             if i == len(images) - 1:
                 for j in range(keep_len):
-                    image_list.append(imageio.imread(file_name))
+                    image_list.append(imageio.imread(str(file_name)))
 
         imageio.mimsave(str(self.ani_path)+'/'+ ani_name + suffix, image_list, **kwargs)
         print('Create animation successfully')
