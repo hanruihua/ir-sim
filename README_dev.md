@@ -50,3 +50,5 @@ The examples are in the ir-sim2/usage
 - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor 
 - [ ] Add the env logger 
+- [ ] Add subplot 
+- [ ] Add collision mode
