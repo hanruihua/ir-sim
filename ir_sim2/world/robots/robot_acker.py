@@ -31,7 +31,7 @@ class RobotAcker(RobotBase):
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
-        self.update_vertex()
+        self.update_vertex(self.state)
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics
@@ -69,12 +69,12 @@ class RobotAcker(RobotBase):
         new_state[2, 0] = RobotAcker.wraptopi(new_state[2, 0]) 
 
         # update vertex
-        self.update_vertex()
+        self.update_vertex(new_state)
 
         return new_state
 
-    def update_vertex(self):
-        trans, rot = get_transform(self.state)
+    def update_vertex(self, state):
+        trans, rot = get_transform(state)
         self.vertex = rot @ self.init_vertex + trans
     
     def cal_des_vel(self, tolerance=0.02):
@@ -187,6 +187,7 @@ class RobotAcker(RobotBase):
             if trail_type == 'rectangle':
                 car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False)
                 ax.add_patch(car_rect)
+
             elif trail_type == 'circle':
                 x = (min(self.vertex[0, :]) + max(self.vertex[0, :])) / 2
                 y = (min(self.vertex[1, :]) + max(self.vertex[1, :])) / 2
