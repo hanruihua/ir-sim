@@ -283,7 +283,7 @@ class EnvBase:
     # endregion: reset the environment
 
     # region: environment render
-    def render(self, pause_time=0.05, fig_args=dict(), **kwargs):
+    def render(self, pause_time=0.05, fig_kwargs=dict(), **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # default figure arguments
         
@@ -293,7 +293,7 @@ class EnvBase:
                 
                 if self.display: plt.pause(pause_time)
 
-                if self.save_ani: self.save_gif_figure(bbox_inches=self.bbox_inches, dpi=self.ani_dpi, **fig_args)
+                if self.save_ani: self.save_gif_figure(bbox_inches=self.bbox_inches, dpi=self.ani_dpi, **fig_kwargs)
 
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
@@ -393,16 +393,6 @@ class EnvBase:
         elif mode == 'all':
             plt.cla()
 
-    # def show(self, save_fig=False, fig_name='fig.png', **kwargs):
-    #     if self.plot:
-    #         self.draw_components(self.ax, mode='dynamic', **kwargs)
-            
-    #         if save_fig: self.fig.savefig(fig_name)
-
-    #         logging.info('Program Done')
-    #         plt.show()
-    # endregion: environment render
-
     # region: animation
     def save_gif_figure(self, save_figure_format='png', **kwargs):
 
@@ -497,10 +487,10 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_args=dict(), ani_args=dict(), **kwargs):
+    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_kwargs=dict(), ani_kwargs=dict(), **kwargs):
         
-        # fig_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        # ani_args: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
+        # fig_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        # ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
         print('DONE')
 
         show = kwargs.get('show', self.display)
@@ -508,12 +498,12 @@ class EnvBase:
         if self.plot:
 
             if self.save_ani:
-                self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_args)
+                self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
 
             if save_fig: 
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 if self.display: plt.pause(0.00001)
-                self.fig.savefig(self.root_path / fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_args)
+                self.fig.savefig(self.root_path / fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
 
             if show: 
                 plt.show(block=False)

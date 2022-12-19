@@ -48,4 +48,5 @@ The examples are in the ir-sim2/usage
 - [ ] line obstacle
 - [ ] map obstacle
 - [ ] using the mouse to select the circle and polygon obstacles
-- [ ] Add the data monitor
+- [ ] Add the data monitor 
+- [ ] Add the env logger 
