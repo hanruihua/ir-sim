@@ -22,7 +22,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
 
-    def __init__(self, world_name=None, control_mode='auto', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -30,6 +30,11 @@ class EnvBase:
         world_name: path of the yaml
         plot: True or False
         control_mode: auto, keyboard, desire
+        collision_mode: 
+                    None: No collision check
+                    stop (default): Object stop when collision, 
+                    inelastic: robot and obsacles 
+
         world_args: arguments of the world, including width, length...
         robot_args: arguments of the multiple robots, including number, type...
         keyboard_args: arguments of the keyboard control, including key_lv_max....
@@ -74,9 +79,10 @@ class EnvBase:
         self.dyna_line_list = []
         self.dyna_patch_list = []
 
-        # keyboard control
-        self.control_mode = control_mode
-
+        # Mode
+        self.control_mode = control_mode 
+        self.collision_mode = collision_mode 
+        
         # animation arguments:
         self.save_ani = save_ani  
         self.ani_dpi = kwargs.get('ani_dpi', 300)
@@ -163,6 +169,7 @@ class EnvBase:
         env_global.robot_list = self.robot_list
         env_global.components = self.components
         env_global.control_mode = self.control_mode
+        env_global.collision_mode = self.collision_mode
 
         # plot
         if self.plot:
@@ -181,7 +188,7 @@ class EnvBase:
 
         self.obstacles_step(**kwargs)
         self.world.step()
-    
+
         env_global.time_increment()
 
     def robots_step(self, vel_list, **kwargs):
@@ -302,7 +309,7 @@ class EnvBase:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(pause_time)
             self.clear_components(self.ax, mode='dynamic', **kwargs)
-            
+      
     def init_plot(self, ax, **kwargs):
         
         ax.set_aspect('equal') 
@@ -402,6 +409,7 @@ class EnvBase:
         
         elif mode == 'all':
             plt.cla()
+    # endregion: environment render
 
     # region: animation
     def save_gif_figure(self, save_figure_format='png', **kwargs):
