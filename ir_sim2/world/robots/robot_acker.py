@@ -76,6 +76,12 @@ class RobotAcker(RobotBase):
     def update_vertex(self, state):
         trans, rot = get_transform(state)
         self.vertex = rot @ self.init_vertex + trans
+
+    def calcuate_vertex(self, state):
+        trans, rot = get_transform(state)
+        vertex = rot @ self.init_vertex + trans
+        
+        return vertex
     
     def cal_des_vel(self, tolerance=0.02):
         if self.arrive_mode == 'position':

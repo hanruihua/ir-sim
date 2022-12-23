@@ -6,6 +6,7 @@ for i in range(3000):
 
     env.step()
     env.render(show_text=True)
+    
     env.reset('any')  # 'all'; 'any'
     
 env.end(show_text=True)

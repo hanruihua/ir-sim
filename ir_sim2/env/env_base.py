@@ -29,11 +29,14 @@ class EnvBase:
 
         world_name: path of the yaml
         plot: True or False
-        control_mode: auto, keyboard, desire
+        control_mode: 
+                    auto: receive the velocity command to move 
+                    keyboard: receive the velocity from the keyboard to move 
+
         collision_mode: 
                     None: No collision check
-                    stop (default): Object stop when collision, 
-                    inelastic: robot and obsacles 
+                    stop (default): All Objects stop when collision, 
+                    react: robot will have reaction when collision with others  (only work for the circular robot in current version)
 
         world_args: arguments of the world, including width, length...
         robot_args: arguments of the multiple robots, including number, type...
@@ -239,7 +242,7 @@ class EnvBase:
     def collision_check(self):
         collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
         return any(collision_list)
-
+    
     # 
     def done(self, mode='all', collision_check=True) -> bool:
         # mode: any; any robot done, return done
@@ -256,7 +259,6 @@ class EnvBase:
         arrive_flags = self.env_robot.arrive_list()
 
         if collision_check:
-            self.collision_check()
             collision_flags = self.env_robot.collision_list()
         else:
             collision_flags = [False] * len(arrive_flags)

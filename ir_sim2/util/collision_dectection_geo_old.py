@@ -1,6 +1,5 @@
 import numpy as np
 from math import sqrt, pi, cos, sin
-from collections import namedtuple
 
 # collision detection
 
@@ -11,56 +10,17 @@ from collections import namedtuple
 ## rectangle: 
 ## polygon: [point1, point2,....]  convex
 
-## collision state: the position of the left object shoud be when collision with the right object
-
-circle_geometry = namedtuple('circle', ['x', 'y', 'r'])
-
 # collision between circle and circle
 def collision_cir_cir(circle1, circle2):
-    collision_flag = False
-    collision_state = None
-
-    dis = sqrt( (circle2.x - circle1.x)**2 + (circle2.y - circle1.y)**2 )
-
-    if (dis - (circle1.r + circle2.r)) < 0:
-        collision_flag = True
-        unit_diff = np.array([[circle1.x - circle2.x], [circle1.y - circle2.y]]) / dis
-
-        collision_state = np.array([[circle2.x], [circle2.y]]) + unit_diff * (circle1.r + circle2.r)
-
-    return collision_flag, collision_state
+    return sqrt( (circle2.x - circle1.x)**2 + (circle2.y - circle1.y)**2 ) - (circle1.r + circle2.r) < 0
 
 # collision between circle and polygon
 def collision_cir_poly(circle, polygon):
     polygon.append(polygon[0])
 
-    collision_position = None
-    collision_flag = False
-
     for i in range(len(polygon)-1):
         segment = [ polygon[i], polygon[i+1] ]
-        collision_flag, collision_position = collision_cir_seg(circle, segment) 
-
-        if collision_flag:
-            if i+1 < (len(polygon)-1):
-                new_segment =  [ polygon[i+1], polygon[i+2] ]
-                new_circle = circle_geometry(collision_position[0, 0], collision_position[1, 0], circle.r)  
-
-                new_collision_flag, new_collision_position = collision_cir_seg(new_circle, new_segment) 
-
-                if new_collision_flag:
-                    return new_collision_flag, new_collision_position
-                else:
-                    return collision_flag, collision_position
-            
-    return collision_flag, collision_position
-
-def collision_poly_cir(polygon, circle):
-    polygon.append(polygon[0])
-
-    for i in range(len(polygon)-1):
-        segment = [ polygon[i], polygon[i+1] ]
-        if collision_seg_cir(segment, circle): 
+        if collision_cir_seg(circle, segment): 
             return True
     
     return False
@@ -81,41 +41,6 @@ def collision_poly_poly(polygon1, polygon2):
 
 # collision between circle and segment
 def collision_cir_seg(circle, segment):
-
-    collision_flag = False
-    collision_position = None
-
-    # reference: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
-    point = np.array([circle.x, circle.y])
-    sp = np.array([segment[0].x, segment[0].y])
-    ep = np.array([segment[1].x, segment[1].y])
-    
-    l2 = (ep - sp) @ (ep - sp)
-
-    if (l2 == 0.0): 
-        dis = sqrt( (circle.x - segment[0].x)**2 + (circle.y - segment[0].y)**2 ) 
-        if dis < circle.r:
-            collision_flag = True
-            unit_diff = np.array([[circle.x - segment[0].x], [circle.y - segment[0].y]]) / dis
-            collision_position = np.array([[segment[0].x], [segment[0].y]]) + unit_diff * circle.r
-
-        return collision_flag, collision_position
-    
-    t = max(0, min(1, ((point-sp) @ (ep-sp)) / l2 ))
-
-    projection = sp + t * (ep-sp)
-    relative = projection - point
-
-    dis = sqrt( relative[0]**2 + relative[1]**2 )
-
-    if dis < circle.r:
-        collision_flag = True
-        unit_diff = np.array([[circle.x - projection[0]], [circle.y - projection[1]]]) / dis
-        collision_position = np.array([[projection[0]], [projection[1]]]) + unit_diff * circle.r
-
-    return collision_flag, collision_position
-
-def collision_seg_cir(segment, circle):
     # reference: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     point = np.array([circle.x, circle.y])
     sp = np.array([segment[0].x, segment[0].y])
@@ -131,8 +56,6 @@ def collision_seg_cir(segment, circle):
     relative = projection - point
 
     return sqrt( relative[0]**2 + relative[1]**2 ) < circle.r
-
-
 
 # collision between segment and segment
 def collision_seg_seg(segment1, segment2):

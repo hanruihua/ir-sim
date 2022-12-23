@@ -8,6 +8,7 @@ from ir_sim2.world.sensors.lidar import lidar2d
 from ir_sim2.world.sensors.GPS import GPS
 import matplotlib as mpl
 from ir_sim2.util.util import WrapToRegion
+from ir_sim2.env import env_global
 
 
 # define geometry point and segment for collision detection.
@@ -68,6 +69,10 @@ class RobotBase:
         # flag
         self.arrive_flag = False
         self.collision_flag = False
+        self.stop_flag = False
+
+        # collision
+        self.collision_position = None
 
         # noise
         self.noise = kwargs.get('noise', False)
@@ -117,14 +122,31 @@ class RobotBase:
         vel = np.around(vel.astype(float), 2)  # make sure the vel is float
         vel = self.range_check(vel, self.vel_acce_max, self.vel_acce_min)
 
-        if stop:
-            if self.arrive_flag or self.collision_flag:
-                vel = np.zeros(self.vel_dim)
+        if self.stop_flag:
+            vel = np.zeros(self.vel_dim)
 
         self.vel = vel
         self.trajectory.append(self.state)
 
-        self.state = self.dynamics(self.state, vel, **kwargs)
+        new_state = self.dynamics(self.state, vel, **kwargs)
+
+        self.collision_flag, self.collision_position = self.collision_check(new_state)
+
+        if self.collision_flag:
+            if env_global.collision_mode == 'stop':
+                self.stop_flag = True
+                new_state[0:2] = self.collision_position[0:2]
+
+            elif env_global.collision_mode == 'react':
+                if self.collision_position is None:
+                    print('No react mode for ackermann robot')
+                else:
+                    new_state[0:2] = self.collision_position[0:2]
+            
+        if self.arrive_flag and stop:
+            self.stop_flag = True
+            
+        self.state = new_state
         self.center = self.state[0:2]
 
         self.vel_acce_min = np.around(np.maximum(self.vel_min, self.vel - self.acce * self.step_time), 2)
@@ -175,21 +197,52 @@ class RobotBase:
         
         return np.clip(value, min, max)
 
+    # collision_check
+
+    def collision_check(self, state):
+        obs_list = env_global.obstacle_list.copy()
+        robot_list = env_global.robot_list.copy()
+        other_robot_list = [robot for robot in robot_list if robot.id != self.id]
+
+        obj_list = other_robot_list + obs_list
+
+        for obj in obj_list:
+            collision_flag, collision_position = self.collision_check_state(state, obj)
+
+            if collision_flag:
+                return collision_flag, collision_position
+        
+        return False, None
+
     def collision_check_object(self, obj):
+
         if self.appearance == 'circle':
             robot_circle = circle_geometry(self.state[0, 0], self.state[1, 0], self.radius)  
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
-                if cdg.collision_cir_cir(robot_circle, obj_circle):
-                    if not self.collision_flag: logging.info('robot id %d collision', self.id) 
+                
+                collision_flag, collision_position =  cdg.collision_cir_cir(robot_circle, obj_circle)
+
+                if collision_flag:
+                    if not self.collision_flag: 
+                        logging.info('robot id %d collision', self.id) 
+                        self.collision_position = collision_position
+
                     self.collision_flag = True
+                    
                     return True
                     
             if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
-                if cdg.collision_cir_poly(robot_circle, obj_poly): 
-                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+                collision_flag, collision_position = cdg.collision_cir_poly(robot_circle, obj_poly)
+
+                if collision_flag:
+                    if not self.collision_flag: 
+                        logging.info('robot id %d collision', self.id)
+                        self.collision_position = collision_position
+
                     self.collision_flag = True
+                    
                     return True
         
         # ackermann robot
@@ -198,21 +251,83 @@ class RobotBase:
 
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
-                if cdg.collision_cir_poly(obj_circle, robot_poly): 
+
+                collision_flag, collision_position = cdg.collision_cir_poly(obj_circle, robot_poly)
+
+                if collision_flag:
                     if not self.collision_flag: 
                         logging.info('robot id %d collision', self.id)
-                    
+                        self.collision_position = collision_position
+
                     self.collision_flag = True
                     return True
             
             if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
-                if cdg.collision_poly_poly(robot_poly, obj_poly):
-                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+                collision_flag, collision_position = cdg.collision_poly_poly(robot_poly, obj_poly)
+                if collision_flag:
+                    if not self.collision_flag: 
+                        logging.info('robot id %d collision', self.id)
+                        self.collision_position = collision_position
+
                     self.collision_flag = True
+                    
                     return True
 
+        self.collision_flag = False
+
         return False
+
+    def collision_check_state(self, state, obj):
+
+        collision_flag = False
+        collision_position = None
+
+        if self.appearance == 'circle':
+            robot_circle = circle_geometry(state[0, 0], state[1, 0], self.radius)  
+            if obj.appearance == 'circle':
+                obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)  
+                
+                collision_flag, collision_position =  cdg.collision_cir_cir(robot_circle, obj_circle)
+
+                if collision_flag:
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id) 
+                        
+                    return collision_flag, collision_position
+                    
+            if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
+                obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
+                collision_flag, collision_position = cdg.collision_cir_poly(robot_circle, obj_poly)
+
+                if collision_flag:
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+
+                    return collision_flag, collision_position
+        
+        # ackermann robot
+        if self.appearance == 'polygon' or self.appearance == 'rectangle':
+            vertex = self.calcuate_vertex(state)
+            robot_poly = [ point_geometry(v[0], v[1]) for v in vertex]
+
+            if obj.appearance == 'circle':
+                obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
+
+                collision_flag = cdg.collision_poly_cir(robot_poly, obj_circle)
+
+                if collision_flag:
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+                        
+                    return collision_flag
+            
+            if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
+                obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
+                collision_flag, collision_position = cdg.collision_poly_poly(robot_poly, obj_poly)
+                if collision_flag:
+                    if not self.collision_flag: logging.info('robot id %d collision', self.id)
+                        
+                    return collision_flag, collision_position
+
+        return collision_flag, collision_position
 
     def collision_check_point(self, point):
         # utilize the generalized inequality to judge the collision with a point
@@ -245,7 +360,7 @@ class RobotBase:
 
         self.collision_flag = False
         self.arrive_flag = False
-
+        self.stop_flag = False
         self.trajectory = []
 
     def dynamics(self, vel):
