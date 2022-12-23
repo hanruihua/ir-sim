@@ -202,8 +202,10 @@ class RobotAcker(RobotBase):
                 ax.add_patch(car_circle)
             
         if show_text:
-            ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
-            ax.text(self.goal[0, 0] + 0.3, self.goal[1, 0], 'cg'+ str(self.id), fontsize = 12, color = 'k')
+            t1 = ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
+            t2 = ax.text(self.goal[0, 0] + 0.3, self.goal[1, 0], 'cg'+ str(self.id), fontsize = 12, color = 'k')
+            self.plot_text_list.append(t1)
+            self.plot_text_list.append(t2)
 
         if show_traj:
             x_list = [t[0, 0] for t in self.trajectory]
@@ -219,11 +221,12 @@ class RobotAcker(RobotBase):
 
         self.collision_flag = False
         self.arrive_flag = False
+        self.stop_flag = False
 
         self.trajectory = []
 
         # update vertex
-        self.update_vertex()
+        self.update_vertex(self.state)
             
     @staticmethod
     def cal_vertex(shape):        

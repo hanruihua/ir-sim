@@ -61,9 +61,9 @@ def collision_poly_cir(polygon, circle):
     for i in range(len(polygon)-1):
         segment = [ polygon[i], polygon[i+1] ]
         if collision_seg_cir(segment, circle): 
-            return True
+            return True, None
     
-    return False
+    return False, None
 
 # collision between polygon and polygon
 def collision_poly_poly(polygon1, polygon2):
@@ -75,9 +75,9 @@ def collision_poly_poly(polygon1, polygon2):
         segment1 = [ polygon1[i], polygon1[i+1] ]
         for j in range(len(polygon2)-1):
             segment2 = [ polygon2[j], polygon2[j+1] ]
-            if collision_seg_seg(segment1, segment2): return True
+            if collision_seg_seg(segment1, segment2): return True, None
     
-    return False
+    return False, None
 
 # collision between circle and segment
 def collision_cir_seg(circle, segment):

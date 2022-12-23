@@ -135,11 +135,12 @@ class RobotBase:
         if self.collision_flag:
             if env_global.collision_mode == 'stop':
                 self.stop_flag = True
-                new_state[0:2] = self.collision_position[0:2]
+                if self.collision_position is not None:
+                    new_state[0:2] = self.collision_position[0:2]
 
             elif env_global.collision_mode == 'react':
                 if self.collision_position is None:
-                    print('No react mode for ackermann robot')
+                    print('No react mode for rectangle robot')
                 else:
                     new_state[0:2] = self.collision_position[0:2]
             
@@ -307,17 +308,17 @@ class RobotBase:
         # ackermann robot
         if self.appearance == 'polygon' or self.appearance == 'rectangle':
             vertex = self.calcuate_vertex(state)
-            robot_poly = [ point_geometry(v[0], v[1]) for v in vertex]
+            robot_poly = [ point_geometry(v[0], v[1]) for v in vertex.T]
 
             if obj.appearance == 'circle':
                 obj_circle = circle_geometry(obj.center[0, 0], obj.center[1, 0], obj.radius)
 
-                collision_flag = cdg.collision_poly_cir(robot_poly, obj_circle)
+                collision_flag, collision_position = cdg.collision_poly_cir(robot_poly, obj_circle)
 
                 if collision_flag:
                     if not self.collision_flag: logging.info('robot id %d collision', self.id)
                         
-                    return collision_flag
+                    return collision_flag, collision_position
             
             if obj.appearance == 'polygon' or obj.appearance == 'rectangle':
                 obj_poly = [ point_geometry(v[0], v[1]) for v in obj.vertex.T]
