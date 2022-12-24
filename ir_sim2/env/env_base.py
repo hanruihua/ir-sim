@@ -22,7 +22,7 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
 
-    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, subplot=(), **kwargs) -> None:
         
         '''
         The main environment class for this simulator
