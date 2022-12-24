@@ -15,12 +15,12 @@ from math import sin, cos, pi
 from .env_robot import EnvRobot
 from ir_sim2.env import env_global
 from .env_obstacle import EnvObstacle
-from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock
+from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock, ObstacleLine
 
 class EnvBase:
 
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
-    obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon}
+    obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
 
     def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, **kwargs) -> None:
         
@@ -239,10 +239,16 @@ class EnvBase:
     # endregion: get information
 
     # region: check status
-    def collision_check(self):
-        collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
-        return any(collision_list)
+    # def collision_check(self):
+    #     collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
+    #     return any(collision_list)
     
+    def collision_status(self):
+        return self.env_robot.collision_status()
+
+    def collision_status_list(self):
+        return self.env_robot.collision_list()
+
     # 
     def done(self, mode='all', collision_check=True) -> bool:
         # mode: any; any robot done, return done
@@ -558,7 +564,7 @@ class EnvBase:
         elif os.path.exists(os.getcwd() + '/' + file_name):
             abs_file_name = os.getcwd() + '/' + file_name
         else:
-            print('Warning: No World File Found')
+            print('WARNING: No World File Found')
             abs_file_name = None
 
         return abs_file_name

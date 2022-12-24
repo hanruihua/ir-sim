@@ -22,7 +22,7 @@ def collision_cir_cir(circle1, circle2):
 
     dis = sqrt( (circle2.x - circle1.x)**2 + (circle2.y - circle1.y)**2 )
 
-    if (dis - (circle1.r + circle2.r)) < 0:
+    if (dis - (circle1.r + circle2.r)) < -0.00001:
         collision_flag = True
         unit_diff = np.array([[circle1.x - circle2.x], [circle1.y - circle2.y]]) / dis
 
@@ -94,7 +94,7 @@ def collision_cir_seg(circle, segment):
 
     if (l2 == 0.0): 
         dis = sqrt( (circle.x - segment[0].x)**2 + (circle.y - segment[0].y)**2 ) 
-        if dis < circle.r:
+        if dis - circle.r < -0.00001:
             collision_flag = True
             unit_diff = np.array([[circle.x - segment[0].x], [circle.y - segment[0].y]]) / dis
             collision_position = np.array([[segment[0].x], [segment[0].y]]) + unit_diff * circle.r
@@ -108,7 +108,7 @@ def collision_cir_seg(circle, segment):
 
     dis = sqrt( relative[0]**2 + relative[1]**2 )
 
-    if dis < circle.r:
+    if dis - circle.r < -0.00001:
         collision_flag = True
         unit_diff = np.array([[circle.x - projection[0]], [circle.y - projection[1]]]) / dis
         collision_position = np.array([[projection[0]], [projection[1]]]) + unit_diff * circle.r

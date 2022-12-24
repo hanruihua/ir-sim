@@ -42,6 +42,14 @@ class EnvObstacle:
                     self.obs_block_list.append(obstacle)
                     self.obs_list.append(obstacle)        
 
+            elif obs_class.obstacle_type == 'obstacle_line':
+                self.obs_line_list = []
+
+                for id, center, shape in zip(range(number), state_list, shape_list):
+                    obstacle = obs_class(id=id, center=center, length=shape[0], thickness=shape[1], step_time=self.step_time, **kwargs)
+                    self.obs_line_list.append(obstacle)
+                    self.obs_list.append(obstacle)   
+
             elif obs_class.obstacle_type == 'obstacle_map':
                 pass
     
@@ -57,8 +65,13 @@ class EnvObstacle:
             
         elif self.obs_class.obstacle_type == 'obstacle_block':
             shapes = kwargs.get('shapes', [[0.5, 0.4]]) # length width
-            shapes_low = kwargs.get('shapes_low', [0.1, 0.1])  # radius
-            shapes_high = kwargs.get('shapes_high', [1, 1])  # radius
+            shapes_low = kwargs.get('shapes_low', [0.1, 0.1])  # length, width
+            shapes_high = kwargs.get('shapes_high', [1, 1])  # length, width
+
+        elif self.obs_class.obstacle_type == 'obstacle_line':
+            shapes = kwargs.get('shapes', [[1, 0.2]]) # length thickness
+            shapes_low = kwargs.get('shapes_low', [0.1, 0.1])  # length thickness
+            shapes_high = kwargs.get('shapes_high', [1, 1])  # length thickness
 
         shape_list = self.extend_list(shapes, number) 
 

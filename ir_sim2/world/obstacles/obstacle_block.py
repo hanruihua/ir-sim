@@ -14,7 +14,7 @@ class ObstacleBlock(ObstacleBase):
     convex = True
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
-    def __init__(self, id, center=np.zeros((3, 1)), length=1.0, width=1.0, step_time=0.01, dynamic=False, sport='wander', **kwargs):
+    def __init__(self, id, center=np.zeros((3, 1)), length=1.0, width=1.0, step_time=0.01, **kwargs):
 
         if isinstance(center, list): center = np.c_[center]
         # if isinstance(goal, list): goal = np.c_[goal]

@@ -1,12 +1,10 @@
 from ir_sim2.env import EnvBase
 
-env = EnvBase('collision_mode.yaml', control_mode='keyboard', collision_mode='stop')
+env = EnvBase('line_obstacle.yaml', control_mode='keyboard', collision_mode='react')
 
 for i in range(3000):
 
     env.step()
     env.render(show_text=True)
-    
-    env.reset('any')  # 'all'; 'any'
-    
+        
 env.end(show_text=True)
