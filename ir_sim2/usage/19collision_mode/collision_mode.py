@@ -1,7 +1,7 @@
 from ir_sim2.env import EnvBase
 
-# env = EnvBase('collision_mode.yaml', control_mode='keyboard', collision_mode='react')
-env = EnvBase('collision_mode_car.yaml', control_mode='keyboard', collision_mode='stop')
+env = EnvBase('collision_mode.yaml', control_mode='keyboard', collision_mode='react')
+# env = EnvBase('collision_mode_car.yaml', control_mode='keyboard', collision_mode='stop')
 
 for i in range(3000):
 

@@ -8,6 +8,7 @@ import platform
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
 from pathlib import Path, PurePath
 from pynput import keyboard
@@ -22,29 +23,36 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
 
-    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', obstacle_args_list=[], plot=True, display=True, save_ani=False, full=False, custom_robot=None, subplot=(), **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', plot=True, display=True, save_ani=False, full=False, custom_robot=None, subplot_num=1, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
 
         world_name: path of the yaml
-        plot: True or False
         control_mode: 
-                    auto: receive the velocity command to move 
-                    keyboard: receive the velocity from the keyboard to move 
-
+            auto: receive the velocity command to move 
+            keyboard: receive the velocity from the keyboard to move 
+        
         collision_mode: 
-                    None: No collision check
-                    stop (default): All Objects stop when collision, 
-                    react: robot will have reaction when collision with others  (only work for the circular robot in current version)
+            None: No collision check
+            stop (default): All Objects stop when collision, 
+            react: robot will have reaction when collision with others  (only work for the circular robot in current version)
 
-        world_args: arguments of the world, including width, length...
-        robot_args: arguments of the multiple robots, including number, type...
-        keyboard_args: arguments of the keyboard control, including key_lv_max....
+        plot: True or False to plot the figure
+        display: True or False to display the figure
+        save_ani: True or False to save the animation
+        full: Tru or false to whether show the figure full screen
+        custom_robot: custom robot class for user;
+        subplot_num: only 0, 1, 2, 3; default: 1
         '''
 
         # arguments
+            # world_args: arguments of the world, including width, length...
+            # robot_args: arguments of the multiple robots, including number, type...
+            # keyboard_args: arguments of the keyboard control, including key_lv_max....
+
         world_args, robot_args, keyboard_args, init_args = dict(), dict(), dict(), dict()
+        obstacle_args_list = []
         
         # path and file configuration
         world_file_path = EnvBase.file_check(world_name)
@@ -63,7 +71,7 @@ class EnvBase:
         robot_args.update(kwargs.get('robot_args', dict()))
         keyboard_args.update(kwargs.get('keyboard_args', dict()))
         [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
-        init_args.update(kwargs.get('world_args', dict()))
+        init_args.update(kwargs.get('init_args', dict()))
 
         # world arguments
         self.world = world(**world_args)
@@ -81,6 +89,7 @@ class EnvBase:
         self.display = display
         self.dyna_line_list = []
         self.dyna_patch_list = []
+        self.subplot_num = subplot_num
 
         # Mode
         self.control_mode = control_mode 
@@ -141,10 +150,9 @@ class EnvBase:
                 figManager.window.showMaximized()
 
     # region: initialization
-    def _init_environment(self, **kwargs):
-        # full=False, keep_path=False, 
+    def _init_environment(self, **kwargs): 
         # kwargs: 
-        #         keep_path, keep a residual
+        #        
         # 
         
         # default obstacles
@@ -175,10 +183,36 @@ class EnvBase:
         env_global.collision_mode = self.collision_mode
 
         # plot
-        if self.plot:
-            self.fig, self.ax = plt.subplots()
-            self.init_plot(self.ax, **kwargs)
+        if self.plot and self.subplot_num!=0:
+            # self.fig, self.ax = plt.subplots()
+            # self.init_plot(self.ax, **kwargs)
 
+            self.fig = plt.figure()
+
+            if self.subplot_num == 1:
+                self.ax = self.fig.add_subplot(111) # main axis
+
+            elif self.subplot_num == 2:
+                self.ax = self.fig.add_subplot(121) # main axis
+                self.ax2 = self.fig.add_subplot(122)
+
+                self.init_sub_plot(self.ax2)
+
+            elif self.subplot_num == 3:
+
+                gs = GridSpec(2, 3)
+
+                self.ax = self.fig.add_subplot(gs[:, 0:2]) # main axis
+                self.ax2 = self.fig.add_subplot(gs[0, -1])
+                self.ax3 = self.fig.add_subplot(gs[1, -1])
+
+                self.init_sub_plot(self.ax2)
+                self.init_sub_plot(self.ax3)
+            
+            # self.fig.tight_layout()
+            self.fig.align_labels()
+            self.init_plot(self.ax, **kwargs)
+            
     # endregion: initialization  
 
     # region: step forward
@@ -236,6 +270,10 @@ class EnvBase:
     
     def get_landmarks(self, id=0):
         return self.env_robot.robot_list[id].get_landmarks()
+
+    def get_ax(self, ax_id=0):
+        return ax_id
+
     # endregion: get information
 
     # region: check status
@@ -329,6 +367,14 @@ class EnvBase:
 
         self.draw_components(ax, mode='static', **kwargs)
     
+    def init_sub_plot(self, ax, **kwargs):
+        
+        ax.set_aspect('equal') 
+        ax.set_xlim(self.world.x_range) 
+        ax.set_ylim(self.world.y_range)
+        
+
+        
     def draw_components(self, ax, mode='all', **kwargs):
         # mode: static, dynamic, all
         if mode == 'static':
