@@ -45,11 +45,12 @@ The examples are in the ir-sim2/usage
 - [x] Add custom robot model
 - [x] Add sensor: gps, odometry
 - [x] Add noise (diff)
-- [ ] line obstacle
+- [x] line obstacle
+- [x] Add subplot 
+- [x] Add collision mode
+- [ ] Add the env logger 
 - [ ] map obstacle
 - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)
-- [ ] Add the env logger 
-- [ ] Add subplot 
-- [ ] Add collision mode
+
