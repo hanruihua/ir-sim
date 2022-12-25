@@ -23,7 +23,9 @@ class EnvBase:
     robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
 
-    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', plot=True, display=True, save_ani=False, full=False, custom_robot=None, subplot_num=1, **kwargs) -> None:
+    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', 
+        plot=True, display=True, save_fig=False, save_ani=False, full=False, 
+        custom_robot=None, subplot_num=1, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -98,17 +100,20 @@ class EnvBase:
         # animation arguments:
         self.save_ani = save_ani  
         self.ani_dpi = kwargs.get('ani_dpi', 300)
+        self.save_fig = save_fig 
         self.fig_dpi = kwargs.get('fig_dpi', 600)
         self.bbox_inches = kwargs.get('bbox_inches', 'tight') 
 
         # configure path
         root_path = kwargs.get('root_path', Path(sys.path[0]))
-        image_path = kwargs.get('image_path', Path(sys.path[0] + '/' + 'image'))
+        ani_buffer_path = kwargs.get('ani_buffer_path', Path(sys.path[0] + '/' + 'animation_buffer'))
         ani_path = kwargs.get('ani_path', Path(sys.path[0] + '/' + 'animation'))
+        fig_path = kwargs.get('fig_path', Path(sys.path[0] + '/' + 'fig'))
 
         self.root_path = EnvBase.path_to_pure(root_path)
-        self.image_path = EnvBase.path_to_pure(image_path)
+        self.ani_buffer_path = EnvBase.path_to_pure(ani_buffer_path)
         self.ani_path = EnvBase.path_to_pure(ani_path)
+        self.fig_path = EnvBase.path_to_pure(fig_path)
         
         # initialize the environment
         self._init_environment(**init_args)
@@ -468,10 +473,10 @@ class EnvBase:
     # region: animation
     def save_gif_figure(self, save_figure_format='png', **kwargs):
 
-        if not self.image_path.exists(): self.image_path.mkdir()
+        if not self.ani_buffer_path.exists(): self.ani_buffer_path.mkdir()
 
         order = str(self.world.count).zfill(3)
-        self.fig.savefig(str(self.image_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
+        self.fig.savefig(str(self.ani_buffer_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
 
     def save_animate(self, ani_name='animated', suffix='.gif', keep_len=30, rm_fig_path=True, **kwargs):
         
@@ -479,7 +484,7 @@ class EnvBase:
 
         if not self.ani_path.exists(): self.ani_path.mkdir()
             
-        images = list(self.image_path.glob('*.png'))
+        images = list(self.ani_buffer_path.glob('*.png'))
         images.sort()
         image_list = []
         for i, file_name in enumerate(images):
@@ -494,7 +499,7 @@ class EnvBase:
         imageio.mimsave(str(self.ani_path)+'/'+ ani_name + suffix, image_list, **kwargs)
         print('Create animation successfully')
 
-        if rm_fig_path: shutil.rmtree(self.image_path)
+        if rm_fig_path: shutil.rmtree(self.ani_buffer_path)
     # endregion: animation
 
     # region: keyboard control
@@ -559,7 +564,7 @@ class EnvBase:
     # endregion:keyboard control
 
     # region: the end of the environment loop 
-    def end(self, ani_name='animation', save_fig=False, fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_kwargs=dict(), ani_kwargs=dict(), **kwargs):
+    def end(self, ani_name='animation', fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_kwargs=dict(), ani_kwargs=dict(), **kwargs):
         
         # fig_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
@@ -572,16 +577,21 @@ class EnvBase:
             if self.save_ani:
                 self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
 
-            if save_fig: 
+            if self.save_fig or show:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
-                if self.display: plt.pause(0.00001)
-                self.fig.savefig(self.root_path / fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
+
+            if self.save_fig: 
+                # if self.display: plt.pause(0.00001)
+                print(self.root_path)
+                print(fig_name)
+                self.fig.savefig(str(self.fig_path) + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
 
             if show: 
                 plt.show(block=False)
                 print(f'Figure will be closed within {ending_time:d} seconds.')
                 plt.pause(ending_time)
                 plt.close()
+
 
     # endregion: the end of the environment loop  
 
