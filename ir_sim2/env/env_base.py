@@ -24,7 +24,7 @@ class EnvBase:
     obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
 
     def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', 
-        plot=True, display=True, save_fig=False, save_ani=False, full=False, 
+        disable_all_plot=False, display=True, save_fig=False, save_ani=False, full=False, 
         custom_robot=None, subplot_num=1, **kwargs) -> None:
         
         '''
@@ -40,7 +40,7 @@ class EnvBase:
             stop (default): All Objects stop when collision, 
             react: robot will have reaction when collision with others  (only work for the circular robot in current version)
 
-        plot: True or False to plot the figure
+        disable_all_plot: True or False (default), if True, all parts related to plot (figure or animation) are disabled.
         display: True or False to display the figure
         save_ani: True or False to save the animation
         full: Tru or false to whether show the figure full screen
@@ -87,7 +87,7 @@ class EnvBase:
         self.obstacle_args_list = obstacle_args_list
 
         # plot
-        self.plot = plot
+        self.disable_all_plot = disable_all_plot
         self.display = display
         self.dyna_line_list = []
         self.dyna_patch_list = []
@@ -188,7 +188,7 @@ class EnvBase:
         env_global.collision_mode = self.collision_mode
 
         # plot
-        if self.plot and self.subplot_num!=0:
+        if not self.disable_all_plot and self.subplot_num!=0:
             # self.fig, self.ax = plt.subplots()
             # self.init_plot(self.ax, **kwargs)
 
@@ -345,7 +345,7 @@ class EnvBase:
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # default figure arguments
         
-        if self.plot: 
+        if not self.disable_all_plot: 
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 
@@ -356,7 +356,7 @@ class EnvBase:
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
     def render_once(self, pause_time=0.0001, **kwargs):
-        if self.plot:
+        if not self.disable_all_plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
             plt.pause(pause_time)
             self.clear_components(self.ax, mode='dynamic', **kwargs)
@@ -405,7 +405,7 @@ class EnvBase:
             path_x_list = [p[0] for p in traj.T]
             path_y_list = [p[1] for p in traj.T]
 
-        if self.plot: 
+        if not self.disable_all_plot: 
             line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
         if show_direction:
@@ -418,7 +418,7 @@ class EnvBase:
 
             self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
 
-        if refresh and self.plot: 
+        if refresh and not self.disable_all_plot: 
             self.dyna_line_list.append(line)
 
     # def draw_data(self, data, new_figure=True, show=True, label='default', **kwargs):
@@ -572,7 +572,7 @@ class EnvBase:
 
         show = kwargs.get('show', self.display)
         
-        if self.plot:
+        if not self.disable_all_plot:
 
             if self.save_ani:
                 self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
@@ -581,9 +581,6 @@ class EnvBase:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
 
             if self.save_fig: 
-                # if self.display: plt.pause(0.00001)
-                print(self.root_path)
-                print(fig_name)
                 self.fig.savefig(str(self.fig_path) + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
 
             if show: 
