@@ -1,6 +1,6 @@
 from ir_sim2.env import EnvBase
 
-env = EnvBase('gif_world.yaml', plot=True, display=True, save_ani=True, save_fig=False, full=False, bbox_inches='tight', ani_dpi=300, fig_dpi=600)
+env = EnvBase('gif_world.yaml', disable_all_plot=False, display=True, save_ani=True, save_fig=False, full=False, bbox_inches='tight', ani_dpi=300, fig_dpi=600)
 # env = EnvBase('gif_world.yaml', save_ani=True, full=False, image_path='./test', ani_path=Path('./test2'), display=False)
 
 for i in range(100):
