@@ -617,7 +617,7 @@ class EnvBase:
         elif os.path.exists(os.getcwd() + '/' + file_name):
             abs_file_name = os.getcwd() + '/' + file_name
         else:
-            print('WARNING: No World File Found')
+            print('WARNING: No World File Found, Using default arguments')
             abs_file_name = None
 
         return abs_file_name
