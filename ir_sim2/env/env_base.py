@@ -574,11 +574,10 @@ class EnvBase:
         
         if not self.disable_all_plot:
 
+            if show: self.draw_components(self.ax, mode='dynamic', **kwargs)
+
             if self.save_ani:
                 self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
-
-            if self.save_fig or show:
-                self.draw_components(self.ax, mode='dynamic', **kwargs)
 
             if self.save_fig: 
                 self.fig.savefig(str(self.fig_path) + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
