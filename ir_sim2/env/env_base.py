@@ -588,6 +588,8 @@ class EnvBase:
                 plt.pause(ending_time)
                 plt.close()
 
+    def show(self):
+        plt.show()
 
     # endregion: the end of the environment loop  
 
