@@ -11,7 +11,7 @@ class world:
         self.count = 0
         self.sampling = True
         self.x_range = [self.offset[0], self.offset[0] + self.width]
-        self.y_range = [self.offset[1], self.offset[1] + self.width]
+        self.y_range = [self.offset[1], self.offset[1] + self.height]
 
     def step(self):
         self.count += 1
