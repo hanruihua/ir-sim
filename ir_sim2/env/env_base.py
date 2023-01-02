@@ -275,7 +275,10 @@ class EnvBase:
     
     def get_landmarks(self, id=0):
         return self.env_robot.robot_list[id].get_landmarks()
-
+    
+    def get_obstacles(self, id=0):
+        return self.env_robot.robot_list[id].get_obstacles()
+    
     def get_ax(self, ax_id=0):
         return ax_id
 

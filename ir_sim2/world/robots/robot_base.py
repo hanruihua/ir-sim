@@ -37,6 +37,7 @@ class RobotBase:
         """
         self.id = int(id)
         self.step_time = step_time
+        self.name = 'Robot' + str(self.id)
 
         self.init_state = state
         self.init_vel = vel
@@ -88,18 +89,18 @@ class RobotBase:
         self.G, self.h = self.gen_inequal()
 
         # sensor
-        sensor_args = kwargs.get('sensor', [])
+        sensor_kwargs = kwargs.get('sensor', [])
         self.sensors = []
 
-        for args in sensor_args:
-            sensor_id = args.get('id', None)
+        for kwargs in sensor_kwargs:
+            sensor_id = kwargs.get('id', None)
             if sensor_id is None or sensor_id == self.id:
 
-                if args['type'] == 'lidar':
-                    self.lidar = lidar2d(robot_state=self.state, **args)
+                if kwargs['type'] == 'lidar':
+                    self.lidar = lidar2d(robot_state=self.state, **kwargs)
                     self.sensors.append(self.lidar)
-                elif args['type'] == 'gps':
-                    self.gps = GPS(robot_state=self.state, **args)
+                elif kwargs['type'] == 'gps':
+                    self.gps = GPS(robot_state=self.state, **kwargs)
                     self.sensors.append(self.gps)
         # plot
         self.plot_patch_list = []
@@ -536,6 +537,9 @@ class RobotBase:
 
     def get_landmarks(self):
         return self.lidar.get_landmarks()
+    
+    def get_obstacles(self):
+        return self.lidar.get_obstacles()
 
     def plot(self, ax, show_sensor=True, **kwargs):
         # plot the robot in the map

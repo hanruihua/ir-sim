@@ -26,9 +26,11 @@ robots:
       angle_range: 3.1415926
       number: 100
       noise: True
-      std: 0.02  # index of the lidar 
+      std: 0.02  # the noise std for range 
+      angle_std: 0.02  # the noise std for angle of the detected obstacles 
       offset: [0, 0, 0]
       reso: 0.1
+      alpha: 0.3
   
 obstacles:
   - type: 'obstacle_circle'

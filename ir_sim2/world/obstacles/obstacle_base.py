@@ -10,6 +10,7 @@ class ObstacleBase:
     convex = False
     cone_type = 'Rpositive' # 'Rpositive'; 'norm2' 
 
+
     def __init__(self, id, resolution=0.01, step_time=0.1, dynamic=False, landmark=False, **kwargs):
         # self.shape
         self.id = int(id)
@@ -19,6 +20,7 @@ class ObstacleBase:
         self.A, self.b = self.gen_inequal_global()
         self.obstacle_matrix = self.gen_matrix()
         self.landmark = landmark  # whether landmarks. landmarks can be detected by sensors directly with range and id
+        self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
 
     def collision_check(self):
         raise NotImplementedError

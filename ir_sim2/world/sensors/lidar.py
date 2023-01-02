@@ -6,7 +6,7 @@ from ir_sim2.util.util import get_transform, WrapToPi
 # from 
 
 class lidar2d:
-    def __init__(self, robot_state=np.zeros((3, 1)), range_min=0, range_max=10, angle_range = pi, number=36, scan_time=0.1, noise=False, std=0.2, offset=[0, 0, 0], reso=0.05, **kwargs) -> None:
+    def __init__(self, robot_state=np.zeros((3, 1)), range_min=0, range_max=10, angle_range = pi, number=36, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], reso=0.05, alpha=0.3, **kwargs) -> None:
 
         # scan data (refernece: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html)
         self.range_min = range_min
@@ -44,7 +44,11 @@ class lidar2d:
         # noise
         self.noise = noise
         self.std = std
-    
+        self.angle_std = angle_std   # for obstacle detection
+
+        # for plot
+        self.alpha = alpha  # Set the alpha value used for blending,  0-1 range
+
     def init_sections(self):
         # discrete the scan to generate a scan matrix 
         temp_scan_matrix = self.range_max * np.ones((2, self.sample_num, self.number))
@@ -141,13 +145,40 @@ class lidar2d:
                 if WrapToPi(radian - ang_min) >= 0 and WrapToPi(ang_max - radian) >= 0 and dis <= self.range_max:
                     if self.noise:
                         dis += np.random.normal(0, self.std)
-                        dis = np.clip(dis, self.range_min, self.range_max)
-                        radian += np.random.normal(0, self.std)
-                        radian = np.clip(radian, self.angle_min, self.angle_max)
-                    landmark = {'id': com.id, 'range': dis, 'angle': radian}
+                        dis = round(np.clip(dis, self.range_min, self.range_max), 2)
+                        radian += np.random.normal(0, self.angle_std)
+                        radian = round(np.clip(radian, self.angle_min, self.angle_max), 2)
+                    landmark = {'name': com.name, 'range': dis, 'angle': radian}
                     landmarks.append(landmark)
 
         return landmarks
+
+    def get_obstacles(self):
+
+        Obstacles = []
+
+        for com in self.com_list:
+            
+            dis, radian = lidar2d.relative_position(self.robot_state[0:2], com.center[0:2])
+
+            if dis == 0:
+                continue
+
+            radian = WrapToPi(radian - self.robot_state[2, 0])
+            ang_min = self.angle_min
+            ang_max = self.angle_max
+
+            if WrapToPi(radian - ang_min) >= 0 and WrapToPi(ang_max - radian) >= 0 and dis <= self.range_max:
+                if self.noise:
+                    dis += np.random.normal(0, self.std)
+                    dis = round(np.clip(dis, self.range_min, self.range_max), 2)
+                    radian += np.random.normal(0, self.angle_std)
+                    radian = round(np.clip(radian, self.angle_min, self.angle_max), 2)
+                obs = {'name': com.name, 'range': dis, 'angle': radian}
+                Obstacles.append(obs)
+
+        return Obstacles
+
 
     # def init_sections(self):
 
@@ -214,13 +245,14 @@ class lidar2d:
                 
     #     return collision_flag, min_int_point, min_lrange
 
-    def plot(self, ax, lidar_color='r'):
+    def plot(self, ax, lidar_color='r', **kwargs):
         
         plot_patch_list = []
         plot_line_list = []
 
         for start, end in zip(self.global_ray.T, self.global_intersections.T):
-            plot_line_list.append(ax.plot([start[0], end[0]], [start[1], end[1]], color = lidar_color, alpha=0.5))
+            line = ax.plot([start[0], end[0]], [start[1], end[1]], color = lidar_color, alpha=self.alpha, zorder=0)
+            plot_line_list.append(line)
 
         return plot_line_list, plot_patch_list
  
