@@ -587,7 +587,8 @@ class EnvBase:
 
                 self.fig.savefig(str(self.fig_path) + '/' + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
 
-            if show: 
+            if show:
+                self.draw_components(self.ax, mode='dynamic', **kwargs) 
                 plt.show(block=False)
                 print(f'Figure will be closed within {ending_time:d} seconds.')
                 plt.pause(ending_time)

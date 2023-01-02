@@ -13,4 +13,4 @@ for i in range(300):
 
     env.reset('single')  # 'all'; 'any'; 'single'
 
-env.end(robot_color='g', show_traj=True, show_text=True, goal_color='r', show_goal=True, traj_type='-g')
+env.end(robot_color='g', show_traj=True, show_text=True, goal_color='r', show_goal=True, traj_type='-g', show=True)
