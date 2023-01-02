@@ -148,7 +148,7 @@ class lidar2d:
                         dis = round(np.clip(dis, self.range_min, self.range_max), 2)
                         radian += np.random.normal(0, self.angle_std)
                         radian = round(np.clip(radian, self.angle_min, self.angle_max), 2)
-                    landmark = {'name': com.name, 'range': dis, 'angle': radian}
+                    landmark = {'id': com.id, 'range': dis, 'angle': radian, 'name': com.name}
                     landmarks.append(landmark)
 
         return landmarks
@@ -174,7 +174,7 @@ class lidar2d:
                     dis = round(np.clip(dis, self.range_min, self.range_max), 2)
                     radian += np.random.normal(0, self.angle_std)
                     radian = round(np.clip(radian, self.angle_min, self.angle_max), 2)
-                obs = {'name': com.name, 'range': dis, 'angle': radian}
+                obs = {'id': com.id, 'range': dis, 'angle': radian, 'name': com.name}
                 Obstacles.append(obs)
 
         return Obstacles
