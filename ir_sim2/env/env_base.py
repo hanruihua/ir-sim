@@ -580,15 +580,15 @@ class EnvBase:
             if self.save_ani:
                 self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
 
-            if self.save_fig: 
+            if self.save_fig or show:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
-                
+            
+            if self.save_fig: 
                 if not self.fig_path.exists(): self.fig_path.mkdir()
 
                 self.fig.savefig(str(self.fig_path) + '/' + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
 
             if show:
-                self.draw_components(self.ax, mode='dynamic', **kwargs) 
                 plt.show(block=False)
                 print(f'Figure will be closed within {ending_time:d} seconds.')
                 plt.pause(ending_time)
