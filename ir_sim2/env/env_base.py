@@ -14,7 +14,7 @@ from pathlib import Path, PurePath
 from pynput import keyboard
 from math import sin, cos, pi
 from .env_robot import EnvRobot
-from ir_sim2.env import env_global
+from ir_sim2.util import env_global
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock, ObstacleLine
 

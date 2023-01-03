@@ -1,5 +1,5 @@
-from ir_sim2.env import EnvBase
 from example_robot import RobotCustom
+from ir_sim2.env import EnvBase
 
 env = EnvBase('custom_robot.yaml', control_mode='keyboard', custom_robot=RobotCustom)
 

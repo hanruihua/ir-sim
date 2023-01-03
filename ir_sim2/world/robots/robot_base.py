@@ -8,7 +8,7 @@ from ir_sim2.world.sensors.lidar import lidar2d
 from ir_sim2.world.sensors.GPS import GPS
 import matplotlib as mpl
 from ir_sim2.util.util import WrapToRegion
-from ir_sim2.env import env_global
+from ir_sim2.util import env_global
 
 
 # define geometry point and segment for collision detection.
@@ -173,7 +173,7 @@ class RobotBase:
             sensor.step(self.state[0:3], )
 
     def mid_process(self):
-        if self.angle_range is not None:
+        if self.angle_range is not None and self.state_dim[0] > 2:
             self.state[2, 0] = WrapToRegion(self.state[2, 0], self.angle_range)
 
     def post_process(self):
@@ -560,7 +560,9 @@ class RobotBase:
         robot_circle.set_zorder(3)
 
         ax.add_patch(robot_circle)
-        if show_text: ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
+        if show_text: 
+            r_text = ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
+            self.plot_text_list.append(r_text)
         self.plot_patch_list.append(robot_circle)
 
         if show_goal:
@@ -568,7 +570,9 @@ class RobotBase:
             goal_circle.set_zorder(1)
         
             ax.add_patch(goal_circle)
-            if show_text: ax.text(goal_x + 0.3, goal_y, 'g'+ str(self.id), fontsize = fontsize, color = 'k')
+            if show_text: 
+                g_text = ax.text(goal_x + 0.3, goal_y, 'g'+ str(self.id), fontsize = fontsize, color = 'k')
+                self.plot_text_list.append(g_text)
             self.plot_patch_list.append(goal_circle)
 
         if show_traj:

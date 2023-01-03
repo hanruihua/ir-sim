@@ -1,6 +1,6 @@
 from math import pi, sin, cos, sqrt, atan2
 import numpy as np
-from ir_sim2.env import env_global
+from ir_sim2.util import env_global
 from ir_sim2.util.collision_dection_distance import range_cir_seg, range_seg_seg
 from ir_sim2.util.util import get_transform, WrapToPi
 # from 

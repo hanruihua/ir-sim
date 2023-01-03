@@ -3,7 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from .robot_base import RobotBase
 from math import sin, cos, pi, atan2, inf
-from ir_sim2.env import env_global
+from ir_sim2.util import env_global
 
 
 class RobotOmni(RobotBase):
