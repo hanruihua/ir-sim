@@ -252,6 +252,15 @@ class EnvBase:
         
         return obs_list
 
+    def get_landmark_map(self):
+		env_map = self.obstacle_list.copy()
+		landmark_map = dict()
+		for obstacle in env_map:
+			if obstacle.landmark:
+				landmark_map[obstacle.id] = obstacle.center[0:2]
+                
+		return landmark_map
+
     def get_lidar_scan(self, id=0):
         return self.env_robot.robot_list[id].get_lidar_scan()
     
