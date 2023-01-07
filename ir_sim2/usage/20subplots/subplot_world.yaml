@@ -6,6 +6,7 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   subplot: {number: 2, row: 3, column: 3, layout: 'default', custom_layout: []} 
   # subplot: {number: 2, row: 3, column: 3, layout: 'custom', custom_layout: [[0, 1, 0, 1], [1, 2, 2, 3]]} 
+  
           # row: default 3, colum: default 3;
           # number: number of subplots, the first subplot is the main axis for rendering
           # scheme: default: 
