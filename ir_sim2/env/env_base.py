@@ -227,6 +227,9 @@ class EnvBase:
     def get_world_size(self):
         return self.world.height, self.world.width
 
+    # gather information
+    
+
     # get information
     def get_robot_list(self):
         return self.env_robot.robot_list
