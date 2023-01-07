@@ -8,7 +8,7 @@ from ir_sim2.world.sensors.lidar import lidar2d
 from ir_sim2.world.sensors.GPS import GPS
 import matplotlib as mpl
 from ir_sim2.util.util import WrapToRegion
-from ir_sim2.util import env_global
+from ir_sim2.global_param import world_param, env_param
 
 
 # define geometry point and segment for collision detection.
@@ -135,12 +135,12 @@ class RobotBase:
         self.collision_flag, self.collision_position = self.collision_check(new_state)
 
         if self.collision_flag:
-            if env_global.collision_mode == 'stop':
+            if world_param.collision_mode == 'stop':
                 self.stop_flag = True
                 if self.collision_position is not None:
                     new_state[0:2] = self.collision_position[0:2]
 
-            elif env_global.collision_mode == 'react':
+            elif world_param.collision_mode == 'react':
                 if self.collision_position is None:
                     self.stop_flag = True
                     print('No react mode for rectangle robot')
@@ -208,8 +208,8 @@ class RobotBase:
     #     collision_flag = False
     #     collision_position = None
 
-    #     obs_list = env_global.obstacle_list.copy()
-    #     robot_list = env_global.robot_list.copy()
+    #     obs_list = env_param.obstacle_list.copy()
+    #     robot_list = env_param.robot_list.copy()
     #     other_robot_list = [robot for robot in robot_list if robot.id != self.id]
 
     #     obj_list = other_robot_list + obs_list
@@ -236,8 +236,8 @@ class RobotBase:
         collision_flag = False
         collision_position = None
 
-        obs_list = env_global.obstacle_list.copy()
-        robot_list = env_global.robot_list.copy()
+        obs_list = env_param.obstacle_list.copy()
+        robot_list = env_param.robot_list.copy()
         other_robot_list = [robot for robot in robot_list if robot.id != self.id]
 
         obj_list = other_robot_list + obs_list

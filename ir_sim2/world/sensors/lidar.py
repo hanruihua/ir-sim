@@ -1,9 +1,8 @@
 from math import pi, sin, cos, sqrt, atan2
 import numpy as np
-from ir_sim2.util import env_global
+from ir_sim2.global_param import env_param
 from ir_sim2.util.collision_dection_distance import range_cir_seg, range_seg_seg
 from ir_sim2.util.util import get_transform, WrapToPi
-# from 
 
 class lidar2d:
     def __init__(self, robot_state=np.zeros((3, 1)), range_min=0, range_max=10, angle_range = pi, number=36, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], reso=0.05, alpha=0.3, **kwargs) -> None:
@@ -81,7 +80,7 @@ class lidar2d:
         self.global_scan_matrix = rot_matrix @ self.scan_matrix + trans_matirx
         self.global_ray = rot_matrix @ self.ray + trans_matirx
 
-        Components = env_global.components.copy()
+        Components = env_param.components.copy()
         self.com_list = [com for com in Components if lidar2d.distance(com.center, robot_state[0:2]) >= 0.01]
 
         closest_index_array = self.ray_casting(self.com_list)
@@ -203,7 +202,7 @@ class lidar2d:
     #     self.global_intersections = rot_matrix @ self.intersections + trans_matirx
     #     self.global_ray = rot_matrix @ self.start_ray + trans_matirx
 
-    #     Components = env_global.components.copy()
+    #     Components = env_param.components.copy()
 
     #     com_list = [com for com in Components if lidar2d.distance(com.center, robot_state[0:2]) >= 0.01]
 

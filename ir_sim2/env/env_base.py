@@ -14,7 +14,7 @@ from pathlib import Path, PurePath
 from pynput import keyboard
 from math import sin, cos, pi
 from .env_robot import EnvRobot
-from ir_sim2.util import env_global
+from ir_sim2.global_param import world_param, env_param
 from .env_obstacle import EnvObstacle
 from ir_sim2.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock, ObstacleLine
 
@@ -25,7 +25,7 @@ class EnvBase:
 
     def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', 
         disable_all_plot=False, display=True, save_fig=False, save_ani=False, full=False, 
-        custom_robot=None, subplot_num=1, **kwargs) -> None:
+        custom_robot=None, subplot=False, **kwargs) -> None:
         
         '''
         The main environment class for this simulator
@@ -45,7 +45,7 @@ class EnvBase:
         save_ani: True or False to save the animation
         full: Tru or false to whether show the figure full screen
         custom_robot: custom robot class for user;
-        subplot_num: only 0, 1, 2, 3; default: 1
+        suplot: whether there are subplot
         '''
 
         # arguments
@@ -91,7 +91,7 @@ class EnvBase:
         self.display = display
         self.dyna_line_list = []
         self.dyna_patch_list = []
-        self.subplot_num = subplot_num
+        self.subplot = subplot
 
         # Mode
         self.control_mode = control_mode 
@@ -164,7 +164,7 @@ class EnvBase:
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
         
-        env_global.obstacle_list = self.obstacle_list
+        env_param.obstacle_list = self.obstacle_list
 
         # default robots
         robot_type = self.robot_args.get('type', 'robot_diff')  
@@ -181,41 +181,20 @@ class EnvBase:
        
         self.components = self.robot_list + self.obstacle_list
 
-        # global objects through multiple files
-        env_global.robot_list = self.robot_list
-        env_global.components = self.components
-        env_global.control_mode = self.control_mode
-        env_global.collision_mode = self.collision_mode
+        # global parameters through multiple files
+        env_param.robot_list = self.robot_list
+        env_param.components = self.components
+
+        world_param.control_mode = self.control_mode
+        world_param.collision_mode = self.collision_mode
 
         # plot
-        if not self.disable_all_plot and self.subplot_num!=0:
-            # self.fig, self.ax = plt.subplots()
-            # self.init_plot(self.ax, **kwargs)
+        if not self.disable_all_plot:
+            if not self.subplot:
+                self.fig, self.ax = plt.subplots()
+            else:
+                self.fig, self.ax, self.sub_ax_list = self.world.sub_world_plot()
 
-            self.fig = plt.figure()
-
-            if self.subplot_num == 1:
-                self.ax = self.fig.add_subplot(111) # main axis
-
-            elif self.subplot_num == 2:
-                self.ax = self.fig.add_subplot(121) # main axis
-                self.ax2 = self.fig.add_subplot(122)
-
-                self.init_sub_plot(self.ax2)
-
-            elif self.subplot_num == 3:
-
-                gs = GridSpec(2, 3)
-
-                self.ax = self.fig.add_subplot(gs[:, 0:2]) # main axis
-                self.ax2 = self.fig.add_subplot(gs[0, -1])
-                self.ax3 = self.fig.add_subplot(gs[1, -1])
-
-                self.init_sub_plot(self.ax2)
-                self.init_sub_plot(self.ax3)
-            
-            # self.fig.tight_layout()
-            self.fig.align_labels()
             self.init_plot(self.ax, **kwargs)
             
     # endregion: initialization  
@@ -231,7 +210,7 @@ class EnvBase:
         self.obstacles_step(**kwargs)
         self.world.step()
 
-        env_global.time_increment()
+        world_param.step()
 
     def robots_step(self, vel_list, **kwargs):
         self.env_robot.move(vel_list, **kwargs)
@@ -375,14 +354,7 @@ class EnvBase:
 
         self.draw_components(ax, mode='static', **kwargs)
     
-    def init_sub_plot(self, ax, **kwargs):
-        
-        ax.set_aspect('equal') 
-        ax.set_xlim(self.world.x_range) 
-        ax.set_ylim(self.world.y_range)
-        
 
-        
     def draw_components(self, ax, mode='all', **kwargs):
         # mode: static, dynamic, all
         if mode == 'static':
