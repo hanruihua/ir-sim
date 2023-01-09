@@ -3,7 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from .robot_base import RobotBase
 from math import sin, cos, pi, atan2, inf
-from ir_sim2.util import env_global
+from ir_sim2.global_param import world_param
 
 
 class RobotOmni(RobotBase):
@@ -29,7 +29,7 @@ class RobotOmni(RobotBase):
         # reference: Probability robotics, motion model
         # vel: vel_x, vel_y
         
-        if env_global.control_mode == 'keyboard':
+        if world_param.control_mode == 'keyboard':
             vel[(0, 1), 0] = vel[(1, 0), 0]
             vel[0, 0] = -vel[0, 0]
 
