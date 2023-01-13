@@ -1,6 +1,6 @@
-# Intelligent-Robot-Simulator2
+# Intelligent Robot Simulator (ir_sim)
 
-**ir_sim:** A python based robot simulator framework for the intelligent robotics navigation and learning
+A python based robot simulator framework for the intelligent robotics navigation and learning
 
 ## Prerequisite
 
