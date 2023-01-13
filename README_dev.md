@@ -9,7 +9,6 @@ Test platform: Ubuntu20.04, windows10
 - Python: >= 3.8
     - numpy  
     - matplotlib 
-    - cvxpy
     - scipy
 
 ## Installation
@@ -20,7 +19,7 @@ clone the repository
 git clone https://github.com/hanruihua/Intelligent-Robot-Simulator2.git
 ```
 
-install the package (ir_sim2)
+install the package (ir_sim)
 
 ```
 cd Intelligent-Robot-Simulator2
