@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0",
+            ]
+            
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ir_sim"
+version = "1.1.2"
+authors = [
+  { name="Han Ruihua", email="hanrh@connect.hku.hk" },
+]
+description = "A simple python based Intelligent Robot Simulator fpr robot navigation and Learning"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = ['matplotlib',
+                'numpy',
+                'scipy',
+                'pyyaml',
+                'pynput',
+                'imageio',
+                'pathlib',]
+
+[project.urls]
+"Homepage" = "https://github.com/hanruihua/ir_sim"
