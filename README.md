@@ -24,8 +24,8 @@ pip install ir_sim
 Clone and install the package
 
 ```
-git clone https://github.com/hanruihua/Intelligent-Robot-Simulator2.git  
-cd Intelligent-Robot-Simulator2   
+git clone https://github.com/hanruihua/ir_sim.git    
+cd ir_sim   
 pip install -e .  
 ```
 
