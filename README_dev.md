@@ -13,22 +13,25 @@ Test platform: Ubuntu20.04, windows10
 
 ## Installation
 
-clone the repository
+- Install this package by pip:
 
 ```
-git clone https://github.com/hanruihua/Intelligent-Robot-Simulator2.git
+pip install ir_sim
 ```
 
-install the package (ir_sim)
+- or install manually: 
+
+Clone and install the package
 
 ```
-cd Intelligent-Robot-Simulator2
-pip install -e .
+git clone https://github.com/hanruihua/ir_sim.git    
+cd ir_sim   
+pip install -e .  
 ```
 
 ## Usage
 
-The examples are in the ir-sim2/usage
+The examples are in the ir_sim/usage
 
 ## To do list
 
