@@ -137,7 +137,6 @@ class EnvRobot:
         # vel_kwargs: 
         #   diff:
         #       vel_type = 'diff', 'omni'
-        #       stop=True, whether stop when arrive at the goal
         #       noise=False, 
         #       alpha = [0.01, 0, 0, 0.01, 0, 0], noise for diff
         #   omni:

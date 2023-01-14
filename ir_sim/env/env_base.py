@@ -59,7 +59,6 @@ class EnvBase:
         # path and file configuration
         world_file_path = EnvBase.file_check(world_name)
 
-
         if world_file_path != None:
            
             with open(world_file_path) as file:
@@ -556,8 +555,8 @@ class EnvBase:
         
         # fig_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
-        print('DONE')
-
+        self.listener.stop()
+        
         show = kwargs.get('show', self.display)
         
         if not self.disable_all_plot:
@@ -578,6 +577,9 @@ class EnvBase:
                 print(f'Figure will be closed within {ending_time:d} seconds.')
                 plt.pause(ending_time)
                 plt.close()
+        
+        
+
 
     def show(self):
         plt.show()
@@ -613,6 +615,9 @@ class EnvBase:
             abs_file_name = None
 
         return abs_file_name
+
+    def __del__(self):
+        print('Simulated Environment End')
 
         
 
