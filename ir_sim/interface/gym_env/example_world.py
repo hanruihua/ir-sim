@@ -1,5 +1,5 @@
 import gymnasium as gym
-from ir_sim2.interface.gym_env import GymEnvBase
+from ir_sim.interface.gym_env import GymEnvBase
 
 class GymWorld(gym.Env):
     def __init__(self, world_name, render_mode='human', **kwargs) -> None:

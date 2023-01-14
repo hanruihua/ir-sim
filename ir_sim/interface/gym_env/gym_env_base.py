@@ -1,4 +1,4 @@
-from ir_sim2.env import EnvBase
+from ir_sim.env import EnvBase
 
 class GymEnvBase(EnvBase):
     def __init__(self, world_name=None, **kwargs) -> None:
