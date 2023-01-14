@@ -555,7 +555,7 @@ class EnvBase:
         
         # fig_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
-        self.listener.stop()
+        if self.control_mode == 'keyboard': self.listener.stop()
         
         show = kwargs.get('show', self.display)
         
@@ -578,9 +578,6 @@ class EnvBase:
                 plt.pause(ending_time)
                 plt.close()
         
-        
-
-
     def show(self):
         plt.show()
 
