@@ -6,7 +6,7 @@ A python based robot simulator framework for the intelligent robotics navigation
 
 Test platform: Ubuntu20.04, windows10
 
-- Python: >= 3.8
+- Python: >= 3.7
     - numpy  
     - matplotlib 
     - scipy
