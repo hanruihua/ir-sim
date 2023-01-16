@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir_sim"
-version = "1.1.5"
+version = "1.1.7"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
@@ -25,6 +25,13 @@ dependencies = ['matplotlib',
                 'pynput',
                 'imageio',
                 'pathlib',]
+
+
+[tool.setuptools.packages.find]
+where = ["./"]
+
+[tool.setuptools.package-data]
+"*" = ["*.png", "*.yaml"]
 
 [project.urls]
 "Homepage" = "https://github.com/hanruihua/ir_sim"
