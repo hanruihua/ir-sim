@@ -1,6 +1,16 @@
-# Intelligent Robot Simulator (ir_sim)
+# Intelligent Robot Simulator (ir-sim)
 
-A python based robot simulator framework for the intelligent robotics navigation and learning
+A python based robot simulator framework for the intelligent robotics navigation and learning.
+
+Features:  
+  * Simple and easy to run with python;  
+  * All the models and parameters can be set directly in the yaml configure file;  
+  * Environment can be built easily by line, circle model and png images; 
+  * Various robot kinematics models: omni-wheel, differential wheel, arckermann; 
+  * Support collision check with environment;
+  * Equipped with various sensors: Lidar, GPS, Odometry etc.;  
+  * Support keyboard controller;
+  * Easy to reproduce the robotics algorithms and extend for your own project. 
 
 ## Prerequisite
 
@@ -32,3 +42,13 @@ pip install -e .
 ## Usage
 
 The examples are in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+
+## Author
+
+Han Ruihua  
+Contact: hanrh@connect.hku.hk
+
+
+
+
+
