@@ -31,4 +31,4 @@ pip install -e .
 
 ## Usage
 
-The examples are in the ir_sim/usage
+The examples are in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
