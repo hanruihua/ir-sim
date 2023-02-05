@@ -1,8 +1,12 @@
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+import sys
+import os
+from PIL import Image
+import numpy as np
 
 class world:
-    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], **kwargs) -> None:
+    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], obstacle_map=None, xy_reso=0.1, **kwargs) -> None:
 
         self.height = height
         self.width = width
@@ -14,12 +18,37 @@ class world:
         self.x_range = [self.offset[0], self.offset[0] + self.width]
         self.y_range = [self.offset[1], self.offset[1] + self.height]
 
+        self.xy_reso = xy_reso
         self.sub_plot_kwargs = kwargs.get('subplot', {})
         
+        self.grid_map = self.gen_grid_map(obstacle_map)
+
     def step(self):
         self.count += 1
         self.sampling = (self.count % (self.sample_time / self.step_time) == 0)
+    
+    def gen_grid_map(self, obstacle_map):
+
+        abs_obstacle_map = world.file_check(obstacle_map)
+
+        px = int(self.width / self.xy_reso)
+        py = int(self.height / self.xy_reso)
+
+        if abs_obstacle_map is not None:
+            img = Image.open(abs_obstacle_map).convert('L')
+            img = img.resize( (px, py), Image.NEAREST)
+            
+            map_matrix = np.array(img)
+            map_matrix = 255 - map_matrix
+            map_matrix[map_matrix>255/2] = 255
+            map_matrix[map_matrix<255/2] = 0
         
+            grid_map = np.fliplr(map_matrix.T)
+        else:
+            grid_map = None
+
+        return grid_map
+
     def sub_world_plot(self):
 
         # row: default 3
@@ -71,6 +100,21 @@ class world:
         ax.set_ylim(self.y_range)
 
 
+    @staticmethod
+    def file_check(file_name):
+        # check whether file exist or the type is correct
+
+        if os.path.exists(file_name):
+            abs_file_name = file_name
+        elif os.path.exists(sys.path[0] + '/' + file_name):
+            abs_file_name = sys.path[0] + '/' + file_name
+        elif os.path.exists(os.getcwd() + '/' + file_name):
+            abs_file_name = os.getcwd() + '/' + file_name
+        else:
+            print('WARNING: No obstalce map File Found, Please check the path')
+            abs_file_name = None
+
+        return abs_file_name
         
 
 
