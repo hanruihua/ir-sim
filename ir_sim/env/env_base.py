@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+import matplotlib.style as mplstyle
+mplstyle.use('fast')
 
 from pathlib import Path, PurePath
 from pynput import keyboard
@@ -273,6 +275,9 @@ class EnvBase:
     def get_ax(self, ax_id=0):
         return ax_id
 
+    def get_grid_map(self):
+        return self.world.grid_map
+
     # endregion: get information
 
     # region: check status
@@ -338,7 +343,7 @@ class EnvBase:
     def render(self, pause_time=0.05, fig_kwargs=dict(), **kwargs):
         # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         # default figure arguments
-        
+
         if not self.disable_all_plot: 
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
@@ -349,6 +354,7 @@ class EnvBase:
 
                 self.clear_components(self.ax, mode='dynamic', **kwargs)
 
+            
     def render_once(self, pause_time=0.0001, **kwargs):
         if not self.disable_all_plot:
             self.draw_components(self.ax, mode='dynamic', **kwargs)
@@ -372,6 +378,8 @@ class EnvBase:
         # mode: static, dynamic, all
         if mode == 'static':
             [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if not env_obs.dynamic]
+            self.world.plot(ax)
+                
         elif mode == 'dynamic':
             self.env_robot.plot(ax, **kwargs)
             [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if env_obs.dynamic]

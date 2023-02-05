@@ -4,9 +4,11 @@ import sys
 import os
 from PIL import Image
 import numpy as np
+import matplotlib.image as mpimg
+
 
 class world:
-    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], obstacle_map=None, xy_reso=0.1, **kwargs) -> None:
+    def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], obstacle_map=None, **kwargs) -> None:
 
         self.height = height
         self.width = width
@@ -18,9 +20,7 @@ class world:
         self.x_range = [self.offset[0], self.offset[0] + self.width]
         self.y_range = [self.offset[1], self.offset[1] + self.height]
 
-        self.xy_reso = xy_reso
         self.sub_plot_kwargs = kwargs.get('subplot', {})
-        
         self.grid_map = self.gen_grid_map(obstacle_map)
 
     def step(self):
@@ -31,19 +31,29 @@ class world:
 
         abs_obstacle_map = world.file_check(obstacle_map)
 
-        px = int(self.width / self.xy_reso)
-        py = int(self.height / self.xy_reso)
-
+        # px = int(self.width / self.xy_reso)
+        # py = int(self.height / self.xy_reso)
         if abs_obstacle_map is not None:
-            img = Image.open(abs_obstacle_map).convert('L')
-            img = img.resize( (px, py), Image.NEAREST)
-            
-            map_matrix = np.array(img)
-            map_matrix = 255 - map_matrix
-            map_matrix[map_matrix>255/2] = 255
-            map_matrix[map_matrix<255/2] = 0
+            # img = Image.open(abs_obstacle_map).convert('L')
+            # map_matrix = np.array(img)
+            # map_matrix = 255 - map_matrix
+            # map_matrix[map_matrix>255/2] = 255
+            # map_matrix[map_matrix<255/2] = 0
         
-            grid_map = np.fliplr(map_matrix.T)
+            # grid_map = np.fliplr(map_matrix.T)
+            grid_map = mpimg.imread(abs_obstacle_map)
+            # grid_map = grid_map.T
+            grid_map = 100 * (1 - grid_map)   # range: 0 - 100
+            # grid_map = np.flipud(grid_map)
+            grid_map[0:10, 0:100] = 100
+
+            self.x_reso = self.width / grid_map.shape[0]
+            self.y_reso = self.height / grid_map.shape[1]
+
+            print(self.x_reso, self.y_reso)
+            # # print(img.shape)
+            # imgplot = plt.imshow(grid_map)
+            # plt.show()
         else:
             grid_map = None
 
@@ -99,10 +109,16 @@ class world:
         ax.set_xlim(self.x_range) 
         ax.set_ylim(self.y_range)
 
+    def plot(self, ax):
+        if self.grid_map is not None:
+            ax.imshow(self.grid_map, cmap='Greys', origin='lower', extent = self.x_range + self.y_range) 
 
     @staticmethod
     def file_check(file_name):
         # check whether file exist or the type is correct
+
+        if file_name is None:
+            return None
 
         if os.path.exists(file_name):
             abs_file_name = file_name
