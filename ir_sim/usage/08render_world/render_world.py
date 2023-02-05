@@ -1,6 +1,6 @@
 from ir_sim.env import EnvBase
 
-env = EnvBase('render_world.yaml', save_fig=False, display=True)
+env = EnvBase('render_world.yaml', save_fig=False, display=True, full=True, init_args={'no_axis': False})
 
 for i in range(300):
 

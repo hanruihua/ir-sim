@@ -355,7 +355,7 @@ class EnvBase:
             plt.pause(pause_time)
             self.clear_components(self.ax, mode='dynamic', **kwargs)
       
-    def init_plot(self, ax, **kwargs):
+    def init_plot(self, ax, no_axis=False, **kwargs):
         
         ax.set_aspect('equal') 
         ax.set_xlim(self.world.x_range) 
@@ -365,7 +365,8 @@ class EnvBase:
         ax.set_ylabel("y [m]")
 
         self.draw_components(ax, mode='static', **kwargs)
-    
+
+        if no_axis: plt.axis('off')
 
     def draw_components(self, ax, mode='all', **kwargs):
         # mode: static, dynamic, all
