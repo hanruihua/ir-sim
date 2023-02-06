@@ -185,6 +185,9 @@ class EnvBase:
         # global parameters through multiple files
         env_param.robot_list = self.robot_list
         env_param.components = self.components
+        env_param.grid_map = self.world.grid_map
+        env_param.map_obstacle_index = self.world.obstacle_index
+        env_param.map_obstacle_positions = self.world.obstacle_positions
 
         world_param.control_mode = self.control_mode
         world_param.collision_mode = self.collision_mode

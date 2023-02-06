@@ -146,6 +146,9 @@ class RobotBase:
                     print('No react mode for rectangle robot')
                 else:
                     new_state[0:2] = self.collision_position[0:2]
+            else:
+                self.stop_flag = True
+                print('wrong collision mode')
             
         if self.arrive_flag and stop:
             self.stop_flag = True
@@ -236,6 +239,11 @@ class RobotBase:
         collision_flag = False
         collision_position = None
 
+        # collision check grid map
+        if env_param.grid_map is not None:
+            collision_flag, collision_position = self.collision_check_map()
+            if collision_flag: return collision_flag, collision_position
+
         obs_list = env_param.obstacle_list.copy()
         robot_list = env_param.robot_list.copy()
         other_robot_list = [robot for robot in robot_list if robot.id != self.id]
@@ -252,7 +260,6 @@ class RobotBase:
     
     def collision_check(self, state):
 
-         
         collision_flag, collision_position = self.collision_check_single(state)
 
         if collision_flag:
@@ -429,6 +436,25 @@ class RobotBase:
 
         return collision_flag, collision_position
 
+
+    def collision_check_map(self):
+        map_obstacle_positions = env_param.map_obstacle_positions
+        # obstacle_position_array = 
+        collision_flag_array = self.collision_check_array(map_obstacle_positions)
+        collision_flag = np.any(collision_flag_array==True)
+
+        # if collision_flag:
+        #     collision_index = np.where(collision_flag_array==True)
+        #     # collision_positions = map_obstacle_positions[0:2, collision_index[0]]
+        #     # collision_position = np.expand_dims(collision_position, axis=1)
+        #     # temp = collision_position
+        #     # a = 1
+        # else:
+        #     collision_position = None
+        
+        return collision_flag, None
+
+
     def collision_check_point(self, point):
         # utilize the generalized inequality to judge the collision with a point
         assert point.shape == self.position_dim
@@ -451,6 +477,7 @@ class RobotBase:
             collision_matirx = np.squeeze(np.linalg.norm(temp[0:-1], axis=0) - temp[-1]) <= 0
 
         return collision_matirx
+
 
     def reset(self):
         self.state = self.init_state
