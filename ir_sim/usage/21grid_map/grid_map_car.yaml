@@ -1,0 +1,20 @@
+world:
+  height: 50  # the height of the world
+  width: 50   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  obstacle_map: 'cave.png'
+
+
+robots:
+  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
+  number: 1
+  car_model: 'car_red.png'
+  state: [1, 1, 0, 0]  
+  shape: [4.0, 1.6, 3, 1.6] # for acker (default)
+  goal: [40, 40, 0] 
+  vel_type: 'steer' # for acker:  'steer': linear velocity, steer angle
+                                  #'angular': linear velocity, angular velocity of steer
+                                  # 'simplify': linear velocity, rotation rate, do not consider the steer angle  
+

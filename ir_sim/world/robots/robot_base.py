@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from math import inf, pi, atan2, sin, cos
+from math import inf, pi, atan2, sin, cos, sqrt
 from collections import namedtuple
 from ir_sim.util.util import get_transform
 from ir_sim.util import collision_dectection_geo as cdg 
@@ -132,13 +132,16 @@ class RobotBase:
 
         new_state = self.dynamics(self.state, vel, **kwargs)
 
-        self.collision_flag, self.collision_position = self.collision_check(new_state)
+        collision_flag, self.collision_position = self.collision_check(new_state, self.state)
 
-        if self.collision_flag:
+        if collision_flag:
+            
             if world_param.collision_mode == 'stop':
                 self.stop_flag = True
                 if self.collision_position is not None:
                     new_state[0:2] = self.collision_position[0:2]
+
+                if not self.collision_flag: print('Collision with obstacles, robot stop move !')
 
             elif world_param.collision_mode == 'react':
                 if self.collision_position is None:
@@ -149,6 +152,8 @@ class RobotBase:
             else:
                 self.stop_flag = True
                 print('wrong collision mode')
+            
+            self.collision_flag = collision_flag
             
         if self.arrive_flag and stop:
             self.stop_flag = True
@@ -234,14 +239,14 @@ class RobotBase:
 
     #     return collision_flag, collision_position
     
-    def collision_check_single(self, state):
+    def collision_check_single(self, state, pre_state=None):
 
         collision_flag = False
         collision_position = None
 
         # collision check grid map
         if env_param.grid_map is not None:
-            collision_flag, collision_position = self.collision_check_map()
+            collision_flag, collision_position = self.collision_check_map(state, pre_state)
             if collision_flag: return collision_flag, collision_position
 
         obs_list = env_param.obstacle_list.copy()
@@ -258,9 +263,9 @@ class RobotBase:
             
         return collision_flag, collision_position
     
-    def collision_check(self, state):
+    def collision_check(self, state, pre_state=None):
 
-        collision_flag, collision_position = self.collision_check_single(state)
+        collision_flag, collision_position = self.collision_check_single(state, pre_state)
 
         if collision_flag:
             
@@ -271,12 +276,15 @@ class RobotBase:
 
             cur_state = state
 
-            while new_collision_flag:
+            loop = 0
+            while new_collision_flag and loop < 10:
+
                 cur_state[0:2] = collision_position
-                flag, position = self.collision_check_single(cur_state)
+                flag, position = self.collision_check_single(cur_state, pre_state)
 
                 collision_position = position
                 new_collision_flag = flag
+                loop += 1
                 
             return collision_flag, cur_state
         
@@ -437,12 +445,29 @@ class RobotBase:
         return collision_flag, collision_position
 
 
-    def collision_check_map(self):
+    def collision_check_map(self, state, pre_state):
         map_obstacle_positions = env_param.map_obstacle_positions
         # obstacle_position_array = 
-        collision_flag_array = self.collision_check_array(map_obstacle_positions)
+        collision_flag_array = self.collision_check_array_state(map_obstacle_positions, state)
         collision_flag = np.any(collision_flag_array==True)
 
+        if collision_flag:
+            collision_index = np.where(collision_flag_array==True)
+            distance_list = [RobotBase.distance(state[0:2], map_obstacle_positions[0:2, p:p+1] ) for p in collision_index[0]]
+            
+            min_dis = min(distance_list)
+            min_ind = distance_list.index(min_dis)
+            obs_ind = collision_index[0][min_ind]
+            min_obs_position = map_obstacle_positions[0:2, obs_ind:obs_ind+1]
+
+            if self.appearance == 'circle':
+                unit_diff = (state[0:2] - min_obs_position) / min_dis
+                colision_position = min_obs_position + (self.radius + 0.0001) * unit_diff
+            elif self.appearance == 'rectangle':
+                colision_position = pre_state[0:2]
+
+        else:
+            colision_position = None
         # if collision_flag:
         #     collision_index = np.where(collision_flag_array==True)
         #     # collision_positions = map_obstacle_positions[0:2, collision_index[0]]
@@ -452,7 +477,7 @@ class RobotBase:
         # else:
         #     collision_position = None
         
-        return collision_flag, None
+        return collision_flag, colision_position
 
 
     def collision_check_point(self, point):
@@ -467,6 +492,20 @@ class RobotBase:
     def collision_check_array(self, point_array):
         # point_array: (2* number)
         trans, rot = get_transform(self.state)
+        trans_array = np.linalg.inv(rot) @ ( point_array - trans)
+
+        temp = self.G @ trans_array - self.h
+
+        if self.cone_type == 'Rpositive':
+            collision_matirx = np.all(temp <= 0, axis=0)
+        elif self.cone_type == 'norm2':
+            collision_matirx = np.squeeze(np.linalg.norm(temp[0:-1], axis=0) - temp[-1]) <= 0
+
+        return collision_matirx
+    
+    def collision_check_array_state(self, point_array, state):
+        # point_array: (2* number)
+        trans, rot = get_transform(state)
         trans_array = np.linalg.inv(rot) @ ( point_array - trans)
 
         temp = self.G @ trans_array - self.h
@@ -651,6 +690,10 @@ class RobotBase:
         if topi: radian = RobotBase.wraptopi(radian)
 
         return dis, radian
+    
+    @staticmethod
+    def distance(position1, position2):
+        return sqrt( (position2[0, 0] - position1[0, 0]) **2 + (position2[1, 0] - position1[1, 0]) **2 )
     
     
 

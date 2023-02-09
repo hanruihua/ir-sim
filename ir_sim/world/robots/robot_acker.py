@@ -18,19 +18,21 @@ class RobotAcker(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
     position_dim=(2,1) # the position dimension, x, y
 
-    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], acce=[inf, inf], vel_type='steer', **kwargs):
+    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], acce=[inf, inf], vel_type='steer', car_model='car_green.png', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
         super(RobotAcker, self).__init__(id, state, vel, goal, step_time=step_time, arrive_mode=arrive_mode, vel_min=vel_min, vel_max=vel_max, acce=acce, **kwargs)
         
         self.shape = shape # [length, width, wheelbase, wheelbase_w]
+        self.radius = self.shape[0] - ( self.shape[0] - self.shape[2] ) / 2 + 0.1
         self.wheelbase = shape[2]
         self.psi_limit = np.around(psi_limit, 2)
         self.speed_limit = float(self.vel_max[0, 0])
         self.vel_type = vel_type    # vel_tpe: 'steer': linear velocity, steer angle
                                     #          'angular': linear velocity, angular velocity of steer
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
+        self.car_model = car_model
         self.update_vertex(self.state)
 
     def dynamics(self, state, vel, **kwargs):
@@ -176,7 +178,7 @@ class RobotAcker(RobotBase):
         r_phi_ang = 180*r_phi/pi
 
         # car_image_path = Path(current_file_frame).parent / 'car0.png'
-        car_image_path = os.path.dirname(__file__) + '/' + 'car0.png'
+        car_image_path = os.path.dirname(__file__) + '/' + self.car_model
         car_img_read = image.imread(car_image_path)
 
         car_img = ax.imshow(car_img_read, extent=[start_x, start_x+self.shape[0], start_y, start_y+self.shape[1]])
