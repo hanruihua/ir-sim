@@ -38,16 +38,18 @@ class world:
             grid_map = 100 * (1 - grid_map)   # range: 0 - 100
             grid_map = np.fliplr(grid_map.T)
          
-            self.x_reso = self.width / grid_map.shape[0]
-            self.y_reso = self.height / grid_map.shape[1]
+            x_reso = self.width / grid_map.shape[0]
+            y_reso = self.height / grid_map.shape[1]
+            self.reso = np.array([[x_reso], [y_reso]])
 
             obstacle_index = np.array(np.where(grid_map > 50))
-            obstacle_positions = obstacle_index * np.array([[self.x_reso], [self.y_reso]])
+            obstacle_positions = obstacle_index * self.reso
 
         else:
             grid_map = None
             obstacle_index = None
             obstacle_positions = None
+            self.reso = np.zeros((2, 1))
 
         return grid_map, obstacle_index, obstacle_positions
 

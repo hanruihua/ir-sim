@@ -7,6 +7,9 @@ from ir_sim.util.util import get_transform, WrapToPi
 class lidar2d:
     def __init__(self, robot_state=np.zeros((3, 1)), range_min=0, range_max=10, angle_range = pi, number=36, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], reso=0.05, alpha=0.3, **kwargs) -> None:
 
+        # scan_matrix: (2, sample_num * number)
+        # global_scan_matrix: (2, sample_num * number)
+
         # scan data (refernece: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html)
         self.range_min = range_min
         self.range_max = range_max
@@ -47,6 +50,8 @@ class lidar2d:
 
         # for plot
         self.alpha = alpha  # Set the alpha value used for blending,  0-1 range
+
+        self.grid_map = env_param.grid_map
 
     def init_sections(self):
         # discrete the scan to generate a scan matrix 
@@ -98,21 +103,40 @@ class lidar2d:
     def ray_casting(self, com_list):
         # calculate the minimum distance index between global_scan_matrix and obstacles
 
-        if len(com_list) == 0:
-            return ( (self.sample_num - 2) * np.ones((self.number, )) ).astype(int)
+        index_array = np.ones((1, self.number)) * (self.sample_num - 1)
 
-        index_array = np.zeros((len(com_list), self.number))
+        # check with map obstacle
+        if self.grid_map is not None:
+            map_reso = env_param.reso
+            # self.global_scan_matrix[:, 0]
+            temp_global_index = (self.global_scan_matrix / map_reso).astype(int)
+            
+            index_x = np.clip(temp_global_index[0, :], 0, self.grid_map.shape[0]-1)
+            index_y = np.clip(temp_global_index[1, :], 0, self.grid_map.shape[1]-1)
 
-        for i, com in enumerate(com_list):
-            temp_collision_matrix = com.collision_check_array(self.global_scan_matrix)  # check the collision of the scan array and 
-            collision_matrix = np.reshape(temp_collision_matrix, (self.sample_num, self.number))
-            collision_matrix[-1, :] = True  # set the end point true
+            global_index = self.grid_map[index_x, index_y] > 50
+            collision_matrix = np.reshape(global_index, (self.sample_num, self.number))
+            collision_matrix[-1, :] = True
             index = np.argmax(collision_matrix == True, axis = 0) - 1  # find the cloest collision point
-            index = np.clip(index, 0, self.sample_num)  # be positive
-            index_array[i, :] = index
+            map_index = np.clip(index, 0, self.sample_num)  # be positive
+
+            index_array = np.vstack((index_array, map_index))
+            
+        # check with objects 
+        # if len(com_list) == 0:
+        #     closest_index_array = ( (self.sample_num - 2) * np.ones((self.number, )) ).astype(int)
+        if len(com_list) != 0:
+            
+            for i, com in enumerate(com_list):
+                temp_collision_matrix = com.collision_check_array(self.global_scan_matrix)  # check the collision of the scan array and 
+                collision_matrix = np.reshape(temp_collision_matrix, (self.sample_num, self.number))
+                collision_matrix[-1, :] = True  # set the end point true
+                index = np.argmax(collision_matrix == True, axis = 0) - 1  # find the cloest collision point
+                com_index = np.clip(index, 0, self.sample_num)  # be positive
+                index_array = np.vstack((index_array, com_index))
 
         closest_index_array = np.min(index_array, axis = 0).astype(int)
-            
+
         return closest_index_array
 
     def get_LaserScan(self):

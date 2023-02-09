@@ -164,7 +164,11 @@ class EnvBase:
         # default obstacles
         self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
         self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
-        
+
+        env_param.grid_map = self.world.grid_map
+        env_param.map_obstacle_index = self.world.obstacle_index
+        env_param.map_obstacle_positions = self.world.obstacle_positions
+        env_param.reso = self.world.reso
         env_param.obstacle_list = self.obstacle_list
 
         # default robots
@@ -185,10 +189,7 @@ class EnvBase:
         # global parameters through multiple files
         env_param.robot_list = self.robot_list
         env_param.components = self.components
-        env_param.grid_map = self.world.grid_map
-        env_param.map_obstacle_index = self.world.obstacle_index
-        env_param.map_obstacle_positions = self.world.obstacle_positions
-
+        
         world_param.control_mode = self.control_mode
         world_param.collision_mode = self.collision_mode
 
