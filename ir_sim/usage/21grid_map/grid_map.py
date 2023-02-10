@@ -7,6 +7,6 @@ print(env.get_grid_map())
 
 for i in range(300):
     env.step()
-    env.render()
+    env.render(show_traj=True)
 
 env.end()
