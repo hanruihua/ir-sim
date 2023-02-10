@@ -128,7 +128,7 @@ class RobotBase:
             vel = np.zeros(self.vel_dim)
 
         self.vel = vel
-        self.trajectory.append(self.state)
+        self.trajectory.append(self.state.copy())
 
         new_state = self.dynamics(self.state, vel, **kwargs)
 
