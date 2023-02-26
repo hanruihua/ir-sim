@@ -51,7 +51,7 @@ The examples are in the ir_sim/usage
 - [x] Add subplot 
 - [x] Add collision mode
 - [ ] Add the env logger 
-- [ ] map obstacle
+- [x] map obstacle
 - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)

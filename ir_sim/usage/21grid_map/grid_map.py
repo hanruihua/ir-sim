@@ -9,4 +9,6 @@ for i in range(300):
     env.step()
     env.render(show_traj=True)
 
+    if env.done(): break
+        
 env.end()
