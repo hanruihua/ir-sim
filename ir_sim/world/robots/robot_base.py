@@ -47,11 +47,12 @@ class RobotBase:
         if isinstance(self.init_vel, list): self.init_vel = np.c_[self.init_vel]
         if isinstance(self.init_goal_state, list): self.init_goal_state = np.c_[self.init_goal_state]
 
-        self.state = self.init_state
-        self.goal = self.init_goal_state
-        self.vel = self.init_vel
+        self.state = self.init_state.copy()
+        self.goal = self.init_goal_state.copy()
+        self.vel = self.init_vel.copy()
+        self.center = self.init_state[0:2].copy()
         self.trajectory = []
-        self.center = self.init_state[0:2]
+        
 
         assert self.state.shape == self.state_dim and self.vel.shape == self.vel_dim and self.goal.shape == self.goal_dim
 
@@ -128,7 +129,7 @@ class RobotBase:
             vel = np.zeros(self.vel_dim)
 
         self.vel = vel
-        self.trajectory.append(self.state)
+        self.trajectory.append(self.state.copy())
 
         new_state = self.dynamics(self.state, vel, **kwargs)
 
@@ -519,10 +520,10 @@ class RobotBase:
 
 
     def reset(self):
-        self.state = self.init_state
-        self.center = self.init_state[0:2]
-        self.goal = self.init_goal_state
-        self.vel = self.init_vel
+        self.state = self.init_state.copy()
+        self.center = self.init_state[0:2].copy()
+        self.goal = self.init_goal_state.copy()
+        self.vel = self.init_vel.copy()
 
         self.collision_flag = False
         self.arrive_flag = False
