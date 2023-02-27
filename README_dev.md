@@ -50,10 +50,10 @@ The examples are in the ir_sim/usage
 - [x] line obstacle
 - [x] Add subplot 
 - [x] Add collision mode
-- [ ] Add the env logger 
 - [x] map obstacle
+- [ ] Add the env logger 
 - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
-
+- [ ] render model using matplot animation

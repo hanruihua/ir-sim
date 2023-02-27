@@ -2,6 +2,10 @@
 
 A python based robot simulator framework for the intelligent robotics navigation and learning.
 
+Robot             |  Car
+:-------------------------:|:-------------------------:
+![robot](ir_sim/animations/grid_map.gif)  |  ![car](ir_sim/animations/car_grid_map.gif)
+
 Features:  
   * Simple and easy to run with python;  
   * All the models and parameters can be set directly in the yaml configure file;  
