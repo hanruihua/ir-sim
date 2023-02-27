@@ -10,7 +10,7 @@ world:
 robots:
   type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
   number: 1
-  car_model: 'car_red.png'
+  car_model: 'car_green.png'
   state: [1, 1, 0, 0]  
   shape: [4.0, 1.6, 3, 1.6] # for acker (default)
   goal: [40, 40, 0] 
@@ -18,3 +18,15 @@ robots:
                                   #'angular': linear velocity, angular velocity of steer
                                   # 'simplify': linear velocity, rotation rate, do not consider the steer angle  
 
+  # sensor
+  sensor: 
+    - type: 'lidar'
+      id: 0
+      range_min: 0
+      range_max: 15
+      angle_range: 3.1415926
+      number: 100
+      noise: False
+      std: 1  # index of the lidar 
+      offset: [0, 0, 0]
+      reso: 0.2
