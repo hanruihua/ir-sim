@@ -33,6 +33,13 @@ pip install -e .
 
 The examples are in the ir_sim/usage
 
+## Pypi
+
+```
+py -m build
+py -m twine upload dist/*
+```
+
 ## To do list
 
 - [x] Basic framework
