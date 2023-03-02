@@ -5,6 +5,7 @@ import os
 from PIL import Image
 import numpy as np
 import matplotlib.image as mpimg
+from skimage.color import rgb2gray
 
 class world:
     def __init__(self, height=10, width=10, step_time=0.01, sample_time=0.1, offset=[0, 0], obstacle_map=None, **kwargs) -> None:
@@ -35,6 +36,10 @@ class world:
         if abs_obstacle_map is not None:
 
             grid_map = mpimg.imread(abs_obstacle_map)
+
+            if len(grid_map.shape) > 2:
+                grid_map = rgb2gray(grid_map)
+            
             grid_map = 100 * (1 - grid_map)   # range: 0 - 100
             grid_map = np.fliplr(grid_map.T)
          

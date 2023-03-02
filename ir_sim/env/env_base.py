@@ -251,7 +251,7 @@ class EnvBase:
 
         obs_list = []
         if obs_type is not None:
-            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list if env_obs.obs_class == obs_type]
+            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list if env_obs.obs_class.obstacle_type == obs_type]
         else:
             [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list]
         
@@ -430,6 +430,10 @@ class EnvBase:
 
     #     ax.plot(data, label=label, **kwargs)
     #     if show: plt.show()
+
+    def draw_point(self, point, label='point', markersize=2, color='k'):
+        point = self.ax.plot(point[0], point[1], marker='o', markersize=markersize, color=color, label=label)
+        return point
 
     def draw_uncertainty(self, mean, std, scale=20, facecolor='gray', refresh=True, **kwargs):
         
