@@ -64,3 +64,8 @@ py -m twine upload dist/*
 - [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
 - [ ] render model using matplot animation
+- [ ] Support add or elimates obstacles by functions
+- [ ] Add functions to access obstacles with different types
+- [ ] code annotation for main class
+
+
