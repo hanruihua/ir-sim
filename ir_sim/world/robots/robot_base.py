@@ -119,6 +119,7 @@ class RobotBase:
         """
 
         if isinstance(vel, list): vel = np.c_[vel]
+        if vel.ndim == 1: vel = vel[:, np.newaxis]
             
         assert vel.shape == self.vel_dim and self.state.shape == self.state_dim
 

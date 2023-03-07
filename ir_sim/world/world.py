@@ -38,7 +38,7 @@ class world:
             grid_map = mpimg.imread(abs_obstacle_map)
 
             if len(grid_map.shape) > 2:
-                grid_map = rgb2gray(grid_map)
+                grid_map = rgb2gray(grid_map)  
             
             grid_map = 100 * (1 - grid_map)   # range: 0 - 100
             grid_map = np.fliplr(grid_map.T)
