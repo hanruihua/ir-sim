@@ -247,7 +247,7 @@ class EnvBase:
         return self.env_robot.robot_list[id].odometry
 
     def get_obstacle_list(self, obs_type=None):
-        # obs_type： obstacle_circle； obstacle_polygon
+        # obs_type： obstacle_circle； obstacle_polygon; obstacle_line
 
         obs_list = []
         if obs_type is not None:
@@ -432,8 +432,7 @@ class EnvBase:
     #     if show: plt.show()
 
     def draw_point(self, point, label='point', markersize=2, color='k'):
-        point = self.ax.plot(point[0], point[1], marker='o', markersize=markersize, color=color, label=label)
-        return point
+        return self.ax.plot(point[0], point[1], marker='o', markersize=markersize, color=color, label=label)
 
     def draw_uncertainty(self, mean, std, scale=20, facecolor='gray', refresh=True, **kwargs):
         

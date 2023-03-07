@@ -58,6 +58,9 @@ py -m twine upload dist/*
 - [x] Add subplot 
 - [x] Add collision mode
 - [x] map obstacle
+- [x] Add functions to access obstacles with different types
+- [ ] code annotation for main class
+- [ ] Support add or eliminates obstacles by functions
 - [ ] Add the env logger 
 - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor
