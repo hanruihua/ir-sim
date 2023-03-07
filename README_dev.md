@@ -63,9 +63,11 @@ py -m twine upload dist/*
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
-- [ ] render model using matplot animation
-- [ ] Support add or elimates obstacles by functions
+- [ ] render model using matplotlib animation
+- [ ] Support the feature of adding or eliminating obstacles by functions
 - [ ] Add functions to access obstacles with different types
 - [ ] code annotation for main class
+- [ ] Add more key functions for keyboard control
+- [ ] Add draw points
 
 
