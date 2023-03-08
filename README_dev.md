@@ -72,5 +72,6 @@ py -m twine upload dist/*
 - [ ] code annotation for main class
 - [ ] Add more key functions for keyboard control
 - [ ] Add draw points
-
+- [ ] private and public methods and parameters in class
+- [ ] Add regular event for other obstacles or robots
 
