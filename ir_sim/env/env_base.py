@@ -616,7 +616,8 @@ class EnvBase:
     @staticmethod
     def file_check(file_name):
         # check whether file exist or the type is correct
-
+        if file_name is None: return None
+            
         if os.path.exists(file_name):
             abs_file_name = file_name
         elif os.path.exists(sys.path[0] + '/' + file_name):
