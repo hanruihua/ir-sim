@@ -500,7 +500,7 @@ class EnvBase:
                     image_list.append(imageio.imread(str(file_name)))
 
         imageio.mimsave(str(self.ani_path)+'/'+ ani_name + suffix, image_list, **kwargs)
-        print('Create animation successfully')
+        print('Create animation successfully, the animation file is saved in the path ' + str(self.ani_path))
 
         if rm_fig_path: shutil.rmtree(self.ani_buffer_path)
     # endregion: animation
