@@ -21,6 +21,7 @@ class ObstacleBase:
         self.obstacle_matrix = self.gen_matrix()
         self.landmark = landmark  # whether landmarks. landmarks can be detected by sensors directly with range and id
         self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
+        self.velocity = np.zeros((2, 1))
 
     def collision_check(self):
         raise NotImplementedError

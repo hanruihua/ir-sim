@@ -50,6 +50,10 @@ class ObstacleCircle(ObstacleBase):
         # sport: default, wander
         goals = kwargs.get('goals', None)
         
+        self.velocity = vel
+
+        if vel != 0: self.dynamic = True
+
         if sport == 'default':
             if goals is not None:
                 goal = goals[self.id]
