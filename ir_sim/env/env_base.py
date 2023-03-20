@@ -301,6 +301,9 @@ class EnvBase:
         #       all; all robots done, return done
         done_list = self.done_list(collision_check)
 
+        if len(done_list) == 0:
+            return False
+
         if mode == 'all':
             return all(done_list)
         elif mode == 'any':
@@ -464,7 +467,8 @@ class EnvBase:
             self.dyna_patch_list = []
 
         if not kwargs.get('show_text', True):
-            self.ax.texts.clear()
+            for text in self.ax.texts:
+                text.remove()
 
         elif mode == 'static':
             pass

@@ -74,4 +74,4 @@ py -m twine upload dist/*
 - [ ] Add draw points
 - [ ] private and public methods and parameters in class
 - [ ] Add regular event for other obstacles or robots
-
+- [ ] Rearrange the framework of obstacles  

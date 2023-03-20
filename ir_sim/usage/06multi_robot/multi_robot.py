@@ -1,13 +1,13 @@
 from ir_sim.env import EnvBase
 
-env = EnvBase('multi_robot_car.yaml')
-# env = EnvBase('multi_robot.yaml')
+# env = EnvBase('multi_robot_car.yaml')
+env = EnvBase('multi_robot.yaml')
 
 for i in range(3000):
 
     vel = env.cal_des_vel()
     env.step(vel)
-    env.render(0.05)
+    env.render(0.05, show_text=True)
 
     if env.done():
         break

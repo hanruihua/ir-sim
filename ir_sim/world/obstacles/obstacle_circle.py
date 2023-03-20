@@ -37,8 +37,11 @@ class ObstacleCircle(ObstacleBase):
         if isinstance(self.vel_max, list): self.vel_max = np.c_[self.vel_max]
 
         self.sport_range = kwargs.get('sport_range', [0, 0, 10, 10])  # xmin ymin xmax ymax  (if sport 'wander')
-
         self.sport = sport  # default, wander, patrol 
+
+        if sport == 'wander':
+            self.goal = self.random_goal(self.sport_range)
+
         self.plot_patch_list = []
         self.arrive_flag = False
     
@@ -50,6 +53,8 @@ class ObstacleCircle(ObstacleBase):
         # sport: default, wander
         goals = kwargs.get('goals', None)
         
+        if vel != 0: self.dynamic = True
+
         if sport == 'default':
             if goals is not None:
                 goal = goals[self.id]
@@ -57,6 +62,7 @@ class ObstacleCircle(ObstacleBase):
             des_vel = self.cal_des_vel_goal(goal, vel)
             self.goal = goal
             self.move(des_vel)
+            self.velocity = des_vel
         
         elif sport == 'wander':
 
@@ -67,6 +73,13 @@ class ObstacleCircle(ObstacleBase):
 
             des_vel = self.cal_des_vel_goal(self.goal, vel)
             self.move(des_vel)
+            self.velocity = des_vel
+
+    def random_goal(self, range):
+        goal = np.random.uniform(low=range[0:2], high=range[2:4])
+        goal = np.expand_dims(goal, axis=1)
+
+        return goal
 
     def move_goal(self, **kwargs):
         des_vel = self.cal_des_vel()
