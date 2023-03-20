@@ -2,7 +2,7 @@
 ## ir_sim 1.1.9 (Developing)
 
 - Fix some bugs
-- 
+- Add features for obstacles: veclotiy.. 
 
 
 ## ir_sim 1.1.8

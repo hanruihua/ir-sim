@@ -17,7 +17,7 @@ class ObstaclePolygon(ObstacleBase):
         if isinstance(state, list): state = np.c_[state]
         self.state = state
 
-        self.init_vertex = np.vstack(vertex).T
+        self.init_vertex = np.vstack(vertex).T   # 2*edge matrix
 
         trans, rot = get_transform(self.state)
 
