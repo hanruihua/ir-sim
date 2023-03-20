@@ -63,4 +63,5 @@ py -m twine upload dist/*
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
-- [ ] render model using matplot animation
+- [ ] render model using matplotlib animation
+- [ ] Rearrange the framework of obstacles  
