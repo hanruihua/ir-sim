@@ -50,8 +50,6 @@ class ObstacleCircle(ObstacleBase):
         # sport: default, wander
         goals = kwargs.get('goals', None)
         
-        self.velocity = vel
-
         if vel != 0: self.dynamic = True
 
         if sport == 'default':
@@ -61,6 +59,7 @@ class ObstacleCircle(ObstacleBase):
             des_vel = self.cal_des_vel_goal(goal, vel)
             self.goal = goal
             self.move(des_vel)
+            self.velocity = des_vel
         
         elif sport == 'wander':
 
@@ -71,6 +70,7 @@ class ObstacleCircle(ObstacleBase):
 
             des_vel = self.cal_des_vel_goal(self.goal, vel)
             self.move(des_vel)
+            self.velocity = des_vel
 
     def move_goal(self, **kwargs):
         des_vel = self.cal_des_vel()
