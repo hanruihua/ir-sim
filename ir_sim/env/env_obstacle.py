@@ -22,7 +22,7 @@ class EnvObstacle:
                 self.obs_cir_list = [] 
 
                 for id, radius, center in zip(range(number), shape_list, state_list):
-                    obstacle = obs_class(id=id, center=center, radius=radius, step_time=self.step_time, dynamic=bool(dynamic), **kwargs)
+                    obstacle = obs_class(id=id, center=center, radius=radius, step_time=self.step_time, **dynamic, **kwargs)
                     self.obs_cir_list.append(obstacle)
                     self.obs_list.append(obstacle)
 
