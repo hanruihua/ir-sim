@@ -424,6 +424,17 @@ class EnvBase:
         if refresh and not self.disable_all_plot: 
             self.dyna_line_list.append(line)
 
+
+    def draw_box(self, vertices, refresh=False, color='b-', **kwargs):
+        # draw a box by the vertices
+        # vertices: 2*4, 2*8, 2*12, 2*16
+        temp_vertex = np.c_[vertices, vertices[0:2, 0]]         
+        box_line = self.ax.plot(temp_vertex[0, :], temp_vertex[1, :], color)
+
+        if refresh and not self.disable_all_plot: 
+            self.dyna_line_list.append(box_line)
+
+
     # def draw_data(self, data, new_figure=True, show=True, label='default', **kwargs):
     #     # data: list of values
     #     if new_figure:
