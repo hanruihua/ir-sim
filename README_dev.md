@@ -69,10 +69,11 @@ py -m twine upload dist/*
 - [ ] render model using matplotlib animation
 - [ ] Support the feature of adding or eliminating obstacles by functions
 - [ ] Add functions to access obstacles with different types
-- [ ] code annotation for main class
+- [ ] code annotation for main class, using chat gpt
 - [ ] Add more key functions for keyboard control
 - [ ] Add draw points
 - [ ] private and public methods and parameters in class
 - [ ] Add regular event for other obstacles or robots
 - [ ] Rearrange the framework of obstacles 
 - [ ] Using decorator to update
+- [ ] Add function to construct obstacle and robot
