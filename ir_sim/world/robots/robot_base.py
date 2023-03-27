@@ -616,8 +616,28 @@ class RobotBase:
             
     def plot_robot(self, ax, robot_color = 'g', goal_color='r', show_goal=True, show_text=False, show_traj=False, traj_type='-g', fontsize=10, **kwargs):
 
-        # default: plot circle
+        """
+        Plot the robot and its goal on the given axes `ax`.
 
+        Parameters:
+            - ax (matplotlib.axes.Axes): the axes on which to plot the robot and goal
+            - robot_color (str): color of the robot (default: 'g')
+            - goal_color (str): color of the goal (default: 'r')
+            - show_goal (bool): whether to show the goal (default: True)
+            - show_text (bool): whether to show the text labels (default: False)
+            - show_traj (bool): whether to show the robot's trajectory (default: False)
+            - show_uncertainty (bool): whether to show the robot's uncertainty (default: False)
+            - traj_type (str): style of the trajectory line (default: '-g')
+            - fontsize (int): font size for text labels (default: 10)
+            - arrow_width (float): width of the robot's arrow (default: 0.6)
+            - arrow_length (float): length of the robot's arrow (default: 0.4)
+            - **kwargs: additional keyword arguments to pass to matplotlib patches and lines
+
+        Returns:
+            None
+        """
+
+        # Get current state and goal position
         x = self.state[0, 0]
         y = self.state[1, 0]
         
@@ -627,6 +647,7 @@ class RobotBase:
         robot_circle = mpl.patches.Circle(xy=(x, y), radius = self.radius, color = robot_color)
         robot_circle.set_zorder(3)
 
+        
         ax.add_patch(robot_circle)
         if show_text: 
             r_text = ax.text(x - 0.5, y, 'r'+ str(self.id), fontsize = fontsize, color = 'r')
