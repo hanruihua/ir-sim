@@ -16,12 +16,18 @@ class ObstacleBase:
         self.id = int(id)
         self.reso = resolution
         self.step_time = step_time
+
         self.dynamic = dynamic
         self.A, self.b = self.gen_inequal_global()
         self.obstacle_matrix = self.gen_matrix()
         self.landmark = landmark  # whether landmarks. landmarks can be detected by sensors directly with range and id
-        self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
+        
+        # basic arrtibute
+        self.vertex = None
+        self.radius = None
         self.velocity = np.zeros(ObstacleBase.vel_dim)  # default: x y velocity
+        self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
+
 
     def collision_check(self):
         raise NotImplementedError
