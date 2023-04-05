@@ -79,7 +79,5 @@ py -m twine upload dist/*
 - [ ] Rearrange the framework of obstacles 
 - [ ] Using decorator to update
 - [ ] Add function to construct obstacle and robot
-<<<<<<< HEAD
 - [ ] Tools of tackle Data 
-=======
->>>>>>> ba07cad (Update README_dev.md)
+- [ ] Attribute of the obstacles and robots
