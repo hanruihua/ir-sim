@@ -12,6 +12,16 @@ class ObstacleBase:
 
 
     def __init__(self, id, resolution=0.01, step_time=0.1, dynamic=False, landmark=False, **kwargs):
+
+        '''
+        id: an integer representing the ID of the obstacle or landmark.
+        resolution: a float representing the resolution of the obstacle or landmark.
+        step_time: a float representing the step time of the obstacle or landmark.
+        dynamic: a boolean indicating whether the obstacle or landmark is dynamic or not.
+        landmark: a boolean indicating whether the object is a landmark or not.
+        **kwargs: a variable-length argument list that allows passing of additional arguments.
+        '''
+
         # self.shape
         self.id = int(id)
         self.reso = resolution
@@ -23,8 +33,9 @@ class ObstacleBase:
         self.landmark = landmark  # whether landmarks. landmarks can be detected by sensors directly with range and id
         
         # basic arrtibute
-        self.vertex = None
-        self.radius = None
+        # self.center = None # center position of the obstacle
+        # self.vertex = None 
+        # self.radius = None
         self.velocity = np.zeros(ObstacleBase.vel_dim)  # default: x y velocity
         self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
 
