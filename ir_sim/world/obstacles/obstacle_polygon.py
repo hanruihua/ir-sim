@@ -22,6 +22,9 @@ class ObstaclePolygon(ObstacleBase):
         trans, rot = get_transform(self.state)
 
         self.vertex =  rot @ self.init_vertex + trans 
+
+        self.radius = None
+
         super(ObstaclePolygon, self).__init__(id=id, dynamic=dynamic, **kwargs)
 
         self.plot_patch_list = []

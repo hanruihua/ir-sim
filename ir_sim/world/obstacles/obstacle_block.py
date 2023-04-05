@@ -26,7 +26,8 @@ class ObstacleBlock(ObstacleBase):
         self.init_vertex = ObstacleBlock.cal_rectangle_vertex(length, width)
         rot, trans = ObstacleBlock.center_trans(center)
         self.vertex = rot @ self.init_vertex + trans
-        
+        self.radius = None
+
         assert center.shape == self.point_dim
 
         super(ObstacleBlock, self).__init__(id=id, step_time=step_time, **kwargs)
