@@ -77,3 +77,4 @@ py -m twine upload dist/*
 - [ ] Rearrange the framework of obstacles 
 - [ ] Using decorator to update
 - [ ] Add function to construct obstacle and robot
+- [ ] Attribute of the obstacles and robots
