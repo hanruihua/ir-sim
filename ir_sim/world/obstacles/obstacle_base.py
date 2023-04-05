@@ -33,8 +33,9 @@ class ObstacleBase:
         self.landmark = landmark  # whether landmarks. landmarks can be detected by sensors directly with range and id
         
         # basic arrtibute
-        self.vertex = None
-        self.radius = None
+        # self.center = None # center position of the obstacle
+        # self.vertex = None 
+        # self.radius = None
         self.velocity = np.zeros(ObstacleBase.vel_dim)  # default: x y velocity
         self.name = 'Landmark' + str(self.id) if landmark else 'Obstacle' + str(self.id)
 
