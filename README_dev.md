@@ -59,10 +59,13 @@ py -m twine upload dist/*
 - [x] Add collision mode
 - [x] map obstacle
 - [x] Add functions to access obstacles with different types
+- [x] Add draw points
+- [ ] reformulate obstacles and robots by Object class 
+  - [ ] Attribute of the obstacles and robots
+  - [ ] using the mouse to select the circle and polygon obstacles
 - [ ] code annotation for main class
 - [ ] Support add or eliminates obstacles by functions
 - [ ] Add the env logger 
-- [ ] using the mouse to select the circle and polygon obstacles
 - [ ] Add the data monitor
 - [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
@@ -71,11 +74,9 @@ py -m twine upload dist/*
 - [ ] Add functions to access obstacles with different types
 - [ ] code annotation for main class, using chat gpt
 - [ ] Add more key functions for keyboard control
-- [ ] Add draw points
 - [ ] private and public methods and parameters in class
 - [ ] Add regular event for other obstacles or robots
 - [ ] Rearrange the framework of obstacles 
 - [ ] Using decorator to update
 - [ ] Add function to construct obstacle and robot
-- [ ] Attribute of the obstacles and robots
 - [ ] Tools of tackle Data 
