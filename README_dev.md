@@ -81,4 +81,3 @@ py -m twine upload dist/*
 - [ ] Add function to construct obstacle and robot
 - [ ] Tools of tackle Data 
 - [ ] Attribute of the obstacles and robots
-- [ ] Tools of tackle Data 
