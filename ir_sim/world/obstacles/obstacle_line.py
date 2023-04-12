@@ -32,6 +32,7 @@ class ObstacleLine(ObstacleBase):
     
         self.points = self.update_points(center) # list of start and end points 
         self.vertex = self.update_vertex(center) # vertex points, 2*4
+        self.radius = None
 
         super(ObstacleLine, self).__init__(id=id, step_time=step_time, **kwargs)
 
