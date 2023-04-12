@@ -3,8 +3,8 @@
 
 - Fix some bugs
 - Add the collision mode 'unobstructed'
-- 
-
+- Add draw box function
+- Add radius for obstacle
 
 
 ## ir_sim 1.1.9
