@@ -593,7 +593,9 @@ class EnvBase:
         if not self.disable_all_plot:
 
             if self.save_ani:
-                self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **ani_kwargs)
+                saved_ani_kwargs = {'subrectangles': True}
+                saved_ani_kwargs.update(ani_kwargs) 
+                self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **saved_ani_kwargs)
 
             if self.save_fig or show:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
