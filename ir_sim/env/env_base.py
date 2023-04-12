@@ -38,7 +38,7 @@ class EnvBase:
             keyboard: receive the velocity from the keyboard to move 
         
         collision_mode: 
-            None: No collision check
+            unobstructed: No collision check
             stop (default): All Objects stop when collision, 
             react: robot will have reaction when collision with others  (only work for the circular robot in current version)
 

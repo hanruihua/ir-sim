@@ -134,7 +134,11 @@ class RobotBase:
 
         new_state = self.dynamics(self.state, vel, **kwargs)
 
-        collision_flag, self.collision_position = self.collision_check(new_state, self.state)
+        if not world_param.collision_mode == 'unobstructed':
+            collision_flag, self.collision_position = self.collision_check(new_state, self.state)
+        else:
+            collision_flag = False
+            self.collision_position = None
 
         if collision_flag:
             
