@@ -1,4 +1,12 @@
 
+## ir_sim 1.1.10
+
+- Fix some bugs
+- Add the collision mode 'unobstructed'
+- 
+
+
+
 ## ir_sim 1.1.9
 
 - Fix some bugs
