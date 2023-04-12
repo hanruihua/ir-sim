@@ -78,3 +78,4 @@ py -m twine upload dist/*
 - [ ] Using decorator to update
 - [ ] Add function to construct obstacle and robot
 - [ ] Attribute of the obstacles and robots
+- [ ] Tools of tackle Data 
