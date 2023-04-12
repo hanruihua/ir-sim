@@ -12,6 +12,6 @@ for i in range(100):
     env.reset('single') 
 
 # env.end(ani_name='gif_world', show_text=True, )
-env.end(ani_name='gif_world_duration', show_text=True, show=False, ani_kwargs={'duration': 1, 'subrectangles': True})
+env.end(ani_name='gif_world_duration', show_text=True, show=False, ani_kwargs={'duration': 1})
 # ani_args for GIF animation: https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil
 
