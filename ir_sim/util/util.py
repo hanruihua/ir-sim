@@ -81,14 +81,25 @@ def get_transform(state):
 
 def repeat_mk_dirs(path, max_num):
 
-    if os.path.exists(path):
-        i = 0
-        while i < max_num:
-            new_path = path + '_' + str(i)
-            if not os.path.exists(new_path):
-                path = new_path
-                break
+    if not os.path.exists(path):
+        os.makedirs(path)
 
-    os.makedirs(path)
+        return path
+
+    else: 
+        if len(os.listdir(path)) == 0: # empty dir
+            return path
+        else:
+            i = 0
+            while i < max_num:
+                new_path = path + '_' + str(i)
+                i = i + 1
+                if not os.path.exists(new_path):
+                    break
+    
+            os.makedirs(new_path)
+
+            return new_path
+
 
 
