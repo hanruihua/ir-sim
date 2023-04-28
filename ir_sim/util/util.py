@@ -1,5 +1,6 @@
 import numpy as np
 from math import sqrt, inf, pi, sin, cos
+import os
 
 def random_points(number, low, high, point_distance, max_iter=500):
     # random distribute some points into a selected area with a minimum distance
@@ -78,6 +79,16 @@ def get_transform(state):
 
     return trans, rot 
 
+def repeat_mk_dirs(path, max_num):
 
+    if os.path.exists(path):
+        i = 0
+        while i < max_num:
+            new_path = path + '_' + str(i)
+            if not os.path.exists(new_path):
+                path = new_path
+                break
+
+    os.makedirs(path)
 
 
