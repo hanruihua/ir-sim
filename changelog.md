@@ -1,4 +1,13 @@
 
+## ir_sim 1.1.12
+
+
+## ir_sim 1.1.11
+
+Add the function to change the edgecolor
+Add repeat mkdirs
+Fix some bugs
+
 ## ir_sim 1.1.10
 
 - Fix some bugs
