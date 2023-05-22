@@ -107,6 +107,7 @@ class RobotBase:
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
+        self.plot_patch_reset_list = []
 
         # self.alpha = kwargs.get('alpha', [0.03, 0, 0, 0.03, 0, 0])
         # self.control_std = kwargs.get('control_std', [0.01, 0.01])
@@ -535,6 +536,8 @@ class RobotBase:
         self.stop_flag = False
         self.trajectory = []
 
+        self.plot_clear_reset()
+
     def dynamics(self, vel):
 
         """ vel: the input velocity
@@ -689,6 +692,10 @@ class RobotBase:
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
+    
+    def plot_clear_reset(self):
+        [patch.remove() for patch in self.plot_patch_reset_list]
+        self.plot_patch_reset_list = []
 
     @staticmethod
     def InCone(point, cone_type='Rpositive'):

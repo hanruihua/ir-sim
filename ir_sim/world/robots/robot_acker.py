@@ -18,7 +18,7 @@ class RobotAcker(RobotBase):
     goal_dim = (3, 1) # the goal dimension, x,y, phi 
     position_dim=(2,1) # the position dimension, x, y
 
-    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], acce=[inf, inf], vel_type='steer', car_model='car_green.png', **kwargs):
+    def __init__(self, id=0, state=np.zeros((4, 1)), vel=np.zeros((2, 1)), goal=np.zeros((3, 1)), shape=[4.6, 1.6, 3, 1.6], psi_limit = pi/4, step_time=0.1, arrive_mode='state', vel_min=[-4, -pi/4], vel_max=[4, pi/4], acce=[inf, inf], vel_type='steer', car_model='car_green.png', edgecolor='y', **kwargs):
 
         self.init_vertex = RobotAcker.cal_vertex(shape)
         # super(RobotAcker, self).state_dim = RobotAcker.state_dim
@@ -34,6 +34,8 @@ class RobotAcker(RobotBase):
                                     #          'simplify': linear velocity, rotation rate, do not consider the steer angle 
         self.car_model = car_model
         self.update_vertex(self.state)
+
+        self.edgecolor = edgecolor
 
     def dynamics(self, state, vel, **kwargs):
         # The ackermann robot dynamics
@@ -170,7 +172,7 @@ class RobotAcker(RobotBase):
 
         return G, h
 
-    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, edgecolor='y', trail_type='rectangle', **kwargs):
+    def plot_robot(self, ax, show_goal=True, goal_color='c', goal_l=2, show_text=False, show_traj=False, traj_type='-g', show_trail=False, trail_type='rectangle', **kwargs):
         # cur_vertex = 
         start_x = self.vertex[0, 0]
         start_y = self.vertex[1, 0]
@@ -193,8 +195,9 @@ class RobotAcker(RobotBase):
 
         if show_trail:
             if trail_type == 'rectangle':
-                car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=edgecolor, fill=False, alpha=0.8, linewidth=0.8)
+                car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=self.edgecolor, fill=False, alpha=0.8, linewidth=0.8)
                 ax.add_patch(car_rect)
+                self.plot_patch_reset_list.append(car_rect)
 
             elif trail_type == 'circle':
                 x = (min(self.vertex[0, :]) + max(self.vertex[0, :])) / 2
@@ -202,6 +205,7 @@ class RobotAcker(RobotBase):
 
                 car_circle = mpl.patches.Circle(xy=(x, y), radius = self.shape[0] / 2, edgecolor='red', fill=False)
                 ax.add_patch(car_circle)
+                self.plot_patch_reset_list.append(car_circle)
             
         if show_text:
             t1 = ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
@@ -214,6 +218,8 @@ class RobotAcker(RobotBase):
             y_list = [t[1, 0] for t in self.trajectory]
             self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
 
+    def set_edgecolor(self, edgecolor='y'):
+        self.edgecolor = edgecolor
 
     def reset(self):
         self.state = self.init_state.copy()
@@ -229,6 +235,8 @@ class RobotAcker(RobotBase):
 
         # update vertex
         self.update_vertex(self.state)
+
+        self.plot_clear_reset()
             
     @staticmethod
     def cal_vertex(shape):        
