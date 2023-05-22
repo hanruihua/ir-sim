@@ -694,8 +694,8 @@ class RobotBase:
         self.plot_text_list = []
     
     def plot_clear_reset(self):
-        
         [patch.remove() for patch in self.plot_patch_reset_list]
+        self.plot_patch_reset_list = []
 
     @staticmethod
     def InCone(point, cone_type='Rpositive'):
