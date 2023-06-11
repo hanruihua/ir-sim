@@ -472,6 +472,20 @@ class EnvBase:
         if refresh:
             self.dyna_patch_list.append(ellipse)
 
+    def draw_arrow(self, pose, length=0.5, width=0.3, refresh=False, **kwargs):
+
+        # pose: 3*1, x, y, theta
+
+        theta = pose[2, 0]
+        dx = length * cos(theta)
+        dy = length * sin(theta)
+
+        arrow = mpl.patches.Arrow(pose[0, 0], pose[1, 0], dx, dy, width=width, **kwargs)
+        self.ax.add_patch(arrow)
+
+        if refresh: self.dyna_patch_list.append(arrow)
+            
+        
     def clear_components(self, ax, mode='all', **kwargs):
         if mode == 'dynamic':
             self.env_robot.plot_clear(ax)
