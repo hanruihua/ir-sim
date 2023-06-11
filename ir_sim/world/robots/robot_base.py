@@ -41,14 +41,14 @@ class RobotBase:
 
         self.init_state = state
         self.init_vel = vel
-        self.init_goal_state = goal 
+        self.init_goal = goal 
 
         if isinstance(self.init_state, list): self.init_state = np.c_[self.init_state]
         if isinstance(self.init_vel, list): self.init_vel = np.c_[self.init_vel]
-        if isinstance(self.init_goal_state, list): self.init_goal_state = np.c_[self.init_goal_state]
+        if isinstance(self.init_goal, list): self.init_goal = np.c_[self.init_goal]
 
         self.state = self.init_state.copy()
-        self.goal = self.init_goal_state.copy()
+        self.goal = self.init_goal.copy()
         self.vel = self.init_vel.copy()
         self.center = self.init_state[0:2].copy()
         self.trajectory = []
@@ -216,35 +216,11 @@ class RobotBase:
         
         return np.clip(value, min, max)
 
-    # collision_check
 
-    # def collision_check(self, state):
+    def set_goal(self, goal):
+        self.goal = goal
+        self.init_goal = goal
 
-    #     collision_flag = False
-    #     collision_position = None
-
-    #     obs_list = env_param.obstacle_list.copy()
-    #     robot_list = env_param.robot_list.copy()
-    #     other_robot_list = [robot for robot in robot_list if robot.id != self.id]
-
-    #     obj_list = other_robot_list + obs_list
-
-    #     for obj in obj_list:
-    #         collision_flag1, collision_position1 = self.collision_check_state(state, obj)
-
-    #         if collision_flag1:
-                
-    #             collision_flag = True
-
-    #             state[0:2] = collision_position1
-
-    #             for obj in obj_list:
-    #                 collision_flag2, collision_position2 = self.collision_check_state(state, obj)
-
-    #                 if collision_flag2:
-    #                     collision_position = collision_position2
-
-    #     return collision_flag, collision_position
     
     def collision_check_single(self, state, pre_state=None):
 
@@ -528,7 +504,7 @@ class RobotBase:
     def reset(self):
         self.state = self.init_state.copy()
         self.center = self.init_state[0:2].copy()
-        self.goal = self.init_goal_state.copy()
+        self.goal = self.init_goal.copy()
         self.vel = self.init_vel.copy()
 
         self.collision_flag = False

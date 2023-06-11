@@ -282,6 +282,11 @@ class EnvBase:
     def get_grid_map(self):
         return self.world.grid_map
 
+
+    # set attributted information
+    def set_robot_goal(self, goal, id=0):
+        self.env_robot.robot_list[id].set_goal(goal)
+
     # endregion: get information
 
     # region: check status

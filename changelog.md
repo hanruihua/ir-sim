@@ -1,6 +1,10 @@
 
 ## ir_sim 1.1.12
 
+Update the refresh of the show_trail
+Add set robot goal method
+Fix some bugs
+
 
 ## ir_sim 1.1.11
 

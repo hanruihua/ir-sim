@@ -224,7 +224,7 @@ class RobotAcker(RobotBase):
     def reset(self):
         self.state = self.init_state.copy()
         self.center = self.init_state[0:2].copy()
-        self.goal = self.init_goal_state.copy()
+        self.goal = self.init_goal.copy()
         self.vel = self.init_vel.copy()
 
         self.collision_flag = False
