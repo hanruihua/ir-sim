@@ -18,10 +18,13 @@ class ObstaclePolygon(ObstacleBase):
         self.state = state
 
         self.init_vertex = np.vstack(vertex).T   # 2*edge matrix
-
+        self.center = self.gen_center_point(self.init_vertex)
+                
         trans, rot = get_transform(self.state)
 
-        self.vertex =  rot @ self.init_vertex + trans 
+        self.vertex = self.trans_center(trans, rot)
+
+        # self.vertex =  rot @ self.init_vertex + trans 
 
         self.radius = None
 
@@ -79,6 +82,37 @@ class ObstaclePolygon(ObstacleBase):
             b[i, 0] = c
 
         return A, b
+
+    def gen_center_point(self, vertices):
+
+        avg_x = np.mean(vertices[0, :])
+        avg_y = np.mean(vertices[1, :])
+
+        return np.array([[avg_x], [avg_y]])
+
+    def trans_center(self, trans, rot):
+
+        translated_vertex = self.init_vertex - self.center
+
+        rotated_vertex = rot @ translated_vertex
+
+        final_vertex = rotated_vertex + self.center + trans
+
+        return final_vertex
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
 
 
     def plot(self, ax, obs_poly_color='k', **kwargs): 

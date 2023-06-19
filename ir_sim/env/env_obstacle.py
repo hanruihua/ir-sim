@@ -80,7 +80,8 @@ class EnvObstacle:
         
         elif mode == 'random':
             state_list = random_points(number, np.c_[rlow], np.c_[rhigh], distance)
-        
+            
+
         if random_shape:
             shape_list = random_value(number, shapes_low, shapes_high)
 
@@ -89,6 +90,16 @@ class EnvObstacle:
                 state[2, 0] = np.random.uniform(low = -pi, high = pi)
 
         return state_list, shape_list
+
+    def random_polygon(self, number_vertex=4):
+        pass
+
+
+
+
+
+
+
 
     def move(self):
         if self.dynamic and self.number > 0: 
