@@ -360,6 +360,8 @@ class EnvBase:
             if self.world.sampling:
                 self.draw_components(self.ax, mode='dynamic', **kwargs)
                 
+                self.fig.canvas.draw()
+
                 if self.display: plt.pause(pause_time)
 
                 if self.save_ani: self.save_gif_figure(bbox_inches=self.bbox_inches, dpi=self.ani_dpi, **fig_kwargs)
