@@ -1,4 +1,8 @@
-# Intelligent-Robot-Simulator2
+<div align="center">
+<img src="ir_sim/doc/image/IR_SIM_logos/IR_SIM-logos_transparent_clip.png" width = "400" >
+</div>
+
+# Intelligent-Robot-Simulator
 
 A python based robot simulator framework for the intelligent robotics navigation and learning
 
