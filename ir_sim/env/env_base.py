@@ -152,8 +152,12 @@ class EnvBase:
                 # mng.frame.Maximize(True)
 
             elif mode == 'Windows':
+                # figManager = plt.get_current_fig_manager()
+                # figManager.window.showMaximized()
+
                 figManager = plt.get_current_fig_manager()
-                figManager.window.showMaximized()
+                # figManager.window.showMaximized()
+                figManager.resize(*figManager.window.maxsize())
 
     # region: initialization
     def _init_environment(self, **kwargs): 
