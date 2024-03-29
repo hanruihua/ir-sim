@@ -49,9 +49,6 @@ The usage guidelines are listed in the [ir_sim/usage](https://github.com/hanruih
 - [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
 
 
-## Author
-
-Han Ruihua  
 Contact: hanrh@connect.hku.hk
 
 
