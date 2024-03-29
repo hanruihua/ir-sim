@@ -15,7 +15,7 @@ It provides the following features:
 
 Robot             |  Car
 :-------------------------:|:-------------------------:
-![robot](ir_sim/animations/rvo.gif)  |  ![car](ir_sim/animations/car.gif)
+![robot](doc/animations/rvo.gif)  |  ![car](doc/animations/car.gif)
 
 
 ## Prerequisite
