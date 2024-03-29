@@ -1,14 +1,10 @@
 from ir_sim.env import EnvBase
-import time 
-import numpy as np
 
-# env = EnvBase(world_name = 'collision_world.yaml')
-env = EnvBase(world_name = 'collision_world_car.yaml')
+env = EnvBase('collision_world.yaml')
 
-for i in range(3000):
+for i in range(300):
 
-    vel = env.cal_des_vel()
-    env.step(vel)
+    env.step()
     env.render(0.05)
     
     if env.done():

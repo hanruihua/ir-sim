@@ -5,12 +5,20 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
 
-robots:
-  type: 'robot_acker'  # # robot_omni, robot_diff, robot_acker
-  number: 1
-  state: [1, 1, 0, 0]  
-  shape: [4.6, 1.6, 3, 1.6] # for acker (default)
-  goal: [40, 40, 0] 
-  vel_type: 'steer' # for acker:  'steer': linear velocity, steer angle
-                                  #'angular': linear velocity, angular velocity of steer
-                                  # 'simplify': linear velocity, rotation rate, do not consider the steer angle  
+robot:  
+  - kinematics: {name: 'acker'}  # omni, diff, acker
+    shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
+    state: [1, 1, 0, 0]
+    goal: [40, 40, 0]
+    vel_max: [4, 1]
+    behavior: {name: 'dash'} # move toward to the goal directly
+  
+    
+  
+    
+    
+
+
+
+  
+

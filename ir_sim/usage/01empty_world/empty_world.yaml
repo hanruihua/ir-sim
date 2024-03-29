@@ -4,18 +4,15 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
+  control_mode: 'auto' # 0: manual, 1: auto
+  collision_mode: null # stop, react, None
+  obstacle_map: null # the obstacle map
 
-# robots:
-#   number: 0
-#   type: 'robot_diff' # robot_omni, robot_diff 
-#   distribute: 'manual' # random, circular, 
-#   state_list: [[1, 1, 0]]
-#   goal_list: [[7, 7, 0]]
-#   radius_list: [0.2]
-#   vel_max: [1.5, 1.5]
-#   radius_exp: 0.1
-
-
+plot:
+  no_axis: False
+  subplot: False
+  
+  
 
 
 

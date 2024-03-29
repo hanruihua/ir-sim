@@ -1,29 +1,26 @@
-# Intelligent Robot Simulator (ir-sim)
+<div align="center">
+<img src="doc/image/IR_SIM_logos/logo1_nobg.png" width = "200" >
+</div> 
 
-A python based robot simulator framework for the intelligent robotics navigation and learning.
+# Intelligent Robot Simulator (IR-SIM)
+
+IR-SIM is an open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
+
+It provides the following features:
+  - A versatile and easy-to-use framework for simulating a variety of robot platforms with kinematics and sensors. 
+  - Customizable configurations and parameters using yaml files.
+  - Real-time visualization of simulation outcomes.
+  - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
+
 
 Robot             |  Car
 :-------------------------:|:-------------------------:
-![robot](ir_sim/animations/grid_map.gif)  |  ![car](ir_sim/animations/car_grid_map.gif)
+![robot](ir_sim/animations/rvo.gif)  |  ![car](ir_sim/animations/car.gif)
 
-Features:  
-  * Simple and easy to run with python;  
-  * All the models and parameters can be set directly in the yaml configure file;  
-  * Environment can be built easily by line, circle model and png images; 
-  * Various robot kinematics models: omni-wheel, differential wheel, arckermann; 
-  * Support collision check with environment;
-  * Equipped with various sensors: Lidar, GPS, Odometry etc.;  
-  * Support keyboard controller;
-  * Easy to reproduce the robotics algorithms and extend for your own project. 
 
 ## Prerequisite
 
-Test platform: Ubuntu20.04, windows10
-
-- Python: >= 3.7
-    - numpy  
-    - matplotlib 
-    - scipy
+- Python: >= 3.9
 
 ## Installation
 
@@ -45,7 +42,12 @@ pip install -e .
 
 ## Usage
 
-The examples are in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+The usage guidelines are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+
+## Cases
+- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav)(RAL & ICRA2023)
+- [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
+
 
 ## Author
 
