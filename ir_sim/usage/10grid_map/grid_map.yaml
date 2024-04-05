@@ -7,6 +7,7 @@ world:
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
   control_mode: 'keyboard'  # 'keyboard', 'auto'
   obstacle_map: 'cave.png'
+  mdownsample: 2
 
 robot:
   - kinematics: {name: 'acker'}  # omni, diff, acker

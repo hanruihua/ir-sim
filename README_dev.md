@@ -34,6 +34,7 @@ py -m twine upload dist/*
 - [x] robot description 
 - [x] Construct the object base class for the robot and obstacles
 - [ ] transfer the function from the previous version
+- [ ] Maze generator
 - [ ] real robot size (LIMO, BYD)
 - [ ] Using decorator to update
 - [ ] code annotation for main class

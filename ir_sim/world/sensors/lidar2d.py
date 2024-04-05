@@ -67,8 +67,14 @@ class Lidar2D:
         self._state = state + self.offset
         new_geometry = geometry_transform(self._init_geometry, self._state)
 
-        # object_geometries = GeometryCollection([obj._geometry for obj in env_param.objects])
+        
+        # geo_list = [obj._geometry for obj in env_param.objects if self.obj_id != obj._id]
+        # object_geometries = GeometryCollection(geo_list)
         # # new_diff_geometry = new_geometry.difference(object_geometries)
+        # new_geometry = new_geometry.difference(env_param.objects[-1]._geometry)
+        # map_geo = env_param.objects[-1]._geometry
+        # new_geometry = new_geometry.difference(map_geo)
+        # temp = env_param.objects[-1]._geometry.difference(new_geometry)
         for obj in env_param.objects:
             if self.obj_id != obj._id:
                 new_geometry = new_geometry.difference(obj._geometry)

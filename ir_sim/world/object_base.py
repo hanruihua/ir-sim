@@ -639,14 +639,70 @@ class ObjectBase:
 
     # get information
 
-    # def get_inequality_Ab(self, s):
+    # def get_inequality_Ab(self):
     #     # general inequality Ax <= b 
         
     #     if self.shape == 'circle':
     #         pass
             
     #     elif self.shape == 'polygon':
+            
+    #         G = np.zeros((4, 2)) 
+    #         h = np.zeros((4, 1)) 
+            
+    #         for i in range(4):
+    #             if i + 1 < 4:
+    #                 pre_point = self.vertex[:, i]
+    #                 next_point = self.vertex[:, i+1]
+    #             else:
+    #                 pre_point = self.vertex[:, i]
+    #                 next_point = self.vertex[:, 0]
+                
+    #             diff = next_point - pre_point
+                
+    #             a = diff[1]
+    #             b = -diff[0]
+    #             c = a * pre_point[0] + b * pre_point[1]
+
+    #             G[i, 0] = a
+    #             G[i, 1] = b
+    #             h[i, 0] = c 
+
+    #     elif self.shape == 'linestring':
     #         pass
+        
+    #     return A, b
+    
+    # def get_inequality_Ab_init(self):
+    #     # general inequality Ax <= b 
+        
+    #     if self.shape == 'circle':
+    #         pass
+            
+    #     elif self.shape == 'polygon':
+            
+    #         edge_number = self.vertex.shape[1]
+
+    #         A = np.zeros((4, 2)) 
+    #         b = np.zeros((4, 1)) 
+            
+    #         for i in range(4):
+    #             if i + 1 < 4:
+    #                 pre_point = self.vertex[:, i]
+    #                 next_point = self.vertex[:, i+1]
+    #             else:
+    #                 pre_point = self.vertex[:, i]
+    #                 next_point = self.vertex[:, 0]
+                
+    #             diff = next_point - pre_point
+                
+    #             a = diff[1]
+    #             b = -diff[0]
+    #             c = a * pre_point[0] + b * pre_point[1]
+
+    #             G[i, 0] = a
+    #             G[i, 1] = b
+    #             h[i, 0] = c 
 
     #     elif self.shape == 'linestring':
     #         pass

@@ -6,7 +6,7 @@ import matplotlib.image as mpimg
 from skimage.color import rgb2gray
 
 class world:
-    def __init__(self, name='world', height=10, width=10, step_time=0.1, sample_time=0.1, offset=[0, 0], control_mode='auto', collision_mode='stop',  obstacle_map=None) -> None:
+    def __init__(self, name='world', height=10, width=10, step_time=0.1, sample_time=0.1, offset=[0, 0], control_mode='auto', collision_mode='stop',  obstacle_map=None, mdownsample=1) -> None:
         
         '''
         the world object is the main object of the simulation, it manages all the other objects and maps in the simulation
@@ -25,6 +25,9 @@ class world:
             control_mode: the control mode of the world,
                             'auto'
                             'keyboard'
+            
+            obstacle_map: image file of the obstacle map
+            mdownsample: downsample the obstacle map
         '''
 
         self.name = name
@@ -40,7 +43,7 @@ class world:
         self.x_range = [self.offset[0], self.offset[0] + self.width]
         self.y_range = [self.offset[1], self.offset[1] + self.height]
 
-        self.grid_map, self.obstacle_index, self.obstacle_positions = self.gen_grid_map(obstacle_map)
+        self.grid_map, self.obstacle_index, self.obstacle_positions = self.gen_grid_map(obstacle_map, mdownsample)
 
 
         # set world param
@@ -58,7 +61,7 @@ class world:
         world_param.count = self.count
 
 
-    def gen_grid_map(self, obstacle_map):
+    def gen_grid_map(self, obstacle_map, mdownsample=1):
 
         abs_obstacle_map = file_check(obstacle_map)
 
@@ -67,6 +70,7 @@ class world:
         if abs_obstacle_map is not None:
 
             grid_map = mpimg.imread(abs_obstacle_map)
+            grid_map = grid_map[::mdownsample, ::mdownsample]
 
             if len(grid_map.shape) > 2:
                 grid_map = rgb2gray(grid_map)  
