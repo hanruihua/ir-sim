@@ -4,23 +4,32 @@ from math import pi, atan2, sin, cos
 import numpy as np
 from shapely import ops
 
-def file_check(file_name):
 
-    # check whether file exist or the type is correct'
-    
-    if file_name is None: return None
+def file_check(file_name, root_path=None):
+    # check whether file exist or the type is correct
+    if file_name is None:  return None
         
-    if os.path.exists(file_name):
-        abs_file_name = file_name
+    if os.path.exists(file_name): abs_file_name = file_name
+        
     elif os.path.exists(sys.path[0] + '/' + file_name):
         abs_file_name = sys.path[0] + '/' + file_name
     elif os.path.exists(os.getcwd() + '/' + file_name):
         abs_file_name = os.getcwd() + '/' + file_name
-    else:
-        abs_file_name = None
-        raise FileNotFoundError("File not found: " + file_name)
 
+    else:
+        if root_path is None:
+            raise FileNotFoundError("File not found: " + file_name)
+        else:
+            root_file_name = root_path + '/' + file_name
+
+            if os.path.exists(root_file_name):
+                abs_file_name = root_file_name
+            else:
+                raise FileNotFoundError("File not found: " + root_file_name)
+    
     return abs_file_name
+
+
 
 
 def WrapToPi(rad):
