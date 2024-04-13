@@ -3,7 +3,7 @@ import sys
 from math import pi, atan2, sin, cos
 import numpy as np
 from shapely import ops
-
+import time
 
 def file_check(file_name, root_path=None):
     # check whether file exist or the type is correct
@@ -227,3 +227,36 @@ def diff_to_omni(state_ori, vel_diff):
 #         lst.append(lst[-1])
         
 #     return lst
+
+
+def time_it(name='Function', print=True):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            wrapper.count += 1  
+            start = time.time() 
+            result = func(*args, **kwargs)  
+            end = time.time()  
+            wrapper.func_count += 1 
+            print(f"{name} execute time {(end - start):.6f} seconds") 
+            return result
+        wrapper.count = 0  
+        wrapper.func_count = 0 
+        return wrapper
+    return decorator
+
+
+def time_it2(name='Function'):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            wrapper.count += 1  
+            start = time.time() 
+            result = func(self, *args, **kwargs)  
+            end = time.time()  
+            wrapper.func_count += 1 
+            if self.time_print:
+                print(f"{name} execute time {(end - start):.6f} seconds") 
+            return result
+        wrapper.count = 0  
+        wrapper.func_count = 0 
+        return wrapper
+    return decorator
