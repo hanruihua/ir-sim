@@ -50,6 +50,17 @@ The usage guidelines are listed in the [ir_sim/usage](https://github.com/hanruih
 ## Contact: 
 hanrh@connect.hku.hk
 
+## Citation
+
+```
+@misc{ir_sim,
+ author = "Ruihua Han",
+ title = "ir-sim: Python based light-weight simulator for robotics.",
+ year = 2024,
+ url = "https://github.com/hanruihua/ir_sim"
+}
+```
+
 
 
 
