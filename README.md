@@ -55,7 +55,7 @@ hanrh@connect.hku.hk
 ```
 @misc{ir_sim,
  author = "Ruihua Han",
- title = "ir-sim: Python based light-weight simulator for robotics.",
+ title = "ir-sim: Python based light-weight simulator for robotics navigation and learning.",
  year = 2024,
  url = "https://github.com/hanruihua/ir_sim"
 }
