@@ -1,6 +1,6 @@
 import os
 import sys
-from math import pi, atan2, sin, cos
+from math import pi, atan2, sin, cos, sqrt
 import numpy as np
 from shapely import ops
 import time
@@ -260,3 +260,71 @@ def time_it2(name='Function'):
         wrapper.func_count = 0 
         return wrapper
     return decorator
+
+
+
+
+def cal_init_vertex(length, width, wheelbase):
+
+    # vertex when the robot's state (0, 0, 0)
+    # counterclockwise
+    # shape [length, width, wheelbase, wheelbase_w]
+    start_x = -(length - wheelbase)/2
+    start_y = -width/2
+
+    point0 = np.array([ [start_x], [start_y] ]) # left bottom point
+    point1 = np.array([ [start_x+length], [start_y] ])
+    point2 = np.array([ [start_x+length], [start_y+width]])
+    point3 = np.array([ [start_x], [start_y+width]])
+
+    return np.hstack((point0, point1, point2, point3))
+
+
+def cal_init_vertex_diff(length, width):
+
+    # vertex when the robot's state (0, 0, 0)
+    # counterclockwise
+    # shape [length, width, wheelbase, wheelbase_w]
+    start_x = -length/2
+    start_y = -width/2
+
+    point0 = np.array([ [start_x], [start_y] ]) # left bottom point
+    point1 = np.array([ [start_x+length], [start_y] ])
+    point2 = np.array([ [start_x+length], [start_y+width]])
+    point3 = np.array([ [start_x], [start_y+width]])
+
+    return np.hstack((point0, point1, point2, point3))
+
+
+def gen_inequal_from_vertex(vertex):
+    # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
+    # vertex: (2, 4)
+
+    num = vertex.shape[1]    
+
+    G = np.zeros((num, 2)) 
+    h = np.zeros((num, 1)) 
+    
+    for i in range(num):
+        if i + 1 < num:
+            pre_point = vertex[:, i]
+            next_point = vertex[:, i+1]
+        else:
+            pre_point = vertex[:, i]
+            next_point = vertex[:, 0]
+        
+        diff = next_point - pre_point
+        
+        a = diff[1]
+        b = -diff[0]
+        c = a * pre_point[0] + b * pre_point[1]
+
+        G[i, 0] = a
+        G[i, 1] = b
+        h[i, 0] = c 
+
+    return G, h
+
+
+def distance(point1, point2):
+    return sqrt( (point1[0, 0] - point2[0, 0])**2 + (point1[1, 0] - point2[1, 0])**2 )
