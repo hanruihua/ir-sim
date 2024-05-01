@@ -42,6 +42,7 @@ def WrapToPi(rad):
     
     return rad
 
+
 def WrapToRegion(rad, range):
     # transform the rad to defined range, 
     # the length of range should be 2 * pi
@@ -328,3 +329,5 @@ def gen_inequal_from_vertex(vertex):
 
 def distance(point1, point2):
     return sqrt( (point1[0, 0] - point2[0, 0])**2 + (point1[1, 0] - point2[1, 0])**2 )
+
+
