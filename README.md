@@ -50,7 +50,7 @@ The usage guidelines are listed in the [ir_sim/usage](https://github.com/hanruih
 ## Contact: 
 hanrh@connect.hku.hk
 
-## Citation
+<!-- ## Citation
 
 ```
 @misc{ir_sim,
@@ -59,7 +59,7 @@ hanrh@connect.hku.hk
  year = 2024,
  url = "https://github.com/hanruihua/ir_sim"
 }
-```
+``` -->
 
 
 
