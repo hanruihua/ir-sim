@@ -47,3 +47,4 @@ py -m twine upload dist/*
 - [ ] Add more key functions for keyboard control
 - [ ] Develop Tools for tackling Data
 - [ ] Add scenarios (tasks), car_racing, maze, traffic
+- [ ] 3D visualization
