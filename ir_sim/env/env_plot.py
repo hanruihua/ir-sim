@@ -26,14 +26,9 @@ class EnvPlot:
             no_axis (default False): whether to show the axis. 
             tight (default True): whether to show the axis tightly
         '''
-
-
-
+        
         if not subplot:
             self.fig, self.ax = plt.subplots()
-
-        # else:
-        #     self.fig, self.ax, self.sub_ax_list = self.sub_world_plot()
 
         self.x_range = x_range
         self.y_range = y_range

@@ -30,7 +30,27 @@ def file_check(file_name, root_path=None):
     return abs_file_name
 
 
+def repeat_mk_dirs(path, max_num=100):
 
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+        return path
+
+    else: 
+        if len(os.listdir(path)) == 0: # empty dir
+            return path
+        else:
+            i = 0
+            while i < max_num:
+                new_path = path + '_' + str(i)
+                i = i + 1
+                if not os.path.exists(new_path):
+                    break
+    
+            os.makedirs(new_path)
+
+            return new_path
 
 def WrapToPi(rad):
     # transform the rad to the range [-pi, pi]
