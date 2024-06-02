@@ -40,6 +40,21 @@ def AckerDash(state, goal, max_vel, angle_tolerance, goal_threshold):
     return np.array([[v_opt], [steer_opt]])
 
 
+def OmniDash(state, goal, max_vel, goal_threshold=0.1):
+
+    distance, radian = relative_position(state, goal) 
+    # speed = np.sqrt( max_vel[0, 0] **2 + max_vel[1, 0] **2 )
+
+    if distance > goal_threshold:
+        vx = max_vel[0, 0] * cos(radian)
+        vy = max_vel[1, 0] * sin(radian)
+    else:
+        vx = 0
+        vy = 0
+
+    return np.array([[vx], [vy]])
+
+
 # rvo
 def DiffRVO(state_tuple, neighbor_list=None, vxmax = 1.5, vymax = 1.5, acceler = 1, factor=1.0, mode='rvo'):
 

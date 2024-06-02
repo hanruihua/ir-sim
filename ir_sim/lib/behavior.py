@@ -2,7 +2,7 @@ from math import inf
 import numpy as np
 from ir_sim.global_param import world_param
 from ir_sim.util.util import relative_position, WrapToPi
-from ir_sim.lib.behaviorlib import DiffDash, AckerDash, DiffRVO
+from ir_sim.lib.behaviorlib import DiffDash, AckerDash, DiffRVO, OmniDash
 
 
 class Behavior:
@@ -58,9 +58,11 @@ class Behavior:
                 behavior_vel = AckerDash(state, goal, max_vel, angle_tolerance, goal_threshold)
 
         elif self.object_info.kinematics == 'omni':
-            pass
             
-                
+            if self.behavior_dict['name'] == 'dash':
+                goal_threshold = self.object_info.goal_threshold
+                behavior_vel = OmniDash(state, goal, max_vel, goal_threshold)
+            
         return behavior_vel
 
     

@@ -1,6 +1,7 @@
 import numpy as np
 from ir_sim.world.robots.robot_diff import RobotDiff
 from ir_sim.world.robots.robot_acker import RobotAcker
+from ir_sim.world.robots.robot_omni import RobotOmni
 from ir_sim.world import ObjectBase
 from ir_sim.world.obstacles.obstacle_diff import ObstacleDiff
 from ir_sim.world.obstacles.obstacle_static import ObstacleStatic
@@ -75,8 +76,7 @@ class ObjectFactory:
         elif kinematics_name == 'acker':
             return RobotAcker.create_with_shape('acker', shape, kinematics_dict=kinematics, **kwargs)
         elif kinematics_name == 'omni':
-            # return RobotOmni(**kwargs)
-            pass
+            return RobotOmni.create_with_shape('omni', shape, kinematics_dict=kinematics, **kwargs)
         else:
             raise NotImplementedError(f"Robot kinematics {kinematics_name} not implemented")
 
