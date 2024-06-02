@@ -138,6 +138,10 @@ class EnvPlot:
 
     def draw_points(self, point_list, s=10, c='m', refresh=True, **kwargs):
 
+        '''
+        point:  
+        '''
+
         if point_list is not None:
 
             x_coordinates = [point[0] for point in point_list]
