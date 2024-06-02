@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 import numpy as np
 
 
-def random_generate_polygon(number=1, center_range=[0, 0, 10, 10], avg_radius_range=[0.1, 1], irregularity_range=[0, 1], spikiness_range=[0, 1], num_vertices_range=[4, 10], **kwargs):
+def random_generate_polygon(number=1, center_range=[0, 0, 10, 10], avg_radius_range=[0.1, 1], irregularity_range=[0, 1], spikeyness_range=[0, 1], num_vertices_range=[4, 10], **kwargs):
 
     ''' 
     2d range: min_x, min_y, max_x, max_y
@@ -13,10 +13,10 @@ def random_generate_polygon(number=1, center_range=[0, 0, 10, 10], avg_radius_ra
     center = np.random.uniform(low=center_range[0:2], high=center_range[2:], size=(number, 2))
     avg_radius = np.random.uniform(low=avg_radius_range[0], high=avg_radius_range[1], size=(number,))
     irregularity = np.random.uniform(low=irregularity_range[0], high=irregularity_range[1], size=(number,))
-    spikiness = np.random.uniform(low=spikiness_range[0], high=spikiness_range[1], size=(number,))
+    spikeyness = np.random.uniform(low=spikeyness_range[0], high=spikeyness_range[1], size=(number,))
     num_vertices = np.random.randint(low=num_vertices_range[0], high=num_vertices_range[1], size=(number,))
 
-    vertices_list = [generate_polygon(center[i, :], avg_radius[i], irregularity[i], spikiness[i], num_vertices[i]) for i in range(number)]
+    vertices_list = [generate_polygon(center[i, :], avg_radius[i], irregularity[i], spikeyness[i], num_vertices[i]) for i in range(number)]
     
     if number == 1:
         return vertices_list[0]
@@ -24,7 +24,7 @@ def random_generate_polygon(number=1, center_range=[0, 0, 10, 10], avg_radius_ra
     return vertices_list
 
 
-def generate_polygon(center, avg_radius, irregularity, spikiness, num_vertices):
+def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices):
 
     # reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
     """
@@ -42,10 +42,10 @@ def generate_polygon(center, avg_radius, irregularity, spikiness, num_vertices):
             the average radius (distance of each generated vertex to
             the center of the circumference) used to generate points
             with a normal distribution.
-        irregularity (float):
+        irregularity (float): 0 - 1
             variance of the spacing of the angles between consecutive
             vertices.
-        spikiness (float):
+        spikeyness (float): 0 - 1
             variance of the distance of each vertex to the center of
             the circumference.
         num_vertices (int):
@@ -57,18 +57,18 @@ def generate_polygon(center, avg_radius, irregularity, spikiness, num_vertices):
     # Parameter check
     if irregularity < 0 or irregularity > 1:
         raise ValueError("Irregularity must be between 0 and 1.")
-    if spikiness < 0 or spikiness > 1:
-        raise ValueError("Spikiness must be between 0 and 1.")
+    if spikeyness < 0 or spikeyness > 1:
+        raise ValueError("spikeyness must be between 0 and 1.")
 
     irregularity *= 2 * math.pi / num_vertices
-    spikiness *= avg_radius
+    spikeyness *= avg_radius
     angle_steps = random_angle_steps(num_vertices, irregularity)
 
     # now generate the points
     points = []
     angle = random.uniform(0, 2 * math.pi)
     for i in range(num_vertices):
-        radius = clip(random.gauss(avg_radius, spikiness), 0, 2 * avg_radius)
+        radius = clip(random.gauss(avg_radius, spikeyness), 0, 2 * avg_radius)
         point = (center[0] + radius * math.cos(angle),
                  center[1] + radius * math.sin(angle))
         points.append(point)
