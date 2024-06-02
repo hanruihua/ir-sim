@@ -32,7 +32,7 @@ obstacle:
   - number: 10
     distribution: {name: 'manual'}
     shape:
-      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]}  # radius
 
   - number: 10
     distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
