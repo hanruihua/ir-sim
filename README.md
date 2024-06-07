@@ -4,10 +4,17 @@
 
 # Intelligent Robot Simulator (IR-SIM)
 
-[![GitHub release](https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir_sim%2Freleases%2F
-)](https://github.com/hanruihua/ir_sim/releases/) 
+<div align="center">
 
-[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
+<a href="https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir_sim%2Freleases%2F
+)](https://github.com/hanruihua/ir_sim/releases/"><img src='https://img.shields.io/github/v/release/hanruihua/ir_sim?color=brightgreen
+' alt='Github Release'></a>
+<a href="https://github.com/hanruihua/ir_sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue
+' alt='License'></a>
+<a href="https://pypistats.org/packages/ir-sim"><img src='https://img.shields.io/pypi/dm/ir_sim
+' alt='Download'></a>
+
+</div>
 
 IR-SIM is an open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
 
