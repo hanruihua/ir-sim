@@ -1,6 +1,6 @@
-<div align="center">
+<!-- <div align="center">
 <img src="doc/image/IR_SIM_logos/logo1_nobg.png" width = "200" >
-</div> 
+</div>  -->
 
 # Intelligent Robot Simulator (IR-SIM)
 
