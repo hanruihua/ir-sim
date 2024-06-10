@@ -175,7 +175,7 @@ class EnvPlot:
 
         order = str(world_param.count).zfill(3)
 
-        self.saved_figure_kwargs.update({'dpi': 300, 'bbox_inches': 'tight'})
+        self.saved_figure_kwargs.update({'dpi': 150, 'bbox_inches': 'tight'})
         self.saved_figure_kwargs.update(kwargs)
 
         self.fig.savefig(fp+'/'+order+'.'+format, format=format, **self.saved_figure_kwargs)
