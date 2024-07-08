@@ -562,7 +562,7 @@ class ObjectBase:
         x = self.state_re[0][0]
         y = self.state_re[1][0]
         theta = self.state_re[2][0]
-        arrow_color = kwargs.get('arrow_color', self.color)
+        arrow_color = kwargs.get('arrow_color', 'gold')
 
         arrow = mpl.patches.Arrow(x, y, arrow_length*cos(theta), arrow_length*sin(theta), width=arrow_width, color=arrow_color)
         arrow.set_zorder(3)
@@ -630,6 +630,9 @@ class ObjectBase:
         self.trajectory = []
 
 
+    # geometry measurement
+    # def distance(self, obj):
+    #     return self._geometry.distance(obj._geometry)
 
     # generate random polygon
     @staticmethod
@@ -854,5 +857,8 @@ class ObjectBase:
         return [self._state[0, 0], self._state[1, 0], self.velocity_xy[0, 0], self.velocity_xy[1, 0], self.radius_extend, vx_des, vy_des, self._state[2, 0]]
 
 
+    # @property  
+    # def velocity_xy(self):
+    #     return self._velocity
         
 

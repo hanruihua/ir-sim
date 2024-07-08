@@ -1,13 +1,13 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection
+from shapely import MultiLineString, GeometryCollection, Point
 from ir_sim.util.util import geometry_transform, get_transform
 from ir_sim.global_param import env_param
 from shapely import get_coordinates
 from matplotlib.collections import LineCollection
 
 class Lidar2D:
-    def __init__(self, state=None, obj_id=0, range_min=0, range_max=10, angle_range = pi, number=100, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], alpha=0.3, **kwargs) -> None:
+    def __init__(self, state=None, obj_id=0, range_min=0, range_max=10, angle_range = pi, number=100, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], alpha=0.3, has_velocity=False, **kwargs) -> None:
         
         self.sensor_type = 'lidar'
 
@@ -26,7 +26,8 @@ class Lidar2D:
         self.angle_std = angle_std
         self.offset = np.c_[offset] 
         self.alpha = alpha
-
+        self.has_velocity = has_velocity
+        self.velocity = np.zeros((2, number))
         
         self.time_inc = (angle_range / (2*pi) ) * scan_time / number # 
         self.range_data = range_max * np.ones(number,)
@@ -75,29 +76,25 @@ class Lidar2D:
         # map_geo = env_param.objects[-1]._geometry
         # new_geometry = new_geometry.difference(map_geo)
         # temp = env_param.objects[-1]._geometry.difference(new_geometry)
-        for obj in env_param.objects:
+
+        intersect_index = []
+               
+        for ind, obj in enumerate(env_param.objects):
             if self.obj_id != obj._id:
-                new_geometry = new_geometry.difference(obj._geometry)
-
-        coord = get_coordinates(new_geometry)
-
-        distances = np.linalg.norm(coord[::2]- self._state[0:2, 0], axis=1)
-
-        filtered_indices = np.where(distances < 0.001)[0]
-
-        filtered_points = []
-
-        for index in filtered_indices:
-             point = coord[2 * index: 2 * index + 2, :]
-             filtered_points.append(point)
-
-        # filter_dis = distances
-
-        # filtered_points = np.array(filtered_points)
-        self._geometry = MultiLineString(filtered_points)
-
-        self.calculate_range()
-
+                if new_geometry.intersects(obj._geometry):
+                    new_geometry = new_geometry.difference(obj._geometry)
+                    intersect_index.append(ind)
+        
+        if len(intersect_index) == 0:
+            self._geometry = new_geometry
+            self.calculate_range()
+        else:
+            coord = get_coordinates(new_geometry)
+            distances = np.linalg.norm(coord[::2]- self._state[0:2, 0], axis=1)
+            filtered_indices = np.where(distances < 0.001)[0]
+            filtered_points = [coord[2 * index: 2 * index + 2, :] for index in filtered_indices]
+            self._geometry = MultiLineString(filtered_points)
+            self.calculate_range_vel(intersect_index)
 
     def calculate_range(self):
 
@@ -109,8 +106,35 @@ class Lidar2D:
             distance = np.round(np.linalg.norm(point - self._state[0:2]), 3) 
 
             self.range_data[index] = distance
+    
+    def calculate_range_vel(self, intersect_index):
 
-        
+        coord = get_coordinates(self._geometry)
+
+        for index, point in enumerate(coord[1::2]):
+            point = np.c_[point]
+
+            distance = np.round(np.linalg.norm(point - self._state[0:2]), 3) 
+
+            self.range_data[index] = distance
+
+            if self.has_velocity:
+                if distance < self.range_max - 0.02:
+                    for index_obj in intersect_index:
+                        obj = env_param.objects[index_obj]
+
+                        p = Point(point[0, 0], point[1, 0])    
+                            
+                        if obj.geometry.distance(p) < 0.1:
+                            self.velocity[:, index:index+1] = obj.velocity_xy
+                            break
+            
+
+
+
+
+
+
     def get_scan(self):
         # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html 
         scan_data = {}
@@ -123,6 +147,7 @@ class Lidar2D:
         scan_data['range_max'] = self.range_max
         scan_data['ranges'] = self.range_data
         scan_data['intensities'] = None
+        scan_data['velocity'] = self.velocity
 
         return scan_data
 

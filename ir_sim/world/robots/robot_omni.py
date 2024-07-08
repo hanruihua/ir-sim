@@ -62,7 +62,9 @@ class RobotOmni(ObjectBase):
         self.plot_patch_list.append(robot_img)
 
 
-
+    @property
+    def velocity_xy(self):
+        return self._velocity
     
 
 
