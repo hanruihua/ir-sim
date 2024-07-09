@@ -252,6 +252,9 @@ class EnvBase:
     def get_lidar_scan(self, id=0):
         return self.robot_list[id].get_lidar_scan()
     
+    def get_lidar_offset(self, id=0):
+        return self.robot_list[id].get_lidar_offset()
+
     @property
     def objects(self):
         return self._object_collection

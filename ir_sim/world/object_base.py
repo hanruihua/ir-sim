@@ -418,6 +418,8 @@ class ObjectBase:
     def get_lidar_points(self):
         return self.lidar.get_points()
 
+    def get_lidar_offset(self):
+        return self.lidar.get_offset()
 
 
 
