@@ -1,14 +1,26 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection
-from ir_sim.util.util import geometry_transform, get_transform
+from shapely import MultiLineString, GeometryCollection, Point
+from ir_sim.util.util import geometry_transform, transform_point_with_state
 from ir_sim.global_param import env_param
 from shapely import get_coordinates
 from matplotlib.collections import LineCollection
 
 class Lidar2D:
-    def __init__(self, state=None, obj_id=0, range_min=0, range_max=10, angle_range = pi, number=100, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], alpha=0.3, **kwargs) -> None:
+    def __init__(self, state=None, obj_id=0, range_min=0, range_max=10, angle_range = pi, number=100, scan_time=0.1, noise=False, std=0.2, angle_std=0.02, offset=[0, 0, 0], alpha=0.3, has_velocity=False, **kwargs) -> None:
         
+
+        '''
+        
+        
+        
+        
+        alpha: for transparency
+        
+        '''
+
+
+
         self.sensor_type = 'lidar'
 
         self.range_min = range_min
@@ -25,14 +37,17 @@ class Lidar2D:
         self.std = std
         self.angle_std = angle_std
         self.offset = np.c_[offset] 
-        self.alpha = alpha
+        self.lidar_origin = self.offset
 
+        self.alpha = alpha  
+        self.has_velocity = has_velocity
+        self.velocity = np.zeros((2, number))
         
         self.time_inc = (angle_range / (2*pi) ) * scan_time / number # 
         self.range_data = range_max * np.ones(number,)
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
         
-        self._state = state + self.offset
+        self._state = state
         self.init_geometry(self._state)
 
         self.color = kwargs.get('color', 'r')
@@ -60,14 +75,18 @@ class Lidar2D:
             segment_point_list.append(segment)
 
         self._init_geometry = MultiLineString(segment_point_list)
+        self._init_geometry = geometry_transform(self._init_geometry, self.offset)
+        self.lidar_origin = transform_point_with_state(self.offset, state)
         self._geometry = geometry_transform(self._init_geometry, state)
 
 
     def step(self, state):
-        self._state = state + self.offset
+
+        self._state = state
+
+        self.lidar_origin = transform_point_with_state(self.offset, self._state)
         new_geometry = geometry_transform(self._init_geometry, self._state)
 
-        
         # geo_list = [obj._geometry for obj in env_param.objects if self.obj_id != obj._id]
         # object_geometries = GeometryCollection(geo_list)
         # # new_diff_geometry = new_geometry.difference(object_geometries)
@@ -75,42 +94,80 @@ class Lidar2D:
         # map_geo = env_param.objects[-1]._geometry
         # new_geometry = new_geometry.difference(map_geo)
         # temp = env_param.objects[-1]._geometry.difference(new_geometry)
-        for obj in env_param.objects:
+
+        intersect_index = []
+               
+        for ind, obj in enumerate(env_param.objects):
             if self.obj_id != obj._id:
-                new_geometry = new_geometry.difference(obj._geometry)
-
-        coord = get_coordinates(new_geometry)
-
-        distances = np.linalg.norm(coord[::2]- self._state[0:2, 0], axis=1)
-
-        filtered_indices = np.where(distances < 0.001)[0]
-
-        filtered_points = []
-
-        for index in filtered_indices:
-             point = coord[2 * index: 2 * index + 2, :]
-             filtered_points.append(point)
-
-        # filter_dis = distances
-
-        # filtered_points = np.array(filtered_points)
-        self._geometry = MultiLineString(filtered_points)
-
-        self.calculate_range()
-
+                if new_geometry.intersects(obj._geometry):
+                    new_geometry = new_geometry.difference(obj._geometry)
+                    intersect_index.append(ind)
+        
+        if len(intersect_index) == 0:
+            self._geometry = new_geometry
+            self.calculate_range()
+        else:
+            # coord = get_coordinates(new_geometry)
+            # distances = np.linalg.norm(coord[::2]- self.lidar_origin[0:2, 0], axis=1)
+            # filtered_indices = np.where(distances < 0.001)[0]
+            # filtered_points = [coord[2 * index: 2 * index + 2, :] for index in filtered_indices]
+            # self._geometry = MultiLineString(filtered_points)
+            # self.calculate_range_vel(intersect_index)
+            # ranges = np.array([g.length for g in new_geometry.geoms])
+            # filtered_indices = np.where(ranges < 0.001)[0]
+            origin_point = Point(self.lidar_origin[0, 0], self.lidar_origin[1, 0])
+            filtered_geoms = [g for g in new_geometry.geoms if g.intersects(origin_point)]
+            self._geometry = MultiLineString(filtered_geoms)
+            self.calculate_range_vel(intersect_index)
 
     def calculate_range(self):
 
-        coord = get_coordinates(self._geometry)
+        # coord = get_coordinates(self._geometry)
 
-        for index, point in enumerate(coord[1::2]):
-            point = np.c_[point]
+        for index, l in enumerate(self._geometry.geoms):
+            self.range_data[index] = l.length
 
-            distance = np.round(np.linalg.norm(point - self._state[0:2]), 3) 
+        # for index, point in enumerate(coord[1::2]):
+        #     point = np.c_[point]
 
-            self.range_data[index] = distance
+        #     distance = np.round(np.linalg.norm(point - self.lidar_origin[0:2, 0]), 3) 
 
-        
+        #     self.range_data[index] = distance
+    
+    def calculate_range_vel(self, intersect_index):
+
+        for index, l in enumerate(self._geometry.geoms):
+            self.range_data[index] = l.length
+
+            if self.has_velocity:
+                if l.length < self.range_max - 0.02:
+                    for index_obj in intersect_index:
+                        obj = env_param.objects[index_obj]
+                        # p = Point(point[0, 0], point[1, 0])      
+                        if obj.geometry.distance(l) < 0.1:
+                            self.velocity[:, index:index+1] = obj.velocity_xy
+                            break
+
+        # coord = get_coordinates(self._geometry)
+
+        # for index, point in enumerate(coord[1::2]):
+        #     point = np.c_[point]
+
+        #     distance = np.round(np.linalg.norm(point - self.lidar_origin[0:2, 0]), 3) 
+
+        #     self.range_data[index] = distance
+
+        #     if self.has_velocity:
+        #         if distance < self.range_max - 0.02:
+        #             for index_obj in intersect_index:
+        #                 obj = env_param.objects[index_obj]
+
+        #                 p = Point(point[0, 0], point[1, 0])    
+                            
+        #                 if obj.geometry.distance(p) < 0.1:
+        #                     self.velocity[:, index:index+1] = obj.velocity_xy
+        #                     break
+            
     def get_scan(self):
         # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html 
         scan_data = {}
@@ -123,6 +180,7 @@ class Lidar2D:
         scan_data['range_max'] = self.range_max
         scan_data['ranges'] = self.range_data
         scan_data['intensities'] = None
+        scan_data['velocity'] = self.velocity
 
         return scan_data
 
@@ -130,6 +188,8 @@ class Lidar2D:
     def get_points(self):
         return self.scan_to_pointcloud()
 
+    def get_offset(self):
+        return np.squeeze(self.offset).tolist()
 
     def plot(self, ax, **kwargs):
         

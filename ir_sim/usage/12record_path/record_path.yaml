@@ -5,7 +5,9 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
-  control_mode: 'auto'  # 'keyboard', 'auto'
+  control_mode: 'keyboard'  # 'keyboard', 'auto'
+  obstacle_map: 'cave.png'
+  mdownsample: 2
 
 robot:
   - kinematics: {name: 'acker'}  # omni, diff, acker
@@ -14,6 +16,11 @@ robot:
     goal: [40, 40, 0]
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly
+    plot:
+      show_trail: True
+      traj_color: 'g'
+      show_trajectory: True
+      show_goal: False
 
     sensors: 
       - type: 'lidar2d'
@@ -28,13 +35,10 @@ robot:
         reso: 0.1
         alpha: 0.4
 
+
 obstacle:
   - number: 10
     distribution: {name: 'manual'}
     shape:
-      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]}  # radius
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
 
-  - number: 10
-    distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
-    shape:
-      - {name: 'circle', radius: 0.4}  # radius

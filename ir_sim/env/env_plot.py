@@ -26,14 +26,9 @@ class EnvPlot:
             no_axis (default False): whether to show the axis. 
             tight (default True): whether to show the axis tightly
         '''
-
-
-
+        
         if not subplot:
             self.fig, self.ax = plt.subplots()
-
-        # else:
-        #     self.fig, self.ax, self.sub_ax_list = self.sub_world_plot()
 
         self.x_range = x_range
         self.y_range = y_range
@@ -143,6 +138,10 @@ class EnvPlot:
 
     def draw_points(self, point_list, s=10, c='m', refresh=True, **kwargs):
 
+        '''
+        point:  
+        '''
+
         if point_list is not None:
 
             x_coordinates = [point[0] for point in point_list]
@@ -176,7 +175,7 @@ class EnvPlot:
 
         order = str(world_param.count).zfill(3)
 
-        self.saved_figure_kwargs.update({'dpi': 300, 'bbox_inches': 'tight'})
+        self.saved_figure_kwargs.update({'dpi': 150, 'bbox_inches': 'tight'})
         self.saved_figure_kwargs.update(kwargs)
 
         self.fig.savefig(fp+'/'+order+'.'+format, format=format, **self.saved_figure_kwargs)

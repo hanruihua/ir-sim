@@ -32,14 +32,14 @@ robot:
     plot: {show_trajectory: True, show_trail: True, trail_fill: True, trail_alpha: 0.2} 
       
       
-obstacles:
+obstacle:
   - number: 10
-    distribution: {mode: 'manual'}
-    shapes:
+    distribution: {name: 'manual'}
+    shape:
       - {name: 'circle', radius: 1.5}  # radius
       - {name: 'circle', radius: 1.0}  # radius
-
-    states: [[20, 34], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
+      
+    state: [[20, 34], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
 
 
 

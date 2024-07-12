@@ -1,6 +1,6 @@
 from ir_sim.env import EnvBase
 
-env = EnvBase('random_obstacle.yaml', save_ani=False, rm_fig_path=False, full=False)
+env = EnvBase('random_obstacle.yaml', save_ani=False, full=False)
 
 for i in range(300):
 
@@ -10,4 +10,4 @@ for i in range(300):
     if env.done():
         break
 
-env.end(3)
+env.end(3, rm_fig_path=False)

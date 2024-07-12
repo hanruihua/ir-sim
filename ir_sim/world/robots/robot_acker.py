@@ -1,14 +1,13 @@
 from ir_sim.world import ObjectBase
 from math import sin, cos, tan, pi
 import numpy as np
-from ir_sim.util.util import WrapToPi
+from ir_sim.util.util import WrapToPi, diff_to_omni
 from ir_sim.global_param import world_param 
 from matplotlib import image
 import matplotlib.transforms as mtransforms
 from ir_sim.util.util import WrapToRegion, get_transform, get_affine_transform
 import matplotlib as mpl
 from ir_sim.global_param.path_param import path_manager
-
 
 
 class RobotAcker(ObjectBase):
@@ -87,6 +86,11 @@ class RobotAcker(ObjectBase):
         ax.add_patch(arrow)
         
         self.plot_patch_list.append(arrow)
+
+
+    @property
+    def velocity_xy(self):
+        return diff_to_omni(self.state[2, 0], self._velocity)
 
        
 

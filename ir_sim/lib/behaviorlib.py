@@ -3,7 +3,7 @@ import numpy as np
 from math import atan2, asin, cos, sin
 
 
-def DiffDash(state, goal, max_vel, angle_tolerance=0.1, goal_threshold=0.1):
+def DiffDash(state, goal, max_vel, angle_tolerance=0.2, goal_threshold=0.1):
 
     distance, radian = relative_position(state, goal) 
 
@@ -38,6 +38,21 @@ def AckerDash(state, goal, max_vel, angle_tolerance, goal_threshold):
         steer_opt = np.clip(diff_radian, -max_vel[1, 0], max_vel[1, 0])   
 
     return np.array([[v_opt], [steer_opt]])
+
+
+def OmniDash(state, goal, max_vel, goal_threshold=0.1):
+
+    distance, radian = relative_position(state, goal) 
+    # speed = np.sqrt( max_vel[0, 0] **2 + max_vel[1, 0] **2 )
+
+    if distance > goal_threshold:
+        vx = max_vel[0, 0] * cos(radian)
+        vy = max_vel[1, 0] * sin(radian)
+    else:
+        vx = 0
+        vy = 0
+
+    return np.array([[vx], [vy]])
 
 
 # rvo

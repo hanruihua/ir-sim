@@ -1,9 +1,9 @@
 import os
 import sys
-from math import pi, atan2, sin, cos
+from math import pi, atan2, sin, cos, sqrt
 import numpy as np
 from shapely import ops
-
+import time
 
 def file_check(file_name, root_path=None):
     # check whether file exist or the type is correct
@@ -30,7 +30,27 @@ def file_check(file_name, root_path=None):
     return abs_file_name
 
 
+def repeat_mk_dirs(path, max_num=100):
 
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+        return path
+
+    else: 
+        if len(os.listdir(path)) == 0: # empty dir
+            return path
+        else:
+            i = 0
+            while i < max_num:
+                new_path = path + '_' + str(i)
+                i = i + 1
+                if not os.path.exists(new_path):
+                    break
+    
+            os.makedirs(new_path)
+
+            return new_path
 
 def WrapToPi(rad):
     # transform the rad to the range [-pi, pi]
@@ -41,6 +61,7 @@ def WrapToPi(rad):
         rad = rad + 2 * pi
     
     return rad
+
 
 def WrapToRegion(rad, range):
     # transform the rad to defined range, 
@@ -154,6 +175,19 @@ def get_transform(state):
 
     return trans, rot 
 
+def transform_point_with_state(point, state):
+    # transform the point with state 
+    # state [x, y, theta], point [x, y]
+
+    trans, rot = get_transform(state)
+    new_point = rot @ point[0:2] + trans
+
+    return new_point
+
+
+
+
+
 def get_affine_transform(state):
     # 2d: 6 paramters: [a, b, d, e, xoff, yoff] reference: https://shapely.readthedocs.io/en/stable/manual.html
     return [cos(state[2, 0]), -sin(state[2, 0]), sin(state[2, 0]), cos(state[2, 0]), state[0, 0], state[1, 0]]
@@ -227,3 +261,106 @@ def diff_to_omni(state_ori, vel_diff):
 #         lst.append(lst[-1])
         
 #     return lst
+
+
+def time_it(name='Function', print=True):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            wrapper.count += 1  
+            start = time.time() 
+            result = func(*args, **kwargs)  
+            end = time.time()  
+            wrapper.func_count += 1 
+            print(f"{name} execute time {(end - start):.6f} seconds") 
+            return result
+        wrapper.count = 0  
+        wrapper.func_count = 0 
+        return wrapper
+    return decorator
+
+
+def time_it2(name='Function'):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            wrapper.count += 1  
+            start = time.time() 
+            result = func(self, *args, **kwargs)  
+            end = time.time()  
+            wrapper.func_count += 1 
+            if self.time_print:
+                print(f"{name} execute time {(end - start):.6f} seconds") 
+            return result
+        wrapper.count = 0  
+        wrapper.func_count = 0 
+        return wrapper
+    return decorator
+
+
+
+
+def cal_init_vertex(length, width, wheelbase):
+
+    # vertex when the robot's state (0, 0, 0)
+    # counterclockwise
+    # shape [length, width, wheelbase, wheelbase_w]
+    start_x = -(length - wheelbase)/2
+    start_y = -width/2
+
+    point0 = np.array([ [start_x], [start_y] ]) # left bottom point
+    point1 = np.array([ [start_x+length], [start_y] ])
+    point2 = np.array([ [start_x+length], [start_y+width]])
+    point3 = np.array([ [start_x], [start_y+width]])
+
+    return np.hstack((point0, point1, point2, point3))
+
+
+def cal_init_vertex_diff(length, width):
+
+    # vertex when the robot's state (0, 0, 0)
+    # counterclockwise
+    # shape [length, width, wheelbase, wheelbase_w]
+    start_x = -length/2
+    start_y = -width/2
+
+    point0 = np.array([ [start_x], [start_y] ]) # left bottom point
+    point1 = np.array([ [start_x+length], [start_y] ])
+    point2 = np.array([ [start_x+length], [start_y+width]])
+    point3 = np.array([ [start_x], [start_y+width]])
+
+    return np.hstack((point0, point1, point2, point3))
+
+
+def gen_inequal_from_vertex(vertex):
+    # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
+    # vertex: (2, 4)
+
+    num = vertex.shape[1]    
+
+    G = np.zeros((num, 2)) 
+    h = np.zeros((num, 1)) 
+    
+    for i in range(num):
+        if i + 1 < num:
+            pre_point = vertex[:, i]
+            next_point = vertex[:, i+1]
+        else:
+            pre_point = vertex[:, i]
+            next_point = vertex[:, 0]
+        
+        diff = next_point - pre_point
+        
+        a = diff[1]
+        b = -diff[0]
+        c = a * pre_point[0] + b * pre_point[1]
+
+        G[i, 0] = a
+        G[i, 1] = b
+        h[i, 0] = c 
+
+    return G, h
+
+
+def distance(point1, point2):
+    return sqrt( (point1[0, 0] - point2[0, 0])**2 + (point1[1, 0] - point2[1, 0])**2 )
+
+

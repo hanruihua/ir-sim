@@ -25,7 +25,7 @@ class EnvBase:
             world_name: the name of the world file, default is None
      
     '''
-    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log=True, log_file='ir_sim.log', log_level='INFO', **kwargs):
+    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log=True, log_file='ir_sim.log', log_level='INFO'):
 
         env_para = EnvPara(world_name)
         object_factory = ObjectFactory() 
@@ -252,6 +252,9 @@ class EnvBase:
     def get_lidar_scan(self, id=0):
         return self.robot_list[id].get_lidar_scan()
     
+    def get_lidar_offset(self, id=0):
+        return self.robot_list[id].get_lidar_offset()
+
     @property
     def objects(self):
         return self._object_collection
