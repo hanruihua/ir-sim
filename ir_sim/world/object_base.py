@@ -486,7 +486,7 @@ class ObjectBase:
             self.cone_type = 'norm2'
 
         else:
-            init_vertex = np.array(shape_tuple)
+            init_vertex = np.array(shape_tuple).T
             num = init_vertex.shape[1]
 
             G = np.zeros((num, 2)) 
