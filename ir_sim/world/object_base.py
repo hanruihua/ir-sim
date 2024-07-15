@@ -483,7 +483,7 @@ class ObjectBase:
             radius = shape_tuple[2]
             G = np.array([ [1, 0], [0, 1], [0, 0] ])
             h = np.array( [ [0], [0], [-radius] ] ) 
-            self.cone_type = 'norm'
+            self.cone_type = 'norm2'
 
         else:
             init_vertex = np.array(shape_tuple)
@@ -848,7 +848,6 @@ class ObjectBase:
         return self.info
 
     def get_obstacle_info(self):
-        
         return ObstacleInfo(self._state[:2, :], self.vertices[:, :-1], self._velocity, self.info.cone_type, self.radius)
 
     # def get_convex_info(self):
