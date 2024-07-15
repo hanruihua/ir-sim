@@ -255,9 +255,17 @@ class EnvBase:
     def get_lidar_offset(self, id=0):
         return self.robot_list[id].get_lidar_offset()
 
+    def get_obstacle_list(self):
+        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
+
+
     @property
     def objects(self):
         return self._object_collection
+    
+    @property
+    def step_time(self):
+        return self._world.step_time
 
     # region: keyboard control
     def on_press(self, key):

@@ -29,7 +29,24 @@ class ObjectInfo:
     acce: np.ndarray
     angle_range: np.ndarray
     goal_threshold: float
+    G: np.ndarray
+    h: np.ndarray
+    cone_type: str
+    wheelbase: float
 
+    def add_property(self, key, value):
+        setattr(self, key, value)
+
+
+@dataclass
+class ObstacleInfo:
+    # (center, radius, vertex, cone_type, velocity)
+    center: np.ndarray
+    vertex: np.ndarray
+    velocity: np.ndarray
+    cone_type: str
+    radius: float
+    
     def add_property(self, key, value):
         setattr(self, key, value)
 
@@ -103,11 +120,14 @@ class ObjectBase:
         self.vel_max = np.c_[vel_max]
         self.color = color
         self.role = role
-        self.info = ObjectInfo(self._id, shape, kinematics, role, color, static, np.c_[goal], np.c_[vel_min], np.c_[vel_max], np.c_[acce], np.c_[angle_range], goal_threshold)
-        
+
         self.length = kwargs.get('length', None)
         self.width = kwargs.get('width', None)
+        self.wheelbase = kwargs.get('wheelbase', None)
 
+        self.info = ObjectInfo(self._id, shape, kinematics, role, color, static, np.c_[goal], np.c_[vel_min], np.c_[vel_max], np.c_[acce], np.c_[angle_range], goal_threshold, self.G, self.h, self.cone_type, self.wheelbase)
+        self.obstacle_info = None
+        
         self.trajectory = []
 
         self.description = description
@@ -424,6 +444,14 @@ class ObjectBase:
 
 
     def construct_geometry(self, shape, shape_tuple, reso=0.1):
+        
+        '''
+        shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
+                for circle, the list should have be: (center_x, center_y, radius)
+                for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
+                for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. 
+        '''
+
 
         if shape == 'circle':
             geometry = Point([ shape_tuple[0], shape_tuple[1] ]).buffer(shape_tuple[2])
@@ -438,9 +466,93 @@ class ObjectBase:
             geometry = MultiPoint(shape_tuple.T).buffer(reso/2)
 
         else:
-            raise ValueError("shape should be one of the following: circle, polygon, linestring")
+            raise ValueError("shape should be one of the following: circle, polygon, linestring, points")
+
+        self.G, self.h = self.generate_Gh(shape, shape_tuple)
 
         return geometry
+
+
+    def generate_Gh(self, shape, shape_tuple):
+
+        '''
+        generate G and h for convex object, Calculate the matrix G and g for the Generalized inequality: G @ point <_k h,  at the init position
+        '''
+
+        if shape == 'circle':
+            radius = shape_tuple[2]
+            G = np.array([ [1, 0], [0, 1], [0, 0] ])
+            h = np.array( [ [0], [0], [-radius] ] ) 
+            self.cone_type = 'norm'
+
+        else:
+            init_vertex = np.array(shape_tuple)
+            num = init_vertex.shape[1]
+
+            G = np.zeros((num, 2)) 
+            h = np.zeros((num, 1)) 
+        
+            for i in range(num):
+                if i + 1 < num:
+                    pre_point = init_vertex[:, i]
+                    next_point = init_vertex[:, i+1]
+                else:
+                    pre_point = init_vertex[:, i]
+                    next_point = init_vertex[:, 0]
+                
+                diff = next_point - pre_point
+                
+                a = diff[1]
+                b = -diff[0]
+                c = a * pre_point[0] + b * pre_point[1]
+
+                G[i, 0] = a
+                G[i, 1] = b
+                h[i, 0] = c 
+
+            self.cone_type = 'Rpositive'
+
+        return G, h
+
+    
+
+    # def gen_inequal(self):
+    #     # Calculate the matrix G and g for the Generalized inequality: G @ point <_k h,  at the init position
+    #     # self.G, self.h = self.gen_inequal()
+
+    #     if self.appearance == 'circle':  
+    #         G = np.array([ [1, 0], [0, 1], [0, 0] ])
+    #         h = np.array( [ [0], [0], [-self.radius] ] ) 
+    #     else:
+    #         num = self.init_vertex.shape[1]
+
+    #         G = np.zeros((num, 2)) 
+    #         h = np.zeros((num, 1)) 
+        
+    #         for i in range(num):
+    #             if i + 1 < num:
+    #                 pre_point = self.init_vertex[:, i]
+    #                 next_point = self.init_vertex[:, i+1]
+    #             else:
+    #                 pre_point = self.init_vertex[:, i]
+    #                 next_point = self.init_vertex[:, 0]
+                
+    #             diff = next_point - pre_point
+                
+    #             a = diff[1]
+    #             b = -diff[0]
+    #             c = a * pre_point[0] + b * pre_point[1]
+
+    #             G[i, 0] = a
+    #             G[i, 1] = b
+    #             h[i, 0] = c 
+        
+    #     return G, h
+
+
+
+
+
 
 
     def geometry_state_transition(self):
@@ -734,6 +846,13 @@ class ObjectBase:
     # get information
     def get_info(self):
         return self.info
+
+    def get_obstacle_info(self):
+        
+        return ObstacleInfo(self._state[:2, :], self.vertices[:, :-1], self._velocity, self.info.cone_type, self.radius)
+
+    # def get_convex_info(self):
+    #     return 
 
     # property
     @property
