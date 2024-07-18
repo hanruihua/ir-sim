@@ -161,9 +161,6 @@ class EnvPlot:
         if refresh: 
             self.dyna_line_list.append(box_line)
 
-        
-
-
     # save animation and figure 
     def save_gif_figure(self, format='png', **kwargs):
 
@@ -223,6 +220,10 @@ class EnvPlot:
     def show(self):
         plt.show()
 
+
+    @staticmethod
+    def draw_ackerman_velocity(self, velocity_list, x_name, y_name, **kwargs):
+        pass
 
     # def sub_world_plot(self):
 
