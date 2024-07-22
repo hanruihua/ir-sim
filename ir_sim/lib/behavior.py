@@ -31,6 +31,7 @@ class Behavior:
                 goal_threshold = self.object_info.goal_threshold
 
                 behavior_vel = DiffDash(state, goal, max_vel, angle_tolerance, goal_threshold)
+                
 
             elif self.behavior_dict['name'] == 'rvo':
 

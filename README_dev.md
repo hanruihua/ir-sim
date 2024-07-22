@@ -48,3 +48,4 @@ py -m twine upload dist/*
 - [ ] Develop Tools for tackling Data
 - [ ] Add scenarios (tasks), car_racing, maze, traffic
 - [ ] 3D visualization
+- [ ] check whether the object is convex

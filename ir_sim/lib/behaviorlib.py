@@ -3,7 +3,7 @@ import numpy as np
 from math import atan2, asin, cos, sin
 
 
-def DiffDash(state, goal, max_vel, angle_tolerance=0.1, goal_threshold=0.1):
+def DiffDash(state, goal, max_vel, angle_tolerance=0.2, goal_threshold=0.1):
 
     distance, radian = relative_position(state, goal) 
 

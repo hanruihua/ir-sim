@@ -175,6 +175,19 @@ def get_transform(state):
 
     return trans, rot 
 
+def transform_point_with_state(point, state):
+    # transform the point with state 
+    # state [x, y, theta], point [x, y]
+
+    trans, rot = get_transform(state)
+    new_point = rot @ point[0:2] + trans
+
+    return new_point
+
+
+
+
+
 def get_affine_transform(state):
     # 2d: 6 paramters: [a, b, d, e, xoff, yoff] reference: https://shapely.readthedocs.io/en/stable/manual.html
     return [cos(state[2, 0]), -sin(state[2, 0]), sin(state[2, 0]), cos(state[2, 0]), state[0, 0], state[1, 0]]
