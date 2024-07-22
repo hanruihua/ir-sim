@@ -182,7 +182,7 @@ class ObjectBase:
  
         elif shape_name == 'rectangle':
 
-            if kinematics_name == 'diff':
+            if kinematics_name == 'diff' or kinematics_name == 'omni':
                 length = shape_dict.get('length', 0.2)
                 width = shape_dict.get('width', 0.1)
 

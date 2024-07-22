@@ -1,3 +1,15 @@
+## ir_sim 2.1.2
+
+
+
+
+
+## ir_sim 2.1.1
+
+- Update the YAML API
+- Enhance features in object_base (G, h)
+- Expand project development utilities
+- Fix some bugs
 
 ## ir_sim 2.1.0
 
