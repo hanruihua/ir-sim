@@ -41,7 +41,7 @@ def repeat_mk_dirs(path, max_num=100):
         if len(os.listdir(path)) == 0: # empty dir
             return path
         else:
-            i = 0
+            i = 1
             while i < max_num:
                 new_path = path + '_' + str(i)
                 i = i + 1
