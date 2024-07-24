@@ -1,7 +1,7 @@
 ## ir_sim 2.1.2
 
-
-
+- Fix bug for omni dynamics robots
+- 
 
 
 ## ir_sim 2.1.1
