@@ -49,3 +49,4 @@ py -m twine upload dist/*
 - [ ] Add scenarios (tasks), car_racing, maze, traffic
 - [ ] 3D visualization
 - [ ] check whether the object is convex
+- [ ] Add synchronization and asynchronization mode
