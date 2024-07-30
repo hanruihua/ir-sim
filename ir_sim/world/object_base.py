@@ -121,8 +121,8 @@ class ObjectBase:
         self.color = color
         self.role = role
 
-        self.length = kwargs.get('length', None)
-        self.width = kwargs.get('width', None)
+        self.length = kwargs.get('length', self.radius)
+        self.width = kwargs.get('width', self.radius)
         self.wheelbase = kwargs.get('wheelbase', None)
 
         self.info = ObjectInfo(self._id, shape, kinematics, role, color, static, np.c_[goal], np.c_[vel_min], np.c_[vel_max], np.c_[acce], np.c_[angle_range], goal_threshold, self.G, self.h, self.cone_type, self.wheelbase)
