@@ -365,6 +365,14 @@ class ObjectBase:
                         self.arrive_flag = False
 
                 if self.obj_behavior.behavior_dict['name'] == 'rvo':
+
+                    if self.arrive_flag:
+                        range_low = np.c_[self.obj_behavior.behavior_dict['range_low']]
+                        range_high = np.c_[self.obj_behavior.behavior_dict['range_high']]
+
+                        self._goal = np.random.uniform(range_low, range_high)
+                        self.arrive_flag = False
+
                     behavior_vel = self.obj_behavior.gen_vel(self._state, self._goal, min_vel, max_vel, rvo_neighbor = self.rvo_neighbors, rvo_state=self.rvo_state)
                 
                 else:
