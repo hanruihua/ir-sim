@@ -208,6 +208,7 @@ class EnvBase:
         
     def reset(self):
         self.reset_all() 
+        self.step(action=np.zeros((2, 1)))
 
     def reset_all(self):
         [obj.reset() for obj in self.objects]
