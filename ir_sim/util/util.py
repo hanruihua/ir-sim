@@ -185,9 +185,6 @@ def transform_point_with_state(point, state):
     return new_point
 
 
-
-
-
 def get_affine_transform(state):
     # 2d: 6 paramters: [a, b, d, e, xoff, yoff] reference: https://shapely.readthedocs.io/en/stable/manual.html
     return [cos(state[2, 0]), -sin(state[2, 0]), sin(state[2, 0]), cos(state[2, 0]), state[0, 0], state[1, 0]]
@@ -330,9 +327,55 @@ def cal_init_vertex_diff(length, width):
     return np.hstack((point0, point1, point2, point3))
 
 
+def cross_product(o, a, b):
+    """Compute the cross product of vectors OA and OB.
+    A positive cross product indicates a counter-clockwise turn,
+    a negative indicates a clockwise turn, and zero indicates a collinear point."""
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+def is_convex_and_ordered(points):
+    """Determine if the polygon is convex and return the order (CW or CCW).
+    
+    Args:
+        points (np.ndarray): A 2xN NumPy array representing the vertices of the polygon.
+        
+    Returns:
+        (bool, str): A tuple where the first element is True if the polygon is convex,
+                      and the second element is 'CW' or 'CCW' based on the order.
+                      If not convex, returns (False, None).
+    """
+    n = points.shape[1]  # Number of points
+    if n < 3:
+        return False, None  # A polygon must have at least 3 points
+
+    # Initialize the direction for the first cross product
+    direction = 0
+    
+    for i in range(n):
+        o = points[:, i]
+        a = points[:, (i + 1) % n]
+        b = points[:, (i + 2) % n]
+        
+        cross = cross_product(o, a, b)
+        
+        if cross != 0:  # Only consider non-collinear points
+            if direction == 0:
+                direction = 1 if cross > 0 else -1
+            elif (cross > 0 and direction < 0) or (cross < 0 and direction > 0):
+                return False, None  # Not convex
+
+    return True, 'CCW' if direction > 0 else 'CW'  
+
+
 def gen_inequal_from_vertex(vertex):
     # generalized inequality, inside: Gx <=_k h, norm2 cone at current position
     # vertex: (2, 4)
+
+    convex_flag, order = is_convex_and_ordered(vertex)
+
+    assert convex_flag, 'The polygon constructed by vertex is not convex. Please check the vertex.'
+
+    if order == 'CW': vertex = vertex[:, ::-1]
 
     num = vertex.shape[1]    
 
@@ -364,3 +407,4 @@ def distance(point1, point2):
     return sqrt( (point1[0, 0] - point2[0, 0])**2 + (point1[1, 0] - point2[1, 0])**2 )
 
 
+   

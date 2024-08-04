@@ -366,7 +366,7 @@ class ObjectBase:
 
                 if self.obj_behavior.behavior_dict['name'] == 'rvo':
 
-                    if self.arrive_flag:
+                    if self.arrive_flag and self.obj_behavior.behavior_dict.get('wander', False):
                         range_low = np.c_[self.obj_behavior.behavior_dict['range_low']]
                         range_high = np.c_[self.obj_behavior.behavior_dict['range_high']]
 
