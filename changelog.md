@@ -1,6 +1,8 @@
 ## ir_sim 2.1.2
 
 - Fix bug for omni dynamics robots
+- Fix bug for rvo behavior
+- Replace the diff description for the object_base
 - 
 
 
