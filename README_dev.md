@@ -51,3 +51,4 @@ py -m twine upload dist/*
 - [ ] check whether the object is convex
 - [ ] Add synchronization and asynchronization mode
 - [ ] Add tf (similar like ROS tf)
+- [ ] pytest
