@@ -1,148 +1,57 @@
-import logging
-import os
-import sys
 import yaml
-import imageio
-import shutil
+from ir_sim.env.env_para import EnvPara
+from ir_sim.util.util import file_check
+from ir_sim.world import world
+from .env_plot import EnvPlot
+import threading
+from ir_sim.global_param import world_param, env_param
+import time
+import sys
+from ir_sim.world.object_factory import ObjectFactory
+from matplotlib import pyplot as plt
 import platform
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-import matplotlib.style as mplstyle
-mplstyle.use('fast')
-
-from pathlib import Path, PurePath
 from pynput import keyboard
-from math import sin, cos, pi
-from .env_robot import EnvRobot
-from ir_sim.global_param import world_param, env_param
-from .env_obstacle import EnvObstacle
-from ir_sim.world import world, RobotDiff, RobotAcker, RobotOmni, ObstacleCircle, ObstaclePolygon, ObstacleBlock, ObstacleLine
+from .env_logger import EnvLogger
+import copy
+
 
 class EnvBase:
 
-    robot_factory={'robot_diff': RobotDiff, 'robot_acker': RobotAcker, 'robot_omni': RobotOmni}
-    obstacle_factory = {'obstacle_circle': ObstacleCircle, 'obstacle_block': ObstacleBlock, 'obstacle_polygon': ObstaclePolygon, 'obstacle_line': ObstacleLine}
+    '''
+    The base class of environment.
 
-    def __init__(self, world_name=None, control_mode='auto', collision_mode='stop', 
-        disable_all_plot=False, display=True, save_fig=False, save_ani=False, full=False, 
-        custom_robot=None, subplot=False, **kwargs) -> None:
-        
-        '''
-        The main environment class for this simulator
+        parameters:
+            world_name: the name of the world file, default is None
+     
+    '''
+    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log=True, log_file='ir_sim.log', log_level='INFO'):
 
-        world_name: path of the yaml
-        control_mode: 
-            auto: receive the velocity command to move 
-            keyboard: receive the velocity from the keyboard to move 
-        
-        collision_mode: 
-            unobstructed: No collision check
-            stop (default): All Objects stop when collision, 
-            react: robot will have reaction when collision with others  (only work for the circular robot in current version)
-
-        disable_all_plot: True or False (default), if True, all parts related to plot (figure or animation) are disabled.
-        display: True or False to display the figure
-        save_ani: True or False to save the animation
-        full: Tru or false to whether show the figure full screen
-        custom_robot: custom robot class for user;
-        suplot: whether there are subplot
-        '''
-
-        # arguments
-            # world_args: arguments of the world, including width, length...
-            # robot_args: arguments of the multiple robots, including number, type...
-            # keyboard_args: arguments of the keyboard control, including key_lv_max....
-
-        world_args, robot_args, keyboard_args, init_args = dict(), dict(), dict(), dict()
-        obstacle_args_list = []
-        
-        # path and file configuration
-        world_file_path = EnvBase.file_check(world_name)
-
-        if world_file_path != None:
-           
-            with open(world_file_path) as file:
-                com_list = yaml.load(file, Loader=yaml.FullLoader)
-                world_args = com_list.get('world', dict())
-                robot_args = com_list.get('robots', dict())
-                keyboard_args = com_list.get('keyboard', dict())
-                obstacle_args_list = com_list.get('obstacles', [])
-
-        world_args.update(kwargs.get('world_args', dict()))
-        robot_args.update(kwargs.get('robot_args', dict()))
-        keyboard_args.update(kwargs.get('keyboard_args', dict()))
-        [obstacle_args.update(kwargs.get('obstacle_args', dict())) for obstacle_args in obstacle_args_list]
-        init_args.update(kwargs.get('init_args', dict()))
-
-        # world arguments
-        self.world = world(**world_args)
-        self.step_time = self.world.step_time
-
-        # robot arguments
-        self.robot_args = robot_args
-        self.custom_robot = custom_robot
-
-        # obstacle arguments
-        self.obstacle_args_list = obstacle_args_list
-
-        # plot
-        self.disable_all_plot = disable_all_plot
+        env_para = EnvPara(world_name)
+        object_factory = ObjectFactory() 
+    
+        # init env setting
         self.display = display
-        self.dyna_line_list = []
-        self.dyna_patch_list = []
-        self.subplot = subplot
+        self.disable_all_plot = disable_all_plot
+        self.save_ani = save_ani
+        self.logger = EnvLogger(log_file, log_level) 
+        env_param.logger = self.logger 
 
-        # Mode
-        self.control_mode = control_mode 
-        self.collision_mode = collision_mode 
+        # init objects (world, obstacle, robot)
+        self._world = world(world_name, **env_para.parse['world'])
+
+        self._robot_collection = object_factory.create_from_parse(env_para.parse['robot'], 'robot')
+        self._obstacle_collection = object_factory.create_from_parse(env_para.parse['obstacle'], 'obstacle')
+        self._map_collection = object_factory.create_from_map(self._world.obstacle_positions, self._world.buffer_reso)
+        self._object_collection = self._robot_collection + self._obstacle_collection + self._map_collection
+
+        # env parameters
+        self._env_plot = EnvPlot(self._world.grid_map, self.objects, self._world.x_range, self._world.y_range, **env_para.parse['plot'])
+        env_param.objects = self.objects
         
-        # animation arguments:
-        self.save_ani = save_ani  
-        self.ani_dpi = kwargs.get('ani_dpi', 300)
-        self.save_fig = save_fig 
-        self.fig_dpi = kwargs.get('fig_dpi', 600)
-        self.bbox_inches = kwargs.get('bbox_inches', 'tight') 
+        if world_param.control_mode == 'keyboard':
+            self.init_keyboard(env_para.parse['keyboard'])
 
-        # configure path
-        root_path = kwargs.get('root_path', Path(sys.path[0]))
-        ani_buffer_path = kwargs.get('ani_buffer_path', Path(sys.path[0] + '/' + 'animation_buffer'))
-        ani_path = kwargs.get('ani_path', Path(sys.path[0] + '/' + 'animation'))
-        fig_path = kwargs.get('fig_path', Path(sys.path[0] + '/' + 'fig'))
-
-        self.root_path = EnvBase.path_to_pure(root_path)
-        self.ani_buffer_path = EnvBase.path_to_pure(ani_buffer_path)
-        self.ani_path = EnvBase.path_to_pure(ani_path)
-        self.fig_path = EnvBase.path_to_pure(fig_path)
-        
-        # initialize the environment
-        self._init_environment(**init_args)
-
-        if control_mode == 'keyboard':
-            vel_max = self.robot_args.get('vel_max', [2.0, 2.0])
-            self.key_lv_max = keyboard_args.get("key_lv_max", vel_max[0])
-            self.key_ang_max = keyboard_args.get("key_ang_max", vel_max[1])
-            self.key_lv = keyboard_args.get("key_lv", 0.0)
-            self.key_ang = keyboard_args.get("key_ang", 0.0)
-            self.key_id = keyboard_args.get("key_id", 1)
-            self.alt_flag = 0
-
-            plt.rcParams['keymap.save'].remove('s')
-            plt.rcParams['keymap.quit'].remove('q')
-            
-            self.key_vel = np.zeros((2, 1))
-
-            print('start to keyboard control')
-            print('w: forward', 's: backforward', 'a: turn left', 'd: turn right', 
-                  'q: decrease linear velocity', 'e: increase linear velocity',
-                  'z: decrease angular velocity', 'c: increase angular velocity',
-                  'alt+num: change current control robot id', 'r: reset the environment')
-                  
-            self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
-            self.listener.start()
-
-        # full screen
         if full:
             mode = platform.system()
             if mode == 'Linux':
@@ -152,159 +61,151 @@ class EnvBase:
                 # mng.frame.Maximize(True)
 
             elif mode == 'Windows':
-                figManager = plt.get_current_fig_manager()
-                figManager.window.showMaximized()
-
-    # region: initialization
-    def _init_environment(self, **kwargs): 
-        # kwargs: 
-        #        
-        # 
+                # figManager = plt.get_current_fig_manager()
+                # figManager.window.showMaximized()
+                # figManager.resize(*figManager.window.maxsize())
+                # self._env_plot.fig.canvas.manager.window.showMaximized()
+                mng = plt.get_current_fig_manager()
+                mng.full_screen_toggle()
         
-        # default obstacles
-        self.env_obstacle_list = [EnvObstacle(self.obstacle_factory[oa['type']], step_time=self.step_time, **oa) for oa in self.obstacle_args_list]
-        self.obstacle_list = [obs for eol in self.env_obstacle_list for obs in eol.obs_list]
 
-        env_param.grid_map = self.world.grid_map
-        env_param.map_obstacle_index = self.world.obstacle_index
-        env_param.map_obstacle_positions = self.world.obstacle_positions
-        env_param.reso = self.world.reso
-        env_param.obstacle_list = self.obstacle_list
+    ## magic methods
+    def __del__(self):
+        # self.logger.info('Simulated Environment End')
+        print('Simulated Environment End with sim time elapsed: {} seconds'.format(round(self._world.time, 2)))
 
-        # default robots
-        robot_type = self.robot_args.get('type', 'robot_diff')  
+    def __str__(self):
+        return f'Environment: {self._world.name}'
 
-        if robot_type == 'robot_custom':
-            self.env_robot = EnvRobot(self.custom_robot, step_time=self.step_time, **self.robot_args)
+    ## step
+    def step(self, action=None, action_id=0, **kwargs):
+
+        if isinstance(action, list):
+            self.objects_step(action)
         else:
-            self.env_robot = EnvRobot(self.robot_factory[robot_type], step_time=self.step_time, **self.robot_args)
-        
-        # default robots 
-        self.robot_list = self.env_robot.robot_list
-        self.robot = self.robot_list[0] if len(self.robot_list) > 0 else None
-        self.robot_number = len(self.robot_list)
-       
-        self.components = self.robot_list + self.obstacle_list
-
-        # global parameters through multiple files
-        env_param.robot_list = self.robot_list
-        env_param.components = self.components
-        
-        world_param.control_mode = self.control_mode
-        world_param.collision_mode = self.collision_mode
-
-        # plot
-        if not self.disable_all_plot:
-            if not self.subplot:
-                self.fig, self.ax = plt.subplots()
+            if world_param.control_mode == 'keyboard': 
+                self.object_step(self.key_vel, self.key_id)
             else:
-                self.fig, self.ax, self.sub_ax_list = self.world.sub_world_plot()
+                self.object_step(action, action_id)
 
-            self.init_plot(self.ax, **kwargs)
-            
-    # endregion: initialization  
+        # if action is None:
+        #     action = [None] * len(self.objects)
+        self._world.step()
 
-    # region: step forward
-    def step(self, vel_list=[], **kwargs):
+    def objects_step(self, action=None):
+        action = action + [None] * (len(self.objects) - len(action))
+        [ obj.step(action) for obj, action in zip(self.objects, action)]
 
-        if self.control_mode == 'keyboard':
-            self.robots_step(self.key_vel, vel_id=self.key_id, **kwargs)
-        else:
-            self.robots_step(vel_list, **kwargs)
+    def object_step(self, action, obj_id=0):
+        self.objects[obj_id].step(action)
+        [ obj.step() for obj in self.objects if obj._id != obj_id]
 
-        self.obstacles_step(**kwargs)
-        self.world.step()
 
-        world_param.step()
+    ## render     
+    def render(self, interval=0.05, figure_kwargs=dict(), **kwargs):
 
-    def robots_step(self, vel_list, **kwargs):
-        self.env_robot.move(vel_list, **kwargs)
-    
-    def obstacles_step(self, **kwargs):
-        [ env_obs.move() for env_obs in self.env_obstacle_list if env_obs.dynamic]
+        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        # default figure arguments
 
-    def cal_des_vel(self, **kwargs):
-        return self.env_robot.cal_des_vel(**kwargs)
+        if not self.disable_all_plot: 
+            if self._world.sampling:
 
-    # endregion: step forward  
+                if self.display: plt.pause(interval)
 
-    # region: get information
-    def get_world_size(self):
-        return self.world.height, self.world.width
+                if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
 
-    # gather information
+                self._env_plot.clear_components('dynamic', self.objects, **kwargs)
+                self._env_plot.draw_components('dynamic', self.objects, **kwargs)
     
 
-    # get information
-    def get_robot_list(self):
-        return self.env_robot.robot_list
+    def render_offline(self, interval=0.05, record=[], figure_kwargs=dict(), **kwargs):
 
-    def get_robot_info(self, id=0):
-        return self.env_robot.robot_list[id].get_info()
-    
-    def get_robot_estimation(self, id=0):
-        # when noise True
-        return self.env_robot.robot_list[id].odometry
+        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        # default figure arguments
 
-    def get_obstacle_list(self, obs_type=None):
-        # obs_type： obstacle_circle； obstacle_polygon; obstacle_line
+        for objs in record:
 
-        obs_list = []
-        if obs_type is not None:
-            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list if env_obs.obs_class.obstacle_type == obs_type]
-        else:
-            [obs_list.extend(env_obs.obs_list) for env_obs in self.env_obstacle_list]
-        
-        return obs_list
+            if not self.disable_all_plot: 
+                if self._world.sampling:
 
-    def get_landmark_map(self):
-        env_map = self.obstacle_list.copy()
-        landmark_map = dict()
+                    if self.display: plt.pause(interval)
 
-        for obstacle in env_map:
-            if obstacle.landmark:
-                landmark_map[obstacle.id] = obstacle.center[0:2]
+                    if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
+
+                    self._env_plot.clear_components('dynamic', objs, **kwargs)
+                    self._env_plot.draw_components('dynamic', objs, **kwargs)
                 
-        return landmark_map
 
-    def get_lidar_scan(self, id=0):
-        return self.env_robot.robot_list[id].get_lidar_scan()
-    
-    def get_landmarks(self, id=0):
-        return self.env_robot.robot_list[id].get_landmarks()
-    
-    def get_obstacles(self, id=0):
-        return self.env_robot.robot_list[id].get_obstacles()
-    
-    def get_ax(self, ax_id=0):
-        return ax_id
-
-    def get_grid_map(self):
-        return self.world.grid_map
-
+<<<<<<< HEAD
 
     # set attributted information
     def set_robot_goal(self, goal, id=0):
         self.env_robot.robot_list[id].set_goal(goal)
 
     # endregion: get information
+=======
+    def show(self):
+        self._env_plot.show()
+>>>>>>> 4b9462c36ce9207111f7cfb2f208b59e5aba5f84
 
-    # region: check status
-    # def collision_check(self):
-    #     collision_list = self.env_robot.collision_check_list(self.env_obstacle_list)
-    #     return any(collision_list)
     
-    def collision_status(self):
-        return self.env_robot.collision_status()
+    def reset_plot(self):
+        plt.cla()
+        self._env_plot.init_plot(self._world.grid_map, self.objects)
 
-    def collision_status_list(self):
-        return self.env_robot.collision_list()
 
-    # 
-    def done(self, mode='all', collision_check=True) -> bool:
-        # mode: any; any robot done, return done
-        #       all; all robots done, return done
-        done_list = self.done_list(collision_check)
+    # draw
+    def draw_trajectory(self, traj, traj_type='g-', **kwargs):
+        self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
+
+    def draw_points(self, points, s=30, c='b', **kwargs):
+        self._env_plot.draw_points(points, s, c, **kwargs)
+
+
+    def draw_box(self, vertex, refresh=True, **kwargs):
+        self._env_plot.draw_box(vertex, refresh, **kwargs)
+
+
+    ## keyboard control
+    def init_keyboard(self, keyboard_kwargs=dict()):
+
+        vel_max = keyboard_kwargs.get('vel_max', [3.0, 1.0])
+        self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
+        self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
+        self.key_lv = keyboard_kwargs.get("key_lv", 0.0)
+        self.key_ang = keyboard_kwargs.get("key_ang", 0.0)
+        self.key_id = keyboard_kwargs.get("key_id", 0)
+        self.alt_flag = 0
+
+        plt.rcParams['keymap.save'].remove('s')
+        plt.rcParams['keymap.quit'].remove('q')
+        
+        self.key_vel = np.zeros((2, 1))
+
+        print('start to keyboard control')
+        print('w: forward', 's: back forward', 'a: turn left', 'd: turn right', 
+                'q: decrease linear velocity', 'e: increase linear velocity',
+                'z: decrease angular velocity', 'c: increase angular velocity',
+                'alt+num: change current control robot id', 'r: reset the environment')
+                
+        self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+        self.listener.start()
+
+
+    
+    def end(self, ending_time=3, **kwargs):
+
+        if self.save_ani:
+            self._env_plot.save_animate(**kwargs)
+
+        self.logger.info(f'Figure will be closed within {ending_time:d} seconds.')
+        plt.pause(ending_time)
+        plt.close()
+        
+
+    def done(self, mode='all'):
+
+        done_list = [ obj.done() for obj in self.objects if obj.role=='robot']
 
         if len(done_list) == 0:
             return False
@@ -313,233 +214,68 @@ class EnvBase:
             return all(done_list)
         elif mode == 'any':
             return any(done_list)
-
-    def done_list(self, collision_check=True, **kwargs):
-
-        arrive_flags = self.env_robot.arrive_list()
-
-        if collision_check:
-            collision_flags = self.env_robot.collision_list()
-        else:
-            collision_flags = [False] * len(arrive_flags)
         
-        done_list = [a or c for a, c in zip(arrive_flags, collision_flags)]
-        return done_list
-    # endregion: check status
+    def reset(self):
+        self.reset_all() 
+        self.step(action=np.zeros((2, 1)))
 
-    # region: reset the environment
-    def reset(self, mode='now', **kwargs):
-        # mode: 
-        #   default: reset the env now
-        #   any: reset all the env when any robot done
-        #   all: reset all the env when all robots done
-        #   single: reset one robot who has done, depending on the done list
-        if mode == 'now':
-            self.reset_all() 
-        else:
-            done_list = self.done_list(**kwargs)
-            if mode == 'any' and any(done_list): self.reset_all()
-            elif mode == 'all' and all(done_list): self.reset_all()
-            elif mode == 'single': 
-                [self.reset_single(i) for i, done in enumerate(done_list) if done]
-    
     def reset_all(self):
-        self.env_robot.reset()
-        [env_obs.reset() for env_obs in self.env_obstacle_list if env_obs.dynamic]
-    
-    def reset_single(self, id):
-        self.env_robot.reset(id)
-    # endregion: reset the environment
-
-    # region: environment render
-    def render(self, pause_time=0.05, fig_kwargs=dict(), **kwargs):
-        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        # default figure arguments
-
-        if not self.disable_all_plot: 
-            if self.world.sampling:
-                self.draw_components(self.ax, mode='dynamic', **kwargs)
-                
-                self.fig.canvas.draw()
-
-                if self.display: plt.pause(pause_time)
-
-                if self.save_ani: self.save_gif_figure(bbox_inches=self.bbox_inches, dpi=self.ani_dpi, **fig_kwargs)
-
-                self.clear_components(self.ax, mode='dynamic', **kwargs)
-
-            
-    def render_once(self, pause_time=0.0001, **kwargs):
-        if not self.disable_all_plot:
-            self.draw_components(self.ax, mode='dynamic', **kwargs)
-            plt.pause(pause_time)
-            self.clear_components(self.ax, mode='dynamic', **kwargs)
-      
-    def init_plot(self, ax, no_axis=False, **kwargs):
+        [obj.reset() for obj in self.objects]
         
-        ax.set_aspect('equal') 
-        ax.set_xlim(self.world.x_range) 
-        ax.set_ylim(self.world.y_range)
-        
-        ax.set_xlabel("x [m]")
-        ax.set_ylabel("y [m]")
 
-        self.draw_components(ax, mode='static', **kwargs)
+    def get_robot_info(self, id=0):
+        return self.robot_list[id].get_info()
 
-        if no_axis: plt.axis('off')
+   
+    @property
+    def arrive(self, id=None, mode=None):
 
-    def draw_components(self, ax, mode='all', **kwargs):
-        # mode: static, dynamic, all
-        if mode == 'static':
-            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if not env_obs.dynamic]
-            self.world.plot(ax)
-                
-        elif mode == 'dynamic':
-            self.env_robot.plot(ax, **kwargs)
-            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list if env_obs.dynamic]
-
-        elif mode == 'all':
-            self.env_robot.plot(ax, **kwargs)
-            [env_obs.plot(ax, **kwargs) for env_obs in self.env_obstacle_list]
-            # obstacle
+        if id is not None:
+            assert isinstance(id, int), 'id should be integer'
+            return self.robot_list[id].arrive
         else:
-            logging.error('error input of the draw mode')
-
-    def draw_trajectory(self, traj, traj_type='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
-        # traj: a list of points
-        if isinstance(traj, list):
-            path_x_list = [p[0, 0] for p in traj]
-            path_y_list = [p[1, 0] for p in traj]
-        elif isinstance(traj, np.ndarray):
-            # raw*column: points * num
-            path_x_list = [p[0] for p in traj.T]
-            path_y_list = [p[1] for p in traj.T]
-
-        if not self.disable_all_plot: 
-            line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
-
-        if show_direction:
-            if isinstance(traj, list):
-                u_list = [cos(p[2, 0]) for p in traj]
-                y_list = [sin(p[2, 0]) for p in traj]
-            elif isinstance(traj, np.ndarray):
-                u_list = [cos(p[2]) for p in traj.T]
-                y_list = [sin(p[2]) for p in traj.T]
-
-            self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
-
-        if refresh and not self.disable_all_plot: 
-            self.dyna_line_list.append(line)
-
-
-    def draw_box(self, vertices, refresh=False, color='b-', **kwargs):
-        # draw a box by the vertices
-        # vertices: 2*4, 2*8, 2*12, 2*16
-        temp_vertex = np.c_[vertices, vertices[0:2, 0]]         
-        box_line = self.ax.plot(temp_vertex[0, :], temp_vertex[1, :], color)
-
-        if refresh and not self.disable_all_plot: 
-            self.dyna_line_list.append(box_line)
-
-
-    # def draw_data(self, data, new_figure=True, show=True, label='default', **kwargs):
-    #     # data: list of values
-    #     if new_figure:
-    #         fig, ax = plt.subplots()
-    #     else:
-    #         ax = self.ax
-
-    #     ax.plot(data, label=label, **kwargs)
-    #     if show: plt.show()
-
-    def draw_point(self, point, label='point', markersize=2, color='k'):
-        return self.ax.plot(point[0], point[1], marker='o', markersize=markersize, color=color, label=label)
-
-    def draw_uncertainty(self, mean, std, scale=20, facecolor='gray', refresh=True, **kwargs):
+            assert mode in ['all', 'any'], 'mode should be all or any'
+            return all([obj.arrive for obj in self.robot_list]) if mode == 'all' else any([obj.arrive for obj in self.robot_list])
+    
+    @property
+    def collision(self, id=None, mode=None):
         
-        x = mean[0, 0]
-        y = mean[1, 0]
+        if id is not None:
+            assert isinstance(id, int), 'id should be integer'
+            return self.robot_list[id].collision
+        else:
+            assert mode in ['all', 'any'], 'mode should be all or any'
+            return all([obj.collision for obj in self.robot_list]) if mode == 'all' else any([obj.collision for obj in self.robot_list])
 
-        std_x = std[0, 0]
-        std_y = std[1, 0]
-        
-        theta = mean[2, 0] if mean.shape[0] > 2 else 0
 
-        angle = theta * (180 / pi)
-        
-        ellipse = mpl.patches.Ellipse(xy=(x, y), width=scale*std_x, height=scale*std_y, angle=angle, facecolor=facecolor, **kwargs)
-        ellipse.set_zorder(1)
-        self.ax.add_patch(ellipse)
-            
-        if refresh:
-            self.dyna_patch_list.append(ellipse)
+    @property
+    def robot_list(self):
+        return [ obj for obj in self.objects if obj.role == 'robot']
 
-    def draw_arrow(self, pose, length=0.5, width=0.3, refresh=False, **kwargs):
+    @property
+    def robot(self):
+        return self.robot_list[0]
+    
+    def get_robot_state(self):
+        return self.robot._state
+    
+    def get_lidar_scan(self, id=0):
+        return self.robot_list[id].get_lidar_scan()
+    
+    def get_lidar_offset(self, id=0):
+        return self.robot_list[id].get_lidar_offset()
 
-        # pose: 3*1, x, y, theta
+    def get_obstacle_list(self):
+        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
 
-        theta = pose[2, 0]
-        dx = length * cos(theta)
-        dy = length * sin(theta)
 
-        arrow = mpl.patches.Arrow(pose[0, 0], pose[1, 0], dx, dy, width=width, **kwargs)
-        self.ax.add_patch(arrow)
-
-        if refresh: self.dyna_patch_list.append(arrow)
-            
-        
-    def clear_components(self, ax, mode='all', **kwargs):
-        if mode == 'dynamic':
-            self.env_robot.plot_clear(ax)
-            [env_obs.plot_clear() for env_obs in self.env_obstacle_list if env_obs.dynamic]
-            [line.pop(0).remove() for line in self.dyna_line_list]
-            [patch.remove() for patch in self.dyna_patch_list]
-
-            self.dyna_line_list = []
-            self.dyna_patch_list = []
-
-        if not kwargs.get('show_text', True):
-            for text in self.ax.texts:
-                text.remove()
-
-        elif mode == 'static':
-            pass
-        
-        elif mode == 'all':
-            plt.cla()
-    # endregion: environment render
-
-    # region: animation
-    def save_gif_figure(self, save_figure_format='png', **kwargs):
-
-        if not self.ani_buffer_path.exists(): self.ani_buffer_path.mkdir()
-
-        order = str(self.world.count).zfill(3)
-        self.fig.savefig(str(self.ani_buffer_path)+'/'+order+'.'+save_figure_format, format=save_figure_format, **kwargs)
-
-    def save_animate(self, ani_name='animated', suffix='.gif', keep_len=30, rm_fig_path=True, **kwargs):
-        
-        print('Start to create animation')
-
-        if not self.ani_path.exists(): self.ani_path.mkdir()
-            
-        images = list(self.ani_buffer_path.glob('*.png'))
-        images.sort()
-        image_list = []
-        for i, file_name in enumerate(images):
-
-            if i == 0: continue
-
-            image_list.append(imageio.imread(str(file_name)))
-            if i == len(images) - 1:
-                for j in range(keep_len):
-                    image_list.append(imageio.imread(str(file_name)))
-
-        imageio.mimsave(str(self.ani_path)+'/'+ ani_name + suffix, image_list, **kwargs)
-        print('Create animation successfully, the animation file is saved in the path ' + str(self.ani_path))
-
-        if rm_fig_path: shutil.rmtree(self.ani_buffer_path)
-    # endregion: animation
+    @property
+    def objects(self):
+        return self._object_collection
+    
+    @property
+    def step_time(self):
+        return self._world.step_time
 
     # region: keyboard control
     def on_press(self, key):
@@ -547,9 +283,11 @@ class EnvBase:
         try:
             if key.char.isdigit() and self.alt_flag:
 
-                if int(key.char) > self.robot_number:
+                if int(key.char) >= self.robot_number:
                     print('out of number of robots')
+                    self.key_id = int(key.char)
                 else:
+                    print('current control id: ', int(key.char))
                     self.key_id = int(key.char)
 
             if key.char == 'w':
@@ -564,9 +302,22 @@ class EnvBase:
             self.key_vel = np.array([ [self.key_lv], [self.key_ang]])
 
         except AttributeError:
-            if "alt" in key.name:
-                self.alt_flag = True
-                
+            
+            try:
+                if "alt" in key.name:
+                    self.alt_flag = True
+
+            except AttributeError:
+
+                if key.char.isdigit() and self.alt_flag:
+
+                    if int(key.char) >= self.robot_number:
+                        print('out of number of robots')
+                        self.key_id = int(key.char)
+                    else:
+                        print('current control id: ', int(key.char))
+                        self.key_id = int(key.char)
+        
     def on_release(self, key):
         
         try:
@@ -601,79 +352,8 @@ class EnvBase:
             if "alt" in key.name:
                 self.alt_flag = False
     # endregion:keyboard control
-
-    # region: the end of the environment loop 
-    def end(self, ani_name='animation', fig_name='fig.png', ending_time = 3, suffix='.gif', keep_len=30, rm_fig_path=True, fig_kwargs=dict(), ani_kwargs=dict(), **kwargs):
-        
-        # fig_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        # ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
-        if self.control_mode == 'keyboard': self.listener.stop()
-        
-        show = kwargs.get('show', self.display)
-        
-        if not self.disable_all_plot:
-
-            if self.save_ani:
-                saved_ani_kwargs = {'subrectangles': True}
-                saved_ani_kwargs.update(ani_kwargs) 
-                self.save_animate(ani_name, suffix, keep_len, rm_fig_path, **saved_ani_kwargs)
-
-            if self.save_fig or show:
-                self.draw_components(self.ax, mode='dynamic', **kwargs)
-            
-            if self.save_fig: 
-                if not self.fig_path.exists(): self.fig_path.mkdir()
-
-                self.fig.savefig(str(self.fig_path) + '/' + fig_name, bbox_inches=self.bbox_inches, dpi=self.fig_dpi, **fig_kwargs)
-
-            if show:
-                plt.show(block=False)
-                print(f'Figure will be closed within {ending_time:d} seconds.')
-                plt.pause(ending_time)
-                plt.close()
-        
-    def show(self):
-        plt.show()
-
-    # endregion: the end of the environment loop  
-
-    @staticmethod
-    def path_to_pure(path):
-        # check whether path exist or the type is correct
-        # pathtype: str or pure
-
-        if isinstance(path, PurePath):
-            real_path = path
-        elif isinstance(path, str):
-            real_path = Path(path)
-        else:
-            print('error: wrong path type')
-        
-        return real_path
-
-    @staticmethod
-    def file_check(file_name):
-        # check whether file exist or the type is correct
-        if file_name is None: return None
-            
-        if os.path.exists(file_name):
-            abs_file_name = file_name
-        elif os.path.exists(sys.path[0] + '/' + file_name):
-            abs_file_name = sys.path[0] + '/' + file_name
-        elif os.path.exists(os.getcwd() + '/' + file_name):
-            abs_file_name = os.getcwd() + '/' + file_name
-        else:
-            print('WARNING: No World File Found, Using default arguments')
-            abs_file_name = None
-
-        return abs_file_name
-
-    def __del__(self):
-        print('Simulated Environment End')
-
-        
+    
 
     
 
 
-            

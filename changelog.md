@@ -1,3 +1,34 @@
+## ir_sim 2.1.2
+
+- Fix bug for omni dynamics robots
+- Fix bug for rvo behavior
+- Replace the diff description for the object_base
+
+
+## ir_sim 2.1.1
+
+- Update the YAML API
+- Enhance features in object_base (G, h)
+- Expand project development utilities
+- Fix some bugs
+
+## ir_sim 2.1.0
+
+Big Version
+
+- Reformulate the whole project framework, all the objects are developed by the object base
+- Using shapely to construct the geometry for the robot and obstacles
+- Reconstruct the YAML interface
+- Add the behavior library for the objects
+- Add the object factory to create the objects
+- Add env logger to record and print the environment status
+
+
+## ir_sim 1.1.11
+
+- Add the function to change the edgecolor
+- Add repeat mkdirs
+- Fix some bugs
 
 ## ir_sim 1.1.12
 

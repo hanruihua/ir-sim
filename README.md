@@ -1,41 +1,46 @@
-# Intelligent Robot Simulator (ir-sim)
+<!-- <div align="center">
+<img src="doc/image/IR_SIM_logos/logo1_nobg.png" width = "200" >
+</div>  -->
 
-A python based robot simulator framework for the intelligent robotics navigation and learning.
+
+<div align="center">
+
+# Intelligent Robot Simulator (IR-SIM)
+
+<a href="https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir_sim%2Freleases%2F
+)](https://github.com/hanruihua/ir_sim/releases/"><img src='https://img.shields.io/github/v/release/hanruihua/ir_sim?color=brightgreen' alt='Github Release'></a>
+<a href="https://github.com/hanruihua/ir_sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue' alt='License'></a>
+<a href="https://pypistats.org/packages/ir-sim"><img src='https://img.shields.io/pypi/dm/ir_sim' alt='Download'></a>
+
+</div>
+
+IR-SIM is an open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
+
+It provides the following features:
+  - A versatile and easy-to-use framework for simulating a variety of robot platforms with kinematics and sensors. 
+  - Customizable configurations and parameters using yaml files.
+  - Real-time visualization of simulation outcomes.
+  - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
+
 
 Robot             |  Car
 :-------------------------:|:-------------------------:
-![robot](ir_sim/animations/grid_map.gif)  |  ![car](ir_sim/animations/car_grid_map.gif)
+![robot](doc/animations/rvo.gif)  |  ![car](doc/animations/car.gif)
 
-Features:  
-  * Simple and easy to run with python;  
-  * All the models and parameters can be set directly in the yaml configure file;  
-  * Environment can be built easily by line, circle model and png images; 
-  * Various robot kinematics models: omni-wheel, differential wheel, arckermann; 
-  * Support collision check with environment;
-  * Equipped with various sensors: Lidar, GPS, Odometry etc.;  
-  * Support keyboard controller;
-  * Easy to reproduce the robotics algorithms and extend for your own project. 
 
 ## Prerequisite
 
-Test platform: Ubuntu20.04, windows10
-
 - Python: >= 3.7
-    - numpy  
-    - matplotlib 
-    - scipy
 
 ## Installation
 
-- Install this package by pip:
+- Install this package from PyPi:
 
 ```
 pip install ir_sim
 ```
 
-- or install manually: 
-
-Clone and install the package
+- Or for development, you may build from source: 
 
 ```
 git clone https://github.com/hanruihua/ir_sim.git    
@@ -45,12 +50,26 @@ pip install -e .
 
 ## Usage
 
-The examples are in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+The usage guidelines are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
 
-## Author
+## Cases
+- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav)(RAL & ICRA2023)
+- [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
 
-Han Ruihua  
-Contact: hanrh@connect.hku.hk
+
+<!-- ## Contact: 
+hanrh@connect.hku.hk -->
+
+<!-- ## Citation
+
+```
+@misc{ir_sim,
+ author = "Ruihua Han",
+ title = "ir-sim: Python based light-weight simulator for robotics navigation and learning.",
+ year = 2024,
+ url = "https://github.com/hanruihua/ir_sim"
+}
+``` -->
 
 
 

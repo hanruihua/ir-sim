@@ -1,0 +1,30 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+
+robot:
+  - number: 10
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    behavior: {name: 'rvo', vxmax: 1.3, vymax: 1.3, accer: 1.0, factor: 0.5}
+    vel_min: [-2, -2.0]
+    vel_max: [2, 2.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: True
+      trail_alpha: 0.2
+
+    
+    
