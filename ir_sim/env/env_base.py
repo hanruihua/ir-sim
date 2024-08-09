@@ -136,17 +136,8 @@ class EnvBase:
                     self._env_plot.draw_components('dynamic', objs, **kwargs)
                 
 
-<<<<<<< HEAD
-
-    # set attributted information
-    def set_robot_goal(self, goal, id=0):
-        self.env_robot.robot_list[id].set_goal(goal)
-
-    # endregion: get information
-=======
     def show(self):
         self._env_plot.show()
->>>>>>> 4b9462c36ce9207111f7cfb2f208b59e5aba5f84
 
     
     def reset_plot(self):
