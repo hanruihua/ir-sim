@@ -40,7 +40,7 @@ Robot             |  Car
 pip install ir_sim
 ```
 
-- Or for development, you may build from source: 
+- Or for development, you may install from source: 
 
 ```
 git clone https://github.com/hanruihua/ir_sim.git    
