@@ -85,72 +85,6 @@ class RobotAcker(ObjectBase):
         arrow.set_zorder(3)
         ax.add_patch(arrow)
         
-<<<<<<< HEAD
-        if show_goal:
-            goal_arrow = mpl.patches.Arrow(x=self.goal[0, 0], y=self.goal[1, 0], dx=goal_l*cos(self.goal[2, 0]), dy=goal_l*sin(self.goal[2, 0]), color=goal_color)
-            ax.add_patch(goal_arrow)
-            self.plot_patch_list.append(goal_arrow)
-
-        if show_trail:
-            if trail_type == 'rectangle':
-                car_rect = mpl.patches.Rectangle(xy=(start_x, start_y), width=self.shape[0], height=self.shape[1], angle=r_phi_ang, edgecolor=self.edgecolor, fill=False, alpha=0.8, linewidth=0.8)
-                ax.add_patch(car_rect)
-                self.plot_patch_reset_list.append(car_rect)
-
-            elif trail_type == 'circle':
-                x = (min(self.vertex[0, :]) + max(self.vertex[0, :])) / 2
-                y = (min(self.vertex[1, :]) + max(self.vertex[1, :])) / 2
-
-                car_circle = mpl.patches.Circle(xy=(x, y), radius = self.shape[0] / 2, edgecolor='red', fill=False)
-                ax.add_patch(car_circle)
-                self.plot_patch_reset_list.append(car_circle)
-            
-        if show_text:
-            t1 = ax.text(start_x - 0.5, start_y, 'c'+ str(self.id), fontsize = 10, color = 'k')
-            t2 = ax.text(self.goal[0, 0] + 0.3, self.goal[1, 0], 'cg'+ str(self.id), fontsize = 12, color = 'k')
-            self.plot_text_list.append(t1)
-            self.plot_text_list.append(t2)
-
-        if show_traj:
-            x_list = [t[0, 0] for t in self.trajectory]
-            y_list = [t[1, 0] for t in self.trajectory]
-            self.plot_line_list.append(ax.plot(x_list, y_list, traj_type))
-
-    def set_edgecolor(self, edgecolor='y'):
-        self.edgecolor = edgecolor
-
-    def reset(self):
-        self.state = self.init_state.copy()
-        self.center = self.init_state[0:2].copy()
-        self.goal = self.init_goal.copy()
-        self.vel = self.init_vel.copy()
-
-        self.collision_flag = False
-        self.arrive_flag = False
-        self.stop_flag = False
-
-        self.trajectory = []
-
-        # update vertex
-        self.update_vertex(self.state)
-
-        self.plot_clear_reset()
-            
-    @staticmethod
-    def cal_vertex(shape):        
-        # angular point when the robot is in the zeros point
-        # counterclockwise
-        # shape [length, width, wheelbase, wheelbase_w]
-        start_x = -(shape[0] - shape[2])/2
-        start_y = -shape[1]/2
-
-        point0 = np.array([ [start_x], [start_y] ]) # left bottom point
-        point1 = np.array([ [start_x+shape[0]], [start_y] ])
-        point2 = np.array([ [start_x+shape[0]], [start_y+shape[1]]])
-        point3 = np.array([ [start_x], [start_y+shape[1]]])
-
-        return np.hstack((point0, point1, point2, point3))
-=======
         self.plot_patch_list.append(arrow)
 
 
@@ -171,4 +105,3 @@ class RobotAcker(ObjectBase):
 
 
 
->>>>>>> 4b9462c36ce9207111f7cfb2f208b59e5aba5f84
