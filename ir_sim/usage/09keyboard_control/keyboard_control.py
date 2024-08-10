@@ -1,8 +1,8 @@
 from ir_sim.env import EnvBase
 
-env = EnvBase('keyboard_control.yaml', save_ani=False, rm_fig_path=False, full=False)
+env = EnvBase('keyboard_control.yaml', save_ani=True, full=False)
 
-for i in range(1000):
+for i in range(10):
 
     env.step()
     env.render(0.05, show_goal=False, show_trajectory=True)

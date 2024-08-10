@@ -52,3 +52,6 @@ py -m twine upload dist/*
 - [ ] Add synchronization and asynchronization mode
 - [ ] Add tf (similar like ROS tf)
 - [ ] pytest
+- [ ] record and replay path
+- [ ] Plot velocity and acceleration
+- [ ] Some judgment functions for control
