@@ -322,17 +322,17 @@ class EnvBase:
                 self.key_ang = 0
             if key.char == 'q':
                 self.key_lv_max = self.key_lv_max - 0.2
-                print('current lv ', self.key_lv_max)
+                print('current linear velocity', self.key_lv_max)
             if key.char == 'e':
                 self.key_lv_max = self.key_lv_max + 0.2
-                print('current lv ', self.key_lv_max)
+                print('current linear velocity', self.key_lv_max)
             
             if key.char == 'z':
                 self.key_ang_max = self.key_ang_max - 0.2
-                print('current ang ', self.key_ang_max)
+                print('current angular velocity ', self.key_ang_max)
             if key.char == 'c':
                 self.key_ang_max = self.key_ang_max + 0.2
-                print('current ang ', self.key_ang_max)
+                print('current angular velocity ', self.key_ang_max)
             
             if key.char == 'r':
                 self.reset()
