@@ -19,13 +19,19 @@ import copy
 class EnvBase:
 
     '''
-    The base class of environment.
+    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
 
-        parameters:
-            world_name: the name of the world file, default is None
-     
+        Parameters:
+            world_name: the path of the world yaml file, default is None
+            display: whether to display the environment, default is True
+            disable_all_plot: whether to disable all plots and figures, default is False
+            save_ani: whether to save the animation, default is False
+            full: whether to full screen the figure, default is False
+            log_file: the name of the log file, default is None
+            log_level: the level of the log output, default is 'INFO'           
     '''
-    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log=True, log_file='ir_sim.log', log_level='INFO'):
+
+    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log_file=None, log_level='INFO'):
 
         env_para = EnvPara(world_name)
         object_factory = ObjectFactory() 
@@ -71,7 +77,6 @@ class EnvBase:
 
     ## magic methods
     def __del__(self):
-        # self.logger.info('Simulated Environment End')
         print('Simulated Environment End with sim time elapsed: {} seconds'.format(round(self._world.time, 2)))
 
     def __str__(self):
@@ -99,7 +104,6 @@ class EnvBase:
     def object_step(self, action, obj_id=0):
         self.objects[obj_id].step(action)
         [ obj.step() for obj in self.objects if obj._id != obj_id]
-
 
     ## render     
     def render(self, interval=0.05, figure_kwargs=dict(), **kwargs):
