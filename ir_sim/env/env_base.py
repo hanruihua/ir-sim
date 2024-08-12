@@ -3,29 +3,34 @@ from ir_sim.env.env_para import EnvPara
 from ir_sim.util.util import file_check
 from ir_sim.world import world
 from .env_plot import EnvPlot
-import threading
 from ir_sim.global_param import world_param, env_param
-import time
-import sys
 from ir_sim.world.object_factory import ObjectFactory
 from matplotlib import pyplot as plt
 import platform
 import numpy as np
 from pynput import keyboard
 from .env_logger import EnvLogger
-import copy
-
 
 class EnvBase:
 
     '''
-    The base class of environment.
-
-        parameters:
-            world_name: the name of the world file, default is None
-     
+    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.      
     '''
-    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log=True, log_file='ir_sim.log', log_level='INFO'):
+
+    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log_file=None, log_level='INFO'):
+
+        '''
+        Initialize the environment with the given parameters.
+
+        Args:
+            world_name (str): Path to the world yaml file.
+            display (bool): Flag to display the environment.
+            disable_all_plot (bool): Flag to disable all plots and figures.
+            save_ani (bool): Flag to save the animation.
+            full (bool): Flag to full screen the figure.
+            log_file (str): Name of the log file.
+            log_level (str): Level of the log output.
+        '''
 
         env_para = EnvPara(world_name)
         object_factory = ObjectFactory() 
@@ -71,7 +76,6 @@ class EnvBase:
 
     ## magic methods
     def __del__(self):
-        # self.logger.info('Simulated Environment End')
         print('Simulated Environment End with sim time elapsed: {} seconds'.format(round(self._world.time, 2)))
 
     def __str__(self):
@@ -99,7 +103,6 @@ class EnvBase:
     def object_step(self, action, obj_id=0):
         self.objects[obj_id].step(action)
         [ obj.step() for obj in self.objects if obj._id != obj_id]
-
 
     ## render     
     def render(self, interval=0.05, figure_kwargs=dict(), **kwargs):
