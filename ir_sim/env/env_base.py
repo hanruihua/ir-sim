@@ -3,35 +3,34 @@ from ir_sim.env.env_para import EnvPara
 from ir_sim.util.util import file_check
 from ir_sim.world import world
 from .env_plot import EnvPlot
-import threading
 from ir_sim.global_param import world_param, env_param
-import time
-import sys
 from ir_sim.world.object_factory import ObjectFactory
 from matplotlib import pyplot as plt
 import platform
 import numpy as np
 from pynput import keyboard
 from .env_logger import EnvLogger
-import copy
-
 
 class EnvBase:
 
     '''
-    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
-
-        Parameters:
-            world_name: the path of the world yaml file, default is None
-            display: whether to display the environment, default is True
-            disable_all_plot: whether to disable all plots and figures, default is False
-            save_ani: whether to save the animation, default is False
-            full: whether to full screen the figure, default is False
-            log_file: the name of the log file, default is None
-            log_level: the level of the log output, default is 'INFO'           
+    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.      
     '''
 
     def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log_file=None, log_level='INFO'):
+
+        '''
+        Initialize the environment with the given parameters.
+
+        Args:
+            world_name (str): Path to the world yaml file.
+            display (bool): Flag to display the environment.
+            disable_all_plot (bool): Flag to disable all plots and figures.
+            save_ani (bool): Flag to save the animation.
+            full (bool): Flag to full screen the figure.
+            log_file (str): Name of the log file.
+            log_level (str): Level of the log output.
+        '''
 
         env_para = EnvPara(world_name)
         object_factory = ObjectFactory() 
