@@ -68,12 +68,34 @@ for i in range(300):
 env.end()
 ```
 
+
+File: robot_world.yaml
+
+```yaml
+
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+
+robot:
+  - kinematics: {name: 'diff'}  # omni, diff, acker
+    shape: {name: 'circle', radius: 0.2}  # radius
+    state: [1, 1, 0]  
+    goal: [9, 9, 0] 
+    behavior: {name: 'dash'} # move toward to the goal directly 
+    color: 'g'
+```
+
+
 ### Advanced Usage
 
 The advanced usages are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
 
 
-## YAML Configuration Example
+<!-- ## YAML Configuration Example
 
 ```yaml
 
@@ -116,7 +138,7 @@ obstacle:
   - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] } 
     state: [0, 0, 0] 
 
-```
+``` -->
 
 ## Cases
 - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav)(RAL & ICRA2023)
