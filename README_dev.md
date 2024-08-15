@@ -55,3 +55,5 @@ py -m twine upload dist/*
 - [ ] record and replay path
 - [ ] Plot velocity and acceleration
 - [ ] Some judgment functions for control
+- [ ] Add example yaml files
+- [ ] Add some data structure for plot
