@@ -47,6 +47,31 @@ git clone https://github.com/hanruihua/ir_sim.git
 cd ir_sim   
 pip install -e .  
 ```
+ 
+## Usage
+
+### Quick Start
+
+```python
+
+from ir_sim.env import EnvBase
+
+env = EnvBase('robot_world.yaml')
+
+for i in range(300):
+
+    env.step()
+    env.render()
+
+    if env.done(): break
+        
+env.end()
+```
+
+### Advanced Usage
+
+The advanced usages are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+
 
 ## YAML Configuration Example
 
@@ -92,31 +117,6 @@ obstacle:
     state: [0, 0, 0] 
 
 ```
-    
-## Usage
-
-### Quick Start
-
-```python
-
-from ir_sim.env import EnvBase
-
-env = EnvBase('robot_world.yaml')
-
-for i in range(300):
-
-    env.step()
-    env.render()
-
-    if env.done(): break
-        
-env.end()
-```
-
-### Advanced Usage
-
-The advanced usages are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
-
 
 ## Cases
 - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav)(RAL & ICRA2023)
