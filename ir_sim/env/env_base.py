@@ -261,20 +261,20 @@ class EnvBase:
 
 
     
-    def end(self, ending_time=3, **kwargs):
+    def end(self, ending_time=3.0, **kwargs):
 
         '''
         End the simulation, save the animation, and close the environment.
 
         Args:
-            ending_time (int): Time in seconds to wait before closing the figure, default is 3 seconds.
+            ending_time (float): Time in seconds to wait before closing the figure, default is 3 seconds.
             **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.
         '''
 
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
-        self.logger.info(f'Figure will be closed within {ending_time:d} seconds.')
+        self.logger.info(f'Figure will be closed within {ending_time:.2f} seconds.')
         plt.pause(ending_time)
         plt.close()
         
@@ -311,8 +311,47 @@ class EnvBase:
 
     def reset_all(self):
         [obj.reset() for obj in self.objects]
-        
 
+
+    # region: environment change
+    def random_obstacle_position(self, range_low = [0, 0, -3.14], range_high = [10, 10, 3.14]):
+
+        '''
+        Generate random obstacle positions in the environment.
+        '''
+
+        if isinstance(range_low, list):
+            range_low = np.c_[range_low]
+        
+        if isinstance(range_high, list):
+            range_high = np.c_[range_high]
+
+        random_states = np.random.uniform(range_low, range_high, (3, self.obstacle_number))
+            
+        for i, obj in enumerate(self.obstacle_list):
+            obj.set_state(random_states[:, i].reshape(3, 1))
+        
+        self._env_plot.clear_components('all', self.obstacle_list)
+        self._env_plot.draw_components('all', self.obstacle_list)
+        
+               
+    # endregion: environment change
+
+        
+    # region: get information
+    def get_robot_state(self):
+        return self.robot._state
+    
+    def get_lidar_scan(self, id=0):
+        return self.robot_list[id].get_lidar_scan()
+    
+    def get_lidar_offset(self, id=0):
+        return self.robot_list[id].get_lidar_offset()
+
+    def get_obstacle_list(self):
+        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
+
+    
     def get_robot_info(self, id=0):
 
         '''
@@ -327,7 +366,10 @@ class EnvBase:
 
         return self.robot_list[id].get_info()
 
-   
+    # endregion: get information 
+
+        
+    #region: property
     @property
     def arrive(self, id=None, mode=None):
         '''
@@ -387,24 +429,17 @@ class EnvBase:
             list: List of robot objects.
         '''
         return [obj for obj in self.objects if obj.role == 'robot']
-
+    
     @property
-    def robot(self):
-        return self.robot_list[0]
-    
-    def get_robot_state(self):
-        return self.robot._state
-    
-    def get_lidar_scan(self, id=0):
-        return self.robot_list[id].get_lidar_scan()
-    
-    def get_lidar_offset(self, id=0):
-        return self.robot_list[id].get_lidar_offset()
+    def obstacle_list(self):
+        '''
+        Get the list of obstacles in the environment.
 
-    def get_obstacle_list(self):
-        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
-
-
+        Returns:
+            list: List of obstacle objects.
+        '''
+        return [obj for obj in self.objects if obj.role == 'obstacle']
+    
     @property
     def objects(self):
         return self._object_collection
@@ -412,6 +447,18 @@ class EnvBase:
     @property
     def step_time(self):
         return self._world.step_time
+
+    @property
+    def robot(self):
+        return self.robot_list[0]
+
+    @property
+    def obstacle_number(self):
+        return len(self.obstacle_list)
+                
+
+    #endregion: property
+
 
     # region: keyboard control
     def on_press(self, key):
