@@ -20,7 +20,6 @@ class EnvPlot:
         saved_figure: kwargs for saving the figure, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
         saved_ani: kwargs for saving the animation, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
 
-
         kwargs:
             color_map: color map for different objects
             no_axis (default False): whether to show the axis. 
@@ -64,7 +63,15 @@ class EnvPlot:
 
 
     def draw_components(self, mode='all', objects=[], **kwargs):
-        # mode: static, dynamic, all
+
+        '''
+        mode: 
+            static: draw static objects
+            dynamic: draw dynamic objects
+            all: draw all objects
+        
+        kwargs: object plot kwargs
+        '''
         
         if mode == 'static':
             [obj.plot(self.ax, **kwargs) for obj in objects if obj.static]
@@ -77,7 +84,7 @@ class EnvPlot:
         else:
             logging.error('error input of the draw mode')
     
-    def clear_components(self, mode='all', objects=[], **kwargs):
+    def clear_components(self, mode='all', objects=[]):
 
         if mode == 'dynamic':
             [obj.plot_clear() for obj in objects if not obj.static]
@@ -139,7 +146,7 @@ class EnvPlot:
     def draw_points(self, point_list, s=10, c='m', refresh=True, **kwargs):
 
         '''
-        point:  
+        Draw points on the plot
         '''
 
         if point_list is not None:
@@ -152,9 +159,12 @@ class EnvPlot:
             if refresh: self.dyna_point_list.append(points)
 
 
-    def draw_box(self, vertices, refresh=False, color='b-', **kwargs):
-        # draw a box by the vertices
-        # vertices: 2*4, 2*8, 2*12, 2*16
+    def draw_box(self, vertices, refresh=False, color='b-'):
+
+        '''
+        Draw a box by the vertices
+        '''
+
         temp_vertex = np.c_[vertices, vertices[0:2, 0]]         
         box_line = self.ax.plot(temp_vertex[0, :], temp_vertex[1, :], color)
 
