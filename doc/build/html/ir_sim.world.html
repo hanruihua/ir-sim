@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ir_sim.world &mdash; IR-SIM 2.1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="ir_sim.lib" href="ir_sim.lib.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            IR-SIM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install the package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">ir_sim</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html">ir_sim.env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html">ir_sim.lib</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ir_sim.world</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ir_sim.world.multi_object_base">ir_sim.world.multi_object_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ir_sim.world.object_base">ir_sim.world.object_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ir_sim.world.object_factory">ir_sim.world.object_factory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ir_sim.world.world">ir_sim.world.world module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ir_sim.world">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">IR-SIM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">ir_sim</a></li>
+      <li class="breadcrumb-item active">ir_sim.world</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ir_sim.world.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ir-sim-world">
+<h1>ir_sim.world<a class="headerlink" href="#ir-sim-world" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-ir_sim.world.multi_object_base">
+<span id="ir-sim-world-multi-object-base-module"></span><h2>ir_sim.world.multi_object_base module<a class="headerlink" href="#module-ir_sim.world.multi_object_base" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.multi_object_base.MultiObjects">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.multi_object_base.</span></span><span class="sig-name descname"><span class="pre">MultiObjects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinematics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/multi_object_base.html#MultiObjects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.multi_object_base.MultiObjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.multi_object_base.MultiObjects.generate_state_shape">
+<span class="sig-name descname"><span class="pre">generate_state_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/multi_object_base.html#MultiObjects.generate_state_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.multi_object_base.MultiObjects.generate_state_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.multi_object_base.MultiObjects.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/multi_object_base.html#MultiObjects.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.multi_object_base.MultiObjects.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.multi_object_base.MultiObjects.random_generate_polygon">
+<span class="sig-name descname"><span class="pre">random_generate_polygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">10,</span> <span class="pre">10]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_radius_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irregularity_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spikiness_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vertices_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[4,</span> <span class="pre">10]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/multi_object_base.html#MultiObjects.random_generate_polygon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.multi_object_base.MultiObjects.random_generate_polygon" title="Permalink to this definition">¶</a></dt>
+<dd><p>2d range: min_x, min_y, max_x, max_y</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.multi_object_base.MultiObjects.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/multi_object_base.html#MultiObjects.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.multi_object_base.MultiObjects.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ir_sim.world.object_base">
+<span id="ir-sim-world-object-base-module"></span><h2>ir_sim.world.object_base module<a class="headerlink" href="#module-ir_sim.world.object_base" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.object_base.</span></span><span class="sig-name descname"><span class="pre">ObjectBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_tuple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[10,</span> <span class="pre">10,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinematics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'omni'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'obstacle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-</span> <span class="pre">1,</span> <span class="pre">-</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[inf,</span> <span class="pre">inf]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-</span> <span class="pre">3.141592653589793,</span> <span class="pre">3.141592653589793]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">behavior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinematics_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrive_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'position'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.arrive">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arrive</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.arrive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.centroid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">centroid</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.centroid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.check_arrive_status">
+<span class="sig-name descname"><span class="pre">check_arrive_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.check_arrive_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.check_arrive_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.check_collision">
+<span class="sig-name descname"><span class="pre">check_collision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.check_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.check_collision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.check_collision_status">
+<span class="sig-name descname"><span class="pre">check_collision_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.check_collision_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.check_collision_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.check_status">
+<span class="sig-name descname"><span class="pre">check_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.check_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.check_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.collision">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collision</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.collision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.construct_geometry">
+<span class="sig-name descname"><span class="pre">construct_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.construct_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.construct_geometry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)</dt><dd><p>for circle, the list should have be: (center_x, center_y, radius)
+for polygon, the list should have the element of vertices: [vertices], number of vertices &gt;= 3
+for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.create_with_shape">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_with_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinematics_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.create_with_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.create_with_shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.custom_behavior">
+<span class="sig-name descname"><span class="pre">custom_behavior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.custom_behavior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.custom_behavior" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.desired_diff_vel">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">desired_diff_vel</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.desired_diff_vel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.desired_omni_vel">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">desired_omni_vel</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.desired_omni_vel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.done">
+<span class="sig-name descname"><span class="pre">done</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.done" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.gen_behavior_vel">
+<span class="sig-name descname"><span class="pre">gen_behavior_vel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.gen_behavior_vel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.gen_behavior_vel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.generate_Gh">
+<span class="sig-name descname"><span class="pre">generate_Gh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.generate_Gh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.generate_Gh" title="Permalink to this definition">¶</a></dt>
+<dd><p>generate G and h for convex object, Calculate the matrix G and g for the Generalized inequality: G &#64; point &lt;_k h,  at the init position</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.geometry">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geometry</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.geometry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.geometry_state_transition">
+<span class="sig-name descname"><span class="pre">geometry_state_transition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.geometry_state_transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.geometry_state_transition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.geometry_transform">
+<span class="sig-name descname"><span class="pre">geometry_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.geometry_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.geometry_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_info">
+<span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_lidar_offset">
+<span class="sig-name descname"><span class="pre">get_lidar_offset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_lidar_offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_lidar_offset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_lidar_points">
+<span class="sig-name descname"><span class="pre">get_lidar_points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_lidar_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_lidar_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_lidar_scan">
+<span class="sig-name descname"><span class="pre">get_lidar_scan</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_lidar_scan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_lidar_scan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_obstacle_info">
+<span class="sig-name descname"><span class="pre">get_obstacle_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_obstacle_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_obstacle_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.get_vel_range">
+<span class="sig-name descname"><span class="pre">get_vel_range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.get_vel_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.get_vel_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.goal">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">goal</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.goal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.id_iter">
+<span class="sig-name descname"><span class="pre">id_iter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">count(0)</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.id_iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.ineq_Ab">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ineq_Ab</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.ineq_Ab" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.mid_process">
+<span class="sig-name descname"><span class="pre">mid_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.mid_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.mid_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_arrow">
+<span class="sig-name descname"><span class="pre">plot_arrow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_arrow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_arrow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_clear">
+<span class="sig-name descname"><span class="pre">plot_clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_goal">
+<span class="sig-name descname"><span class="pre">plot_goal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_goal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_goal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_object">
+<span class="sig-name descname"><span class="pre">plot_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_object_image">
+<span class="sig-name descname"><span class="pre">plot_object_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_object_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_object_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_text">
+<span class="sig-name descname"><span class="pre">plot_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_trail">
+<span class="sig-name descname"><span class="pre">plot_trail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_trail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_trail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_trajectory">
+<span class="sig-name descname"><span class="pre">plot_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.plot_uncertainty">
+<span class="sig-name descname"><span class="pre">plot_uncertainty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.plot_uncertainty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.plot_uncertainty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.position">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.post_process">
+<span class="sig-name descname"><span class="pre">post_process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.post_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.post_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.pre_process">
+<span class="sig-name descname"><span class="pre">pre_process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.pre_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.pre_process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>return the minimum bounding radius</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.radius_extend">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius_extend</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.radius_extend" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.random_generate_polygons">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_generate_polygons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irregularity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spikiness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vertices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.random_generate_polygons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.random_generate_polygons" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.rvo_neighbor_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rvo_neighbor_state</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.rvo_neighbor_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.rvo_neighbors">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rvo_neighbors</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.rvo_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.rvo_state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rvo_state</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.rvo_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.sensor_step">
+<span class="sig-name descname"><span class="pre">sensor_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.sensor_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.sensor_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.set_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.shape">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.state">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.vel_check">
+<span class="sig-name descname"><span class="pre">vel_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectBase.vel_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.vel_check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.vel_dim">
+<span class="sig-name descname"><span class="pre">vel_dim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(2,</span> <span class="pre">1)</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.vel_dim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectBase.vertices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertices</span></span><a class="headerlink" href="#ir_sim.world.object_base.ObjectBase.vertices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.object_base.</span></span><span class="sig-name descname"><span class="pre">ObjectInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinematics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acce</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cone_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wheelbase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.G">
+<span class="sig-name descname"><span class="pre">G</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.G" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.acce">
+<span class="sig-name descname"><span class="pre">acce</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.acce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.add_property">
+<span class="sig-name descname"><span class="pre">add_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObjectInfo.add_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.add_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.angle_range">
+<span class="sig-name descname"><span class="pre">angle_range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.angle_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.color">
+<span class="sig-name descname"><span class="pre">color</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.cone_type">
+<span class="sig-name descname"><span class="pre">cone_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.cone_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.goal">
+<span class="sig-name descname"><span class="pre">goal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.goal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.goal_threshold">
+<span class="sig-name descname"><span class="pre">goal_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.goal_threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.h">
+<span class="sig-name descname"><span class="pre">h</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.kinematics">
+<span class="sig-name descname"><span class="pre">kinematics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.kinematics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.role">
+<span class="sig-name descname"><span class="pre">role</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.role" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.shape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.static">
+<span class="sig-name descname"><span class="pre">static</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.static" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.vel_max">
+<span class="sig-name descname"><span class="pre">vel_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.vel_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.vel_min">
+<span class="sig-name descname"><span class="pre">vel_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.vel_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObjectInfo.wheelbase">
+<span class="sig-name descname"><span class="pre">wheelbase</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObjectInfo.wheelbase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.object_base.</span></span><span class="sig-name descname"><span class="pre">ObstacleInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cone_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObstacleInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.add_property">
+<span class="sig-name descname"><span class="pre">add_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_base.html#ObstacleInfo.add_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.add_property" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.center">
+<span class="sig-name descname"><span class="pre">center</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.center" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.cone_type">
+<span class="sig-name descname"><span class="pre">cone_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.cone_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.radius" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.velocity">
+<span class="sig-name descname"><span class="pre">velocity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.velocity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ir_sim.world.object_base.ObstacleInfo.vertex">
+<span class="sig-name descname"><span class="pre">vertex</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#ir_sim.world.object_base.ObstacleInfo.vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ir_sim.world.object_factory">
+<span id="ir-sim-world-object-factory-module"></span><h2>ir_sim.world.object_factory module<a class="headerlink" href="#module-ir_sim.world.object_factory" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.object_factory.</span></span><span class="sig-name descname"><span class="pre">ObjectFactory</span></span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.create_from_map">
+<span class="sig-name descname"><span class="pre">create_from_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.create_from_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.create_from_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.create_from_parse">
+<span class="sig-name descname"><span class="pre">create_from_parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'robot'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.create_from_parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.create_from_parse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.create_object">
+<span class="sig-name descname"><span class="pre">create_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'robot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'name':</span> <span class="pre">'manual'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">9,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.create_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.create_object" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>create object based on the number of objects to create, object type, distribution of states and initial state</dt><dd><ul class="simple">
+<li><p>obj_type: ‘robot’ or ‘obstacle’</p></li>
+<li><p>number: number of objects to create</p></li>
+<li><p>distribution: distribution of states for objects</p></li>
+<li><p>state: initial state for objects</p></li>
+<li><p>kwargs: other parameters for object creation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.create_obstacle">
+<span class="sig-name descname"><span class="pre">create_obstacle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinematics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.create_obstacle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.create_obstacle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.create_robot">
+<span class="sig-name descname"><span class="pre">create_robot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinematics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.create_robot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.create_robot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.object_factory.ObjectFactory.generate_state_list">
+<span class="sig-name descname"><span class="pre">generate_state_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'robot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'name':</span> <span class="pre">'manual'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">goal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">9,</span> <span class="pre">0]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/object_factory.html#ObjectFactory.generate_state_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.object_factory.ObjectFactory.generate_state_list" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Generate state list for robots or obstacles based on distribution and state provided in kwargs</dt><dd><ul class="simple">
+<li><p>number: number of objects to generate</p></li>
+<li><p>obj_type: ‘robot’ or ‘obstacle’</p></li>
+<li><p>distribution: distribution dictionary of states for objects</p></li>
+<li><p>state: initial state for objects</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ir_sim.world.world">
+<span id="ir-sim-world-world-module"></span><h2>ir_sim.world.world module<a class="headerlink" href="#module-ir_sim.world.world" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ir_sim.world.world.world">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ir_sim.world.world.</span></span><span class="sig-name descname"><span class="pre">world</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'world'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collision_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obstacle_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdownsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/world.html#world"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.world.world" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.world.world.buffer_reso">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">buffer_reso</span></span><a class="headerlink" href="#ir_sim.world.world.world.buffer_reso" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.world.world.gen_grid_map">
+<span class="sig-name descname"><span class="pre">gen_grid_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obstacle_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdownsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/world.html#world.gen_grid_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.world.world.gen_grid_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ir_sim.world.world.world.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ir_sim/world/world.html#world.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ir_sim.world.world.world.step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ir_sim.world.world.world.time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#ir_sim.world.world.world.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ir_sim.world">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ir_sim.world" title="Permalink to this heading">¶</a></h2>
+<p>ir_sim world module</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ir_sim.lib.html" class="btn btn-neutral float-left" title="ir_sim.lib" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ruihua Han.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

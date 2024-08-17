@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ir_sim.world.object_factory &mdash; IR-SIM 2.1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            IR-SIM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install the package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick_Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">ir_sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">IR-SIM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ir_sim.world.object_factory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ir_sim.world.object_factory</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.robots.robot_diff</span> <span class="kn">import</span> <span class="n">RobotDiff</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.robots.robot_acker</span> <span class="kn">import</span> <span class="n">RobotAcker</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.robots.robot_omni</span> <span class="kn">import</span> <span class="n">RobotOmni</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world</span> <span class="kn">import</span> <span class="n">ObjectBase</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.obstacles.obstacle_diff</span> <span class="kn">import</span> <span class="n">ObstacleDiff</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.obstacles.obstacle_static</span> <span class="kn">import</span> <span class="n">ObstacleStatic</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.map.obstacle_map</span> <span class="kn">import</span> <span class="n">ObstacleMap</span>
+<span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">convert_list_length</span><span class="p">,</span> <span class="n">convert_list_length_dict</span><span class="p">,</span> <span class="n">is_list_of_numbers</span>
+<span class="kn">from</span> <span class="nn">ir_sim.global_param</span> <span class="kn">import</span> <span class="n">env_param</span> 
+<span class="kn">import</span> <span class="nn">random</span>
+
+<div class="viewcode-block" id="ObjectFactory"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory">[docs]</a><span class="k">class</span> <span class="nc">ObjectFactory</span><span class="p">:</span>
+    
+    
+<div class="viewcode-block" id="ObjectFactory.create_from_parse"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_from_parse">[docs]</a>    <span class="k">def</span> <span class="nf">create_from_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parse</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">=</span><span class="s1">&#39;robot&#39;</span><span class="p">):</span>
+        <span class="c1"># create object from yaml file parse</span>
+
+        <span class="n">object_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parse</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">object_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">parse</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_object</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="o">**</span><span class="n">sp</span><span class="p">)]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parse</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">object_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_object</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="o">**</span><span class="n">parse</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">object_list</span></div>
+
+
+<div class="viewcode-block" id="ObjectFactory.create_from_map"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_from_map">[docs]</a>    <span class="k">def</span> <span class="nf">create_from_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">reso</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">ObstacleMap</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">reso</span><span class="o">=</span><span class="n">reso</span><span class="p">)]</span></div>
+
+        
+
+<div class="viewcode-block" id="ObjectFactory.create_object"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_object">[docs]</a>    <span class="k">def</span> <span class="nf">create_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">=</span><span class="s1">&#39;robot&#39;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;manual&#39;</span><span class="p">},</span> <span class="n">state</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        create object based on the number of objects to create, object type, distribution of states and initial state</span>
+<span class="sd">            - obj_type: &#39;robot&#39; or &#39;obstacle&#39;</span>
+<span class="sd">            - number: number of objects to create</span>
+<span class="sd">            - distribution: distribution of states for objects</span>
+<span class="sd">            - state: initial state for objects</span>
+<span class="sd">            - kwargs: other parameters for object creation</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">state_list</span><span class="p">,</span> <span class="n">goal_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_state_list</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">,</span> <span class="n">distribution</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
+        <span class="n">object_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">obj_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            
+            <span class="n">obj_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">convert_list_length</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">number</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;sensors&#39;</span><span class="p">}</span>
+            <span class="n">obj_dict</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">obj_dict</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">goal_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">obj_dict</span><span class="p">[</span><span class="s1">&#39;sensors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_list_length_dict</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sensors&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">number</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;robot&#39;</span><span class="p">:</span>
+                <span class="n">object_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_robot</span><span class="p">(</span><span class="o">**</span><span class="n">obj_dict</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">:</span>
+                <span class="n">object_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_obstacle</span><span class="p">(</span><span class="o">**</span><span class="n">obj_dict</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">object_list</span></div>
+    
+    
+<div class="viewcode-block" id="ObjectFactory.create_robot"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_robot">[docs]</a>    <span class="k">def</span> <span class="nf">create_robot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinematics</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">shape</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># kinematics_name = kinematics.pop(&#39;name&#39;, &#39;omni&#39;)</span>
+        <span class="n">kinematics_name</span> <span class="o">=</span> <span class="n">kinematics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;omni&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;diff&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">RobotDiff</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="s1">&#39;diff&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;acker&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">RobotAcker</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="s1">&#39;acker&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;omni&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">RobotOmni</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="s1">&#39;omni&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Robot kinematics </span><span class="si">{</span><span class="n">kinematics_name</span><span class="si">}</span><span class="s2"> not implemented&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObjectFactory.create_obstacle"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_obstacle">[docs]</a>    <span class="k">def</span> <span class="nf">create_obstacle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinematics</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">shape</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="n">kinematics_name</span> <span class="o">=</span> <span class="n">kinematics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+  
+        <span class="k">if</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;diff&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ObstacleDiff</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="n">kinematics_name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;acker&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;omni&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ObstacleStatic</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="n">kinematics_name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ObjectFactory.generate_state_list"><a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.generate_state_list">[docs]</a>    <span class="k">def</span> <span class="nf">generate_state_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">obj_type</span><span class="o">=</span><span class="s1">&#39;robot&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;manual&#39;</span><span class="p">},</span> <span class="n">state</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generate state list for robots or obstacles based on distribution and state provided in kwargs</span>
+<span class="sd">            - number: number of objects to generate</span>
+<span class="sd">            - obj_type: &#39;robot&#39; or &#39;obstacle&#39;</span>
+<span class="sd">            - distribution: distribution dictionary of states for objects</span>
+<span class="sd">            - state: initial state for objects</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="n">distribution</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;manual&#39;</span><span class="p">:</span>
+            <span class="n">state_list</span> <span class="o">=</span> <span class="n">convert_list_length</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+            <span class="n">goal_list</span> <span class="o">=</span> <span class="n">convert_list_length</span><span class="p">(</span><span class="n">goal</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+
+
+        <span class="k">elif</span> <span class="n">distribution</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            
+            <span class="n">range_low</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;range_low&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+            <span class="n">range_high</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;range_high&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+
+            <span class="n">state_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">range_low</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">range_high</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="n">state_list</span> <span class="o">=</span> <span class="n">state_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="n">goal_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">range_low</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">range_high</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="n">goal_list</span> <span class="o">=</span> <span class="n">goal_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        
+        <span class="k">elif</span> <span class="n">distribution</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">elif</span> <span class="n">distribution</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;circle&#39;</span><span class="p">:</span>
+            
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="n">distribution</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">state_list</span><span class="p">,</span> <span class="n">goal_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+                <span class="n">theta</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">i</span><span class="o">/</span><span class="n">number</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">state_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">theta</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">])</span>
+
+                <span class="n">goal_x</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">goal_y</span> <span class="o">=</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">radius</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+                <span class="n">goal_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">goal_x</span><span class="p">,</span> <span class="n">goal_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">state_list</span><span class="p">,</span> <span class="n">goal_list</span></div></div>
+            
+        <span class="c1">#     x_range = distribution.get(&#39;x_range&#39;, (0, 10))</span>
+        <span class="c1">#     y_range = distribution.get(&#39;y_range&#39;, (0, 10))</span>
+        <span class="c1">#     theta_range = distribution.get(&#39;theta_range&#39;, (0, 2*np.pi))</span>
+
+        <span class="c1">#     state_list = []</span>
+        <span class="c1">#     for _ in range(number):</span>
+        <span class="c1">#         x = random.uniform(*x_range)</span>
+        <span class="c1">#         y = random.uniform(*y_range)</span>
+        <span class="c1">#         theta = random.uniform(*theta_range)</span>
+        <span class="c1">#         state_list.append([x, y, theta])</span>
+                 
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ruihua Han.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
