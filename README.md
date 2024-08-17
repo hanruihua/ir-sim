@@ -56,20 +56,19 @@ pip install -e .
 
 from ir_sim.env import EnvBase
 
-env = EnvBase('robot_world.yaml')
+env = EnvBase('robot_world.yaml') # initialize the environment with the configuration file
 
-for i in range(300):
+for i in range(300): # run the simulation for 300 steps
 
-    env.step()
-    env.render()
+    env.step()  # update the environment
+    env.render() # render the environment
 
-    if env.done(): break
+    if env.done(): break # check if the simulation is done
         
-env.end()
+env.end() # close the environment
 ```
 
-
-File: robot_world.yaml
+YAML Configuration: robot_world.yaml
 
 ```yaml
 
@@ -83,10 +82,10 @@ world:
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker
     shape: {name: 'circle', radius: 0.2}  # radius
-    state: [1, 1, 0]  
-    goal: [9, 9, 0] 
+    state: [1, 1, 0]  # x, y, theta
+    goal: [9, 9, 0]  # x, y, theta
     behavior: {name: 'dash'} # move toward to the goal directly 
-    color: 'g'
+    color: 'g' # green
 ```
 
 

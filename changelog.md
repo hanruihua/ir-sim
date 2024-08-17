@@ -1,7 +1,7 @@
 ## ir_sim 2.1.4
 
 - Update function comments
-
+- Update the readme
 
 
 ## ir_sim 2.1.3

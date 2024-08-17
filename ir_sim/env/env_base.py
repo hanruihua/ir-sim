@@ -17,7 +17,7 @@ class EnvBase:
     The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.      
     '''
 
-    def __init__(self, world_name=None, display=True, disable_all_plot=False, save_ani=False, full=False, log_file=None, log_level='INFO'):
+    def __init__(self, world_name: str=None, display: bool=True, disable_all_plot: bool=False, save_ani: bool=False, full: bool=False, log_file: str=None, log_level: str='INFO') -> None:
 
         '''
         Initialize the environment with the given parameters.
@@ -58,31 +58,37 @@ class EnvBase:
             self.init_keyboard(env_para.parse['keyboard'])
 
         if full:
-            mode = platform.system()
-            if mode == 'Linux':
-                # mng = plt.get_current_fig_manager()
+            system_platform = platform.system()
+            if system_platform == 'Linux':
                 plt.get_current_fig_manager().full_screen_toggle()
-                # mng.resize(*mng.window.maxsize())
-                # mng.frame.Maximize(True)
 
-            elif mode == 'Windows':
-                # figManager = plt.get_current_fig_manager()
-                # figManager.window.showMaximized()
-                # figManager.resize(*figManager.window.maxsize())
-                # self._env_plot.fig.canvas.manager.window.showMaximized()
+            elif system_platform == 'Windows':
                 mng = plt.get_current_fig_manager()
                 mng.full_screen_toggle()
         
 
-    ## magic methods
     def __del__(self):
         print('Simulated Environment End with sim time elapsed: {} seconds'.format(round(self._world.time, 2)))
 
     def __str__(self):
         return f'Environment: {self._world.name}'
 
-    ## step
-    def step(self, action=None, action_id=0, **kwargs):
+
+    def step(self, action=None, action_id=0):
+
+        '''
+        Perform a simulation step in the environment.
+
+        Args:
+            if action is list:
+                List of actions to be performed for each robot in the environment.
+            if action is numpy array (2 * 1 vector): 
+                differential robot action:  linear velocity, angular velocity
+                omnidirectional robot action: velocity in x, velocity in y
+                Ackermann robot action: linear velocity, Steering angle
+
+            action_id (int 0): Apply the action to the robot with the given id.
+        '''
 
         if isinstance(action, list):
             self.objects_step(action)
@@ -92,8 +98,6 @@ class EnvBase:
             else:
                 self.object_step(action, action_id)
 
-        # if action is None:
-        #     action = [None] * len(self.objects)
         self._world.step()
 
     def objects_step(self, action=None):
@@ -107,8 +111,14 @@ class EnvBase:
     ## render     
     def render(self, interval=0.05, figure_kwargs=dict(), **kwargs):
 
-        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        # default figure arguments
+        '''
+        Render the environment.
+
+        Args:
+            interval (float): Time interval between frames in seconds.
+            figure_kwargs (dict): Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.
+            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.
+        '''
 
         if not self.disable_all_plot: 
             if self._world.sampling:
@@ -117,51 +127,115 @@ class EnvBase:
 
                 if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
 
-                self._env_plot.clear_components('dynamic', self.objects, **kwargs)
+                self._env_plot.clear_components('dynamic', self.objects)
                 self._env_plot.draw_components('dynamic', self.objects, **kwargs)
     
 
-    def render_offline(self, interval=0.05, record=[], figure_kwargs=dict(), **kwargs):
+    # def render_offline(self, interval=0.05, record=[], figure_kwargs=dict(), **kwargs):
 
-        # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        # default figure arguments
+    #     # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+    #     # default figure arguments
 
-        for objs in record:
+    #     for objs in record:
 
-            if not self.disable_all_plot: 
-                if self._world.sampling:
+    #         if not self.disable_all_plot: 
+    #             if self._world.sampling:
 
-                    if self.display: plt.pause(interval)
+    #                 if self.display: plt.pause(interval)
 
-                    if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
+    #                 if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
 
-                    self._env_plot.clear_components('dynamic', objs, **kwargs)
-                    self._env_plot.draw_components('dynamic', objs, **kwargs)
+    #                 self._env_plot.clear_components('dynamic', objs, **kwargs)
+    #                 self._env_plot.draw_components('dynamic', objs, **kwargs)
                 
 
     def show(self):
+
+        '''
+        Show the environment figure.
+        '''
+
         self._env_plot.show()
 
     
     def reset_plot(self):
+
+        '''
+        Reset the environment figure.
+        '''
+
         plt.cla()
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
 
-    # draw
+    # draw various components
     def draw_trajectory(self, traj, traj_type='g-', **kwargs):
+
+        '''
+        Draw the trajectory on the environment figure.
+
+        Args:
+            traj (list): List of trajectory points (2 * 1 vector).
+            traj_type: Type of the trajectory line, see matplotlib plot function for detail.
+            **kwargs: Additional keyword arguments for drawing the trajectory, see env_plot.draw_trajectory() function for detail.
+        '''
+
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
 
-    def draw_points(self, points, s=30, c='b', **kwargs):
-        self._env_plot.draw_points(points, s, c, **kwargs)
+    def draw_points(self, points, s=30, c='b', refresh=True, **kwargs):
 
+        '''
+        Draw points on the environment figure.
 
-    def draw_box(self, vertex, refresh=True, **kwargs):
-        self._env_plot.draw_box(vertex, refresh, **kwargs)
+        Args:
+            points (list): List of points (2*1) to be drawn.
+            s (int): Size of the points.
+            c (str): Color of the points.
+            refresh (bool): Flag to refresh the points in the figure.
+            **kwargs: Additional keyword arguments for drawing the points, see ax.scatter (https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) function for detail.
+        '''
 
+        self._env_plot.draw_points(points, s, c, refresh, **kwargs)
+
+    def draw_box(self, vertex, refresh=True, color='-b'):
+
+        '''
+        Draw a box by the vertices.
+
+        Args:
+            vertices: matrix of vertices, point_dim*vertex_num
+            refresh: whether to refresh the plot, default False
+            color: color of the box, default 'b-'
+        ''' 
+        self._env_plot.draw_box(vertex, refresh, color)
 
     ## keyboard control
     def init_keyboard(self, keyboard_kwargs=dict()):
+
+        '''
+        Initialize keyboard control for the environment.
+
+        Args:
+            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings.
+                - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].
+                - key_lv_max (float): Maximum linear velocity. Default is vel_max[0].
+                - key_ang_max (float): Maximum angular velocity. Default is vel_max[1].
+                - key_lv (float): Initial linear velocity. Default is 0.0.
+                - key_ang (float): Initial angular velocity. Default is 0.0.
+                - key_id (int): Initial robot control ID. Default is 0.
+            
+            Keys:
+                w: Move forward.
+                s: Move backward.
+                a: Turn left.
+                d: Turn right.
+                q: Decrease linear velocity.
+                e: Increase linear velocity.
+                z: Decrease angular velocity.
+                c: Increase angular velocity.
+                alt + num: Change the current control robot id.
+                r: Reset the environment.   
+        '''
 
         vel_max = keyboard_kwargs.get('vel_max', [3.0, 1.0])
         self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
@@ -189,6 +263,14 @@ class EnvBase:
     
     def end(self, ending_time=3, **kwargs):
 
+        '''
+        End the simulation, save the animation, and close the environment.
+
+        Args:
+            ending_time (int): Time in seconds to wait before closing the figure, default is 3 seconds.
+            **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.
+        '''
+
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
@@ -198,6 +280,15 @@ class EnvBase:
         
 
     def done(self, mode='all'):
+
+        '''
+        Check if the simulation is done.
+
+        Args:
+            mode (str): Mode to check if all or any of the objects are done.
+                - all (str): Check if all objects are done.
+                - any (str): Check if any of the objects are done.
+        '''
 
         done_list = [ obj.done() for obj in self.objects if obj.role=='robot']
 
@@ -210,6 +301,11 @@ class EnvBase:
             return any(done_list)
         
     def reset(self):
+
+        '''
+        Reset the environment.
+        '''
+
         self.reset_all() 
         self.step(action=np.zeros((2, 1)))
 
@@ -218,33 +314,79 @@ class EnvBase:
         
 
     def get_robot_info(self, id=0):
+
+        '''
+        Get the information of the robot with the given id.
+
+        Args:
+            id (int): Id of the robot.
+        
+        Returns:
+            see ObjectInfo in Object_base for detail
+        '''
+
         return self.robot_list[id].get_info()
 
    
     @property
     def arrive(self, id=None, mode=None):
+        '''
+        Check if the robot(s) have arrived at their destination.
 
+        Args:
+            id (int, optional): Id of the specific robot to check. Default is None.
+            mode (str, optional): Mode to check for all or any robots. Must be 'all' or 'any'. Default is None.
+
+        Returns:
+            bool: Arrival status of the specified robot or all/any robots.
+        '''
+
+        # If a specific robot id is provided
         if id is not None:
+            # Ensure the id is an integer
             assert isinstance(id, int), 'id should be integer'
+            # Return the arrival status of the specified robot
             return self.robot_list[id].arrive
         else:
+            # Ensure the mode is either 'all' or 'any'
             assert mode in ['all', 'any'], 'mode should be all or any'
+            # Return True if all robots have arrived, otherwise return True if any robot has arrived
             return all([obj.arrive for obj in self.robot_list]) if mode == 'all' else any([obj.arrive for obj in self.robot_list])
-    
+
     @property
     def collision(self, id=None, mode=None):
-        
+        '''
+        Check if the robot(s) have collided.
+
+        Args:
+            id (int, optional): Id of the specific robot to check. Default is None.
+            mode (str, optional): Mode to check for all or any robots. Must be 'all' or 'any'. Default is None.
+
+        Returns:
+            bool: Collision status of the specified robot or all/any robots.
+        '''
+
+        # If a specific robot id is provided
         if id is not None:
+            # Ensure the id is an integer
             assert isinstance(id, int), 'id should be integer'
+            # Return the collision status of the specified robot
             return self.robot_list[id].collision
         else:
+            # Ensure the mode is either 'all' or 'any'
             assert mode in ['all', 'any'], 'mode should be all or any'
+            # Return True if all robots have collided, otherwise return True if any robot has collided
             return all([obj.collision for obj in self.robot_list]) if mode == 'all' else any([obj.collision for obj in self.robot_list])
-
 
     @property
     def robot_list(self):
-        return [ obj for obj in self.objects if obj.role == 'robot']
+        '''
+        Get the list of robots in the environment.
+
+        Returns:
+            list: List of robot objects.
+        '''
+        return [obj for obj in self.objects if obj.role == 'robot']
 
     @property
     def robot(self):
@@ -273,6 +415,13 @@ class EnvBase:
 
     # region: keyboard control
     def on_press(self, key):
+
+        '''
+        Handle key press events for keyboard control.
+
+        Args:
+            key (pynput.keyboard.Key): The key that was pressed.
+        '''
 
         try:
             if key.char.isdigit() and self.alt_flag:
@@ -314,6 +463,13 @@ class EnvBase:
         
     def on_release(self, key):
         
+        '''
+        Handle key release events for keyboard control.
+
+        Args:
+            key (pynput.keyboard.Key): The key that was released.
+        '''
+    
         try:
             if key.char == 'w':
                 self.key_lv = 0
