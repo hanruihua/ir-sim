@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ir_sim.env.env_plot &mdash; IR-SIM 2.1.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/documentation_options.js?v=179ab080"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -90,7 +88,9 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="EnvPlot"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot">[docs]</a><span class="k">class</span> <span class="nc">EnvPlot</span><span class="p">:</span>
+<div class="viewcode-block" id="EnvPlot">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot">[docs]</a>
+<span class="k">class</span> <span class="nc">EnvPlot</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="n">x_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">subplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">saved_figure</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">saved_ani</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -126,7 +126,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dyna_point_list</span> <span class="o">=</span> <span class="p">[]</span>
 
 
-<div class="viewcode-block" id="EnvPlot.init_plot"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.init_plot">[docs]</a>    <span class="k">def</span> <span class="nf">init_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">no_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="EnvPlot.init_plot">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.init_plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">no_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_range</span><span class="p">)</span> 
@@ -142,7 +144,10 @@
         <span class="k">if</span> <span class="n">tight</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="EnvPlot.draw_components"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_components">[docs]</a>    <span class="k">def</span> <span class="nf">draw_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_components">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_components">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        mode: </span>
@@ -163,8 +168,11 @@
             <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;error input of the draw mode&#39;</span><span class="p">)</span></div>
+
     
-<div class="viewcode-block" id="EnvPlot.clear_components"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.clear_components">[docs]</a>    <span class="k">def</span> <span class="nf">clear_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[]):</span>
+<div class="viewcode-block" id="EnvPlot.clear_components">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.clear_components">[docs]</a>
+    <span class="k">def</span> <span class="nf">clear_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[]):</span>
 
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;dynamic&#39;</span><span class="p">:</span>
             <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">plot_clear</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">static</span><span class="p">]</span>
@@ -179,15 +187,21 @@
 
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span></div>
+
     
 
-<div class="viewcode-block" id="EnvPlot.draw_grid_map"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_grid_map">[docs]</a>    <span class="k">def</span> <span class="nf">draw_grid_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="EnvPlot.draw_grid_map">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_grid_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_grid_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
         <span class="k">if</span> <span class="n">grid_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid_map</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_range</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_range</span><span class="p">)</span> </div>
 
 
-<div class="viewcode-block" id="EnvPlot.draw_geometry"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">draw_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_geometry">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_geometry">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
         <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s1">&#39;Point&#39;</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -196,7 +210,10 @@
 
             <span class="n">lines</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xy</span></div>
 
-<div class="viewcode-block" id="EnvPlot.draw_trajectory"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_trajectory">[docs]</a>    <span class="k">def</span> <span class="nf">draw_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj</span><span class="p">,</span> <span class="n">traj_type</span><span class="o">=</span><span class="s1">&#39;g-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;trajectory&#39;</span><span class="p">,</span> <span class="n">show_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_trajectory">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_trajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj</span><span class="p">,</span> <span class="n">traj_type</span><span class="o">=</span><span class="s1">&#39;g-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;trajectory&#39;</span><span class="p">,</span> <span class="n">show_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># traj: a list of points</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">path_x_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">traj</span><span class="p">]</span>
@@ -223,7 +240,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dyna_line_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="EnvPlot.draw_points"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_points">[docs]</a>    <span class="k">def</span> <span class="nf">draw_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_list</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_points">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_list</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Draw points on the plot</span>
@@ -239,7 +259,10 @@
             <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dyna_point_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="EnvPlot.draw_box"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_box">[docs]</a>    <span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b-&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_box">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_box">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b-&#39;</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Draw a box by the vertices</span>
@@ -251,8 +274,11 @@
         <span class="k">if</span> <span class="n">refresh</span><span class="p">:</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">dyna_line_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box_line</span><span class="p">)</span></div>
 
+
     <span class="c1"># save animation and figure </span>
-<div class="viewcode-block" id="EnvPlot.save_gif_figure"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_gif_figure">[docs]</a>    <span class="k">def</span> <span class="nf">save_gif_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="EnvPlot.save_gif_figure">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_gif_figure">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_gif_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># saved_figure_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail</span>
 
@@ -268,7 +294,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fp</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="n">order</span><span class="o">+</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="nb">format</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">saved_figure_kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="EnvPlot.save_animate"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_animate">[docs]</a>    <span class="k">def</span> <span class="nf">save_animate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ani_name</span><span class="o">=</span><span class="s1">&#39;animation&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.gif&#39;</span><span class="p">,</span> <span class="n">keep_len</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">rm_fig_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EnvPlot.save_animate">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_animate">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_animate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ani_name</span><span class="o">=</span><span class="s1">&#39;animation&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.gif&#39;</span><span class="p">,</span> <span class="n">keep_len</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">rm_fig_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         
         <span class="c1"># saved_ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail</span>
 
@@ -306,14 +335,22 @@
  
         <span class="k">if</span> <span class="n">rm_fig_path</span><span class="p">:</span> <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span></div>
 
+
         
-<div class="viewcode-block" id="EnvPlot.show"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EnvPlot.show">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.show">[docs]</a>
+    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="EnvPlot.draw_ackerman_velocity"><a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_ackerman_velocity">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="EnvPlot.draw_ackerman_velocity">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_ackerman_velocity">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">draw_ackerman_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity_list</span><span class="p">,</span> <span class="n">x_name</span><span class="p">,</span> <span class="n">y_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
+</div>
+
 
     <span class="c1"># def sub_world_plot(self):</span>
 

@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ir_sim.lib.behaviorlib &mdash; IR-SIM 2.1.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/documentation_options.js?v=179ab080"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -44,7 +42,7 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install the package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick_Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 </ul>
@@ -83,7 +81,9 @@
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">atan2</span><span class="p">,</span> <span class="n">asin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span>
 
 
-<div class="viewcode-block" id="DiffDash"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffDash">[docs]</a><span class="k">def</span> <span class="nf">DiffDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<div class="viewcode-block" id="DiffDash">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffDash">[docs]</a>
+<span class="k">def</span> <span class="nf">DiffDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
 
     <span class="n">distance</span><span class="p">,</span> <span class="n">radian</span> <span class="o">=</span> <span class="n">relative_position</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span> 
 
@@ -101,7 +101,10 @@
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">linear</span><span class="p">],</span> <span class="p">[</span><span class="n">angular</span><span class="p">]])</span></div>
 
-<div class="viewcode-block" id="AckerDash"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.AckerDash">[docs]</a><span class="k">def</span> <span class="nf">AckerDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AckerDash">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.AckerDash">[docs]</a>
+<span class="k">def</span> <span class="nf">AckerDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">angle_tolerance</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="p">):</span>
 
     <span class="n">dis</span><span class="p">,</span> <span class="n">radian</span> <span class="o">=</span> <span class="n">relative_position</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
 
@@ -120,7 +123,10 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">v_opt</span><span class="p">],</span> <span class="p">[</span><span class="n">steer_opt</span><span class="p">]])</span></div>
 
 
-<div class="viewcode-block" id="OmniDash"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniDash">[docs]</a><span class="k">def</span> <span class="nf">OmniDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OmniDash">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniDash">[docs]</a>
+<span class="k">def</span> <span class="nf">OmniDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
 
     <span class="n">distance</span><span class="p">,</span> <span class="n">radian</span> <span class="o">=</span> <span class="n">relative_position</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span> 
     <span class="c1"># speed = np.sqrt( max_vel[0, 0] **2 + max_vel[1, 0] **2 )</span>
@@ -135,8 +141,11 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">vx</span><span class="p">],</span> <span class="p">[</span><span class="n">vy</span><span class="p">]])</span></div>
 
 
+
 <span class="c1"># rvo</span>
-<div class="viewcode-block" id="DiffRVO"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffRVO">[docs]</a><span class="k">def</span> <span class="nf">DiffRVO</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vxmax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">vymax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">acceler</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rvo&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="DiffRVO">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffRVO">[docs]</a>
+<span class="k">def</span> <span class="nf">DiffRVO</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vxmax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">vymax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">acceler</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rvo&#39;</span><span class="p">):</span>
 
     <span class="c1"># state_tuple: [x, y, vx, vy, radius, vx_des, vy_des, theta]</span>
     <span class="c1"># neighbor_list: a list of the tuple: [x, y, vx, vy, radius]</span>
@@ -156,13 +165,19 @@
     <span class="k">return</span> <span class="n">rvo_vel_diff</span></div>
 
 
-<div class="viewcode-block" id="config_rvo_list"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo_list">[docs]</a><span class="k">def</span> <span class="nf">config_rvo_list</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">):</span>
+
+<div class="viewcode-block" id="config_rvo_list">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo_list">[docs]</a>
+<span class="k">def</span> <span class="nf">config_rvo_list</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">):</span>
     
     <span class="n">rvo_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">config_rvo</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbor_list</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">rvo_list</span></div>
 
-<div class="viewcode-block" id="config_rvo"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo">[docs]</a><span class="k">def</span> <span class="nf">config_rvo</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">obstacle</span><span class="p">):</span>
+
+<div class="viewcode-block" id="config_rvo">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo">[docs]</a>
+<span class="k">def</span> <span class="nf">config_rvo</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">obstacle</span><span class="p">):</span>
 
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">state_tuple</span> 
     
@@ -189,7 +204,10 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">rvo_apex</span><span class="p">,</span> <span class="n">line_left_vector</span><span class="p">,</span> <span class="n">line_right_vector</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="vel_candidate"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_candidate">[docs]</a><span class="k">def</span> <span class="nf">vel_candidate</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">rvo_list</span><span class="p">,</span> <span class="n">acceler</span><span class="p">,</span> <span class="n">vxmax</span><span class="p">,</span> <span class="n">vymax</span><span class="p">):</span>
+
+<div class="viewcode-block" id="vel_candidate">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_candidate">[docs]</a>
+<span class="k">def</span> <span class="nf">vel_candidate</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">rvo_list</span><span class="p">,</span> <span class="n">acceler</span><span class="p">,</span> <span class="n">vxmax</span><span class="p">,</span> <span class="n">vymax</span><span class="p">):</span>
         
     <span class="n">vo_outside</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">vo_inside</span> <span class="o">=</span> <span class="p">[]</span>
@@ -215,7 +233,10 @@
     <span class="k">return</span> <span class="n">vo_outside</span><span class="p">,</span> <span class="n">vo_inside</span></div>
 
 
-<div class="viewcode-block" id="vo_out"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vo_out">[docs]</a><span class="k">def</span> <span class="nf">vo_out</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">rvo_list</span><span class="p">):</span>
+
+<div class="viewcode-block" id="vo_out">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vo_out">[docs]</a>
+<span class="k">def</span> <span class="nf">vo_out</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">rvo_list</span><span class="p">):</span>
         
     <span class="k">for</span> <span class="n">rvo</span> <span class="ow">in</span> <span class="n">rvo_list</span><span class="p">:</span>
         <span class="n">rel_vx</span> <span class="o">=</span> <span class="n">vx</span> <span class="o">-</span> <span class="n">rvo</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -229,17 +250,26 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="between_vector"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.between_vector">[docs]</a><span class="k">def</span> <span class="nf">between_vector</span><span class="p">(</span><span class="n">line_left_vector</span><span class="p">,</span> <span class="n">line_right_vector</span><span class="p">,</span> <span class="n">line_vector</span><span class="p">):</span>
+
+<div class="viewcode-block" id="between_vector">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.between_vector">[docs]</a>
+<span class="k">def</span> <span class="nf">between_vector</span><span class="p">(</span><span class="n">line_left_vector</span><span class="p">,</span> <span class="n">line_right_vector</span><span class="p">,</span> <span class="n">line_vector</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="n">cross_product</span><span class="p">(</span><span class="n">line_left_vector</span><span class="p">,</span> <span class="n">line_vector</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cross_product</span><span class="p">(</span><span class="n">line_right_vector</span><span class="p">,</span> <span class="n">line_vector</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span></div>
+
     
-<div class="viewcode-block" id="cross_product"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.cross_product">[docs]</a><span class="k">def</span> <span class="nf">cross_product</span><span class="p">(</span><span class="n">vector1</span><span class="p">,</span> <span class="n">vector2</span><span class="p">):</span> 
+<div class="viewcode-block" id="cross_product">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.cross_product">[docs]</a>
+<span class="k">def</span> <span class="nf">cross_product</span><span class="p">(</span><span class="n">vector1</span><span class="p">,</span> <span class="n">vector2</span><span class="p">):</span> 
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">vector1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">vector2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vector2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">vector1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="vel_select"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_select">[docs]</a><span class="k">def</span> <span class="nf">vel_select</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">vo_outside</span><span class="p">,</span> <span class="n">vo_inside</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="vel_select">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_select">[docs]</a>
+<span class="k">def</span> <span class="nf">vel_select</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">vo_outside</span><span class="p">,</span> <span class="n">vo_inside</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
 
     <span class="n">vel_des</span> <span class="o">=</span> <span class="p">[</span><span class="n">state_tuple</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">state_tuple</span><span class="p">[</span><span class="mi">6</span><span class="p">]]</span>
 
@@ -250,11 +280,17 @@
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">vo_inside</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">penalty</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">vel_des</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span> <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="distance"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.distance">[docs]</a><span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="distance">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.distance">[docs]</a>
+<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="p">(</span><span class="n">point2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">point1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">point2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">point1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="p">)</span></div>
+
     
 
-<div class="viewcode-block" id="penalty"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.penalty">[docs]</a><span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">vel_des</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<div class="viewcode-block" id="penalty">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.penalty">[docs]</a>
+<span class="k">def</span> <span class="nf">penalty</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">vel_des</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
         
     <span class="n">tc_list</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -281,6 +317,7 @@
     <span class="n">penalty_vel</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">tc_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">distance</span><span class="p">(</span><span class="n">vel_des</span><span class="p">,</span> <span class="n">vel</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">penalty_vel</span></div>
+
 
 
 

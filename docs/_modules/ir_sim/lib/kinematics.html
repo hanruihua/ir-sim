@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ir_sim.lib.kinematics &mdash; IR-SIM 2.1.3 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/documentation_options.js?v=179ab080"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -44,7 +42,7 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install the package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick_Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 </ul>
@@ -82,7 +80,9 @@
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">tan</span>
 <span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">WrapToPi</span>
 
-<div class="viewcode-block" id="differential_wheel_kinematics"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.kinematics.differential_wheel_kinematics">[docs]</a><span class="k">def</span> <span class="nf">differential_wheel_kinematics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">step_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+<div class="viewcode-block" id="differential_wheel_kinematics">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.kinematics.differential_wheel_kinematics">[docs]</a>
+<span class="k">def</span> <span class="nf">differential_wheel_kinematics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">step_time</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
 
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    The kinematics function for differential wheel robot</span>
@@ -113,7 +113,10 @@
 
     <span class="k">return</span> <span class="n">next_state</span></div>
 
-<div class="viewcode-block" id="ackermann_kinematics"><a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.kinematics.ackermann_kinematics">[docs]</a><span class="k">def</span> <span class="nf">ackermann_kinematics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">step_time</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">wheelbase</span><span class="p">,</span> <span class="n">psi_limit</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ackermann_kinematics">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.kinematics.ackermann_kinematics">[docs]</a>
+<span class="k">def</span> <span class="nf">ackermann_kinematics</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">step_time</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">wheelbase</span><span class="p">,</span> <span class="n">psi_limit</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
     <span class="c1"># reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.</span>
 
@@ -140,6 +143,7 @@
     <span class="n">new_state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">WrapToPi</span><span class="p">(</span><span class="n">new_state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> 
 
     <span class="k">return</span> <span class="n">new_state</span></div>
+
 
 
 </pre></div>
