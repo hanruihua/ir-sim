@@ -1,4 +1,4 @@
-ir\_sim.world package
+ir\_sim.world
 =====================
 
 Submodules

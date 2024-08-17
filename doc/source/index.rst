@@ -6,16 +6,21 @@
 Welcome to IR-SIM's documentation!
 ==================================
 
+Intelligent Robotics Simulation (IR-SIM) is a Python based lightweight 2D robotics simulator that provides a simple and easy-to-use interface for simulating robot behaviors in a 2D environment. The simulator is designed to be used for educational purposes and research in the field of robotics. 
+
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started:
+
+   install
+   quick_start
+   configuration
+   usage
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Documentation:
 
    modules
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

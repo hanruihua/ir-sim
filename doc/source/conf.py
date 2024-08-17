@@ -24,7 +24,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.1.2'
+release = '2.1.3'
 
 sys.path.insert(0, os.path.abspath('./ir_sim'))
 # -- General configuration ---------------------------------------------------

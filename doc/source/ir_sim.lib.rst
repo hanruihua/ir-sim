@@ -1,4 +1,4 @@
-ir\_sim.lib package
+ir\_sim.lib
 ===================
 
 Submodules

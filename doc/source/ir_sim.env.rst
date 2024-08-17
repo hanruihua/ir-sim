@@ -1,8 +1,5 @@
-ir\_sim.env package
+ir\_sim.env
 ===================
-
-Submodules
-----------
 
 ir\_sim.env.env\_base module
 ----------------------------
@@ -36,10 +33,4 @@ ir\_sim.env.env\_plot module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: ir_sim.env
-   :members:
-   :undoc-members:
-   :show-inheritance:
