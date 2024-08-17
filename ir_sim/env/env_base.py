@@ -172,12 +172,12 @@ class EnvBase:
     def draw_trajectory(self, traj, traj_type='g-', **kwargs):
 
         '''
-        Draw the trajectory on the environment figure.
+        Draw the trajectory on the environment figure.      
 
         Args:
-            traj (list): List of trajectory points (2 * 1 vector).
-            traj_type: Type of the trajectory line, see matplotlib plot function for detail.
-            **kwargs: Additional keyword arguments for drawing the trajectory, see env_plot.draw_trajectory() function for detail.
+            traj (list): List of trajectory points (2 * 1 vector).     
+            traj_type: Type of the trajectory line, see matplotlib plot function for detail.     
+            **kwargs: Additional keyword arguments for drawing the trajectory, see env_plot.draw_trajectory() function for detail.      
         '''
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
@@ -188,11 +188,11 @@ class EnvBase:
         Draw points on the environment figure.
 
         Args:
-            points (list): List of points (2*1) to be drawn.
-            s (int): Size of the points.
-            c (str): Color of the points.
-            refresh (bool): Flag to refresh the points in the figure.
-            **kwargs: Additional keyword arguments for drawing the points, see ax.scatter (https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) function for detail.
+            points (list): List of points (2*1) to be drawn.  
+            s (int): Size of the points.   
+            c (str): Color of the points.    
+            refresh (bool): Flag to refresh the points in the figure.       
+            **kwargs: Additional keyword arguments for drawing the points, see ax.scatter (https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) function for detail.      
         '''
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
