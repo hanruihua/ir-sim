@@ -372,7 +372,9 @@ def gen_inequal_from_vertex(vertex):
     convex_flag, order = is_convex_and_ordered(vertex)
 
     if not convex_flag:
-        print('Warning: The polygon constructed by vertex is not convex. Please check the vertex.')
+        print('The polygon constructed by vertex is not convex.')
+
+        return None, None
         # return None
     # assert convex_flag, 'The polygon constructed by vertex is not convex. Please check the vertex.'
 

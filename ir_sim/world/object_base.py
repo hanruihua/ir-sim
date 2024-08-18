@@ -465,11 +465,24 @@ class ObjectBase:
         '''
 
         if isinstance(state, list): 
-            temp_state = np.c_[state]
+
+            if len(state) > self.state_dim:
+                temp_state = np.c_[state[:self.state_dim]]
+            elif len(state) < self.state_dim:
+                temp_state = np.c_[state + [0] * (self.state_dim - len(state))]
+            else:
+                temp_state = np.c_[state]
 
         elif isinstance(state, np.ndarray):
-            temp_state = state
+
+            if state.shape[0] > self.state_dim:
+                temp_state = state[:self.state_dim]
             
+            elif state.shape[0] < self.state_dim:
+                temp_state = np.r_[state, np.zeros((self.state_dim - state.shape[0], state.shape[1]))]
+            else:
+                temp_state = state
+          
         assert self._state.shape == temp_state.shape
 
         if init:
@@ -479,14 +492,33 @@ class ObjectBase:
         self._geometry = self.geometry_transform(self._init_geometry, self._state)
 
 
+    def set_init_geometry(self, geometry):
+
+
+        '''
+        Args:
+            geometry: the shapely geometry of the object 
+            
+        '''
+            
+        self._init_geometry = geometry
+
 
     def construct_geometry(self, shape, shape_tuple, reso=0.1):
         
         '''
-        shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
-                for circle, the list should have be: (center_x, center_y, radius)
-                for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
-                for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. 
+        construct the geometry of the object
+        
+        Args:
+            shape: the shape of the object, a string, including: circle, polygon, linestring, points
+
+            shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
+                    for circle, the list should have be: (center_x, center_y, radius)
+                    for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
+                    for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. 
+                    for points, matrix of points, shape (2, N)
+            
+            reso: the resolution of the object, default is 0.1
         '''
 
 
@@ -505,7 +537,10 @@ class ObjectBase:
         else:
             raise ValueError("shape should be one of the following: circle, polygon, linestring, points")
 
-        self.G, self.h = self.generate_Gh(shape, shape_tuple)
+        if shape == 'polygon' or shape =='rectangle'or shape == 'circle':
+            self.G, self.h, self.cone_type = self.generate_Gh(shape, shape_tuple)
+        else:
+            self.G, self.h, self.cone_type = None, None, 'Rpositive'
 
         return geometry
 
@@ -520,14 +555,14 @@ class ObjectBase:
             radius = shape_tuple[2]
             G = np.array([ [1, 0], [0, 1], [0, 0] ])
             h = np.array( [ [0], [0], [-radius] ] ) 
-            self.cone_type = 'norm2'
+            cone_type = 'norm2'
 
         else:
             init_vertex = np.array(shape_tuple).T
             G, h = gen_inequal_from_vertex(init_vertex)
-            self.cone_type = 'Rpositive'
+            cone_type = 'Rpositive'
 
-        return G, h
+        return G, h, cone_type
 
     
     def geometry_state_transition(self):
@@ -838,6 +873,11 @@ class ObjectBase:
 
     def get_obstacle_info(self):
         return ObstacleInfo(self._state[:2, :], self.vertices[:, :-1], self._velocity, self.info.cone_type, self.radius)
+
+
+    def get_Gh(self):
+        return self.info.G, self.info.h
+
 
     # def get_convex_info(self):
     #     return 

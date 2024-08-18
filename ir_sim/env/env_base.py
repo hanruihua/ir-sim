@@ -10,6 +10,8 @@ import platform
 import numpy as np
 from pynput import keyboard
 from .env_logger import EnvLogger
+from ir_sim.lib.generation import random_generate_polygon
+from shapely import Polygon
 
 class EnvBase:
 
@@ -317,7 +319,11 @@ class EnvBase:
     def random_obstacle_position(self, range_low = [0, 0, -3.14], range_high = [10, 10, 3.14]):
 
         '''
-        Generate random obstacle positions in the environment.
+        Random obstacle positions in the environment.
+
+        Args:
+            range_low (list [x, y, theta]): Lower bound of the random range for the obstacle states. Default is [0, 0, -3.14]. 
+            range_high (list [x, y, theta]): Upper bound of the random range for the obstacle states. Default is [10, 10, 3.14].
         '''
 
         if isinstance(range_low, list):
@@ -333,7 +339,57 @@ class EnvBase:
         
         self._env_plot.clear_components('all', self.obstacle_list)
         self._env_plot.draw_components('all', self.obstacle_list)
+    
+
+    def random_polygon_shape(self, center_range = [0, 0, 10, 10], avg_radius_range = [0.1, 1], irregularity_range = [0, 1], spikeyness_range = [0, 1], num_vertices_range=[4, 10]):
+
+        '''
+        Random polygon shapes for the obstacles in the environment.
+
+        Args:
+            center_range (list): Range of the center of the polygon. Default is [0, 0, 10, 10].
+            avg_radius_range (list): Range of the average radius of the polygon. Default is [0.1, 1].
+            irregularity_range (list): Range of the irregularity of the polygon. Default is [0, 1].
+            spikeyness_range (list): Range of the spikeyness of the polygon. Default is [0, 1].
+            num_vertices_range (list): Range of the number of vertices of the polygon. Default is [4, 10].
+
+            center (Tuple[float, float]):
+                a pair representing the center of the circumference used
+                to generate the polygon.
+            avg_radius (float):
+                the average radius (distance of each generated vertex to
+                the center of the circumference) used to generate points
+                with a normal distribution.
+            irregularity (float): 0 - 1
+                variance of the spacing of the angles between consecutive
+                vertices.
+            spikeyness (float): 0 - 1
+                variance of the distance of each vertex to the center of
+                the circumference.
+            num_vertices (int):
+                the number of vertices of the polygon.
+        '''
+
+        vertices_list = random_generate_polygon(self.obstacle_number, center_range, avg_radius_range, irregularity_range, spikeyness_range, num_vertices_range)
+
+        for i, obj in enumerate(self.obstacle_list):
+
+            if obj.shape == 'polygon':
+                geom = Polygon(vertices_list[i])
+                obj.set_init_geometry(geom)
         
+            
+        self._env_plot.clear_components('all', self.obstacle_list)
+        self._env_plot.draw_components('all', self.obstacle_list)
+    
+
+
+    
+# center_range=[0, 0, 10, 10], avg_radius_range=[0.1, 1], irregularity_range=[0, 1], spikeyness_range=[0, 1], num_vertices_range=[4, 10], **kwargs
+
+        
+        
+
                
     # endregion: environment change
 
