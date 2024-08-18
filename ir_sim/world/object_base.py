@@ -454,13 +454,14 @@ class ObjectBase:
         return self.lidar.get_offset()
 
 
-    def set_state(self, state=[0, 0, 0]):
+    def set_state(self, state=[0, 0, 0], init=False):
 
         '''
         set the state of the object
 
         Args:
             state: the state of the object, list or numpy. default is [0, 0, 0], [x, y, theta]
+            init: whether set the _init_state, default is False
         '''
 
         if isinstance(state, list): 
@@ -470,6 +471,9 @@ class ObjectBase:
             temp_state = state
             
         assert self._state.shape == temp_state.shape
+
+        if init:
+            self._init_state = temp_state.copy()
 
         self._state = temp_state.copy()
         self._geometry = self.geometry_transform(self._init_geometry, self._state)
