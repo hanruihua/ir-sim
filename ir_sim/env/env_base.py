@@ -381,16 +381,7 @@ class EnvBase:
             
         self._env_plot.clear_components('all', self.obstacle_list)
         self._env_plot.draw_components('all', self.obstacle_list)
-    
-
-
-    
-# center_range=[0, 0, 10, 10], avg_radius_range=[0.1, 1], irregularity_range=[0, 1], spikeyness_range=[0, 1], num_vertices_range=[4, 10], **kwargs
-
-        
-        
-
-               
+            
     # endregion: environment change
 
         
