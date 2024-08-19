@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="ir_sim.env" href="ir_sim.env.html" />
+    <link rel="next" title="env" href="ir_sim.env.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
@@ -52,9 +52,10 @@
 <p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ir_sim</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html">ir_sim.env</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html">ir_sim.lib</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html">ir_sim.world</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html">env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html">lib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html">world</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.util.html">util</a></li>
 </ul>
 </li>
 </ul>
@@ -87,84 +88,283 @@
 <h1>ir_sim<a class="headerlink" href="#ir-sim" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="ir_sim.env.html">ir_sim.env</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_base">ir_sim.env.env_base module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase"><code class="docutils literal notranslate"><span class="pre">EnvBase</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ir_sim.env.html">env</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_base">ir_sim.env.env_base</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase"><code class="docutils literal notranslate"><span class="pre">EnvBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.step"><code class="docutils literal notranslate"><span class="pre">EnvBase.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.objects_step"><code class="docutils literal notranslate"><span class="pre">EnvBase.objects_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.object_step"><code class="docutils literal notranslate"><span class="pre">EnvBase.object_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.render"><code class="docutils literal notranslate"><span class="pre">EnvBase.render()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.show"><code class="docutils literal notranslate"><span class="pre">EnvBase.show()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset_plot"><code class="docutils literal notranslate"><span class="pre">EnvBase.reset_plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.draw_trajectory"><code class="docutils literal notranslate"><span class="pre">EnvBase.draw_trajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.draw_points"><code class="docutils literal notranslate"><span class="pre">EnvBase.draw_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.draw_box"><code class="docutils literal notranslate"><span class="pre">EnvBase.draw_box()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.init_keyboard"><code class="docutils literal notranslate"><span class="pre">EnvBase.init_keyboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.end"><code class="docutils literal notranslate"><span class="pre">EnvBase.end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.done"><code class="docutils literal notranslate"><span class="pre">EnvBase.done()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset"><code class="docutils literal notranslate"><span class="pre">EnvBase.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset_all"><code class="docutils literal notranslate"><span class="pre">EnvBase.reset_all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.random_obstacle_position"><code class="docutils literal notranslate"><span class="pre">EnvBase.random_obstacle_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.random_polygon_shape"><code class="docutils literal notranslate"><span class="pre">EnvBase.random_polygon_shape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_state"><code class="docutils literal notranslate"><span class="pre">EnvBase.get_robot_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_scan"><code class="docutils literal notranslate"><span class="pre">EnvBase.get_lidar_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_offset"><code class="docutils literal notranslate"><span class="pre">EnvBase.get_lidar_offset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_obstacle_list"><code class="docutils literal notranslate"><span class="pre">EnvBase.get_obstacle_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_info"><code class="docutils literal notranslate"><span class="pre">EnvBase.get_robot_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.arrive"><code class="docutils literal notranslate"><span class="pre">EnvBase.arrive</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.collision"><code class="docutils literal notranslate"><span class="pre">EnvBase.collision</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.robot_list"><code class="docutils literal notranslate"><span class="pre">EnvBase.robot_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.obstacle_list"><code class="docutils literal notranslate"><span class="pre">EnvBase.obstacle_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.objects"><code class="docutils literal notranslate"><span class="pre">EnvBase.objects</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.step_time"><code class="docutils literal notranslate"><span class="pre">EnvBase.step_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.robot"><code class="docutils literal notranslate"><span class="pre">EnvBase.robot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.obstacle_number"><code class="docutils literal notranslate"><span class="pre">EnvBase.obstacle_number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.on_press"><code class="docutils literal notranslate"><span class="pre">EnvBase.on_press()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.on_release"><code class="docutils literal notranslate"><span class="pre">EnvBase.on_release()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_logger">ir_sim.env.env_logger module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger"><code class="docutils literal notranslate"><span class="pre">EnvLogger</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_para">ir_sim.env.env_para module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_para.EnvPara"><code class="docutils literal notranslate"><span class="pre">EnvPara</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_logger">ir_sim.env.env_logger</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger"><code class="docutils literal notranslate"><span class="pre">EnvLogger</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.info"><code class="docutils literal notranslate"><span class="pre">EnvLogger.info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.error"><code class="docutils literal notranslate"><span class="pre">EnvLogger.error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.debug"><code class="docutils literal notranslate"><span class="pre">EnvLogger.debug()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.warning"><code class="docutils literal notranslate"><span class="pre">EnvLogger.warning()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_plot">ir_sim.env.env_plot module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot"><code class="docutils literal notranslate"><span class="pre">EnvPlot</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_para">ir_sim.env.env_para</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_para.EnvPara"><code class="docutils literal notranslate"><span class="pre">EnvPara</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_para.EnvPara.parse"><code class="docutils literal notranslate"><span class="pre">EnvPara.parse</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ir_sim.lib.html">ir_sim.lib</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.behavior">ir_sim.lib.behavior module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behavior.Behavior"><code class="docutils literal notranslate"><span class="pre">Behavior</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.env.html#module-ir_sim.env.env_plot">ir_sim.env.env_plot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot"><code class="docutils literal notranslate"><span class="pre">EnvPlot</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.init_plot"><code class="docutils literal notranslate"><span class="pre">EnvPlot.init_plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_components"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_components()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.clear_components"><code class="docutils literal notranslate"><span class="pre">EnvPlot.clear_components()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_grid_map"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_grid_map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_geometry"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_trajectory"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_trajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_points"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_box"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_box()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_gif_figure"><code class="docutils literal notranslate"><span class="pre">EnvPlot.save_gif_figure()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_animate"><code class="docutils literal notranslate"><span class="pre">EnvPlot.save_animate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.show"><code class="docutils literal notranslate"><span class="pre">EnvPlot.show()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_ackerman_velocity"><code class="docutils literal notranslate"><span class="pre">EnvPlot.draw_ackerman_velocity()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.behaviorlib">ir_sim.lib.behaviorlib module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.AckerDash"><code class="docutils literal notranslate"><span class="pre">AckerDash()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ir_sim.lib.html">lib</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.behavior">ir_sim.lib.behavior</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behavior.Behavior"><code class="docutils literal notranslate"><span class="pre">Behavior</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behavior.Behavior.gen_vel"><code class="docutils literal notranslate"><span class="pre">Behavior.gen_vel()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.behaviorlib">ir_sim.lib.behaviorlib</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffDash"><code class="docutils literal notranslate"><span class="pre">DiffDash()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffRVO"><code class="docutils literal notranslate"><span class="pre">DiffRVO()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.AckerDash"><code class="docutils literal notranslate"><span class="pre">AckerDash()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniDash"><code class="docutils literal notranslate"><span class="pre">OmniDash()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.between_vector"><code class="docutils literal notranslate"><span class="pre">between_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo"><code class="docutils literal notranslate"><span class="pre">config_rvo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.DiffRVO"><code class="docutils literal notranslate"><span class="pre">DiffRVO()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo_list"><code class="docutils literal notranslate"><span class="pre">config_rvo_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo"><code class="docutils literal notranslate"><span class="pre">config_rvo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_candidate"><code class="docutils literal notranslate"><span class="pre">vel_candidate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vo_out"><code class="docutils literal notranslate"><span class="pre">vo_out()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.between_vector"><code class="docutils literal notranslate"><span class="pre">between_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.cross_product"><code class="docutils literal notranslate"><span class="pre">cross_product()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_select"><code class="docutils literal notranslate"><span class="pre">vel_select()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.distance"><code class="docutils literal notranslate"><span class="pre">distance()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.penalty"><code class="docutils literal notranslate"><span class="pre">penalty()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_candidate"><code class="docutils literal notranslate"><span class="pre">vel_candidate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_select"><code class="docutils literal notranslate"><span class="pre">vel_select()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vo_out"><code class="docutils literal notranslate"><span class="pre">vo_out()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.factory">ir_sim.lib.factory module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.generation">ir_sim.lib.generation module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.clip"><code class="docutils literal notranslate"><span class="pre">clip()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.factory">ir_sim.lib.factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.generation">ir_sim.lib.generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.random_generate_polygon"><code class="docutils literal notranslate"><span class="pre">random_generate_polygon()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.generate_polygon"><code class="docutils literal notranslate"><span class="pre">generate_polygon()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.random_angle_steps"><code class="docutils literal notranslate"><span class="pre">random_angle_steps()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.random_generate_polygon"><code class="docutils literal notranslate"><span class="pre">random_generate_polygon()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.generation.clip"><code class="docutils literal notranslate"><span class="pre">clip()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.kinematics">ir_sim.lib.kinematics module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.kinematics.ackermann_kinematics"><code class="docutils literal notranslate"><span class="pre">ackermann_kinematics()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib.kinematics">ir_sim.lib.kinematics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.kinematics.differential_wheel_kinematics"><code class="docutils literal notranslate"><span class="pre">differential_wheel_kinematics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.lib.html#ir_sim.lib.kinematics.ackermann_kinematics"><code class="docutils literal notranslate"><span class="pre">ackermann_kinematics()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ir_sim.lib.html#module-ir_sim.lib">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ir_sim.world.html">ir_sim.world</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.multi_object_base">ir_sim.world.multi_object_base module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects"><code class="docutils literal notranslate"><span class="pre">MultiObjects</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ir_sim.world.html">world</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.multi_object_base">ir_sim.world.multi_object_base</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects"><code class="docutils literal notranslate"><span class="pre">MultiObjects</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects.generate_state_shape"><code class="docutils literal notranslate"><span class="pre">MultiObjects.generate_state_shape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects.step"><code class="docutils literal notranslate"><span class="pre">MultiObjects.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects.plot"><code class="docutils literal notranslate"><span class="pre">MultiObjects.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.multi_object_base.MultiObjects.random_generate_polygon"><code class="docutils literal notranslate"><span class="pre">MultiObjects.random_generate_polygon()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.object_base">ir_sim.world.object_base module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase"><code class="docutils literal notranslate"><span class="pre">ObjectBase</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo"><code class="docutils literal notranslate"><span class="pre">ObjectInfo</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.object_factory">ir_sim.world.object_factory module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory"><code class="docutils literal notranslate"><span class="pre">ObjectFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.object_base">ir_sim.world.object_base</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo"><code class="docutils literal notranslate"><span class="pre">ObjectInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.id"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.shape"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.kinematics"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.kinematics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.role"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.role</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.color"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.color</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.static"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.static</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.goal"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.goal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.vel_min"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.vel_min</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.vel_max"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.vel_max</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.acce"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.acce</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.angle_range"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.angle_range</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.goal_threshold"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.goal_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.G"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.G</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.h"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.h</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.cone_type"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.cone_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.wheelbase"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.wheelbase</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectInfo.add_property"><code class="docutils literal notranslate"><span class="pre">ObjectInfo.add_property()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.world">ir_sim.world.world module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world"><code class="docutils literal notranslate"><span class="pre">world</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.center"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.center</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.vertex"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.vertex</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.velocity"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.velocity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.cone_type"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.cone_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.radius"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.radius</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.add_property"><code class="docutils literal notranslate"><span class="pre">ObstacleInfo.add_property()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase"><code class="docutils literal notranslate"><span class="pre">ObjectBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.id_iter"><code class="docutils literal notranslate"><span class="pre">ObjectBase.id_iter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.vel_dim"><code class="docutils literal notranslate"><span class="pre">ObjectBase.vel_dim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.create_with_shape"><code class="docutils literal notranslate"><span class="pre">ObjectBase.create_with_shape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.step"><code class="docutils literal notranslate"><span class="pre">ObjectBase.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.sensor_step"><code class="docutils literal notranslate"><span class="pre">ObjectBase.sensor_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.geometry_transform"><code class="docutils literal notranslate"><span class="pre">ObjectBase.geometry_transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.check_status"><code class="docutils literal notranslate"><span class="pre">ObjectBase.check_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.check_arrive_status"><code class="docutils literal notranslate"><span class="pre">ObjectBase.check_arrive_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.check_collision_status"><code class="docutils literal notranslate"><span class="pre">ObjectBase.check_collision_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.check_collision"><code class="docutils literal notranslate"><span class="pre">ObjectBase.check_collision()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.gen_behavior_vel"><code class="docutils literal notranslate"><span class="pre">ObjectBase.gen_behavior_vel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.custom_behavior"><code class="docutils literal notranslate"><span class="pre">ObjectBase.custom_behavior()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.vel_check"><code class="docutils literal notranslate"><span class="pre">ObjectBase.vel_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.pre_process"><code class="docutils literal notranslate"><span class="pre">ObjectBase.pre_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.post_process"><code class="docutils literal notranslate"><span class="pre">ObjectBase.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.mid_process"><code class="docutils literal notranslate"><span class="pre">ObjectBase.mid_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_lidar_scan"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_lidar_scan()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_lidar_points"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_lidar_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_lidar_offset"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_lidar_offset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.set_state"><code class="docutils literal notranslate"><span class="pre">ObjectBase.set_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.set_init_geometry"><code class="docutils literal notranslate"><span class="pre">ObjectBase.set_init_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.construct_geometry"><code class="docutils literal notranslate"><span class="pre">ObjectBase.construct_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.generate_Gh"><code class="docutils literal notranslate"><span class="pre">ObjectBase.generate_Gh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.geometry_state_transition"><code class="docutils literal notranslate"><span class="pre">ObjectBase.geometry_state_transition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.input_state_check"><code class="docutils literal notranslate"><span class="pre">ObjectBase.input_state_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_object"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_object_image"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_object_image()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_trajectory"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_trajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_goal"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_goal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_text"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_text()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_arrow"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_arrow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_trail"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_trail()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_uncertainty"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_uncertainty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot_clear"><code class="docutils literal notranslate"><span class="pre">ObjectBase.plot_clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.done"><code class="docutils literal notranslate"><span class="pre">ObjectBase.done()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.reset"><code class="docutils literal notranslate"><span class="pre">ObjectBase.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.random_generate_polygons"><code class="docutils literal notranslate"><span class="pre">ObjectBase.random_generate_polygons()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_vel_range"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_vel_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_info"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_obstacle_info"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_obstacle_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_Gh"><code class="docutils literal notranslate"><span class="pre">ObjectBase.get_Gh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.name"><code class="docutils literal notranslate"><span class="pre">ObjectBase.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.shape"><code class="docutils literal notranslate"><span class="pre">ObjectBase.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.geometry"><code class="docutils literal notranslate"><span class="pre">ObjectBase.geometry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.centroid"><code class="docutils literal notranslate"><span class="pre">ObjectBase.centroid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.id"><code class="docutils literal notranslate"><span class="pre">ObjectBase.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.state"><code class="docutils literal notranslate"><span class="pre">ObjectBase.state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.goal"><code class="docutils literal notranslate"><span class="pre">ObjectBase.goal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.position"><code class="docutils literal notranslate"><span class="pre">ObjectBase.position</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.radius"><code class="docutils literal notranslate"><span class="pre">ObjectBase.radius</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.radius_extend"><code class="docutils literal notranslate"><span class="pre">ObjectBase.radius_extend</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.arrive"><code class="docutils literal notranslate"><span class="pre">ObjectBase.arrive</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.collision"><code class="docutils literal notranslate"><span class="pre">ObjectBase.collision</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.ineq_Ab"><code class="docutils literal notranslate"><span class="pre">ObjectBase.ineq_Ab</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.vertices"><code class="docutils literal notranslate"><span class="pre">ObjectBase.vertices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.desired_diff_vel"><code class="docutils literal notranslate"><span class="pre">ObjectBase.desired_diff_vel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.desired_omni_vel"><code class="docutils literal notranslate"><span class="pre">ObjectBase.desired_omni_vel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.rvo_neighbors"><code class="docutils literal notranslate"><span class="pre">ObjectBase.rvo_neighbors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.rvo_neighbor_state"><code class="docutils literal notranslate"><span class="pre">ObjectBase.rvo_neighbor_state</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.rvo_state"><code class="docutils literal notranslate"><span class="pre">ObjectBase.rvo_state</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.object_factory">ir_sim.world.object_factory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory"><code class="docutils literal notranslate"><span class="pre">ObjectFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_from_parse"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.create_from_parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_from_map"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.create_from_map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_object"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.create_object()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_robot"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.create_robot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.create_obstacle"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.create_obstacle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.object_factory.ObjectFactory.generate_state_list"><code class="docutils literal notranslate"><span class="pre">ObjectFactory.generate_state_list()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world.world">ir_sim.world.world</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world"><code class="docutils literal notranslate"><span class="pre">world</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world.step"><code class="docutils literal notranslate"><span class="pre">world.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world.gen_grid_map"><code class="docutils literal notranslate"><span class="pre">world.gen_grid_map()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world.time"><code class="docutils literal notranslate"><span class="pre">world.time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ir_sim.world.html#ir_sim.world.world.world.buffer_reso"><code class="docutils literal notranslate"><span class="pre">world.buffer_reso</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ir_sim.world.html#module-ir_sim.world">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ir_sim.util.html">util</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ir_sim.util.html#module-ir_sim.util.util">ir_sim.util</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.file_check"><code class="docutils literal notranslate"><span class="pre">file_check()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.repeat_mk_dirs"><code class="docutils literal notranslate"><span class="pre">repeat_mk_dirs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.WrapToPi"><code class="docutils literal notranslate"><span class="pre">WrapToPi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.WrapToRegion"><code class="docutils literal notranslate"><span class="pre">WrapToRegion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.extend_list"><code class="docutils literal notranslate"><span class="pre">extend_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.convert_list_length"><code class="docutils literal notranslate"><span class="pre">convert_list_length()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.convert_list_length_dict"><code class="docutils literal notranslate"><span class="pre">convert_list_length_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.is_list_of_dicts"><code class="docutils literal notranslate"><span class="pre">is_list_of_dicts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.is_list_of_numbers"><code class="docutils literal notranslate"><span class="pre">is_list_of_numbers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.is_list_of_lists"><code class="docutils literal notranslate"><span class="pre">is_list_of_lists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.is_list_not_list_of_lists"><code class="docutils literal notranslate"><span class="pre">is_list_not_list_of_lists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.relative_position"><code class="docutils literal notranslate"><span class="pre">relative_position()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.get_transform"><code class="docutils literal notranslate"><span class="pre">get_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.transform_point_with_state"><code class="docutils literal notranslate"><span class="pre">transform_point_with_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.get_affine_transform"><code class="docutils literal notranslate"><span class="pre">get_affine_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.geometry_transform"><code class="docutils literal notranslate"><span class="pre">geometry_transform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.omni_to_diff"><code class="docutils literal notranslate"><span class="pre">omni_to_diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.diff_to_omni"><code class="docutils literal notranslate"><span class="pre">diff_to_omni()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.time_it"><code class="docutils literal notranslate"><span class="pre">time_it()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.time_it2"><code class="docutils literal notranslate"><span class="pre">time_it2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.cal_init_vertex"><code class="docutils literal notranslate"><span class="pre">cal_init_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.cal_init_vertex_diff"><code class="docutils literal notranslate"><span class="pre">cal_init_vertex_diff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.cross_product"><code class="docutils literal notranslate"><span class="pre">cross_product()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.is_convex_and_ordered"><code class="docutils literal notranslate"><span class="pre">is_convex_and_ordered()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.gen_inequal_from_vertex"><code class="docutils literal notranslate"><span class="pre">gen_inequal_from_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ir_sim.util.html#ir_sim.util.util.distance"><code class="docutils literal notranslate"><span class="pre">distance()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -176,7 +376,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ir_sim.env.html" class="btn btn-neutral float-right" title="ir_sim.env" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ir_sim.env.html" class="btn btn-neutral float-right" title="env" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

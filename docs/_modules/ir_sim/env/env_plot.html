@@ -186,7 +186,11 @@
             <span class="k">pass</span>
 
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span></div>
+
+            <span class="k">if</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">plot_clear</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span></div>
 
     
 

@@ -87,7 +87,7 @@
 <span class="kn">from</span> <span class="nn">ir_sim.lib.behavior</span> <span class="kn">import</span> <span class="n">Behavior</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">inf</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">atan2</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">sqrt</span>
 <span class="kn">from</span> <span class="nn">ir_sim.global_param</span> <span class="kn">import</span> <span class="n">world_param</span><span class="p">,</span> <span class="n">env_param</span>
-<span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">WrapToRegion</span><span class="p">,</span> <span class="n">get_transform</span><span class="p">,</span> <span class="n">relative_position</span><span class="p">,</span> <span class="n">WrapToPi</span>
+<span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">WrapToRegion</span><span class="p">,</span> <span class="n">get_transform</span><span class="p">,</span> <span class="n">relative_position</span><span class="p">,</span> <span class="n">WrapToPi</span><span class="p">,</span> <span class="n">gen_inequal_from_vertex</span>
 <span class="kn">from</span> <span class="nn">ir_sim.lib.generation</span> <span class="kn">import</span> <span class="n">random_generate_polygon</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world.sensors.sensor_factory</span> <span class="kn">import</span> <span class="n">SensorFactory</span>
 <span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">minimum_bounding_radius</span><span class="p">,</span> <span class="n">MultiPoint</span>
@@ -148,7 +148,7 @@
     <span class="n">id_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
     <span class="n">vel_dim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">velocity</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kinematics</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;omni&#39;</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;obstacle&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">static</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vel_min</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">vel_max</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">acce</span><span class="o">=</span><span class="p">[</span><span class="n">inf</span><span class="p">,</span> <span class="n">inf</span><span class="p">],</span> <span class="n">angle_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">pi</span><span class="p">,</span> <span class="n">pi</span><span class="p">],</span> <span class="n">behavior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sensors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">arrive_mode</span><span class="o">=</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reso</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;circle&#39;</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">velocity</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">goal</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">kinematics</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;omni&#39;</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;obstacle&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">static</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vel_min</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">vel_max</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">acce</span><span class="o">=</span><span class="p">[</span><span class="n">inf</span><span class="p">,</span> <span class="n">inf</span><span class="p">],</span> <span class="n">angle_range</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">pi</span><span class="p">,</span> <span class="n">pi</span><span class="p">],</span> <span class="n">behavior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sensors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">arrive_mode</span><span class="o">=</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">reso</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">state_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        parameters:</span>
@@ -178,7 +178,9 @@
 <span class="sd">                wander: the object will wander in the world (random select goal to move)</span>
 <span class="sd">                default is dash</span>
 
+<span class="sd">                </span>
 <span class="sd">            arrive_mode: position or state</span>
+<span class="sd">            state_dim: the dimension of the state, default is 3</span>
 
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -186,8 +188,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">construct_geometry</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="p">,</span> <span class="n">reso</span><span class="p">)</span>
         
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_state_check</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">state_dim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">=</span> <span class="n">state_dim</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">velocity</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">velocity</span><span class="p">]</span>
@@ -593,16 +597,79 @@
 
 
 
+<div class="viewcode-block" id="ObjectBase.set_state">
+<a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.set_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        set the state of the object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state: the state of the object, list or numpy. default is [0, 0, 0], [x, y, theta]</span>
+<span class="sd">            init: whether set the _init_state, default is False</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span> 
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">))]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">state</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">]</span>
+            
+            <span class="k">elif</span> <span class="n">state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">state</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">state_dim</span> <span class="o">-</span> <span class="n">state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">temp_state</span> <span class="o">=</span> <span class="n">state</span>
+          
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">temp_state</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="n">init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_state</span> <span class="o">=</span> <span class="n">temp_state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">temp_state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_geometry</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ObjectBase.set_init_geometry">
+<a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.set_init_geometry">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_init_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">):</span>
+
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            geometry: the shapely geometry of the object </span>
+<span class="sd">            </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_geometry</span> <span class="o">=</span> <span class="n">geometry</span></div>
+
+
 
 <div class="viewcode-block" id="ObjectBase.construct_geometry">
 <a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.construct_geometry">[docs]</a>
     <span class="k">def</span> <span class="nf">construct_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="p">,</span> <span class="n">reso</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)</span>
-<span class="sd">                for circle, the list should have be: (center_x, center_y, radius)</span>
-<span class="sd">                for polygon, the list should have the element of vertices: [vertices], number of vertices &gt;= 3</span>
-<span class="sd">                for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. </span>
+<span class="sd">        construct the geometry of the object</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            shape: the shape of the object, a string, including: circle, polygon, linestring, points</span>
+
+<span class="sd">            shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)</span>
+<span class="sd">                    for circle, the list should have be: (center_x, center_y, radius)</span>
+<span class="sd">                    for polygon, the list should have the element of vertices: [vertices], number of vertices &gt;= 3</span>
+<span class="sd">                    for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. </span>
+<span class="sd">                    for points, matrix of points, shape (2, N)</span>
+<span class="sd">            </span>
+<span class="sd">            reso: the resolution of the object, default is 0.1</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
 
@@ -621,7 +688,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shape should be one of the following: circle, polygon, linestring, points&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_Gh</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s1">&#39;polygon&#39;</span> <span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span><span class="s1">&#39;rectangle&#39;</span><span class="ow">or</span> <span class="n">shape</span> <span class="o">==</span> <span class="s1">&#39;circle&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_Gh</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_tuple</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cone_type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Rpositive&#39;</span>
 
         <span class="k">return</span> <span class="n">geometry</span></div>
 
@@ -639,79 +709,17 @@
             <span class="n">radius</span> <span class="o">=</span> <span class="n">shape_tuple</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="p">])</span>
             <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">radius</span><span class="p">]</span> <span class="p">]</span> <span class="p">)</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cone_type</span> <span class="o">=</span> <span class="s1">&#39;norm2&#39;</span>
+            <span class="n">cone_type</span> <span class="o">=</span> <span class="s1">&#39;norm2&#39;</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">init_vertex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shape_tuple</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">num</span> <span class="o">=</span> <span class="n">init_vertex</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">G</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">gen_inequal_from_vertex</span><span class="p">(</span><span class="n">init_vertex</span><span class="p">)</span>
+            <span class="n">cone_type</span> <span class="o">=</span> <span class="s1">&#39;Rpositive&#39;</span>
 
-            <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> 
-            <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> 
-        
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
-                    <span class="n">pre_point</span> <span class="o">=</span> <span class="n">init_vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
-                    <span class="n">next_point</span> <span class="o">=</span> <span class="n">init_vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">pre_point</span> <span class="o">=</span> <span class="n">init_vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
-                    <span class="n">next_point</span> <span class="o">=</span> <span class="n">init_vertex</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
-                
-                <span class="n">diff</span> <span class="o">=</span> <span class="n">next_point</span> <span class="o">-</span> <span class="n">pre_point</span>
-                
-                <span class="n">a</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">pre_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">pre_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-                <span class="n">G</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
-                <span class="n">G</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
-                <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span> 
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">cone_type</span> <span class="o">=</span> <span class="s1">&#39;Rpositive&#39;</span>
-
-        <span class="k">return</span> <span class="n">G</span><span class="p">,</span> <span class="n">h</span></div>
+        <span class="k">return</span> <span class="n">G</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">cone_type</span></div>
 
 
     
-
-    <span class="c1"># def gen_inequal(self):</span>
-    <span class="c1">#     # Calculate the matrix G and g for the Generalized inequality: G @ point &lt;_k h,  at the init position</span>
-    <span class="c1">#     # self.G, self.h = self.gen_inequal()</span>
-
-    <span class="c1">#     if self.appearance == &#39;circle&#39;:  </span>
-    <span class="c1">#         G = np.array([ [1, 0], [0, 1], [0, 0] ])</span>
-    <span class="c1">#         h = np.array( [ [0], [0], [-self.radius] ] ) </span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         num = self.init_vertex.shape[1]</span>
-
-    <span class="c1">#         G = np.zeros((num, 2)) </span>
-    <span class="c1">#         h = np.zeros((num, 1)) </span>
-        
-    <span class="c1">#         for i in range(num):</span>
-    <span class="c1">#             if i + 1 &lt; num:</span>
-    <span class="c1">#                 pre_point = self.init_vertex[:, i]</span>
-    <span class="c1">#                 next_point = self.init_vertex[:, i+1]</span>
-    <span class="c1">#             else:</span>
-    <span class="c1">#                 pre_point = self.init_vertex[:, i]</span>
-    <span class="c1">#                 next_point = self.init_vertex[:, 0]</span>
-                
-    <span class="c1">#             diff = next_point - pre_point</span>
-                
-    <span class="c1">#             a = diff[1]</span>
-    <span class="c1">#             b = -diff[0]</span>
-    <span class="c1">#             c = a * pre_point[0] + b * pre_point[1]</span>
-
-    <span class="c1">#             G[i, 0] = a</span>
-    <span class="c1">#             G[i, 1] = b</span>
-    <span class="c1">#             h[i, 0] = c </span>
-        
-    <span class="c1">#     return G, h</span>
-
-
-
-
-
-
-
 <div class="viewcode-block" id="ObjectBase.geometry_state_transition">
 <a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.geometry_state_transition">[docs]</a>
     <span class="k">def</span> <span class="nf">geometry_state_transition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -719,6 +727,23 @@
 
     
     
+    
+    <span class="c1"># check </span>
+<div class="viewcode-block" id="ObjectBase.input_state_check">
+<a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.input_state_check">[docs]</a>
+    <span class="k">def</span> <span class="nf">input_state_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">state</span><span class="p">[:</span><span class="n">dim</span><span class="p">]</span>
+        
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">state</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">dim</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">state</span></div>
+
+        
+
 <div class="viewcode-block" id="ObjectBase.plot">
 <a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.plot">[docs]</a>
     <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1036,16 +1061,13 @@
 
 
 
-<div class="viewcode-block" id="ObjectBase.set_state">
-<a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.set_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="c1"># def set_state(self, state):</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span> <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">state</span><span class="p">]</span>
+    <span class="c1">#     if isinstance(state, list): state = np.c_[state]</span>
 
-        <span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">WrapToRegion</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">angle_range</span><span class="p">)</span>
+    <span class="c1">#     state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state</span></div>
-
+    <span class="c1">#     self._state = state</span>
     
 
     <span class="c1"># get information</span>
@@ -1059,6 +1081,14 @@
 <a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_obstacle_info">[docs]</a>
     <span class="k">def</span> <span class="nf">get_obstacle_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ObstacleInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_velocity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">cone_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ObjectBase.get_Gh">
+<a class="viewcode-back" href="../../../ir_sim.world.html#ir_sim.world.object_base.ObjectBase.get_Gh">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_Gh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">h</span></div>
+
 
 
     <span class="c1"># def get_convex_info(self):</span>

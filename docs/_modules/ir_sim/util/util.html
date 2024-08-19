@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ir_sim.util.util &mdash; IR-SIM 2.1.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=179ab080"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            IR-SIM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Install the package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">ir_sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">IR-SIM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ir_sim.util.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ir_sim.util.util</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">atan2</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">ops</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="file_check">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.file_check">[docs]</a>
+<span class="k">def</span> <span class="nf">file_check</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># check whether file exist or the type is correct</span>
+    <span class="k">if</span> <span class="n">file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="k">return</span> <span class="kc">None</span>
+        
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_name</span><span class="p">):</span> <span class="n">abs_file_name</span> <span class="o">=</span> <span class="n">file_name</span>
+        
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="n">abs_file_name</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="n">abs_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">root_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;File not found: &quot;</span> <span class="o">+</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root_file_name</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">file_name</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_file_name</span><span class="p">):</span>
+                <span class="n">abs_file_name</span> <span class="o">=</span> <span class="n">root_file_name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;File not found: &quot;</span> <span class="o">+</span> <span class="n">root_file_name</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">abs_file_name</span></div>
+
+
+
+<div class="viewcode-block" id="repeat_mk_dirs">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.repeat_mk_dirs">[docs]</a>
+<span class="k">def</span> <span class="nf">repeat_mk_dirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_num</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path</span>
+
+    <span class="k">else</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># empty dir</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">max_num</span><span class="p">:</span>
+                <span class="n">new_path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">new_path</span><span class="p">):</span>
+                    <span class="k">break</span>
+    
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">new_path</span></div>
+
+
+<div class="viewcode-block" id="WrapToPi">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.WrapToPi">[docs]</a>
+<span class="k">def</span> <span class="nf">WrapToPi</span><span class="p">(</span><span class="n">rad</span><span class="p">):</span>
+    <span class="c1"># transform the rad to the range [-pi, pi]</span>
+    <span class="k">while</span> <span class="n">rad</span> <span class="o">&gt;</span> <span class="n">pi</span><span class="p">:</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
+    
+    <span class="k">while</span> <span class="n">rad</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">pi</span><span class="p">:</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
+    
+    <span class="k">return</span> <span class="n">rad</span></div>
+
+
+
+<div class="viewcode-block" id="WrapToRegion">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.WrapToRegion">[docs]</a>
+<span class="k">def</span> <span class="nf">WrapToRegion</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="nb">range</span><span class="p">):</span>
+    <span class="c1"># transform the rad to defined range, </span>
+    <span class="c1"># the length of range should be 2 * pi</span>
+    <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="n">rad</span> <span class="o">&gt;</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
+    
+    <span class="k">while</span> <span class="n">rad</span> <span class="o">&lt;</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span>
+    
+    <span class="k">return</span> <span class="n">rad</span></div>
+
+
+<div class="viewcode-block" id="extend_list">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.extend_list">[docs]</a>
+<span class="k">def</span> <span class="nf">extend_list</span><span class="p">(</span><span class="n">input_list</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">input_list</span><span class="p">]</span> <span class="o">*</span> <span class="n">number</span>
+
+    <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_list</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">number</span><span class="p">:</span> 
+        <span class="n">input_list</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">input_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_list</span><span class="p">))</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">number</span><span class="p">:</span>
+        <span class="n">input_list</span> <span class="o">=</span> <span class="n">input_list</span><span class="p">[:</span><span class="n">number</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">input_list</span></div>
+
+
+
+<div class="viewcode-block" id="convert_list_length">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.convert_list_length">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_list_length</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    convert the input to a list with a specific length of number</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_list_of_numbers</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">input_data</span><span class="p">]</span> <span class="o">*</span> <span class="n">number</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">number</span><span class="p">:</span> 
+        <span class="n">input_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">input_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">))</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">number</span><span class="p">:</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[:</span><span class="n">number</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">input_data</span></div>
+
+
+<div class="viewcode-block" id="convert_list_length_dict">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.convert_list_length_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_list_length_dict</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    convert the input to a list with a specific length of number</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_list_of_dicts</span><span class="p">(</span><span class="n">input_data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">input_data</span><span class="p">]</span> <span class="o">*</span> <span class="n">number</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">number</span><span class="p">:</span> 
+        <span class="n">input_data</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">input_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">))</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">number</span><span class="p">:</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[:</span><span class="n">number</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">input_data</span></div>
+
+
+    
+<div class="viewcode-block" id="is_list_of_dicts">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.is_list_of_dicts">[docs]</a>
+<span class="k">def</span> <span class="nf">is_list_of_dicts</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_list_of_numbers">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.is_list_of_numbers">[docs]</a>
+<span class="k">def</span> <span class="nf">is_list_of_numbers</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_list_of_lists">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.is_list_of_lists">[docs]</a>
+<span class="k">def</span> <span class="nf">is_list_of_lists</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_list_not_list_of_lists">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.is_list_not_list_of_lists">[docs]</a>
+<span class="k">def</span> <span class="nf">is_list_not_list_of_lists</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="relative_position">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.relative_position">[docs]</a>
+<span class="k">def</span> <span class="nf">relative_position</span><span class="p">(</span><span class="n">position1</span><span class="p">,</span> <span class="n">position2</span><span class="p">,</span> <span class="n">topi</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">position2</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">position1</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+    <span class="n">radian</span> <span class="o">=</span> <span class="n">atan2</span><span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">topi</span><span class="p">:</span> <span class="n">radian</span> <span class="o">=</span> <span class="n">WrapToPi</span><span class="p">(</span><span class="n">radian</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distance</span><span class="p">,</span> <span class="n">radian</span></div>
+
+
+<div class="viewcode-block" id="get_transform">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.get_transform">[docs]</a>
+<span class="k">def</span> <span class="nf">get_transform</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="c1"># from state to rotation and transition matrix</span>
+    <span class="c1"># state: (3, 1) or (2 ,1)</span>
+    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">])</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">cos</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])],</span> <span class="p">[</span><span class="n">sin</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">cos</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])]</span> <span class="p">])</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">trans</span><span class="p">,</span> <span class="n">rot</span> </div>
+
+
+<div class="viewcode-block" id="transform_point_with_state">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.transform_point_with_state">[docs]</a>
+<span class="k">def</span> <span class="nf">transform_point_with_state</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="c1"># transform the point with state </span>
+    <span class="c1"># state [x, y, theta], point [x, y]</span>
+
+    <span class="n">trans</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="n">get_transform</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">new_point</span> <span class="o">=</span> <span class="n">rot</span> <span class="o">@</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">trans</span>
+
+    <span class="k">return</span> <span class="n">new_point</span></div>
+
+
+
+<div class="viewcode-block" id="get_affine_transform">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.get_affine_transform">[docs]</a>
+<span class="k">def</span> <span class="nf">get_affine_transform</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="c1"># 2d: 6 paramters: [a, b, d, e, xoff, yoff] reference: https://shapely.readthedocs.io/en/stable/manual.html</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">cos</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">sin</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">cos</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="geometry_transform">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.geometry_transform">[docs]</a>
+<span class="k">def</span> <span class="nf">geometry_transform</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">transfor_with_state</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+
+        <span class="n">trans</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="n">get_transform</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+        <span class="c1"># point = np.array([[x], [y]])</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+
+        <span class="n">new_points</span> <span class="o">=</span> <span class="n">rot</span> <span class="o">@</span> <span class="n">points</span> <span class="o">+</span> <span class="n">trans</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">new_points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">new_points</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    
+    <span class="n">new_geometry</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">transfor_with_state</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_geometry</span></div>
+
+
+
+<div class="viewcode-block" id="omni_to_diff">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.omni_to_diff">[docs]</a>
+<span class="k">def</span> <span class="nf">omni_to_diff</span><span class="p">(</span><span class="n">state_ori</span><span class="p">,</span> <span class="n">vel_omni</span><span class="p">,</span> <span class="n">w_max</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">guarantee_time</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mini_speed</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vel_omni</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">vel_omni</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vel_omni</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vel_omni</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vel_omni</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">speed</span> <span class="o">&lt;=</span> <span class="n">mini_speed</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">vel_radians</span> <span class="o">=</span> <span class="n">atan2</span><span class="p">(</span><span class="n">vel_omni</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">vel_omni</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">robot_radians</span> <span class="o">=</span> <span class="n">state_ori</span>
+    <span class="n">diff_radians</span> <span class="o">=</span> <span class="n">robot_radians</span> <span class="o">-</span> <span class="n">vel_radians</span>
+    <span class="c1"># w_max = self.vel_max[1, 0]</span>
+
+    <span class="n">diff_radians</span> <span class="o">=</span> <span class="n">WrapToPi</span><span class="p">(</span><span class="n">diff_radians</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">diff_radians</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="o">-</span><span class="n">diff_radians</span> <span class="o">/</span> <span class="n">guarantee_time</span>
+        <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="n">w_max</span><span class="p">:</span> <span class="n">w</span> <span class="o">=</span> <span class="n">w_max</span>
+        <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">w_max</span><span class="p">:</span> <span class="n">w</span> <span class="o">=</span> <span class="o">-</span><span class="n">w_max</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">speed</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">diff_radians</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">v</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span><span class="p">]])</span></div>
+
+
+
+<div class="viewcode-block" id="diff_to_omni">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.diff_to_omni">[docs]</a>
+<span class="k">def</span> <span class="nf">diff_to_omni</span><span class="p">(</span><span class="n">state_ori</span><span class="p">,</span> <span class="n">vel_diff</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vel_diff</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">vel_linear</span> <span class="o">=</span> <span class="n">vel_diff</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">state_ori</span>
+    <span class="n">vx</span> <span class="o">=</span> <span class="n">vel_linear</span> <span class="o">*</span> <span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">vy</span> <span class="o">=</span> <span class="n">vel_linear</span> <span class="o">*</span> <span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">vx</span><span class="p">],</span> <span class="p">[</span><span class="n">vy</span><span class="p">]])</span></div>
+
+
+
+<span class="c1"># def extend_list(lst, target_length):</span>
+
+<span class="c1">#     if len(lst) == 0:</span>
+<span class="c1">#         return None  # Can&#39;t extend an empty list</span>
+    
+<span class="c1">#     while len(lst) &lt; target_length:</span>
+<span class="c1">#         lst.append(lst[-1])</span>
+        
+<span class="c1">#     return lst</span>
+
+
+<div class="viewcode-block" id="time_it">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.time_it">[docs]</a>
+<span class="k">def</span> <span class="nf">time_it</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Function&#39;</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>  
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">func_count</span> <span class="o">+=</span> <span class="mi">1</span> 
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> execute time </span><span class="si">{</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span> 
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>  
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">func_count</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="time_it2">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.time_it2">[docs]</a>
+<span class="k">def</span> <span class="nf">time_it2</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Function&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>  
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> 
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  
+            <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">func_count</span> <span class="o">+=</span> <span class="mi">1</span> 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_print</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> execute time </span><span class="si">{</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span> 
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>  
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">func_count</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="cal_init_vertex">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.cal_init_vertex">[docs]</a>
+<span class="k">def</span> <span class="nf">cal_init_vertex</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">wheelbase</span><span class="p">):</span>
+
+    <span class="c1"># vertex when the robot&#39;s state (0, 0, 0)</span>
+    <span class="c1"># counterclockwise</span>
+    <span class="c1"># shape [length, width, wheelbase, wheelbase_w]</span>
+    <span class="n">start_x</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">wheelbase</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">start_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="n">point0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="p">]</span> <span class="p">])</span> <span class="c1"># left bottom point</span>
+    <span class="n">point1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="o">+</span><span class="n">length</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="p">]</span> <span class="p">])</span>
+    <span class="n">point2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="o">+</span><span class="n">length</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="o">+</span><span class="n">width</span><span class="p">]])</span>
+    <span class="n">point3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="o">+</span><span class="n">width</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">point0</span><span class="p">,</span> <span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">,</span> <span class="n">point3</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="cal_init_vertex_diff">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.cal_init_vertex_diff">[docs]</a>
+<span class="k">def</span> <span class="nf">cal_init_vertex_diff</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+
+    <span class="c1"># vertex when the robot&#39;s state (0, 0, 0)</span>
+    <span class="c1"># counterclockwise</span>
+    <span class="c1"># shape [length, width, wheelbase, wheelbase_w]</span>
+    <span class="n">start_x</span> <span class="o">=</span> <span class="o">-</span><span class="n">length</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">start_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="n">point0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="p">]</span> <span class="p">])</span> <span class="c1"># left bottom point</span>
+    <span class="n">point1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="o">+</span><span class="n">length</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="p">]</span> <span class="p">])</span>
+    <span class="n">point2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="o">+</span><span class="n">length</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="o">+</span><span class="n">width</span><span class="p">]])</span>
+    <span class="n">point3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="p">[</span><span class="n">start_x</span><span class="p">],</span> <span class="p">[</span><span class="n">start_y</span><span class="o">+</span><span class="n">width</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">point0</span><span class="p">,</span> <span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">,</span> <span class="n">point3</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="cross_product">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.cross_product">[docs]</a>
+<span class="k">def</span> <span class="nf">cross_product</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the cross product of vectors OA and OB.</span>
+<span class="sd">    A positive cross product indicates a counter-clockwise turn,</span>
+<span class="sd">    a negative indicates a clockwise turn, and zero indicates a collinear point.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">o</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">o</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="is_convex_and_ordered">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.is_convex_and_ordered">[docs]</a>
+<span class="k">def</span> <span class="nf">is_convex_and_ordered</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine if the polygon is convex and return the order (CW or CCW).</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        points (np.ndarray): A 2xN NumPy array representing the vertices of the polygon.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool, str): A tuple where the first element is True if the polygon is convex,</span>
+<span class="sd">                      and the second element is &#39;CW&#39; or &#39;CCW&#39; based on the order.</span>
+<span class="sd">                      If not convex, returns (False, None).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Number of points</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># A polygon must have at least 3 points</span>
+
+    <span class="c1"># Initialize the direction for the first cross product</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">o</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">]</span>
+        
+        <span class="n">cross</span> <span class="o">=</span> <span class="n">cross_product</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">cross</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Only consider non-collinear points</span>
+            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">cross</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">cross</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">direction</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">cross</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">direction</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># Not convex</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;CCW&#39;</span> <span class="k">if</span> <span class="n">direction</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;CW&#39;</span>  </div>
+
+
+
+<div class="viewcode-block" id="gen_inequal_from_vertex">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.gen_inequal_from_vertex">[docs]</a>
+<span class="k">def</span> <span class="nf">gen_inequal_from_vertex</span><span class="p">(</span><span class="n">vertex</span><span class="p">):</span>
+    <span class="c1"># generalized inequality, inside: Gx &lt;=_k h, norm2 cone at current position</span>
+    <span class="c1"># vertex: (2, 4)</span>
+
+    <span class="n">convex_flag</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="n">is_convex_and_ordered</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">convex_flag</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The polygon constructed by vertex is not convex.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="c1"># return None</span>
+    <span class="c1"># assert convex_flag, &#39;The polygon constructed by vertex is not convex. Please check the vertex.&#39;</span>
+
+    <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;CW&#39;</span><span class="p">:</span> <span class="n">vertex</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">num</span> <span class="o">=</span> <span class="n">vertex</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>    
+
+    <span class="n">G</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> 
+    <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> 
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
+            <span class="n">pre_point</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">next_point</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pre_point</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="n">next_point</span> <span class="o">=</span> <span class="n">vertex</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">next_point</span> <span class="o">-</span> <span class="n">pre_point</span>
+        
+        <span class="n">a</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">pre_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">pre_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">G</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="n">G</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span> 
+
+    <span class="k">return</span> <span class="n">G</span><span class="p">,</span> <span class="n">h</span></div>
+
+
+
+<div class="viewcode-block" id="distance">
+<a class="viewcode-back" href="../../../ir_sim.util.html#ir_sim.util.util.distance">[docs]</a>
+<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span> <span class="p">(</span><span class="n">point1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">point2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">point1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">point2</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span></div>
+
+
+
+   
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Ruihua Han.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

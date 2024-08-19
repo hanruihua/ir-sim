@@ -82,14 +82,12 @@ class EnvBase:
         Perform a simulation step in the environment.
 
         Args:
-            if action is list:
-                List of actions to be performed for each robot in the environment.
-            if action is numpy array (2 * 1 vector): 
-                differential robot action:  linear velocity, angular velocity
-                omnidirectional robot action: velocity in x, velocity in y
-                Ackermann robot action: linear velocity, Steering angle
+            action (list or numpy array 2*1): Action to be performed in the environment
+                - differential robot action:  linear velocity, angular velocity
+                - omnidirectional robot action: velocity in x, velocity in y
+                - Ackermann robot action: linear velocity, Steering angle
 
-            action_id (int 0): Apply the action to the robot with the given id.
+            action_id (int): Apply the action to the robot with the given id.
         '''
 
         if isinstance(action, list):
@@ -117,9 +115,9 @@ class EnvBase:
         Render the environment.
 
         Args:
-            interval (float): Time interval between frames in seconds.
-            figure_kwargs (dict): Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.
-            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.
+            interval(float) :  Time interval between frames in seconds.    
+            figure_kwargs(dict) : Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.        
+            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.       
         '''
 
         if not self.disable_all_plot: 

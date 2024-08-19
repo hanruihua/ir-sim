@@ -1,10 +1,8 @@
-ir\_sim.lib
+lib
 ===================
 
-Submodules
-----------
 
-ir\_sim.lib.behavior module
+ir\_sim.lib.behavior 
 ---------------------------
 
 .. automodule:: ir_sim.lib.behavior
@@ -12,7 +10,7 @@ ir\_sim.lib.behavior module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.behaviorlib module
+ir\_sim.lib.behaviorlib 
 ------------------------------
 
 .. automodule:: ir_sim.lib.behaviorlib
@@ -20,7 +18,7 @@ ir\_sim.lib.behaviorlib module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.factory module
+ir\_sim.lib.factory 
 --------------------------
 
 .. automodule:: ir_sim.lib.factory
@@ -28,7 +26,7 @@ ir\_sim.lib.factory module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.generation module
+ir\_sim.lib.generation 
 -----------------------------
 
 .. automodule:: ir_sim.lib.generation
@@ -36,7 +34,7 @@ ir\_sim.lib.generation module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.kinematics module
+ir\_sim.lib.kinematics 
 -----------------------------
 
 .. automodule:: ir_sim.lib.kinematics

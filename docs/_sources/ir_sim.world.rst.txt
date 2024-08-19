@@ -1,10 +1,8 @@
-ir\_sim.world
+world
 =====================
 
-Submodules
-----------
 
-ir\_sim.world.multi\_object\_base module
+ir\_sim.world.multi\_object\_base 
 ----------------------------------------
 
 .. automodule:: ir_sim.world.multi_object_base
@@ -12,7 +10,7 @@ ir\_sim.world.multi\_object\_base module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.object\_base module
+ir\_sim.world.object\_base 
 ---------------------------------
 
 .. automodule:: ir_sim.world.object_base
@@ -20,7 +18,7 @@ ir\_sim.world.object\_base module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.object\_factory module
+ir\_sim.world.object\_factory 
 ------------------------------------
 
 .. automodule:: ir_sim.world.object_factory
@@ -28,7 +26,7 @@ ir\_sim.world.object\_factory module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.world module
+ir\_sim.world.world
 --------------------------
 
 .. automodule:: ir_sim.world.world

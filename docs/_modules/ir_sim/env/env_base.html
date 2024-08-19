@@ -88,6 +88,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pynput</span> <span class="kn">import</span> <span class="n">keyboard</span>
 <span class="kn">from</span> <span class="nn">.env_logger</span> <span class="kn">import</span> <span class="n">EnvLogger</span>
+<span class="kn">from</span> <span class="nn">ir_sim.lib.generation</span> <span class="kn">import</span> <span class="n">random_generate_polygon</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">Polygon</span>
 
 <div class="viewcode-block" id="EnvBase">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase">[docs]</a>
@@ -162,14 +164,12 @@
 <span class="sd">        Perform a simulation step in the environment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            if action is list:</span>
-<span class="sd">                List of actions to be performed for each robot in the environment.</span>
-<span class="sd">            if action is numpy array (2 * 1 vector): </span>
-<span class="sd">                differential robot action:  linear velocity, angular velocity</span>
-<span class="sd">                omnidirectional robot action: velocity in x, velocity in y</span>
-<span class="sd">                Ackermann robot action: linear velocity, Steering angle</span>
+<span class="sd">            action (list or numpy array 2*1): Action to be performed in the environment</span>
+<span class="sd">                - differential robot action:  linear velocity, angular velocity</span>
+<span class="sd">                - omnidirectional robot action: velocity in x, velocity in y</span>
+<span class="sd">                - Ackermann robot action: linear velocity, Steering angle</span>
 
-<span class="sd">            action_id (int 0): Apply the action to the robot with the given id.</span>
+<span class="sd">            action_id (int): Apply the action to the robot with the given id.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -206,9 +206,9 @@
 <span class="sd">        Render the environment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            interval (float): Time interval between frames in seconds.</span>
-<span class="sd">            figure_kwargs (dict): Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.</span>
-<span class="sd">            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.</span>
+<span class="sd">            interval(float) :  Time interval between frames in seconds.    </span>
+<span class="sd">            figure_kwargs(dict) : Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.        </span>
+<span class="sd">            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.       </span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_all_plot</span><span class="p">:</span> 
@@ -373,20 +373,20 @@
     
 <div class="viewcode-block" id="EnvBase.end">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.end">[docs]</a>
-    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ending_time</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ending_time</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        End the simulation, save the animation, and close the environment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ending_time (int): Time in seconds to wait before closing the figure, default is 3 seconds.</span>
+<span class="sd">            ending_time (float): Time in seconds to wait before closing the figure, default is 3 seconds.</span>
 <span class="sd">            **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_ani</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">save_animate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Figure will be closed within </span><span class="si">{</span><span class="n">ending_time</span><span class="si">:</span><span class="s1">d</span><span class="si">}</span><span class="s1"> seconds.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Figure will be closed within </span><span class="si">{</span><span class="n">ending_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds.&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="n">ending_time</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -433,8 +433,110 @@
     <span class="k">def</span> <span class="nf">reset_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">]</span></div>
 
-        
 
+
+    <span class="c1"># region: environment change</span>
+<div class="viewcode-block" id="EnvBase.random_obstacle_position">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.random_obstacle_position">[docs]</a>
+    <span class="k">def</span> <span class="nf">random_obstacle_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_low</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.14</span><span class="p">],</span> <span class="n">range_high</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">3.14</span><span class="p">]):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Random obstacle positions in the environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            range_low (list [x, y, theta]): Lower bound of the random range for the obstacle states. Default is [0, 0, -3.14]. </span>
+<span class="sd">            range_high (list [x, y, theta]): Upper bound of the random range for the obstacle states. Default is [10, 10, 3.14].</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">range_low</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">range_low</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">range_low</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">range_high</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">range_high</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">range_high</span><span class="p">]</span>
+
+        <span class="n">random_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">range_low</span><span class="p">,</span> <span class="n">range_high</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_number</span><span class="p">))</span>
+            
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">):</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">random_states</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">clear_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">draw_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span></div>
+
+    
+
+<div class="viewcode-block" id="EnvBase.random_polygon_shape">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.random_polygon_shape">[docs]</a>
+    <span class="k">def</span> <span class="nf">random_polygon_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">center_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">avg_radius_range</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">irregularity_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">spikeyness_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">num_vertices_range</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">]):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Random polygon shapes for the obstacles in the environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            center_range (list): Range of the center of the polygon. Default is [0, 0, 10, 10].</span>
+<span class="sd">            avg_radius_range (list): Range of the average radius of the polygon. Default is [0.1, 1].</span>
+<span class="sd">            irregularity_range (list): Range of the irregularity of the polygon. Default is [0, 1].</span>
+<span class="sd">            spikeyness_range (list): Range of the spikeyness of the polygon. Default is [0, 1].</span>
+<span class="sd">            num_vertices_range (list): Range of the number of vertices of the polygon. Default is [4, 10].</span>
+
+<span class="sd">            center (Tuple[float, float]):</span>
+<span class="sd">                a pair representing the center of the circumference used</span>
+<span class="sd">                to generate the polygon.</span>
+<span class="sd">            avg_radius (float):</span>
+<span class="sd">                the average radius (distance of each generated vertex to</span>
+<span class="sd">                the center of the circumference) used to generate points</span>
+<span class="sd">                with a normal distribution.</span>
+<span class="sd">            irregularity (float): 0 - 1</span>
+<span class="sd">                variance of the spacing of the angles between consecutive</span>
+<span class="sd">                vertices.</span>
+<span class="sd">            spikeyness (float): 0 - 1</span>
+<span class="sd">                variance of the distance of each vertex to the center of</span>
+<span class="sd">                the circumference.</span>
+<span class="sd">            num_vertices (int):</span>
+<span class="sd">                the number of vertices of the polygon.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">vertices_list</span> <span class="o">=</span> <span class="n">random_generate_polygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obstacle_number</span><span class="p">,</span> <span class="n">center_range</span><span class="p">,</span> <span class="n">avg_radius_range</span><span class="p">,</span> <span class="n">irregularity_range</span><span class="p">,</span> <span class="n">spikeyness_range</span><span class="p">,</span> <span class="n">num_vertices_range</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="s1">&#39;polygon&#39;</span><span class="p">:</span>
+                <span class="n">geom</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">vertices_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">set_init_geometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">clear_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">draw_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span></div>
+
+            
+    <span class="c1"># endregion: environment change</span>
+
+        
+    <span class="c1"># region: get information</span>
+<div class="viewcode-block" id="EnvBase.get_robot_state">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_robot_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">_state</span></div>
+
+    
+<div class="viewcode-block" id="EnvBase.get_lidar_scan">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_scan">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lidar_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_scan</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="EnvBase.get_lidar_offset">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_offset">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lidar_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_offset</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="EnvBase.get_obstacle_list">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_obstacle_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_obstacle_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_obstacle_info</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">]</span></div>
+
+
+    
 <div class="viewcode-block" id="EnvBase.get_robot_info">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_info">[docs]</a>
     <span class="k">def</span> <span class="nf">get_robot_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -452,7 +554,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
 
-   
+    <span class="c1"># endregion: get information </span>
+
+        
+    <span class="c1">#region: property</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">arrive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -512,36 +617,17 @@
 <span class="sd">            list: List of robot objects.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;robot&#39;</span><span class="p">]</span>
-
+    
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">robot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">obstacle_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the list of obstacles in the environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of obstacle objects.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">]</span>
     
-<div class="viewcode-block" id="EnvBase.get_robot_state">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_robot_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">_state</span></div>
-
-    
-<div class="viewcode-block" id="EnvBase.get_lidar_scan">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_scan">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lidar_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_scan</span><span class="p">()</span></div>
-
-    
-<div class="viewcode-block" id="EnvBase.get_lidar_offset">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_offset">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lidar_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_offset</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="EnvBase.get_obstacle_list">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_obstacle_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_obstacle_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_obstacle_info</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">]</span></div>
-
-
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_object_collection</span>
@@ -549,6 +635,18 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">step_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">step_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">robot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">obstacle_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span>
+                
+
+    <span class="c1">#endregion: property</span>
+
 
     <span class="c1"># region: keyboard control</span>
 <div class="viewcode-block" id="EnvBase.on_press">

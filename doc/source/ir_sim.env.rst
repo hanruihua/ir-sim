@@ -1,7 +1,7 @@
-ir\_sim.env
+env
 ===================
 
-ir\_sim.env.env\_base module
+ir\_sim.env.env\_base
 ----------------------------
 
 .. automodule:: ir_sim.env.env_base
@@ -9,7 +9,7 @@ ir\_sim.env.env\_base module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.env.env\_logger module
+ir\_sim.env.env\_logger
 ------------------------------
 
 .. automodule:: ir_sim.env.env_logger
@@ -17,7 +17,7 @@ ir\_sim.env.env\_logger module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.env.env\_para module
+ir\_sim.env.env\_para
 ----------------------------
 
 .. automodule:: ir_sim.env.env_para
@@ -25,7 +25,7 @@ ir\_sim.env.env\_para module
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.env.env\_plot module
+ir\_sim.env.env\_plot
 ----------------------------
 
 .. automodule:: ir_sim.env.env_plot
