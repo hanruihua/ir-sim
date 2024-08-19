@@ -98,7 +98,11 @@ class EnvPlot:
             pass
 
         elif mode == 'all':
-            plt.cla()
+
+            if objects:
+                [obj.plot_clear() for obj in objects]
+            else:
+                plt.cla()
     
 
     def draw_grid_map(self, grid_map=None, **kwargs):

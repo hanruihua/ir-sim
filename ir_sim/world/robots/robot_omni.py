@@ -9,7 +9,7 @@ import matplotlib.transforms as mtransforms
 
 class RobotOmni(ObjectBase):
     def __init__(self, shape='circle', shape_tuple=None, color='g', **kwargs):
-        super(RobotOmni, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='omni', role='robot', color=color, **kwargs)
+        super(RobotOmni, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='omni', role='robot', color=color, state_dim=2, **kwargs)
 
     def _kinematics(self, velocity, noise=False, alpha=[0.03, 0.03], **kwargs):
         

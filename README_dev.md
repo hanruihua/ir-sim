@@ -57,3 +57,4 @@ py -m twine upload dist/*
 - [ ] Some judgment functions for control
 - [ ] Add example yaml files
 - [ ] Add some data structure for plot
+- [ ] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 

@@ -80,12 +80,12 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
 
 robot:
-  - kinematics: {name: 'diff'}  # omni, diff, acker
-    shape: {name: 'circle', radius: 0.2}  # radius
-    state: [1, 1, 0]  # x, y, theta
-    goal: [9, 9, 0]  # x, y, theta
-    behavior: {name: 'dash'} # move toward to the goal directly 
-    color: 'g' # green
+  kinematics: {name: 'diff'}  # omni, diff, acker
+  shape: {name: 'circle', radius: 0.2}  # radius
+  state: [1, 1, 0]  # x, y, theta
+  goal: [9, 9, 0]  # x, y, theta
+  behavior: {name: 'dash'} # move toward to the goal directly 
+  color: 'g' # green
 ```
 
 

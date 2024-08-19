@@ -9,7 +9,7 @@ from shapely.ops import transform
 from ir_sim.lib.behavior import Behavior
 from math import inf, pi, atan2, cos, sin, sqrt
 from ir_sim.global_param import world_param, env_param
-from ir_sim.util.util import WrapToRegion, get_transform, relative_position, WrapToPi
+from ir_sim.util.util import WrapToRegion, get_transform, relative_position, WrapToPi, gen_inequal_from_vertex
 from ir_sim.lib.generation import random_generate_polygon
 from ir_sim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
@@ -56,7 +56,7 @@ class ObjectBase:
     id_iter = itertools.count()
     vel_dim = (2, 1)
 
-    def __init__(self, shape: str='circle', shape_tuple=None, state=[0, 0, 0], velocity=[0, 0], goal=[10, 10, 0], kinematics: str='omni', role: str='obstacle', color='k', static=False, vel_min=[-1, -1], vel_max=[1, 1], acce=[inf, inf], angle_range=[-pi, pi], behavior=None, goal_threshold=0.1, sensors=None, kinematics_dict=dict(), arrive_mode='position', description=None, group=0, reso=0.1, **kwargs) -> None:
+    def __init__(self, shape: str='circle', shape_tuple=None, state=[0, 0, 0], velocity=[0, 0], goal=[10, 10, 0], kinematics: str='omni', role: str='obstacle', color='k', static=False, vel_min=[-1, -1], vel_max=[1, 1], acce=[inf, inf], angle_range=[-pi, pi], behavior=None, goal_threshold=0.1, sensors=None, kinematics_dict=dict(), arrive_mode='position', description=None, group=0, reso=0.1, state_dim=3, **kwargs) -> None:
 
         '''
         parameters:
@@ -86,7 +86,9 @@ class ObjectBase:
                 wander: the object will wander in the world (random select goal to move)
                 default is dash
 
+                
             arrive_mode: position or state
+            state_dim: the dimension of the state, default is 3
 
         '''
 
@@ -94,8 +96,10 @@ class ObjectBase:
         self._shape = shape
         self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
         
+        state = self.input_state_check(state, state_dim)
         self._state = np.c_[state]
         self._init_state = np.c_[state]
+        self.state_dim = state_dim
 
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
@@ -450,14 +454,71 @@ class ObjectBase:
         return self.lidar.get_offset()
 
 
+    def set_state(self, state=[0, 0, 0], init=False):
+
+        '''
+        set the state of the object
+
+        Args:
+            state: the state of the object, list or numpy. default is [0, 0, 0], [x, y, theta]
+            init: whether set the _init_state, default is False
+        '''
+
+        if isinstance(state, list): 
+
+            if len(state) > self.state_dim:
+                temp_state = np.c_[state[:self.state_dim]]
+            elif len(state) < self.state_dim:
+                temp_state = np.c_[state + [0] * (self.state_dim - len(state))]
+            else:
+                temp_state = np.c_[state]
+
+        elif isinstance(state, np.ndarray):
+
+            if state.shape[0] > self.state_dim:
+                temp_state = state[:self.state_dim]
+            
+            elif state.shape[0] < self.state_dim:
+                temp_state = np.r_[state, np.zeros((self.state_dim - state.shape[0], state.shape[1]))]
+            else:
+                temp_state = state
+          
+        assert self._state.shape == temp_state.shape
+
+        if init:
+            self._init_state = temp_state.copy()
+
+        self._state = temp_state.copy()
+        self._geometry = self.geometry_transform(self._init_geometry, self._state)
+
+
+    def set_init_geometry(self, geometry):
+
+
+        '''
+        Args:
+            geometry: the shapely geometry of the object 
+            
+        '''
+            
+        self._init_geometry = geometry
+
 
     def construct_geometry(self, shape, shape_tuple, reso=0.1):
         
         '''
-        shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
-                for circle, the list should have be: (center_x, center_y, radius)
-                for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
-                for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. 
+        construct the geometry of the object
+        
+        Args:
+            shape: the shape of the object, a string, including: circle, polygon, linestring, points
+
+            shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
+                    for circle, the list should have be: (center_x, center_y, radius)
+                    for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
+                    for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices]. 
+                    for points, matrix of points, shape (2, N)
+            
+            reso: the resolution of the object, default is 0.1
         '''
 
 
@@ -476,7 +537,10 @@ class ObjectBase:
         else:
             raise ValueError("shape should be one of the following: circle, polygon, linestring, points")
 
-        self.G, self.h = self.generate_Gh(shape, shape_tuple)
+        if shape == 'polygon' or shape =='rectangle'or shape == 'circle':
+            self.G, self.h, self.cone_type = self.generate_Gh(shape, shape_tuple)
+        else:
+            self.G, self.h, self.cone_type = None, None, 'Rpositive'
 
         return geometry
 
@@ -491,82 +555,34 @@ class ObjectBase:
             radius = shape_tuple[2]
             G = np.array([ [1, 0], [0, 1], [0, 0] ])
             h = np.array( [ [0], [0], [-radius] ] ) 
-            self.cone_type = 'norm2'
+            cone_type = 'norm2'
 
         else:
             init_vertex = np.array(shape_tuple).T
-            num = init_vertex.shape[1]
+            G, h = gen_inequal_from_vertex(init_vertex)
+            cone_type = 'Rpositive'
 
-            G = np.zeros((num, 2)) 
-            h = np.zeros((num, 1)) 
-        
-            for i in range(num):
-                if i + 1 < num:
-                    pre_point = init_vertex[:, i]
-                    next_point = init_vertex[:, i+1]
-                else:
-                    pre_point = init_vertex[:, i]
-                    next_point = init_vertex[:, 0]
-                
-                diff = next_point - pre_point
-                
-                a = diff[1]
-                b = -diff[0]
-                c = a * pre_point[0] + b * pre_point[1]
-
-                G[i, 0] = a
-                G[i, 1] = b
-                h[i, 0] = c 
-
-            self.cone_type = 'Rpositive'
-
-        return G, h
+        return G, h, cone_type
 
     
-
-    # def gen_inequal(self):
-    #     # Calculate the matrix G and g for the Generalized inequality: G @ point <_k h,  at the init position
-    #     # self.G, self.h = self.gen_inequal()
-
-    #     if self.appearance == 'circle':  
-    #         G = np.array([ [1, 0], [0, 1], [0, 0] ])
-    #         h = np.array( [ [0], [0], [-self.radius] ] ) 
-    #     else:
-    #         num = self.init_vertex.shape[1]
-
-    #         G = np.zeros((num, 2)) 
-    #         h = np.zeros((num, 1)) 
-        
-    #         for i in range(num):
-    #             if i + 1 < num:
-    #                 pre_point = self.init_vertex[:, i]
-    #                 next_point = self.init_vertex[:, i+1]
-    #             else:
-    #                 pre_point = self.init_vertex[:, i]
-    #                 next_point = self.init_vertex[:, 0]
-                
-    #             diff = next_point - pre_point
-                
-    #             a = diff[1]
-    #             b = -diff[0]
-    #             c = a * pre_point[0] + b * pre_point[1]
-
-    #             G[i, 0] = a
-    #             G[i, 1] = b
-    #             h[i, 0] = c 
-        
-    #     return G, h
-
-
-
-
-
-
-
     def geometry_state_transition(self):
         pass
     
     
+    
+    # check 
+    def input_state_check(self, state, dim=3):
+        
+        if len(state) > dim:
+            return state[:dim]
+        
+        elif len(state) < dim:
+            return state + [0] * (dim - len(state))
+
+        else:
+            return state
+        
+
     def plot(self, ax, **kwargs):
         
         self.state_re = self._state
@@ -842,13 +858,13 @@ class ObjectBase:
         return min_vel, max_vel
 
 
-    def set_state(self, state):
+    # def set_state(self, state):
 
-        if isinstance(state, list): state = np.c_[state]
+    #     if isinstance(state, list): state = np.c_[state]
 
-        state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
+    #     state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
 
-        self._state = state
+    #     self._state = state
     
 
     # get information
@@ -857,6 +873,11 @@ class ObjectBase:
 
     def get_obstacle_info(self):
         return ObstacleInfo(self._state[:2, :], self.vertices[:, :-1], self._velocity, self.info.cone_type, self.radius)
+
+
+    def get_Gh(self):
+        return self.info.G, self.info.h
+
 
     # def get_convex_info(self):
     #     return 

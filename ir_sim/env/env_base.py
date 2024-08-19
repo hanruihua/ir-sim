@@ -10,6 +10,8 @@ import platform
 import numpy as np
 from pynput import keyboard
 from .env_logger import EnvLogger
+from ir_sim.lib.generation import random_generate_polygon
+from shapely import Polygon
 
 class EnvBase:
 
@@ -261,20 +263,20 @@ class EnvBase:
 
 
     
-    def end(self, ending_time=3, **kwargs):
+    def end(self, ending_time=3.0, **kwargs):
 
         '''
         End the simulation, save the animation, and close the environment.
 
         Args:
-            ending_time (int): Time in seconds to wait before closing the figure, default is 3 seconds.
+            ending_time (float): Time in seconds to wait before closing the figure, default is 3 seconds.
             **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.
         '''
 
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
-        self.logger.info(f'Figure will be closed within {ending_time:d} seconds.')
+        self.logger.info(f'Figure will be closed within {ending_time:.2f} seconds.')
         plt.pause(ending_time)
         plt.close()
         
@@ -311,8 +313,92 @@ class EnvBase:
 
     def reset_all(self):
         [obj.reset() for obj in self.objects]
-        
 
+
+    # region: environment change
+    def random_obstacle_position(self, range_low = [0, 0, -3.14], range_high = [10, 10, 3.14]):
+
+        '''
+        Random obstacle positions in the environment.
+
+        Args:
+            range_low (list [x, y, theta]): Lower bound of the random range for the obstacle states. Default is [0, 0, -3.14]. 
+            range_high (list [x, y, theta]): Upper bound of the random range for the obstacle states. Default is [10, 10, 3.14].
+        '''
+
+        if isinstance(range_low, list):
+            range_low = np.c_[range_low]
+        
+        if isinstance(range_high, list):
+            range_high = np.c_[range_high]
+
+        random_states = np.random.uniform(range_low, range_high, (3, self.obstacle_number))
+            
+        for i, obj in enumerate(self.obstacle_list):
+            obj.set_state(random_states[:, i].reshape(3, 1))
+        
+        self._env_plot.clear_components('all', self.obstacle_list)
+        self._env_plot.draw_components('all', self.obstacle_list)
+    
+
+    def random_polygon_shape(self, center_range = [0, 0, 10, 10], avg_radius_range = [0.1, 1], irregularity_range = [0, 1], spikeyness_range = [0, 1], num_vertices_range=[4, 10]):
+
+        '''
+        Random polygon shapes for the obstacles in the environment.
+
+        Args:
+            center_range (list): Range of the center of the polygon. Default is [0, 0, 10, 10].
+            avg_radius_range (list): Range of the average radius of the polygon. Default is [0.1, 1].
+            irregularity_range (list): Range of the irregularity of the polygon. Default is [0, 1].
+            spikeyness_range (list): Range of the spikeyness of the polygon. Default is [0, 1].
+            num_vertices_range (list): Range of the number of vertices of the polygon. Default is [4, 10].
+
+            center (Tuple[float, float]):
+                a pair representing the center of the circumference used
+                to generate the polygon.
+            avg_radius (float):
+                the average radius (distance of each generated vertex to
+                the center of the circumference) used to generate points
+                with a normal distribution.
+            irregularity (float): 0 - 1
+                variance of the spacing of the angles between consecutive
+                vertices.
+            spikeyness (float): 0 - 1
+                variance of the distance of each vertex to the center of
+                the circumference.
+            num_vertices (int):
+                the number of vertices of the polygon.
+        '''
+
+        vertices_list = random_generate_polygon(self.obstacle_number, center_range, avg_radius_range, irregularity_range, spikeyness_range, num_vertices_range)
+
+        for i, obj in enumerate(self.obstacle_list):
+
+            if obj.shape == 'polygon':
+                geom = Polygon(vertices_list[i])
+                obj.set_init_geometry(geom)
+        
+            
+        self._env_plot.clear_components('all', self.obstacle_list)
+        self._env_plot.draw_components('all', self.obstacle_list)
+            
+    # endregion: environment change
+
+        
+    # region: get information
+    def get_robot_state(self):
+        return self.robot._state
+    
+    def get_lidar_scan(self, id=0):
+        return self.robot_list[id].get_lidar_scan()
+    
+    def get_lidar_offset(self, id=0):
+        return self.robot_list[id].get_lidar_offset()
+
+    def get_obstacle_list(self):
+        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
+
+    
     def get_robot_info(self, id=0):
 
         '''
@@ -327,7 +413,10 @@ class EnvBase:
 
         return self.robot_list[id].get_info()
 
-   
+    # endregion: get information 
+
+        
+    #region: property
     @property
     def arrive(self, id=None, mode=None):
         '''
@@ -387,24 +476,17 @@ class EnvBase:
             list: List of robot objects.
         '''
         return [obj for obj in self.objects if obj.role == 'robot']
-
+    
     @property
-    def robot(self):
-        return self.robot_list[0]
-    
-    def get_robot_state(self):
-        return self.robot._state
-    
-    def get_lidar_scan(self, id=0):
-        return self.robot_list[id].get_lidar_scan()
-    
-    def get_lidar_offset(self, id=0):
-        return self.robot_list[id].get_lidar_offset()
+    def obstacle_list(self):
+        '''
+        Get the list of obstacles in the environment.
 
-    def get_obstacle_list(self):
-        return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
-
-
+        Returns:
+            list: List of obstacle objects.
+        '''
+        return [obj for obj in self.objects if obj.role == 'obstacle']
+    
     @property
     def objects(self):
         return self._object_collection
@@ -412,6 +494,18 @@ class EnvBase:
     @property
     def step_time(self):
         return self._world.step_time
+
+    @property
+    def robot(self):
+        return self.robot_list[0]
+
+    @property
+    def obstacle_number(self):
+        return len(self.obstacle_list)
+                
+
+    #endregion: property
+
 
     # region: keyboard control
     def on_press(self, key):

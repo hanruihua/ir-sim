@@ -293,8 +293,6 @@ def time_it2(name='Function'):
     return decorator
 
 
-
-
 def cal_init_vertex(length, width, wheelbase):
 
     # vertex when the robot's state (0, 0, 0)
@@ -373,7 +371,12 @@ def gen_inequal_from_vertex(vertex):
 
     convex_flag, order = is_convex_and_ordered(vertex)
 
-    assert convex_flag, 'The polygon constructed by vertex is not convex. Please check the vertex.'
+    if not convex_flag:
+        print('The polygon constructed by vertex is not convex.')
+
+        return None, None
+        # return None
+    # assert convex_flag, 'The polygon constructed by vertex is not convex. Please check the vertex.'
 
     if order == 'CW': vertex = vertex[:, ::-1]
 
