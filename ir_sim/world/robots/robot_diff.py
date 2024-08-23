@@ -79,7 +79,7 @@ class RobotDiff(ObjectBase):
     
     @property
     def velocity_xy(self):
-        return diff_to_omni(self.state[2, 0], self._velocity)
+        return diff_to_omni(self._state[2, 0], self._velocity)
 
 
 

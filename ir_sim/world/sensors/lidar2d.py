@@ -1,6 +1,6 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection, Point
+from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid
 from ir_sim.util.util import geometry_transform, transform_point_with_state
 from ir_sim.global_param import env_param
 from shapely import get_coordinates
@@ -100,6 +100,14 @@ class Lidar2D:
         for ind, obj in enumerate(env_param.objects):
             if self.obj_id != obj._id:
                 if new_geometry.intersects(obj._geometry):
+                    
+                    # if not is_valid(obj._geometry):
+                    #     make_valid(obj._geometry)
+
+                    if not is_valid(obj._geometry):
+                        # print('geometry of obj is not valid')
+                        continue
+
                     new_geometry = new_geometry.difference(obj._geometry)
                     intersect_index.append(ind)
         

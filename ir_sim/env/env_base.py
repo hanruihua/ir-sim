@@ -335,7 +335,7 @@ class EnvBase:
         random_states = np.random.uniform(range_low, range_high, (3, self.obstacle_number))
             
         for i, obj in enumerate(self.obstacle_list):
-            obj.set_state(random_states[:, i].reshape(3, 1))
+            obj.set_state(random_states[:, i].reshape(3, 1), init=True)
         
         self._env_plot.clear_components('all', self.obstacle_list)
         self._env_plot.draw_components('all', self.obstacle_list)
