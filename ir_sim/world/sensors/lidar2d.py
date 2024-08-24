@@ -177,6 +177,25 @@ class Lidar2D:
         #                     break
             
     def get_scan(self):
+
+        '''
+        Get the 2D lidar scan data
+
+        Return:
+            scan_data: dict, refer to the ros topic scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html
+
+                angle_min: float, start angle of the scan [rad]
+                angle_max: float, end angle of the scan [rad]
+                angle_increment: float, angular distance between measurements [rad]
+                time_increment: float, time between measurements [s]
+                scan_time: float, time between scans [s]
+                range_min: float, minimum range value [m]
+                range_max: float, maximum range value [m]
+                ranges: list of float, range data [m]
+                intensities: intensity data, None
+                velocity: 2*number matrix, x,y velocity  data [m/s]
+        '''
+
         # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html 
         scan_data = {}
         scan_data['angle_min'] = self.angle_min
