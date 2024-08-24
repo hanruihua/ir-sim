@@ -173,29 +173,23 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">objects_step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_objects_step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">world_param</span><span class="o">.</span><span class="n">control_mode</span> <span class="o">==</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">:</span> 
-                <span class="bp">self</span><span class="o">.</span><span class="n">object_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_id</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">object_step</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">action_id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_step</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">action_id</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="EnvBase.objects_step">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.objects_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">objects_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_objects_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">action</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">action</span><span class="p">)]</span></div>
+        <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="n">action</span><span class="p">)]</span>
 
-
-<div class="viewcode-block" id="EnvBase.object_step">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.object_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">object_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">obj_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_object_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">obj_id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">[</span><span class="n">obj_id</span><span class="p">]</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-        <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">step</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">_id</span> <span class="o">!=</span> <span class="n">obj_id</span><span class="p">]</span></div>
-
+        <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">step</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">_id</span> <span class="o">!=</span> <span class="n">obj_id</span><span class="p">]</span>
 
     <span class="c1">## render     </span>
 <div class="viewcode-block" id="EnvBase.render">
@@ -222,25 +216,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">draw_components</span><span class="p">(</span><span class="s1">&#39;dynamic&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     
-
-    <span class="c1"># def render_offline(self, interval=0.05, record=[], figure_kwargs=dict(), **kwargs):</span>
-
-    <span class="c1">#     # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail</span>
-    <span class="c1">#     # default figure arguments</span>
-
-    <span class="c1">#     for objs in record:</span>
-
-    <span class="c1">#         if not self.disable_all_plot: </span>
-    <span class="c1">#             if self._world.sampling:</span>
-
-    <span class="c1">#                 if self.display: plt.pause(interval)</span>
-
-    <span class="c1">#                 if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)</span>
-
-    <span class="c1">#                 self._env_plot.clear_components(&#39;dynamic&#39;, objs, **kwargs)</span>
-    <span class="c1">#                 self._env_plot.draw_components(&#39;dynamic&#39;, objs, **kwargs)</span>
-                
-
 <div class="viewcode-block" id="EnvBase.show">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.show">[docs]</a>
     <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -250,20 +225,6 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
-
-    
-<div class="viewcode-block" id="EnvBase.reset_plot">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset_plot">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Reset the environment figure.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">init_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">grid_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span></div>
-
 
 
     <span class="c1"># draw various components</span>
@@ -365,7 +326,7 @@
                 <span class="s1">&#39;z: decrease angular velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;c: increase angular velocity&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;alt+num: change current control robot id&#39;</span><span class="p">,</span> <span class="s1">&#39;r: reset the environment&#39;</span><span class="p">)</span>
                 
-        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span> <span class="o">=</span> <span class="n">keyboard</span><span class="o">.</span><span class="n">Listener</span><span class="p">(</span><span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">on_press</span><span class="p">,</span> <span class="n">on_release</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">on_release</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span> <span class="o">=</span> <span class="n">keyboard</span><span class="o">.</span><span class="n">Listener</span><span class="p">(</span><span class="n">on_press</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_press</span><span class="p">,</span> <span class="n">on_release</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_release</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
 
@@ -424,15 +385,24 @@
 <span class="sd">        Reset the environment.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_all</span><span class="p">()</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_all</span><span class="p">()</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="EnvBase.reset_all">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset_all">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">]</span></div>
+    <span class="k">def</span> <span class="nf">_reset_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">]</span>
 
+
+<div class="viewcode-block" id="EnvBase.reset_plot">
+<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.reset_plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Reset the environment figure.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">init_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">grid_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">)</span></div>
 
 
     <span class="c1"># region: environment change</span>
@@ -457,7 +427,7 @@
         <span class="n">random_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">range_low</span><span class="p">,</span> <span class="n">range_high</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_number</span><span class="p">))</span>
             
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">):</span>
-            <span class="n">obj</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">random_states</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">random_states</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">clear_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span><span class="o">.</span><span class="n">draw_components</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">obstacle_list</span><span class="p">)</span></div>
@@ -515,24 +485,64 @@
 <div class="viewcode-block" id="EnvBase.get_robot_state">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_robot_state">[docs]</a>
     <span class="k">def</span> <span class="nf">get_robot_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the current state of the robot.</span>
+
+<span class="sd">        Returns: </span>
+<span class="sd">            state: 3*1 vector [x, y, theta]</span>
+<span class="sd">        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">_state</span></div>
 
     
 <div class="viewcode-block" id="EnvBase.get_lidar_scan">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_scan">[docs]</a>
     <span class="k">def</span> <span class="nf">get_lidar_scan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the lidar scan of the robot with the given id.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            id (int): Id of the robot.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict: Dict of lidar scan points, see lidar2d/get_scan() for detail.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_scan</span><span class="p">()</span></div>
 
     
 <div class="viewcode-block" id="EnvBase.get_lidar_offset">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_lidar_offset">[docs]</a>
     <span class="k">def</span> <span class="nf">get_lidar_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the lidar offset of the robot with the given id.</span>
+
+
+<span class="sd">        Args:</span>
+<span class="sd">            id (int): Id of the robot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of float: Lidar offset of the robot, [x, y, theta]</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">get_lidar_offset</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="EnvBase.get_obstacle_list">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.get_obstacle_list">[docs]</a>
     <span class="k">def</span> <span class="nf">get_obstacle_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the information of the obstacles in the environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of dict: List of obstacle information, see Obstacle_Info in Object_base for detail.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">return</span> <span class="p">[</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_obstacle_info</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">]</span></div>
 
 
@@ -614,8 +624,9 @@
 <span class="sd">        Get the list of robots in the environment.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list: List of robot objects.</span>
+<span class="sd">            list: List of robot objects [].</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">return</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;robot&#39;</span><span class="p">]</span>
     
     <span class="nd">@property</span>
@@ -628,17 +639,22 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">]</span>
     
+
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_object_collection</span>
     
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">step_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">step_time</span>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">robot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">obstacle_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -649,9 +665,7 @@
 
 
     <span class="c1"># region: keyboard control</span>
-<div class="viewcode-block" id="EnvBase.on_press">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.on_press">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_on_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Handle key press events for keyboard control.</span>
@@ -696,12 +710,9 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">key_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">char</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;current control id: &#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">char</span><span class="p">))</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">key_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">char</span><span class="p">)</span></div>
-
+                        <span class="bp">self</span><span class="o">.</span><span class="n">key_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">char</span><span class="p">)</span>
         
-<div class="viewcode-block" id="EnvBase.on_release">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_base.EnvBase.on_release">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_on_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 <span class="w">        </span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Handle key release events for keyboard control.</span>
@@ -741,7 +752,6 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;alt&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">alt_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
-</div>
 
     <span class="c1"># endregion:keyboard control</span>
     
