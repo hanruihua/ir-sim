@@ -186,25 +186,31 @@ class EnvBase:
         Initialize keyboard control for the environment.
 
         Args:
-            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings.
+            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings
+
                 - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].
-                - key_lv_max (float): Maximum linear velocity. Default is vel_max[0].
-                - key_ang_max (float): Maximum angular velocity. Default is vel_max[1].
+
+                - key_lv_max (float): Maximum linear velocity. Default is vel_max [0].
+
+                - key_ang_max (float): Maximum angular velocity. Default is vel_max [1].
+                
                 - key_lv (float): Initial linear velocity. Default is 0.0.
+                
                 - key_ang (float): Initial angular velocity. Default is 0.0.
+                
                 - key_id (int): Initial robot control ID. Default is 0.
             
             Keys:
-                w: Move forward.
-                s: Move backward.
-                a: Turn left.
-                d: Turn right.
-                q: Decrease linear velocity.
-                e: Increase linear velocity.
-                z: Decrease angular velocity.
-                c: Increase angular velocity.
-                alt + num: Change the current control robot id.
-                r: Reset the environment.   
+                - w: Move forward.
+                - s: Move backward.
+                - a: Turn left.
+                - d: Turn right.
+                - q: Decrease linear velocity.
+                - e: Increase linear velocity.
+                - z: Decrease angular velocity.
+                - c: Increase angular velocity.
+                - alt + num: Change the current control robot id.
+                - r: Reset the environment.   
         '''
 
         vel_max = keyboard_kwargs.get('vel_max', [3.0, 1.0])
