@@ -82,9 +82,10 @@ class EnvBase:
         Perform a simulation step in the environment.
 
         Args:
-            action (list or numpy array 2*1): Action to be performed in the environment
+            action (list or numpy array 2*1): Action to be performed in the environment.
+
                 - differential robot action:  linear velocity, angular velocity
-                - omnidirectional robot action: velocity in x, velocity in y
+                - omnidirectional robot action: v_x -- velocity in x; v_y -- velocity in y
                 - Ackermann robot action: linear velocity, Steering angle
 
             action_id (int): Apply the action to the robot with the given id.
@@ -262,6 +263,7 @@ class EnvBase:
 
         Args:
             mode (str): Mode to check if all or any of the objects are done.
+
                 - all (str): Check if all objects are done.
                 - any (str): Check if any of the objects are done.
         '''
