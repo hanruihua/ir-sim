@@ -91,20 +91,20 @@ class EnvBase:
         '''
 
         if isinstance(action, list):
-            self.objects_step(action)
+            self._objects_step(action)
         else:
             if world_param.control_mode == 'keyboard': 
-                self.object_step(self.key_vel, self.key_id)
+                self._object_step(self.key_vel, self.key_id)
             else:
-                self.object_step(action, action_id)
+                self._object_step(action, action_id)
 
         self._world.step()
 
-    def objects_step(self, action=None):
+    def _objects_step(self, action=None):
         action = action + [None] * (len(self.objects) - len(action))
         [ obj.step(action) for obj, action in zip(self.objects, action)]
 
-    def object_step(self, action, obj_id=0):
+    def _object_step(self, action, obj_id=0):
         self.objects[obj_id].step(action)
         [ obj.step() for obj in self.objects if obj._id != obj_id]
 
@@ -130,25 +130,6 @@ class EnvBase:
                 self._env_plot.clear_components('dynamic', self.objects)
                 self._env_plot.draw_components('dynamic', self.objects, **kwargs)
     
-
-    # def render_offline(self, interval=0.05, record=[], figure_kwargs=dict(), **kwargs):
-
-    #     # figure_args: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-    #     # default figure arguments
-
-    #     for objs in record:
-
-    #         if not self.disable_all_plot: 
-    #             if self._world.sampling:
-
-    #                 if self.display: plt.pause(interval)
-
-    #                 if self.save_ani: self._env_plot.save_gif_figure(**figure_kwargs)
-
-    #                 self._env_plot.clear_components('dynamic', objs, **kwargs)
-    #                 self._env_plot.draw_components('dynamic', objs, **kwargs)
-                
-
     def show(self):
 
         '''
@@ -156,17 +137,6 @@ class EnvBase:
         '''
 
         self._env_plot.show()
-
-    
-    def reset_plot(self):
-
-        '''
-        Reset the environment figure.
-        '''
-
-        plt.cla()
-        self._env_plot.init_plot(self._world.grid_map, self.objects)
-
 
     # draw various components
     def draw_trajectory(self, traj, traj_type='g-', **kwargs):
@@ -256,7 +226,7 @@ class EnvBase:
                 'z: decrease angular velocity', 'c: increase angular velocity',
                 'alt+num: change current control robot id', 'r: reset the environment')
                 
-        self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
+        self.listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
         self.listener.start()
 
 
@@ -306,12 +276,21 @@ class EnvBase:
         Reset the environment.
         '''
 
-        self.reset_all() 
+        self._reset_all() 
         self.step(action=np.zeros((2, 1)))
 
-    def reset_all(self):
+    def _reset_all(self):
         [obj.reset() for obj in self.objects]
 
+
+    def reset_plot(self):
+
+        '''
+        Reset the environment figure.
+        '''
+
+        plt.cla()
+        self._env_plot.init_plot(self._world.grid_map, self.objects)
 
     # region: environment change
     def random_obstacle_position(self, range_low = [0, 0, -3.14], range_high = [10, 10, 3.14]):
@@ -333,7 +312,7 @@ class EnvBase:
         random_states = np.random.uniform(range_low, range_high, (3, self.obstacle_number))
             
         for i, obj in enumerate(self.obstacle_list):
-            obj.set_state(random_states[:, i].reshape(3, 1))
+            obj.set_state(random_states[:, i].reshape(3, 1), init=True)
         
         self._env_plot.clear_components('all', self.obstacle_list)
         self._env_plot.draw_components('all', self.obstacle_list)
@@ -385,15 +364,55 @@ class EnvBase:
         
     # region: get information
     def get_robot_state(self):
+
+        '''
+        Get the current state of the robot.
+
+        Returns: 
+            state: 3*1 vector [x, y, theta]
+        
+        '''
+
         return self.robot._state
     
     def get_lidar_scan(self, id=0):
+
+        '''
+        Get the lidar scan of the robot with the given id.
+
+        Args:
+            id (int): Id of the robot.
+        
+        Returns:
+            Dict: Dict of lidar scan points, see lidar2d/get_scan() for detail.
+        '''
+
         return self.robot_list[id].get_lidar_scan()
     
     def get_lidar_offset(self, id=0):
+
+        '''
+        Get the lidar offset of the robot with the given id.
+
+
+        Args:
+            id (int): Id of the robot.
+
+        Returns:
+            list of float: Lidar offset of the robot, [x, y, theta]
+        '''
+
         return self.robot_list[id].get_lidar_offset()
 
     def get_obstacle_list(self):
+
+        '''
+        Get the information of the obstacles in the environment.
+
+        Returns:
+            list of dict: List of obstacle information, see Obstacle_Info in Object_base for detail.
+        '''
+
         return [ obj.get_obstacle_info() for obj in self.objects if obj.role == 'obstacle']
 
     
@@ -471,8 +490,9 @@ class EnvBase:
         Get the list of robots in the environment.
 
         Returns:
-            list: List of robot objects.
+            list: List of robot objects [].
         '''
+
         return [obj for obj in self.objects if obj.role == 'robot']
     
     @property
@@ -485,17 +505,22 @@ class EnvBase:
         '''
         return [obj for obj in self.objects if obj.role == 'obstacle']
     
+
+
     @property
     def objects(self):
         return self._object_collection
     
+
     @property
     def step_time(self):
         return self._world.step_time
 
+
     @property
     def robot(self):
         return self.robot_list[0]
+
 
     @property
     def obstacle_number(self):
@@ -506,7 +531,7 @@ class EnvBase:
 
 
     # region: keyboard control
-    def on_press(self, key):
+    def _on_press(self, key):
 
         '''
         Handle key press events for keyboard control.
@@ -553,7 +578,7 @@ class EnvBase:
                         print('current control id: ', int(key.char))
                         self.key_id = int(key.char)
         
-    def on_release(self, key):
+    def _on_release(self, key):
         
         '''
         Handle key release events for keyboard control.

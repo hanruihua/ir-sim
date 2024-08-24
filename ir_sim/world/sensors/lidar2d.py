@@ -1,6 +1,6 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection, Point
+from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid
 from ir_sim.util.util import geometry_transform, transform_point_with_state
 from ir_sim.global_param import env_param
 from shapely import get_coordinates
@@ -100,6 +100,14 @@ class Lidar2D:
         for ind, obj in enumerate(env_param.objects):
             if self.obj_id != obj._id:
                 if new_geometry.intersects(obj._geometry):
+                    
+                    # if not is_valid(obj._geometry):
+                    #     make_valid(obj._geometry)
+
+                    if not is_valid(obj._geometry):
+                        # print('geometry of obj is not valid')
+                        continue
+
                     new_geometry = new_geometry.difference(obj._geometry)
                     intersect_index.append(ind)
         
@@ -169,6 +177,25 @@ class Lidar2D:
         #                     break
             
     def get_scan(self):
+
+        '''
+        Get the 2D lidar scan data
+
+        Return:
+            scan_data: dict, refer to the ros topic scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html
+
+                angle_min: float, start angle of the scan [rad]
+                angle_max: float, end angle of the scan [rad]
+                angle_increment: float, angular distance between measurements [rad]
+                time_increment: float, time between measurements [s]
+                scan_time: float, time between scans [s]
+                range_min: float, minimum range value [m]
+                range_max: float, maximum range value [m]
+                ranges: list of float, range data [m]
+                intensities: intensity data, None
+                velocity: 2*number matrix, x,y velocity  data [m/s]
+        '''
+
         # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html 
         scan_data = {}
         scan_data['angle_min'] = self.angle_min
