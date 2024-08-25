@@ -152,7 +152,7 @@ class ObjectBase:
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
 
-        if self.obj_behavior.behavior_dict is not None and self.obj_behavior.behavior_dict['name'] == 'wander':
+        if self.obj_behavior.behavior_dict is not None and (self.obj_behavior.behavior_dict['name'] == 'wander'):
             range_low = np.c_[self.obj_behavior.behavior_dict['range_low']]
             range_high = np.c_[self.obj_behavior.behavior_dict['range_high']]
 
@@ -313,6 +313,14 @@ class ObjectBase:
 
         elif world_param.collision_mode == 'unobstructed':
             pass
+        
+        elif world_param.collision_mode == 'unobstructed_obstacles':
+            
+            if self.role == 'robot':
+                self.stop_flag = self.collision_flag
+                
+            elif self.role == 'obstacle':
+                self.stop_flag = False
 
         
     def check_arrive_status(self):
@@ -1006,8 +1014,16 @@ class ObjectBase:
         return [self._state[0, 0], self._state[1, 0], self.velocity_xy[0, 0], self.velocity_xy[1, 0], self.radius_extend, vx_des, vy_des, self._state[2, 0]]
 
 
-    # @property  
-    # def velocity_xy(self):
-    #     return self._velocity
+    @property  
+    def velocity_xy(self):
+
+        if self.kinematics == 'omni':
+            return self._velocity
+        
+        elif self.kinematics == 'diff' or self.kinematics == 'acker':
+            return diff_to_omni(self._state[2, 0], self._velocity)
+
+        else:
+            raise ValueError("kinematics not implemented")
         
 
