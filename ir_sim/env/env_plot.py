@@ -12,22 +12,41 @@ import numpy as np
 
 class EnvPlot:
 
-    def __init__(self, grid_map=None, objects=[], x_range=[0, 10], y_range=[0, 10], subplot=False, saved_figure=dict(), saved_ani=dict(), **kwargs) -> None:
+    '''
+    EnvPlot class for visualizing the environment.
+
+    Attributes:
+    -----------
+    grid_map (optional): The grid map of the environment. Png file
+
+    Objects: list of object in the environment.
+
+    x_range : list
+        The range of x-axis values. Default is [0, 10].
+    y_range : list
+        The range of y-axis values. Default is [0, 10].
+    
+    saved_figure : dict
+        Keyword arguments for saving the figure.
+        See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
+    saved_ani : dict
+        Keyword arguments for saving the animation.
+        See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
+
+    kwargs:
+        color_map : dict
+            Color map for different objects.
+        no_axis : bool, optional
+            Whether to show the axis. Default is False.
+        tight : bool, optional
+            Whether to show the axis tightly. Default is True.
+
+    '''
 
 
-        '''
+    def __init__(self, grid_map=None, objects=[], x_range=[0, 10], y_range=[0, 10], saved_figure=dict(), saved_ani=dict(), **kwargs) -> None:
 
-        saved_figure: kwargs for saving the figure, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
-        saved_ani: kwargs for saving the animation, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
-
-        kwargs:
-            color_map: color map for different objects
-            no_axis (default False): whether to show the axis. 
-            tight (default True): whether to show the axis tightly
-        '''
-        
-        if not subplot:
-            self.fig, self.ax = plt.subplots()
+        self.fig, self.ax = plt.subplots()
 
         self.x_range = x_range
         self.y_range = y_range
@@ -48,6 +67,17 @@ class EnvPlot:
 
     def init_plot(self, grid_map, objects, no_axis=False, tight=True):
         
+        '''
+        Initialize the plot with the given grid map and objects.
+
+        Args:
+        ----
+            grid_map (optional): The grid map of the environment.
+            objects (list): List of objects to plot.
+            no_axis (bool, optional): Whether to show the axis. Default is False.
+            tight (bool, optional): Whether to show the axis tightly. Default is True.
+        '''
+
         self.ax.set_aspect('equal') 
         self.ax.set_xlim(self.x_range) 
         self.ax.set_ylim(self.y_range)
@@ -65,10 +95,16 @@ class EnvPlot:
     def draw_components(self, mode='all', objects=[], **kwargs):
 
         '''
-        mode: 
-            static: draw static objects
-            dynamic: draw dynamic objects
-            all: draw all objects
+        Draw the components in the environment.
+
+        Args:
+        ----
+            mode: 
+                - static: draw static objects
+                - dynamic: draw dynamic objects
+                - all: draw all objects
+            
+            objects: list of objects to draw
         
         kwargs: object plot kwargs
         '''
@@ -85,6 +121,19 @@ class EnvPlot:
             logging.error('error input of the draw mode')
     
     def clear_components(self, mode='all', objects=[]):
+
+        '''
+        Clear the components in the environment.
+
+        Args:
+        ---- 
+            mode:
+                - static: clear static objects
+                - dynamic: clear dynamic objects
+                - all: clear all objects
+            
+            objects: list of objects to clear
+        '''
 
         if mode == 'dynamic':
             [obj.plot_clear() for obj in objects if not obj.static]
@@ -107,6 +156,10 @@ class EnvPlot:
 
     def draw_grid_map(self, grid_map=None, **kwargs):
         
+        '''
+        Draw the grid map on the plot
+        '''
+
         if grid_map is not None:
             self.ax.imshow(grid_map.T, cmap='Greys', origin='lower', extent = self.x_range + self.y_range) 
 
@@ -121,6 +174,20 @@ class EnvPlot:
             lines = geometry.coords.xy
 
     def draw_trajectory(self, traj, traj_type='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
+
+        '''
+        Draw a trajectory on the plot
+
+        Args:
+        ----
+            traj: list of points, point: 3*1 np.array, [x, y, theta]
+            traj_type: trajectory type, default is 'g-', see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail
+            label: label of the trajectory
+            show_direction: whether to show the direction of the trajectory
+            refresh: whether to refresh the plot (clear the previous trajectory)
+            kwargs: other arguments for the ax plot, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail
+        '''
+
         # traj: a list of points
         if isinstance(traj, list):
             path_x_list = [p[0, 0] for p in traj]
@@ -151,6 +218,15 @@ class EnvPlot:
 
         '''
         Draw points on the plot
+
+        Args:
+        ----
+            point_list: list of points, point: 2*1 np.array or [x, y]
+            s: size of the points
+            c: color of the points
+            refresh: whether to refresh the plot (clear the previous points)
+            kwargs: other arguments for the ax scatter, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.scatter.html for detail
+
         '''
 
         if point_list is not None:
@@ -167,6 +243,12 @@ class EnvPlot:
 
         '''
         Draw a box by the vertices
+
+        Args:
+        ----
+            vertices: 2*edge_number np.array, vertices of the box
+            refresh: whether to refresh the plot (clear the previous box)
+            color: color and line type of the box
         '''
 
         temp_vertex = np.c_[vertices, vertices[0:2, 0]]         
@@ -175,10 +257,17 @@ class EnvPlot:
         if refresh: 
             self.dyna_line_list.append(box_line)
 
-    # save animation and figure 
+    
     def save_gif_figure(self, format='png', **kwargs):
 
-        # saved_figure_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail
+        '''
+        save the figure for generating animation
+
+        Args:
+        ----
+            format: format of the figure, default is 'png'
+            kwargs: other arguments for the ax savefig, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail, default is {'dpi': 100, 'bbox_inches': 'tight'}       
+        '''
 
         fp = pm.ani_buffer_path
         
@@ -194,12 +283,17 @@ class EnvPlot:
 
     def save_animate(self, ani_name='animation', suffix='.gif', keep_len=30, rm_fig_path=True, **kwargs):
         
-        # saved_ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail
+        '''
+        Save the animation
 
-        # ani_name = self.saved_ani_kwargs.get('ani_name', 'animation')
-        # suffix = self.saved_ani_kwargs.get('suffix', '.gif')
-        # keep_len = self.saved_ani_kwargs.get('keep_len', 30)
-        # rm_fig_path = self.saved_ani_kwargs.get('rm_fig_path', True)
+        Args:
+        ----
+            ani_name: name of the animation, default is 'animation'
+            suffix: suffix of the animation, default is '.gif'
+            keep_len: length of the last frame, default is 30
+            rm_fig_path: whether to remove the figure path after saving the animation, default is True
+            kwargs: other arguments for the imageio.mimsave, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html
+        '''
 
         self.saved_ani_kwargs.update({'subrectangles': True})
         self.saved_ani_kwargs.update(kwargs)
@@ -232,55 +326,14 @@ class EnvPlot:
 
         
     def show(self):
+
+        '''
+        Show the plot
+        '''
+
         plt.show()
 
 
-    @staticmethod
-    def draw_ackerman_velocity(self, velocity_list, x_name, y_name, **kwargs):
-        pass
-
-    # def sub_world_plot(self):
-
-    #     # row: default 3
-    #     # colum: default 3
-    #     # number: number of subplot
-    #     # scheme: default; 
-    #     #         custom; 
-    #     # custom_layout: coordinate of the main and sub axises (custom scheme)
-    #     #       - [[x_min, x_max, y_min, y_max], [x_min, x_max, y_min, y_max]]
-    #     #   
-    #     number = self.sub_plot_kwargs.get('number', 0)
-    #     row = self.sub_plot_kwargs.get('row', 3)
-    #     column = self.sub_plot_kwargs.get('column', 3)
-    #     layout = self.sub_plot_kwargs.get('layout', 'default')
-    #     custom_layout = self.sub_plot_kwargs.get('custom_layout', [])
-
-    #     fig = plt.figure(constrained_layout=True)
-    #     sub_ax_list = []
-
-    #     assert number < row * column
-
-    #     if number == 0:
-    #         ax = fig.add_subplot(111)
-    #     else:
-    #         gs = GridSpec(row, column, figure=fig)
-
-    #         if layout == 'default':
-    #             coordinate = [[0, row, 0, column-1], [0, 1, 2, 3], [1, 2, 2, 3], [2, 3, 2, 3]]
-    #         elif layout == 'custom':
-    #             coordinate = custom_layout
-
-    #         for n in range(number): 
-    #             c = coordinate[n]
-
-    #             if n == 0:
-    #                 ax = fig.add_subplot(gs[c[0]:c[1], c[2]:c[3]])
-    #             else:
-    #                 sub_ax = fig.add_subplot(gs[c[0]:c[1], c[2]:c[3]])
-    #                 self.init_sub_plot(sub_ax)
-    #                 sub_ax_list.append(sub_ax) 
-
-    #     return fig, ax, sub_ax_list
 
         
 

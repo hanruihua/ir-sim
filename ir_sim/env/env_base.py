@@ -1,5 +1,5 @@
 import yaml
-from ir_sim.env.env_para import EnvPara
+from ir_sim.env.env_config import EnvConfig
 from ir_sim.util.util import file_check
 from ir_sim.world import world
 from .env_plot import EnvPlot
@@ -16,25 +16,21 @@ from shapely import Polygon
 class EnvBase:
 
     '''
-    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.      
+    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.   
+
+    Args:
+        world_name (str): Path to the world yaml file.
+        display (bool): Flag to display the environment.
+        disable_all_plot (bool): Flag to disable all plots and figures.
+        save_ani (bool): Flag to save the animation.
+        full (bool): Flag to full screen the figure.
+        log_file (str): Name of the log file.
+        log_level (str): Level of the log output.
     '''
 
     def __init__(self, world_name: str=None, display: bool=True, disable_all_plot: bool=False, save_ani: bool=False, full: bool=False, log_file: str=None, log_level: str='INFO') -> None:
 
-        '''
-        Initialize the environment with the given parameters.
-
-        Args:
-            world_name (str): Path to the world yaml file.
-            display (bool): Flag to display the environment.
-            disable_all_plot (bool): Flag to disable all plots and figures.
-            save_ani (bool): Flag to save the animation.
-            full (bool): Flag to full screen the figure.
-            log_file (str): Name of the log file.
-            log_level (str): Level of the log output.
-        '''
-
-        env_para = EnvPara(world_name)
+        env_config = EnvConfig(world_name)
         object_factory = ObjectFactory() 
     
         # init env setting
@@ -45,19 +41,19 @@ class EnvBase:
         env_param.logger = self.logger 
 
         # init objects (world, obstacle, robot)
-        self._world = world(world_name, **env_para.parse['world'])
+        self._world = world(world_name, **env_config.parse['world'])
 
-        self._robot_collection = object_factory.create_from_parse(env_para.parse['robot'], 'robot')
-        self._obstacle_collection = object_factory.create_from_parse(env_para.parse['obstacle'], 'obstacle')
+        self._robot_collection = object_factory.create_from_parse(env_config.parse['robot'], 'robot')
+        self._obstacle_collection = object_factory.create_from_parse(env_config.parse['obstacle'], 'obstacle')
         self._map_collection = object_factory.create_from_map(self._world.obstacle_positions, self._world.buffer_reso)
         self._object_collection = self._robot_collection + self._obstacle_collection + self._map_collection
 
         # env parameters
-        self._env_plot = EnvPlot(self._world.grid_map, self.objects, self._world.x_range, self._world.y_range, **env_para.parse['plot'])
+        self._env_plot = EnvPlot(self._world.grid_map, self.objects, self._world.x_range, self._world.y_range, **env_config.parse['plot'])
         env_param.objects = self.objects
         
         if world_param.control_mode == 'keyboard':
-            self.init_keyboard(env_para.parse['keyboard'])
+            self.init_keyboard(env_config.parse['keyboard'])
 
         if full:
             system_platform = platform.system()
