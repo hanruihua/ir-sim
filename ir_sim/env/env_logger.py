@@ -7,7 +7,6 @@ class EnvLogger:
         Initialize the EnvLogger.
 
         Args:
-        ----
             log_file (str, optional): Path to the log file. Default is 'ir_sim_error.log'.
             log_level (str, optional): Logging level. Default is 'WARNING'.
         '''
@@ -22,7 +21,6 @@ class EnvLogger:
         Log an info message.
 
         Args:
-        ----
             msg (str): The message to log.
         '''
         logger.info(msg)
@@ -32,7 +30,6 @@ class EnvLogger:
         Log an error message.
 
         Args:
-        ----
             msg (str): The message to log.
         '''
         logger.error(msg)
@@ -42,7 +39,6 @@ class EnvLogger:
         Log a debug message.
 
         Args:
-        ----
             msg (str): The message to log.
         '''
         logger.debug(msg)
@@ -52,7 +48,6 @@ class EnvLogger:
         Log a warning message.
 
         Args:
-        ----
             msg (str): The message to log.
         '''
         logger.warning(msg)

@@ -15,31 +15,31 @@ class EnvPlot:
     '''
     EnvPlot class for visualizing the environment.
 
-    Attributes:
-    -----------
-    grid_map (optional): The grid map of the environment. Png file
+    Args:
 
-    Objects: list of object in the environment.
+        grid_map (optional): The grid map of the environment. Png file
 
-    x_range : list
-        The range of x-axis values. Default is [0, 10].
-    y_range : list
-        The range of y-axis values. Default is [0, 10].
-    
-    saved_figure : dict
-        Keyword arguments for saving the figure.
-        See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
-    saved_ani : dict
-        Keyword arguments for saving the animation.
-        See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
+        Objects: list of object in the environment.
 
-    kwargs:
-        color_map : dict
-            Color map for different objects.
-        no_axis : bool, optional
-            Whether to show the axis. Default is False.
-        tight : bool, optional
-            Whether to show the axis tightly. Default is True.
+        x_range : list
+            The range of x-axis values. Default is [0, 10].
+        y_range : list
+            The range of y-axis values. Default is [0, 10].
+        
+        saved_figure : dict
+            Keyword arguments for saving the figure.
+            See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
+        saved_ani : dict
+            Keyword arguments for saving the animation.
+            See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
+
+        kwargs:
+            color_map : dict
+                Color map for different objects.
+            no_axis : bool, optional
+                Whether to show the axis. Default is False.
+            tight : bool, optional
+                Whether to show the axis tightly. Default is True.
 
     '''
 
@@ -71,7 +71,7 @@ class EnvPlot:
         Initialize the plot with the given grid map and objects.
 
         Args:
-        ----
+
             grid_map (optional): The grid map of the environment.
             objects (list): List of objects to plot.
             no_axis (bool, optional): Whether to show the axis. Default is False.
@@ -98,7 +98,7 @@ class EnvPlot:
         Draw the components in the environment.
 
         Args:
-        ----
+
             mode: 
                 - static: draw static objects
                 - dynamic: draw dynamic objects
@@ -126,7 +126,7 @@ class EnvPlot:
         Clear the components in the environment.
 
         Args:
-        ---- 
+ 
             mode:
                 - static: clear static objects
                 - dynamic: clear dynamic objects
@@ -164,14 +164,14 @@ class EnvPlot:
             self.ax.imshow(grid_map.T, cmap='Greys', origin='lower', extent = self.x_range + self.y_range) 
 
 
-    def draw_geometry(self, geometry, **kwargs):
+    # def draw_geometry(self, geometry, **kwargs):
         
-        if geometry.geom_type == 'Point':
-            pass
+    #     if geometry.geom_type == 'Point':
+    #         pass
 
-        elif geometry.geom_type == 'MultiLineString':
+    #     elif geometry.geom_type == 'MultiLineString':
 
-            lines = geometry.coords.xy
+    #         lines = geometry.coords.xy
 
     def draw_trajectory(self, traj, traj_type='g-', label='trajectory', show_direction=False, refresh=False, **kwargs):
 
@@ -179,7 +179,7 @@ class EnvPlot:
         Draw a trajectory on the plot
 
         Args:
-        ----
+
             traj: list of points, point: 3*1 np.array, [x, y, theta]
             traj_type: trajectory type, default is 'g-', see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail
             label: label of the trajectory
@@ -220,7 +220,7 @@ class EnvPlot:
         Draw points on the plot
 
         Args:
-        ----
+
             point_list: list of points, point: 2*1 np.array or [x, y]
             s: size of the points
             c: color of the points
@@ -245,7 +245,7 @@ class EnvPlot:
         Draw a box by the vertices
 
         Args:
-        ----
+
             vertices: 2*edge_number np.array, vertices of the box
             refresh: whether to refresh the plot (clear the previous box)
             color: color and line type of the box
@@ -264,7 +264,7 @@ class EnvPlot:
         save the figure for generating animation
 
         Args:
-        ----
+
             format: format of the figure, default is 'png'
             kwargs: other arguments for the ax savefig, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail, default is {'dpi': 100, 'bbox_inches': 'tight'}       
         '''
@@ -287,7 +287,7 @@ class EnvPlot:
         Save the animation
 
         Args:
-        ----
+
             ani_name: name of the animation, default is 'animation'
             suffix: suffix of the animation, default is '.gif'
             keep_len: length of the last frame, default is 30
