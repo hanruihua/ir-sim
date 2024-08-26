@@ -82,6 +82,7 @@
 <span class="kn">from</span> <span class="nn">ir_sim.world.robots.robot_omni</span> <span class="kn">import</span> <span class="n">RobotOmni</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world</span> <span class="kn">import</span> <span class="n">ObjectBase</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world.obstacles.obstacle_diff</span> <span class="kn">import</span> <span class="n">ObstacleDiff</span>
+<span class="kn">from</span> <span class="nn">ir_sim.world.obstacles.obstacle_omni</span> <span class="kn">import</span> <span class="n">ObstacleOmni</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world.obstacles.obstacle_static</span> <span class="kn">import</span> <span class="n">ObstacleStatic</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world.map.obstacle_map</span> <span class="kn">import</span> <span class="n">ObstacleMap</span>
 <span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">convert_list_length</span><span class="p">,</span> <span class="n">convert_list_length_dict</span><span class="p">,</span> <span class="n">is_list_of_numbers</span>
@@ -184,7 +185,7 @@
         <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;acker&#39;</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">elif</span> <span class="n">kinematics_name</span> <span class="o">==</span> <span class="s1">&#39;omni&#39;</span><span class="p">:</span>
-            <span class="k">pass</span>
+            <span class="k">return</span> <span class="n">ObstacleOmni</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="n">kinematics_name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ObstacleStatic</span><span class="o">.</span><span class="n">create_with_shape</span><span class="p">(</span><span class="n">kinematics_name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">kinematics_dict</span><span class="o">=</span><span class="n">kinematics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 

@@ -80,7 +80,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">ir_sim.global_param</span> <span class="kn">import</span> <span class="n">world_param</span>
 <span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">relative_position</span><span class="p">,</span> <span class="n">WrapToPi</span>
-<span class="kn">from</span> <span class="nn">ir_sim.lib.behaviorlib</span> <span class="kn">import</span> <span class="n">DiffDash</span><span class="p">,</span> <span class="n">AckerDash</span><span class="p">,</span> <span class="n">DiffRVO</span><span class="p">,</span> <span class="n">OmniDash</span>
+<span class="kn">from</span> <span class="nn">ir_sim.lib.behaviorlib</span> <span class="kn">import</span> <span class="n">DiffDash</span><span class="p">,</span> <span class="n">AckerDash</span><span class="p">,</span> <span class="n">DiffRVO</span><span class="p">,</span> <span class="n">OmniDash</span><span class="p">,</span> <span class="n">OmniRVO</span>
 
 
 <div class="viewcode-block" id="Behavior">
@@ -145,6 +145,19 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dash&#39;</span><span class="p">:</span>
                 <span class="n">goal_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">object_info</span><span class="o">.</span><span class="n">goal_threshold</span>
                 <span class="n">behavior_vel</span> <span class="o">=</span> <span class="n">OmniDash</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">max_vel</span><span class="p">,</span> <span class="n">goal_threshold</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;rvo&#39;</span><span class="p">:</span>
+                
+                <span class="n">rvo_neighbor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rvo_neighbor&#39;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">rvo_state</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rvo_state&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+                <span class="n">vxmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vxmax&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+                <span class="n">vymax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vymax&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+                <span class="n">acceler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;acceler&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;factor&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">behavior_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;rvo&#39;</span><span class="p">)</span>
+
+                <span class="n">behavior_vel</span> <span class="o">=</span> <span class="n">OmniRVO</span><span class="p">(</span><span class="n">rvo_state</span><span class="p">,</span> <span class="n">rvo_neighbor</span><span class="p">,</span> <span class="n">vxmax</span><span class="p">,</span> <span class="n">vymax</span><span class="p">,</span> <span class="n">acceler</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
             
         <span class="k">return</span> <span class="n">behavior_vel</span></div>
 </div>

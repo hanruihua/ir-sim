@@ -244,7 +244,7 @@
         <span class="c1"># behavior</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span> <span class="o">=</span> <span class="n">Behavior</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">,</span> <span class="n">behavior</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;wander&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;wander&#39;</span><span class="p">):</span>
             <span class="n">range_low</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;range_low&#39;</span><span class="p">]]</span>
             <span class="n">range_high</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">obj_behavior</span><span class="o">.</span><span class="n">behavior_dict</span><span class="p">[</span><span class="s1">&#39;range_high&#39;</span><span class="p">]]</span>
 
@@ -418,7 +418,15 @@
             <span class="k">pass</span>
 
         <span class="k">elif</span> <span class="n">world_param</span><span class="o">.</span><span class="n">collision_mode</span> <span class="o">==</span> <span class="s1">&#39;unobstructed&#39;</span><span class="p">:</span>
-            <span class="k">pass</span></div>
+            <span class="k">pass</span>
+        
+        <span class="k">elif</span> <span class="n">world_param</span><span class="o">.</span><span class="n">collision_mode</span> <span class="o">==</span> <span class="s1">&#39;unobstructed_obstacles&#39;</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;robot&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision_flag</span>
+                
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
         
@@ -1215,13 +1223,21 @@
     <span class="k">def</span> <span class="nf">rvo_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">vx_des</span><span class="p">,</span> <span class="n">vy_des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_omni_vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="c1"># x, y, vx, vy, radius, vx_des, vy_des, theta</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_xy</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_xy</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_extend</span><span class="p">,</span> <span class="n">vx_des</span><span class="p">,</span> <span class="n">vy_des</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_xy</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_xy</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_extend</span><span class="p">,</span> <span class="n">vx_des</span><span class="p">,</span> <span class="n">vy_des</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
 
 
+    <span class="nd">@property</span>  
+    <span class="k">def</span> <span class="nf">velocity_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-    <span class="c1"># @property  </span>
-    <span class="c1"># def velocity_xy(self):</span>
-    <span class="c1">#     return self._velocity</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinematics</span> <span class="o">==</span> <span class="s1">&#39;omni&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_velocity</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinematics</span> <span class="o">==</span> <span class="s1">&#39;diff&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinematics</span> <span class="o">==</span> <span class="s1">&#39;acker&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">diff_to_omni</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_velocity</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;kinematics not implemented&quot;</span><span class="p">)</span></div>
+
         
 
 </pre></div>

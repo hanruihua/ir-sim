@@ -236,16 +236,14 @@
         <li><a href="ir_sim.util.html#ir_sim.util.util.distance">(in module ir_sim.util.util)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.done">done() (ir_sim.env.env_base.EnvBase method)</a>
 
       <ul>
         <li><a href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.done">(ir_sim.world.object_base.ObjectBase method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_ackerman_velocity">draw_ackerman_velocity() (ir_sim.env.env_plot.EnvPlot static method)</a>
-</li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.draw_box">draw_box() (ir_sim.env.env_base.EnvBase method)</a>
 
       <ul>
@@ -253,8 +251,6 @@
 </li>
       </ul></li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_components">draw_components() (ir_sim.env.env_plot.EnvPlot method)</a>
-</li>
-      <li><a href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_geometry">draw_geometry() (ir_sim.env.env_plot.EnvPlot method)</a>
 </li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_grid_map">draw_grid_map() (ir_sim.env.env_plot.EnvPlot method)</a>
 </li>
@@ -280,11 +276,11 @@
 </li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase">EnvBase (class in ir_sim.env.env_base)</a>
 </li>
-      <li><a href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger">EnvLogger (class in ir_sim.env.env_logger)</a>
+      <li><a href="ir_sim.env.html#ir_sim.env.env_config.EnvConfig">EnvConfig (class in ir_sim.env.env_config)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ir_sim.env.html#ir_sim.env.env_para.EnvPara">EnvPara (class in ir_sim.env.env_para)</a>
+      <li><a href="ir_sim.env.html#ir_sim.env.env_logger.EnvLogger">EnvLogger (class in ir_sim.env.env_logger)</a>
 </li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_plot.EnvPlot">EnvPlot (class in ir_sim.env.env_plot)</a>
 </li>
@@ -416,17 +412,17 @@
 </li>
       </ul></li>
       <li>
+    ir_sim.env.env_config
+
+      <ul>
+        <li><a href="ir_sim.env.html#module-ir_sim.env.env_config">module</a>
+</li>
+      </ul></li>
+      <li>
     ir_sim.env.env_logger
 
       <ul>
         <li><a href="ir_sim.env.html#module-ir_sim.env.env_logger">module</a>
-</li>
-      </ul></li>
-      <li>
-    ir_sim.env.env_para
-
-      <ul>
-        <li><a href="ir_sim.env.html#module-ir_sim.env.env_para">module</a>
 </li>
       </ul></li>
       <li>
@@ -554,9 +550,9 @@
       <ul>
         <li><a href="ir_sim.env.html#module-ir_sim.env.env_base">ir_sim.env.env_base</a>
 </li>
-        <li><a href="ir_sim.env.html#module-ir_sim.env.env_logger">ir_sim.env.env_logger</a>
+        <li><a href="ir_sim.env.html#module-ir_sim.env.env_config">ir_sim.env.env_config</a>
 </li>
-        <li><a href="ir_sim.env.html#module-ir_sim.env.env_para">ir_sim.env.env_para</a>
+        <li><a href="ir_sim.env.html#module-ir_sim.env.env_logger">ir_sim.env.env_logger</a>
 </li>
         <li><a href="ir_sim.env.html#module-ir_sim.env.env_plot">ir_sim.env.env_plot</a>
 </li>
@@ -611,10 +607,10 @@
 </li>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.objects">objects (ir_sim.env.env_base.EnvBase property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.obstacle_list">obstacle_list (ir_sim.env.env_base.EnvBase property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ir_sim.env.html#ir_sim.env.env_base.EnvBase.obstacle_number">obstacle_number (ir_sim.env.env_base.EnvBase property)</a>
 </li>
       <li><a href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo">ObstacleInfo (class in ir_sim.world.object_base)</a>
@@ -623,13 +619,15 @@
 </li>
       <li><a href="ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniDash">OmniDash() (in module ir_sim.lib.behaviorlib)</a>
 </li>
+      <li><a href="ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniRVO">OmniRVO() (in module ir_sim.lib.behaviorlib)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ir_sim.env.html#ir_sim.env.env_para.EnvPara.parse">parse (ir_sim.env.env_para.EnvPara property)</a>
+      <li><a href="ir_sim.env.html#ir_sim.env.env_config.EnvConfig.parse">parse (ir_sim.env.env_config.EnvConfig property)</a>
 </li>
       <li><a href="ir_sim.lib.html#ir_sim.lib.behaviorlib.penalty">penalty() (in module ir_sim.lib.behaviorlib)</a>
 </li>
@@ -804,6 +802,8 @@
       <li><a href="ir_sim.lib.html#ir_sim.lib.behaviorlib.vel_select">vel_select() (in module ir_sim.lib.behaviorlib)</a>
 </li>
       <li><a href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.velocity">velocity (ir_sim.world.object_base.ObstacleInfo attribute)</a>
+</li>
+      <li><a href="ir_sim.world.html#ir_sim.world.object_base.ObjectBase.velocity_xy">velocity_xy (ir_sim.world.object_base.ObjectBase property)</a>
 </li>
       <li><a href="ir_sim.world.html#ir_sim.world.object_base.ObstacleInfo.vertex">vertex (ir_sim.world.object_base.ObstacleInfo attribute)</a>
 </li>

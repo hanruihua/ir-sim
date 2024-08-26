@@ -79,51 +79,70 @@
 <span></span><span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-
 <div class="viewcode-block" id="EnvLogger">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_logger.EnvLogger">[docs]</a>
 <span class="k">class</span> <span class="nc">EnvLogger</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s1">&#39;ir_sim_error.log&#39;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;WARNING&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the EnvLogger.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            log_file (str, optional): Path to the log file. Default is &#39;ir_sim_error.log&#39;.</span>
+<span class="sd">            log_level (str, optional): Logging level. Default is &#39;WARNING&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;&lt;green&gt;{time:YYYY-MM-DD HH:mm}&lt;/green&gt; | &quot;</span> <span class="s2">&quot;&lt;level&gt;</span><span class="si">{level: &lt;8}</span><span class="s2">&lt;/level&gt; | &quot;</span> <span class="s2">&quot;&lt;level&gt;</span><span class="si">{message}</span><span class="s2">&lt;/level&gt;&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">log_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">)</span>
 
-
 <div class="viewcode-block" id="EnvLogger.info">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.info">[docs]</a>
     <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Log an info message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg (str): The message to log.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EnvLogger.error">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.error">[docs]</a>
     <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Log an error message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg (str): The message to log.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EnvLogger.debug">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.debug">[docs]</a>
     <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Log a debug message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg (str): The message to log.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EnvLogger.warning">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_logger.EnvLogger.warning">[docs]</a>
     <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Log a warning message.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            msg (str): The message to log.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 </div>
-
-
-    <span class="c1"># def close(self):</span>
-    <span class="c1">#     logger.remove(self.log_file)</span>
-    <span class="c1">#     logger.remove(None)</span>
-
-    <span class="c1"># def __del__(self):</span>
-    <span class="c1">#     self.close()</span>
-
 
 </pre></div>
 

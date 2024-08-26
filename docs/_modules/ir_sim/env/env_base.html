@@ -77,7 +77,7 @@
              
   <h1>Source code for ir_sim.env.env_base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">ir_sim.env.env_para</span> <span class="kn">import</span> <span class="n">EnvPara</span>
+<span class="kn">from</span> <span class="nn">ir_sim.env.env_config</span> <span class="kn">import</span> <span class="n">EnvConfig</span>
 <span class="kn">from</span> <span class="nn">ir_sim.util.util</span> <span class="kn">import</span> <span class="n">file_check</span>
 <span class="kn">from</span> <span class="nn">ir_sim.world</span> <span class="kn">import</span> <span class="n">world</span>
 <span class="kn">from</span> <span class="nn">.env_plot</span> <span class="kn">import</span> <span class="n">EnvPlot</span>
@@ -96,25 +96,21 @@
 <span class="k">class</span> <span class="nc">EnvBase</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.      </span>
+<span class="sd">    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.   </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        world_name (str): Path to the world yaml file.</span>
+<span class="sd">        display (bool): Flag to display the environment.</span>
+<span class="sd">        disable_all_plot (bool): Flag to disable all plots and figures.</span>
+<span class="sd">        save_ani (bool): Flag to save the animation.</span>
+<span class="sd">        full (bool): Flag to full screen the figure.</span>
+<span class="sd">        log_file (str): Name of the log file.</span>
+<span class="sd">        log_level (str): Level of the log output.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">display</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">disable_all_plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_ani</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Initialize the environment with the given parameters.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            world_name (str): Path to the world yaml file.</span>
-<span class="sd">            display (bool): Flag to display the environment.</span>
-<span class="sd">            disable_all_plot (bool): Flag to disable all plots and figures.</span>
-<span class="sd">            save_ani (bool): Flag to save the animation.</span>
-<span class="sd">            full (bool): Flag to full screen the figure.</span>
-<span class="sd">            log_file (str): Name of the log file.</span>
-<span class="sd">            log_level (str): Level of the log output.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="n">env_para</span> <span class="o">=</span> <span class="n">EnvPara</span><span class="p">(</span><span class="n">world_name</span><span class="p">)</span>
+        <span class="n">env_config</span> <span class="o">=</span> <span class="n">EnvConfig</span><span class="p">(</span><span class="n">world_name</span><span class="p">)</span>
         <span class="n">object_factory</span> <span class="o">=</span> <span class="n">ObjectFactory</span><span class="p">()</span> 
     
         <span class="c1"># init env setting</span>
@@ -125,19 +121,19 @@
         <span class="n">env_param</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> 
 
         <span class="c1"># init objects (world, obstacle, robot)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_world</span> <span class="o">=</span> <span class="n">world</span><span class="p">(</span><span class="n">world_name</span><span class="p">,</span> <span class="o">**</span><span class="n">env_para</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;world&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_world</span> <span class="o">=</span> <span class="n">world</span><span class="p">(</span><span class="n">world_name</span><span class="p">,</span> <span class="o">**</span><span class="n">env_config</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;world&#39;</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_robot_collection</span> <span class="o">=</span> <span class="n">object_factory</span><span class="o">.</span><span class="n">create_from_parse</span><span class="p">(</span><span class="n">env_para</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;robot&#39;</span><span class="p">],</span> <span class="s1">&#39;robot&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_obstacle_collection</span> <span class="o">=</span> <span class="n">object_factory</span><span class="o">.</span><span class="n">create_from_parse</span><span class="p">(</span><span class="n">env_para</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;obstacle&#39;</span><span class="p">],</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_robot_collection</span> <span class="o">=</span> <span class="n">object_factory</span><span class="o">.</span><span class="n">create_from_parse</span><span class="p">(</span><span class="n">env_config</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;robot&#39;</span><span class="p">],</span> <span class="s1">&#39;robot&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_obstacle_collection</span> <span class="o">=</span> <span class="n">object_factory</span><span class="o">.</span><span class="n">create_from_parse</span><span class="p">(</span><span class="n">env_config</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;obstacle&#39;</span><span class="p">],</span> <span class="s1">&#39;obstacle&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_map_collection</span> <span class="o">=</span> <span class="n">object_factory</span><span class="o">.</span><span class="n">create_from_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">obstacle_positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">buffer_reso</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_object_collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_robot_collection</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obstacle_collection</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_collection</span>
 
         <span class="c1"># env parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span> <span class="o">=</span> <span class="n">EnvPlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">grid_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">x_range</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">y_range</span><span class="p">,</span> <span class="o">**</span><span class="n">env_para</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env_plot</span> <span class="o">=</span> <span class="n">EnvPlot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">grid_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">x_range</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_world</span><span class="o">.</span><span class="n">y_range</span><span class="p">,</span> <span class="o">**</span><span class="n">env_config</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;plot&#39;</span><span class="p">])</span>
         <span class="n">env_param</span><span class="o">.</span><span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span>
         
         <span class="k">if</span> <span class="n">world_param</span><span class="o">.</span><span class="n">control_mode</span> <span class="o">==</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">init_keyboard</span><span class="p">(</span><span class="n">env_para</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;keyboard&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_keyboard</span><span class="p">(</span><span class="n">env_config</span><span class="o">.</span><span class="n">parse</span><span class="p">[</span><span class="s1">&#39;keyboard&#39;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
             <span class="n">system_platform</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
@@ -164,9 +160,10 @@
 <span class="sd">        Perform a simulation step in the environment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            action (list or numpy array 2*1): Action to be performed in the environment</span>
+<span class="sd">            action (list or numpy array 2*1): Action to be performed in the environment.</span>
+
 <span class="sd">                - differential robot action:  linear velocity, angular velocity</span>
-<span class="sd">                - omnidirectional robot action: velocity in x, velocity in y</span>
+<span class="sd">                - omnidirectional robot action: v_x -- velocity in x; v_y -- velocity in y</span>
 <span class="sd">                - Ackermann robot action: linear velocity, Steering angle</span>
 
 <span class="sd">            action_id (int): Apply the action to the robot with the given id.</span>
@@ -286,25 +283,31 @@
 <span class="sd">        Initialize keyboard control for the environment.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings.</span>
+<span class="sd">            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings</span>
+
 <span class="sd">                - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].</span>
-<span class="sd">                - key_lv_max (float): Maximum linear velocity. Default is vel_max[0].</span>
-<span class="sd">                - key_ang_max (float): Maximum angular velocity. Default is vel_max[1].</span>
+
+<span class="sd">                - key_lv_max (float): Maximum linear velocity. Default is vel_max [0].</span>
+
+<span class="sd">                - key_ang_max (float): Maximum angular velocity. Default is vel_max [1].</span>
+<span class="sd">                </span>
 <span class="sd">                - key_lv (float): Initial linear velocity. Default is 0.0.</span>
+<span class="sd">                </span>
 <span class="sd">                - key_ang (float): Initial angular velocity. Default is 0.0.</span>
+<span class="sd">                </span>
 <span class="sd">                - key_id (int): Initial robot control ID. Default is 0.</span>
 <span class="sd">            </span>
 <span class="sd">            Keys:</span>
-<span class="sd">                w: Move forward.</span>
-<span class="sd">                s: Move backward.</span>
-<span class="sd">                a: Turn left.</span>
-<span class="sd">                d: Turn right.</span>
-<span class="sd">                q: Decrease linear velocity.</span>
-<span class="sd">                e: Increase linear velocity.</span>
-<span class="sd">                z: Decrease angular velocity.</span>
-<span class="sd">                c: Increase angular velocity.</span>
-<span class="sd">                alt + num: Change the current control robot id.</span>
-<span class="sd">                r: Reset the environment.   </span>
+<span class="sd">                - w: Move forward.</span>
+<span class="sd">                - s: Move backward.</span>
+<span class="sd">                - a: Turn left.</span>
+<span class="sd">                - d: Turn right.</span>
+<span class="sd">                - q: Decrease linear velocity.</span>
+<span class="sd">                - e: Increase linear velocity.</span>
+<span class="sd">                - z: Decrease angular velocity.</span>
+<span class="sd">                - c: Increase angular velocity.</span>
+<span class="sd">                - alt + num: Change the current control robot id.</span>
+<span class="sd">                - r: Reset the environment.   </span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">vel_max</span> <span class="o">=</span> <span class="n">keyboard_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vel_max&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
@@ -362,6 +365,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            mode (str): Mode to check if all or any of the objects are done.</span>
+
 <span class="sd">                - all (str): Check if all objects are done.</span>
 <span class="sd">                - any (str): Check if any of the objects are done.</span>
 <span class="sd">        &#39;&#39;&#39;</span>

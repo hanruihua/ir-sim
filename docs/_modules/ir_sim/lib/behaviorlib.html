@@ -165,6 +165,29 @@
     <span class="k">return</span> <span class="n">rvo_vel_diff</span></div>
 
 
+<div class="viewcode-block" id="OmniRVO">
+<a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.OmniRVO">[docs]</a>
+<span class="k">def</span> <span class="nf">OmniRVO</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vxmax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">vymax</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">acceler</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rvo&#39;</span><span class="p">):</span>
+
+    <span class="c1"># state_tuple: [x, y, vx, vy, radius, vx_des, vy_des, theta]</span>
+    <span class="c1"># neighbor_list: a list of the tuple: [x, y, vx, vy, radius]</span>
+    <span class="c1"># rvo_vel_diff = omni_to_diff(state_tuple[-1], [state_tuple[-3], state_tuple[-2]])</span>
+    <span class="c1"># return rvo_vel_omni</span>
+
+    <span class="k">if</span> <span class="n">neighbor_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">neighbor_list</span> <span class="o">=</span> <span class="p">[]</span> 
+
+    <span class="k">if</span> <span class="n">mode</span><span class="o">==</span><span class="s1">&#39;rvo&#39;</span><span class="p">:</span>
+        <span class="n">rvo_list</span> <span class="o">=</span> <span class="n">config_rvo_list</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">)</span>
+
+    <span class="n">vo_outside</span><span class="p">,</span> <span class="n">vo_inside</span> <span class="o">=</span> <span class="n">vel_candidate</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">rvo_list</span><span class="p">,</span> <span class="n">acceler</span><span class="p">,</span> <span class="n">vxmax</span><span class="p">,</span> <span class="n">vymax</span><span class="p">)</span>
+    <span class="n">rvo_vel</span> <span class="o">=</span> <span class="n">vel_select</span><span class="p">(</span><span class="n">state_tuple</span><span class="p">,</span> <span class="n">neighbor_list</span><span class="p">,</span> <span class="n">vo_outside</span><span class="p">,</span> <span class="n">vo_inside</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
+
+    
+    <span class="c1"># rvo_vel_diff = omni_to_diff(state_tuple[-1], rvo_vel)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">rvo_vel</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">rvo_vel</span><span class="p">[</span><span class="mi">1</span><span class="p">]]])</span></div>
+
+
 
 <div class="viewcode-block" id="config_rvo_list">
 <a class="viewcode-back" href="../../../ir_sim.lib.html#ir_sim.lib.behaviorlib.config_rvo_list">[docs]</a>

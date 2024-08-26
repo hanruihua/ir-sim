@@ -92,22 +92,41 @@
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot">[docs]</a>
 <span class="k">class</span> <span class="nc">EnvPlot</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="n">x_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">subplot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">saved_figure</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">saved_ani</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    EnvPlot class for visualizing the environment.</span>
 
+<span class="sd">    Args:</span>
 
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        grid_map (optional): The grid map of the environment. Png file</span>
 
-<span class="sd">        saved_figure: kwargs for saving the figure, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail</span>
-<span class="sd">        saved_ani: kwargs for saving the animation, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail</span>
+<span class="sd">        Objects: list of object in the environment.</span>
+
+<span class="sd">        x_range : list</span>
+<span class="sd">            The range of x-axis values. Default is [0, 10].</span>
+<span class="sd">        y_range : list</span>
+<span class="sd">            The range of y-axis values. Default is [0, 10].</span>
+<span class="sd">        </span>
+<span class="sd">        saved_figure : dict</span>
+<span class="sd">            Keyword arguments for saving the figure.</span>
+<span class="sd">            See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.</span>
+<span class="sd">        saved_ani : dict</span>
+<span class="sd">            Keyword arguments for saving the animation.</span>
+<span class="sd">            See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.</span>
 
 <span class="sd">        kwargs:</span>
-<span class="sd">            color_map: color map for different objects</span>
-<span class="sd">            no_axis (default False): whether to show the axis. </span>
-<span class="sd">            tight (default True): whether to show the axis tightly</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">subplot</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="sd">            color_map : dict</span>
+<span class="sd">                Color map for different objects.</span>
+<span class="sd">            no_axis : bool, optional</span>
+<span class="sd">                Whether to show the axis. Default is False.</span>
+<span class="sd">            tight : bool, optional</span>
+<span class="sd">                Whether to show the axis tightly. Default is True.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="n">x_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">y_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">saved_figure</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="n">saved_ani</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">x_range</span> <span class="o">=</span> <span class="n">x_range</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y_range</span> <span class="o">=</span> <span class="n">y_range</span>
@@ -129,7 +148,18 @@
 <div class="viewcode-block" id="EnvPlot.init_plot">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.init_plot">[docs]</a>
     <span class="k">def</span> <span class="nf">init_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">no_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize the plot with the given grid map and objects.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            grid_map (optional): The grid map of the environment.</span>
+<span class="sd">            objects (list): List of objects to plot.</span>
+<span class="sd">            no_axis (bool, optional): Whether to show the axis. Default is False.</span>
+<span class="sd">            tight (bool, optional): Whether to show the axis tightly. Default is True.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_range</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_range</span><span class="p">)</span>
@@ -150,10 +180,16 @@
     <span class="k">def</span> <span class="nf">draw_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        mode: </span>
-<span class="sd">            static: draw static objects</span>
-<span class="sd">            dynamic: draw dynamic objects</span>
-<span class="sd">            all: draw all objects</span>
+<span class="sd">        Draw the components in the environment.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            mode: </span>
+<span class="sd">                - static: draw static objects</span>
+<span class="sd">                - dynamic: draw dynamic objects</span>
+<span class="sd">                - all: draw all objects</span>
+<span class="sd">            </span>
+<span class="sd">            objects: list of objects to draw</span>
 <span class="sd">        </span>
 <span class="sd">        kwargs: object plot kwargs</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -173,6 +209,19 @@
 <div class="viewcode-block" id="EnvPlot.clear_components">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.clear_components">[docs]</a>
     <span class="k">def</span> <span class="nf">clear_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[]):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Clear the components in the environment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd"> </span>
+<span class="sd">            mode:</span>
+<span class="sd">                - static: clear static objects</span>
+<span class="sd">                - dynamic: clear dynamic objects</span>
+<span class="sd">                - all: clear all objects</span>
+<span class="sd">            </span>
+<span class="sd">            objects: list of objects to clear</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;dynamic&#39;</span><span class="p">:</span>
             <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">plot_clear</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">obj</span><span class="o">.</span><span class="n">static</span><span class="p">]</span>
@@ -197,27 +246,42 @@
 <div class="viewcode-block" id="EnvPlot.draw_grid_map">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_grid_map">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_grid_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Draw the grid map on the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="k">if</span> <span class="n">grid_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid_map</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_range</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_range</span><span class="p">)</span> </div>
 
 
 
-<div class="viewcode-block" id="EnvPlot.draw_geometry">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_geometry">[docs]</a>
-    <span class="k">def</span> <span class="nf">draw_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># def draw_geometry(self, geometry, **kwargs):</span>
         
-        <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s1">&#39;Point&#39;</span><span class="p">:</span>
-            <span class="k">pass</span>
+    <span class="c1">#     if geometry.geom_type == &#39;Point&#39;:</span>
+    <span class="c1">#         pass</span>
 
-        <span class="k">elif</span> <span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">:</span>
+    <span class="c1">#     elif geometry.geom_type == &#39;MultiLineString&#39;:</span>
 
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xy</span></div>
-
+    <span class="c1">#         lines = geometry.coords.xy</span>
 
 <div class="viewcode-block" id="EnvPlot.draw_trajectory">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_trajectory">[docs]</a>
     <span class="k">def</span> <span class="nf">draw_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj</span><span class="p">,</span> <span class="n">traj_type</span><span class="o">=</span><span class="s1">&#39;g-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;trajectory&#39;</span><span class="p">,</span> <span class="n">show_direction</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Draw a trajectory on the plot</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            traj: list of points, point: 3*1 np.array, [x, y, theta]</span>
+<span class="sd">            traj_type: trajectory type, default is &#39;g-&#39;, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail</span>
+<span class="sd">            label: label of the trajectory</span>
+<span class="sd">            show_direction: whether to show the direction of the trajectory</span>
+<span class="sd">            refresh: whether to refresh the plot (clear the previous trajectory)</span>
+<span class="sd">            kwargs: other arguments for the ax plot, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="c1"># traj: a list of points</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">path_x_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">traj</span><span class="p">]</span>
@@ -251,6 +315,15 @@
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Draw points on the plot</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            point_list: list of points, point: 2*1 np.array or [x, y]</span>
+<span class="sd">            s: size of the points</span>
+<span class="sd">            c: color of the points</span>
+<span class="sd">            refresh: whether to refresh the plot (clear the previous points)</span>
+<span class="sd">            kwargs: other arguments for the ax scatter, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.scatter.html for detail</span>
+
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">point_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -270,6 +343,12 @@
 
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Draw a box by the vertices</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            vertices: 2*edge_number np.array, vertices of the box</span>
+<span class="sd">            refresh: whether to refresh the plot (clear the previous box)</span>
+<span class="sd">            color: color and line type of the box</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">temp_vertex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">vertices</span><span class="p">,</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>         
@@ -279,12 +358,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dyna_line_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box_line</span><span class="p">)</span></div>
 
 
-    <span class="c1"># save animation and figure </span>
+    
 <div class="viewcode-block" id="EnvPlot.save_gif_figure">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_gif_figure">[docs]</a>
     <span class="k">def</span> <span class="nf">save_gif_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="c1"># saved_figure_kwargs: arguments when saving the figures for animation, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        save the figure for generating animation</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            format: format of the figure, default is &#39;png&#39;</span>
+<span class="sd">            kwargs: other arguments for the ax savefig, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail, default is {&#39;dpi&#39;: 100, &#39;bbox_inches&#39;: &#39;tight&#39;}       </span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">fp</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">ani_buffer_path</span>
         
@@ -302,13 +388,18 @@
 <div class="viewcode-block" id="EnvPlot.save_animate">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.save_animate">[docs]</a>
     <span class="k">def</span> <span class="nf">save_animate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ani_name</span><span class="o">=</span><span class="s1">&#39;animation&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.gif&#39;</span><span class="p">,</span> <span class="n">keep_len</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">rm_fig_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        
-        <span class="c1"># saved_ani_kwargs: arguments for animations(gif): see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for detail</span>
+<span class="w">        </span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Save the animation</span>
 
-        <span class="c1"># ani_name = self.saved_ani_kwargs.get(&#39;ani_name&#39;, &#39;animation&#39;)</span>
-        <span class="c1"># suffix = self.saved_ani_kwargs.get(&#39;suffix&#39;, &#39;.gif&#39;)</span>
-        <span class="c1"># keep_len = self.saved_ani_kwargs.get(&#39;keep_len&#39;, 30)</span>
-        <span class="c1"># rm_fig_path = self.saved_ani_kwargs.get(&#39;rm_fig_path&#39;, True)</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">            ani_name: name of the animation, default is &#39;animation&#39;</span>
+<span class="sd">            suffix: suffix of the animation, default is &#39;.gif&#39;</span>
+<span class="sd">            keep_len: length of the last frame, default is 30</span>
+<span class="sd">            rm_fig_path: whether to remove the figure path after saving the animation, default is True</span>
+<span class="sd">            kwargs: other arguments for the imageio.mimsave, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">saved_ani_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;subrectangles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saved_ani_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
@@ -344,60 +435,16 @@
 <div class="viewcode-block" id="EnvPlot.show">
 <a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.show">[docs]</a>
     <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Show the plot</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="EnvPlot.draw_ackerman_velocity">
-<a class="viewcode-back" href="../../../ir_sim.env.html#ir_sim.env.env_plot.EnvPlot.draw_ackerman_velocity">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">draw_ackerman_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity_list</span><span class="p">,</span> <span class="n">x_name</span><span class="p">,</span> <span class="n">y_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">pass</span></div>
 </div>
 
 
-    <span class="c1"># def sub_world_plot(self):</span>
 
-    <span class="c1">#     # row: default 3</span>
-    <span class="c1">#     # colum: default 3</span>
-    <span class="c1">#     # number: number of subplot</span>
-    <span class="c1">#     # scheme: default; </span>
-    <span class="c1">#     #         custom; </span>
-    <span class="c1">#     # custom_layout: coordinate of the main and sub axises (custom scheme)</span>
-    <span class="c1">#     #       - [[x_min, x_max, y_min, y_max], [x_min, x_max, y_min, y_max]]</span>
-    <span class="c1">#     #   </span>
-    <span class="c1">#     number = self.sub_plot_kwargs.get(&#39;number&#39;, 0)</span>
-    <span class="c1">#     row = self.sub_plot_kwargs.get(&#39;row&#39;, 3)</span>
-    <span class="c1">#     column = self.sub_plot_kwargs.get(&#39;column&#39;, 3)</span>
-    <span class="c1">#     layout = self.sub_plot_kwargs.get(&#39;layout&#39;, &#39;default&#39;)</span>
-    <span class="c1">#     custom_layout = self.sub_plot_kwargs.get(&#39;custom_layout&#39;, [])</span>
-
-    <span class="c1">#     fig = plt.figure(constrained_layout=True)</span>
-    <span class="c1">#     sub_ax_list = []</span>
-
-    <span class="c1">#     assert number &lt; row * column</span>
-
-    <span class="c1">#     if number == 0:</span>
-    <span class="c1">#         ax = fig.add_subplot(111)</span>
-    <span class="c1">#     else:</span>
-    <span class="c1">#         gs = GridSpec(row, column, figure=fig)</span>
-
-    <span class="c1">#         if layout == &#39;default&#39;:</span>
-    <span class="c1">#             coordinate = [[0, row, 0, column-1], [0, 1, 2, 3], [1, 2, 2, 3], [2, 3, 2, 3]]</span>
-    <span class="c1">#         elif layout == &#39;custom&#39;:</span>
-    <span class="c1">#             coordinate = custom_layout</span>
-
-    <span class="c1">#         for n in range(number): </span>
-    <span class="c1">#             c = coordinate[n]</span>
-
-    <span class="c1">#             if n == 0:</span>
-    <span class="c1">#                 ax = fig.add_subplot(gs[c[0]:c[1], c[2]:c[3]])</span>
-    <span class="c1">#             else:</span>
-    <span class="c1">#                 sub_ax = fig.add_subplot(gs[c[0]:c[1], c[2]:c[3]])</span>
-    <span class="c1">#                 self.init_sub_plot(sub_ax)</span>
-    <span class="c1">#                 sub_ax_list.append(sub_ax) </span>
-
-    <span class="c1">#     return fig, ax, sub_ax_list</span>
 
         
 

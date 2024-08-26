@@ -17,10 +17,10 @@ ir\_sim.env.env\_logger
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.env.env\_para
+ir\_sim.env.env\_config
 ----------------------------
 
-.. automodule:: ir_sim.env.env_para
+.. automodule:: ir_sim.env.env_config
    :members:
    :undoc-members:
    :show-inheritance:
