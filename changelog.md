@@ -1,3 +1,10 @@
+## ir_sim 2.1.5
+
+- Add citation for the project
+- 
+
+
+
 ## ir_sim 2.1.4
 
 - Update function comments
