@@ -4,6 +4,7 @@ from ir_sim.world.robots.robot_acker import RobotAcker
 from ir_sim.world.robots.robot_omni import RobotOmni
 from ir_sim.world import ObjectBase
 from ir_sim.world.obstacles.obstacle_diff import ObstacleDiff
+from ir_sim.world.obstacles.obstacle_omni import ObstacleOmni
 from ir_sim.world.obstacles.obstacle_static import ObstacleStatic
 from ir_sim.world.map.obstacle_map import ObstacleMap
 from ir_sim.util.util import convert_list_length, convert_list_length_dict, is_list_of_numbers
@@ -90,7 +91,7 @@ class ObjectFactory:
         elif kinematics_name == 'acker':
             pass
         elif kinematics_name == 'omni':
-            pass
+            return ObstacleOmni.create_with_shape(kinematics_name, shape, kinematics_dict=kinematics, **kwargs)
         else:
             return ObstacleStatic.create_with_shape(kinematics_name, shape, kinematics_dict=kinematics, **kwargs)
 

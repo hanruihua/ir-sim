@@ -1,18 +1,18 @@
 import yaml
 from ir_sim.util.util import file_check
 
-class EnvPara:
+class EnvConfig:
     '''
     The base class of environment parameters read from yaml file.
-        basic categories: world, plot, robot, obstacle, robots, obstacles, plot
+        basic categories: world, plot, robot, obstacle
+        See for detail
     '''
-
 
     def __init__(self, world_name) -> None:
         
         world_file_path = file_check(world_name)
 
-        self._kwargs_parse = { 'world': dict(), 'plot': dict(), 'keyboard': dict(), 'robot': None, 'robots': None, 'obstacle': None, 'obstacles': None}
+        self._kwargs_parse = { 'world': dict(), 'plot': dict(), 'keyboard': dict(), 'robot': None, 'obstacle': None}
 
         if world_file_path != None:
            

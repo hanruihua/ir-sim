@@ -75,6 +75,26 @@ def DiffRVO(state_tuple, neighbor_list=None, vxmax = 1.5, vymax = 1.5, acceler =
 
     return rvo_vel_diff
 
+def OmniRVO(state_tuple, neighbor_list=None, vxmax = 1.5, vymax = 1.5, acceler = 1, factor=1.0, mode='rvo'):
+
+    # state_tuple: [x, y, vx, vy, radius, vx_des, vy_des, theta]
+    # neighbor_list: a list of the tuple: [x, y, vx, vy, radius]
+    # rvo_vel_diff = omni_to_diff(state_tuple[-1], [state_tuple[-3], state_tuple[-2]])
+    # return rvo_vel_omni
+
+    if neighbor_list is None: neighbor_list = [] 
+
+    if mode=='rvo':
+        rvo_list = config_rvo_list(state_tuple, neighbor_list)
+
+    vo_outside, vo_inside = vel_candidate(state_tuple, rvo_list, acceler, vxmax, vymax)
+    rvo_vel = vel_select(state_tuple, neighbor_list, vo_outside, vo_inside, factor)
+
+    
+    # rvo_vel_diff = omni_to_diff(state_tuple[-1], rvo_vel)
+
+    return np.array([[rvo_vel[0]], [rvo_vel[1]]])
+
 
 def config_rvo_list(state_tuple, neighbor_list):
     
