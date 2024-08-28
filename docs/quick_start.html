@@ -70,7 +70,7 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Quick Start</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/quick_start.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/quick_start.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -80,6 +80,38 @@
              
   <section id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h1>
+<p>To quickly start the simulation, you can use the following code snippet to run the simulation for a robot in a world.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ir_sim.env</span> <span class="kn">import</span> <span class="n">EnvBase</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">EnvBase</span><span class="p">(</span><span class="s1">&#39;robot_world.yaml&#39;</span><span class="p">)</span> <span class="c1"># initialize the environment with the configuration file</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">300</span><span class="p">):</span> <span class="c1"># run the simulation for 300 steps</span>
+
+    <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>  <span class="c1"># update the environment</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span> <span class="c1"># render the environment</span>
+
+    <span class="k">if</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">():</span> <span class="k">break</span> <span class="c1"># check if the simulation is done</span>
+        
+<span class="n">env</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="c1"># close the environment</span>
+</pre></div>
+</div>
+<p>All the configurations are set in the YAML file. You can change the configurations in the YAML file to customize the simulation. The following is an example of the configuration file <em>robot_world.yaml</em>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">world</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">height</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">  </span><span class="c1"># the height of the world</span>
+<span class="w">  </span><span class="nt">width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">   </span><span class="c1"># the height of the world</span>
+<span class="w">  </span><span class="nt">step_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">  </span><span class="c1"># 10Hz calculate each step</span>
+<span class="w">  </span><span class="nt">sample_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">  </span><span class="c1"># 10 Hz for render and data extraction </span>
+<span class="w">  </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># the offset of the world on x and y </span>
+
+<span class="nt">robot</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kinematics</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;diff&#39;</span><span class="p p-Indicator">}</span><span class="w">  </span><span class="c1"># omni, diff, acker</span>
+<span class="w">  </span><span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;circle&#39;</span><span class="p p-Indicator">,</span><span class="nt"> radius</span><span class="p">:</span><span class="w"> </span><span class="nv">0.2</span><span class="p p-Indicator">}</span><span class="w">  </span><span class="c1"># radius</span>
+<span class="w">  </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># x, y, theta</span>
+<span class="w">  </span><span class="nt">goal</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">9</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">9</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># x, y, theta</span>
+<span class="w">  </span><span class="nt">behavior</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;dash&#39;</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># move toward to the goal directly </span>
+<span class="w">  </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;g&#39;</span><span class="w"> </span><span class="c1"># green</span>
+</pre></div>
+</div>
 </section>
 
 
