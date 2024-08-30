@@ -91,7 +91,7 @@ robot:
 
 ### Advanced Usage
 
-The advanced usages are listed in the [ir-sim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
+The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 
 <!-- ## YAML Configuration Example
