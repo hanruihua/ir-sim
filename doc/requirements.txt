@@ -4,6 +4,7 @@ sphinx-autodoc-typehints
 sphinx_multiversion
 myst_parser
 importlib-metadata
+ir-sim
 # sphinx.ext.viewcode
 # sphinx.ext.githubpages
 # sphinx.ext.napoleon

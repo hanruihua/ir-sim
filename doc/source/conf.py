@@ -28,7 +28,7 @@ release = '2.2.0'
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath("../.."))
+# sys.path.insert(0, os.path.abspath("../.."))
 # sys.path.insert(0, os.path.abspath("./"))
 # sys.path.insert(0, os.path.join(os.path.dirname((os.path.abspath('.')), 'irsim')))
 
