@@ -2,6 +2,7 @@ sphinx_rtd_theme
 sphinx-autodoc-typehints
 sphinx_multiversion
 myst_parser
+importlib-metadata
 # sphinx.ext.viewcode
 # sphinx.ext.githubpages
 # sphinx.ext.napoleon
