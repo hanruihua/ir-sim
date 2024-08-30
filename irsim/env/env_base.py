@@ -78,14 +78,13 @@ class EnvBase:
         Perform a simulation step in the environment.
 
         Args:
-            if action is list:
-                List of actions to be performed for each robot in the environment.
-            if action is numpy array (2 * 1 vector): 
-                differential robot action:  linear velocity, angular velocity
-                omnidirectional robot action: velocity in x, velocity in y
-                Ackermann robot action: linear velocity, Steering angle
+            action (list or numpy array 2*1): Action to be performed in the environment.
 
-            action_id (int 0): Apply the action to the robot with the given id.
+                - differential robot action:  linear velocity, angular velocity
+                - omnidirectional robot action: v_x -- velocity in x; v_y -- velocity in y
+                - Ackermann robot action: linear velocity, Steering angle
+
+            action_id (int): Apply the action to the robot with the given id.
         '''
 
         if isinstance(action, list):
@@ -113,9 +112,9 @@ class EnvBase:
         Render the environment.
 
         Args:
-            interval (float): Time interval between frames in seconds.
-            figure_kwargs (dict): Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.
-            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.
+            interval(float) :  Time interval between frames in seconds.    
+            figure_kwargs(dict) : Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.        
+            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.       
         '''
 
         if not self.disable_all_plot: 
@@ -184,25 +183,31 @@ class EnvBase:
         Initialize keyboard control for the environment.
 
         Args:
-            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings.
+            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings
+
                 - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].
-                - key_lv_max (float): Maximum linear velocity. Default is vel_max[0].
-                - key_ang_max (float): Maximum angular velocity. Default is vel_max[1].
+
+                - key_lv_max (float): Maximum linear velocity. Default is vel_max [0].
+
+                - key_ang_max (float): Maximum angular velocity. Default is vel_max [1].
+                
                 - key_lv (float): Initial linear velocity. Default is 0.0.
+                
                 - key_ang (float): Initial angular velocity. Default is 0.0.
+                
                 - key_id (int): Initial robot control ID. Default is 0.
             
             Keys:
-                w: Move forward.
-                s: Move backward.
-                a: Turn left.
-                d: Turn right.
-                q: Decrease linear velocity.
-                e: Increase linear velocity.
-                z: Decrease angular velocity.
-                c: Increase angular velocity.
-                alt + num: Change the current control robot id.
-                r: Reset the environment.   
+                - w: Move forward.
+                - s: Move backward.
+                - a: Turn left.
+                - d: Turn right.
+                - q: Decrease linear velocity.
+                - e: Increase linear velocity.
+                - z: Decrease angular velocity.
+                - c: Increase angular velocity.
+                - alt + num: Change the current control robot id.
+                - r: Reset the environment.   
         '''
 
         vel_max = keyboard_kwargs.get('vel_max', [3.0, 1.0])
@@ -254,6 +259,7 @@ class EnvBase:
 
         Args:
             mode (str): Mode to check if all or any of the objects are done.
+
                 - all (str): Check if all objects are done.
                 - any (str): Check if any of the objects are done.
         '''
