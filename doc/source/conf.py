@@ -16,6 +16,8 @@
 import os
 import sys
 
+
+
 # -- Project information -----------------------------------------------------
 
 project = 'IR-SIM'
@@ -32,8 +34,9 @@ release = '2.2.0'
 # sys.path.insert(0, os.path.abspath("./"))
 # sys.path.insert(0, os.path.join(os.path.dirname((os.path.abspath('.')), 'irsim')))
 
+root_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.insert(0, root_path)
 
-# sys.path.insert(0, os.path.abspath("../"))
 # sys.path.insert(0, os.path.abspath("../.."))
 # sys.path.insert(0, os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath(".."))
