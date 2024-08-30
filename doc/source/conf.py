@@ -24,9 +24,10 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.1.3'
+release = '2.2.0'
 
-sys.path.insert(0, os.path.abspath('./ir_sim'))
+sys.path.insert(0, os.path.abspath('../../'))
+# sys.path.insert(0, os.path.abspath('./ir-sim'))
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -43,7 +44,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
+# root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

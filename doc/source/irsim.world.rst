@@ -2,34 +2,34 @@ world
 =====================
 
 
-ir\_sim.world.multi\_object\_base 
+irsim.world.multi\_object\_base 
 ----------------------------------------
 
-.. automodule:: ir_sim.world.multi_object_base
+.. automodule:: irsim.world.multi_object_base
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.object\_base 
+irsim.world.object\_base 
 ---------------------------------
 
-.. automodule:: ir_sim.world.object_base
+.. automodule:: irsim.world.object_base
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.object\_factory 
+irsim.world.object\_factory 
 ------------------------------------
 
-.. automodule:: ir_sim.world.object_factory
+.. automodule:: irsim.world.object_factory
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.world.world
+irsim.world.world
 --------------------------
 
-.. automodule:: ir_sim.world.world
+.. automodule:: irsim.world.world
    :members:
    :undoc-members:
    :show-inheritance:
@@ -37,7 +37,7 @@ ir\_sim.world.world
 Module contents
 ---------------
 
-.. automodule:: ir_sim.world
+.. automodule:: irsim.world
    :members:
    :undoc-members:
    :show-inheritance:

@@ -12,8 +12,8 @@ or you can install the package from the source code:
 
 .. code-block:: bash
 
-    git clone https://github.com/hanruihua/ir_sim
-    cd ir_sim
+    git clone https://github.com/hanruihua/ir-sim
+    cd ir-sim
     pip install -e .
 
 

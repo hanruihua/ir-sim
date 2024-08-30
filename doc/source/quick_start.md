@@ -5,9 +5,9 @@ To quickly start the simulation, you can use the following code snippet to run t
 
 
 ```python
-from ir_sim.env import EnvBase
+import irsim
 
-env = EnvBase('robot_world.yaml') # initialize the environment with the configuration file
+env = irsim.make('robot_world.yaml') # initialize the environment with the configuration file
 
 for i in range(300): # run the simulation for 300 steps
 

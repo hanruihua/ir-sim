@@ -2,42 +2,42 @@ lib
 ===================
 
 
-ir\_sim.lib.behavior 
+irsim.lib.behavior 
 ---------------------------
 
-.. automodule:: ir_sim.lib.behavior
+.. automodule:: irsim.lib.behavior
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.behaviorlib 
+irsim.lib.behaviorlib 
 ------------------------------
 
-.. automodule:: ir_sim.lib.behaviorlib
+.. automodule:: irsim.lib.behaviorlib
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.factory 
+irsim.lib.factory 
 --------------------------
 
-.. automodule:: ir_sim.lib.factory
+.. automodule:: irsim.lib.factory
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.generation 
+irsim.lib.generation 
 -----------------------------
 
-.. automodule:: ir_sim.lib.generation
+.. automodule:: irsim.lib.generation
    :members:
    :undoc-members:
    :show-inheritance:
 
-ir\_sim.lib.kinematics 
+irsim.lib.kinematics 
 -----------------------------
 
-.. automodule:: ir_sim.lib.kinematics
+.. automodule:: irsim.lib.kinematics
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,7 +45,7 @@ ir\_sim.lib.kinematics
 Module contents
 ---------------
 
-.. automodule:: ir_sim.lib
+.. automodule:: irsim.lib
    :members:
    :undoc-members:
    :show-inheritance:

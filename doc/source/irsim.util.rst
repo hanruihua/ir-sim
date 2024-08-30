@@ -2,10 +2,10 @@ util
 ===================
 
 
-ir\_sim.util 
+irsim.util 
 ---------------------------
 
-.. automodule:: ir_sim.util.util
+.. automodule:: irsim.util.util
    :members:
    :undoc-members:
    :show-inheritance:
