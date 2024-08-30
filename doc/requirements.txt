@@ -4,6 +4,6 @@ sphinx_multiversion
 myst_parser
 importlib-metadata
 # sphinx.ext.viewcode
-sphinx.ext.githubpages
+# sphinx.ext.githubpages
 # sphinx.ext.napoleon
 
