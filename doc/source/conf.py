@@ -43,21 +43,6 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
-html_sidebars = {
-    "**": [
-        "versioning.html",
-    ],
-}
-
-html_context = {
-  'current_version' : "1.0",
-  'versions' : [["1.0", "link to 1.0"], ["2.0", "link to 2.0"]],
-  'current_language': 'en',
-  'languages': [["en", "link to en"], ["de", "link to de"]]
-}
-
-
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
 
@@ -70,16 +55,6 @@ html_context = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
-
-
-
-
-# -- Options for sphinx-multiversion -----------------------------------------
-smv_tag_whitelist = r'^v\d+\.\d+.*$'  # Only include tags that match this regex
-smv_branch_whitelist = r'^.*$'  # Include all branches
-smv_remote_whitelist = r'^origin$'  # Only include the remote named origin
-smv_released_pattern = r'^tags/v\d+\.\d+\.\d+$'  # Tags that match this pattern are considered released versions
-smv_outputdir_format = '{ref.name}'  # Format for the output directory
 
 
 html_theme = "sphinx_rtd_theme"

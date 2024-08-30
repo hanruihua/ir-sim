@@ -1,7 +1,8 @@
 sphinx_rtd_theme
-sphinx.ext.autodoc
-sphinx.ext.viewcode
-sphinx.ext.githubpages
-sphinx.ext.napoleon
-myst_parser
+sphinx-autodoc-typehints
 sphinx_multiversion
+myst_parser
+# sphinx.ext.viewcode
+# sphinx.ext.githubpages
+# sphinx.ext.napoleon
+
