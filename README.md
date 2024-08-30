@@ -1,5 +1,5 @@
 <!-- <div align="center">
-<img src="doc/image/IR_SIM_logos/logo1_nobg.png" width = "200" >
+<img src="doc/image/ir-sim_logos/logo1_nobg.png" width = "200" >
 </div>  -->
 
 
@@ -7,10 +7,10 @@
 
 # Intelligent Robot Simulator (IR-SIM)
 
-<a href="https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir_sim%2Freleases%2F
-)](https://github.com/hanruihua/ir_sim/releases/"><img src='https://img.shields.io/github/v/release/hanruihua/ir_sim?color=brightgreen' alt='Github Release'></a>
-<a href="https://github.com/hanruihua/ir_sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue' alt='License'></a>
-<a href="https://pypistats.org/packages/ir-sim"><img src='https://img.shields.io/pypi/dm/ir_sim' alt='Download'></a>
+<a href="https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir-sim%2Freleases%2F
+)](https://github.com/hanruihua/ir-sim/releases/"><img src='https://img.shields.io/github/v/release/hanruihua/ir-sim?color=brightgreen' alt='Github Release'></a>
+<a href="https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue' alt='License'></a>
+<a href="https://pypistats.org/packages/ir-sim"><img src='https://img.shields.io/pypi/dm/ir-sim' alt='Download'></a>
 
 </div>
 
@@ -54,7 +54,7 @@ pip install -e .
 
 ```python
 
-from ir_sim.env import EnvBase
+from ir-sim.env import EnvBase
 
 env = EnvBase('robot_world.yaml') # initialize the environment with the configuration file
 
@@ -91,7 +91,7 @@ robot:
 
 ### Advanced Usage
 
-The advanced usages are listed in the [ir_sim/usage](https://github.com/hanruihua/ir_sim/tree/main/ir_sim/usage)
+The advanced usages are listed in the [ir-sim/usage](https://github.com/hanruihua/ir-sim/tree/main/ir-sim/usage)
 
 
 <!-- ## YAML Configuration Example
@@ -150,11 +150,11 @@ hanrh@connect.hku.hk -->
 <!-- ## Citation
 
 ```
-@misc{ir_sim,
+@misc{ir-sim,
  author = "Ruihua Han",
  title = "ir-sim: Python based light-weight simulator for robotics navigation and learning.",
  year = 2024,
- url = "https://github.com/hanruihua/ir_sim"
+ url = "https://github.com/hanruihua/ir-sim"
 }
 ``` -->
 
