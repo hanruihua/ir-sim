@@ -1,2 +1,7 @@
-version = "2.1.5"
-__version__ = version
+import importlib.metadata
+
+__version__ = importlib.metadata.version("ir-sim")
+
+
+
+
