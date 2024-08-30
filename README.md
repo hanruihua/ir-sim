@@ -37,14 +37,14 @@ Robot             |  Car
 - Install this package from PyPi:
 
 ```
-pip install ir_sim
+pip install ir-sim
 ```
 
 - Or for development, you may install from source: 
 
 ```
-git clone https://github.com/hanruihua/ir_sim.git    
-cd ir_sim   
+git clone https://github.com/hanruihua/ir-sim.git    
+cd ir-sim   
 pip install -e .  
 ```
  
