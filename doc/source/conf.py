@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(0, os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath('./ir-sim'))
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
