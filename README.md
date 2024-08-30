@@ -54,9 +54,9 @@ pip install -e .
 
 ```python
 
-from ir-sim.env import EnvBase
+import irsim
 
-env = EnvBase('robot_world.yaml') # initialize the environment with the configuration file
+env = irsim.make('robot_world.yaml') # initialize the environment with the configuration file
 
 for i in range(300): # run the simulation for 300 steps
 
@@ -91,7 +91,7 @@ robot:
 
 ### Advanced Usage
 
-The advanced usages are listed in the [ir-sim/usage](https://github.com/hanruihua/ir-sim/tree/main/ir-sim/usage)
+The advanced usages are listed in the [ir-sim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 
 <!-- ## YAML Configuration Example
