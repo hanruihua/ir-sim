@@ -13,7 +13,6 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import sphinx_rtd_theme
 import os
 import sys
 
@@ -84,6 +83,5 @@ smv_outputdir_format = '{ref.name}'  # Format for the output directory
 
 
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 autodoc_member_order = 'bysource'
