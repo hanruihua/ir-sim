@@ -30,3 +30,17 @@ It provides the following features:
 
    modules
 
+
+.. raw:: html
+
+   <div class="version-selector">
+       <label for="version">Version:</label>
+       <select id="version" onchange="window.location.href=this.value;">
+           <option value="../latest/">Latest</option>
+           <option value="../v2.2.0/">v2.2.0</option>
+           <option value="../v2.1.4/">v2.1.4</option>
+       </select>
+   </div>
+
+
+**Version**: |version|
