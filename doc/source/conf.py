@@ -38,7 +38,8 @@ release = '2.2.0'
 # sys.path.insert(0, os.path.dirname(__file__))
 
 # sys.path.insert(0, os.path.abspath("../.."))
-sys.path.insert(0, os.path.abspath('../../../ir_sim/'))
+print(os.path.abspath('./'))
+sys.path.insert(0, os.path.abspath('./'))
 # sys.path.insert(0, os.path.abspath('../src'))
 # sys.path.append(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath(".."))
