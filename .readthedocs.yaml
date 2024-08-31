@@ -10,6 +10,7 @@ build:
   tools:
     python: "3.11"
   commands:
+    - mkdir -p $READTHEDOCS_OUTPUT/html/
     - DISPLAY=":0"
     # You can also specify other tool versions:
     # nodejs: "20"
