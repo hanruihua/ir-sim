@@ -14,7 +14,7 @@ build:
     # rust: "1.70"
     # golang: "1.20"
   commands:
-    - echo $DISPLAY=:1
+    - export DISPLAY=:1
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
