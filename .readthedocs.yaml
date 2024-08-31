@@ -13,8 +13,6 @@ build:
     # nodejs: "20"
     # rust: "1.70"
     # golang: "1.20"
-  commands:
-    - export DISPLAY=:1
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
