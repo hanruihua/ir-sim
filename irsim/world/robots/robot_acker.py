@@ -11,8 +11,8 @@ from irsim.global_param.path_param import path_manager
 
 
 class RobotAcker(ObjectBase):
-    def __init__(self, shape='rectangle', shape_tuple=None, color='y', **kwargs):
-        super(RobotAcker, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='acker', role='robot', color=color, state_dim=4, **kwargs)
+    def __init__(self, shape='rectangle', shape_tuple=None, color='y', state_dim=4, **kwargs):
+        super(RobotAcker, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='acker', role='robot', color=color, state_dim=state_dim, **kwargs)
 
         self.wheelbase = kwargs['wheelbase']
         self.info.add_property('wheelbase', self.wheelbase)
