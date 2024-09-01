@@ -56,7 +56,7 @@ class ObjectBase:
     id_iter = itertools.count()
     vel_dim = (2, 1)
 
-    def __init__(self, shape: str='circle', shape_tuple=None, state=[0, 0, 0], velocity=[0, 0], goal=[10, 10, 0], kinematics: str='omni', role: str='obstacle', color='k', static=False, vel_min=[-1, -1], vel_max=[1, 1], acce=[inf, inf], angle_range=[-pi, pi], behavior=None, goal_threshold=0.1, sensors=None, kinematics_dict=dict(), arrive_mode='position', description=None, group=0, reso=0.1, state_dim=3, **kwargs) -> None:
+    def __init__(self, shape: str='circle', shape_tuple=None, state=[0, 0, 0], velocity=[0, 0], goal=[10, 10, 0], kinematics: str='omni', role: str='obstacle', color='k', static=False, vel_min=[-1, -1], vel_max=[1, 1], acce=[inf, inf], angle_range=[-pi, pi], behavior=None, goal_threshold=0.1, sensors=None, kinematics_dict=dict(), arrive_mode='position', description=None, group=0, reso=0.1, state_dim=3, unobstructed=False, **kwargs) -> None:
 
         '''
         parameters:
@@ -89,7 +89,7 @@ class ObjectBase:
                 
             arrive_mode: position or state
             state_dim: the dimension of the state, default is 3
-
+            unobstructed: whether the object is unobstructed, default is False
         '''
 
         self._id = next(ObjectBase.id_iter)
@@ -117,6 +117,7 @@ class ObjectBase:
         self.stop_flag = False
         self.arrive_flag = False
         self.collision_flag = False
+        self.unobstructed = unobstructed
 
         # information
         self.static = static
@@ -164,6 +165,8 @@ class ObjectBase:
         self.plot_text_list = []
 
         self.plot_kwargs = kwargs.get('plot', dict())
+
+        self.collision_obj = []
 
 
     def __repr__(self) -> str:
@@ -307,7 +310,8 @@ class ObjectBase:
         self.check_collision_status()
 
         if world_param.collision_mode == 'stop':
-            self.stop_flag = self.collision_flag
+            self.stop_flag = any([not obj.unobstructed for obj in self.collision_obj])
+
         elif world_param.collision_mode == 'reactive':
             pass
 
@@ -340,12 +344,22 @@ class ObjectBase:
         
         collision_flags = [ self.check_collision(obj) for obj in env_param.objects if self.id != obj.id]
 
-        new_collision_flag = any(collision_flags)
+        self.collision_obj = []
 
-        if new_collision_flag and not self.collision_flag:
-            env_param.logger.warning( self.role + "{} is collided at state {}".format(self.id, list(np.round(self._state[:2, 0], 2))))
+        for obj in env_param.objects:
+            if self.id != obj.id:
+                if self.check_collision(obj):
+                    if self.role == 'robot': 
+                        self.collision_obj.append(obj)
+                        if not self.collision_flag: env_param.logger.warning( self.role + "{} is collided with {} at state {}".format(self.id, obj.id, list(np.round(self._state[:2, 0], 2))) )
+                        
+        self.collision_flag = any(collision_flags)
+        # new_collision_flag = any(collision_flags)
+
+        # if new_collision_flag and not self.collision_flag:
+        #     env_param.logger.warning( self.role + "{} is collided at state {}".format(self.id, list(np.round(self._state[:2, 0], 2))))
             
-        self.collision_flag = new_collision_flag
+        
 
 
     def check_collision(self, obj):
