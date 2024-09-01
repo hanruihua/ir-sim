@@ -321,7 +321,8 @@ class ObjectBase:
         elif world_param.collision_mode == 'unobstructed_obstacles':
             
             if self.role == 'robot':
-                self.stop_flag = self.collision_flag
+                # self.stop_flag = self.collision_flag
+                self.stop_flag = any([not obj.unobstructed for obj in self.collision_obj])
                 
             elif self.role == 'obstacle':
                 self.stop_flag = False
