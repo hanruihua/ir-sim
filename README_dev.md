@@ -59,3 +59,6 @@ py -m twine upload dist/*
 - [ ] Add some data structure for plot
 - [ ] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
+- [ ] reorganize the all plot functions
+- [ ] LLM integration
+- [ ] 
