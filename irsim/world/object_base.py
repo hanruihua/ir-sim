@@ -53,6 +53,18 @@ class ObstacleInfo:
 
 class ObjectBase:
 
+    """
+    Represents a base class for objects in a simulation environment.
+
+    This class provides a template for defining the properties and behaviors of various objects such as robots,
+    obstacles, or landmarks within a simulation world. Each instance of this class or its derivatives represents
+    a distinct object with specific attributes and kinematics.
+
+    Attributes:
+        id_iter (iterator): A class-level iterator to generate unique IDs for each object.
+        vel_dim (tuple): The dimensionality of the velocity vector, default is (2, 1).
+    """
+
     id_iter = itertools.count()
     vel_dim = (2, 1)
 
