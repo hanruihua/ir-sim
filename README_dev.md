@@ -61,4 +61,4 @@ py -m twine upload dist/*
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
 - [ ] reorganize the all plot functions
 - [ ] LLM integration
-- [ ] 
+- [ ] organize the functions to calculate A, b, G, h
