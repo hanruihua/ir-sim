@@ -6,16 +6,14 @@ from irsim.global_param import world_param
 from irsim.global_param.path_param import path_manager
 from matplotlib import image
 import matplotlib.transforms as mtransforms
+from irsim.lib import kinematics_factory
 
 class RobotDiff(ObjectBase):
     def __init__(self, shape='circle', shape_tuple=None, color='g', state_dim=3, **kwargs):
         super(RobotDiff, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='diff', role='robot', color=color, state_dim=state_dim, **kwargs)
 
-
-    def _kinematics(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0],  **kwargs):
+    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0],  **kwargs):
         
-        # def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha = [0.03, 0, 0, 0.03, 0, 0]):
-
         '''
         The kinematics function for differential wheel robot
 
@@ -26,23 +24,7 @@ class RobotDiff(ObjectBase):
         assert velocity.shape==(2, 1)
         assert self._state.shape==(3, 1)
 
-        if noise:
-            std_linear = np.sqrt(alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2))
-            std_angular = np.sqrt(alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2))
-            # gamma = alpha[4] * (velocity[0, 0] ** 2) + alpha[5] * (velocity[1, 0] ** 2)
-            real_velocity = velocity + np.random.normal([[0], [0]], scale = [[std_linear], [std_angular]])  
-
-        else:
-            real_velocity = velocity
-
-        coefficient_vel = np.zeros((3, 2))
-        coefficient_vel[0, 0] = cos(self._state[2, 0])
-        coefficient_vel[1, 0] = sin(self._state[2, 0])
-        coefficient_vel[2, 1] = 1
-
-        next_state = self._state + coefficient_vel @ real_velocity * world_param.step_time
-
-        next_state[2, 0] = WrapToPi(next_state[2, 0])
+        next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha)
 
         return next_state
 

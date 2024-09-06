@@ -9,7 +9,7 @@ from shapely.ops import transform
 from irsim.lib.behavior import Behavior
 from math import inf, pi, atan2, cos, sin, sqrt
 from irsim.global_param import world_param, env_param
-from irsim.util.util import WrapToRegion, get_transform, relative_position, WrapToPi, gen_inequal_from_vertex
+from irsim.util.util import WrapToRegion, get_transform, relative_position, WrapToPi, gen_inequal_from_vertex, diff_to_omni
 from irsim.lib.generation import random_generate_polygon
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
@@ -269,7 +269,7 @@ class ObjectBase:
 
             behavior_vel = self.gen_behavior_vel(velocity, )
 
-            new_state = self._kinematics(behavior_vel, **self.kinematics_dict, **kwargs)
+            new_state = self._kinematics_step(behavior_vel, **self.kinematics_dict, **kwargs)
             next_state = self.mid_process(new_state)
 
             self._state = next_state

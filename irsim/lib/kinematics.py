@@ -33,6 +33,8 @@ def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha
 
     return next_state
 
+
+
 def ackermann_kinematics(state, velocity, step_time, mode, wheelbase, psi_limit, noise=False):
 
     # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
@@ -60,5 +62,9 @@ def ackermann_kinematics(state, velocity, step_time, mode, wheelbase, psi_limit,
     new_state[2, 0] = WrapToPi(new_state[2, 0]) 
 
     return new_state
+
+
+def omni_kinematics(state, velocity, step_time, mode, wheelbase, psi_limit, noise=False):
+    pass
 
 

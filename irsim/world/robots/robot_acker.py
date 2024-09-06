@@ -8,6 +8,7 @@ import matplotlib.transforms as mtransforms
 from irsim.util.util import WrapToRegion, get_transform, get_affine_transform
 import matplotlib as mpl
 from irsim.global_param.path_param import path_manager
+from irsim.lib import kinematics_factory
 
 
 class RobotAcker(ObjectBase):
@@ -18,31 +19,9 @@ class RobotAcker(ObjectBase):
         self.info.add_property('wheelbase', self.wheelbase)
         
 
-    def _kinematics(self, velocity, mode='steer', noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
+    def _kinematics_step(self, velocity, mode='steer', noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
         
-        phi = self._state[2, 0]
-        psi = self._state[3, 0]
-
-        if mode == 'steer':
-            psi_limit = self.vel_max[1, 0]
-
-            co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-
-            velocity[1, 0] = np.clip(velocity[1, 0], -psi_limit, psi_limit)
-
-        elif mode == 'angular':
-
-            co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-
-        elif mode == 'simplify':
-            co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / self.wheelbase, 0], [0, 1] ])
-
-        d_state = co_matrix @ velocity
-        new_state = self._state + d_state * world_param.step_time
-        
-        if mode == 'steer': new_state[3, 0] = velocity[1, 0]
-
-        new_state[2, 0] = WrapToPi(new_state[2, 0]) 
+        new_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, mode, self.wheelbase, self.vel_max[1, 0], noise)
 
         return new_state
 
