@@ -19,7 +19,7 @@ class EnvPlot:
 
         grid_map (optional): The grid map of the environment. Png file
 
-        Objects: list of object in the environment.
+        objects: list of object in the environment.
 
         x_range : list
             The range of x-axis values. Default is [0, 10].
@@ -42,7 +42,6 @@ class EnvPlot:
                 Whether to show the axis tightly. Default is True.
 
     '''
-
 
     def __init__(self, grid_map=None, objects=[], x_range=[0, 10], y_range=[0, 10], saved_figure=dict(), saved_ani=dict(), **kwargs) -> None:
 
