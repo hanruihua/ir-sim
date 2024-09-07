@@ -167,8 +167,9 @@ class ObjectBase:
         self.obj_behavior = Behavior(self.info, behavior)
 
         if self.obj_behavior.behavior_dict is not None and (self.obj_behavior.behavior_dict['name'] == 'wander'):
-            range_low = np.c_[self.obj_behavior.behavior_dict['range_low']]
-            range_high = np.c_[self.obj_behavior.behavior_dict['range_high']]
+
+            range_low = np.c_[self.obj_behavior.behavior_dict.get('range_low', [0, 0, -pi])]
+            range_high = np.c_[self.obj_behavior.behavior_dict.get('range_high', [10, 10, pi])]
 
             self._goal = np.random.uniform(range_low, range_high)
         
@@ -196,9 +197,10 @@ class ObjectBase:
              
         if shape_name == 'circle':
 
-            radius = shape_dict.get('radius', 0.2) 
+            radius = shape_dict.get('radius', 0.2)
+            wheelbase = shape_dict.get('wheelbase', radius) 
 
-            return cls(shape='circle', shape_tuple=(0, 0, radius), **kwargs)
+            return cls(shape='circle', shape_tuple=(0, 0, radius), wheelbase=wheelbase, **kwargs)
  
         elif shape_name == 'rectangle':
 
@@ -386,10 +388,11 @@ class ObjectBase:
         for obj in env_param.objects:
             if self.id != obj.id:
                 if self.check_collision(obj):
+                    self.collision_obj.append(obj)
+
                     if self.role == 'robot': 
-                        self.collision_obj.append(obj)
                         if not self.collision_flag: env_param.logger.warning( self.role + "{} is collided with {} at state {}".format(self.id, obj.id, list(np.round(self._state[:2, 0], 2))) )
-                        
+                    
         self.collision_flag = any(collision_flags)
         # new_collision_flag = any(collision_flags)
 
