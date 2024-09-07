@@ -62,3 +62,4 @@ py -m twine upload dist/*
 - [ ] reorganize the all plot functions
 - [ ] LLM integration
 - [ ] organize the functions to calculate A, b, G, h
+- [ ] shape tuple -- vertex   refer to ros marker
