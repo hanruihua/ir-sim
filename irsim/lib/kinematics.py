@@ -2,7 +2,7 @@ import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
 
-def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha = [0.03, 0, 0, 0.03, 0, 0]):
+def differential_kinematics(state, velocity, step_time, noise=False, alpha = [0.03, 0, 0, 0.03]):
 
     '''
     The kinematics function for differential wheel robot
@@ -11,9 +11,12 @@ def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha
     velocity: [linear, angular]  (2*1) vector
     '''
 
-    assert state.shape == (3, 1) and velocity.shape==(2, 1)
+    assert state.shape[0] >= 3 and velocity.shape[0] >= 2
 
     if noise:
+
+        assert len(alpha) >= 4
+
         std_linear = np.sqrt(alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2))
         std_angular = np.sqrt(alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2))
         # gamma = alpha[4] * (velocity[0, 0] ** 2) + alpha[5] * (velocity[1, 0] ** 2)
@@ -22,12 +25,13 @@ def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha
     else:
         real_velocity = velocity
 
-    coefficient_vel = np.zeros((3, 2))
-    coefficient_vel[0, 0] = cos(state[2, 0])
-    coefficient_vel[1, 0] = sin(state[2, 0])
-    coefficient_vel[2, 1] = 1
-
-    next_state = state + coefficient_vel @ real_velocity * step_time
+    phi = state[2, 0]
+    co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [0, 1] ])
+    # coefficient_vel = np.zeros((3, 2))
+    # coefficient_vel[0, 0] = cos(state[2, 0])
+    # coefficient_vel[1, 0] = sin(state[2, 0])
+    # coefficient_vel[2, 1] = 1
+    next_state = state + co_matrix @ real_velocity * step_time
 
     next_state[2, 0] = WrapToPi(next_state[2, 0])
 
@@ -35,36 +39,66 @@ def differential_wheel_kinematics(state, velocity, step_time, noise=False, alpha
 
 
 
-def ackermann_kinematics(state, velocity, step_time, mode, wheelbase, psi_limit, noise=False):
+def ackermann_kinematics(state, velocity, step_time, noise=False, alpha = [0.03, 0, 0, 0.03], mode='steer', wheelbase=1):
 
     # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
 
     phi = state[2, 0]
     psi = state[3, 0]
 
-    if mode == 'steer':
-        co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1] ])
+    if noise:
 
-        velocity[1, 0] = np.clip(velocity[1, 0], -psi_limit, psi_limit)
+        assert len(alpha) >= 4
+
+        std_linear = np.sqrt(alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2))
+        std_angular = np.sqrt(alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2))
+        # gamma = alpha[4] * (velocity[0, 0] ** 2) + alpha[5] * (velocity[1, 0] ** 2)
+        real_velocity = velocity + np.random.normal([[0], [0]], scale = [[std_linear], [std_angular]])  
+    else:
+        real_velocity = velocity
+
+    if mode == 'steer':
+        # velocity = [linear_speed, steer_angle]
+        co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1] ])
 
     elif mode == 'angular':
-
+        # velocity = [linear_speed, angular_speed of steering]
         co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1] ])
 
-    elif mode == 'simplify':
-        co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1] ])
-
-    d_state = co_matrix @ velocity
+    # elif mode == 'simplify':
+    #     # velocity = [linear_speed, angular_speed of car]
+    #     co_matrix = np.array([ [cos(phi), 0],  [sin(phi), 0], [0, 1] ])
+        
+    d_state = co_matrix @ real_velocity
     new_state = state + d_state * step_time
     
-    if mode == 'steer': new_state[3, 0] = velocity[1, 0]
+    if mode == 'steer': 
+        new_state[3, 0] = real_velocity[1, 0]
 
     new_state[2, 0] = WrapToPi(new_state[2, 0]) 
 
     return new_state
 
 
-def omni_kinematics(state, velocity, step_time, mode, wheelbase, psi_limit, noise=False):
-    pass
+def omni_kinematics(state, velocity, step_time, noise=False, alpha = [0.03, 0.03]):
+    
+    assert velocity.shape[0]>=2 and state.shape[0] >= 3
+
+    if noise:
+
+        assert len(alpha) >= 2
+
+        std_vx = np.sqrt(alpha[0])
+        std_vy = np.sqrt(alpha[1])
+        real_velocity = velocity + np.random.normal([[0], [0], [0]], scale = [[std_vx], [std_vy], [0]])  
+
+    else:
+        real_velocity = velocity
+
+    new_position = state[0:2] + real_velocity * step_time
+
+    next_state = np.vstack((new_position, WrapToPi(state[2, 0])))
+
+    return next_state
 
 

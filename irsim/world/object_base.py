@@ -13,6 +13,7 @@ from irsim.util.util import WrapToRegion, get_transform, relative_position, Wrap
 from irsim.lib.generation import random_generate_polygon
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
+from irsim.lib import kinematics_factory
 
 
 @dataclass
@@ -290,14 +291,37 @@ class ObjectBase:
         [sensor.step(self._state[0:3]) for sensor in self.sensors]
     
 
-    def _kinematics(self, velocity, **kwargs):
-        # default is omni
-        if not self.static:
-            new_state = self._state[0:2] + velocity * world_param.step_time
-        else:
-            new_state = self._state
+    # def _kinematics(self, velocity, **kwargs):
+    #     # default is omni
+    #     if not self.static:
+    #         new_state = self._state[0:2] + velocity * world_param.step_time
+    #     else:
+    #         new_state = self._state
 
-        return new_state
+    #     return new_state
+
+    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03], **kwargs):
+        
+        '''
+        The kinematics function for omni wheel robot
+
+        state: [x, y, theta]   (3*1) vector
+        velocity: [vx, vy]  (2*1) vector
+        '''
+
+        assert velocity.shape[0]>=2 and self._state.shape[0] >= 3
+
+        if self.kinematics == 'omni' or self.kinematics == 'diff':
+            next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha)
+        
+        elif self.kinematics == 'acker':
+            next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha, mode='steer', wheelbase=self.wheelbase)
+        
+        elif self.kinematics == 'custom':
+            raise NotImplementedError("custom kinematics is not implemented")
+        
+        return next_state
+
 
     def geometry_transform(self, geometry, state):
 

@@ -12,21 +12,21 @@ class RobotDiff(ObjectBase):
     def __init__(self, shape='circle', shape_tuple=None, color='g', state_dim=3, **kwargs):
         super(RobotDiff, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='diff', role='robot', color=color, state_dim=state_dim, **kwargs)
 
-    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0],  **kwargs):
+    # def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0],  **kwargs):
         
-        '''
-        The kinematics function for differential wheel robot
+    #     '''
+    #     The kinematics function for differential wheel robot
 
-        state: [x, y, theta]   (3*1) vector
-        velocity: [linear, angular]  (2*1) vector
-        '''
+    #     state: [x, y, theta]   (3*1) vector
+    #     velocity: [linear, angular]  (2*1) vector
+    #     '''
         
-        assert velocity.shape==(2, 1)
-        assert self._state.shape==(3, 1)
+    #     assert velocity.shape==(2, 1)
+    #     assert self._state.shape==(3, 1)
 
-        next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha)
+    #     next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha)
 
-        return next_state
+    #     return next_state
 
 
     def plot(self, ax, **kwargs):

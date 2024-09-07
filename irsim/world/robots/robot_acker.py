@@ -19,16 +19,11 @@ class RobotAcker(ObjectBase):
         self.info.add_property('wheelbase', self.wheelbase)
         
 
-    def _kinematics_step(self, velocity, mode='steer', noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
+    # def _kinematics_step(self, velocity, mode='steer', noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
         
-        new_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, mode, self.wheelbase, self.vel_max[1, 0], noise)
+    #     new_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, mode, self.wheelbase, self.vel_max[1, 0], noise)
 
-        return new_state
-
-
-    # def plot(self, ax, **kwargs):
-    #     super().plot(ax, **kwargs)
-
+    #     return new_state
 
     def plot_object(self, ax, **kwargs):
         

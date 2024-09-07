@@ -11,32 +11,31 @@ class RobotOmni(ObjectBase):
     def __init__(self, shape='circle', shape_tuple=None, color='g', state_dim=2, **kwargs):
         super(RobotOmni, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='omni', role='robot', color=color, state_dim=state_dim, **kwargs)
 
-    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0.03], **kwargs):
+    # def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0.03], **kwargs):
         
-        '''
-        The kinematics function for omni wheel robot
+    #     '''
+    #     The kinematics function for omni wheel robot
 
-        state: [x, y, theta]   (3*1) vector
-        velocity: [vx, vy]  (2*1) vector
-        '''
+    #     state: [x, y, theta]   (3*1) vector
+    #     velocity: [vx, vy]  (2*1) vector
+    #     '''
         
-        assert velocity.shape==(2, 1)
-        assert self._state.shape==(3, 1)
+    #     assert velocity.shape==(2, 1)
+    #     assert self._state.shape==(3, 1)
 
-        if noise:
-            std_vx = np.sqrt(alpha[0])
-            std_vy = np.sqrt(alpha[1])
-            real_velocity = velocity + np.random.normal([[0], [0], [0]], scale = [[std_vx], [std_vy], [0]])  
+    #     if noise:
+    #         std_vx = np.sqrt(alpha[0])
+    #         std_vy = np.sqrt(alpha[1])
+    #         real_velocity = velocity + np.random.normal([[0], [0], [0]], scale = [[std_vx], [std_vy], [0]])  
 
-        else:
-            real_velocity = velocity
+    #     else:
+    #         real_velocity = velocity
 
-        new_position = self._state[0:2] + real_velocity * world_param.step_time
+    #     new_position = self._state[0:2] + real_velocity * world_param.step_time
 
-        next_state = np.vstack((new_position, WrapToPi(self._state[2, 0])))
+    #     next_state = np.vstack((new_position, WrapToPi(self._state[2, 0])))
 
-        return next_state
-
+    #     return next_state
 
     def plot(self, ax, **kwargs):
 
