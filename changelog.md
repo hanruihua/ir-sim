@@ -1,3 +1,18 @@
+## ir-sim 2.2.4
+
+- Fix collision avoidance bug for obstacles
+- Arrange the kinematics functions
+- Add the state_shape and vel_shape for object_base
+
+## ir-sim 2.2.3
+
+- Rename the module name from ir_sim to irsim, rename the package name from ir_sim to ir-sim
+- Add citation for the project
+- Refine the comments for the functions
+- Configure the readthedoc and sphnix for documentation
+- Add the attribute unobstructed for obejcts, see usage: obstace_world for detail
+- Fix the state_dim bug
+
 ## ir-sim 2.2.0
 
 - Rename the module from ir_sim to be irsim, rename the package name from ir_sim to be ir-sim
