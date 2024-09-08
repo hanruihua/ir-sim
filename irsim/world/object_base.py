@@ -63,13 +63,39 @@ class ObjectBase:
 
     Attributes:
         id_iter (iterator): A class-level iterator to generate unique IDs for each object.
-        vel_dim (tuple): The dimensionality of the velocity vector, default is (2, 1).
+        vel_shape (tuple): The shape of the velocity vector, default is (2, 1).
     """
 
     id_iter = itertools.count()
-    vel_dim = (2, 1)
+    vel_shape = (2, 1)
+    state_shape = (3, 1)
 
-    def __init__(self, shape: str='circle', shape_tuple=None, state=[0, 0, 0], velocity=[0, 0], goal=[10, 10, 0], kinematics: str='omni', role: str='obstacle', color='k', static=False, vel_min=[-1, -1], vel_max=[1, 1], acce=[inf, inf], angle_range=[-pi, pi], behavior=None, goal_threshold=0.1, sensors=None, kinematics_dict=dict(), arrive_mode='position', description=None, group=0, reso=0.1, state_dim=3, unobstructed=False, **kwargs) -> None:
+    def __init__(self, 
+                 shape: str='circle', 
+                 shape_tuple=None, 
+                 state=[0, 0, 0], 
+                 velocity=[0, 0], 
+                 goal=[10, 10, 0], 
+                 kinematics: str='omni',
+                 role: str='obstacle', 
+                 color='k', 
+                 static=False, 
+                 vel_min=[-1, -1], 
+                 vel_max=[1, 1], 
+                 acce=[inf, inf], 
+                 angle_range=[-pi, pi], 
+                 behavior=None, 
+                 goal_threshold=0.1, 
+                 sensors=None, 
+                 kinematics_dict=dict(), 
+                 arrive_mode='position', 
+                 description=None, 
+                 group=0, 
+                 reso=0.1, 
+                 state_dim=None, 
+                 vel_dim=None, 
+                 unobstructed=False, 
+                 **kwargs) -> None:
 
         '''
         parameters:
@@ -109,10 +135,21 @@ class ObjectBase:
         self._shape = shape
         self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
         
-        state = self.input_state_check(state, state_dim)
+        if state_dim is None:
+            self.state_dim = self.state_shape[0]
+        else:
+            self.state_dim = state_dim
+            self.state_shape = (state_dim, 1)
+
+        if vel_dim is None:
+            self.vel_dim = self.vel_shape[0]
+        else:
+            self.vel_dim = vel_dim
+            self.vel_shape = (vel_dim, 1)
+        
+        state = self.input_state_check(state, self.state_dim)
         self._state = np.c_[state]
         self._init_state = np.c_[state]
-        self.state_dim = state_dim
 
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
@@ -272,7 +309,7 @@ class ObjectBase:
 
             behavior_vel = self.gen_behavior_vel(velocity, )
 
-            new_state = self._kinematics_step(behavior_vel, **self.kinematics_dict, **kwargs)
+            new_state = self._kinematics_step(behavior_vel, **self.kinematics_dict)
             next_state = self.mid_process(new_state)
 
             self._state = next_state
@@ -302,26 +339,35 @@ class ObjectBase:
 
     #     return new_state
 
-    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03], **kwargs):
+    def _kinematics_step(self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03], mode='steer', **kwargs):
         
         '''
         The kinematics function for omni wheel robot
 
-        state: [x, y, theta]   (3*1) vector
-        velocity: [vx, vy]  (2*1) vector
+        omni:
+            state: [x, y, theta]   (3*1) vector
+            velocity: [vx, vy]  (2*1) vector
         '''
 
-        assert velocity.shape[0]>=2 and self._state.shape[0] >= 3
+        assert velocity.shape == self.vel_shape and self._state.shape == self.state_shape
 
         if self.kinematics == 'omni' or self.kinematics == 'diff':
             next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha)
         
         elif self.kinematics == 'acker':
-            next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha, mode='steer', wheelbase=self.wheelbase)
+            next_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, noise, alpha, mode=mode, wheelbase=self.wheelbase)
         
         elif self.kinematics == 'custom':
             raise NotImplementedError("custom kinematics is not implemented")
         
+        else:
+            raise ValueError("kinematics should be one of the following: omni, diff, acker")
+
+        if next_state.shape[0] < self.state_dim:
+            next_state = np.r_[next_state, np.zeros((self.state_dim - next_state.shape[0], next_state.shape[1]))]
+        elif next_state.shape[0] > self.state_dim:
+            next_state = next_state[:self.state_dim]
+
         return next_state
 
 
@@ -449,7 +495,7 @@ class ObjectBase:
             if isinstance(velocity, list): velocity = np.c_[velocity]
             if velocity.ndim == 1: velocity = velocity[:, np.newaxis]
 
-            assert velocity.shape == self.vel_dim
+            assert velocity.shape == self.vel_shape
 
             behavior_vel = velocity
 
@@ -476,7 +522,7 @@ class ObjectBase:
         if isinstance(vel, list): vel = np.c_[vel]
         if velocity.ndim == 1: vel = vel[:, np.newaxis]
 
-        assert velocity.shape == self.vel_dim
+        assert velocity.shape == self.vel_shape
  
         min_vel = np.maximum(self.vel_min, self._velocity - self.acce * world_param.step_time)
         max_vel = np.minimum(self.vel_max, self._velocity + self.acce * world_param.step_time)

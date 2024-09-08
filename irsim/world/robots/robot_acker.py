@@ -15,15 +15,11 @@ class RobotAcker(ObjectBase):
     def __init__(self, shape='rectangle', shape_tuple=None, color='y', state_dim=4, **kwargs):
         super(RobotAcker, self).__init__(shape=shape, shape_tuple=shape_tuple, kinematics='acker', role='robot', color=color, state_dim=state_dim, **kwargs)
 
+        assert state_dim >= 4, 'for differential robot, the state dimension should be greater than 4'
+
         self.wheelbase = kwargs['wheelbase']
         self.info.add_property('wheelbase', self.wheelbase)
         
-
-    # def _kinematics_step(self, velocity, mode='steer', noise=False, alpha=[0.03, 0, 0, 0.03, 0, 0], **kwargs):
-        
-    #     new_state = kinematics_factory[self.kinematics](self._state, velocity, world_param.step_time, mode, self.wheelbase, self.vel_max[1, 0], noise)
-
-    #     return new_state
 
     def plot_object(self, ax, **kwargs):
         
