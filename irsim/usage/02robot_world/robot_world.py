@@ -1,7 +1,7 @@
 import irsim
 
 # env = irsim.make('robot_world.yaml')
-env = irsim.make('robot_omni_world.yaml')
+env = irsim.make("robot_omni_world.yaml")
 # env = irsim.make('car_world.yaml')
 
 for i in range(1000):
@@ -13,4 +13,3 @@ for i in range(1000):
         break
 
 env.end()
-    
