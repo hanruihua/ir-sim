@@ -3,6 +3,7 @@
 - Fix collision avoidance bug for obstacles
 - Arrange the kinematics functions
 - Add the state_shape and vel_shape for object_base
+- Format all python code with black
 
 ## ir-sim 2.2.3
 
