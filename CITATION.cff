@@ -13,6 +13,10 @@ preferred-citation:
   - family-names: "Han"
     given-names: "Ruihua"
     orcid: "https://orcid.org/0000-0001-6206-5289"
+  
+  - family-names: "Development "
+    given-names: "Team"
+    orcid: "https://orcid.org/0000-0001-6206-5289"
   title: "IR-SIM: A python based Lightweight intelligent robot simulator"
   year: 2024
   url: "https://github.com/hanruihua/ir-sim"
