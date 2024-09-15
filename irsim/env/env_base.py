@@ -12,6 +12,7 @@ from pynput import keyboard
 from .env_logger import EnvLogger
 from irsim.lib.generation import random_generate_polygon
 from shapely import Polygon
+from typing import Optional
 
 
 class EnvBase:
@@ -30,12 +31,12 @@ class EnvBase:
 
     def __init__(
         self,
-        world_name: str = None,
+        world_name: Optional[str] = None,
         display: bool = True,
         disable_all_plot: bool = False,
         save_ani: bool = False,
         full: bool = False,
-        log_file: str = None,
+        log_file: Optional[str] = None,
         log_level: str = "INFO",
     ) -> None:
 

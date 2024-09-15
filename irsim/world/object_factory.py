@@ -61,7 +61,7 @@ class ObjectFactory:
         """
 
         state_list, goal_list = self.generate_state_list(
-            number, obj_type, distribution, state, goal
+            number, distribution, state, goal
         )
         object_list = list()
 
@@ -130,7 +130,6 @@ class ObjectFactory:
     def generate_state_list(
         self,
         number=1,
-        obj_type="robot",
         distribution={"name": "manual"},
         state=[1, 1, 0],
         goal=[1, 9, 0],
@@ -138,7 +137,6 @@ class ObjectFactory:
         """
         Generate state list for robots or obstacles based on distribution and state provided in kwargs
             - number: number of objects to generate
-            - obj_type: 'robot' or 'obstacle'
             - distribution: distribution dictionary of states for objects
             - state: initial state for objects
         """
