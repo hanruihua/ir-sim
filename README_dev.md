@@ -57,9 +57,10 @@ py -m twine upload dist/*
 - [ ] Some judgment functions for control
 - [ ] Add example yaml files
 - [ ] Add some data structure for plot
-- [ ] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
+- [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
-- [ ] reorganize the all plot functions
 - [ ] LLM integration
 - [ ] organize the functions to calculate A, b, G, h
 - [ ] shape tuple -- vertex   refer to ros marker
+- [ ] Reformulate the behavior library
+- [ ] Add comments for the functions
