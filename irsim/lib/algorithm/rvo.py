@@ -3,37 +3,57 @@ from math import sin, cos, atan2, asin, pi
 
 
 # state: [x, y, vx, vy, radius, vx_des, vy_des]
-# moving_state_list: [[x, y, vx, vy, radius]]
-# obstacle_state_list: [[x, y, radius]]
+# obs_state_list: [[x, y, vx, vy, radius]]
 # rvo_vel: [vx, vy]
 
 
 class reciprocal_vel_obs:
+    """
+    A class to implement the Reciprocal Velocity Obstacle (RVO) algorithm for multi-robot collision avoidance.
+
+    Args:
+
+        state (list): The rvo state of the agent [x, y, vx, vy, radius, vx_des, vy_des].
+        obs_state_list (list) : List of states of static obstacles [[x, y, vx, vy, radius]].
+        vxmax (float): Maximum velocity in the x direction.
+        vymax (float): Maximum velocity in the y direction.
+        acceler (float): Acceleration limit.
+    """
 
     def __init__(
         self,
-        state,
-        moving_state_list=[],
+        state: list,
         obs_state_list=[],
         vxmax=1.5,
         vymax=1.5,
         acceler=0.5,
+        factor=1.0,
     ):
 
         self.state = state
-        self.moving_state_list = moving_state_list
         self.obs_state_list = obs_state_list
         self.vxmax = vxmax
         self.vymax = vymax
         self.acceler = acceler
+        self.factor = factor
 
-    def update(self, state, moving_state_list):
+    def update(self, state, obs_state_list):
 
         self.state = state
-        self.moving_state_list = moving_state_list
+        self.obs_state_list = obs_state_list
 
     def cal_vel(self, mode="rvo"):
-        # configure the vo or rvo or hrvo
+
+        '''
+        Calculate the velocity of the agent based on the Reciprocal Velocity Obstacle (RVO) algorithm.
+        
+        Args:
+            mode (str): The vo configure to calculate the velocity. It can be "rvo", "hrvo", or "vo".
+                - rvo: Reciprocal Velocity Obstacle (RVO) algorithm, for multi-robot collision avoidance.
+                - hrvo: Hybrid Reciprocal Velocity Obstacle (HRVO) algorithm, for multi-robot collision avoidance.
+                - vo: Velocity Obstacle (VO) algorithm, for obstacle-robot collision avoidance.
+        '''
+
         if mode == "rvo":
             rvo_list = self.config_rvo()
         elif mode == "hrvo":
@@ -52,25 +72,25 @@ class reciprocal_vel_obs:
     def config_rvo(self):
 
         rvo_list = []
-
-        for moving in self.moving_state_list:
-            rvo = self.config_rvo_mode(moving)
-            rvo_list.append(rvo)
-
+        
         for obstacle in self.obs_state_list:
-            # for circular: [x, y, radius]
-            rvo = self.config_rvo_mode(obstacle, mode=obstacle[3])
+            rvo = self.config_rvo_mode(obstacle)
             rvo_list.append(rvo)
 
         return rvo_list
 
-    def config_rvo_mode(self, obstacle, mode="moving"):
+    def config_rvo_mode(self, obstacle):
 
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
+
+        if vx == 0 and vy == 0:
+            mode = "sta_circular"
+        else:
+            mode = "moving"
 
         if mode == "moving":
 
@@ -118,10 +138,6 @@ class reciprocal_vel_obs:
 
         hrvo_list = []
 
-        for moving in self.moving_state_list:
-            hrvo = self.config_hrvo_mode(moving)
-            hrvo_list.append(hrvo)
-
         for obstacle in self.obs_state_list:
             # for circular: [x, y, radius]
             hrvo = self.config_hrvo_mode(obstacle, mode=obstacle[3])
@@ -129,13 +145,19 @@ class reciprocal_vel_obs:
 
         return hrvo_list
 
-    def config_hrvo_mode(self, obstacle, mode="moving"):
+    def config_hrvo_mode(self, obstacle):
 
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
+
+        if vx == 0 and vy == 0:
+            mode = "sta_circular"
+        else:
+            mode = "moving"
+
 
         if mode == "moving":
 
@@ -213,24 +235,25 @@ class reciprocal_vel_obs:
 
         vo_list = []
 
-        for moving in self.moving_state_list:
-            vo = self.config_vo_mode(moving)
-            vo_list.append(vo)
-
         for obstacle in self.obs_state_list:
-            # for circular: [x, y, radius]
-            vo = self.config_vo_mode(obstacle, mode=obstacle[3])
+            
+            vo = self.config_vo_mode(obstacle)
             vo_list.append(vo)
 
         return vo_list
 
-    def config_vo_mode(self, obstacle, mode="moving"):
+    def config_vo_mode(self, obstacle):
 
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
+
+        if vx == 0 and vy == 0:
+            mode = "sta_circular"
+        else:
+            mode = "moving"
 
         if mode == "moving":
 
@@ -266,8 +289,6 @@ class reciprocal_vel_obs:
 
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
-
-        # return [rvo_apex, line_left_ori, line_right_ori]
 
         return [vo_apex, line_left_vector, line_right_vector]
 
@@ -320,13 +341,13 @@ class reciprocal_vel_obs:
             )
 
         else:
-            return min(vo_inside, key=lambda v: self.penalty(v, vel_des, 1))
+            return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
 
     def penalty(self, vel, vel_des, factor):
 
         tc_list = []
 
-        for moving in self.moving_state_list:
+        for moving in self.obs_state_list:
 
             distance = reciprocal_vel_obs.distance(
                 [moving[0], moving[1]], [self.state[0], self.state[1]]

@@ -6,12 +6,33 @@ from irsim.lib.behaviorlib import DiffDash, AckerDash, DiffRVO, OmniDash, OmniRV
 
 
 class Behavior:
+    """
+
+    A class to represent the behavior of an agent in the simulation.
+
+    Args:
+        object_info (object): Object Information from the object_base class ObjectInfo.
+        behavior_dict (dict) : Dictionary containing behavior parameters for different behavior.
+            name: dash, wander, rvo
+    """
+
     def __init__(self, object_info=None, behavior_dict=None) -> None:
 
         self.object_info = object_info
         self.behavior_dict = behavior_dict
 
     def gen_vel(self, state, goal, min_vel, max_vel, **kwargs):
+        """
+        Generate velocity for the agent based on the behavior dictionary.
+
+        Args:
+            state (np.array): Current state of the agent. x, y, theta.
+            goal (np.array): Goal state of the agent. x, y, theta.
+            min_vel (np.array): Minimum velocity of the agent. (2, 1) control vector
+            max_vel (np.array): Maximum velocity of the agent. (2, 1) control vector
+            **kwargs : Additional arguments for the behavior.
+
+        """
 
         if self.behavior_dict is None:
             return np.zeros((2, 1))
