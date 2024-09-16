@@ -123,6 +123,11 @@ class reciprocal_vel_obs:
 
         ratio = (r + mr) / dis_mr
 
+        if ratio > 1:
+            ratio = 1
+        if ratio < -1:
+            ratio = -1
+
         half_angle = asin(ratio)
         line_left_ori = angle_mr + half_angle
         line_right_ori = angle_mr - half_angle
