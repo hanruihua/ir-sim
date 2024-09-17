@@ -185,7 +185,7 @@ class Lidar2D:
 
     def get_scan(self):
         """
-        Get the 2D lidar scan data.
+        Get the 2D lidar scan data. refer to the ros topic scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html
 
         Returns:
             dict: Scan data including angles, ranges, and velocities.

@@ -15,6 +15,8 @@ def random_generate_polygon(
     **kwargs,
 ):
     """
+    reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
+    
     Generate random polygons with specified properties.
 
     Args:
