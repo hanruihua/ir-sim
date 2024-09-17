@@ -3,10 +3,14 @@ from math import cos, sin, tan
 from irsim.util.util import WrapToPi
 
 
+# reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
+
 def differential_kinematics(
     state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]
 ):
     """
+    
+
     Calculate the next state for a differential wheel robot.
 
     Args:
