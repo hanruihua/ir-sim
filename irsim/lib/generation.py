@@ -15,9 +15,19 @@ def random_generate_polygon(
     **kwargs,
 ):
     """
-    2d range: min_x, min_y, max_x, max_y
-    """
+    Generate random polygons with specified properties.
 
+    Args:
+        number (int): Number of polygons to generate (default 1).
+        center_range (List[float]): Range for the polygon center [min_x, min_y, max_x, max_y].
+        avg_radius_range (List[float]): Range for the average radius of the polygons.
+        irregularity_range (List[float]): Range for the irregularity of the polygons.
+        spikeyness_range (List[float]): Range for the spikeyness of the polygons.
+        num_vertices_range (List[int]): Range for the number of vertices of the polygons.
+
+    Returns:
+        List of vertices for each polygon or a single polygon's vertices if number=1.
+    """
     center = np.random.uniform(
         low=center_range[0:2], high=center_range[2:], size=(number, 2)
     )
@@ -48,46 +58,28 @@ def random_generate_polygon(
 
 
 def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices):
-
-    # reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
     """
-    Start with the center of the polygon at center, then creates the
-    polygon by sampling points on a circle around the center.
-    Random noise is added by varying the angular spacing between
-    sequential points, and by varying the radial distance of each
-    point from the centre.
+    Generate a random polygon around a center point.
 
     Args:
-        center (Tuple[float, float]):
-            a pair representing the center of the circumference used
-            to generate the polygon.
-        avg_radius (float):
-            the average radius (distance of each generated vertex to
-            the center of the circumference) used to generate points
-            with a normal distribution.
-        irregularity (float): 0 - 1
-            variance of the spacing of the angles between consecutive
-            vertices.
-        spikeyness (float): 0 - 1
-            variance of the distance of each vertex to the center of
-            the circumference.
-        num_vertices (int):
-            the number of vertices of the polygon.
-    Returns:
-        (N, 2) numpy Matrix, in CCW order.
-    """
+        center (Tuple[float, float]): Center of the polygon.
+        avg_radius (float): Average radius from the center to vertices.
+        irregularity (float): Variance of angle spacing between vertices.
+        spikeyness (float): Variance of radius from the center.
+        num_vertices (int): Number of vertices for the polygon.
 
-    # Parameter check
+    Returns:
+        numpy.ndarray: Vertices of the polygon in CCW order.
+    """
     if irregularity < 0 or irregularity > 1:
         raise ValueError("Irregularity must be between 0 and 1.")
     if spikeyness < 0 or spikeyness > 1:
-        raise ValueError("spikeyness must be between 0 and 1.")
+        raise ValueError("Spikeyness must be between 0 and 1.")
 
     irregularity *= 2 * math.pi / num_vertices
     spikeyness *= avg_radius
     angle_steps = random_angle_steps(num_vertices, irregularity)
 
-    # now generate the points
     points = []
     angle = random.uniform(0, 2 * math.pi)
     for i in range(num_vertices):
@@ -105,17 +97,16 @@ def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices)
 
 
 def random_angle_steps(steps: int, irregularity: float) -> List[float]:
-    """Generates the division of a circumference in random angles.
+    """
+    Generate random angle steps for polygon vertices.
 
     Args:
-        steps (int):
-            the number of angles to generate.
-        irregularity (float):
-            variance of the spacing of the angles between consecutive vertices.
+        steps (int): Number of angles to generate.
+        irregularity (float): Variance of angle spacing.
+
     Returns:
-        List[float]: the list of the random angles.
+        List[float]: Random angles in radians.
     """
-    # generate n angle steps
     angles = []
     lower = (2 * math.pi / steps) - irregularity
     upper = (2 * math.pi / steps) + irregularity
@@ -125,7 +116,6 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
         angles.append(angle)
         cumsum += angle
 
-    # normalize the steps so that point 0 and point n+1 are the same
     cumsum /= 2 * math.pi
     for i in range(steps):
         angles[i] /= cumsum
@@ -134,7 +124,14 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
 
 def clip(value, lower, upper):
     """
-    Given an interval, values outside the interval are clipped to the interval
-    edges.
+    Clip a value to a specified range.
+
+    Args:
+        value (float): Value to be clipped.
+        lower (float): Lower bound of the range.
+        upper (float): Upper bound of the range.
+
+    Returns:
+        float: Clipped value.
     """
     return min(upper, max(value, lower))

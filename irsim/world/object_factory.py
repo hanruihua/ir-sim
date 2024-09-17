@@ -17,10 +17,21 @@ import random
 
 
 class ObjectFactory:
+    """
+    Factory class for creating various objects in the simulation.
+    """
 
     def create_from_parse(self, parse, obj_type="robot"):
-        # create object from yaml file parse
+        """
+        Create objects from a parsed configuration.
 
+        Args:
+            parse (list or dict): Parsed configuration data.
+            obj_type (str): Type of object to create, 'robot' or 'obstacle'.
+
+        Returns:
+            list: List of created objects.
+        """
         object_list = list()
 
         if isinstance(parse, list):
@@ -34,7 +45,16 @@ class ObjectFactory:
         return object_list
 
     def create_from_map(self, points, reso=0.1):
+        """
+        Create map objects from points.
 
+        Args:
+            points (list): List of points.
+            reso (float): Resolution of the map.
+
+        Returns:
+            list: List of ObstacleMap objects.
+        """
         if points is None:
             return []
         else:
@@ -52,22 +72,25 @@ class ObjectFactory:
         **kwargs,
     ):
         """
-        create object based on the number of objects to create, object type, distribution of states and initial state
-            - obj_type: 'robot' or 'obstacle'
-            - number: number of objects to create
-            - distribution: distribution of states for objects
-            - state: initial state for objects
-            - kwargs: other parameters for object creation
-        """
+        Create multiple objects based on the parameters.
 
+        Args:
+            obj_type (str): Type of object, 'robot' or 'obstacle'.
+            number (int): Number of objects to create.
+            distribution (dict): Distribution type for generating states.
+            state (list): Initial state for objects.
+            goal (list): Goal state for objects.
+            **kwargs: Additional parameters for object creation.
+
+        Returns:
+            list: List of created objects.
+        """
         state_list, goal_list = self.generate_state_list(
             number, distribution, state, goal
         )
         object_list = list()
 
         for i in range(number):
-            obj_dict = dict()
-
             obj_dict = {
                 k: convert_list_length(v, number)[i]
                 for k, v in kwargs.items()
@@ -87,8 +110,17 @@ class ObjectFactory:
         return object_list
 
     def create_robot(self, kinematics=dict(), shape=dict(), **kwargs):
+        """
+        Create a robot based on kinematics.
 
-        # kinematics_name = kinematics.pop('name', 'omni')
+        Args:
+            kinematics (dict): Kinematics configuration.
+            shape (dict): Shape configuration.
+            **kwargs: Additional parameters for robot creation.
+
+        Returns:
+            Robot: An instance of a robot.
+        """
         kinematics_name = kinematics.get("name", "omni")
 
         if kinematics_name == "diff":
@@ -109,7 +141,17 @@ class ObjectFactory:
             )
 
     def create_obstacle(self, kinematics=dict(), shape=dict(), **kwargs):
+        """
+        Create an obstacle based on kinematics.
 
+        Args:
+            kinematics (dict): Kinematics configuration.
+            shape (dict): Shape configuration.
+            **kwargs: Additional parameters for obstacle creation.
+
+        Returns:
+            Obstacle: An instance of an obstacle.
+        """
         kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
@@ -135,18 +177,22 @@ class ObjectFactory:
         goal=[1, 9, 0],
     ):
         """
-        Generate state list for robots or obstacles based on distribution and state provided in kwargs
-            - number: number of objects to generate
-            - distribution: distribution dictionary of states for objects
-            - state: initial state for objects
-        """
+        Generate lists of states and goals for objects.
 
+        Args:
+            number (int): Number of objects.
+            distribution (dict): Distribution type for generating states.
+            state (list): Initial state for objects.
+            goal (list): Goal state for objects.
+
+        Returns:
+            tuple: Lists of states and goals.
+        """
         if distribution["name"] == "manual":
             state_list = convert_list_length(state, number)
             goal_list = convert_list_length(goal, number)
 
         elif distribution["name"] == "random":
-
             range_low = distribution.get("range_low", [0, 0, -np.pi])
             range_high = distribution.get("range_high", [10, 10, np.pi])
 
@@ -164,7 +210,6 @@ class ObjectFactory:
             pass
 
         elif distribution["name"] == "circle":
-
             radius = distribution.get("radius", 4)
             center = distribution.get("center", [5, 5, 0])
 
@@ -180,14 +225,3 @@ class ObjectFactory:
                 goal_list.append([goal_x, goal_y, 0])
 
         return state_list, goal_list
-
-        #     x_range = distribution.get('x_range', (0, 10))
-        #     y_range = distribution.get('y_range', (0, 10))
-        #     theta_range = distribution.get('theta_range', (0, 2*np.pi))
-
-        #     state_list = []
-        #     for _ in range(number):
-        #         x = random.uniform(*x_range)
-        #         y = random.uniform(*y_range)
-        #         theta = random.uniform(*theta_range)
-        #         state_list.append([x, y, theta])

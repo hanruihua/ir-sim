@@ -8,6 +8,22 @@ from typing import Optional
 
 
 class world:
+    """
+    Represents the main simulation environment, managing objects and maps.
+
+    Attributes:
+        name (str): Name of the world.
+        height (float): Height of the world.
+        width (float): Width of the world.
+        step_time (float): Time interval between steps.
+        sample_time (float): Time interval between samples.
+        offset (list): Offset for the world's position.
+        control_mode (str): Control mode ('auto' or 'keyboard').
+        collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+        obstacle_map: Image file for the obstacle map.
+        mdownsample (int): Downsampling factor for the obstacle map.
+    """
+
     def __init__(
         self,
         name: Optional[str] = "world",
@@ -22,27 +38,20 @@ class world:
         mdownsample: int = 1,
     ) -> None:
         """
-        the world object is the main object of the simulation, it manages all the other objects and maps in the simulation
+        Initialize the world object.
 
         Parameters:
-            height: the height of the world
-            width: the width of the world
-            step_time: the time interval between two steps
-            sample_time: the time interval between two samples
-
-            collision_mode: the collision mode of the world,
-                            'stop'
-                            'reactive'
-                            'unobstructed'
-
-            control_mode: the control mode of the world,
-                            'auto'
-                            'keyboard'
-
-            obstacle_map: image file of the obstacle map
-            mdownsample: downsample the obstacle map
+            name (str): Name of the world.
+            height (float): Height of the world.
+            width (float): Width of the world.
+            step_time (float): Time interval between steps.
+            sample_time (float): Time interval between samples.
+            offset (list): Offset for the world's position.
+            control_mode (str): Control mode ('auto' or 'keyboard').
+            collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+            obstacle_map: Image file for the obstacle map.
+            mdownsample (int): Downsampling factor for the obstacle map.
         """
-
         self.name = name
         self.height = height
         self.width = width
@@ -60,13 +69,15 @@ class world:
             obstacle_map, mdownsample
         )
 
-        # set world param
+        # Set world parameters
         world_param.step_time = step_time
         world_param.control_mode = control_mode
         world_param.collision_mode = collision_mode
 
     def step(self):
-
+        """
+        Advance the simulation by one step.
+        """
         self.count += 1
         self.sampling = self.count % (self.sample_time / self.step_time) == 0
 
@@ -74,13 +85,19 @@ class world:
         world_param.count = self.count
 
     def gen_grid_map(self, obstacle_map, mdownsample=1):
+        """
+        Generate a grid map for obstacles.
 
+        Args:
+            obstacle_map: Path to the obstacle map image.
+            mdownsample (int): Downsampling factor.
+
+        Returns:
+            tuple: Grid map, obstacle indices, and positions.
+        """
         abs_obstacle_map = file_check(obstacle_map)
 
-        # px = int(self.width / self.xy_reso)
-        # py = int(self.height / self.xy_reso)
         if abs_obstacle_map is not None:
-
             grid_map = mpimg.imread(abs_obstacle_map)
             grid_map = grid_map[::mdownsample, ::mdownsample]
 
@@ -107,8 +124,20 @@ class world:
 
     @property
     def time(self):
+        """
+        Get the current simulation time.
+
+        Returns:
+            float: Current time based on steps and step_time.
+        """
         return self.count * self.step_time
 
     @property
     def buffer_reso(self):
+        """
+        Get the maximum resolution of the world.
+
+        Returns:
+            float: Maximum resolution.
+        """
         return np.max(self.reso)

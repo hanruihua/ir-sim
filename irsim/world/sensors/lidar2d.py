@@ -8,6 +8,24 @@ from matplotlib.collections import LineCollection
 
 
 class Lidar2D:
+    """
+    Simulates a 2D Lidar sensor for detecting obstacles in the environment.
+
+    Attributes:
+        sensor_type (str): Type of sensor ("lidar").
+        range_min (float): Minimum detection range.
+        range_max (float): Maximum detection range.
+        angle_range (float): Total angle range of the sensor.
+        number (int): Number of laser beams.
+        scan_time (float): Time taken for one complete scan.
+        noise (bool): Whether noise is added to measurements.
+        std (float): Standard deviation for range noise.
+        angle_std (float): Standard deviation for angle noise.
+        offset (np.ndarray): Offset of the sensor from the object's position.
+        alpha (float): Transparency for plotting.
+        has_velocity (bool): Whether the sensor measures velocity.
+    """
+
     def __init__(
         self,
         state=None,
@@ -26,14 +44,24 @@ class Lidar2D:
         **kwargs,
     ) -> None:
         """
+        Initialize the Lidar2D sensor.
 
-
-
-
-        alpha: for transparency
-
+        Args:
+            state (np.ndarray): Initial state of the sensor.
+            obj_id (int): ID of the associated object.
+            range_min (float): Minimum detection range.
+            range_max (float): Maximum detection range.
+            angle_range (float): Total angle range of the sensor.
+            number (int): Number of laser beams.
+            scan_time (float): Time taken for one complete scan.
+            noise (bool): Whether noise is added to measurements.
+            std (float): Standard deviation for range noise.
+            angle_std (float): Standard deviation for angle noise.
+            offset (list): Offset of the sensor from the object's position.
+            alpha (float): Transparency for plotting.
+            has_velocity (bool): Whether the sensor measures velocity.
+            **kwargs: Additional arguments.
         """
-
         self.sensor_type = "lidar"
 
         self.range_min = range_min
@@ -42,7 +70,7 @@ class Lidar2D:
         self.angle_range = angle_range
         self.angle_min = -angle_range / 2
         self.angle_max = angle_range / 2
-        self.angle_inc = angle_range / number  #
+        self.angle_inc = angle_range / number
 
         self.number = number
         self.scan_time = scan_time
@@ -56,10 +84,8 @@ class Lidar2D:
         self.has_velocity = has_velocity
         self.velocity = np.zeros((2, number))
 
-        self.time_inc = (angle_range / (2 * pi)) * scan_time / number  #
-        self.range_data = range_max * np.ones(
-            number,
-        )
+        self.time_inc = (angle_range / (2 * pi)) * scan_time / number
+        self.range_data = range_max * np.ones(number)
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
 
         self._state = state
@@ -74,11 +100,15 @@ class Lidar2D:
         self.plot_text_list = []
 
     def init_geometry(self, state):
+        """
+        Initialize the Lidar's scanning geometry.
 
+        Args:
+            state (np.ndarray): Current state of the sensor.
+        """
         segment_point_list = []
 
         for i in range(self.number):
-
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
@@ -95,31 +125,23 @@ class Lidar2D:
         self._geometry = geometry_transform(self._init_geometry, state)
 
     def step(self, state):
+        """
+        Update the Lidar's state and process intersections with environment objects.
 
+        Args:
+            state (np.ndarray): New state of the sensor.
+        """
         self._state = state
 
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
         new_geometry = geometry_transform(self._init_geometry, self._state)
-
-        # geo_list = [obj._geometry for obj in env_param.objects if self.obj_id != obj._id]
-        # object_geometries = GeometryCollection(geo_list)
-        # # new_diff_geometry = new_geometry.difference(object_geometries)
-        # new_geometry = new_geometry.difference(env_param.objects[-1]._geometry)
-        # map_geo = env_param.objects[-1]._geometry
-        # new_geometry = new_geometry.difference(map_geo)
-        # temp = env_param.objects[-1]._geometry.difference(new_geometry)
 
         intersect_index = []
 
         for ind, obj in enumerate(env_param.objects):
             if self.obj_id != obj._id:
                 if new_geometry.intersects(obj._geometry):
-
-                    # if not is_valid(obj._geometry):
-                    #     make_valid(obj._geometry)
-
                     if not is_valid(obj._geometry):
-                        # print('geometry of obj is not valid')
                         continue
 
                     new_geometry = new_geometry.difference(obj._geometry)
@@ -129,14 +151,6 @@ class Lidar2D:
             self._geometry = new_geometry
             self.calculate_range()
         else:
-            # coord = get_coordinates(new_geometry)
-            # distances = np.linalg.norm(coord[::2]- self.lidar_origin[0:2, 0], axis=1)
-            # filtered_indices = np.where(distances < 0.001)[0]
-            # filtered_points = [coord[2 * index: 2 * index + 2, :] for index in filtered_indices]
-            # self._geometry = MultiLineString(filtered_points)
-            # self.calculate_range_vel(intersect_index)
-            # ranges = np.array([g.length for g in new_geometry.geoms])
-            # filtered_indices = np.where(ranges < 0.001)[0]
             origin_point = Point(self.lidar_origin[0, 0], self.lidar_origin[1, 0])
             filtered_geoms = [
                 g for g in new_geometry.geoms if g.intersects(origin_point)
@@ -145,21 +159,19 @@ class Lidar2D:
             self.calculate_range_vel(intersect_index)
 
     def calculate_range(self):
-
-        # coord = get_coordinates(self._geometry)
-
+        """
+        Calculate the range data from the current geometry.
+        """
         for index, l in enumerate(self._geometry.geoms):
             self.range_data[index] = l.length
 
-        # for index, point in enumerate(coord[1::2]):
-        #     point = np.c_[point]
-
-        #     distance = np.round(np.linalg.norm(point - self.lidar_origin[0:2, 0]), 3)
-
-        #     self.range_data[index] = distance
-
     def calculate_range_vel(self, intersect_index):
+        """
+        Calculate the range data and velocities from intersected geometries.
 
+        Args:
+            intersect_index (list): List of intersected object indices.
+        """
         for index, l in enumerate(self._geometry.geoms):
             self.range_data[index] = l.length
 
@@ -167,51 +179,17 @@ class Lidar2D:
                 if l.length < self.range_max - 0.02:
                     for index_obj in intersect_index:
                         obj = env_param.objects[index_obj]
-                        # p = Point(point[0, 0], point[1, 0])
                         if obj.geometry.distance(l) < 0.1:
                             self.velocity[:, index : index + 1] = obj.velocity_xy
                             break
 
-        # coord = get_coordinates(self._geometry)
-
-        # for index, point in enumerate(coord[1::2]):
-        #     point = np.c_[point]
-
-        #     distance = np.round(np.linalg.norm(point - self.lidar_origin[0:2, 0]), 3)
-
-        #     self.range_data[index] = distance
-
-        #     if self.has_velocity:
-        #         if distance < self.range_max - 0.02:
-        #             for index_obj in intersect_index:
-        #                 obj = env_param.objects[index_obj]
-
-        #                 p = Point(point[0, 0], point[1, 0])
-
-        #                 if obj.geometry.distance(p) < 0.1:
-        #                     self.velocity[:, index:index+1] = obj.velocity_xy
-        #                     break
-
     def get_scan(self):
         """
-        Get the 2D lidar scan data
+        Get the 2D lidar scan data.
 
-        Return:
-            scan_data: dict, refer to the ros topic scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html
-
-                angle_min: float, start angle of the scan [rad]
-                angle_max: float, end angle of the scan [rad]
-                angle_increment: float, angular distance between measurements [rad]
-                time_increment: float, time between measurements [s]
-                scan_time: float, time between scans [s]
-                range_min: float, minimum range value [m]
-                range_max: float, maximum range value [m]
-                ranges: list of float, range data [m]
-                intensities: intensity data, None
-                velocity: 2*number matrix, x,y velocity  data [m/s]
+        Returns:
+            dict: Scan data including angles, ranges, and velocities.
         """
-
-        # reference: ros topic -- scan: http://docs.ros.org/en/melodic/api/sensor_msgs/html/msg/LaserScan.html
         scan_data = {}
         scan_data["angle_min"] = self.angle_min
         scan_data["angle_max"] = self.angle_max
@@ -227,13 +205,31 @@ class Lidar2D:
         return scan_data
 
     def get_points(self):
+        """
+        Convert scan data to a point cloud.
+
+        Returns:
+            np.ndarray: Point cloud (2xN).
+        """
         return self.scan_to_pointcloud()
 
     def get_offset(self):
+        """
+        Get the sensor's offset.
+
+        Returns:
+            list: Offset as a list.
+        """
         return np.squeeze(self.offset).tolist()
 
     def plot(self, ax, **kwargs):
+        """
+        Plot the Lidar's detected lines on a given axis.
 
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Plotting options.
+        """
         coord = get_coordinates(self._geometry)
 
         lines = []
@@ -251,7 +247,9 @@ class Lidar2D:
         self.plot_patch_list.append(line_segments)
 
     def plot_clear(self):
-
+        """
+        Clear the plot elements from the axis.
+        """
         [patch.remove() for patch in self.plot_patch_list]
         [line.pop(0).remove() for line in self.plot_line_list]
         [text.remove() for text in self.plot_text_list]
@@ -262,15 +260,15 @@ class Lidar2D:
 
     def scan_to_pointcloud(self):
         """
-        return poit cloud: (2, n)
-        """
+        Convert the Lidar scan data to a point cloud.
 
+        Returns:
+            np.ndarray: Point cloud (2xN).
+        """
         point_cloud = []
 
         ranges = self.range_data
         angles = np.linspace(self.angle_min, self.angle_max, len(ranges))
-
-        # trans, R = get_transform(self._state)
 
         for i in range(len(ranges)):
             scan_range = ranges[i]
@@ -284,7 +282,5 @@ class Lidar2D:
             return None
 
         point_array = np.hstack(point_cloud)
-
-        # point_coords = R @ point_array + trans
 
         return point_array

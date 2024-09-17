@@ -48,7 +48,6 @@ class ObjectInfo:
 
 @dataclass
 class ObstacleInfo:
-    # (center, radius, vertex, cone_type, velocity)
     center: np.ndarray
     vertex: np.ndarray
     velocity: np.ndarray
@@ -105,39 +104,34 @@ class ObjectBase:
         **kwargs,
     ) -> None:
         """
-        parameters:
-        -----------
-            shape: the shape of the object, a string, including: circle, polygon, linestring,
+        Initialize an ObjectBase instance.
 
-            shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
-                for circle, the list should have be: (center_x, center_y, radius)
-                for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
-                for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices].
-
-            state: the state of the object, list or numpy. default is [0, 0, 0], [x, y, theta]
-            velocity: the velocity of the object, list or numpy. default is [0, 0], [vx, vy]
-            kinematics: the moving kinematics of the object, including omni, diff, acker, custom; default omni, if custom,
-
-            static: whether static object; default False
-
-            role: the role of the object, including: robot, obstacle, landmark, target, default is 'obstacle'
-
-            flag:
-                stop_flag: whether the object is stopped, default False
-                arrive_flag: whether the object is arrived, default False
-                collision_flag: whether the object is collided, default False
-
-            behavior: the behavior of the object,
-                dash: the object will dash to the target position, and stop when arrive the target position
-                wander: the object will wander in the world (random select goal to move)
-                default is dash
-
-
-            arrive_mode: position or state
-            state_dim: the dimension of the state, default is 3
-            unobstructed: whether the object is unobstructed, default is False
+        Args:
+            shape (str): The shape of the object, e.g., circle, polygon, etc.
+            shape_tuple: Tuple to initialize the geometry.
+            state (list or np.ndarray): The state of the object [x, y, theta].
+            velocity (list or np.ndarray): The velocity of the object [vx, vy].
+            goal (list or np.ndarray): The goal state of the object [x, y, theta].
+            kinematics (str): The moving kinematics, e.g., omni, diff, etc.
+            role (str): The role of the object, e.g., robot, obstacle.
+            color (str): The color of the object.
+            static (bool): Whether the object is static.
+            vel_min (list or np.ndarray): Minimum velocity limits.
+            vel_max (list or np.ndarray): Maximum velocity limits.
+            acce (list or np.ndarray): Acceleration limits.
+            angle_range (list or np.ndarray): Range of angles.
+            behavior (dict): Behavior parameters.
+            goal_threshold (float): Threshold for reaching the goal.
+            sensors (list): List of sensors.
+            kinematics_dict (dict): Additional kinematics parameters.
+            arrive_mode (str): Mode of arrival, position or state.
+            description (str): Description of the object.
+            group (int): Group identifier.
+            reso (float): Resolution.
+            state_dim (int): Dimension of the state.
+            vel_dim (int): Dimension of the velocity.
+            unobstructed (bool): Whether the object is unobstructed.
         """
-
         self._id = next(ObjectBase.id_iter)
         self._shape = shape
         self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
@@ -262,11 +256,20 @@ class ObjectBase:
 
     @classmethod
     def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
+        """
+        Create an object with a specific shape.
 
+        Args:
+            kinematics_name (str): Kinematics type, e.g., diff, omni.
+            shape_dict (dict): Dictionary defining the shape.
+            **kwargs: Additional parameters.
+
+        Returns:
+            ObjectBase: An instance of ObjectBase with the specified shape.
+        """
         shape_name = shape_dict.get("name", "circle")
 
         if shape_name == "circle":
-
             radius = shape_dict.get("radius", 0.2)
             wheelbase = shape_dict.get("wheelbase", radius)
 
@@ -364,60 +367,54 @@ class ObjectBase:
             raise NotImplementedError(f"shape {shape_name} not implemented")
 
     def step(self, velocity=None, **kwargs):
+        """
+        Perform a simulation step, updating the object's state.
 
+        Args:
+            velocity (np.ndarray, optional): Desired velocity for the step.
+            **kwargs: Additional parameters.
+
+        Returns:
+            np.ndarray: The new state of the object.
+        """
         if self.static or self.stop_flag:
-
             self._velocity = np.zeros_like(velocity)
-
             return self._state
-
         else:
-
             self.pre_process()
-
-            behavior_vel = self.gen_behavior_vel(
-                velocity,
-            )
-
+            behavior_vel = self.gen_behavior_vel(velocity)
             new_state = self._kinematics_step(behavior_vel, **self.kinematics_dict)
             next_state = self.mid_process(new_state)
-
             self._state = next_state
             self._velocity = behavior_vel
-
             self._geometry = self.geometry_transform(self._init_geometry, self._state)
-
             self.sensor_step()
             self.post_process()
             self.check_status()
-
             self.trajectory.append(self._state.copy())
-
             return next_state
 
     def sensor_step(self):
+        """
+        Update all sensors for the current state.
+        """
         [sensor.step(self._state[0:3]) for sensor in self.sensors]
-
-    # def _kinematics(self, velocity, **kwargs):
-    #     # default is omni
-    #     if not self.static:
-    #         new_state = self._state[0:2] + velocity * world_param.step_time
-    #     else:
-    #         new_state = self._state
-
-    #     return new_state
 
     def _kinematics_step(
         self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03], mode="steer", **kwargs
     ):
         """
-        The kinematics function for omni wheel robot
+        Calculate the next state using the kinematics model.
 
-        omni:
-            state: [x, y, theta]   (3*1) vector
-            velocity: [vx, vy]  (2*1) vector
+        Args:
+            velocity (np.ndarray): Velocity vector [vx, vy] (2x1).
+            noise (bool): Whether to add noise (default False).
+            alpha (list): Noise parameters.
+            mode (str): Mode for kinematics, e.g., "steer".
+
+        Returns:
+            np.ndarray: Next state [x, y, theta] (3x1).
         """
-
         assert (
             velocity.shape == self.vel_shape and self._state.shape == self.state_shape
         )
@@ -457,24 +454,30 @@ class ObjectBase:
         return next_state
 
     def geometry_transform(self, geometry, state):
+        """
+        Transform geometry to the new state.
+
+        Args:
+            geometry: The geometry to transform.
+            state (np.ndarray): State vector [x, y, theta].
+
+        Returns:
+            Transformed geometry.
+        """
 
         def transform_with_state(x, y):
-
             trans, rot = get_transform(state)
             points = np.array([x, y])
-
             new_points = rot @ points + trans
-
             return (new_points[0, :], new_points[1, :])
 
         new_geometry = transform(transform_with_state, geometry)
-
         return new_geometry
 
-    # check arrive
-
     def check_status(self):
-
+        """
+        Check the current status, including arrival and collision.
+        """
         self.check_arrive_status()
         self.check_collision_status()
 
@@ -488,18 +491,17 @@ class ObjectBase:
             pass
 
         elif world_param.collision_mode == "unobstructed_obstacles":
-
             if self.role == "robot":
-                # self.stop_flag = self.collision_flag
                 self.stop_flag = any(
                     [not obj.unobstructed for obj in self.collision_obj]
                 )
-
             elif self.role == "obstacle":
                 self.stop_flag = False
 
     def check_arrive_status(self):
-
+        """
+        Check if the object has arrived at the goal.
+        """
         if self.arrive_mode == "state":
             diff = np.linalg.norm(self._state[:3] - self._goal[:3])
         elif self.arrive_mode == "position":
@@ -511,7 +513,9 @@ class ObjectBase:
             self.arrive_flag = False
 
     def check_collision_status(self):
-
+        """
+        Check if the object is in collision with others.
+        """
         collision_flags = [
             self.check_collision(obj) for obj in env_param.objects if self.id != obj.id
         ]
@@ -522,7 +526,6 @@ class ObjectBase:
             if self.id != obj.id:
                 if self.check_collision(obj):
                     self.collision_obj.append(obj)
-
                     if self.role == "robot":
                         if not self.collision_flag:
                             env_param.logger.warning(
@@ -535,34 +538,41 @@ class ObjectBase:
                             )
 
         self.collision_flag = any(collision_flags)
-        # new_collision_flag = any(collision_flags)
-
-        # if new_collision_flag and not self.collision_flag:
-        #     env_param.logger.warning( self.role + "{} is collided at state {}".format(self.id, list(np.round(self._state[:2, 0], 2))))
 
     def check_collision(self, obj):
+        """
+        Check collision with another object.
+
+        Args:
+            obj (ObjectBase): Another object.
+
+        Returns:
+            bool: True if collision occurs, False otherwise.
+        """
         return shapely.intersects(self._geometry, obj._geometry)
 
     def gen_behavior_vel(self, velocity):
+        """
+        Generate velocity based on behavior.
 
+        Args:
+            velocity (np.ndarray): Desired velocity.
+
+        Returns:
+            np.ndarray: Behavior-based velocity.
+        """
         min_vel, max_vel = self.get_vel_range()
 
         if velocity is None:
-
             if self.obj_behavior.behavior_dict is None:
-                # self.static = True
-
                 if self.role == "robot":
                     print(
                         "Warning: behavior and input velocity is not defined, robot will stay static"
                     )
-
                 return np.zeros_like(self._velocity)
 
             else:
-
                 if self.obj_behavior.behavior_dict["name"] == "wander":
-
                     if self.arrive_flag:
                         range_low = np.c_[self.obj_behavior.behavior_dict["range_low"]]
                         range_high = np.c_[
@@ -573,7 +583,6 @@ class ObjectBase:
                         self.arrive_flag = False
 
                 if self.obj_behavior.behavior_dict["name"] == "rvo":
-
                     if self.arrive_flag and self.obj_behavior.behavior_dict.get(
                         "wander", False
                     ):
@@ -609,8 +618,6 @@ class ObjectBase:
 
             behavior_vel = velocity
 
-        # input_kwargs = {'state': self._state, 'goal': self._goal, 'min_vel': min_vel, 'max_vel': max_vel}
-
         if (behavior_vel < (min_vel - 0.01)).any():
             logging.warning(
                 "input velocity {} is smaller than min_vel {}, velocity is clipped".format(
@@ -632,11 +639,19 @@ class ObjectBase:
         pass
 
     def vel_check(self, velocity):
+        """
+        Check if velocity is within limits.
 
-        if isinstance(vel, list):
-            vel = np.c_[vel]
+        Args:
+            velocity (np.ndarray): Desired velocity.
+
+        Returns:
+            np.ndarray: Clipped velocity.
+        """
+        if isinstance(velocity, list):
+            velocity = np.c_[velocity]
         if velocity.ndim == 1:
-            vel = vel[:, np.newaxis]
+            velocity = velocity[:, np.newaxis]
 
         assert velocity.shape == self.vel_shape
 
@@ -661,14 +676,21 @@ class ObjectBase:
         return velocity_clip
 
     def pre_process(self):
-        # collision check
         pass
 
     def post_process(self):
         pass
 
     def mid_process(self, state):
+        """
+        Process state in the middle of a step.
 
+        Args:
+            state (np.ndarray): State vector.
+
+        Returns:
+            np.ndarray: Processed state.
+        """
         if state.shape[0] > 2:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
 
@@ -685,15 +707,13 @@ class ObjectBase:
 
     def set_state(self, state=[0, 0, 0], init=False):
         """
-        set the state of the object
+        Set the state of the object.
 
         Args:
-            state: the state of the object, list or numpy. default is [0, 0, 0], [x, y, theta]
-            init: whether set the _init_state, default is False
+            state: The state of the object [x, y, theta].
+            init (bool): Whether to set the initial state (default False).
         """
-
         if isinstance(state, list):
-
             if len(state) > self.state_dim:
                 temp_state = np.c_[state[: self.state_dim]]
             elif len(state) < self.state_dim:
@@ -702,10 +722,8 @@ class ObjectBase:
                 temp_state = np.c_[state]
 
         elif isinstance(state, np.ndarray):
-
             if state.shape[0] > self.state_dim:
                 temp_state = state[: self.state_dim]
-
             elif state.shape[0] < self.state_dim:
                 temp_state = np.r_[
                     state, np.zeros((self.state_dim - state.shape[0], state.shape[1]))
@@ -723,29 +741,25 @@ class ObjectBase:
 
     def set_init_geometry(self, geometry):
         """
+        Set the initial geometry of the object.
+
         Args:
-            geometry: the shapely geometry of the object
-
+            geometry: The shapely geometry of the object.
         """
-
         self._init_geometry = geometry
 
     def construct_geometry(self, shape, shape_tuple, reso=0.1):
         """
-        construct the geometry of the object
+        Construct the geometry of the object.
 
         Args:
-            shape: the shape of the object, a string, including: circle, polygon, linestring, points
+            shape (str): The shape of the object.
+            shape_tuple: Tuple to initialize the geometry.
+            reso (float): The resolution of the object.
 
-            shape_tuple: tuple to init the geometry, default is None; A sequence of (x, y) numeric coordinate pairs or triples, or an array-like with shape (N, 2)
-                    for circle, the list should have be: (center_x, center_y, radius)
-                    for polygon, the list should have the element of vertices: [vertices], number of vertices >= 3
-                    for lineString, composed of one or more line segments, the list should have the element of vertices: [vertices].
-                    for points, matrix of points, shape (2, N)
-
-            reso: the resolution of the object, default is 0.1
+        Returns:
+            Geometry of the object.
         """
-
         if shape == "circle":
             geometry = Point([shape_tuple[0], shape_tuple[1]]).buffer(shape_tuple[2])
 
@@ -772,9 +786,15 @@ class ObjectBase:
 
     def generate_Gh(self, shape, shape_tuple):
         """
-        generate G and h for convex object, Calculate the matrix G and g for the Generalized inequality: G @ point <_k h,  at the init position
-        """
+        Generate G and h for convex object.
 
+        Args:
+            shape (str): The shape of the object.
+            shape_tuple: Tuple to initialize the geometry.
+
+        Returns:
+            tuple: G matrix, h vector, and cone type.
+        """
         if shape == "circle":
             radius = shape_tuple[2]
             G = np.array([[1, 0], [0, 1], [0, 0]])
@@ -791,21 +811,32 @@ class ObjectBase:
     def geometry_state_transition(self):
         pass
 
-    # check
-
     def input_state_check(self, state, dim=3):
+        """
+        Check and adjust the state to match the desired dimension.
 
+        Args:
+            state (list): State of the object.
+            dim (int): Desired dimension.
+
+        Returns:
+            list: Adjusted state.
+        """
         if len(state) > dim:
             return state[:dim]
-
         elif len(state) < dim:
             return state + [0] * (dim - len(state))
-
         else:
             return state
 
     def plot(self, ax, **kwargs):
+        """
+        Plot the object on a given axis.
 
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+        """
         self.state_re = self._state
         self.goal_re = self._goal
 
@@ -845,25 +876,27 @@ class ObjectBase:
             [sensor.plot(ax, **self.plot_kwargs) for sensor in self.sensors]
 
     def plot_object(self, ax, **kwargs):
+        """
+        Plot the object itself.
 
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+        """
         if self.description is None:
-
             x = self.state_re[0, 0]
             y = self.state_re[1, 0]
 
             if self.shape == "circle":
-
                 object_patch = mpl.patches.Circle(
                     xy=(x, y), radius=self.radius, color=self.color
                 )
                 object_patch.set_zorder(3)
-
                 ax.add_patch(object_patch)
 
             elif self.shape == "polygon":
                 object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color)
                 object_patch.set_zorder(3)
-
                 ax.add_patch(object_patch)
 
             elif self.shape == "linestring":
@@ -872,13 +905,11 @@ class ObjectBase:
                 )
                 object_patch.set_zorder(3)
                 ax.add_line(object_patch)
-                # line.remove()
 
             elif self.shape == "points":
                 return
 
             self.plot_patch_list.append(object_patch)
-            # self.plot_patch_list.append(object_patch)
 
         else:
             self.plot_object_image(ax, self.description, **kwargs)
@@ -887,12 +918,17 @@ class ObjectBase:
         pass
 
     def plot_trajectory(self, ax, keep_length=0, **kwargs):
+        """
+        Plot the trajectory of the object.
 
+        Args:
+            ax: Matplotlib axis.
+            keep_length (int): Number of steps to keep in the plot.
+            **kwargs: Additional plotting options.
+        """
         traj_color = kwargs.get("traj_color", self.color)
         traj_style = kwargs.get("traj_style", "-")
 
-        # x_list = [t[0, 0] for t in self.trajectory]
-        # y_list = [t[1, 0] for t in self.trajectory]
         x_list = [t[0, 0] for t in self.trajectory[-keep_length:]]
         y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
 
@@ -901,7 +937,13 @@ class ObjectBase:
         )
 
     def plot_goal(self, ax, goal_color="r"):
+        """
+        Plot the goal position of the object.
 
+        Args:
+            ax: Matplotlib axis.
+            goal_color (str): Color of the goal marker.
+        """
         goal_x = self.goal_re[0, 0]
         goal_y = self.goal_re[1, 0]
 
@@ -918,7 +960,15 @@ class ObjectBase:
         pass
 
     def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, **kwargs):
+        """
+        Plot an arrow indicating the orientation of the object.
 
+        Args:
+            ax: Matplotlib axis.
+            arrow_length (float): Length of the arrow.
+            arrow_width (float): Width of the arrow.
+            **kwargs: Additional plotting options.
+        """
         x = self.state_re[0][0]
         y = self.state_re[1][0]
         theta = self.state_re[2][0]
@@ -938,7 +988,13 @@ class ObjectBase:
         self.plot_patch_list.append(arrow)
 
     def plot_trail(self, ax, **kwargs):
+        """
+        Plot the trail of the object.
 
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+        """
         trail_type = kwargs.get("trail_type", self.shape)
         trail_edgecolor = kwargs.get("edgecolor", self.color)
         trail_linewidth = kwargs.get("linewidth", 0.8)
@@ -949,7 +1005,6 @@ class ObjectBase:
         r_phi_ang = 180 * self._state[2, 0] / pi
 
         if trail_type == "rectangle" or trail_type == "polygon":
-
             start_x = self.vertices[0, 0]
             start_y = self.vertices[1, 0]
 
@@ -967,7 +1022,6 @@ class ObjectBase:
             ax.add_patch(car_rect)
 
         elif trail_type == "circle":
-
             car_circle = mpl.patches.Circle(
                 xy=self.centroid,
                 radius=self.radius,
@@ -982,7 +1036,9 @@ class ObjectBase:
         pass
 
     def plot_clear(self):
-
+        """
+        Clear all plotted elements from the axis.
+        """
         [patch.remove() for patch in self.plot_patch_list]
         [line.pop(0).remove() for line in self.plot_line_list]
         [text.remove() for text in self.plot_text_list]
@@ -994,13 +1050,21 @@ class ObjectBase:
         [sensor.plot_clear() for sensor in self.sensors]
 
     def done(self):
+        """
+        Check if the object has completed its task.
 
+        Returns:
+            bool: True if the task is done, False otherwise.
+        """
         if self.stop_flag or self.arrive_flag:
             return True
         else:
             return False
 
     def reset(self):
+        """
+        Reset the object to its initial state.
+        """
         self._state = self._init_state.copy()
         self._goal = self._init_goal.copy()
         self._velocity = self._init_velocity.copy()
@@ -1010,92 +1074,19 @@ class ObjectBase:
         self.stop_flag = False
         self.trajectory = []
 
-    # geometry measurement
-    # def distance(self, obj):
-    #     return self._geometry.distance(obj._geometry)
-
-    # generate random polygon
-
     @staticmethod
     def random_generate_polygons(
         number, avg_radius, irregularity, spikiness, num_vertices
     ):
         pass
 
-    # get information
-
-    # def get_inequality_Ab(self):
-    #     # general inequality Ax <= b
-
-    #     if self.shape == 'circle':
-    #         pass
-
-    #     elif self.shape == 'polygon':
-
-    #         G = np.zeros((4, 2))
-    #         h = np.zeros((4, 1))
-
-    #         for i in range(4):
-    #             if i + 1 < 4:
-    #                 pre_point = self.vertex[:, i]
-    #                 next_point = self.vertex[:, i+1]
-    #             else:
-    #                 pre_point = self.vertex[:, i]
-    #                 next_point = self.vertex[:, 0]
-
-    #             diff = next_point - pre_point
-
-    #             a = diff[1]
-    #             b = -diff[0]
-    #             c = a * pre_point[0] + b * pre_point[1]
-
-    #             G[i, 0] = a
-    #             G[i, 1] = b
-    #             h[i, 0] = c
-
-    #     elif self.shape == 'linestring':
-    #         pass
-
-    #     return A, b
-
-    # def get_inequality_Ab_init(self):
-    #     # general inequality Ax <= b
-
-    #     if self.shape == 'circle':
-    #         pass
-
-    #     elif self.shape == 'polygon':
-
-    #         edge_number = self.vertex.shape[1]
-
-    #         A = np.zeros((4, 2))
-    #         b = np.zeros((4, 1))
-
-    #         for i in range(4):
-    #             if i + 1 < 4:
-    #                 pre_point = self.vertex[:, i]
-    #                 next_point = self.vertex[:, i+1]
-    #             else:
-    #                 pre_point = self.vertex[:, i]
-    #                 next_point = self.vertex[:, 0]
-
-    #             diff = next_point - pre_point
-
-    #             a = diff[1]
-    #             b = -diff[0]
-    #             c = a * pre_point[0] + b * pre_point[1]
-
-    #             G[i, 0] = a
-    #             G[i, 1] = b
-    #             h[i, 0] = c
-
-    #     elif self.shape == 'linestring':
-    #         pass
-
-    #     return A, b
-
     def get_vel_range(self):
+        """
+        Get the velocity range considering acceleration limits.
 
+        Returns:
+            tuple: Minimum and maximum velocities.
+        """
         min_vel = np.maximum(
             self.vel_min, self._velocity - self.info.acce * world_param.step_time
         )
@@ -1105,20 +1096,22 @@ class ObjectBase:
 
         return min_vel, max_vel
 
-    # def set_state(self, state):
-
-    #     if isinstance(state, list): state = np.c_[state]
-
-    #     state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
-
-    #     self._state = state
-
-    # get information
-
     def get_info(self):
+        """
+        Get object information.
+
+        Returns:
+            ObjectInfo: Information about the object.
+        """
         return self.info
 
     def get_obstacle_info(self):
+        """
+        Get information about the object as an obstacle.
+
+        Returns:
+            ObstacleInfo: Obstacle-related information.
+        """
         return ObstacleInfo(
             self._state[:2, :],
             self.vertices[:, :-1],
@@ -1128,12 +1121,13 @@ class ObjectBase:
         )
 
     def get_Gh(self):
+        """
+        Get the G and h matrices for the object's geometry.
+
+        Returns:
+            tuple: G matrix and h vector.
+        """
         return self.info.G, self.info.h
-
-    # def get_convex_info(self):
-    #     return
-
-    # property
 
     @property
     def name(self):
@@ -1165,15 +1159,10 @@ class ObjectBase:
 
     @property
     def position(self):
-        # return the position of the object
         return self._state[:2]
 
     @property
     def radius(self):
-        """
-        return the minimum bounding radius
-        """
-
         return minimum_bounding_radius(self._geometry)
 
     @property
@@ -1194,19 +1183,24 @@ class ObjectBase:
 
     @property
     def vertices(self):
-        # 2*N
-
         if self.shape == "linestring":
             x = self._geometry.xy[0]
             y = self._geometry.xy[1]
-
             return np.c_[x, y].T
-
         return self._geometry.exterior.coords._coords.T
 
     @property
     def desired_diff_vel(self, angle_tolerance=0.1, goal_threshold=0.1):
+        """
+        Calculate the desired differential velocity.
 
+        Args:
+            angle_tolerance (float): Tolerance for angle deviation.
+            goal_threshold (float): Threshold for goal proximity.
+
+        Returns:
+            np.ndarray: Desired velocity [linear, angular].
+        """
         distance, radian = relative_position(self._state, self._goal)
 
         if distance < goal_threshold:
@@ -1225,7 +1219,15 @@ class ObjectBase:
 
     @property
     def desired_omni_vel(self, goal_threshold=0.1):
+        """
+        Calculate the desired omnidirectional velocity.
 
+        Args:
+            goal_threshold (float): Threshold for goal proximity.
+
+        Returns:
+            np.ndarray: Desired velocity [vx, vy].
+        """
         dis, radian = relative_position(self.state, self.goal)
 
         if dis > goal_threshold:
@@ -1239,14 +1241,23 @@ class ObjectBase:
 
     @property
     def rvo_neighbors(self):
-        # a list of rvo neighbors [x, y, vx, vy, radius]
+        """
+        Get the list of RVO neighbors.
+        Returns:
+            list: List of RVO neighbor states [x, y, vx, vy, radius].
+        """
         return [
             obj.rvo_neighbor_state for obj in env_param.objects if self.id != obj.id
         ]
 
     @property
     def rvo_neighbor_state(self):
-        # x, y, vx, vy, radius
+        """
+        Get the RVO state for this object.
+
+        Returns:
+            list: State [x, y, vx, vy, radius].
+        """
         return [
             self._state[0, 0],
             self._state[1, 0],
@@ -1257,8 +1268,13 @@ class ObjectBase:
 
     @property
     def rvo_state(self):
+        """
+        Get the full RVO state including desired velocity.
+
+        Returns:
+            list: State [x, y, vx, vy, radius, vx_des, vy_des, theta].
+        """
         vx_des, vy_des = self.desired_omni_vel[:, 0]
-        # x, y, vx, vy, radius, vx_des, vy_des, theta
         return [
             self._state[0, 0],
             self._state[1, 0],
@@ -1272,12 +1288,15 @@ class ObjectBase:
 
     @property
     def velocity_xy(self):
+        """
+        Get the velocity in x and y directions.
 
+        Returns:
+            np.ndarray: Velocity [vx, vy].
+        """
         if self.kinematics == "omni":
             return self._velocity
-
         elif self.kinematics == "diff" or self.kinematics == "acker":
             return diff_to_omni(self._state[2, 0], self._velocity)
-
         else:
             raise ValueError("kinematics not implemented")

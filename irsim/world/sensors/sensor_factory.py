@@ -12,4 +12,3 @@ class SensorFactory:
         else:
             raise NotImplementedError(f"Sensor types {type} not implemented")
 
-    # def __init__(self, type='diff', shape='circle', **kwargs) -> None:

@@ -15,31 +15,15 @@ class EnvPlot:
     EnvPlot class for visualizing the environment.
 
     Args:
-
-        grid_map (optional): The grid map of the environment. Png file
-
-        objects: list of object in the environment.
-
-        x_range : list
-            The range of x-axis values. Default is [0, 10].
-        y_range : list
-            The range of y-axis values. Default is [0, 10].
-
-        saved_figure : dict
-            Keyword arguments for saving the figure.
+        grid_map (optional): The grid map of the environment (PNG file).
+        objects: List of objects in the environment.
+        x_range (list): The range of x-axis values. Default is [0, 10].
+        y_range (list): The range of y-axis values. Default is [0, 10].
+        saved_figure (dict): Keyword arguments for saving the figure.
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
-        saved_ani : dict
-            Keyword arguments for saving the animation.
+        saved_ani (dict): Keyword arguments for saving the animation.
             See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
-
-        kwargs:
-            color_map : dict
-                Color map for different objects.
-            no_axis : bool, optional
-                Whether to show the axis. Default is False.
-            tight : bool, optional
-                Whether to show the axis tightly. Default is True.
-
+        kwargs: Additional options such as color_map, no_axis, and tight.
     """
 
     def __init__(
@@ -52,7 +36,9 @@ class EnvPlot:
         saved_ani=dict(),
         **kwargs,
     ) -> None:
-
+        """
+        Initialize the EnvPlot instance.
+        """
         self.fig, self.ax = plt.subplots()
 
         self.x_range = x_range
@@ -66,7 +52,6 @@ class EnvPlot:
             "target": "pink",
         }
 
-        #
         self.color_map.update(kwargs.get("color_map", dict()))
 
         self.saved_figure_kwargs = saved_figure
@@ -80,13 +65,11 @@ class EnvPlot:
         Initialize the plot with the given grid map and objects.
 
         Args:
-
             grid_map (optional): The grid map of the environment.
             objects (list): List of objects to plot.
             no_axis (bool, optional): Whether to show the axis. Default is False.
             tight (bool, optional): Whether to show the axis tightly. Default is True.
         """
-
         self.ax.set_aspect("equal")
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
@@ -107,42 +90,27 @@ class EnvPlot:
         Draw the components in the environment.
 
         Args:
-
-            mode:
-                - static: draw static objects
-                - dynamic: draw dynamic objects
-                - all: draw all objects
-
-            objects: list of objects to draw
-
-        kwargs: object plot kwargs
+            mode (str): 'static', 'dynamic', or 'all' to specify which objects to draw.
+            objects (list): List of objects to draw.
+            kwargs: Additional plotting options.
         """
-
         if mode == "static":
             [obj.plot(self.ax, **kwargs) for obj in objects if obj.static]
-
         elif mode == "dynamic":
             [obj.plot(self.ax, **kwargs) for obj in objects if not obj.static]
-
         elif mode == "all":
             [obj.plot(self.ax, **kwargs) for obj in objects]
         else:
-            logging.error("error input of the draw mode")
+            logging.error("Error: Invalid draw mode")
 
     def clear_components(self, mode="all", objects=[]):
         """
         Clear the components in the environment.
 
         Args:
-
-            mode:
-                - static: clear static objects
-                - dynamic: clear dynamic objects
-                - all: clear all objects
-
-            objects: list of objects to clear
+            mode (str): 'static', 'dynamic', or 'all' to specify which objects to clear.
+            objects (list): List of objects to clear.
         """
-
         if mode == "dynamic":
             [obj.plot_clear() for obj in objects if not obj.static]
             [line.pop(0).remove() for line in self.dyna_line_list]
@@ -155,7 +123,6 @@ class EnvPlot:
             pass
 
         elif mode == "all":
-
             if objects:
                 [obj.plot_clear() for obj in objects]
             else:
@@ -163,9 +130,11 @@ class EnvPlot:
 
     def draw_grid_map(self, grid_map=None, **kwargs):
         """
-        Draw the grid map on the plot
-        """
+        Draw the grid map on the plot.
 
+        Args:
+            grid_map (optional): The grid map to draw.
+        """
         if grid_map is not None:
             self.ax.imshow(
                 grid_map.T,
@@ -173,15 +142,6 @@ class EnvPlot:
                 origin="lower",
                 extent=self.x_range + self.y_range,
             )
-
-    # def draw_geometry(self, geometry, **kwargs):
-
-    #     if geometry.geom_type == 'Point':
-    #         pass
-
-    #     elif geometry.geom_type == 'MultiLineString':
-
-    #         lines = geometry.coords.xy
 
     def draw_trajectory(
         self,
@@ -193,24 +153,21 @@ class EnvPlot:
         **kwargs,
     ):
         """
-        Draw a trajectory on the plot
+        Draw a trajectory on the plot.
 
         Args:
-
-            traj: list of points, point: 3*1 np.array, [x, y, theta]
-            traj_type: trajectory type, default is 'g-', see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail
-            label: label of the trajectory
-            show_direction: whether to show the direction of the trajectory
-            refresh: whether to refresh the plot (clear the previous trajectory)
-            kwargs: other arguments for the ax plot, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for detail
+            traj (list or np.ndarray): List of points or array of points [x, y, theta].
+            traj_type (str): Type of trajectory line (e.g., 'g-').
+                See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for details.
+            label (str): Label for the trajectory.
+            show_direction (bool): Whether to show the direction of the trajectory.
+            refresh (bool): Whether to refresh the plot.
+            kwargs: Additional plotting options.
         """
-
-        # traj: a list of points
         if isinstance(traj, list):
             path_x_list = [p[0, 0] for p in traj]
             path_y_list = [p[1, 0] for p in traj]
         elif isinstance(traj, np.ndarray):
-            # raw*column: points * num
             path_x_list = [p[0] for p in traj.T]
             path_y_list = [p[1] for p in traj.T]
 
@@ -231,20 +188,16 @@ class EnvPlot:
 
     def draw_points(self, point_list, s=10, c="m", refresh=True, **kwargs):
         """
-        Draw points on the plot
+        Draw points on the plot.
 
         Args:
-
-            point_list: list of points, point: 2*1 np.array or [x, y]
-            s: size of the points
-            c: color of the points
-            refresh: whether to refresh the plot (clear the previous points)
-            kwargs: other arguments for the ax scatter, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.scatter.html for detail
-
+            point_list (list): List of points, each point as [x, y].
+            s (int): Size of the points.
+            c (str): Color of the points.
+            refresh (bool): Whether to refresh the plot.
+            kwargs: Additional plotting options.
         """
-
         if point_list is not None:
-
             x_coordinates = [point[0] for point in point_list]
             y_coordinates = [point[1] for point in point_list]
 
@@ -255,15 +208,13 @@ class EnvPlot:
 
     def draw_box(self, vertices, refresh=False, color="b-"):
         """
-        Draw a box by the vertices
+        Draw a box by the vertices.
 
         Args:
-
-            vertices: 2*edge_number np.array, vertices of the box
-            refresh: whether to refresh the plot (clear the previous box)
-            color: color and line type of the box
+            vertices (np.ndarray): 2xN array of vertices.
+            refresh (bool): Whether to refresh the plot.
+            color (str): Color and line type of the box.
         """
-
         temp_vertex = np.c_[vertices, vertices[0:2, 0]]
         box_line = self.ax.plot(temp_vertex[0, :], temp_vertex[1, :], color)
 
@@ -272,14 +223,13 @@ class EnvPlot:
 
     def save_gif_figure(self, format="png", **kwargs):
         """
-        save the figure for generating animation
+        Save the figure for generating animation.
 
         Args:
-
-            format: format of the figure, default is 'png'
-            kwargs: other arguments for the ax savefig, see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail, default is {'dpi': 100, 'bbox_inches': 'tight'}
+            format (str): Format of the figure. Default is 'png'.
+            kwargs: Additional arguments for saving the figure.
+                See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
-
         fp = pm.ani_buffer_path
 
         if not os.path.exists(fp):
@@ -303,17 +253,16 @@ class EnvPlot:
         **kwargs,
     ):
         """
-        Save the animation
+        Save the animation.
 
         Args:
-
-            ani_name: name of the animation, default is 'animation'
-            suffix: suffix of the animation, default is '.gif'
-            keep_len: length of the last frame, default is 30
-            rm_fig_path: whether to remove the figure path after saving the animation, default is True
-            kwargs: other arguments for the imageio.mimsave, see https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html
+            ani_name (str): Name of the animation. Default is 'animation'.
+            suffix (str): Suffix of the animation file. Default is '.gif'.
+            keep_len (int): Length of the last frame. Default is 30.
+            rm_fig_path (bool): Whether to remove the figure path after saving. Default is True.
+            kwargs: Additional arguments for saving the animation.
+                See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html for details.
         """
-
         self.saved_ani_kwargs.update({"subrectangles": True})
         self.saved_ani_kwargs.update(kwargs)
 
@@ -330,7 +279,6 @@ class EnvPlot:
         images.sort()
         image_list = []
         for i, file_name in enumerate(images):
-
             if i == 0:
                 continue
 
@@ -343,14 +291,13 @@ class EnvPlot:
             ap + "/" + ani_name + suffix, image_list, **self.saved_ani_kwargs
         )
 
-        env_param.logger.info("Create animation successfully, saved in the path " + ap)
+        env_param.logger.info("Animation created successfully, saved in " + ap)
 
         if rm_fig_path:
             shutil.rmtree(fp)
 
     def show(self):
         """
-        Show the plot
+        Display the plot.
         """
-
         plt.show()

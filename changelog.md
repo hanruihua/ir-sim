@@ -4,7 +4,7 @@
 - Arrange the kinematics functions
 - Add the state_shape and vel_shape for object_base
 - Format all python code with black
-- Comment some functions, prepare for the documentation
+- Complete the function comments and generate api documentation
 
 ## ir-sim 2.2.3
 
