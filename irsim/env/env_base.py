@@ -40,15 +40,15 @@ class EnvBase:
         log_level: str = "INFO",
     ) -> None:
 
-        env_config = EnvConfig(world_name)
-        object_factory = ObjectFactory()
-
         # init env setting
         self.display = display
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
         self.logger = EnvLogger(log_file, log_level)
         env_param.logger = self.logger
+
+        env_config = EnvConfig(world_name)
+        object_factory = ObjectFactory()
 
         # init objects (world, obstacle, robot)
         self._world = world(world_name, **env_config.parse["world"])
