@@ -1,3 +1,9 @@
+## ir-sim 2.2.5
+
+
+
+
+
 ## ir-sim 2.2.4
 
 - Fix collision avoidance bug for obstacles
