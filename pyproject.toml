@@ -10,7 +10,7 @@ version = "2.2.4"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
-description = "A simple python based Intelligent Robot Simulator fpr robot navigation and Learning"
+description = "Open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
