@@ -135,3 +135,5 @@ test.py
 
 .vscode/
 *.code-workspace
+
+test/
