@@ -25,7 +25,7 @@ dependencies = ['matplotlib',
                 'pynput',
                 'imageio',
                 'pathlib',
-                'shapely',
+                'shapely==2.0.6',
                 'scikit-image',
                 'loguru',]
 
