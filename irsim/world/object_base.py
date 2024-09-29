@@ -961,7 +961,7 @@ class ObjectBase:
 
     def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, **kwargs):
         """
-        Plot an arrow indicating the orientation of the object.
+        Plot an arrow indicating the velocity orientation of the object.
 
         Args:
             ax: Matplotlib axis.
@@ -971,7 +971,7 @@ class ObjectBase:
         """
         x = self.state_re[0][0]
         y = self.state_re[1][0]
-        theta = self.state_re[2][0]
+        theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
         arrow_color = kwargs.get("arrow_color", "gold")
 
         arrow = mpl.patches.Arrow(
@@ -1292,7 +1292,7 @@ class ObjectBase:
         Get the velocity in x and y directions.
 
         Returns:
-            np.ndarray: Velocity [vx, vy].
+            (2*1) np.ndarray: Velocity [vx, vy].
         """
         if self.kinematics == "omni":
             return self._velocity
