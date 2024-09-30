@@ -15,8 +15,8 @@ robot:
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0}
-    vel_min: [-2, -2.0]
-    vel_max: [2, 2.0]
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
     arrive_mode: position
     goal_threshold: 0.15
