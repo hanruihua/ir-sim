@@ -25,8 +25,7 @@ It provides the following features:
 
 Robot             |  Car
 :-------------------------:|:-------------------------:
-![robot](doc/animations/rvo.gif)  |  ![car](doc/animations/car.gif)
-
+![robot]([doc/animations/rvo.gif](https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b))  |  ![car](https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06)
 
 ## Prerequisite
 
