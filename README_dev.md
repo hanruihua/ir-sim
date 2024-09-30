@@ -64,3 +64,4 @@ py -m twine upload dist/*
 - [ ] shape tuple -- vertex   refer to ros marker
 - [ ] Reformulate the behavior library
 - [ ] Add comments for the functions
+- [ ] rewrite some lib functions by using c++ to improve the efficiency
