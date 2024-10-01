@@ -1,10 +1,3 @@
-## Pypi
-
-```
-py -m build
-py -m twine upload dist/*
-```
-
 ## To do list
 - [x] Basic framework
 - [x] Mobile robot movement
