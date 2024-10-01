@@ -1,6 +1,8 @@
 ## ir-sim 2.2.5
 
-
+- Convert the GIF file to readme links to reduce the repository size
+- Modify the visualization of the arrow for the robot
+- 
 
 
 
