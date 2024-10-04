@@ -144,19 +144,10 @@ obstacle:
 - [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
 
 
-<!-- ## Contact: 
-hanrh@connect.hku.hk -->
+## Acknowledgement
 
-<!-- ## Citation
+- [PythonRobotics](https://github.com/AtsushiSakai/PythonRobotics)
 
-```
-@misc{ir-sim,
- author = "Ruihua Han",
- title = "ir-sim: Python based light-weight simulator for robotics navigation and learning.",
- year = 2024,
- url = "https://github.com/hanruihua/ir-sim"
-}
-``` -->
 
 
 
