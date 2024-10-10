@@ -163,7 +163,12 @@ class Lidar2D:
         Calculate the range data from the current geometry.
         """
         for index, l in enumerate(self._geometry.geoms):
-            self.range_data[index] = l.length
+            # self.range_data[index] = l.length
+            if self.noise:
+                self.range_data[index] = l.length + np.random.normal(0, self.std)
+            else:
+                self.range_data[index] = l.length
+
 
     def calculate_range_vel(self, intersect_index):
         """
