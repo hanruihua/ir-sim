@@ -1,7 +1,7 @@
 from math import pi, cos, sin
 import numpy as np
 from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid
-from irsim.util.util import geometry_transform, transform_point_with_state
+from irsim.util.util import geometry_transform, transform_point_with_state, get_transform
 from irsim.global_param import env_param
 from shapely import get_coordinates
 from matplotlib.collections import LineCollection
@@ -178,7 +178,9 @@ class Lidar2D:
             intersect_index (list): List of intersected object indices.
         """
         for index, l in enumerate(self._geometry.geoms):
-            self.range_data[index] = l.length
+            # self.range_data[index] = l.length
+            self.range_data[index] = l.length + np.random.normal(0, self.std) if self.noise else l.length
+            
 
             if self.has_velocity:
                 if l.length < self.range_max - 0.02:
@@ -241,6 +243,17 @@ class Lidar2D:
 
         for i in range(0, len(coord), 2):
             segment = [coord[i], coord[i + 1]]
+            # lines.append(segment)
+
+        for i in range(self.number):
+            x = self.range_data[i] * cos(self.angle_list[i])
+            y = self.range_data[i] * sin(self.angle_list[i])
+            
+            position = self._state[0:2, 0]
+            trans, rot = get_transform(self._state)
+            range_end_position = rot @ np.array([[x], [y]]) + trans
+
+            segment = [position, range_end_position[0:2, 0]]
             lines.append(segment)
 
         line_segments = LineCollection(

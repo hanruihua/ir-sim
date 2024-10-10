@@ -23,7 +23,7 @@ robot:
         angle_range: 3.14 #  4.7123
         number: 200
         noise: False
-        std: 1   
+        std: 0.2
         angle_std: 0.2
         offset: [0, 0, 0]
         reso: 0.1
