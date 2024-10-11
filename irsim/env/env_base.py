@@ -470,6 +470,15 @@ class EnvBase:
 
     # endregion: get information
 
+    def save_figure(self, **kwargs):
+        """
+        Save the current figure.
+        Args:
+            **kwargs: Additional keyword arguments for saving the figure, see matplotlib.pyplot.savefig() function for detail.
+        """
+
+        self._env_plot.save_figure(**kwargs)
+
     # region: property
 
     @property

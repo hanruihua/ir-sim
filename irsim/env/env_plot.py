@@ -243,7 +243,30 @@ class EnvPlot:
         self.fig.savefig(
             fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
         )
+    
+    def save_figure(self, format="png", save_path='./', **kwargs):
+        """
+        Save the current figure.
 
+        Args:
+            format (str): Format of the figure. Default is 'png'.
+            kwargs: Additional arguments for saving the figure.
+                See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
+        """
+        fp = save_path
+
+        if not os.path.exists(fp):
+            os.makedirs(fp)
+
+        order = str(world_param.count).zfill(3)
+
+        self.saved_figure_kwargs.update({"dpi": 100, "bbox_inches": "tight"})
+        self.saved_figure_kwargs.update(kwargs)
+
+        self.fig.savefig(
+            fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
+        )
+    
     def save_animate(
         self,
         ani_name="animation",
