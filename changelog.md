@@ -2,7 +2,8 @@
 
 - Convert the GIF file to readme links to reduce the repository size
 - Modify the visualization of the arrow for the robot
-- 
+- Adjust figure size by pixel
+- Add reset for world time
 
 
 
