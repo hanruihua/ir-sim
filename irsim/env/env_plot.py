@@ -23,6 +23,8 @@ class EnvPlot:
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         saved_ani (dict): Keyword arguments for saving the animation.
             See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
+        dpi: Dots per inch for the figure. Default is 100.
+        figure_pixels: Width and height of the figure in pixels. Default is [1920, 1080].
         kwargs: Additional options such as color_map, no_axis, and tight.
     """
 
@@ -34,13 +36,15 @@ class EnvPlot:
         y_range=[0, 10],
         saved_figure=dict(),
         saved_ani=dict(),
+        dpi: int = 100,
+        figure_pixels: list =[1920, 1080],
         **kwargs,
     ) -> None:
         """
         Initialize the EnvPlot instance.
         """
-        self.fig, self.ax = plt.subplots()
 
+        self.fig, self.ax = plt.subplots(figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi)
         self.x_range = x_range
         self.y_range = y_range
 
@@ -56,6 +60,8 @@ class EnvPlot:
 
         self.saved_figure_kwargs = saved_figure
         self.saved_ani_kwargs = saved_ani
+        self.dpi = dpi
+        self.figure_pixels = figure_pixels
 
         self.dyna_line_list = []
         self.dyna_point_list = []
@@ -237,14 +243,14 @@ class EnvPlot:
 
         order = str(world_param.count).zfill(3)
 
-        self.saved_figure_kwargs.update({"dpi": 100, "bbox_inches": "tight"})
+        self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
         self.saved_figure_kwargs.update(kwargs)
 
         self.fig.savefig(
             fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
         )
     
-    def save_figure(self, format="png", save_path='./', **kwargs):
+    def save_figure(self, format="png", save_name='', **kwargs):
         """
         Save the current figure.
 
@@ -253,18 +259,18 @@ class EnvPlot:
             kwargs: Additional arguments for saving the figure.
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
-        fp = save_path
+        fp = pm.fig_path
 
         if not os.path.exists(fp):
             os.makedirs(fp)
 
         order = str(world_param.count).zfill(3)
 
-        self.saved_figure_kwargs.update({"dpi": 100, "bbox_inches": "tight"})
+        self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
         self.saved_figure_kwargs.update(kwargs)
 
         self.fig.savefig(
-            fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
+            fp + "/" + save_name + '_' + order + "." + format, format=format, **self.saved_figure_kwargs
         )
     
     def save_animate(
