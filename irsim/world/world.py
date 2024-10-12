@@ -122,6 +122,15 @@ class world:
 
         return grid_map, obstacle_index, obstacle_positions
 
+
+    def reset(self):
+        """
+        Reset the world simulation.
+        """
+
+        world_param.count = 0
+        self.count = 0
+
     @property
     def time(self):
         """
