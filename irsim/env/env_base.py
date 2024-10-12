@@ -307,7 +307,9 @@ class EnvBase:
 
         self._reset_all()
         self.reset_plot()
+        self._world.reset()
         self.step(action=np.zeros((2, 1)))
+
 
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
