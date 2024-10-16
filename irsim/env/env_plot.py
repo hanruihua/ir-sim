@@ -8,6 +8,8 @@ import shutil
 import glob
 from math import sin, cos
 import numpy as np
+import matplotlib
+matplotlib.use("TkAgg")
 
 
 class EnvPlot:
