@@ -5,8 +5,7 @@
 - Adjust figure size by pixel
 - Add reset for world time
 - Change the matplotlib backend to TkAgg
-
-
+- Fix some bugs on the visualization
 
 ## ir-sim 2.2.4
 
