@@ -137,3 +137,4 @@ test.py
 *.code-workspace
 
 test/
+test.yaml
