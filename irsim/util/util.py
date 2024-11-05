@@ -22,7 +22,7 @@ def file_check(file_name, root_path=None):
     """
     if file_name is None:
         return None
-
+    
     if os.path.exists(file_name):
         abs_file_name = file_name
     elif os.path.exists(sys.path[0] + "/" + file_name):

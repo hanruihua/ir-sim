@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make('all_objects.yaml')
+env = irsim.make()
 
 for i in range(500):
 
