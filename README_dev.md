@@ -59,4 +59,4 @@
 - [ ] Add comments for the functions
 - [ ] rewrite some lib functions by using c++ to improve the efficiency
 - [ ] Academic Color
-- [ ] default yaml name (same as python file)
+- [x] default yaml name (same as python file)
