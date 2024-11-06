@@ -23,8 +23,9 @@ robot:
     plot:
       show_trail: true
       show_goal: true
-      trail_fill: True
+      trail_fill: true
       trail_alpha: 0.2
+      show_trajectory: false
 
     
     

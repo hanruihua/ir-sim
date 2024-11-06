@@ -14,6 +14,8 @@ robot:
   # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
   behavior: {name: 'dash'} # move toward to the goal directly 
   color: 'g'
+  plot:
+    show_trajectory: True
   # description: 'diff_robot0.png'
     
   
