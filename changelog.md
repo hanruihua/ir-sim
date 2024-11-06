@@ -1,3 +1,11 @@
+## ir-sim 2.2.6
+
+- Add default name for the yaml file; default name is same with the python script
+- Change the trajectory visualization style
+- 
+
+
+
 ## ir-sim 2.2.5
 
 - Convert the GIF file to readme links to reduce the repository size

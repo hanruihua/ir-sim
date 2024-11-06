@@ -21,7 +21,7 @@ from irsim.lib.generation import random_generate_polygon
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
 from irsim.lib import kinematics_factory
-
+from irsim.env import env_plot
 
 @dataclass
 class ObjectInfo:
@@ -928,12 +928,15 @@ class ObjectBase:
         """
         traj_color = kwargs.get("traj_color", self.color)
         traj_style = kwargs.get("traj_style", "-")
+        traj_width = kwargs.get("traj_width", self.radius)
 
         x_list = [t[0, 0] for t in self.trajectory[-keep_length:]]
         y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
 
+        line_width = env_plot.linewidth_from_data_units(traj_width, ax, 'y')
+
         self.plot_line_list.append(
-            ax.plot(x_list, y_list, color=traj_color, linestyle=traj_style)
+            ax.plot(x_list, y_list, color=traj_color, linestyle=traj_style, line_width=line_width, solid_joinstyle='round', solid_capstyle='round')
         )
 
     def plot_goal(self, ax, goal_color="r"):
