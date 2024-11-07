@@ -1,7 +1,7 @@
 ## ir-sim 2.2.6
 
-- Add default name for the yaml file; default name is same with the python script
-- Change the trajectory visualization style
+- Add default name for the yaml file; default name is same with the python script; see usage: 12dynamic_obstacle for detail
+- Change the trajectory visualization style; see usage 02robot_world for detail
 - 
 
 

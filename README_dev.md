@@ -61,3 +61,5 @@
 - [ ] Academic Color
 - [x] default yaml name (same as python file)
 - [ ] draw error band (uncertainty)  https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html#sphx-glr-gallery-lines-bars-and-markers-curve-error-band-py 
+- [ ] Provide polygon shape robot
+- [ ] develop a lib for configuration of the shape, refer to rviz marker. 
