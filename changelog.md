@@ -2,9 +2,8 @@
 
 - Add default name for the yaml file; default name is same with the python script; see usage: 12dynamic_obstacle for detail
 - Change the trajectory visualization style; see usage 02robot_world for detail
-- 
-
-
+- Fix the bug of display in the env.end() function.
+- Reconstruect the save_figure function; see usage 07renderw_world for detail
 
 ## ir-sim 2.2.5
 
