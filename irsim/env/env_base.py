@@ -13,6 +13,7 @@ from .env_logger import EnvLogger
 from irsim.lib.generation import random_generate_polygon
 from shapely import Polygon
 from typing import Optional
+import importlib
 
 
 class EnvBase:
@@ -493,6 +494,21 @@ class EnvBase:
         self._env_plot.save_figure(file_name, file_format, include_index, save_gif, **kwargs)
 
     # region: property
+
+    def load_behavior(self, behaviors: str='behavior_methods'):
+        """
+        Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details. 
+        Please make sure the python file is placed in the same folder with the implemented script.
+
+        Args:
+            behaviors (str): name of the bevavior script.
+        """
+
+        try:
+            importlib.import_module(behaviors)
+        except ImportError as e:
+            print(f"Failed to load module '{behaviors}': {e}")
+
 
     @property
     def arrive(self, id=None, mode=None):

@@ -16,6 +16,7 @@ from irsim.util.util import (
     WrapToPi,
     gen_inequal_from_vertex,
     diff_to_omni,
+    random_point_range
 )
 from irsim.lib.generation import random_generate_polygon
 from irsim.world.sensors.sensor_factory import SensorFactory
@@ -177,8 +178,8 @@ class ObjectBase:
         self.color = color
         self.role = role
 
-        self.length = kwargs.get("length", self.radius*2)
-        self.width = kwargs.get("width", self.radius*2)
+        self.length = kwargs.get("length", self.radius * 2)
+        self.width = kwargs.get("width", self.radius * 2)
         self.wheelbase = kwargs.get("wheelbase", None)
 
         self.info = ObjectInfo(
@@ -225,20 +226,12 @@ class ObjectBase:
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
+        self.gl = self.beh_config.get("range_low", [0, 0, -pi])
+        self.gh = self.beh_config.get("range_high", [10, 10, pi])
+        self.wander = self.beh_config.get('wander', False)
 
-        if self.obj_behavior.behavior_dict is not None and (
-            self.obj_behavior.behavior_dict["name"] == "wander"
-        ):
-
-            range_low = np.c_[
-                self.obj_behavior.behavior_dict.get("range_low", [0, 0, -pi])
-            ]
-            range_high = np.c_[
-                self.obj_behavior.behavior_dict.get("range_high", [10, 10, pi])
-            ]
-
-            self._goal = np.random.uniform(range_low, range_high)
-
+        if self.wander: self._goal = random_point_range(self.gl, self.gh)
+            
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -564,49 +557,36 @@ class ObjectBase:
         min_vel, max_vel = self.get_vel_range()
 
         if velocity is None:
-            if self.obj_behavior.behavior_dict is None:
+            if self.beh_config is None:
                 if self.role == "robot":
-                    print(
-                        "Warning: behavior and input velocity is not defined, robot will stay static"
+                    env_param.logger.warning(
+                        "behavior and input velocity is not defined, robot will stay static"
                     )
+
                 return np.zeros_like(self._velocity)
 
             else:
-                if self.obj_behavior.behavior_dict["name"] == "wander":
-                    if self.arrive_flag:
-                        range_low = np.c_[self.obj_behavior.behavior_dict["range_low"]]
-                        range_high = np.c_[
-                            self.obj_behavior.behavior_dict["range_high"]
-                        ]
+                if self.wander and self.arrive_flag:
+                    self._goal = random_point_range(self.gl, self.gh)
+                    self.arrive_flag = False
 
-                        self._goal = np.random.uniform(range_low, range_high)
-                        self.arrive_flag = False
+                behavior_vel = self.obj_behavior.gen_vel(env_param.objects)
 
-                if self.obj_behavior.behavior_dict["name"] == "rvo":
-                    if self.arrive_flag and self.obj_behavior.behavior_dict.get(
-                        "wander", False
-                    ):
-                        range_low = np.c_[self.obj_behavior.behavior_dict["range_low"]]
-                        range_high = np.c_[
-                            self.obj_behavior.behavior_dict["range_high"]
-                        ]
+                # if self.beh_config["name"] == "rvo":
 
-                        self._goal = np.random.uniform(range_low, range_high)
-                        self.arrive_flag = False
+                #     behavior_vel = self.obj_behavior.gen_vel(
+                #         self._state,
+                #         self._goal,
+                #         min_vel,
+                #         max_vel,
+                #         rvo_neighbor=self.rvo_neighbors,
+                #         rvo_state=self.rvo_state,
+                #     )
 
-                    behavior_vel = self.obj_behavior.gen_vel(
-                        self._state,
-                        self._goal,
-                        min_vel,
-                        max_vel,
-                        rvo_neighbor=self.rvo_neighbors,
-                        rvo_state=self.rvo_state,
-                    )
-
-                else:
-                    behavior_vel = self.obj_behavior.gen_vel(
-                        self._state, self._goal, min_vel, max_vel
-                    )
+                # else:
+                #     behavior_vel = self.obj_behavior.gen_vel(
+                #         self._state, self._goal, min_vel, max_vel
+                #     )
 
         else:
             if isinstance(velocity, list):
@@ -618,6 +598,7 @@ class ObjectBase:
 
             behavior_vel = velocity
 
+        # clip the behavior_vel by maximum and minimum limits
         if (behavior_vel < (min_vel - 0.01)).any():
             logging.warning(
                 "input velocity {} is smaller than min_vel {}, velocity is clipped".format(
@@ -634,9 +615,6 @@ class ObjectBase:
         behavior_vel_clip = np.clip(behavior_vel, min_vel, max_vel)
 
         return behavior_vel_clip
-
-    def custom_behavior(self, velocity, min_vel, max_vel):
-        pass
 
     def vel_check(self, velocity):
         """
@@ -934,11 +912,20 @@ class ObjectBase:
         x_list = [t[0, 0] for t in self.trajectory[-keep_length:]]
         y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
 
-        linewidth = linewidth_from_data_units(traj_width, ax, 'y')
-        solid_capstyle = 'round' if self._shape == 'circle' else 'butt'
+        linewidth = linewidth_from_data_units(traj_width, ax, "y")
+        solid_capstyle = "round" if self._shape == "circle" else "butt"
 
         self.plot_line_list.append(
-            ax.plot(x_list, y_list, color=traj_color, linestyle=traj_style, linewidth=linewidth, solid_joinstyle='round', solid_capstyle=solid_capstyle, alpha=traj_alpha)
+            ax.plot(
+                x_list,
+                y_list,
+                color=traj_color,
+                linestyle=traj_style,
+                linewidth=linewidth,
+                solid_joinstyle="round",
+                solid_capstyle=solid_capstyle,
+                alpha=traj_alpha,
+            )
         )
 
     def plot_goal(self, ax, goal_color="r"):
@@ -1078,12 +1065,6 @@ class ObjectBase:
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
-
-    @staticmethod
-    def random_generate_polygons(
-        number, avg_radius, irregularity, spikiness, num_vertices
-    ):
-        pass
 
     def get_vel_range(self):
         """
@@ -1305,3 +1286,8 @@ class ObjectBase:
             return diff_to_omni(self._state[2, 0], self._velocity)
         else:
             raise ValueError("kinematics not implemented")
+
+    @property
+    def beh_config(self):
+        # behavior config dictory
+        return self.obj_behavior.behavior_dict

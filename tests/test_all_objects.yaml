@@ -39,7 +39,7 @@ obstacle:
   
   - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
     state: [6, 5, 1] 
-    behavior: {name: 'wander', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
+    behavior: {name: 'dash', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], wander: True}
 
   - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
     state: [0, 0, 0] 
@@ -53,7 +53,7 @@ obstacle:
       - {name: 'circle', radius: 0.2}  # radius
 
     behavior: 
-      - {name: 'wander', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
+      - {name: 'dash', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], wander: True}
 
     vel_min: [-0.5, -3.14]
     vel_max: [0.5, 3.14]

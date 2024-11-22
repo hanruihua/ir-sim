@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make('collision_avoidance.yaml', save_ani=False, full=False)
+env = irsim.make(save_ani=False, full=False)
 
 for i in range(1000):
 
