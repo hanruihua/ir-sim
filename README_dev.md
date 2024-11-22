@@ -31,35 +31,33 @@
 - [ ] Maze generator
 - [ ] real robot size (LIMO, BYD)
 - [ ] Using decorator to update
-- [ ] code annotation for main class
+- [x] code annotation for main class
 - [ ] Add the data monitor
-- [ ] Add more scenarios (traffic)
 - [ ] Add the interface with gym
 - [ ] Support the feature of adding or eliminating obstacles by functions
 - [ ] Add functions to access obstacles with different types
 - [ ] Add more key functions for keyboard control
 - [ ] Develop Tools for tackling Data
-- [ ] Add scenarios (tasks), car_racing, maze, traffic
 - [ ] 3D visualization
-- [ ] check whether the object is convex
+- [x] check whether the object is convex
 - [ ] Add synchronization and asynchronization mode
 - [ ] Add tf (similar like ROS tf)
-- [ ] pytest
+- [x] pytest
 - [ ] record and replay path
 - [ ] Plot velocity and acceleration
 - [ ] Some judgment functions for control
-- [ ] Add example yaml files
+- [x] Add example yaml files
 - [ ] Add some data structure for plot
 - [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
 - [ ] LLM integration
 - [ ] organize the functions to calculate A, b, G, h
-- [ ] shape tuple -- vertex   refer to ros marker
 - [ ] Reformulate the behavior library
-- [ ] Add comments for the functions
+- [x] Add comments for the functions
 - [ ] rewrite some lib functions by using c++ to improve the efficiency
 - [ ] Academic Color
 - [x] default yaml name (same as python file)
 - [ ] draw error band (uncertainty)  https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html#sphx-glr-gallery-lines-bars-and-markers-curve-error-band-py 
 - [ ] Provide polygon shape robot
-- [ ] develop a lib for configuration of the shape, refer to rviz marker. 
+- [ ] develop a lib for configuration of the shape, refer to rviz marker
+- [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. 
