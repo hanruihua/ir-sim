@@ -9,7 +9,6 @@ import glob
 from math import sin, cos
 import numpy as np
 import matplotlib
-from irsim.util.util import center_figure
 
 matplotlib.use("TkAgg")
 
