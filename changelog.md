@@ -1,9 +1,10 @@
 ## ir-sim 2.2.6
 
+- Reformulate the behavior lib, add custom behavior interface, see usage 13custom_behavior for detail
 - Add default name for the yaml file; default name is same with the python script; see usage: 12dynamic_obstacle for detail
 - Change the trajectory visualization style; see usage 02robot_world for detail
-- Fix the bug of display in the env.end() function.
-- Reconstruect the save_figure function; see usage 07renderw_world for detail
+- Reconstruct the save_figure function; see usage 07renderw_world for detail
+- Fix the bug of 'display' in the env.end() function.
 
 ## ir-sim 2.2.5
 
