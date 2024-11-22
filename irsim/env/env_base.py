@@ -90,7 +90,7 @@ class EnvBase:
 
     def __del__(self):
         print(
-            "Simulated Environment End with sim time elapsed: {} seconds".format(
+            "INFO: Simulated Environment End with sim time elapsed: {} seconds".format(
                 round(self._world.time, 2)
             )
         )
@@ -148,7 +148,7 @@ class EnvBase:
                     plt.pause(interval)
 
                 if self.save_ani:
-                    self._env_plot.save_gif_figure(**figure_kwargs)
+                    self.save_figure(save_gif=True, **figure_kwargs)
 
                 self._env_plot.clear_components("dynamic", self.objects)
                 self._env_plot.draw_components("dynamic", self.objects, **kwargs)
@@ -272,12 +272,18 @@ class EnvBase:
             **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.
         """
 
+        if self.disable_all_plot:
+            return
+        
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
-        self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
-        plt.pause(ending_time)
+        if self.display: 
+            plt.pause(ending_time)
+            self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
+        
         plt.close()
+        
 
     def done(self, mode="all"):
         """
@@ -472,14 +478,19 @@ class EnvBase:
 
     # endregion: get information
 
-    def save_figure(self, **kwargs):
+    def save_figure(self, save_name=None, include_index=False, save_gif=False, **kwargs):
         """
         Save the current figure.
         Args:
+            save_name: Name of the file with format to save the figure.
             **kwargs: Additional keyword arguments for saving the figure, see matplotlib.pyplot.savefig() function for detail.
         """
+        if save_name is None:
+            save_name = self._world.name + '.png'
 
-        self._env_plot.save_figure(**kwargs)
+        file_name, file_format = save_name.split('.')
+
+        self._env_plot.save_figure(file_name, file_format, include_index, save_gif, **kwargs)
 
     # region: property
 

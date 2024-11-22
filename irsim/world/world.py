@@ -52,7 +52,7 @@ class world:
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
         """
-        self.name = name
+        self.name = name.split('.')[0]
         self.height = height
         self.width = width
         self.step_time = step_time

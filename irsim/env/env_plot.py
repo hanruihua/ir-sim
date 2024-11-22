@@ -9,6 +9,8 @@ import glob
 from math import sin, cos
 import numpy as np
 import matplotlib
+from irsim.util.util import center_figure
+
 matplotlib.use("TkAgg")
 
 
@@ -229,50 +231,36 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(box_line)
 
-    def save_gif_figure(self, format="png", **kwargs):
-        """
-        Save the figure for generating animation.
-
-        Args:
-            format (str): Format of the figure. Default is 'png'.
-            kwargs: Additional arguments for saving the figure.
-                See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
-        """
-        fp = pm.ani_buffer_path
-
-        if not os.path.exists(fp):
-            os.makedirs(fp)
-
-        order = str(world_param.count).zfill(3)
-
-        self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
-        self.saved_figure_kwargs.update(kwargs)
-
-        self.fig.savefig(
-            fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
-        )
-    
-    def save_figure(self, format="png", save_name='', **kwargs):
+    def save_figure(self, file_name='', file_format="png", include_index=False, save_gif=False, **kwargs):
         """
         Save the current figure.
 
         Args:
-            format (str): Format of the figure. Default is 'png'.
+            file_name (str): Name of the figure. Default is ''.
+            file_format (str): Format of the figure. Default is 'png'.
             kwargs: Additional arguments for saving the figure.
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
-        fp = pm.fig_path
+
+        if save_gif:
+            fp = pm.ani_buffer_path
+        else:
+            fp = pm.fig_path
 
         if not os.path.exists(fp):
             os.makedirs(fp)
 
-        order = str(world_param.count).zfill(3)
-
         self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
         self.saved_figure_kwargs.update(kwargs)
 
+        if include_index or save_gif:
+            order = str(world_param.count).zfill(3)
+            full_name = fp + "/" + file_name + '_' + order + "." + file_format
+        else:
+            full_name = fp + "/" + file_name + "." + file_format
+
         self.fig.savefig(
-            fp + "/" + save_name + '_' + order + "." + format, format=format, **self.saved_figure_kwargs
+            full_name, format=file_format, **self.saved_figure_kwargs
         )
     
     def save_animate(
