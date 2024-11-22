@@ -606,5 +606,15 @@ def distance(point1, point2):
     """
     return sqrt((point1[0, 0] - point2[0, 0]) ** 2 + (point1[1, 0] - point2[1, 0]) ** 2)
 
+def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
+
+    if isinstance(range_low, list):
+        range_low = np.c_[range_low]
+
+    if isinstance(range_low, list):
+        range_high = np.c_[range_high] 
+
+    return np.random.uniform(range_low, range_high)
+
 
 
