@@ -25,6 +25,9 @@ class RobotAcker(ObjectBase):
             **kwargs,
         )
 
+        if self.description is None:
+            self.description = "car_green.png"
+
         assert (
             state_dim >= 4
         ), "for differential robot, the state dimension should be greater than 4"
@@ -32,31 +35,6 @@ class RobotAcker(ObjectBase):
         self.wheelbase = kwargs["wheelbase"]
         self.info.add_property("wheelbase", self.wheelbase)
 
-    def plot_object(self, ax, **kwargs):
-
-        # x = self.vertices[0, 0]
-        # y = self.vertices[1, 0]
-
-        start_x = self.vertices[0, 0]
-        start_y = self.vertices[1, 0]
-        r_phi = self._state[2, 0]
-        r_phi_ang = 180 * r_phi / pi
-
-        # car_image_path = Path(current_file_frame).parent / 'car0.png'
-        car_image_path = path_manager.root_path + "/world/description/car_green.png"
-        car_img_read = image.imread(car_image_path)
-
-        car_img = ax.imshow(
-            car_img_read,
-            extent=[start_x, start_x + self.length, start_y, start_y + self.width],
-        )
-        trans_data = (
-            mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
-            + ax.transData
-        )
-        car_img.set_transform(trans_data)
-
-        self.plot_patch_list.append(car_img)
 
     def plot_goal(
         self, ax, goal_color="r", buffer_length=0.0, buffer_width=0.1, **kwargs
@@ -76,7 +54,3 @@ class RobotAcker(ObjectBase):
         ax.add_patch(arrow)
 
         self.plot_patch_list.append(arrow)
-
-    @property
-    def velocity_xy(self):
-        return diff_to_omni(self.state[2, 0], self._velocity)

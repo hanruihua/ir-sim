@@ -23,6 +23,9 @@ from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
 from irsim.lib import kinematics_factory
 from irsim.env.env_plot import linewidth_from_data_units
+from irsim.global_param.path_param import path_manager
+import matplotlib.transforms as mtransforms
+from matplotlib import image
 
 @dataclass
 class ObjectInfo:
@@ -892,8 +895,31 @@ class ObjectBase:
         else:
             self.plot_object_image(ax, self.description, **kwargs)
 
-    def plot_object_image(self):
-        pass
+    def plot_object_image(self, ax, description, **kwargs):
+
+        # x = self.vertices[0, 0]
+        # y = self.vertices[1, 0]
+
+        start_x = self.vertices[0, 0]
+        start_y = self.vertices[1, 0]
+        r_phi = self._state[2, 0]
+        r_phi_ang = 180 * r_phi / pi
+
+        # car_image_path = Path(current_file_frame).parent / 'car0.png'
+        robot_image_path = path_manager.root_path + "/world/description/" + description
+        robot_img_read = image.imread(robot_image_path)
+
+        robot_img = ax.imshow(
+            robot_img_read,
+            extent=[start_x, start_x + self.length, start_y, start_y + self.width],
+        )
+        trans_data = (
+            mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
+            + ax.transData
+        )
+        robot_img.set_transform(trans_data)
+
+        self.plot_patch_list.append(robot_img)
 
     def plot_trajectory(self, ax, keep_length=0, **kwargs):
         """
