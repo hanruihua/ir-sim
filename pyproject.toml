@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir-sim"
-version = "2.2.6"
+version = "2.2.7"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
