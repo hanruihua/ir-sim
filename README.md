@@ -7,8 +7,7 @@
 
 # Intelligent Robot Simulator (IR-SIM)
 
-<a href="https://img.shields.io/badge/release-v2.1.0-brightgreen?link=https%3A%2F%2Fgithub.com%2Fhanruihua%2Fir-sim%2Freleases%2F
-)](https://github.com/hanruihua/ir-sim/releases/"><img src='https://img.shields.io/github/v/release/hanruihua/ir-sim?color=brightgreen' alt='Github Release'></a>
+<a href="https://pypi.org/project/ir-sim/"><img src='https://img.shields.io/pypi/v/ir-sim?color=orange' alt='Github Release'></a>
 <a href="https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue' alt='License'></a>
 <a href="https://pepy.tech/project/ir-sim"><img src="https://img.shields.io/pepy/dt/ir-sim" alt="PyPI Downloads"></a>
 </div>
