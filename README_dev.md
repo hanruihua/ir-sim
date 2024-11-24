@@ -52,7 +52,7 @@
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
 - [ ] LLM integration
 - [ ] organize the functions to calculate A, b, G, h
-- [ ] Reformulate the behavior library
+- [x] Reformulate the behavior library
 - [x] Add comments for the functions
 - [ ] rewrite some lib functions by using c++ to improve the efficiency
 - [ ] Academic Color
@@ -61,3 +61,4 @@
 - [ ] Provide polygon shape robot
 - [ ] develop a lib for configuration of the shape, refer to rviz marker
 - [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. 
+- [ ] 
