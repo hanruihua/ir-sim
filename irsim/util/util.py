@@ -618,3 +618,8 @@ def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
 
 
+def generate_shape_tuple():
+    pass
+
+
+
