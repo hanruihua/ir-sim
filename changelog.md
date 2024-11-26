@@ -1,7 +1,6 @@
 ## ir-sim 2.2.7
 
-
-
+- Reorganize the lidar2d step function to make it faster.
 
 
 ## ir-sim 2.2.6
