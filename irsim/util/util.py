@@ -318,13 +318,13 @@ def geometry_transform(geometry, state):
         Transformed geometry.
     """
 
-    def transfor_with_state(x, y):
-        trans, rot = get_transform(state)
-        points = np.array([x, y])
-        new_points = rot @ points + trans
-        return (new_points[0, :], new_points[1, :])
+    trans, rot = get_transform(state)
 
-    new_geometry = ops.transform(transfor_with_state, geometry)
+    def transform_with_state(x, y):
+        new_x, new_y = rot @ np.array([x, y]) + trans
+        return (new_x, new_y)
+
+    new_geometry = ops.transform(transform_with_state, geometry)
     return new_geometry
 
 

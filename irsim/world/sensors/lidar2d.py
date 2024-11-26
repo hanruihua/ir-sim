@@ -1,11 +1,16 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid
-from irsim.util.util import geometry_transform, transform_point_with_state, get_transform
+from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid, MultiPolygon
+from irsim.util.util import (
+    geometry_transform,
+    transform_point_with_state,
+    get_transform,
+)
 from irsim.global_param import env_param
 from shapely import get_coordinates
 from matplotlib.collections import LineCollection
-
+from shapely.strtree import STRtree 
+from shapely.ops import unary_union
 
 class Lidar2D:
     """
@@ -136,18 +141,9 @@ class Lidar2D:
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
         new_geometry = geometry_transform(self._init_geometry, self._state)
 
-        intersect_index = []
+        new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
 
-        for ind, obj in enumerate(env_param.objects):
-            if self.obj_id != obj._id:
-                if new_geometry.intersects(obj._geometry):
-                    if not is_valid(obj._geometry):
-                        continue
-
-                    new_geometry = new_geometry.difference(obj._geometry)
-                    intersect_index.append(ind)
-
-        if len(intersect_index) == 0:
+        if len(intersect_indices) == 0:
             self._geometry = new_geometry
             self.calculate_range()
         else:
@@ -156,7 +152,47 @@ class Lidar2D:
                 g for g in new_geometry.geoms if g.intersects(origin_point)
             ]
             self._geometry = MultiLineString(filtered_geoms)
-            self.calculate_range_vel(intersect_index)
+            self.calculate_range_vel(intersect_indices)
+
+
+    def laser_geometry_process(self, lidar_geometry):
+
+        # filtered_objects = []
+
+        # for obj in env_param.objects:
+
+        #     if obj.id != self.obj_id and is_valid(obj.geometry) and not isinstance(obj.geometry, MultiPolygon):
+        #         filtered_objects.append(obj)
+            
+        #     if isinstance(obj.geometry, MultiPolygon):
+        #         polygons = list(obj.geometry.geoms)
+        #         filtered_objects += polygons
+
+        filtered_objects = [
+            obj
+            for obj in env_param.objects
+            if obj._id != self.obj_id and is_valid(obj._geometry)
+        ]
+
+        geometries = [obj._geometry for obj in filtered_objects]
+        spatial_index = STRtree(geometries)
+        potential_geometries_index = spatial_index.query(lidar_geometry)
+
+        geometries_to_subtract = []
+        intersect_indices = []
+
+        for geom_index in potential_geometries_index:
+            geo = geometries[geom_index]
+            if lidar_geometry.intersects(geo):
+                geometries_to_subtract.append(geo)
+                intersect_indices.append(geom_index)
+        
+        if geometries_to_subtract:
+            merged_geometry = unary_union(geometries_to_subtract)
+            lidar_geometry = lidar_geometry.difference(merged_geometry)
+        
+        return lidar_geometry, intersect_indices
+
 
     def calculate_range(self):
         """
@@ -169,7 +205,6 @@ class Lidar2D:
             else:
                 self.range_data[index] = l.length
 
-
     def calculate_range_vel(self, intersect_index):
         """
         Calculate the range data and velocities from intersected geometries.
@@ -179,8 +214,9 @@ class Lidar2D:
         """
         for index, l in enumerate(self._geometry.geoms):
             # self.range_data[index] = l.length
-            self.range_data[index] = l.length + np.random.normal(0, self.std) if self.noise else l.length
-            
+            self.range_data[index] = (
+                l.length + np.random.normal(0, self.std) if self.noise else l.length
+            )
 
             if self.has_velocity:
                 if l.length < self.range_max - 0.02:
@@ -248,7 +284,7 @@ class Lidar2D:
         for i in range(self.number):
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
-            
+
             position = self._state[0:2, 0]
             trans, rot = get_transform(self._state)
             range_end_position = rot @ np.array([[x], [y]]) + trans
