@@ -56,7 +56,7 @@ class Behavior:
         """
 
         try:
-            importlib.import_module(behaviors, package='irsim.lib')
+            importlib.import_module(behaviors, package='irsim.lib.behavior')
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
 

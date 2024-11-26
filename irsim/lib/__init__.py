@@ -9,3 +9,6 @@ kinematics_factory = {
     "acker": ackermann_kinematics,
     "omni": omni_kinematics,
 }
+
+from irsim.lib.behavior.behavior_registry import register_behavior
+from irsim.lib.behavior.behavior import Behavior

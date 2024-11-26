@@ -1,4 +1,4 @@
-from irsim.lib.behavior_registry import register_behavior
+from irsim.lib import register_behavior
 from irsim.lib.algorithm.rvo import reciprocal_vel_obs
 from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
