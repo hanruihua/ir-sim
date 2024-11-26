@@ -10,7 +10,7 @@ import platform
 import numpy as np
 from pynput import keyboard
 from .env_logger import EnvLogger
-from irsim.lib.generation import random_generate_polygon
+from irsim.lib import random_generate_polygon
 from shapely import Polygon
 from typing import Optional
 import importlib
