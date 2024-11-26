@@ -751,7 +751,9 @@ class ObjectBase:
             geometry = LineString(shape_tuple)
 
         elif shape == "points":
-            geometry = MultiPoint(shape_tuple.T).buffer(reso / 2)
+            # geometry = MultiPoint(shape_tuple.T).buffer(reso / 2)
+            geometry = MultiPoint(shape_tuple.T).buffer(reso / 2).boundary
+            # temp = geometry.boundary
 
         else:
             raise ValueError(
