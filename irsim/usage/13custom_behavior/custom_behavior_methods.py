@@ -1,4 +1,4 @@
-from irsim.lib.behavior_registry import register_behavior
+from irsim.lib import register_behavior
 from irsim.util.util import relative_position, WrapToPi
 import numpy as np
 
