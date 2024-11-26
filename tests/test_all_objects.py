@@ -2,7 +2,7 @@ import irsim
 
 def test_all_objects():
 
-    env = irsim.make(display=False)
+    env = irsim.make('test_all_objects.yaml', display=False)
 
     for i in range(100):
 
