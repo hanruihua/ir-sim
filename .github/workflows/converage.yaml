@@ -15,9 +15,11 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install pytest pytest-cov
+        run: pip install pytest pytest-cov ir-sim
 
       - name: Run tests
         run: pytest --cov --cov-report=xml
