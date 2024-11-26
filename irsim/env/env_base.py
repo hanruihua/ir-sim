@@ -1,4 +1,6 @@
 import yaml
+import matplotlib
+matplotlib.use("TkAgg")
 from irsim.env.env_config import EnvConfig
 from irsim.util.util import file_check
 from irsim.world import world
