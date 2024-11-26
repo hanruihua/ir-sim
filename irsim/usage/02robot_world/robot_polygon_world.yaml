@@ -1,0 +1,26 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+
+robot:
+  kinematics: {name: 'diff'}  # omni, diff, acker
+  shape: {name: 'polygon', vertices: [[0.1, 0.2], [-0.1, 0.3], [0, -0.3], [0.3, -0.2]]}  # radius
+  behavior: {name: 'dash'} # move toward to the goal directly 
+  state: [1, 1, 0]  
+  goal: [9, 9, 0] 
+  # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
+  color: 'g'
+  plot:
+    show_trajectory: True
+    
+  
+    
+    
+
+
+
+  
+
