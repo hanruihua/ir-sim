@@ -6,7 +6,7 @@ import matplotlib as mpl
 
 from dataclasses import dataclass
 from shapely.ops import transform
-from irsim.lib.behavior import Behavior
+from irsim.lib import Behavior
 from math import inf, pi, atan2, cos, sin, sqrt
 from irsim.global_param import world_param, env_param
 from irsim.util.util import (
@@ -375,7 +375,7 @@ class ObjectBase:
         """
         if self.static or self.stop_flag:
             self._velocity = np.zeros_like(velocity)
-            return self._state
+            return self.state
         else:
             self.pre_process()
             behavior_vel = self.gen_behavior_vel(velocity)
@@ -387,7 +387,7 @@ class ObjectBase:
             self.sensor_step()
             self.post_process()
             self.check_status()
-            self.trajectory.append(self._state.copy())
+            self.trajectory.append(self.state.copy())
             return next_state
 
     def sensor_step(self):
@@ -751,9 +751,7 @@ class ObjectBase:
             geometry = LineString(shape_tuple)
 
         elif shape == "points":
-            # geometry = MultiPoint(shape_tuple.T).buffer(reso / 2)
             geometry = MultiPoint(shape_tuple.T).buffer(reso / 2).boundary
-            # temp = geometry.boundary
 
         else:
             raise ValueError(
@@ -907,7 +905,6 @@ class ObjectBase:
         r_phi = self._state[2, 0]
         r_phi_ang = 180 * r_phi / pi
 
-        # car_image_path = Path(current_file_frame).parent / 'car0.png'
         robot_image_path = path_manager.root_path + "/world/description/" + description
         robot_img_read = image.imread(robot_image_path)
 
