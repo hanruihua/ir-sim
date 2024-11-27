@@ -17,6 +17,7 @@ from irsim.lib import random_generate_polygon
 from shapely import Polygon
 from typing import Optional
 import importlib
+from irsim.world import ObjectBase
 
 
 class EnvBase:
@@ -290,6 +291,7 @@ class EnvBase:
 
         plt.close('all')
         env_param.objects = []
+        ObjectBase.reset_id_iter()
 
     def done(self, mode="all"):
         """
