@@ -1,5 +1,5 @@
 from irsim.lib import register_behavior
-from irsim.lib.algorithm.rvo import reciprocal_vel_obs
+from irsim.lib import reciprocal_vel_obs
 from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
 from math import atan2, asin, cos, sin

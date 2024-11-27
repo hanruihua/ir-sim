@@ -18,7 +18,7 @@ from irsim.util.util import (
     diff_to_omni,
     random_point_range
 )
-from irsim.lib.generation import random_generate_polygon
+from irsim.lib import random_generate_polygon
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
 from irsim.lib import kinematics_factory
@@ -361,6 +361,12 @@ class ObjectBase:
 
         else:
             raise NotImplementedError(f"shape {shape_name} not implemented")
+
+
+    @classmethod
+    def reset_id_iter(cls, start=0, step=1):
+        """reset the id iterator"""
+        cls.id_iter = itertools.count(start, step)
 
     def step(self, velocity=None, **kwargs):
         """
