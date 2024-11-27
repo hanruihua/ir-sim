@@ -1,5 +1,6 @@
 import yaml
 import matplotlib
+
 matplotlib.use("TkAgg")
 from irsim.env.env_config import EnvConfig
 from irsim.util.util import file_check
@@ -92,6 +93,8 @@ class EnvBase:
                 mng.full_screen_toggle()
 
     def __del__(self):
+        env_param.objects = []
+
         print(
             "INFO: Simulated Environment End with sim time elapsed: {} seconds".format(
                 round(self._world.time, 2)
@@ -277,16 +280,16 @@ class EnvBase:
 
         if self.disable_all_plot:
             return
-        
+
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
-        if self.display: 
+        if self.display:
             plt.pause(ending_time)
             self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
-        
-        plt.close()
-        
+
+        plt.close('all')
+        env_param.objects = []
 
     def done(self, mode="all"):
         """
@@ -318,7 +321,6 @@ class EnvBase:
         self.reset_plot()
         self._world.reset()
         self.step(action=np.zeros((2, 1)))
-
 
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
@@ -481,7 +483,9 @@ class EnvBase:
 
     # endregion: get information
 
-    def save_figure(self, save_name=None, include_index=False, save_gif=False, **kwargs):
+    def save_figure(
+        self, save_name=None, include_index=False, save_gif=False, **kwargs
+    ):
         """
         Save the current figure.
         Args:
@@ -489,17 +493,19 @@ class EnvBase:
             **kwargs: Additional keyword arguments for saving the figure, see matplotlib.pyplot.savefig() function for detail.
         """
         if save_name is None:
-            save_name = self._world.name + '.png'
+            save_name = self._world.name + ".png"
 
-        file_name, file_format = save_name.split('.')
+        file_name, file_format = save_name.split(".")
 
-        self._env_plot.save_figure(file_name, file_format, include_index, save_gif, **kwargs)
+        self._env_plot.save_figure(
+            file_name, file_format, include_index, save_gif, **kwargs
+        )
 
     # region: property
 
-    def load_behavior(self, behaviors: str='behavior_methods'):
+    def load_behavior(self, behaviors: str = "behavior_methods"):
         """
-        Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details. 
+        Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details.
         Please make sure the python file is placed in the same folder with the implemented script.
 
         Args:
@@ -510,7 +516,6 @@ class EnvBase:
             importlib.import_module(behaviors)
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
-
 
     @property
     def arrive(self, id=None, mode=None):

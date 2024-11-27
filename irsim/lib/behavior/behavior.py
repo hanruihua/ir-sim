@@ -41,8 +41,10 @@ class Behavior:
         if self.behavior_dict is None:
             env_param.logger.error("Behavior not defined for object {}.".format(self.object_info.id))
             return np.zeros((2, 1))
-
-        behavior_vel = self.invoke_behavior(self.object_info.kinematics, self.behavior_dict["name"], ego_object=objects[self.object_info.id], objects=objects, **self.behavior_dict)
+        
+        print('test', len(objects), self.object_info.id)
+        ego_object = objects[self.object_info.id]
+        behavior_vel = self.invoke_behavior(self.object_info.kinematics, self.behavior_dict["name"], ego_object=ego_object, objects=objects, **self.behavior_dict)
 
         return behavior_vel
 
