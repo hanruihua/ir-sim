@@ -5,6 +5,7 @@ import importlib
 from typing import Tuple, Any
 from .behavior_registry import behaviors_map
 
+
 class Behavior:
     """
     Represents the behavior of an agent in the simulation.
@@ -35,21 +36,26 @@ class Behavior:
             objects: all the objects in the evironment
 
         Returns:
-            np.array (2, 1): Generated velocity for the agent. 
+            np.array (2, 1): Generated velocity for the agent.
         """
-        
+
         if self.behavior_dict is None:
-            env_param.logger.error("Behavior not defined for object {}.".format(self.object_info.id))
+            env_param.logger.error(
+                "Behavior not defined for object {}.".format(self.object_info.id)
+            )
             return np.zeros((2, 1))
-        
-        print('test', len(objects), self.object_info.id)
-        ego_object = objects[self.object_info.id]
-        behavior_vel = self.invoke_behavior(self.object_info.kinematics, self.behavior_dict["name"], ego_object=ego_object, objects=objects, **self.behavior_dict)
+
+        behavior_vel = self.invoke_behavior(
+            self.object_info.kinematics,
+            self.behavior_dict["name"],
+            ego_object=objects[self.object_info.id],
+            objects=objects,
+            **self.behavior_dict,
+        )
 
         return behavior_vel
 
-
-    def load_behavior(self, behaviors: str='.behavior_methods'):
+    def load_behavior(self, behaviors: str = ".behavior_methods"):
         """
         Load behavior parameters from the script.
 
@@ -58,10 +64,9 @@ class Behavior:
         """
 
         try:
-            importlib.import_module(behaviors, package='irsim.lib.behavior')
+            importlib.import_module(behaviors, package="irsim.lib.behavior")
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
-
 
     def invoke_behavior(self, kinematics: str, action: str, **kwargs: Any) -> Any:
         """
@@ -78,6 +83,8 @@ class Behavior:
         key: Tuple[str, str] = (kinematics, action)
         func = behaviors_map.get(key)
         if not func:
-            raise ValueError(f"No method found for category '{kinematics}' and action '{action}'.")
-        
+            raise ValueError(
+                f"No method found for category '{kinematics}' and action '{action}'."
+            )
+
         return func(**kwargs)
