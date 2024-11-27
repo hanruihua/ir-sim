@@ -1,7 +1,7 @@
 import numpy as np
 from irsim.util.util import extend_list
 from irsim.world.object_base import ObjectBase
-from irsim.lib.generation import generate_polygon
+from irsim.lib import generate_polygon
 
 class MultiObjects:
     """
