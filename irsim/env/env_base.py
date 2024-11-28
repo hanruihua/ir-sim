@@ -18,6 +18,7 @@ from shapely import Polygon
 from typing import Optional
 import importlib
 from irsim.world import ObjectBase
+from tabulate import tabulate
 
 
 class EnvBase:
@@ -252,18 +253,21 @@ class EnvBase:
         self.key_vel = np.zeros((2, 1))
 
         print("start to keyboard control")
-        print(
-            "w: forward",
-            "s: back forward",
-            "a: turn left",
-            "d: turn right",
-            "q: decrease linear velocity",
-            "e: increase linear velocity",
-            "z: decrease angular velocity",
-            "c: increase angular velocity",
-            "alt+num: change current control robot id",
-            "r: reset the environment",
-        )
+
+        commands = [
+        ["w", "forward"],
+        ["s", "back forward"],
+        ["a", "turn left"],
+        ["d", "turn right"],
+        ["q", "decrease linear velocity"],
+        ["e", "increase linear velocity"],
+        ["z", "decrease angular velocity"],
+        ["c", "increase angular velocity"],
+        ["alt+num", "change current control robot id"],
+        ["r", "reset the environment"]
+        ]
+        headers = ["key", "function"]
+        print(tabulate(commands, headers, tablefmt="grid"))
 
         self.listener = keyboard.Listener(
             on_press=self._on_press, on_release=self._on_release
@@ -289,9 +293,12 @@ class EnvBase:
             plt.pause(ending_time)
             self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
 
-        plt.close('all')
+        plt.close("all")
         env_param.objects = []
         ObjectBase.reset_id_iter()
+
+        if world_param.control_mode == "keyboard":
+            self.listener.stop()
 
     def done(self, mode="all"):
         """
