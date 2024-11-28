@@ -1,0 +1,48 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'unobstructed_obstacles'  # 'keyboard', 'auto'
+
+plot:
+  no_axis: False
+
+robot:
+  - kinematics: {name: 'diff'}  # omni, diff, acker
+    shape: {name: 'circle', radius: 0.2}  # radius
+    # shape: {name: 'rectangle', length: 0.5, width: 0.2}  # radius
+    state: [1, 1, 0]  
+    goal: [9, 4, 0] 
+    # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
+    behavior: {name: 'dash'} # move toward to the goal directly 
+
+  - kinematics: {name: 'diff'}  # omni, diff, acker
+    shape: {name: 'circle', radius: 0.2}  # radius
+    # shape: {name: 'rectangle', length: 0.5, width: 0.2}  # radius
+    state: [5, 1, 0]  
+    goal: [2, 6, 0] 
+    # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
+    behavior: {name: 'dash'} # move toward to the goal directly 
+    color: 'royalblue'
+    plot: {show_trajectory: True, show_trail: True, trail_fill: True, trail_alpha: 0.2} 
+      
+obstacle:
+  - number: 10
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'circle', radius: 1.5}  # radius
+      - {name: 'circle', radius: 1.0}  # radius
+      
+    state: [[20, 34], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
+
+
+
+
+
+
+
+  # - shape: {name: 'circle', radius: 0.4}  # radius
+  #   state: [1, 1, 0] 

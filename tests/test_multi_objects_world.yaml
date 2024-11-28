@@ -1,0 +1,55 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+
+robot:
+  - number: 2
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    state: 
+      - [1, 1, 0]  
+      - [2, 1, 0]
+    goal:
+      - [9, 9, 0] 
+      - [9, 2, 0]
+    behavior: 
+      - {name: 'dash'} # move toward to the goal directly 
+      - {name: 'dash'} # move toward to the goal directly
+    color: 
+      - 'royalblue'
+      - 'red'
+  
+  - number: 4
+    distribution: {name: 'random'}
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+      - {name: 'rectangle', length: 1.5, width: 1.2}  # radiu
+    behavior: 
+      - {name: 'dash'} # move toward to the goal directly 
+    color: 
+      - 'pink'
+
+    plot:
+      goal_color: 'purple'
+
+
+obstacle:
+  - number: 10
+    distribution: {name: 'manual'}
+    state: [[4, 8], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
+    shape:
+      - {name: 'circle', radius: 0.4}  # radius
+      - {name: 'circle', radius: 0.1}  # radius
+    color: 'k'
+
+    
+    
