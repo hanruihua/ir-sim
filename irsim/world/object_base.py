@@ -625,42 +625,42 @@ class ObjectBase:
 
         return behavior_vel_clip
 
-    def vel_check(self, velocity):
-        """
-        Check if velocity is within limits.
+    # def vel_check(self, velocity):
+    #     """
+    #     Check if velocity is within limits.
 
-        Args:
-            velocity (np.ndarray): Desired velocity.
+    #     Args:
+    #         velocity (np.ndarray): Desired velocity.
 
-        Returns:
-            np.ndarray: Clipped velocity.
-        """
-        if isinstance(velocity, list):
-            velocity = np.c_[velocity]
-        if velocity.ndim == 1:
-            velocity = velocity[:, np.newaxis]
+    #     Returns:
+    #         np.ndarray: Clipped velocity.
+    #     """
+    #     if isinstance(velocity, list):
+    #         velocity = np.c_[velocity]
+    #     if velocity.ndim == 1:
+    #         velocity = velocity[:, np.newaxis]
 
-        assert velocity.shape == self.vel_shape
+    #     assert velocity.shape == self.vel_shape
 
-        min_vel = np.maximum(
-            self.vel_min, self._velocity - self.acce * world_param.step_time
-        )
-        max_vel = np.minimum(
-            self.vel_max, self._velocity + self.acce * world_param.step_time
-        )
+    #     min_vel = np.maximum(
+    #         self.vel_min, self._velocity - self.acce * world_param.step_time
+    #     )
+    #     max_vel = np.minimum(
+    #         self.vel_max, self._velocity + self.acce * world_param.step_time
+    #     )
 
-        if (velocity < min_vel).any():
-            logging.warning(
-                "velocity is smaller than min_vel, velocity is clipped to min_vel"
-            )
-        elif (velocity > max_vel).any():
-            logging.warning(
-                "velocity is larger than max_vel, velocity is clipped to max_vel"
-            )
+    #     if (velocity < min_vel).any():
+    #         logging.warning(
+    #             "velocity is smaller than min_vel, velocity is clipped to min_vel"
+    #         )
+    #     elif (velocity > max_vel).any():
+    #         logging.warning(
+    #             "velocity is larger than max_vel, velocity is clipped to max_vel"
+    #         )
 
-        velocity_clip = np.clip(velocity, min_vel, max_vel)
+    #     velocity_clip = np.clip(velocity, min_vel, max_vel)
 
-        return velocity_clip
+    #     return velocity_clip
 
     def pre_process(self):
         pass
@@ -1206,33 +1206,33 @@ class ObjectBase:
             return np.c_[x, y].T
         return self._geometry.exterior.coords._coords.T
 
-    @property
-    def desired_diff_vel(self, angle_tolerance=0.1, goal_threshold=0.1):
-        """
-        Calculate the desired differential velocity.
+    # @property
+    # def desired_diff_vel(self, angle_tolerance=0.1, goal_threshold=0.1):
+    #     """
+    #     Calculate the desired differential velocity.
 
-        Args:
-            angle_tolerance (float): Tolerance for angle deviation.
-            goal_threshold (float): Threshold for goal proximity.
+    #     Args:
+    #         angle_tolerance (float): Tolerance for angle deviation.
+    #         goal_threshold (float): Threshold for goal proximity.
 
-        Returns:
-            np.ndarray: Desired velocity [linear, angular].
-        """
-        distance, radian = relative_position(self._state, self._goal)
+    #     Returns:
+    #         np.ndarray: Desired velocity [linear, angular].
+    #     """
+    #     distance, radian = relative_position(self._state, self._goal)
 
-        if distance < goal_threshold:
-            return np.zeros((2, 1))
+    #     if distance < goal_threshold:
+    #         return np.zeros((2, 1))
 
-        diff_radian = WrapToPi(radian - self._state[2, 0])
+    #     diff_radian = WrapToPi(radian - self._state[2, 0])
 
-        linear = self.vel_max[0, 0] * np.cos(diff_radian)
+    #     linear = self.vel_max[0, 0] * np.cos(diff_radian)
 
-        if abs(diff_radian) < angle_tolerance:
-            angular = 0
-        else:
-            angular = self.vel_max[1, 0] * np.sign(diff_radian)
+    #     if abs(diff_radian) < angle_tolerance:
+    #         angular = 0
+    #     else:
+    #         angular = self.vel_max[1, 0] * np.sign(diff_radian)
 
-        return np.array([[linear], [angular]])
+    #     return np.array([[linear], [angular]])
 
     @property
     def desired_omni_vel(self, goal_threshold=0.1):

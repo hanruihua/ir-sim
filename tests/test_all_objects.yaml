@@ -7,7 +7,7 @@ world:
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
 
 robot:
-  - kinematics: {name: 'diff'}  # omni, diff, acker
+  - kinematics: {name: 'diff', noise: True}  # omni, diff, ackers
     shape: {name: 'circle', radius: 0.2}  # radius
     # shape: {name: 'rectangle', length: 0.5, width: 0.2}  # radius
     state: [1, 1, 0]  
@@ -30,6 +30,8 @@ robot:
     goal: [9, 9, 0] 
     # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
     behavior: {name: 'dash'} # move toward to the goal directly 
+    plot:
+      show_goal: True
   
 obstacle:
   - kinematics: {name: 'omni'}

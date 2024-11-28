@@ -145,7 +145,7 @@ class reciprocal_vel_obs:
 
         for obstacle in self.obs_state_list:
             # for circular: [x, y, radius]
-            hrvo = self.config_hrvo_mode(obstacle, mode=obstacle[3])
+            hrvo = self.config_hrvo_mode(obstacle)
             hrvo_list.append(hrvo)
 
         return hrvo_list
@@ -288,6 +288,11 @@ class reciprocal_vel_obs:
 
         ratio = (r + mr) / dis_mr
 
+        if ratio > 1:
+            ratio = 1
+        if ratio < -1:
+            ratio = -1
+
         half_angle = asin(ratio)
         line_left_ori = angle_mr + half_angle
         line_right_ori = angle_mr - half_angle
@@ -382,36 +387,36 @@ class reciprocal_vel_obs:
 
         return penalty_vel
 
-    @staticmethod
-    def between_radians(radians_left, radians_right, radians):
+    # @staticmethod
+    # def between_radians(radians_left, radians_right, radians):
 
-        if radians_left <= pi and radians_right >= -pi:
-            if radians >= radians_right and radians <= radians_left:
-                return True
-            else:
-                return False
+    #     if radians_left <= pi and radians_right >= -pi:
+    #         if radians >= radians_right and radians <= radians_left:
+    #             return True
+    #         else:
+    #             return False
 
-        elif radians_left > pi:
+    #     elif radians_left > pi:
 
-            radians_2pi = radians + 2 * pi
+    #         radians_2pi = radians + 2 * pi
 
-            if (radians >= radians_right and radians <= pi) or (
-                radians_2pi >= pi and radians_2pi <= radians_left
-            ):
-                return True
-            else:
-                return False
+    #         if (radians >= radians_right and radians <= pi) or (
+    #             radians_2pi >= pi and radians_2pi <= radians_left
+    #         ):
+    #             return True
+    #         else:
+    #             return False
 
-        elif radians_right < -pi:
+    #     elif radians_right < -pi:
 
-            radians_2pi = radians - 2 * pi
+    #         radians_2pi = radians - 2 * pi
 
-            if (radians >= -pi and radians <= radians_left) or (
-                radians_2pi <= -pi and radians_2pi >= radians_right
-            ):
-                return True
-            else:
-                return False
+    #         if (radians >= -pi and radians <= radians_left) or (
+    #             radians_2pi <= -pi and radians_2pi >= radians_right
+    #         ):
+    #             return True
+    #         else:
+    #             return False
 
     # judge the direction by vector
     @staticmethod
