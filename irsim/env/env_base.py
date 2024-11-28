@@ -1,3 +1,8 @@
+'''
+Class EnvBase is the base class of the environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
+Author: Ruihua Han (hanrh@connect.hku.hk)
+'''
+
 import yaml
 import matplotlib
 
