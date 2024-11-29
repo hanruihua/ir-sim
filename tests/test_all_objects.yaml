@@ -22,6 +22,22 @@ robot:
         angle_range: 3.1415926
         number: 100
         noise: False
+        has_velocity: True
+      
+  - kinematics: {name: 'diff', noise: True}  # omni, diff, ackers
+    shape: {name: 'circle', radius: 0.2}  # radius
+    # shape: {name: 'rectangle', length: 0.5, width: 0.2}  # radius
+    state: [1, 1, 0]  
+    goal: [9, 9, 0] 
+    # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
+    sensors: 
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 10
+        angle_range: 3.1415926
+        number: 100
+        noise: False
+        has_velocity: True
   
   - kinematics: {name: 'acker'}  # omni, diff, acker
     shape: {name: 'circle', radius: 0.2, wheel_base: 0.2}  # radius

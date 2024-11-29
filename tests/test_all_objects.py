@@ -1,5 +1,7 @@
 from irsim.util.util import time_it
+from unittest.mock import Mock
 import irsim
+from pynput import keyboard
 
 @time_it("test_all_objects")
 def test_all_objects():
@@ -19,11 +21,14 @@ def test_all_objects():
     
     env2 = irsim.make('test_all_objects.yaml', display=False)
 
-    env2.robot.get_lidar_points()
+    env2.random_polygon_shape()
+    temp_points = env2.robot.get_lidar_points()
+    env2.draw_points(temp_points)
+
     env2.robot.get_lidar_scan()
     env2.robot.get_lidar_offset()
 
-    for i in range(2):
+    for i in range(10):
         env2.step()
         env2.render(0.01)
     env2.end()
@@ -57,6 +62,27 @@ def test_all_objects():
         env6.step()
         env6.render(0.01)
     env6.end()
+
+    env7 = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False)
+    key_list = ['w', 'a', 's', 'd', 'q', 'e', 'z', 'c', 'r']
+
+    mock_key_list = []
+    for c in key_list:
+        mock_key = Mock(spec=keyboard.Key)
+        mock_key.char = c
+        mock_key_list.append(mock_key)
+
+    for i in range(30):
+
+        for mock_key in mock_key_list:
+            env7._on_press(mock_key)
+            env7._on_release(mock_key)
+
+        env7.step()
+        env7.render(0.01)
+
+    env7.end()
+
 
 if __name__ == "__main__":
     test_all_objects()
