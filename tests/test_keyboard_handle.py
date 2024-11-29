@@ -1,6 +1,3 @@
-# import matplotlib
-# matplotlib.use("TkAgg")
-
 import irsim
 from pynput import keyboard
 from unittest.mock import Mock
