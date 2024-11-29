@@ -39,9 +39,9 @@ class Behavior:
             np.array (2, 1): Generated velocity for the agent.
         """
 
-        if self.behavior_dict is None:
-            env_param.logger.error(
-                "Behavior not defined for object {}.".format(self.object_info.id)
+        if self.behavior_dict is None or not self.behavior_dict:
+            env_param.logger.warning(
+                "Behavior not defined for object {}. Robot will be static".format(self.object_info.id)
             )
             return np.zeros((2, 1))
 
