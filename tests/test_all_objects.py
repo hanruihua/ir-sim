@@ -83,6 +83,14 @@ def test_all_objects():
 
     env7.end()
 
+    env8 = irsim.make('custom_behavior.yaml')
+    env8.load_behavior("custom_behavior_methods")
+
+    for i in range(10):
+        env8.step()
+        env8.render(0.01)
+        
+    env8.end()
 
 if __name__ == "__main__":
     test_all_objects()
