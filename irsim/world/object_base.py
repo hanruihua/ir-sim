@@ -16,16 +16,16 @@ from irsim.util.util import (
     WrapToPi,
     gen_inequal_from_vertex,
     diff_to_omni,
-    random_point_range
+    random_point_range,
 )
-from irsim.lib import random_generate_polygon
+from irsim.lib import random_generate_polygon, kinematics_handler
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
-from irsim.lib import kinematics_factory
 from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
+
 
 @dataclass
 class ObjectInfo:
@@ -73,6 +73,7 @@ class ObjectBase:
     Attributes:
         id_iter (iterator): A class-level iterator to generate unique IDs for each object.
         vel_shape (tuple): The shape of the velocity vector, default is (2, 1).
+        state_shape (tuple): The shape of the state vector, default is (3, 1).
     """
 
     id_iter = itertools.count()
@@ -81,12 +82,11 @@ class ObjectBase:
 
     def __init__(
         self,
-        shape: str = "circle",
         shape_tuple=None,
+        kinematics_tuple=None,
         state=[0, 0, 0],
         velocity=[0, 0],
         goal=[10, 10, 0],
-        kinematics: str = "omni",
         role: str = "obstacle",
         color="k",
         static=False,
@@ -97,7 +97,6 @@ class ObjectBase:
         behavior=None,
         goal_threshold=0.1,
         sensors=None,
-        kinematics_dict=dict(),
         arrive_mode="position",
         description=None,
         group=0,
@@ -137,15 +136,20 @@ class ObjectBase:
             unobstructed (bool): Whether the object is unobstructed.
         """
         self._id = next(ObjectBase.id_iter)
-        self._shape = shape
+
+        # handlers
+        self.kh = kinematics_handler(self, kinematics_tuple)
+        self.sh = shape_handler(self, shape_tuple)
         self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
+
+        
 
         if state_dim is None:
             self.state_dim = self.state_shape[0]
         else:
             self.state_dim = state_dim
             self.state_shape = (state_dim, 1)
-
+ 
         if vel_dim is None:
             self.vel_dim = self.vel_shape[0]
         else:
@@ -165,8 +169,7 @@ class ObjectBase:
         self._geometry = self.geometry_transform(self._init_geometry, self._state)
         self.group = group
 
-        self.kinematics = kinematics
-        self.kinematics_dict = kinematics_dict
+        
 
         # flag
         self.stop_flag = False
@@ -229,12 +232,13 @@ class ObjectBase:
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
-        self.gl = self.beh_config.get("range_low", [0, 0, -pi])
-        self.gh = self.beh_config.get("range_high", [10, 10, pi])
-        self.wander = self.beh_config.get('wander', False)
+        self.rl = self.beh_config.get("range_low", [0, 0, -pi])
+        self.rh = self.beh_config.get("range_high", [10, 10, pi])
+        self.wander = self.beh_config.get("wander", False)
 
-        if self.wander: self._goal = random_point_range(self.gl, self.gh)
-            
+        if self.wander:
+            self._goal = random_point_range(self.rl, self.rh)
+
         # plot
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -362,7 +366,6 @@ class ObjectBase:
         else:
             raise NotImplementedError(f"shape {shape_name} not implemented")
 
-
     @classmethod
     def reset_id_iter(cls, start=0, step=1):
         """reset the id iterator"""
@@ -379,14 +382,21 @@ class ObjectBase:
         Returns:
             np.ndarray: The new state of the object.
         """
+
+        assert (
+            velocity.shape == self.vel_shape
+        )
+
         if self.static or self.stop_flag:
             self._velocity = np.zeros_like(velocity)
             return self.state
         else:
             self.pre_process()
+
             behavior_vel = self.gen_behavior_vel(velocity)
-            new_state = self._kinematics_step(behavior_vel, **self.kinematics_dict)
+            new_state = self.kh.step(self.state, behavior_vel, world_param.step_time)
             next_state = self.mid_process(new_state)
+
             self._state = next_state
             self._velocity = behavior_vel
             self._geometry = self.geometry_transform(self._init_geometry, self._state)
@@ -401,59 +411,6 @@ class ObjectBase:
         Update all sensors for the current state.
         """
         [sensor.step(self._state[0:3]) for sensor in self.sensors]
-
-    def _kinematics_step(
-        self, velocity, noise=False, alpha=[0.03, 0, 0, 0.03], mode="steer", **kwargs
-    ):
-        """
-        Calculate the next state using the kinematics model.
-
-        Args:
-            velocity (np.ndarray): Velocity vector [vx, vy] (2x1).
-            noise (bool): Whether to add noise (default False).
-            alpha (list): Noise parameters.
-            mode (str): Mode for kinematics, e.g., "steer".
-
-        Returns:
-            np.ndarray: Next state [x, y, theta] (3x1).
-        """
-        assert (
-            velocity.shape == self.vel_shape and self._state.shape == self.state_shape
-        )
-
-        if self.kinematics == "omni" or self.kinematics == "diff":
-            next_state = kinematics_factory[self.kinematics](
-                self._state, velocity, world_param.step_time, noise, alpha
-            )
-
-        elif self.kinematics == "acker":
-            next_state = kinematics_factory[self.kinematics](
-                self._state,
-                velocity,
-                world_param.step_time,
-                noise,
-                alpha,
-                mode=mode,
-                wheelbase=self.wheelbase,
-            )
-
-        elif self.kinematics == "custom":
-            raise NotImplementedError("custom kinematics is not implemented")
-
-        else:
-            raise ValueError(
-                "kinematics should be one of the following: omni, diff, acker"
-            )
-
-        if next_state.shape[0] < self.state_dim:
-            next_state = np.r_[
-                next_state,
-                np.zeros((self.state_dim - next_state.shape[0], next_state.shape[1])),
-            ]
-        elif next_state.shape[0] > self.state_dim:
-            next_state = next_state[: self.state_dim]
-
-        return next_state
 
     def geometry_transform(self, geometry, state):
         """
@@ -576,26 +533,10 @@ class ObjectBase:
 
             else:
                 if self.wander and self.arrive_flag:
-                    self._goal = random_point_range(self.gl, self.gh)
+                    self._goal = random_point_range(self.rl, self.rh)
                     self.arrive_flag = False
 
                 behavior_vel = self.obj_behavior.gen_vel(env_param.objects)
-
-                # if self.beh_config["name"] == "rvo":
-
-                #     behavior_vel = self.obj_behavior.gen_vel(
-                #         self._state,
-                #         self._goal,
-                #         min_vel,
-                #         max_vel,
-                #         rvo_neighbor=self.rvo_neighbors,
-                #         rvo_state=self.rvo_state,
-                #     )
-
-                # else:
-                #     behavior_vel = self.obj_behavior.gen_vel(
-                #         self._state, self._goal, min_vel, max_vel
-                #     )
 
         else:
             if isinstance(velocity, list):
@@ -625,43 +566,6 @@ class ObjectBase:
 
         return behavior_vel_clip
 
-    # def vel_check(self, velocity):
-    #     """
-    #     Check if velocity is within limits.
-
-    #     Args:
-    #         velocity (np.ndarray): Desired velocity.
-
-    #     Returns:
-    #         np.ndarray: Clipped velocity.
-    #     """
-    #     if isinstance(velocity, list):
-    #         velocity = np.c_[velocity]
-    #     if velocity.ndim == 1:
-    #         velocity = velocity[:, np.newaxis]
-
-    #     assert velocity.shape == self.vel_shape
-
-    #     min_vel = np.maximum(
-    #         self.vel_min, self._velocity - self.acce * world_param.step_time
-    #     )
-    #     max_vel = np.minimum(
-    #         self.vel_max, self._velocity + self.acce * world_param.step_time
-    #     )
-
-    #     if (velocity < min_vel).any():
-    #         logging.warning(
-    #             "velocity is smaller than min_vel, velocity is clipped to min_vel"
-    #         )
-    #     elif (velocity > max_vel).any():
-    #         logging.warning(
-    #             "velocity is larger than max_vel, velocity is clipped to max_vel"
-    #         )
-
-    #     velocity_clip = np.clip(velocity, min_vel, max_vel)
-
-    #     return velocity_clip
-
     def pre_process(self):
         pass
 
@@ -680,6 +584,15 @@ class ObjectBase:
         """
         if state.shape[0] > 2:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
+        
+
+        if state.shape[0] < self.state_dim:
+            state = np.r_[
+                state,
+                np.zeros((self.state_dim - state.shape[0], state.shape[1])),
+            ]
+        elif state.shape[0] > self.state_dim:
+            state = state[: self.state_dim]
 
         return state
 
@@ -1153,6 +1066,10 @@ class ObjectBase:
     @property
     def shape(self):
         return self._shape
+
+    @property
+    def kinematics(self):
+        return self.kh.name
 
     @property
     def geometry(self):

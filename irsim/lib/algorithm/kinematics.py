@@ -5,12 +5,11 @@ from irsim.util.util import WrapToPi
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
 
+
 def differential_kinematics(
     state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]
 ):
     """
-    
-
     Calculate the next state for a differential wheel robot.
 
     Args:
@@ -18,7 +17,7 @@ def differential_kinematics(
         velocity: A 2x1 vector [linear, angular] representing the current velocities.
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
-        alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]).
+        alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]). alpha[0] and alpha[1] are for linear velocity, alpha[2] and alpha[3] are for angular velocity.
 
     Returns:
         next_state: A 3x1 vector [x, y, theta] representing the next state.
@@ -62,9 +61,12 @@ def ackermann_kinematics(
     Args:
         state: A 4x1 vector [x, y, theta, steer_angle] representing the current state.
         velocity: A 2x1 vector representing the current velocities, format depends on mode.
+            For "steer" mode, [linear, steer_angle] is expected.
+            For "angular" mode, [linear, angular] is expected.
+            
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
-        alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]).
+        alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]). alpha[0] and alpha[1] are for linear velocity, alpha[2] and alpha[3] are for angular velocity.
         mode: The kinematic mode, either "steer" or "angular" (default "steer").
         wheelbase: The distance between the front and rear axles (default 1).
 
@@ -119,11 +121,12 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0.03])
         velocity: A 2x1 vector [vx, vy] representing the current velocities.
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
-        alpha: List of noise parameters for the velocity model (default [0.03, 0.03]).
+        alpha: List of noise parameters for the velocity model (default [0.03, 0.03]). alpha[0] is for x velocity, alpha[1] is for y velocity.
 
     Returns:
         new_position: A 2x1 vector [x, y] representing the next position.
     """
+
     assert velocity.shape[0] >= 2 and state.shape[0] >= 2
 
     if noise:
