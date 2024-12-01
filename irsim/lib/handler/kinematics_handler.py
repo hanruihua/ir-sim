@@ -1,37 +1,34 @@
+# Refactored kinematics_handler.py
+
 import numpy as np
+from abc import ABC, abstractmethod
 from irsim.lib.algorithm.kinematics import (
     differential_kinematics,
     ackermann_kinematics,
     omni_kinematics,
 )
 
-class kinematics_handler:
-    """
-    This class is the handler for the kinematics of the robot. All the kinematics related functions are defined here. The step function is used to calculate the next state of the robot based on the current state and the velocity vector. Support kinematics include 'diff', 'acker', 'omni', and 'custom'.
 
-    Args:
-        name (str): Name of the robot.
-        noise (bool): Whether to add noise (default False).
-        alpha (list): Noise parameters.
-        **kwargs: Additional parameters for the acker kinematics.
-            wheelbase: Wheelbase for acker kinematics (default 1.0).
-            mode: Mode for acker kinematics (default "steer", options: "steer", "angular").
+class KinematicsHandler(ABC):
+    """
+    Abstract base class for handling robot kinematics.
     """
 
-    def __init__(self, name, noise=False, alpha=[], **kwargs) -> None:
+    def __init__(self, noise: bool = False, alpha: list = None):
 
-        self.name = name
+        '''
+        Initialize the KinematicsHandler class.
+        
+        Args:
+            noise (bool): Boolean indicating whether to add noise to the velocity (default False).
+            alpha (list): List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]).
+        '''
+
         self.noise = noise
-        self.alpha = alpha
-        self.wheelbase = kwargs.get("wheelbase", 1.0)
-        self.mode = kwargs.get("mode", "steer")
+        self.alpha = alpha or [0.03, 0, 0, 0.03]
 
-    def step(
-        self,
-        state,
-        velocity,
-        step_time,
-    ):
+    @abstractmethod
+    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
         """
         Calculate the next state using the kinematics model.
 
@@ -39,41 +36,57 @@ class kinematics_handler:
             state (np.ndarray): Current state.
             velocity (np.ndarray): Velocity vector.
             step_time (float): Time step for simulation.
-            noise (bool): Whether to add noise (default False).
-            alpha (list): Noise parameters.
 
         Returns:
             np.ndarray: Next state.
         """
+        pass
 
-        if self.name == "omni":
-            next_state = omni_kinematics(
-                state, velocity, step_time, self.noise, self.alpha
-            )
-        
-        elif self.name == "diff":
-            next_state = differential_kinematics(
-                state, velocity, step_time, self.noise, self.alpha
-            )
-        
-        elif self.name == "acker":
 
-            next_state = ackermann_kinematics(
-                state,
-                velocity,
-                step_time,
-                self.noise,
-                self.alpha,
-                self.mode,
-                self.wheelbase
-            )
-
-        elif self.kinematics == "custom":
-            raise NotImplementedError("custom kinematics is not implemented")
-
-        else:
-            raise ValueError(
-                "kinematics should be one of the following: omni, diff, acker"
-            )
-
+class OmniKinematics(KinematicsHandler):
+    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
+        next_state = omni_kinematics(state, velocity, step_time, self.noise, self.alpha)
         return next_state
+
+
+class DifferentialKinematics(KinematicsHandler):
+    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
+        next_state = differential_kinematics(state, velocity, step_time, self.noise, self.alpha)
+        return next_state
+
+
+class AckermannKinematics(KinematicsHandler):
+    def __init__(self, noise: bool = False, alpha: list = None, mode: str = "steer", wheelbase: float = 1.0):
+        super().__init__(noise, alpha)
+        self.mode = mode
+        self.wheelbase = wheelbase
+
+    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
+        next_state = ackermann_kinematics(
+            state, velocity, step_time, self.noise, self.alpha, self.mode, self.wheelbase
+        )
+        return next_state
+
+
+class KinematicsFactory:
+    """
+    Factory class to create kinematics handlers.
+    """
+
+    @staticmethod
+    def create_kinematics(
+        name: str,
+        noise: bool = False,
+        alpha: list = None,
+        mode: str = "steer",
+        wheelbase: float = 1.0,
+    ) -> KinematicsHandler:
+        name = name.lower()
+        if name == "omni":
+            return OmniKinematics(noise, alpha)
+        elif name == "diff":
+            return DifferentialKinematics(noise, alpha)
+        elif name == "acker":
+            return AckermannKinematics(noise, alpha, mode, wheelbase)
+        else:
+            raise ValueError(f"Unknown kinematics type: {name}")

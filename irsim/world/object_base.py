@@ -18,7 +18,7 @@ from irsim.util.util import (
     diff_to_omni,
     random_point_range,
 )
-from irsim.lib import random_generate_polygon, kinematics_handler
+from irsim.lib import random_generate_polygon, KinematicsFactory
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
 from irsim.env.env_plot import linewidth_from_data_units
@@ -82,8 +82,8 @@ class ObjectBase:
 
     def __init__(
         self,
-        shape_tuple=None,
-        kinematics_tuple=None,
+        shape=None,
+        kinematics=None,
         state=[0, 0, 0],
         velocity=[0, 0],
         goal=[10, 10, 0],
@@ -138,11 +138,9 @@ class ObjectBase:
         self._id = next(ObjectBase.id_iter)
 
         # handlers
-        self.kh = kinematics_handler(self, kinematics_tuple)
-        self.sh = shape_handler(self, shape_tuple)
+        self.kf = KinematicsFactory(self, **kinematics)
+        self.gf = GeometryFactory(self, **shape)
         self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
-
-        
 
         if state_dim is None:
             self.state_dim = self.state_shape[0]
@@ -647,42 +645,6 @@ class ObjectBase:
             geometry: The shapely geometry of the object.
         """
         self._init_geometry = geometry
-
-    def construct_geometry(self, shape, shape_tuple, reso=0.1):
-        """
-        Construct the geometry of the object.
-
-        Args:
-            shape (str): The shape of the object.
-            shape_tuple: Tuple to initialize the geometry.
-            reso (float): The resolution of the object.
-
-        Returns:
-            Geometry of the object.
-        """
-        if shape == "circle":
-            geometry = Point([shape_tuple[0], shape_tuple[1]]).buffer(shape_tuple[2])
-
-        elif shape == "polygon" or shape == "rectangle":
-            geometry = Polygon(shape_tuple)
-
-        elif shape == "linestring":
-            geometry = LineString(shape_tuple)
-
-        elif shape == "points":
-            geometry = MultiPoint(shape_tuple.T).buffer(reso / 2).boundary
-
-        else:
-            raise ValueError(
-                "shape should be one of the following: circle, polygon, linestring, points"
-            )
-
-        if shape == "polygon" or shape == "rectangle" or shape == "circle":
-            self.G, self.h, self.cone_type = self.generate_Gh(shape, shape_tuple)
-        else:
-            self.G, self.h, self.cone_type = None, None, "Rpositive"
-
-        return geometry
 
     def generate_Gh(self, shape, shape_tuple):
         """
