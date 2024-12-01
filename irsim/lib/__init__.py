@@ -16,4 +16,4 @@ from irsim.lib.behavior.behavior import Behavior
 from irsim.lib.algorithm.generation import random_generate_polygon, generate_polygon
 from irsim.lib.algorithm.rvo import reciprocal_vel_obs
 
-from irsim.lib.handler.kinematics_handler import kinematics_handler
+from irsim.lib.handler.kinematics_handler import KinematicsFactory

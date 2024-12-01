@@ -63,7 +63,7 @@ def ackermann_kinematics(
         velocity: A 2x1 vector representing the current velocities, format depends on mode.
             For "steer" mode, [linear, steer_angle] is expected.
             For "angular" mode, [linear, angular] is expected.
-            
+
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
         alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]). alpha[0] and alpha[1] are for linear velocity, alpha[2] and alpha[3] are for angular velocity.
@@ -112,7 +112,7 @@ def ackermann_kinematics(
     return new_state
 
 
-def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0.03]):
+def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]):
     """
     Calculate the next position for an omnidirectional robot.
 
@@ -132,7 +132,7 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0.03])
     if noise:
         assert len(alpha) >= 2
         std_vx = np.sqrt(alpha[0])
-        std_vy = np.sqrt(alpha[1])
+        std_vy = np.sqrt(alpha[-1])
         real_velocity = velocity + np.random.normal(
             [[0], [0]], scale=[[std_vx], [std_vy]]
         )

@@ -506,10 +506,9 @@ class EnvBase:
             save_name: Name of the file with format to save the figure.
             **kwargs: Additional keyword arguments for saving the figure, see matplotlib.pyplot.savefig() function for detail.
         """
-        if save_name is None:
-            save_name = self._world.name + ".png"
+        file_save_name = save_name or self._world.name + ".png"
 
-        file_name, file_format = save_name.split(".")
+        file_name, file_format = file_save_name.split(".")
 
         self._env_plot.save_figure(
             file_name, file_format, include_index, save_gif, **kwargs
