@@ -5,20 +5,19 @@ import numpy as np
 import matplotlib as mpl
 
 from dataclasses import dataclass
-from shapely.ops import transform
+
 from irsim.lib import Behavior
 from math import inf, pi, atan2, cos, sin, sqrt
 from irsim.global_param import world_param, env_param
 from irsim.util.util import (
     WrapToRegion,
-    get_transform,
     relative_position,
     WrapToPi,
     gen_inequal_from_vertex,
     diff_to_omni,
     random_point_range,
 )
-from irsim.lib import random_generate_polygon, KinematicsFactory
+from irsim.lib import random_generate_polygon, KinematicsFactory, GeometryFactory
 from irsim.world.sensors.sensor_factory import SensorFactory
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
 from irsim.env.env_plot import linewidth_from_data_units
@@ -138,10 +137,9 @@ class ObjectBase:
         self._id = next(ObjectBase.id_iter)
 
         # handlers
-        self.kf = KinematicsFactory(self, **kinematics)
-        self.gf = GeometryFactory(self, **shape)
-        self._init_geometry = self.construct_geometry(shape, shape_tuple, reso)
-
+        self.kf = KinematicsFactory.create_kinematics(self, **kinematics)
+        self.gf = GeometryFactory.create_geometry(self, **shape)
+        
         if state_dim is None:
             self.state_dim = self.state_shape[0]
         else:
@@ -410,27 +408,6 @@ class ObjectBase:
         """
         [sensor.step(self._state[0:3]) for sensor in self.sensors]
 
-    def geometry_transform(self, geometry, state):
-        """
-        Transform geometry to the new state.
-
-        Args:
-            geometry: The geometry to transform.
-            state (np.ndarray): State vector [x, y, theta].
-
-        Returns:
-            Transformed geometry.
-        """
-
-        def transform_with_state(x, y):
-            trans, rot = get_transform(state)
-            points = np.array([x, y])
-            new_points = rot @ points + trans
-            return (new_points[0, :], new_points[1, :])
-
-        new_geometry = transform(transform_with_state, geometry)
-        return new_geometry
-
     def check_status(self):
         """
         Check the current status, including arrival and collision.
@@ -506,7 +483,7 @@ class ObjectBase:
         Returns:
             bool: True if collision occurs, False otherwise.
         """
-        return shapely.intersects(self._geometry, obj._geometry)
+        return shapely.intersects(self.geometry, obj._geometry)
 
     def gen_behavior_vel(self, velocity):
         """

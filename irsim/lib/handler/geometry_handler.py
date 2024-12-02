@@ -1,5 +1,9 @@
 import numpy as np
 from abc import ABC, abstractmethod
+from irsim.util.util import get_transform
+from shapely.ops import transform
+from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
+from irsim.lib import random_generate_polygon
 
 class geometry_handler(ABC):
 
@@ -7,61 +11,125 @@ class geometry_handler(ABC):
     This class is used to handle the geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
     '''
 
+    def __init__(self, state: np.ndarray, **kwargs):
 
-    def __init__(self, name, **kwargs):
-        self._init_geometry = self.construct_init_geometry()
-
+        self._init_geometry = self.construct_init_geometry(**kwargs)
+        self._geometry = self.step(state)
 
     @abstractmethod
-    def construct_init_geometry(self) :
+    def construct_init_geometry(self, **kwargs) :
         pass
     
-    @abstractmethod
-    def step():
-        pass
 
+    def step(self, state):
 
-    # @abstractmethod
-    # def construct_init_geometry(self, shape):
-    #     """
-    #     Construct the geometry of the object.
+        """
+        Transform geometry to the new state.
 
-    #     Args:
-    #         shape (str): The shape of the object.
-    #         shape_tuple: Tuple to initialize the geometry.
-    #         reso (float): The resolution of the object.
+        Args:
+            state (np.ndarray): State vector [x, y, theta].
 
-    #     Returns:
-    #         Geometry of the object.
-    #     """
-    #     if shape == "circle":
-    #         geometry = Point([shape_tuple[0], shape_tuple[1]]).buffer(shape_tuple[2])
+        Returns:
+            Transformed geometry.
+        """
 
-    #     elif shape == "polygon" or shape == "rectangle":
-    #         geometry = Polygon(shape_tuple)
+        def transform_with_state(x, y):
+            trans, rot = get_transform(state)
+            points = np.array([x, y])
+            new_points = rot @ points + trans
+            return (new_points[0, :], new_points[1, :])
 
-    #     elif shape == "linestring":
-    #         geometry = LineString(shape_tuple)
-
-    #     elif shape == "points":
-    #         geometry = MultiPoint(shape_tuple.T).buffer(reso / 2).boundary
-
-    #     else:
-    #         raise ValueError(
-    #             "shape should be one of the following: circle, polygon, linestring, points"
-    #         )
-
-        # if shape == "polygon" or shape == "rectangle" or shape == "circle":
-        #     self.G, self.h, self.cone_type = self.generate_Gh(shape, shape_tuple)
-        # else:
-        #     self.G, self.h, self.cone_type = None, None, "Rpositive"
-
-        # return geometry
-
+        new_geometry = transform(transform_with_state, self._init_geometry)
+        return new_geometry
 
 
 class CircleGeometry(geometry_handler):
-    pass
+
+    def construct_init_geometry(self, radius: float=0.2, random_shape: bool=False, radius_range: list=[0.1, 1.0], wheelbase: float=None):
+        
+        if random_shape:
+            radius = np.random.uniform(*radius_range)
+        
+        if wheelbase is not None:
+            return Point([0, 0]).buffer(radius)
+        else:
+            return Point([wheelbase/2, 0]).buffer(radius)
+
+class PolygonGeometry(geometry_handler):
+    def construct_init_geometry(self, vertices, random_shape: bool=False, is_convex: bool=True, **kwargs):
+
+        '''
+        vertices: [[x1, y1], [x2, y2]..]
+        **kwargs: see random_generate_polygon()
+        '''
+
+        if random_shape:
+            if is_convex:
+                vertices = random_generate_polygon(spikeyness_range=[0, 0], **kwargs)
+            else:
+                vertices = random_generate_polygon(**kwargs)
+
+        return Polygon(vertices) 
+
+class RectangleGeometry(geometry_handler):
+    def construct_init_geometry(self, length: float=1.0, width: float = 1.0, wheelbase: float=None):
+
+        '''
+        Args
+            length: in x axis
+            width: in y axis
+            wheelbase: for ackermann robot
+        '''
+
+        if wheelbase is None:
+
+            vertices = [
+                        (-length / 2, -width / 2),
+                        (length / 2, -width / 2),
+                        (length / 2, width / 2),
+                        (-length / 2, width / 2),
+                        ],
+        else:
+            start_x = -(length - wheelbase) / 2
+            start_y = -width / 2
+
+            vertices = [
+                (start_x, start_y),
+                (start_x + length, start_y),
+                (start_x + length, start_y + width),
+                (start_x, start_y + width),]
+
+        return Polygon(vertices) 
+
+
+class LinestringGeometry(geometry_handler):
+
+    def construct_init_geometry(self, vertices, random_shape: bool=False, is_convex: bool=True, **kwargs):
+
+        '''
+        vertices: [[x1, y1], [x2, y2]..]
+        **kwargs: see random_generate_polygon()
+        '''
+
+        if random_shape:
+            if is_convex:
+                vertices = random_generate_polygon(spikeyness_range=[0, 0], **kwargs)
+            else:
+                vertices = random_generate_polygon(**kwargs)
+
+        return LineString(vertices) 
+    
+class PointsGeometry(geometry_handler):
+    
+        def construct_init_geometry(self, points: np.ndarray, reso: float=0.1):
+    
+            '''
+            Args:
+                points: (2, N) array of points
+                reso: resolution for the buffer
+            '''
+    
+            return MultiPoint(points.T).buffer(reso / 2).boundary
 
 
 class GeometryFactory:
@@ -78,6 +146,20 @@ class GeometryFactory:
 
         if name == "circle":
             return CircleGeometry(**kwargs)
+
+        elif name == "polygon":
+            return PolygonGeometry(**kwargs)
+        
+        elif name == 'rectangle':
+            return RectangleGeometry(**kwargs)
+        
+        elif name == 'linestring':
+            return LinestringGeometry(**kwargs)
+
+        elif name == 'points':
+            return PointsGeometry(**kwargs)
+        else:
+            raise ValueError(f"Invalid geometry name: {name}")
 
 
 
