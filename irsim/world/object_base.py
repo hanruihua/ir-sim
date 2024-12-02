@@ -109,8 +109,7 @@ class ObjectBase:
         Initialize an ObjectBase instance.
 
         Args:
-            shape (str): The shape of the object, e.g., circle, polygon, etc.
-            shape_tuple: Tuple to initialize the geometry.
+            shape: The shape parameters of the object to create the geometry.
             state (list or np.ndarray): The state of the object [x, y, theta].
             velocity (list or np.ndarray): The velocity of the object [vx, vy].
             goal (list or np.ndarray): The goal state of the object [x, y, theta].
@@ -140,17 +139,10 @@ class ObjectBase:
         self.kf = KinematicsFactory.create_kinematics(self, **kinematics)
         self.gf = GeometryFactory.create_geometry(self, **shape)
         
-        if state_dim is None:
-            self.state_dim = self.state_shape[0]
-        else:
-            self.state_dim = state_dim
-            self.state_shape = (state_dim, 1)
- 
-        if vel_dim is None:
-            self.vel_dim = self.vel_shape[0]
-        else:
-            self.vel_dim = vel_dim
-            self.vel_shape = (vel_dim, 1)
+        self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
+        self.state_shape = (self.state_dim, 1) if state_dim is not None else self.state_shape
+        self.vel_dim = vel_dim if vel_dim is not None else self.vel_shape[0]
+        self.vel_shape = (self.vel_dim, 1) if vel_dim is not None else self.vel_shape
 
         state = self.input_state_check(state, self.state_dim)
         self._state = np.c_[state]
@@ -162,10 +154,8 @@ class ObjectBase:
         self._goal = np.c_[goal]
         self._init_goal = np.c_[goal]
 
-        self._geometry = self.geometry_transform(self._init_geometry, self._state)
+        self._geometry = self.gf.step(self._state)
         self.group = group
-
-        
 
         # flag
         self.stop_flag = False
@@ -180,14 +170,10 @@ class ObjectBase:
         self.color = color
         self.role = role
 
-        self.length = kwargs.get("length", self.radius * 2)
-        self.width = kwargs.get("width", self.radius * 2)
-        self.wheelbase = kwargs.get("wheelbase", None)
-
         self.info = ObjectInfo(
             self._id,
-            shape,
-            kinematics,
+            self.shape,
+            self.kinematics,
             role,
             color,
             static,
@@ -1004,7 +990,7 @@ class ObjectBase:
 
     @property
     def shape(self):
-        return self._shape
+        return self.gh.
 
     @property
     def kinematics(self):
@@ -1037,6 +1023,11 @@ class ObjectBase:
     @property
     def radius(self):
         return minimum_bounding_radius(self._geometry)
+
+    @property
+    def wheelbase(self):
+        return self.gh.wheelbase
+
 
     @property
     def radius_extend(self):

@@ -11,10 +11,12 @@ class geometry_handler(ABC):
     This class is used to handle the geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
     '''
 
-    def __init__(self, state: np.ndarray, **kwargs):
+    def __init__(self, state: np.ndarray, name: str, **kwargs):
 
+        self.name = name
         self._init_geometry = self.construct_init_geometry(**kwargs)
         self._geometry = self.step(state)
+        self.wheelbase = kwargs.get('wheelbase', None)
 
     @abstractmethod
     def construct_init_geometry(self, **kwargs) :
@@ -140,6 +142,7 @@ class GeometryFactory:
     @staticmethod
     def create_geometry(
         name: str,
+        state: np.ndarray,
         **kwargs
     ) -> geometry_handler:
         name = name.lower()
