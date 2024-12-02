@@ -66,8 +66,8 @@ def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices)
     Args:
         center (Tuple[float, float]): Center of the polygon.
         avg_radius (float): Average radius from the center to vertices.
-        irregularity (float): Variance of angle spacing between vertices.
-        spikeyness (float): Variance of radius from the center.
+        irregularity (float): Variance of angle spacing between vertices. Range [0, 1]
+        spikeyness (float): Variance of radius from the center. Range [0, 1]
         num_vertices (int): Number of vertices for the polygon.
 
     Returns:
