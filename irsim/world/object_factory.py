@@ -109,65 +109,81 @@ class ObjectFactory:
 
         return object_list
 
-    def create_robot(self, kinematics=dict(), shape=dict(), **kwargs):
-        """
-        Create a robot based on kinematics.
 
-        Args:
-            kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
-            **kwargs: Additional parameters for robot creation.
+    def create_object(self, kinematics=dict(), shape=dict(), **kwargs):
+        pass
 
-        Returns:
-            Robot: An instance of a robot.
-        """
-        kinematics_name = kinematics.get("name", "omni")
 
-        if kinematics_name == "diff":
-            return RobotDiff.create_with_shape(
-                "diff", shape, kinematics_dict=kinematics, **kwargs
-            )
-        elif kinematics_name == "acker":
-            return RobotAcker.create_with_shape(
-                "acker", shape, kinematics_dict=kinematics, **kwargs
-            )
-        elif kinematics_name == "omni":
-            return RobotOmni.create_with_shape(
-                "omni", shape, kinematics_dict=kinematics, **kwargs
-            )
-        else:
-            raise NotImplementedError(
-                f"Robot kinematics {kinematics_name} not implemented"
-            )
 
-    def create_obstacle(self, kinematics=dict(), shape=dict(), **kwargs):
-        """
-        Create an obstacle based on kinematics.
 
-        Args:
-            kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
-            **kwargs: Additional parameters for obstacle creation.
+        
 
-        Returns:
-            Obstacle: An instance of an obstacle.
-        """
-        kinematics_name = kinematics.get("name", None)
 
-        if kinematics_name == "diff":
-            return ObstacleDiff.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
-            )
-        elif kinematics_name == "acker":
-            pass
-        elif kinematics_name == "omni":
-            return ObstacleOmni.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
-            )
-        else:
-            return ObstacleStatic.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
-            )
+
+
+    # def create_robot(self, kinematics=dict(), shape=dict(), **kwargs):
+    #     """
+    #     Create a robot based on kinematics.
+
+    #     Args:
+    #         kinematics (dict): Kinematics configuration.
+    #         shape (dict): Shape configuration.
+    #         **kwargs: Additional parameters for robot creation.
+
+    #     Returns:
+    #         Robot: An instance of a robot.
+    #     """
+
+
+
+
+    #     kinematics_name = kinematics.get("name", "omni")
+
+    #     if kinematics_name == "diff":
+    #         return RobotDiff.create_with_shape(
+    #             "diff", shape, kinematics_dict=kinematics, **kwargs
+    #         )
+    #     elif kinematics_name == "acker":
+    #         return RobotAcker.create_with_shape(
+    #             "acker", shape, kinematics_dict=kinematics, **kwargs
+    #         )
+    #     elif kinematics_name == "omni":
+    #         return RobotOmni.create_with_shape(
+    #             "omni", shape, kinematics_dict=kinematics, **kwargs
+    #         )
+    #     else:
+    #         raise NotImplementedError(
+    #             f"Robot kinematics {kinematics_name} not implemented"
+    #         )
+
+    # def create_obstacle(self, kinematics=dict(), shape=dict(), **kwargs):
+    #     """
+    #     Create an obstacle based on kinematics.
+
+    #     Args:
+    #         kinematics (dict): Kinematics configuration.
+    #         shape (dict): Shape configuration.
+    #         **kwargs: Additional parameters for obstacle creation.
+
+    #     Returns:
+    #         Obstacle: An instance of an obstacle.
+    #     """
+    #     kinematics_name = kinematics.get("name", None)
+
+    #     if kinematics_name == "diff":
+    #         return ObstacleDiff.create_with_shape(
+    #             kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+    #         )
+    #     elif kinematics_name == "acker":
+    #         pass
+    #     elif kinematics_name == "omni":
+    #         return ObstacleOmni.create_with_shape(
+    #             kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+    #         )
+    #     else:
+    #         return ObstacleStatic.create_with_shape(
+    #             kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+    #         )
 
     def generate_state_list(
         self,

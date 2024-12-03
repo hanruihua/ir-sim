@@ -236,117 +236,117 @@ class ObjectBase:
     def __eq__(self, o: object) -> bool:
         return self._id == o._id
 
-    @classmethod
-    def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
-        """
-        Create an object with a specific shape.
+    # @classmethod
+    # def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
+    #     """
+    #     Create an object with a specific shape.
 
-        Args:
-            kinematics_name (str): Kinematics type, e.g., diff, omni.
-            shape_dict (dict): Dictionary defining the shape.
-            **kwargs: Additional parameters.
+    #     Args:
+    #         kinematics_name (str): Kinematics type, e.g., diff, omni.
+    #         shape_dict (dict): Dictionary defining the shape.
+    #         **kwargs: Additional parameters.
 
-        Returns:
-            ObjectBase: An instance of ObjectBase with the specified shape.
-        """
-        shape_name = shape_dict.get("name", "circle")
+    #     Returns:
+    #         ObjectBase: An instance of ObjectBase with the specified shape.
+    #     """
+    #     shape_name = shape_dict.get("name", "circle")
 
-        if shape_name == "circle":
-            radius = shape_dict.get("radius", 0.2)
-            wheelbase = shape_dict.get("wheelbase", radius)
+    #     if shape_name == "circle":
+    #         radius = shape_dict.get("radius", 0.2)
+    #         wheelbase = shape_dict.get("wheelbase", radius)
 
-            return cls(
-                shape="circle",
-                shape_tuple=(0, 0, radius),
-                wheelbase=wheelbase,
-                **kwargs,
-            )
+    #         return cls(
+    #             shape="circle",
+    #             shape_tuple=(0, 0, radius),
+    #             wheelbase=wheelbase,
+    #             **kwargs,
+    #         )
 
-        elif shape_name == "rectangle":
+    #     elif shape_name == "rectangle":
 
-            if kinematics_name == "diff" or kinematics_name == "omni":
-                length = shape_dict.get("length", 0.2)
-                width = shape_dict.get("width", 0.1)
+    #         if kinematics_name == "diff" or kinematics_name == "omni":
+    #             length = shape_dict.get("length", 0.2)
+    #             width = shape_dict.get("width", 0.1)
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=[
-                        (-length / 2, -width / 2),
-                        (length / 2, -width / 2),
-                        (length / 2, width / 2),
-                        (-length / 2, width / 2),
-                    ],
-                    length=length,
-                    width=width,
-                    **kwargs,
-                )
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=[
+    #                     (-length / 2, -width / 2),
+    #                     (length / 2, -width / 2),
+    #                     (length / 2, width / 2),
+    #                     (-length / 2, width / 2),
+    #                 ],
+    #                 length=length,
+    #                 width=width,
+    #                 **kwargs,
+    #             )
 
-            elif kinematics_name == "acker":
+    #         elif kinematics_name == "acker":
 
-                length = shape_dict.get("length", 4.6)
-                width = shape_dict.get("width", 1.6)
-                wheelbase = shape_dict.get("wheelbase", 3)
+    #             length = shape_dict.get("length", 4.6)
+    #             width = shape_dict.get("width", 1.6)
+    #             wheelbase = shape_dict.get("wheelbase", 3)
 
-                start_x = -(length - wheelbase) / 2
-                start_y = -width / 2
+    #             start_x = -(length - wheelbase) / 2
+    #             start_y = -width / 2
 
-                vertices = [
-                    (start_x, start_y),
-                    (start_x + length, start_y),
-                    (start_x + length, start_y + width),
-                    (start_x, start_y + width),
-                ]
+    #             vertices = [
+    #                 (start_x, start_y),
+    #                 (start_x + length, start_y),
+    #                 (start_x + length, start_y + width),
+    #                 (start_x, start_y + width),
+    #             ]
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=vertices,
-                    wheelbase=wheelbase,
-                    length=length,
-                    width=width,
-                    **kwargs,
-                )
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=vertices,
+    #                 wheelbase=wheelbase,
+    #                 length=length,
+    #                 width=width,
+    #                 **kwargs,
+    #             )
 
-            else:
-                length = shape_dict.get("length", 0.2)
-                width = shape_dict.get("width", 0.1)
+    #         else:
+    #             length = shape_dict.get("length", 0.2)
+    #             width = shape_dict.get("width", 0.1)
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=[
-                        (-length / 2, -width / 2),
-                        (length / 2, -width / 2),
-                        (length / 2, width / 2),
-                        (-length / 2, width / 2),
-                    ],
-                    **kwargs,
-                )
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=[
+    #                     (-length / 2, -width / 2),
+    #                     (length / 2, -width / 2),
+    #                     (length / 2, width / 2),
+    #                     (-length / 2, width / 2),
+    #                 ],
+    #                 **kwargs,
+    #             )
 
-        elif shape_name == "polygon":
+    #     elif shape_name == "polygon":
 
-            if shape_dict.get("random_shape", False):
-                vertices = random_generate_polygon(**shape_dict)
-            else:
-                vertices = shape_dict.get("vertices", None)
+    #         if shape_dict.get("random_shape", False):
+    #             vertices = random_generate_polygon(**shape_dict)
+    #         else:
+    #             vertices = shape_dict.get("vertices", None)
 
-            if vertices is None:
-                raise ValueError("vertices are not set")
+    #         if vertices is None:
+    #             raise ValueError("vertices are not set")
 
-            return cls(shape="polygon", shape_tuple=vertices, **kwargs)
+    #         return cls(shape="polygon", shape_tuple=vertices, **kwargs)
 
-        elif shape_name == "linestring":
+    #     elif shape_name == "linestring":
 
-            vertices = shape_dict.get("vertices", None)
+    #         vertices = shape_dict.get("vertices", None)
 
-            if vertices is None:
-                raise ValueError("vertices should not be None")
+    #         if vertices is None:
+    #             raise ValueError("vertices should not be None")
 
-            return cls(shape="linestring", shape_tuple=vertices, **kwargs)
+    #         return cls(shape="linestring", shape_tuple=vertices, **kwargs)
 
-        elif shape_name == "points":
-            pass
+    #     elif shape_name == "points":
+    #         pass
 
-        else:
-            raise NotImplementedError(f"shape {shape_name} not implemented")
+    #     else:
+    #         raise NotImplementedError(f"shape {shape_name} not implemented")
 
     @classmethod
     def reset_id_iter(cls, start=0, step=1):
@@ -381,7 +381,7 @@ class ObjectBase:
 
             self._state = next_state
             self._velocity = behavior_vel
-            self._geometry = self.geometry_transform(self._init_geometry, self._state)
+            self._geometry = self.gf.step(self._state)
             self.sensor_step()
             self.post_process()
             self.check_status()
@@ -598,7 +598,7 @@ class ObjectBase:
             self._init_state = temp_state.copy()
 
         self._state = temp_state.copy()
-        self._geometry = self.geometry_transform(self._init_geometry, self._state)
+        self._geometry = self.gf.step(self.state)
 
     def set_init_geometry(self, geometry):
         """
