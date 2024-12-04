@@ -4,19 +4,8 @@ from irsim.world.robots.robot_diff import RobotDiff
 from irsim.util.util import diff_to_omni
 
 
-class ObstacleDiff(RobotDiff):
-    def __init__(
-        self, shape: str = "circle", shape_tuple=(0, 0, 0.2), color="k", **kwargs
-    ):
+class ObstacleDiff(ObjectBase):
+    def __init__(self, kinematics={"name": "diff"}, color="k", **kwargs):
         super(ObstacleDiff, self).__init__(
-            shape=shape, shape_tuple=shape_tuple, color=color, **kwargs
+            kinematics=kinematics, color=color, role="obstacle", **kwargs
         )
-
-        self.role = "obstacle"
-
-    def plot(self, ax, **kwargs):
-        super().plot(ax, **kwargs)
-
-    @property
-    def velocity_xy(self):
-        return diff_to_omni(self.state[2, 0], self._velocity)

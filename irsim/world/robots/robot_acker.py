@@ -13,44 +13,35 @@ from irsim.lib import kinematics_factory
 
 class RobotAcker(ObjectBase):
     def __init__(
-        self, shape="rectangle", shape_tuple=None, color="y", state_dim=4, **kwargs
+        self, color="y", state_dim=4, description="car_green.png", **kwargs
     ):
         super(RobotAcker, self).__init__(
-            shape=shape,
-            shape_tuple=shape_tuple,
-            kinematics="acker",
             role="robot",
             color=color,
             state_dim=state_dim,
+            description=description,
             **kwargs,
         )
 
-        if self.description is None:
-            self.description = "car_green.png"
-
         assert (
             state_dim >= 4
-        ), "for differential robot, the state dimension should be greater than 4"
+        ), "for ackermann robot, the state dimension should be greater than 4"
 
-        self.wheelbase = kwargs["wheelbase"]
-        self.info.add_property("wheelbase", self.wheelbase)
+    # def plot_goal(
+    #     self, ax, goal_color="r", buffer_length=0.0, buffer_width=0.1, **kwargs
+    # ):
 
+    #     goal_x = self._goal[0, 0]
+    #     goal_y = self._goal[1, 0]
+    #     theta = self._goal[2, 0]
 
-    def plot_goal(
-        self, ax, goal_color="r", buffer_length=0.0, buffer_width=0.1, **kwargs
-    ):
+    #     l = buffer_length + self.length
+    #     w = buffer_width + self.width
 
-        goal_x = self._goal[0, 0]
-        goal_y = self._goal[1, 0]
-        theta = self._goal[2, 0]
+    #     arrow = mpl.patches.Arrow(
+    #         goal_x, goal_y, l * cos(theta), l * sin(theta), width=w, color=goal_color
+    #     )
+    #     arrow.set_zorder(3)
+    #     ax.add_patch(arrow)
 
-        l = buffer_length + self.length
-        w = buffer_width + self.width
-
-        arrow = mpl.patches.Arrow(
-            goal_x, goal_y, l * cos(theta), l * sin(theta), width=w, color=goal_color
-        )
-        arrow.set_zorder(3)
-        ax.add_patch(arrow)
-
-        self.plot_patch_list.append(arrow)
+    #     self.plot_patch_list.append(arrow)

@@ -15,6 +15,8 @@ robot:
     behavior: {name: 'dash'} # move toward to the goal directly 
     color: 'g'
     state_dim: 3
+    plot:
+      show_trajectory: True
     # description: 'diff_robot0.png'
     
   
