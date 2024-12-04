@@ -11,15 +11,13 @@ jobs:
     - name: Install requirements
       run: |
         sudo apt-get update
-        sudo apt-get install xvfb
+        sudo apt-get install python3-opengl xvfb
         python3 -m pip install --upgrade pip
         pip install -e . --user
-        Xvfb :99 -screen 0 1024x768x24 &
-        export DISPLAY=:99
     - name: Install pytest
       run: pip install pytest pytest-cov
     - name: Run tests and collect coverage
-      run: pytest --cov .
+      run: xvfb-run -s "-screen 0 1024x768x24" pytest --cov --cov-report=xml --cov-report=html.
     - name: Upload coverage reports to Codecov
       run: |
         # Replace `linux` below with the appropriate OS
