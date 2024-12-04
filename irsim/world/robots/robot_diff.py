@@ -31,4 +31,3 @@ class RobotDiff(ObjectBase):
     #     show_arrow = self.plot_kwargs.get("show_arrow", True)
 
     #     super().plot(ax, show_goal=show_goal, show_arrow=show_arrow, **kwargs)
-

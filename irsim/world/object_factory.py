@@ -119,6 +119,10 @@ class ObjectFactory:
             kinematics (dict): Kinematics configuration.
             **kwargs: Additional parameters for robot creation.
 
+        Returns:
+            Robot: An instance of a robot.
+        """
+        kinematics_name = kinematics.get("name", "omni")
 
         if kinematics_name == "diff":
             return RobotDiff(
