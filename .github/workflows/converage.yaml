@@ -10,12 +10,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install requirements
       run: |
-        export DISPLAY=:0
         sudo apt-get update
         sudo apt-get install xvfb
         python3 -m pip install --upgrade pip
         pip install -e . --user
-    - name: Install requirements
+    - name: Install pytest
       run: pip install pytest pytest-cov
     - name: Run tests and collect coverage
       run: pytest --cov .
