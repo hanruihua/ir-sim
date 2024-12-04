@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install requirements
-      run: pip install irsim
+      run: pip install -e . --user
     - name: Install requirements
       run: pip install pytest pytest-cov
     - name: Run tests and collect coverage
