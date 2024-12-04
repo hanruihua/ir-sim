@@ -1,12 +1,4 @@
 from irsim.world import ObjectBase
-import numpy as np
-from math import cos, sin, pi
-from irsim.util.util import WrapToPi, diff_to_omni
-from irsim.global_param import world_param
-from irsim.global_param.path_param import path_manager
-from matplotlib import image
-import matplotlib.transforms as mtransforms
-from irsim.lib import kinematics_factory
 
 
 class RobotDiff(ObjectBase):

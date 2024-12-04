@@ -1,7 +1,4 @@
-from math import inf, pi
 from irsim.world import ObjectBase
-from irsim.world.robots.robot_omni import RobotOmni
-from irsim.util.util import diff_to_omni
 
 
 class ObstacleOmni(ObjectBase):

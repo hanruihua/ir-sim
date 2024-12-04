@@ -1,6 +1,6 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid, MultiPolygon
+from shapely import MultiLineString, Point, is_valid
 from irsim.util.util import (
     geometry_transform,
     transform_point_with_state,

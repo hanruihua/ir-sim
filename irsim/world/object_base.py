@@ -3,27 +3,24 @@ import logging
 import itertools
 import numpy as np
 import matplotlib as mpl
-
 from dataclasses import dataclass
-
 from irsim.lib import Behavior
 from math import inf, pi, atan2, cos, sin, sqrt
 from irsim.global_param import world_param, env_param
-from irsim.util.util import (
-    WrapToRegion,
-    relative_position,
-    WrapToPi,
-    gen_inequal_from_vertex,
-    diff_to_omni,
-    random_point_range,
-)
-from irsim.lib import random_generate_polygon, KinematicsFactory, GeometryFactory
-from irsim.world.sensors.sensor_factory import SensorFactory
-from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint
+from irsim.lib import KinematicsFactory, GeometryFactory
+from irsim.world import SensorFactory
 from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
+
+from irsim.util.util import (
+    WrapToRegion,
+    relative_position,
+    gen_inequal_from_vertex,
+    diff_to_omni,
+    random_point_range,
+)
 
 
 @dataclass
@@ -106,7 +103,7 @@ class ObjectBase:
 
         Args:
             shape(dict): The shape parameters of the object to create the geometry.
-            kinematics (dict): 
+            kinematics (dict):
             state (list or np.ndarray): The state of the object [x, y, theta].
             velocity (list or np.ndarray): The velocity of the object [vx, vy].
             goal (list or np.ndarray): The goal state of the object [x, y, theta].
@@ -130,8 +127,14 @@ class ObjectBase:
         self._id = next(ObjectBase.id_iter)
 
         # handlers
-        self.gf = GeometryFactory.create_geometry(**shape) if shape is not None else None
-        self.kf = KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, **kinematics) if kinematics is not None else None
+        self.gf = (
+            GeometryFactory.create_geometry(**shape) if shape is not None else None
+        )
+        self.kf = (
+            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, **kinematics)
+            if kinematics is not None
+            else None
+        )
 
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
@@ -1016,11 +1019,11 @@ class ObjectBase:
     @property
     def radius(self):
         return self.gf.radius
-        
+
     @property
     def length(self):
         return self.gf.length
-    
+
     @property
     def width(self):
         return self.gf.width
