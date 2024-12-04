@@ -17,7 +17,7 @@ jobs:
     - name: Install pytest
       run: pip install pytest pytest-cov
     - name: Run tests and collect coverage
-      run: xvfb-run -s "-screen 0 1024x768x24" pytest --cov --cov-report=xml --cov-report=html.
+      run: xvfb-run -s "-screen 0 1024x768x24" pytest --cov . --cov-report=xml --cov-report=html
     - name: Upload coverage reports to Codecov
       run: |
         # Replace `linux` below with the appropriate OS
