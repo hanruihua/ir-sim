@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install requirements
       run: |
-        DISPLAY=:0
+        export DISPLAY=:0
         python3 -m pip install --upgrade pip
         pip install -e . --user
     - name: Install requirements
