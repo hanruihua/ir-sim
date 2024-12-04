@@ -14,6 +14,8 @@ jobs:
         sudo apt-get install xvfb
         python3 -m pip install --upgrade pip
         pip install -e . --user
+        Xvfb :99 -screen 0 1024x768x24 &
+        export DISPLAY=:99
     - name: Install pytest
       run: pip install pytest pytest-cov
     - name: Run tests and collect coverage
