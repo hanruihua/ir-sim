@@ -40,9 +40,6 @@ class ObjectInfo:
     acce: np.ndarray
     angle_range: np.ndarray
     goal_threshold: float
-    G: np.ndarray
-    h: np.ndarray
-    cone_type: str
     wheelbase: float
 
     def add_property(self, key, value):
@@ -99,7 +96,6 @@ class ObjectBase:
         arrive_mode="position",
         description=None,
         group=0,
-        reso=0.1,
         state_dim=None,
         vel_dim=None,
         unobstructed=False,
@@ -109,11 +105,11 @@ class ObjectBase:
         Initialize an ObjectBase instance.
 
         Args:
-            shape: The shape parameters of the object to create the geometry.
+            shape(dict): The shape parameters of the object to create the geometry.
+            kinematics (dict): 
             state (list or np.ndarray): The state of the object [x, y, theta].
             velocity (list or np.ndarray): The velocity of the object [vx, vy].
             goal (list or np.ndarray): The goal state of the object [x, y, theta].
-            kinematics (str): The moving kinematics, e.g., omni, diff, etc.
             role (str): The role of the object, e.g., robot, obstacle.
             color (str): The color of the object.
             static (bool): Whether the object is static.
@@ -124,11 +120,9 @@ class ObjectBase:
             behavior (dict): Behavior parameters.
             goal_threshold (float): Threshold for reaching the goal.
             sensors (list): List of sensors.
-            kinematics_dict (dict): Additional kinematics parameters.
             arrive_mode (str): Mode of arrival, position or state.
             description (str): Description of the object.
             group (int): Group identifier.
-            reso (float): Resolution.
             state_dim (int): Dimension of the state.
             vel_dim (int): Dimension of the velocity.
             unobstructed (bool): Whether the object is unobstructed.
@@ -136,11 +130,13 @@ class ObjectBase:
         self._id = next(ObjectBase.id_iter)
 
         # handlers
-        self.kf = KinematicsFactory.create_kinematics(self, **kinematics)
-        self.gf = GeometryFactory.create_geometry(self, **shape)
-        
+        self.gf = GeometryFactory.create_geometry(**shape) if shape is not None else None
+        self.kf = KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, **kinematics) if kinematics is not None else None
+
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
-        self.state_shape = (self.state_dim, 1) if state_dim is not None else self.state_shape
+        self.state_shape = (
+            (self.state_dim, 1) if state_dim is not None else self.state_shape
+        )
         self.vel_dim = vel_dim if vel_dim is not None else self.vel_shape[0]
         self.vel_shape = (self.vel_dim, 1) if vel_dim is not None else self.vel_shape
 
@@ -154,7 +150,7 @@ class ObjectBase:
         self._goal = np.c_[goal]
         self._init_goal = np.c_[goal]
 
-        self._geometry = self.gf.step(self._state)
+        self._geometry = self.gf.step(self.state)
         self.group = group
 
         # flag
@@ -183,9 +179,6 @@ class ObjectBase:
             np.c_[acce],
             np.c_[angle_range],
             goal_threshold,
-            self.G,
-            self.h,
-            self.cone_type,
             self.wheelbase,
         )
         self.obstacle_info = None
@@ -236,117 +229,123 @@ class ObjectBase:
     def __eq__(self, o: object) -> bool:
         return self._id == o._id
 
-    @classmethod
-    def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
-        """
-        Create an object with a specific shape.
+    def __hash__(self) -> int:
+        return self._id
 
-        Args:
-            kinematics_name (str): Kinematics type, e.g., diff, omni.
-            shape_dict (dict): Dictionary defining the shape.
-            **kwargs: Additional parameters.
+    def __str__(self) -> str:
+        return f"ObjectBase: {self._id}"
 
-        Returns:
-            ObjectBase: An instance of ObjectBase with the specified shape.
-        """
-        shape_name = shape_dict.get("name", "circle")
+    # @classmethod
+    # def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
+    #     """
+    #     Create an object with a specific shape.
 
-        if shape_name == "circle":
-            radius = shape_dict.get("radius", 0.2)
-            wheelbase = shape_dict.get("wheelbase", radius)
+    #     Args:
+    #         kinematics_name (str): Kinematics type, e.g., diff, omni.
+    #         shape_dict (dict): Dictionary defining the shape.
+    #         **kwargs: Additional parameters.
 
-            return cls(
-                shape="circle",
-                shape_tuple=(0, 0, radius),
-                wheelbase=wheelbase,
-                **kwargs,
-            )
+    #     Returns:
+    #         ObjectBase: An instance of ObjectBase with the specified shape.
+    #     """
+    #     shape_name = shape_dict.get("name", "circle")
 
-        elif shape_name == "rectangle":
+    #     if shape_name == "circle":
+    #         radius = shape_dict.get("radius", 0.2)
+    #         wheelbase = shape_dict.get("wheelbase", radius)
 
-            if kinematics_name == "diff" or kinematics_name == "omni":
-                length = shape_dict.get("length", 0.2)
-                width = shape_dict.get("width", 0.1)
+    #         return cls(
+    #             shape="circle",
+    #             shape_tuple=(0, 0, radius),
+    #             wheelbase=wheelbase,
+    #             **kwargs,
+    #         )
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=[
-                        (-length / 2, -width / 2),
-                        (length / 2, -width / 2),
-                        (length / 2, width / 2),
-                        (-length / 2, width / 2),
-                    ],
-                    length=length,
-                    width=width,
-                    **kwargs,
-                )
+    #     elif shape_name == "rectangle":
 
-            elif kinematics_name == "acker":
+    #         if kinematics_name == "diff" or kinematics_name == "omni":
+    #             length = shape_dict.get("length", 0.2)
+    #             width = shape_dict.get("width", 0.1)
 
-                length = shape_dict.get("length", 4.6)
-                width = shape_dict.get("width", 1.6)
-                wheelbase = shape_dict.get("wheelbase", 3)
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=[
+    #                     (-length / 2, -width / 2),
+    #                     (length / 2, -width / 2),
+    #                     (length / 2, width / 2),
+    #                     (-length / 2, width / 2),
+    #                 ],
+    #                 length=length,
+    #                 width=width,
+    #                 **kwargs,
+    #             )
 
-                start_x = -(length - wheelbase) / 2
-                start_y = -width / 2
+    #         elif kinematics_name == "acker":
 
-                vertices = [
-                    (start_x, start_y),
-                    (start_x + length, start_y),
-                    (start_x + length, start_y + width),
-                    (start_x, start_y + width),
-                ]
+    #             length = shape_dict.get("length", 4.6)
+    #             width = shape_dict.get("width", 1.6)
+    #             wheelbase = shape_dict.get("wheelbase", 3)
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=vertices,
-                    wheelbase=wheelbase,
-                    length=length,
-                    width=width,
-                    **kwargs,
-                )
+    #             start_x = -(length - wheelbase) / 2
+    #             start_y = -width / 2
 
-            else:
-                length = shape_dict.get("length", 0.2)
-                width = shape_dict.get("width", 0.1)
+    #             vertices = [
+    #                 (start_x, start_y),
+    #                 (start_x + length, start_y),
+    #                 (start_x + length, start_y + width),
+    #                 (start_x, start_y + width),
+    #             ]
 
-                return cls(
-                    shape="polygon",
-                    shape_tuple=[
-                        (-length / 2, -width / 2),
-                        (length / 2, -width / 2),
-                        (length / 2, width / 2),
-                        (-length / 2, width / 2),
-                    ],
-                    **kwargs,
-                )
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=vertices,
+    #                 wheelbase=wheelbase,
+    #                 length=length,
+    #                 width=width,
+    #                 **kwargs,
+    #             )
 
-        elif shape_name == "polygon":
+    #         else:
+    #             length = shape_dict.get("length", 0.2)
+    #             width = shape_dict.get("width", 0.1)
 
-            if shape_dict.get("random_shape", False):
-                vertices = random_generate_polygon(**shape_dict)
-            else:
-                vertices = shape_dict.get("vertices", None)
+    #             return cls(
+    #                 shape="polygon",
+    #                 shape_tuple=[
+    #                     (-length / 2, -width / 2),
+    #                     (length / 2, -width / 2),
+    #                     (length / 2, width / 2),
+    #                     (-length / 2, width / 2),
+    #                 ],
+    #                 **kwargs,
+    #             )
 
-            if vertices is None:
-                raise ValueError("vertices are not set")
+    #     elif shape_name == "polygon":
 
-            return cls(shape="polygon", shape_tuple=vertices, **kwargs)
+    #         if shape_dict.get("random_shape", False):
+    #             vertices = random_generate_polygon(**shape_dict)
+    #         else:
+    #             vertices = shape_dict.get("vertices", None)
 
-        elif shape_name == "linestring":
+    #         if vertices is None:
+    #             raise ValueError("vertices are not set")
 
-            vertices = shape_dict.get("vertices", None)
+    #         return cls(shape="polygon", shape_tuple=vertices, **kwargs)
 
-            if vertices is None:
-                raise ValueError("vertices should not be None")
+    #     elif shape_name == "linestring":
 
-            return cls(shape="linestring", shape_tuple=vertices, **kwargs)
+    #         vertices = shape_dict.get("vertices", None)
 
-        elif shape_name == "points":
-            pass
+    #         if vertices is None:
+    #             raise ValueError("vertices should not be None")
 
-        else:
-            raise NotImplementedError(f"shape {shape_name} not implemented")
+    #         return cls(shape="linestring", shape_tuple=vertices, **kwargs)
+
+    #     elif shape_name == "points":
+    #         pass
+
+    #     else:
+    #         raise NotImplementedError(f"shape {shape_name} not implemented")
 
     @classmethod
     def reset_id_iter(cls, start=0, step=1):
@@ -365,23 +364,18 @@ class ObjectBase:
             np.ndarray: The new state of the object.
         """
 
-        assert (
-            velocity.shape == self.vel_shape
-        )
-
-        if self.static or self.stop_flag:
+        if self.static or self.stop_flag or self.kf is None:
             self._velocity = np.zeros_like(velocity)
             return self.state
         else:
             self.pre_process()
-
             behavior_vel = self.gen_behavior_vel(velocity)
-            new_state = self.kh.step(self.state, behavior_vel, world_param.step_time)
+            new_state = self.kf.step(self.state, behavior_vel, world_param.step_time)
             next_state = self.mid_process(new_state)
 
             self._state = next_state
             self._velocity = behavior_vel
-            self._geometry = self.geometry_transform(self._init_geometry, self._state)
+            self._geometry = self.gf.step(self.state)
             self.sensor_step()
             self.post_process()
             self.check_status()
@@ -545,7 +539,6 @@ class ObjectBase:
         """
         if state.shape[0] > 2:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
-        
 
         if state.shape[0] < self.state_dim:
             state = np.r_[
@@ -598,7 +591,7 @@ class ObjectBase:
             self._init_state = temp_state.copy()
 
         self._state = temp_state.copy()
-        self._geometry = self.geometry_transform(self._init_geometry, self._state)
+        self._geometry = self.gf.step(self.state)
 
     def set_init_geometry(self, geometry):
         """
@@ -719,7 +712,7 @@ class ObjectBase:
                 object_patch.set_zorder(3)
                 ax.add_patch(object_patch)
 
-            elif self.shape == "polygon":
+            elif self.shape == "polygon" or self.shape == "rectangle":
                 object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color)
                 object_patch.set_zorder(3)
                 ax.add_patch(object_patch)
@@ -782,7 +775,7 @@ class ObjectBase:
         y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
-        solid_capstyle = "round" if self._shape == "circle" else "butt"
+        solid_capstyle = "round" if self.shape == "circle" else "butt"
 
         self.plot_line_list.append(
             ax.plot(
@@ -990,11 +983,11 @@ class ObjectBase:
 
     @property
     def shape(self):
-        return self.gh.
+        return self.gf.name
 
     @property
     def kinematics(self):
-        return self.kh.name
+        return self.kf.name if self.kf is not None else None
 
     @property
     def geometry(self):
@@ -1022,12 +1015,19 @@ class ObjectBase:
 
     @property
     def radius(self):
-        return minimum_bounding_radius(self._geometry)
+        return self.gf.radius
+        
+    @property
+    def length(self):
+        return self.gf.length
+    
+    @property
+    def width(self):
+        return self.gf.width
 
     @property
     def wheelbase(self):
-        return self.gh.wheelbase
-
+        return self.gf.wheelbase
 
     @property
     def radius_extend(self):
@@ -1047,39 +1047,7 @@ class ObjectBase:
 
     @property
     def vertices(self):
-        if self.shape == "linestring":
-            x = self._geometry.xy[0]
-            y = self._geometry.xy[1]
-            return np.c_[x, y].T
-        return self._geometry.exterior.coords._coords.T
-
-    # @property
-    # def desired_diff_vel(self, angle_tolerance=0.1, goal_threshold=0.1):
-    #     """
-    #     Calculate the desired differential velocity.
-
-    #     Args:
-    #         angle_tolerance (float): Tolerance for angle deviation.
-    #         goal_threshold (float): Threshold for goal proximity.
-
-    #     Returns:
-    #         np.ndarray: Desired velocity [linear, angular].
-    #     """
-    #     distance, radian = relative_position(self._state, self._goal)
-
-    #     if distance < goal_threshold:
-    #         return np.zeros((2, 1))
-
-    #     diff_radian = WrapToPi(radian - self._state[2, 0])
-
-    #     linear = self.vel_max[0, 0] * np.cos(diff_radian)
-
-    #     if abs(diff_radian) < angle_tolerance:
-    #         angular = 0
-    #     else:
-    #         angular = self.vel_max[1, 0] * np.sign(diff_radian)
-
-    #     return np.array([[linear], [angular]])
+        return self.gf.vertices
 
     @property
     def desired_omni_vel(self, goal_threshold=0.1):

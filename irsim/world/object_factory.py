@@ -6,6 +6,8 @@ from irsim.world import ObjectBase
 from irsim.world.obstacles.obstacle_diff import ObstacleDiff
 from irsim.world.obstacles.obstacle_omni import ObstacleOmni
 from irsim.world.obstacles.obstacle_static import ObstacleStatic
+from irsim.world.obstacles.obstacle_acker import ObstacleAcker
+
 from irsim.world.map.obstacle_map import ObstacleMap
 from irsim.util.util import (
     convert_list_length,
@@ -14,7 +16,6 @@ from irsim.util.util import (
 )
 from irsim.global_param import env_param
 import random
-
 
 class ObjectFactory:
     """
@@ -59,7 +60,7 @@ class ObjectFactory:
             return []
         else:
             return [
-                ObstacleMap(shape="points", shape_tuple=points, color="k", reso=reso)
+                ObstacleMap(shape={'name': "points", 'points': points, 'reso': reso}, color="k")
             ]
 
     def create_object(
@@ -109,13 +110,13 @@ class ObjectFactory:
 
         return object_list
 
-    def create_robot(self, kinematics=dict(), shape=dict(), **kwargs):
+
+    def create_robot(self, kinematics=dict(), **kwargs):
         """
         Create a robot based on kinematics.
 
         Args:
             kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
             **kwargs: Additional parameters for robot creation.
 
         Returns:
@@ -124,51 +125,53 @@ class ObjectFactory:
         kinematics_name = kinematics.get("name", "omni")
 
         if kinematics_name == "diff":
-            return RobotDiff.create_with_shape(
-                "diff", shape, kinematics_dict=kinematics, **kwargs
+            return RobotDiff(
+                kinematics=kinematics, **kwargs
             )
         elif kinematics_name == "acker":
-            return RobotAcker.create_with_shape(
-                "acker", shape, kinematics_dict=kinematics, **kwargs
+            return RobotAcker(
+                kinematics=kinematics, **kwargs
             )
         elif kinematics_name == "omni":
-            return RobotOmni.create_with_shape(
-                "omni", shape, kinematics_dict=kinematics, **kwargs
+            return RobotOmni(
+                kinematics=kinematics, **kwargs
             )
         else:
             raise NotImplementedError(
                 f"Robot kinematics {kinematics_name} not implemented"
             )
 
-    def create_obstacle(self, kinematics=dict(), shape=dict(), **kwargs):
+
+    def create_obstacle(self, kinematics=dict(), **kwargs):
         """
-        Create an obstacle based on kinematics.
+        Create a obstacle based on kinematics.
 
         Args:
             kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
-            **kwargs: Additional parameters for obstacle creation.
+            **kwargs: Additional parameters for robot creation.
 
         Returns:
             Obstacle: An instance of an obstacle.
         """
-        kinematics_name = kinematics.get("name", None)
+        kinematics_name = kinematics.get("name", "omni")
 
         if kinematics_name == "diff":
-            return ObstacleDiff.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+            return ObstacleDiff(
+                kinematics=kinematics, **kwargs
             )
         elif kinematics_name == "acker":
-            pass
+            return ObstacleAcker(
+                kinematics=kinematics, **kwargs
+            )
         elif kinematics_name == "omni":
-            return ObstacleOmni.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+            return ObstacleOmni(
+                kinematics=kinematics, **kwargs
             )
         else:
-            return ObstacleStatic.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+            raise NotImplementedError(
+                f"Robot kinematics {kinematics_name} not implemented"
             )
-
+   
     def generate_state_list(
         self,
         number=1,
