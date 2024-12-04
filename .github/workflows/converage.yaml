@@ -1,30 +1,21 @@
-name: Run tests and upload coverage
+name: API workflow
 
-on: 
-  push
+on: [push, pull_request]
 
 jobs:
-  test:
-    name: Run tests and collect coverage
+  build:
     runs-on: ubuntu-latest
+    name: Test python API
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: pip install pytest pytest-cov ir-sim
-
-      - name: Run tests
-        run: pytest --cov --cov-report=xml
-
-      - name: Upload results to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - uses: actions/checkout@v4
+    - name: Install requirements
+      run: pip install -e .
+    - name: Run tests and collect coverage
+      run: pytest --cov .
+    - name: Upload coverage reports to Codecov
+      run: |
+        # Replace `linux` below with the appropriate OS
+        # Options are `alpine`, `linux`, `macos`, `windows`
+        curl -Os https://cli.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage-service.xml
