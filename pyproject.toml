@@ -27,7 +27,8 @@ dependencies = ['matplotlib',
                 'pathlib',
                 'shapely==2.0.6',
                 'scikit-image',
-                'loguru',]
+                'loguru',
+                'tabulate']
 
 
 [tool.setuptools.packages.find]
