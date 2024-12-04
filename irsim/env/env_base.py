@@ -8,7 +8,6 @@ import matplotlib
 
 matplotlib.use("TkAgg")
 from irsim.env.env_config import EnvConfig
-from irsim.util.util import file_check
 from irsim.world import world
 from .env_plot import EnvPlot
 from irsim.global_param import world_param, env_param

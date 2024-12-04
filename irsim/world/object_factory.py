@@ -1,21 +1,21 @@
 import numpy as np
-from irsim.world.robots.robot_diff import RobotDiff
-from irsim.world.robots.robot_acker import RobotAcker
-from irsim.world.robots.robot_omni import RobotOmni
-from irsim.world import ObjectBase
-from irsim.world.obstacles.obstacle_diff import ObstacleDiff
-from irsim.world.obstacles.obstacle_omni import ObstacleOmni
-from irsim.world.obstacles.obstacle_static import ObstacleStatic
-from irsim.world.obstacles.obstacle_acker import ObstacleAcker
 
-from irsim.world.map.obstacle_map import ObstacleMap
 from irsim.util.util import (
     convert_list_length,
     convert_list_length_dict,
-    is_list_of_numbers,
 )
-from irsim.global_param import env_param
-import random
+
+from irsim.world import (
+    RobotAcker,
+    RobotDiff,
+    RobotOmni,
+    ObstacleAcker,
+    ObstacleDiff,
+    ObstacleOmni,
+    ObjectStatic,
+    ObstacleMap
+)
+
 
 class ObjectFactory:
     """
@@ -60,7 +60,9 @@ class ObjectFactory:
             return []
         else:
             return [
-                ObstacleMap(shape={'name': "points", 'points': points, 'reso': reso}, color="k")
+                ObstacleMap(
+                    shape={"name": "points", "points": points, "reso": reso}, color="k"
+                )
             ]
 
     def create_object(
@@ -110,7 +112,6 @@ class ObjectFactory:
 
         return object_list
 
-
     def create_robot(self, kinematics=dict(), **kwargs):
         """
         Create a robot based on kinematics.
@@ -122,25 +123,20 @@ class ObjectFactory:
         Returns:
             Robot: An instance of a robot.
         """
-        kinematics_name = kinematics.get("name", "omni")
+        kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
-            return RobotDiff(
-                kinematics=kinematics, **kwargs
-            )
+            return RobotDiff(kinematics=kinematics, **kwargs)
         elif kinematics_name == "acker":
-            return RobotAcker(
-                kinematics=kinematics, **kwargs
-            )
+            return RobotAcker(kinematics=kinematics, **kwargs)
         elif kinematics_name == "omni":
-            return RobotOmni(
-                kinematics=kinematics, **kwargs
-            )
+            return RobotOmni(kinematics=kinematics, **kwargs)
+        elif kinematics_name == "static" or kinematics_name is None:
+            return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
         else:
             raise NotImplementedError(
                 f"Robot kinematics {kinematics_name} not implemented"
             )
-
 
     def create_obstacle(self, kinematics=dict(), **kwargs):
         """
@@ -153,25 +149,21 @@ class ObjectFactory:
         Returns:
             Obstacle: An instance of an obstacle.
         """
-        kinematics_name = kinematics.get("name", "omni")
+        kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
-            return ObstacleDiff(
-                kinematics=kinematics, **kwargs
-            )
+            return ObstacleDiff(kinematics=kinematics, **kwargs)
         elif kinematics_name == "acker":
-            return ObstacleAcker(
-                kinematics=kinematics, **kwargs
-            )
+            return ObstacleAcker(kinematics=kinematics, **kwargs)
         elif kinematics_name == "omni":
-            return ObstacleOmni(
-                kinematics=kinematics, **kwargs
-            )
+            return ObstacleOmni(kinematics=kinematics, **kwargs)
+        elif kinematics_name == "static" or kinematics_name is None:
+            return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
         else:
             raise NotImplementedError(
                 f"Robot kinematics {kinematics_name} not implemented"
             )
-   
+
     def generate_state_list(
         self,
         number=1,

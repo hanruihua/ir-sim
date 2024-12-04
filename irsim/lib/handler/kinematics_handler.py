@@ -1,5 +1,3 @@
-# Refactored kinematics_handler.py
-
 import numpy as np
 from abc import ABC, abstractmethod
 from irsim.lib.algorithm.kinematics import (

@@ -1,8 +1,7 @@
 import math
 import random
-from typing import List, Tuple
-from PIL import Image, ImageDraw
 import numpy as np
+from typing import List
 
 
 def random_generate_polygon(

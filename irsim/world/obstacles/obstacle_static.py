@@ -1,12 +1,11 @@
-from math import inf, pi
 from irsim.world import ObjectBase
 
 
-class ObstacleStatic(ObjectBase):
+class ObjectStatic(ObjectBase):
     def __init__(
-        self, kinematics=None, color="k", **kwargs
+        self, kinematics=None, color="k", role="obstacle", **kwargs
     ):
-        super(ObstacleStatic, self).__init__(
-            kinematics=kinematics, color=color, static=True, role="obstacle", **kwargs
+        super(ObjectStatic, self).__init__(
+            kinematics=kinematics, color=color, static=True, role=role, **kwargs
         )
         

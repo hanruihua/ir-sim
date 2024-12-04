@@ -1,4 +1,3 @@
-import itertools
 from irsim.util.util import file_check
 from irsim.global_param import world_param
 import numpy as np

@@ -1,4 +1,3 @@
-from math import inf
 import numpy as np
 from irsim.global_param import env_param
 import importlib
