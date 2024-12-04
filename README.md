@@ -10,7 +10,10 @@
 <a href="https://pypi.org/project/ir-sim/"><img src='https://img.shields.io/pypi/v/ir-sim?color=orange' alt='Github Release'></a>
 <a href="https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file"><img src='https://img.shields.io/badge/License-MIT-blue' alt='License'></a>
 <a href="https://pepy.tech/project/ir-sim"><img src="https://img.shields.io/pepy/dt/ir-sim" alt="PyPI Downloads"></a>
+<a href="https://codecov.io/gh/hanruihua/ir-sim" > <img src="https://codecov.io/gh/hanruihua/ir-sim/branch/dev/graph/badge.svg?token=OSC8I5QCQ0"/> </a>
 </div>
+
+
 
 IR-SIM is an open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
 
@@ -21,9 +24,9 @@ It provides the following features:
   - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
 
 
-Robot             |  Car
-:-------------------------:|:-------------------------:
-![robot](https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b)  |  ![car](https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06)
+|                                           Robot                                           |                                           Car                                           |
+| :---------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
+| ![robot](https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b) | ![car](https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06) |
 
 ## Prerequisite
 
