@@ -40,7 +40,7 @@ robot:
         has_velocity: True
   
   - kinematics: {name: 'acker'}  # omni, diff, acker
-    shape: {name: 'circle', radius: 0.2, wheel_base: 0.2}  # radius
+    shape: {name: 'circle', radius: 0.2, wheelbase: 0.2}  # radius
     # shape: {name: 'rectangle', length: 0.5, width: 0.2}  # radius
     state: [5, 1, 0, 0]  
     goal: [9, 9, 0] 

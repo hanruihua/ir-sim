@@ -14,7 +14,7 @@ class KinematicsHandler(ABC):
     Abstract base class for handling robot kinematics.
     """
 
-    def __init__(self, noise: bool = False, alpha: list = None):
+    def __init__(self, name, noise: bool = False, alpha: list = None):
 
         '''
         Initialize the KinematicsHandler class.
@@ -24,6 +24,7 @@ class KinematicsHandler(ABC):
             alpha (list): List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]).
         '''
 
+        self.name = name
         self.noise = noise
         self.alpha = alpha or [0.03, 0, 0, 0.03]
 
@@ -44,20 +45,29 @@ class KinematicsHandler(ABC):
 
 
 class OmniKinematics(KinematicsHandler):
+
+    def __init__(self, name, noise, alpha):
+        super().__init__(name, noise, alpha)
+
     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
         next_state = omni_kinematics(state, velocity, step_time, self.noise, self.alpha)
         return next_state
 
 
 class DifferentialKinematics(KinematicsHandler):
+
+    def __init__(self, name, noise, alpha):
+        super(DifferentialKinematics, self).__init__(name, noise, alpha)
+
     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
         next_state = differential_kinematics(state, velocity, step_time, self.noise, self.alpha)
         return next_state
 
 
 class AckermannKinematics(KinematicsHandler):
-    def __init__(self, noise: bool = False, alpha: list = None, mode: str = "steer", wheelbase: float = 1.0):
-        super().__init__(noise, alpha)
+
+    def __init__(self, name, noise: bool = False, alpha: list = None, mode: str = "steer", wheelbase: float = 1.0):
+        super().__init__(name, noise, alpha)
         self.mode = mode
         self.wheelbase = wheelbase
 
@@ -75,18 +85,20 @@ class KinematicsFactory:
 
     @staticmethod
     def create_kinematics(
-        name: str,
+        name: str = None,
         noise: bool = False,
         alpha: list = None,
-        mode: str = "steer",
-        wheelbase: float = 1.0,
+        mode: str = 'steer',
+        wheelbase: float = None,
     ) -> KinematicsHandler:
-        name = name.lower()
+        name = name.lower() if name else None
         if name == "omni":
-            return OmniKinematics(noise, alpha)
+            return OmniKinematics(name, noise, alpha)
         elif name == "diff":
-            return DifferentialKinematics(noise, alpha)
+            return DifferentialKinematics(name, noise, alpha)
         elif name == "acker":
-            return AckermannKinematics(noise, alpha, mode, wheelbase)
+            return AckermannKinematics(name, noise, alpha, mode, wheelbase)
         else:
-            raise ValueError(f"Unknown kinematics type: {name}")
+            print(f"Unknown kinematics type: {name}, object will be stationary.")
+            return None
+            
