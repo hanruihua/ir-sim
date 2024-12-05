@@ -205,7 +205,7 @@ class GeometryFactory:
         elif name == 'linestring':
             return LinestringGeometry(name, **kwargs)
 
-        elif name == 'points':
+        elif name == 'map':
             return PointsGeometry(name, **kwargs)
         else:
             raise ValueError(f"Invalid geometry name: {name}")

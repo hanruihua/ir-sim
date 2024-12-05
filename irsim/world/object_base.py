@@ -103,7 +103,7 @@ class ObjectBase:
 
         Args:
             shape(dict): The shape parameters of the object to create the geometry.
-            kinematics (dict):
+            kinematics (dict): The kinematics parameters of the object.
             state (list or np.ndarray): The state of the object [x, y, theta].
             velocity (list or np.ndarray): The velocity of the object [vx, vy].
             goal (list or np.ndarray): The goal state of the object [x, y, theta].
@@ -184,6 +184,7 @@ class ObjectBase:
             goal_threshold,
             self.wheelbase,
         )
+
         self.obstacle_info = None
 
         self.trajectory = []
@@ -727,7 +728,7 @@ class ObjectBase:
                 object_patch.set_zorder(3)
                 ax.add_line(object_patch)
 
-            elif self.shape == "points":
+            elif self.shape == "map":
                 return
 
             self.plot_patch_list.append(object_patch)

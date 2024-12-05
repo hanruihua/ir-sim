@@ -61,7 +61,7 @@ class ObjectFactory:
         else:
             return [
                 ObstacleMap(
-                    shape={"name": "points", "points": points, "reso": reso}, color="k"
+                    shape={"name": "map", "points": points, "reso": reso}, color="k"
                 )
             ]
 
