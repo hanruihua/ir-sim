@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from irsim.util.util import get_transform
+from irsim.util.util import get_transform, gen_inequal_from_vertex, is_convex_and_ordered
 from shapely.ops import transform
 from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint, bounds
 from irsim.lib import random_generate_polygon
@@ -47,6 +47,30 @@ class geometry_handler(ABC):
         
         return new_geometry
 
+
+    def get_init_Gh(self):
+        """
+        Generate initial G and h for convex object.
+
+        Returns:
+            tuple: G matrix, h vector
+        """
+
+        if self.name == "circle":
+            G = np.array([[1, 0], [0, 1], [0, 0]])
+            h = np.array([[0], [0], [-self.radius]])
+            
+        elif self.name == "polygon" or self.name == "rectangle":
+
+            convex_flag, _ = is_convex_and_ordered(self.init_vertices)
+
+            assert convex_flag, "Object Vertices are not convex"
+
+            G, h = gen_inequal_from_vertex(self.init_vertices)
+
+        return G, h
+
+
     def cal_length_width(self, geometry):
         min_x, min_y, max_x, max_y = bounds(geometry).tolist()
         length = max_x - min_x
@@ -61,6 +85,14 @@ class geometry_handler(ABC):
             y = self.geometry.xy[1]
             return np.c_[x, y].T
         return self.geometry.exterior.coords._coords.T
+
+    @property
+    def init_vertices(self):
+        if self.name == "linestring":
+            x = self._init_geometry.xy[0]
+            y = self._init_geometry.xy[1]
+            return np.c_[x, y].T
+        return self._init_geometry.exterior.coords._coords.T
     
     @property
     def radius(self):
@@ -107,7 +139,7 @@ class PolygonGeometry(geometry_handler):
                 (1, 1),
                 (-1, 1),
             ]
-
+        
         return Polygon(vertices) 
 
 class RectangleGeometry(geometry_handler):

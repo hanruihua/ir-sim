@@ -483,6 +483,9 @@ class ObjectBase:
     def get_lidar_offset(self):
         return self.lidar.get_offset()
 
+    def get_inequality_Gh(self):
+        return self.gf.G, self.gf.h
+
     def set_state(self, state=[0, 0, 0], init=False):
         """
         Set the state of the object.
@@ -892,14 +895,14 @@ class ObjectBase:
             self.radius,
         )
 
-    def get_Gh(self):
+    def get_init_Gh(self):
         """
-        Get the G and h matrices for the object's geometry.
+        Get the generalized inequality matrices G and h for the convex object's.
 
         Returns:
-            tuple: G matrix and h vector.
+            G matrix and h vector.
         """
-        return self.info.G, self.info.h
+        return self.gf.get_init_Gh()
 
     @property
     def name(self):

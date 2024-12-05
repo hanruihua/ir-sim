@@ -27,6 +27,7 @@ def test_all_objects():
 
     env2.robot.get_lidar_scan()
     env2.robot.get_lidar_offset()
+    env2.robot.get_init_Gh()
 
     for i in range(10):
         env2.step()
@@ -61,6 +62,8 @@ def test_all_objects():
     for i in range(6):
         env6.step()
         env6.render(0.01)
+
+    env6.robot.get_init_Gh()
     env6.end()
 
     env7 = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False)
