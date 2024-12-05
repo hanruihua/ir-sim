@@ -40,33 +40,6 @@ def file_check(file_name, root_path=None):
 
     return abs_file_name
 
-# def repeat_mk_dirs(path, max_num=100):
-#     """
-#     Create a directory, appending numbers if it already exists.
-
-#     Args:
-#         path (str): Path of the directory to create.
-#         max_num (int): Maximum number of attempts.
-
-#     Returns:
-#         str: Path of the created directory.
-#     """
-#     if not os.path.exists(path):
-#         os.makedirs(path)
-#         return path
-#     else:
-#         if len(os.listdir(path)) == 0:  # empty dir
-#             return path
-#         else:
-#             i = 1
-#             while i < max_num:
-#                 new_path = path + "_" + str(i)
-#                 i = i + 1
-#                 if not os.path.exists(new_path):
-#                     break
-#             os.makedirs(new_path)
-#             return new_path
-
 def WrapToPi(rad):
     """
     Transform an angle to the range [-pi, pi].
@@ -397,78 +370,6 @@ def time_it(name="Function"):
 
     return decorator
 
-
-# def time_it2(name="Function"):
-#     """
-#     Decorator to measure function execution time with instance attribute check.
-
-#     Args:
-#         name (str): Function name for logging (default "Function").
-
-#     Returns:
-#         function: Wrapped function with timing.
-#     """
-
-#     def decorator(func):
-#         def wrapper(self, *args, **kwargs):
-#             wrapper.count += 1
-#             start = time.time()
-#             result = func(self, *args, **kwargs)
-#             end = time.time()
-#             wrapper.func_count += 1
-#             if self.time_print:
-#                 print(f"{name} execute time {(end - start):.6f} seconds")
-#             return result
-
-#         wrapper.count = 0
-#         wrapper.func_count = 0
-#         return wrapper
-
-#     return decorator
-
-# def cal_init_vertex(length, width, wheelbase):
-#     """
-#     Calculate initial vertices of a rectangle representing a robot.
-
-#     Args:
-#         length (float): Length of the rectangle.
-#         width (float): Width of the rectangle.
-#         wheelbase (float): Wheelbase of the robot.
-
-#     Returns:
-#         np.array: Vertices of the rectangle (2x4).
-#     """
-#     start_x = -(length - wheelbase) / 2
-#     start_y = -width / 2
-
-#     point0 = np.array([[start_x], [start_y]])  # left bottom point
-#     point1 = np.array([[start_x + length], [start_y]])
-#     point2 = np.array([[start_x + length], [start_y + width]])
-#     point3 = np.array([[start_x], [start_y + width]])
-
-#     return np.hstack((point0, point1, point2, point3))
-
-
-# def cal_init_vertex_diff(length, width):
-#     """
-#     Calculate initial vertices of a rectangle for differential drive robot.
-
-#     Args:
-#         length (float): Length of the rectangle.
-#         width (float): Width of the rectangle.
-
-#     Returns:
-#         np.array: Vertices of the rectangle (2x4).
-#     """
-#     start_x = -length / 2
-#     start_y = -width / 2
-
-#     point0 = np.array([[start_x], [start_y]])  # left bottom point
-#     point1 = np.array([[start_x + length], [start_y]])
-#     point2 = np.array([[start_x + length], [start_y + width]])
-#     point3 = np.array([[start_x], [start_y + width]])
-
-#     return np.hstack((point0, point1, point2, point3))
 
 def cross_product(o, a, b):
     """
