@@ -5,47 +5,50 @@ lib
 irsim.lib.behavior 
 ---------------------------
 
-.. automodule:: irsim.lib.behavior
+.. automodule:: irsim.lib.behavior.behavior
    :members:
    :undoc-members:
    :show-inheritance:
 
-irsim.lib.behaviorlib 
+irsim.lib.behavior\_methods
 ------------------------------
 
-.. automodule:: irsim.lib.behaviorlib
+.. automodule:: irsim.lib.behavior.behavior_methods
    :members:
    :undoc-members:
    :show-inheritance:
 
-irsim.lib.factory 
---------------------------
 
-.. automodule:: irsim.lib.factory
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-irsim.lib.generation 
+irsim.lib.handler 
 -----------------------------
 
-.. automodule:: irsim.lib.generation
+.. automodule:: irsim.lib.handler.geometry_handler
    :members:
    :undoc-members:
    :show-inheritance:
 
-irsim.lib.kinematics 
+.. automodule:: irsim.lib.handler.kinematics_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+irsim.lib.algorithm
 -----------------------------
 
-.. automodule:: irsim.lib.kinematics
+.. automodule:: irsim.lib.algorithm.generation
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: irsim.lib
+.. automodule:: irsim.lib.algorithm.kinematics
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: irsim.lib.algorithm.rvo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+

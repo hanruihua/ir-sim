@@ -2,14 +2,6 @@ world
 =====================
 
 
-irsim.world.multi\_object\_base 
-----------------------------------------
-
-.. automodule:: irsim.world.multi_object_base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 irsim.world.object\_base 
 ---------------------------------
 
