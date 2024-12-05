@@ -34,8 +34,6 @@ irsim.world.world
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
 .. automodule:: irsim.world
    :members:
