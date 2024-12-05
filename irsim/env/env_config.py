@@ -38,4 +38,7 @@ class EnvConfig:
 
     @property
     def parse(self):
+        '''
+        The parsed kwargs from the yaml file.
+        '''
         return self._kwargs_parse
