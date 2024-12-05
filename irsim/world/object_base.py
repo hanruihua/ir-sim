@@ -13,6 +13,7 @@ from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
+from typing import Optional
 
 from irsim.util.util import (
     WrapToRegion,
@@ -57,16 +58,36 @@ class ObstacleInfo:
 
 class ObjectBase:
     """
-    Represents a base class for objects in a simulation environment.
+    Base class representing a generic object in the robot simulator.
 
-    This class provides a template for defining the properties and behaviors of various objects such as robots,
-    obstacles, or landmarks within a simulation world. Each instance of this class or its derivatives represents
-    a distinct object with specific attributes and kinematics.
+    This class encapsulates common attributes and behaviors for all objects,
+    including robots and obstacles, managing their state, velocity, goals, 
+    and kinematics.
 
     Attributes:
-        id_iter (iterator): A class-level iterator to generate unique IDs for each object.
-        vel_shape (tuple): The shape of the velocity vector, default is (2, 1).
-        state_shape (tuple): The shape of the state vector, default is (3, 1).
+        state_dim (int): Dimension of the state vector.
+        state_shape (tuple): Shape of the state array.
+        vel_dim (int): Dimension of the velocity vector.
+        vel_shape (tuple): Shape of the velocity array.
+        _state (np.ndarray): Current state of the object.
+        _init_state (np.ndarray): Initial state of the object.
+        _velocity (np.ndarray): Current velocity of the object.
+        _init_velocity (np.ndarray): Initial velocity of the object.
+        _goal (np.ndarray): Goal state of the object.
+        _init_goal (np.ndarray): Initial goal state of the object.
+        _geometry (any): Geometry representation of the object.
+        group (int): Group identifier for the object.
+        stop_flag (bool): Flag indicating if the object should stop.
+        arrive_flag (bool): Flag indicating if the object has arrived at the goal.
+        collision_flag (bool): Flag indicating a collision has occurred.
+        unobstructed (bool): Indicates if the object has an unobstructed path.
+        static (bool): Indicates if the object is static.
+        vel_min (np.ndarray): Minimum velocity limits.
+        vel_max (np.ndarray): Maximum velocity limits.
+        color (str): Color of the object.
+        role (str): Role of the object (e.g., "robot", "obstacle").
+        info (ObjectInfo): Information container for the object.
+        wheelbase (float): Distance between the front and rear wheels. Specified for ackermann robots.
     """
 
     id_iter = itertools.count()
@@ -98,32 +119,38 @@ class ObjectBase:
         unobstructed=False,
         **kwargs,
     ) -> None:
+        
         """
         Initialize an ObjectBase instance.
 
         Args:
-            shape(dict): The shape parameters of the object to create the geometry.
-            kinematics (dict): The kinematics parameters of the object.
-            state (list or np.ndarray): The state of the object [x, y, theta].
-            velocity (list or np.ndarray): The velocity of the object [vx, vy].
-            goal (list or np.ndarray): The goal state of the object [x, y, theta].
-            role (str): The role of the object, e.g., robot, obstacle.
-            color (str): The color of the object.
-            static (bool): Whether the object is static.
-            vel_min (list or np.ndarray): Minimum velocity limits.
-            vel_max (list or np.ndarray): Maximum velocity limits.
-            acce (list or np.ndarray): Acceleration limits.
-            angle_range (list or np.ndarray): Range of angles.
-            behavior (dict): Behavior parameters.
-            goal_threshold (float): Threshold for reaching the goal.
-            sensors (list): List of sensors.
-            arrive_mode (str): Mode of arrival, position or state.
-            description (str): Description of the object.
-            group (int): Group identifier.
-            state_dim (int): Dimension of the state.
-            vel_dim (int): Dimension of the velocity.
-            unobstructed (bool): Whether the object is unobstructed.
+            shape (dict): Parameters defining the shape of the object for geometry creation.
+            kinematics (dict, optional): Parameters defining the kinematics of the object.
+            state (list of float, optional): Initial state vector [x, y, theta]. Defaults to [0, 0, 0].
+            velocity (list of float, optional): Initial velocity vector [vx, vy]. Defaults to [0, 0].
+            goal (list of float, optional): Goal state vector [x, y, theta]. Defaults to [10, 10, 0].
+            role (str, optional): Role of the object, e.g., "robot" or "obstacle". Defaults to "obstacle".
+            color (str, optional): Color of the object. Defaults to "k" (black).
+            static (bool, optional): Indicates if the object is static. Defaults to False.
+            vel_min (list of float, optional): Minimum velocity limits. Defaults to [-1, -1].
+            vel_max (list of float, optional): Maximum velocity limits. Defaults to [1, 1].
+            acce (list of float, optional): Acceleration limits. Defaults to [inf, inf].
+            angle_range (list of float, optional): Allowed range of angles [min, max]. Defaults to [-pi, pi].
+            behavior (str, optional): Behavioral mode of the object. Defaults to None.
+            goal_threshold (float, optional): Threshold to determine if the goal is reached. Defaults to 0.1.
+            sensors (list, optional): List of sensors attached to the object. Defaults to None.
+            arrive_mode (str, optional): Mode for arrival detection, e.g., "position". Defaults to "position".
+            description (str, optional): Description of the object. Defaults to None.
+            group (int, optional): Group identifier for organizational purposes. Defaults to 0.
+            state_dim (int, optional): Dimension of the state vector. If None, inferred from `state_shape`. Defaults to None.
+            vel_dim (int, optional): Dimension of the velocity vector. If None, inferred from `vel_shape`. Defaults to None.
+            unobstructed (bool, optional): Indicates if the object has an unobstructed path. Defaults to False.
+            **kwargs: Additional keyword arguments for extended functionality.
+        
+        Raises:
+            ValueError: If dimension parameters do not match the provided shapes.
         """
+
         self._id = next(ObjectBase.id_iter)
 
         # handlers
@@ -227,9 +254,6 @@ class ObjectBase:
 
         self.collision_obj = []
 
-    def __repr__(self) -> str:
-        pass
-
     def __eq__(self, o: object) -> bool:
         return self._id == o._id
 
@@ -238,118 +262,6 @@ class ObjectBase:
 
     def __str__(self) -> str:
         return f"ObjectBase: {self._id}"
-
-    # @classmethod
-    # def create_with_shape(cls, kinematics_name, shape_dict, **kwargs):
-    #     """
-    #     Create an object with a specific shape.
-
-    #     Args:
-    #         kinematics_name (str): Kinematics type, e.g., diff, omni.
-    #         shape_dict (dict): Dictionary defining the shape.
-    #         **kwargs: Additional parameters.
-
-    #     Returns:
-    #         ObjectBase: An instance of ObjectBase with the specified shape.
-    #     """
-    #     shape_name = shape_dict.get("name", "circle")
-
-    #     if shape_name == "circle":
-    #         radius = shape_dict.get("radius", 0.2)
-    #         wheelbase = shape_dict.get("wheelbase", radius)
-
-    #         return cls(
-    #             shape="circle",
-    #             shape_tuple=(0, 0, radius),
-    #             wheelbase=wheelbase,
-    #             **kwargs,
-    #         )
-
-    #     elif shape_name == "rectangle":
-
-    #         if kinematics_name == "diff" or kinematics_name == "omni":
-    #             length = shape_dict.get("length", 0.2)
-    #             width = shape_dict.get("width", 0.1)
-
-    #             return cls(
-    #                 shape="polygon",
-    #                 shape_tuple=[
-    #                     (-length / 2, -width / 2),
-    #                     (length / 2, -width / 2),
-    #                     (length / 2, width / 2),
-    #                     (-length / 2, width / 2),
-    #                 ],
-    #                 length=length,
-    #                 width=width,
-    #                 **kwargs,
-    #             )
-
-    #         elif kinematics_name == "acker":
-
-    #             length = shape_dict.get("length", 4.6)
-    #             width = shape_dict.get("width", 1.6)
-    #             wheelbase = shape_dict.get("wheelbase", 3)
-
-    #             start_x = -(length - wheelbase) / 2
-    #             start_y = -width / 2
-
-    #             vertices = [
-    #                 (start_x, start_y),
-    #                 (start_x + length, start_y),
-    #                 (start_x + length, start_y + width),
-    #                 (start_x, start_y + width),
-    #             ]
-
-    #             return cls(
-    #                 shape="polygon",
-    #                 shape_tuple=vertices,
-    #                 wheelbase=wheelbase,
-    #                 length=length,
-    #                 width=width,
-    #                 **kwargs,
-    #             )
-
-    #         else:
-    #             length = shape_dict.get("length", 0.2)
-    #             width = shape_dict.get("width", 0.1)
-
-    #             return cls(
-    #                 shape="polygon",
-    #                 shape_tuple=[
-    #                     (-length / 2, -width / 2),
-    #                     (length / 2, -width / 2),
-    #                     (length / 2, width / 2),
-    #                     (-length / 2, width / 2),
-    #                 ],
-    #                 **kwargs,
-    #             )
-
-    #     elif shape_name == "polygon":
-
-    #         if shape_dict.get("random_shape", False):
-    #             vertices = random_generate_polygon(**shape_dict)
-    #         else:
-    #             vertices = shape_dict.get("vertices", None)
-
-    #         if vertices is None:
-    #             raise ValueError("vertices are not set")
-
-    #         return cls(shape="polygon", shape_tuple=vertices, **kwargs)
-
-    #     elif shape_name == "linestring":
-
-    #         vertices = shape_dict.get("vertices", None)
-
-    #         if vertices is None:
-    #             raise ValueError("vertices should not be None")
-
-    #         return cls(shape="linestring", shape_tuple=vertices, **kwargs)
-
-    #     elif shape_name == "points":
-    #         pass
-
-    #     else:
-    #         raise NotImplementedError(f"shape {shape_name} not implemented")
 
     @classmethod
     def reset_id_iter(cls, start=0, step=1):
@@ -469,15 +381,23 @@ class ObjectBase:
         """
         return shapely.intersects(self.geometry, obj._geometry)
 
-    def gen_behavior_vel(self, velocity):
+    def gen_behavior_vel(self, velocity: Optional[np.ndarray] = None) -> np.ndarray:
         """
-        Generate velocity based on behavior.
+        Generate behavior-influenced velocity for the object.
+
+        This method adjusts the desired velocity based on the object's behavior configurations.
+        If no desired velocity is provided (`velocity` is None), the method may generate a default
+        velocity or issue warnings based on the object's role and behavior settings.
 
         Args:
-            velocity (np.ndarray): Desired velocity.
+            velocity (Optional[np.ndarray]): Desired velocity vector. If None, the method determines
+                the velocity based on behavior configurations. Defaults to None.
 
         Returns:
-            np.ndarray: Behavior-based velocity.
+            np.ndarray: Velocity vector adjusted based on behavior configurations and constraints.
+
+        Raises:
+            Warning: If `velocity` is None and no behavior configuration is set for a robot.
         """
         min_vel, max_vel = self.get_vel_range()
 
