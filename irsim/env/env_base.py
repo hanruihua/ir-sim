@@ -56,17 +56,17 @@ class EnvBase:
         self.logger = EnvLogger(log_file, log_level)
         env_param.logger = self.logger
 
-        env_config = EnvConfig(world_name)
+        self.env_config = EnvConfig(world_name)
         object_factory = ObjectFactory()
 
         # init objects (world, obstacle, robot)
-        self._world = world(world_name, **env_config.parse["world"])
+        self._world = world(world_name, **self.env_config.parse["world"])
 
         self._robot_collection = object_factory.create_from_parse(
-            env_config.parse["robot"], "robot"
+            self.env_config.parse["robot"], "robot"
         )
         self._obstacle_collection = object_factory.create_from_parse(
-            env_config.parse["obstacle"], "obstacle"
+            self.env_config.parse["obstacle"], "obstacle"
         )
         self._map_collection = object_factory.create_from_map(
             self._world.obstacle_positions, self._world.buffer_reso
@@ -81,12 +81,12 @@ class EnvBase:
             self.objects,
             self._world.x_range,
             self._world.y_range,
-            **env_config.parse["plot"],
+            **self.env_config.parse["plot"],
         )
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-            self.init_keyboard(env_config.parse["keyboard"])
+            self.init_keyboard(self.env_config.parse["keyboard"])
 
         if full:
             system_platform = platform.system()
