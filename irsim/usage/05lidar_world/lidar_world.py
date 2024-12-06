@@ -1,7 +1,7 @@
 import irsim
 
 # env = irsim.make('lidar_world.yaml')
-env = irsim.make('lidar_world_noise.yaml')
+env = irsim.make('lidar_world_noise.yaml', projection='3d')
 
 for i in range(300):
 
