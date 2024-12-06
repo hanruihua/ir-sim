@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make(projection='3d')
+env = irsim.make('car_world.yaml', projection='3d')
 
 for i in range(1000):
 
@@ -10,4 +10,6 @@ for i in range(1000):
     if env.done():
         break
 
+
+env.show()
 env.end()

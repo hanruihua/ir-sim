@@ -15,6 +15,7 @@ import matplotlib.transforms as mtransforms
 from matplotlib import image
 from typing import Optional
 
+
 from irsim.util.util import (
     WrapToRegion,
     relative_position,
@@ -253,6 +254,7 @@ class ObjectBase:
         self.plot_kwargs = kwargs.get("plot", dict())
 
         self.collision_obj = []
+
 
     def __eq__(self, o: object) -> bool:
         return self._id == o._id
@@ -584,6 +586,7 @@ class ObjectBase:
         """
         self.state_re = self._state
         self.goal_re = self._goal
+        self.plot_patch_list
 
         self.plot_kwargs.update(kwargs)
 
@@ -911,6 +914,10 @@ class ObjectBase:
     @property
     def shape(self):
         return self.gf.name
+
+    @property
+    def z(self):
+        return self._state[2, 0] if self.state_dim >= 6 else 0
 
     @property
     def kinematics(self):

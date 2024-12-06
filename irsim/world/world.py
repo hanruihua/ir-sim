@@ -6,7 +6,7 @@ from skimage.color import rgb2gray
 from typing import Optional
 
 
-class world:
+class World:
     """
     Represents the main simulation environment, managing objects and maps.
 

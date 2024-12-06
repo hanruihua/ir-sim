@@ -3,12 +3,11 @@ Class EnvBase is the base class of the environment. This class will read the yam
 Author: Ruihua Han (hanrh@connect.hku.hk)
 '''
 
-import yaml
 import matplotlib
 
 matplotlib.use("TkAgg")
 from irsim.env.env_config import EnvConfig
-from irsim.world import world
+from irsim.world import World
 from .env_plot import EnvPlot
 from irsim.global_param import world_param, env_param
 from irsim.world.object_factory import ObjectFactory
@@ -58,9 +57,9 @@ class EnvBase:
 
         self.env_config = EnvConfig(world_name)
         object_factory = ObjectFactory()
-
         # init objects (world, obstacle, robot)
-        self._world = world(world_name, **self.env_config.parse["world"])
+        
+        self._world = World(world_name, **self.env_config.parse["world"])
 
         self._robot_collection = object_factory.create_from_parse(
             self.env_config.parse["robot"], "robot"
@@ -71,9 +70,6 @@ class EnvBase:
         self._map_collection = object_factory.create_from_map(
             self._world.obstacle_positions, self._world.buffer_reso
         )
-        self._object_collection = (
-            self._robot_collection + self._obstacle_collection + self._map_collection
-        )
 
         # env parameters
         self._env_plot = EnvPlot(
@@ -83,6 +79,7 @@ class EnvBase:
             self._world.y_range,
             **self.env_config.parse["plot"],
         )
+
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
@@ -609,7 +606,7 @@ class EnvBase:
 
     @property
     def objects(self):
-        return self._object_collection
+        return self._robot_collection + self._obstacle_collection + self._map_collection
 
     @property
     def step_time(self):
