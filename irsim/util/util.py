@@ -371,6 +371,34 @@ def time_it(name="Function"):
     return decorator
 
 
+def time_it2(name="Function"):
+    """
+    Decorator to measure function execution time with instance attribute check.
+
+    Args:
+        name (str): Function name for logging (default "Function").
+
+    Returns:
+        function: Wrapped function with timing.
+    """
+
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            wrapper.count += 1
+            start = time.time()
+            result = func(self, *args, **kwargs)
+            end = time.time()
+            wrapper.func_count += 1
+            if self.time_print:
+                print(f"{name} execute time {(end - start):.6f} seconds")
+            return result
+
+        wrapper.count = 0
+        wrapper.func_count = 0
+        return wrapper
+
+    return decorator
+
 def cross_product(o, a, b):
     """
     Compute the cross product of vectors OA and OB.
