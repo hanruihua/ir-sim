@@ -22,7 +22,6 @@ from shapely import Polygon
 from typing import Optional
 import importlib
 from irsim.world import ObjectBase
-from tabulate import tabulate
 
 
 class EnvBase:
@@ -270,8 +269,8 @@ class EnvBase:
         ["alt+num", "change current control robot id"],
         ["r", "reset the environment"]
         ]
-        headers = ["key", "function"]
-        print(tabulate(commands, headers, tablefmt="grid"))
+        # headers = ["key", "function"]
+        print(commands)
 
         self.listener = keyboard.Listener(
             on_press=self._on_press, on_release=self._on_release

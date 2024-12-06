@@ -24,11 +24,11 @@ dependencies = ['matplotlib',
                 'pyyaml',
                 'pynput',
                 'imageio',
-                'pathlib',
                 'shapely==2.0.6',
                 'scikit-image',
-                'loguru',
-                'tabulate']
+                'loguru']
+
+[project.optional-dependencies]
 
 
 [tool.setuptools.packages.find]
