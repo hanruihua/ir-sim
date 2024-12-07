@@ -14,6 +14,9 @@ from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
 from typing import Optional
+import mpl_toolkits.mplot3d.art3d as art3d
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Line3D
 
 
 from irsim.util.util import (
@@ -631,7 +634,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
         """
-        if self.description is None:
+        if self.description is None or isinstance(ax, Axes3D):
             x = self.state_re[0, 0]
             y = self.state_re[1, 0]
 
@@ -640,15 +643,27 @@ class ObjectBase:
                     xy=(x, y), radius=self.radius, color=self.color
                 )
                 object_patch.set_zorder(3)
+
+                if isinstance(ax, Axes3D): 
+                    art3d.patch_2d_to_3d(object_patch, z=self.z, zdir='z')
+
                 ax.add_patch(object_patch)
 
             elif self.shape == "polygon" or self.shape == "rectangle":
                 object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color)
                 object_patch.set_zorder(3)
+
+                if isinstance(ax, Axes3D):
+                    art3d.patch_2d_to_3d(object_patch, z=self.z)
+
                 ax.add_patch(object_patch)
 
             elif self.shape == "linestring":
-                object_patch = mpl.lines.Line2D(
+                
+                if isinstance(ax, Axes3D):
+                    object_patch = Line3D(self.vertices[0, :], self.vertices[1, :], zs=self.z*np.ones((3,)), color=self.color)
+                else:
+                    object_patch = mpl.lines.Line2D(
                     self.vertices[0, :], self.vertices[1, :], color=self.color
                 )
                 object_patch.set_zorder(3)
@@ -705,6 +720,10 @@ class ObjectBase:
         y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
+
+        if isinstance(ax, Axes3D):
+            linewidth = traj_width * 10
+
         solid_capstyle = "round" if self.shape == "circle" else "butt"
 
         self.plot_line_list.append(
@@ -734,8 +753,11 @@ class ObjectBase:
         goal_circle = mpl.patches.Circle(
             xy=(goal_x, goal_y), radius=self.radius, color=goal_color, alpha=0.5
         )
-        goal_circle.set_zorder(1)
 
+        if isinstance(ax, Axes3D):
+            art3d.patch_2d_to_3d(goal_circle, z=self.z)
+
+        goal_circle.set_zorder(1)
         ax.add_patch(goal_circle)
 
         self.plot_patch_list.append(goal_circle)
@@ -766,6 +788,10 @@ class ObjectBase:
             width=arrow_width,
             color=arrow_color,
         )
+
+        if isinstance(ax, Axes3D):
+            art3d.patch_2d_to_3d(arrow, z=self.z)
+
         arrow.set_zorder(3)
         ax.add_patch(arrow)
 
@@ -803,6 +829,10 @@ class ObjectBase:
                 linewidth=trail_linewidth,
                 facecolor=trail_color,
             )
+
+            if isinstance(ax, Axes3D):
+                art3d.patch_2d_to_3d(car_rect, z=self.z)
+
             ax.add_patch(car_rect)
 
         elif trail_type == "circle":
@@ -814,6 +844,10 @@ class ObjectBase:
                 alpha=trail_alpha,
                 facecolor=trail_color,
             )
+
+            if isinstance(ax, Axes3D):
+                art3d.patch_2d_to_3d(car_circle, z=self.z)
+
             ax.add_patch(car_circle)
 
     def plot_uncertainty(self, ax, **kwargs):

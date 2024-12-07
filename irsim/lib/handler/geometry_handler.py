@@ -127,7 +127,8 @@ class PolygonGeometry(geometry_handler):
 
         if random_shape:
             if is_convex:
-                vertices = random_generate_polygon(spikeyness_range=[0, 0], **kwargs)
+                kwargs.setdefault('spikeyness_range', [0, 0])
+                vertices = random_generate_polygon(**kwargs)
             else:
                 vertices = random_generate_polygon(**kwargs)
 

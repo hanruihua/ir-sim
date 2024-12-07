@@ -11,6 +11,8 @@ from shapely import get_coordinates
 from matplotlib.collections import LineCollection
 from shapely.strtree import STRtree 
 from shapely.ops import unary_union
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 class Lidar2D:
     """
@@ -273,13 +275,7 @@ class Lidar2D:
             ax: Matplotlib axis.
             **kwargs: Plotting options.
         """
-        coord = get_coordinates(self._geometry)
-
         lines = []
-
-        for i in range(0, len(coord), 2):
-            segment = [coord[i], coord[i + 1]]
-            # lines.append(segment)
 
         for i in range(self.number):
             x = self.range_data[i] * cos(self.angle_list[i])
@@ -289,14 +285,25 @@ class Lidar2D:
             trans, rot = get_transform(self._state)
             range_end_position = rot @ np.array([[x], [y]]) + trans
 
-            segment = [position, range_end_position[0:2, 0]]
+            if isinstance(ax, Axes3D):
+                position = np.array([position[0], position[1], 0])
+                end_position = np.array([range_end_position[0, 0], range_end_position[1, 0], 0])
+                segment = [position, end_position]
+            else:
+                segment = [position, range_end_position[0:2, 0]]
+
             lines.append(segment)
-
-        line_segments = LineCollection(
-            lines, linewidths=1, colors="red", alpha=self.alpha, zorder=0
-        )
-
-        ax.add_collection(line_segments)
+        
+        if isinstance(ax, Axes3D):
+            line_segments = Line3DCollection(
+                lines, linewidths=1, colors="red", alpha=self.alpha, zorder=0
+            )
+            ax.add_collection3d(line_segments)
+        else:
+            line_segments = LineCollection(
+                lines, linewidths=1, colors="red", alpha=self.alpha, zorder=0
+            )
+            ax.add_collection(line_segments)
 
         self.plot_patch_list.append(line_segments)
 
