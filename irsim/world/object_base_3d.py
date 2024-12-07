@@ -10,8 +10,11 @@ from mpl_toolkits.mplot3d.art3d import Line3D
 
 class ObjectBase3D(ObjectBase):
         
-        def __init__(self, **kwargs):
-            super().__init__(**kwargs)
+        vel_shape = (6, 1)
+        state_shape = (6, 1)
+        
+        def __init__(self, state=[0, 0, 0, 0, 0, 0], **kwargs):
+            super().__init__(state=state, **kwargs)
 
 
         
