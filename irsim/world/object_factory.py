@@ -88,9 +88,16 @@ class ObjectFactory:
         Returns:
             list: List of created objects.
         """
-        state_list, goal_list = self.generate_state_list(
-            number, distribution, state, goal
-        )
+
+        if not distribution.get('3d', False):
+            state_list, goal_list = self.generate_state_list(
+                number, distribution, state, goal
+            )
+        else:
+            state_list, goal_list = self.generate_state_list3D(
+                number, distribution, state, goal
+            )
+
         object_list = list()
 
         for i in range(number):
@@ -220,3 +227,8 @@ class ObjectFactory:
                 goal_list.append([goal_x, goal_y, 0])
 
         return state_list, goal_list
+
+
+    def generate_state_list3D(self, number=1, distribution={"name": "manual"}, state=[1, 1, 0], goal=[1, 9, 0]):
+        pass
+        return [], []
