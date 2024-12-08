@@ -6,13 +6,18 @@
 Welcome to IR-SIM's documentation!
 ==================================
 
-**Intelligent Robotics Simulation (IR-SIM)** is a Python based lightweight 2D robotics simulator that provides a simple and easy-to-use interface for simulating robot behaviors in a 2D environment. The simulator is designed to be used for educational purposes and research in the field of robotics. 
+**Intelligent Robotics Simulation (IR-SIM)** is a Python based lightweight robotics simulator that provides a quite simple and easy-to-use interface for simulating various robot behaviors. The simulator is designed for research and educational purposes in the field of robotics. 
 
 It provides the following features:
   - A versatile and easy-to-use framework for simulating a variety of robot platforms with kinematics and sensors. 
   - Customizable configurations and parameters using yaml files.
   - Real-time visualization of simulation outcomes.
   - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
+
+
+|                                           Robot                                           |                                           Car                                           |
+| :---------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
+| ![robot](https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b) | ![car](https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06) |
 
 
 .. toctree::
