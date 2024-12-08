@@ -4,11 +4,10 @@ import irsim
 from pynput import keyboard
 import matplotlib.pyplot as plt
 
-
 @time_it("test_all_objects")
 def test_all_objects():
 
-    env1 = irsim.make("test_collision_avoidance.yaml", save_ani=False, full=False, display=False)
+    env1 = irsim.make("test_collision_avoidance.yaml", save_ani=False, full=False, display=False, projection='3d')
 
     for i in range(50):
         env1.step()
@@ -21,7 +20,7 @@ def test_all_objects():
 
     env1.end()
     
-    env2 = irsim.make('test_all_objects.yaml', display=False)
+    env2 = irsim.make('test_all_objects.yaml', display=False, projection='3d')
 
     env2.random_polygon_shape()
     temp_points = env2.robot.get_lidar_points()
@@ -36,21 +35,21 @@ def test_all_objects():
         env2.render(0.01)
     env2.end()
 
-    env3 = irsim.make('test_render.yaml', save_ani=True, display=False)
+    env3 = irsim.make('test_render.yaml', save_ani=True, display=False, projection='3d')
 
     for i in range(3):
         env3.step()
         env3.render(0.01)
     env3.end()
 
-    env4 = irsim.make('test_collision_world.yaml', save_ani=False, display=False)
+    env4 = irsim.make('test_collision_world.yaml', save_ani=False, display=False, projection='3d')
 
     for i in range(4):
         env4.step()
         env4.render(0.01)
     env4.end()
 
-    env5 = irsim.make('test_multi_objects_world.yaml', save_ani=False, display=False)
+    env5 = irsim.make('test_multi_objects_world.yaml', save_ani=False, display=False, projection='3d')
 
     env5.random_obstacle_position()
 
@@ -59,7 +58,7 @@ def test_all_objects():
         env5.render(0.01)
     env5.end()
 
-    env6 = irsim.make('test_grid_map.yaml', save_ani=False, display=False)
+    env6 = irsim.make('test_grid_map.yaml', save_ani=False, display=False, projection='3d')
 
     for i in range(6):
         env6.step()
@@ -68,7 +67,7 @@ def test_all_objects():
     env6.robot.get_init_Gh()
     env6.end()
 
-    env7 = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False)
+    env7 = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False, projection='3d')
     key_list = ['w', 'a', 's', 'd', 'q', 'e', 'z', 'c', 'r']
 
     mock_key_list = []
@@ -88,7 +87,7 @@ def test_all_objects():
 
     env7.end()
 
-    env8 = irsim.make('custom_behavior.yaml')
+    env8 = irsim.make('custom_behavior.yaml', projection='3d')
     env8.load_behavior("custom_behavior_methods")
 
     for i in range(10):

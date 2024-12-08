@@ -95,7 +95,7 @@ class EnvBase:
                 mng.full_screen_toggle()
 
     def __del__(self):
-        env_param.objects = []
+        # env_param.objects = []
 
         print(
             "INFO: Simulated Environment End with sim time elapsed: {} seconds".format(
@@ -247,8 +247,11 @@ class EnvBase:
         self.key_id = keyboard_kwargs.get("key_id", 0)
         self.alt_flag = 0
 
-        plt.rcParams["keymap.save"].remove("s")
-        plt.rcParams["keymap.quit"].remove("q")
+        if "s" in plt.rcParams["keymap.save"]:
+            plt.rcParams["keymap.save"].remove("s")
+        
+        if "q" in plt.rcParams["keymap.quit"]:
+            plt.rcParams["keymap.quit"].remove("q")
 
         self.key_vel = np.zeros((2, 1))
 
