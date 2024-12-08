@@ -30,27 +30,5 @@ class EnvPlot3D(EnvPlot):
         self.ax.set_zlim(z_range)
 
 
-    def draw_grid_map(self, grid_map=None, **kwargs):
-        """
-        Draw the grid map on the plot.
-
-        Args:
-            grid_map (optional): The grid map to draw.
-        """
-
-        if grid_map is not None:
-            self.ax.imshow(
-                grid_map.T,
-                cmap="Greys",
-                origin="lower",
-                extent=self.x_range + self.y_range,
-            )
-
-            if isinstance(self.ax, Axes3D):
-                print("Map will not show in 3D plot")
-
-        
-
-
 
 

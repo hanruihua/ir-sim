@@ -8,7 +8,7 @@ import shutil
 import glob
 from math import sin, cos
 import numpy as np
-
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class EnvPlot:
@@ -150,6 +150,9 @@ class EnvPlot:
                 extent=self.x_range + self.y_range,
             )
 
+            if isinstance(self.ax, Axes3D):
+                print("Map will not show in 3D plot")
+
     def draw_trajectory(
         self,
         traj,
@@ -183,12 +186,19 @@ class EnvPlot:
         if show_direction:
             if isinstance(traj, list):
                 u_list = [cos(p[2, 0]) for p in traj]
-                y_list = [sin(p[2, 0]) for p in traj]
+                v_list = [sin(p[2, 0]) for p in traj]
             elif isinstance(traj, np.ndarray):
                 u_list = [cos(p[2]) for p in traj.T]
-                y_list = [sin(p[2]) for p in traj.T]
+                v_list = [sin(p[2]) for p in traj.T]
 
-            self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
+            if isinstance(self.ax, Axes3D):
+                path_z_list = [0] * len(path_x_list)
+                w_list = [0] * len(u_list)
+
+                self.ax.quiver(path_x_list, path_y_list, path_z_list, u_list, v_list, w_list)
+            
+            else:
+                self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
 
         if refresh:
             self.dyna_line_list.append(line)
@@ -358,38 +368,3 @@ def linewidth_from_data_units(linewidth, axis, reference='y'):
     return linewidth * (length / value_range)
 
 
-
-def linewidth_from_data_units_3d(linewidth, axis, reference='z'):
-    """
-    Convert a linewidth in data units to linewidth in points.
-
-    Parameters
-    ----------
-    linewidth: float
-        Linewidth in data units of the respective reference-axis
-    axis: matplotlib axis
-        The axis which is used to extract the relevant transformation
-        data (data limits and size must not change afterwards)
-    reference: string
-        The axis that is taken as a reference for the data width.
-        Possible values: 'x' and 'y'. Defaults to 'y'.
-
-    Returns
-    -------
-    linewidth: float
-        Linewidth in points
-    """
-    fig = axis.get_figure()
-    if reference == 'x':
-        length = fig.bbox_inches.width * axis.get_position().width
-        value_range = np.diff(axis.get_xlim())
-    elif reference == 'y':
-        length = fig.bbox_inches.height * axis.get_position().height
-        value_range = np.diff(axis.get_ylim())
-    elif reference == 'z':
-        length = fig.bbox_inches.height * axis.get_position().height
-        value_range = np.diff(axis.get_zlim())
-    # Convert length to points
-    length *= 72
-    # Scale linewidth to value range
-    return linewidth * (length / value_range)
