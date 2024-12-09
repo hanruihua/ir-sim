@@ -3,6 +3,7 @@ Quick Start
 
 To quickly start the simulation, you can use the following code snippet to run the simulation for a robot in a world.
 
+1. Create a Python file and copy the following code snippet to run the simulation.
 
 ```python
 import irsim
