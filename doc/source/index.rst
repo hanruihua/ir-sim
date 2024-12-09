@@ -14,10 +14,17 @@ It provides the following features:
   - Real-time visualization of simulation outcomes.
   - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
 
+The simple demonstration of the simulator is shown below:
 
-|                                           Robot                                           |                                           Car                                           |
-| :---------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
-| ![robot](https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b) | ![car](https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06) |
+.. image:: https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b
+  :width: 49%
+  :alt: Alternative text
+
+
+.. image:: https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06
+  :width: 49%
+  :alt: Alternative text
+
 
 
 .. toctree::
