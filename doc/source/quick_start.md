@@ -20,6 +20,10 @@ for i in range(300): # run the simulation for 300 steps
 env.end() # close the environment
 ```
 
+2. Create a configuration YAML file *robot_world.yaml* and copy the following code snippet to the configuration file.
+
+```yaml
+
 All the configurations are set in the YAML file. You can change the configurations in the YAML file to customize the simulation. The following is an example of the configuration file *robot_world.yaml*.
 
 ```yaml
@@ -31,10 +35,10 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
 
 robot:
-  kinematics: {name: 'diff'}  # omni, diff, acker
-  shape: {name: 'circle', radius: 0.2}  # radius
-  state: [1, 1, 0]  # x, y, theta
-  goal: [9, 9, 0]  # x, y, theta
+  kinematics: {name: 'diff'}  # kinematics of the robot, current name should be one of omni, diff, acker. If not set, this object will be static
+  shape: {name: 'circle', radius: 0.2}  # radius for circle shape
+  state: [1, 1, 0]  # x, y, theta, 2d position and orientation
+  goal: [9, 9, 0]  # x, y, theta, 2d position and orientation
   behavior: {name: 'dash'} # move toward to the goal directly 
   color: 'g' # green
 ```
