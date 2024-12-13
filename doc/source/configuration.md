@@ -1,9 +1,9 @@
 YAML Configuration Syntax
 ==================
 
-The configuration file is a YAML file that contains the configuration of the world and the robot. The configuration file is used to initialize the environment. 
+The configuration file is a YAML file to initialize the environment. It contains the parameters of the world, obstacle, and robot. You can customize the simulation environment by modifying the parameters in the configuration file. 
 
-The configuration file is divided into three sections: `world`, `robot`, and `obstacle`. The `world` section contains the configuration of the world, such as the size of the world and the goal position. The `robot` section contains the configuration of the robot, such as the initial position, kinematics, and goal position. The `obstacles` section contains the configuration of the obstacles in the world. Following is a simple example of the configuration file:
+The configuration file is divided into three main sections: `world`, `robot`, and `obstacle`. Following is a simple example of the configuration file:
 
 ```yaml
 world:
@@ -41,32 +41,32 @@ Note that, you can have multiple robots and obstacles in the configuration file 
 
 The `world` section contains the configuration of the simulation environment. The following table details the configuration parameters for the world:
 
-| Parameter        | Description                                                                 | Type               | Default       |
-|------------------|-----------------------------------------------------------------------------|--------------------|---------------|
-| `name`           | Name of the world                                                           | `str`              | `"world"`     |
-| `height`         | Height of the world                                                         | `float`            | `10`          |
-| `width`          | Width of the world                                                          | `float`            | `10`          |
-| `step_time`      | Time interval between simulation steps (in seconds)                         | `float`            | `0.1`         |
-| `sample_time`    | Time interval between samples for rendering and data extraction (in seconds) | `float`            | `0.1`         |
-| `offset`         | Offset for the world's position in `[x, y]` coordinates                    | `list` of `float`  | `[0, 0]`      |
-| `control_mode`   | Control mode of the simulation (`"auto"` or `"keyboard"`)                  | `str`              | `"auto"`      |
-| `collision_mode` | Collision handling mode (`"stop"`, `"reactive"`, `"unobstructed"`)         | `str`              | `"stop"`      |
-| `obstacle_map`   | Path to the image file representing the obstacle map                        | `str` (file path)  | `None`        |
-| `mdownsample`    | Downsampling factor for the obstacle map to reduce resolution                | `int`              | `1`           |
+| Parameter        | Description                                                                                    | Type              | Default   |
+| ---------------- | ---------------------------------------------------------------------------------------------- | ----------------- | --------- |
+| `name`           | Name of the world                                                                              | `str`             | `"world"` |
+| `height`         | Height of the world (meter)                                                                    | `float`           | `10`      |
+| `width`          | Width of the world  (meter)                                                                    | `float`           | `10`      |
+| `step_time`      | Time interval between simulation steps (in seconds)                                            | `float`           | `0.1`     |
+| `sample_time`    | Time interval between samples for rendering and data extraction (in seconds)                   | `float`           | `0.1`     |
+| `offset`         | Offset for the world's position in `[x, y]` coordinates                                        | `list` of `float` | `[0, 0]`  |
+| `control_mode`   | Control mode of the simulation (`"auto"` or `"keyboard"`)                                      | `str`             | `"auto"`  |
+| `collision_mode` | Collision handling mode (`"stop"`, `"reactive"`, `"unobstructed"`)                             | `str`             | `"stop"`  |
+| `obstacle_map`   | Path to the image file representing the obstacle map                                           | `str` (file path) | `None`    |
+| `mdownsample`    | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. | `int`             | `1`       |
 
-### Description of Parameters
+### Detailed Description of Parameters
 
 - **`name`**:  
   Defines the name of the world used in the simulation. This can be useful for identifying different simulation environments.
 
 - **`height`**:  
-  Specifies the vertical size of the world in units of measurement defined by the simulation (e.g., meters).
+  Specifies the vertical size of the world in units of meters in the Y-axis direction plotted on the screen.
 
 - **`width`**:  
-  Specifies the horizontal size of the world in units of measurement defined by the simulation.
+  Specifies the horizontal size of the world in units of of meters in the X-axis direction plotted on the screen.
 
 - **`step_time`**:  
-  Determines the time interval between each simulation step. A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz).
+  Determines the time interval between each simulation step. A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but need longer time to run the simulation.
 
 - **`sample_time`**:  
   Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur.
@@ -75,21 +75,21 @@ The `world` section contains the configuration of the simulation environment. Th
   Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement.
 
 - **`control_mode`**:  
-  Configures how the simulation is controlled:
-  - `"auto"`: Automatic control by the simulation logic.
-  - `"keyboard"`: Manual control via keyboard inputs.
+  Configures how the objects in the simulation is controlled:
+  - `"auto"`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
+  - `"keyboard"`: Manual control via keyboard inputs. The key inputs are defined in the file.
 
 - **`collision_mode`**:  
   Defines how collisions between objects are handled in the simulation:
   - `"stop"`: Stops the movement of objects upon collision.
-  - `"reactive"`: Objects react to collisions based on predefined behaviors.
-  - `"unobstructed"`: Allows objects to pass through each other without any collision response.
+  - `"reactive"`: Objects react to collisions based on predefined behaviors. 
+  - `"unobstructed"`: Allows objects to pass through each other without consideration of any collision.
 
 - **`obstacle_map`**:  
-  Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world.
+  Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle. 
 
 - **`mdownsample`**:  
-  Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load.
+  Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
 
 ### Complete Example of World Configuration
 
@@ -117,14 +117,11 @@ world:
 
 - **Customization**: Modify the parameter values as needed to suit the specific requirements of your simulation environment. For instance, changing `control_mode` to `'keyboard'` allows manual control, which can be useful for interactive simulations.
 
-By completing the **World Configuration** section as shown above, you ensure that all relevant parameters from `world.py` are accurately represented and configurable via the YAML configuration file.
+## Robot and Obstacle Configuration
 
-## Robot Configuration
+The `robot` and `obstacle` sections have same configuration parameters but different default values. The following table details the configuration parameters for the robot and obstacle:
 
-
-
-## Obstacle Configuration
-
+| Parameter        | Description                                                                                   | Type              | Default (Robot)   | Default (Obstacle) |
 
 
 
