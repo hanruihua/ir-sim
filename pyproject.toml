@@ -22,14 +22,13 @@ dependencies = ['matplotlib',
                 'numpy',
                 'scipy',
                 'pyyaml',
-                'pynput',
                 'imageio',
                 'shapely==2.0.6',
-                'scikit-image',
-                'loguru']
+                'loguru',
+                'transforms3d',]
 
 [project.optional-dependencies]
-
+[keyboard] = ['pynput']
 
 [tool.setuptools.packages.find]
 where = ["./"]
