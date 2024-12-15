@@ -142,3 +142,13 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     new_position = state[0:2] + real_velocity * step_time
 
     return new_position
+
+
+def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
+
+    assert velocity.shape[0] >= 6 and state.shape[0] >= 6
+
+    r, p, y = velocity[3:6, 0]
+
+    
+    
