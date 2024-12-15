@@ -113,15 +113,24 @@ world:
 
 - **`obstacle_map`**: Replace `"path/to/map.png"` with the actual file path to your obstacle map image. Ensure that the image is in a compatible format (e.g., PNG, JPEG) and properly represents obstacle locations.
 
-- **`mdownsample`**: Adjust the downsampling factor based on the desired resolution and performance requirements. A value of `1` retains the original resolution, while higher values reduce it.
-
-- **Customization**: Modify the parameter values as needed to suit the specific requirements of your simulation environment. For instance, changing `control_mode` to `'keyboard'` allows manual control, which can be useful for interactive simulations.
-
 ## Robot and Obstacle Configuration
 
 The `robot` and `obstacle` sections have same configuration parameters but different default values. The following table details the configuration parameters for the robot and obstacle:
 
-| Parameter        | Description                                                                                   | Type              | Default (Robot)   | Default (Obstacle) |
+| Parameter      | Description                                                                             | Type   | Default (Robot)                     | Default (Obstacle)                  |
+| -------------- | --------------------------------------------------------------------------------------- | ------ | ----------------------------------- | ----------------------------------- |
+| `number`       | number of the configured robots                                                         | `int`  | `1`                                 | `1`                             |
+| `kinematics`   | Defines the kinematics model of the object. Support values are `diff`, `omni`, `acker`. | `dict` | `{'name': 'diff'}`                  | `None`                              |
+| `shape`        | Defines the shape of the object. Support values are `circle`, `rectangle`, `polygon`.   | `dict` | `{'name': 'circle', 'radius': 0.2}` | `{'name': 'circle', 'radius': 1.0}` |
+| `state`        | Initial state of the object in the format `[x, y, theta]`                               | `list` | `[1, 1, 0]`                         | `[5, 5, 0]`                         |
+| `goal`         | Goal state of the object in the format `[x, y, theta]`                                  | `list` | `[9, 9, 0]`                         | `None`                              |
+| `behavior`     | Defines the behavior of the object. Possible values are `dash`, `rvo`, etc.             | `dict` | `{'name': 'dash'}`                  | `None`                              |
+| `color`        | Color of the object in the simulation                                                   | `str`  | `'g'`                               | `'r'`                               |
+| `plot`         | Plotting options for the object                                                         | `dict` | `{'show_trajectory': True}`         | `{'show_trajectory': True}`         |
+| `sensors`      | List of sensors attached to the object                                                  | `list` | `None`                              | `None`                              |
+| `distribution` | Distribution of multiple objects                                                        | `dict` | `None`                              | `{'name': 'manual'}`                |
+| `unobstructed` | Flag to indicate if the object is unobstructed by other objects                         | `bool` | `False`                             | `False`                             |
+
 
 
 

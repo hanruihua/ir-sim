@@ -1,7 +1,8 @@
-'''
+"""
 Class EnvBase is the base class of the environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
+
 Author: Ruihua Han (hanrh@connect.hku.hk)
-'''
+"""
 
 import matplotlib
 
@@ -58,7 +59,7 @@ class EnvBase:
         self.env_config = EnvConfig(world_name)
         object_factory = ObjectFactory()
         # init objects (world, obstacle, robot)
-        
+
         self._world = World(world_name, **self.env_config.parse["world"])
 
         self._robot_collection = object_factory.create_from_parse(
@@ -249,7 +250,7 @@ class EnvBase:
 
         if "s" in plt.rcParams["keymap.save"]:
             plt.rcParams["keymap.save"].remove("s")
-        
+
         if "q" in plt.rcParams["keymap.quit"]:
             plt.rcParams["keymap.quit"].remove("q")
 
@@ -258,16 +259,16 @@ class EnvBase:
         print("start to keyboard control")
 
         commands = [
-        ["w", "forward"],
-        ["s", "back forward"],
-        ["a", "turn left"],
-        ["d", "turn right"],
-        ["q", "decrease linear velocity"],
-        ["e", "increase linear velocity"],
-        ["z", "decrease angular velocity"],
-        ["c", "increase angular velocity"],
-        ["alt+num", "change current control robot id"],
-        ["r", "reset the environment"]
+            ["w", "forward"],
+            ["s", "back forward"],
+            ["a", "turn left"],
+            ["d", "turn right"],
+            ["q", "decrease linear velocity"],
+            ["e", "increase linear velocity"],
+            ["z", "decrease angular velocity"],
+            ["c", "increase angular velocity"],
+            ["alt+num", "change current control robot id"],
+            ["r", "reset the environment"],
         ]
         # headers = ["key", "function"]
         print(commands)
