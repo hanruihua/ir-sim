@@ -28,7 +28,7 @@ dependencies = ['matplotlib',
                 'transforms3d',]
 
 [project.optional-dependencies]
-[keyboard] = ['pynput']
+keyboard = ['pynput']
 
 [tool.setuptools.packages.find]
 where = ["./"]
