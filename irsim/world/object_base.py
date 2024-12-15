@@ -65,8 +65,65 @@ class ObjectBase:
     Base class representing a generic object in the robot simulator.
 
     This class encapsulates common attributes and behaviors for all objects,
-    including robots and obstacles, managing their state, velocity, goals, 
+    including robots and obstacles, managing their state, velocity, goals,
     and kinematics.
+
+    
+    Args:
+        shape (dict): Parameters defining the shape of the object for geometry creation.
+            The dictionary should contain keys and values required by the GeometryFactory to create
+            the object's geometry, such as 'type' (e.g., 'circle', 'rectangle') and associated parameters.
+            Defaults to None.
+        kinematics (dict): Parameters defining the kinematics of the object.
+            Includes kinematic model and any necessary parameters. If None, no kinematics model is applied.
+            Defaults to None.
+        state (list of float): Initial state vector [x, y, theta, ...].
+            The state can have more dimensions depending on `state_dim`. Excess dimensions are truncated,
+            and missing dimensions are filled with zeros. Defaults to [0, 0, 0].
+        velocity (list of float): Initial velocity vector [vx, vy] or according to the kinematics model.
+            Defaults to [0, 0].
+        goal (list of float): Goal state vector [x, y, theta, ...].
+            Used by behaviors to determine the desired movement. Defaults to [10, 10, 0].
+        role (str): Role of the object in the simulation, e.g., "robot" or "obstacle".
+            Defaults to "obstacle".
+        color (str): Color of the object when plotted.
+            Defaults to "k" (black).
+        static (bool): Indicates if the object is static (does not move).
+            Defaults to False.
+        vel_min (list of float): Minimum velocity limits for each control dimension.
+            Used to constrain the object's velocity. Defaults to [-1, -1].
+        vel_max (list of float): Maximum velocity limits for each control dimension.
+            Used to constrain the object's velocity. Defaults to [1, 1].
+        acce (list of float): Acceleration limits, specifying the maximum change in velocity per time step.
+            Defaults to [inf, inf].
+        angle_range (list of float): Allowed range of orientation angles [min, max] in radians.
+            The object's orientation will be wrapped within this range. Defaults to [-pi, pi].
+        behavior (dict or str): Behavioral mode or configuration of the object.
+            Can be a behavior name (str) or a dictionary with behavior parameters. If None, default behavior is applied.
+            Defaults to None.
+        goal_threshold (float): Threshold distance to determine if the object has reached its goal.
+            When the object is within this distance to the goal, it's considered to have arrived. Defaults to 0.1.
+        sensors (list of dict): List of sensor configurations attached to the object.
+            Each sensor configuration is a dictionary specifying sensor type and parameters. Defaults to None.
+        arrive_mode (str): Mode for arrival detection, either "position" or "state".
+            Determines how arrival at the goal is evaluated. Defaults to "position".
+        description (str): Description or label for the object.
+            Can be used for identification or attaching images in plotting. Defaults to None.
+        group (int): Group identifier for organizational purposes, allowing objects to be grouped.
+            Defaults to 0.
+        state_dim (int): Dimension of the state vector.
+            If None, it is inferred from the class attribute `state_shape`. Defaults to None.
+        vel_dim (int): Dimension of the velocity vector.
+            If None, it is inferred from the class attribute `vel_shape`. Defaults to None.
+        unobstructed (bool): Indicates if the object should be considered to have an unobstructed path,
+            ignoring obstacles in certain scenarios. Defaults to False.
+        **kwargs: Additional keyword arguments for extended functionality.
+            plot (dict): Plotting options for the object.
+                May include 'show_goal', 'show_text', 'show_arrow', 'show_uncertainty', 'show_trajectory',
+                'trail_freq', etc.
+
+    Raises:
+        ValueError: If dimension parameters do not match the provided shapes or if input parameters are invalid.
 
     Attributes:
         state_dim (int): Dimension of the state vector.
@@ -123,36 +180,11 @@ class ObjectBase:
         unobstructed=False,
         **kwargs,
     ) -> None:
-        
         """
         Initialize an ObjectBase instance.
 
-        Args:
-            shape (dict): Parameters defining the shape of the object for geometry creation.
-            kinematics (dict, optional): Parameters defining the kinematics of the object.
-            state (list of float, optional): Initial state vector [x, y, theta]. Defaults to [0, 0, 0].
-            velocity (list of float, optional): Initial velocity vector [vx, vy]. Defaults to [0, 0].
-            goal (list of float, optional): Goal state vector [x, y, theta]. Defaults to [10, 10, 0].
-            role (str, optional): Role of the object, e.g., "robot" or "obstacle". Defaults to "obstacle".
-            color (str, optional): Color of the object. Defaults to "k" (black).
-            static (bool, optional): Indicates if the object is static. Defaults to False.
-            vel_min (list of float, optional): Minimum velocity limits. Defaults to [-1, -1].
-            vel_max (list of float, optional): Maximum velocity limits. Defaults to [1, 1].
-            acce (list of float, optional): Acceleration limits. Defaults to [inf, inf].
-            angle_range (list of float, optional): Allowed range of angles [min, max]. Defaults to [-pi, pi].
-            behavior (str, optional): Behavioral mode of the object. Defaults to None.
-            goal_threshold (float, optional): Threshold to determine if the goal is reached. Defaults to 0.1.
-            sensors (list, optional): List of sensors attached to the object. Defaults to None.
-            arrive_mode (str, optional): Mode for arrival detection, e.g., "position". Defaults to "position".
-            description (str, optional): Description of the object. Defaults to None.
-            group (int, optional): Group identifier for organizational purposes. Defaults to 0.
-            state_dim (int, optional): Dimension of the state vector. If None, inferred from `state_shape`. Defaults to None.
-            vel_dim (int, optional): Dimension of the velocity vector. If None, inferred from `vel_shape`. Defaults to None.
-            unobstructed (bool, optional): Indicates if the object has an unobstructed path. Defaults to False.
-            **kwargs: Additional keyword arguments for extended functionality.
-        
-        Raises:
-            ValueError: If dimension parameters do not match the provided shapes.
+        This method sets up a new ObjectBase object with the specified parameters, initializing its
+        geometry, kinematics, behaviors, sensors, and other properties relevant to simulation.
         """
 
         self._id = next(ObjectBase.id_iter)
@@ -250,14 +282,11 @@ class ObjectBase:
             self._goal = random_point_range(self.rl, self.rh)
 
         # plot
+        self.plot_kwargs = kwargs.get("plot", dict())
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
-
-        self.plot_kwargs = kwargs.get("plot", dict())
-
         self.collision_obj = []
-
 
     def __eq__(self, o: object) -> bool:
         return self._id == o._id
@@ -644,8 +673,8 @@ class ObjectBase:
                 )
                 object_patch.set_zorder(3)
 
-                if isinstance(ax, Axes3D): 
-                    art3d.patch_2d_to_3d(object_patch, z=self.z, zdir='z')
+                if isinstance(ax, Axes3D):
+                    art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
 
                 ax.add_patch(object_patch)
 
@@ -659,13 +688,18 @@ class ObjectBase:
                 ax.add_patch(object_patch)
 
             elif self.shape == "linestring":
-                
+
                 if isinstance(ax, Axes3D):
-                    object_patch = Line3D(self.vertices[0, :], self.vertices[1, :], zs=self.z*np.ones((3,)), color=self.color)
+                    object_patch = Line3D(
+                        self.vertices[0, :],
+                        self.vertices[1, :],
+                        zs=self.z * np.ones((3,)),
+                        color=self.color,
+                    )
                 else:
                     object_patch = mpl.lines.Line2D(
-                    self.vertices[0, :], self.vertices[1, :], color=self.color
-                )
+                        self.vertices[0, :], self.vertices[1, :], color=self.color
+                    )
                 object_patch.set_zorder(3)
                 ax.add_line(object_patch)
 
