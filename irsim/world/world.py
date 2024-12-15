@@ -2,7 +2,6 @@ from irsim.util.util import file_check
 from irsim.global_param import world_param
 import numpy as np
 import matplotlib.image as mpimg
-from skimage.color import rgb2gray
 from typing import Optional
 
 
@@ -101,7 +100,8 @@ class World:
             grid_map = grid_map[::mdownsample, ::mdownsample]
 
             if len(grid_map.shape) > 2:
-                grid_map = rgb2gray(grid_map)
+                print('convert to grayscale')
+                grid_map = self.rgb2gray(grid_map)
 
             grid_map = 100 * (1 - grid_map)  # range: 0 - 100
             grid_map = np.fliplr(grid_map.T)
@@ -149,3 +149,7 @@ class World:
             float: Maximum resolution.
         """
         return np.max(self.reso)
+
+
+    def rgb2gray(self, rgb):
+        return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
