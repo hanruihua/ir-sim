@@ -38,7 +38,7 @@
 - [ ] Add functions to access obstacles with different types
 - [ ] Add more key functions for keyboard control
 - [ ] Develop Tools for tackling Data
-- [ ] 3D visualization
+- [x] 3D visualization
 - [x] check whether the object is convex
 - [ ] Add synchronization and asynchronization mode
 - [ ] Add tf (similar like ROS tf)
@@ -61,4 +61,4 @@
 - [ ] Provide polygon shape robot
 - [ ] develop a lib for configuration of the shape, refer to rviz marker
 - [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. 
-- [ ] 
+- [ ] Make the dependency of the package optional
