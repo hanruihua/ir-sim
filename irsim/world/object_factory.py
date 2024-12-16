@@ -37,7 +37,7 @@ class ObjectFactory:
 
         if isinstance(parse, list):
             object_list = [
-                obj for sp in parse for obj in self.create_object(obj_type, **sp)
+                obj for group_index, sp in enumerate(parse) for obj in self.create_object(obj_type, group=group_index, **sp)
             ]
 
         elif isinstance(parse, dict):

@@ -130,7 +130,7 @@ class ObjectBase:
         state_shape (tuple): Shape of the state array.
         vel_dim (int): Dimension of the velocity vector.
         vel_shape (tuple): Shape of the velocity array.
-        _state (np.ndarray): Current state of the object.
+        state (np.ndarray): Current state of the object.
         _init_state (np.ndarray): Initial state of the object.
         _velocity (np.ndarray): Current velocity of the object.
         _init_velocity (np.ndarray): Initial velocity of the object.
@@ -336,7 +336,7 @@ class ObjectBase:
         """
         Update all sensors for the current state.
         """
-        [sensor.step(self._state[0:3]) for sensor in self.sensors]
+        [sensor.step(self.state[0:3]) for sensor in self.sensors]
 
     def check_status(self):
         """
@@ -367,9 +367,9 @@ class ObjectBase:
         Check if the object has arrived at the goal.
         """
         if self.arrive_mode == "state":
-            diff = np.linalg.norm(self._state[:3] - self._goal[:3])
+            diff = np.linalg.norm(self.state[:3] - self.goal[:3])
         elif self.arrive_mode == "position":
-            diff = np.linalg.norm(self._state[:2] - self._goal[:2])
+            diff = np.linalg.norm(self.state[:2] - self.goal[:2])
 
         if diff < self.goal_threshold:
             self.arrive_flag = True
@@ -397,7 +397,7 @@ class ObjectBase:
                                 + "{} is collided with {} at state {}".format(
                                     self.id,
                                     obj.id,
-                                    list(np.round(self._state[:2, 0], 2)),
+                                    list(np.round(self.state[:2, 0], 2)),
                                 )
                             )
 
@@ -546,7 +546,7 @@ class ObjectBase:
             else:
                 temp_state = state
 
-        assert self._state.shape == temp_state.shape
+        assert self.state.shape == temp_state.shape
 
         if init:
             self._init_state = temp_state.copy()
@@ -616,9 +616,9 @@ class ObjectBase:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
         """
-        self.state_re = self._state
-        self.goal_re = self._goal
-        self.plot_patch_list
+        self.state_re = self.state
+        self.goal_re = self.goal
+        self.plot_patch_list = []
 
         self.plot_kwargs.update(kwargs)
 
@@ -718,7 +718,7 @@ class ObjectBase:
 
         start_x = self.vertices[0, 0]
         start_y = self.vertices[1, 0]
-        r_phi = self._state[2, 0]
+        r_phi = self.state[2, 0]
         r_phi_ang = 180 * r_phi / pi
 
         robot_image_path = path_manager.root_path + "/world/description/" + description
@@ -846,7 +846,7 @@ class ObjectBase:
         trail_fill = kwargs.get("trail_fill", False)
         trail_color = kwargs.get("trail_color", self.color)
 
-        r_phi_ang = 180 * self._state[2, 0] / pi
+        r_phi_ang = 180 * self.state[2, 0] / pi
 
         if trail_type == "rectangle" or trail_type == "polygon":
             start_x = self.vertices[0, 0]
@@ -959,7 +959,7 @@ class ObjectBase:
             ObstacleInfo: Obstacle-related information.
         """
         return ObstacleInfo(
-            self._state[:2, :],
+            self.state[:2, :],
             self.vertices[:, :-1],
             self._velocity,
             self.info.cone_type,
@@ -985,7 +985,7 @@ class ObjectBase:
 
     @property
     def z(self):
-        return self._state[2, 0] if self.state_dim >= 6 else 0
+        return self.state[2, 0] if self.state_dim >= 6 else 0
 
     @property
     def kinematics(self):
@@ -1093,8 +1093,8 @@ class ObjectBase:
             list: State [x, y, vx, vy, radius].
         """
         return [
-            self._state[0, 0],
-            self._state[1, 0],
+            self.state[0, 0],
+            self.state[1, 0],
             self.velocity_xy[0, 0],
             self.velocity_xy[1, 0],
             self.radius_extend,
@@ -1110,14 +1110,14 @@ class ObjectBase:
         """
         vx_des, vy_des = self.desired_omni_vel[:, 0]
         return [
-            self._state[0, 0],
-            self._state[1, 0],
+            self.state[0, 0],
+            self.state[1, 0],
             self.velocity_xy[0, 0],
             self.velocity_xy[1, 0],
             self.radius_extend,
             vx_des,
             vy_des,
-            self._state[2, 0],
+            self.state[2, 0],
         ]
 
     @property
@@ -1131,7 +1131,7 @@ class ObjectBase:
         if self.kinematics == "omni":
             return self._velocity
         elif self.kinematics == "diff" or self.kinematics == "acker":
-            return diff_to_omni(self._state[2, 0], self._velocity)
+            return diff_to_omni(self.state[2, 0], self._velocity)
         else:
             raise ValueError("kinematics not implemented")
 
