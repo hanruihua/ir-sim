@@ -77,7 +77,9 @@ class EnvPlot:
             no_axis (bool, optional): Whether to show the axis. Default is False.
             tight (bool, optional): Whether to show the axis tightly. Default is True.
         """
+
         self.ax.set_aspect("equal")
+        self.ax.set_aspect("equal") 
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 

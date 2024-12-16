@@ -1,7 +1,7 @@
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
-from transforms3d import euler, quaternions, affine
+from transforms3d import euler
 
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
