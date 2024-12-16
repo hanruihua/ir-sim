@@ -105,7 +105,7 @@ class KinematicsFactory:
             return DifferentialKinematics(name, noise, alpha)
         elif name == "acker":
             return AckermannKinematics(name, noise, alpha, mode, wheelbase)
-        elif name is 'rigid3d':
+        elif name == 'rigid3d':
             return Rigid3DKinematics(name, noise, alpha)
         else:
             print(f"Unknown kinematics type: {name}, object will be stationary.")

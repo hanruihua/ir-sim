@@ -1,6 +1,7 @@
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
+from transforms3d import euler, quaternions, affine
 
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
@@ -148,7 +149,35 @@ def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
 
     assert velocity.shape[0] >= 6 and state.shape[0] >= 6
 
-    r, p, y = velocity[3:6, 0]
+    current_HT = state_to_homo_trans(state[:3], state[3:])
+    
+    
+
+    if noise:
+        print("Noise is not supported for rigid3d kinematics Now.")
+    
+
+
+def state_to_homo_trans(position, euler_angles):
+    """
+    Create a homogeneous transformation matrix from state (position and Euler angles). 
+    
+    Parameters:
+    - position: List or array of [x, y, z] coordinates.
+    - euler_angles: List or array of [roll, pitch, yaw] in radians.
+    
+    Returns:
+    - 4x4 Homogeneous transformation matrix. (SE3)
+    """
+    # Convert Euler angles to rotation matrix
+    R = euler.euler2mat(*euler_angles, axes='sxyz')  # 'sxyz' specifies the axis order
+    T = np.identity(4)
+    T[:3, :3] = R
+    T[:3, 3] = position
+    T[3, :3] = 0
+
+    return T
+
 
     
     
