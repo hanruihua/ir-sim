@@ -18,7 +18,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ['matplotlib',
+dependencies = ['matplotlib==3.9.0',
                 'numpy',
                 'scipy',
                 'pyyaml',
