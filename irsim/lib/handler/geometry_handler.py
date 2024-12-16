@@ -221,7 +221,7 @@ class GeometryFactory:
 
     @staticmethod
     def create_geometry(
-        name: str,
+        name: str = "circle",
         **kwargs
     ) -> geometry_handler:
         name = name.lower()
