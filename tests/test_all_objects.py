@@ -4,6 +4,7 @@ import irsim
 from pynput import keyboard
 import matplotlib.pyplot as plt
 
+plt.close('all')
 
 @time_it("test_all_objects")
 def test_all_objects():
