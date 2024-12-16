@@ -3,10 +3,9 @@ from irsim.world import ObjectBase
 
 class RobotDiff(ObjectBase):
     def __init__(
-        self, kinematics={'name': "diff"}, color="g", state_dim=3, **kwargs
+        self, color="g", state_dim=3, **kwargs
     ):
         super(RobotDiff, self).__init__(
-            kinematics=kinematics,
             role="robot",
             color=color,
             state_dim=state_dim,

@@ -41,15 +41,20 @@ def file_check(file_name, root_path=None):
     return abs_file_name
 
 def WrapToPi(rad):
-    """
-    Transform an angle to the range [-pi, pi].
-
-    Args:
-        rad (float): Angle in radians.
-
-    Returns:
-        float: Wrapped angle.
-    """
+    '''The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
+    
+    Parameters
+    ----------
+    rad
+        The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to
+    transform to the range [-π, π]. The function ensures that the angle is within this range by wrapping
+    it around if it exceeds the bounds.
+    
+    Returns
+    -------
+        The function `WrapToPi(rad)` returns the angle `rad` wrapped to the range [-pi, pi].
+    
+    '''
     while rad > pi:
         rad = rad - 2 * pi
     while rad < -pi:
