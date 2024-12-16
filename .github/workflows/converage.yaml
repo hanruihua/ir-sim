@@ -14,8 +14,9 @@ jobs:
         sudo apt-get install python3-opengl xvfb python3-tk
         python3 -m pip install --upgrade pip
         pip install -e . --user
+    
     - name: Install pytest
-      run: pip install pytest pytest-cov
+      run: pip install pytest pytest-cov pynput
     - name: Run tests and collect coverage
       run: xvfb-run -s "-screen 0 1024x768x24" pytest --cov . --cov-report=xml --cov-report=html
     - name: Upload coverage reports to Codecov
