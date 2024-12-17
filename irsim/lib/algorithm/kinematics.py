@@ -175,7 +175,6 @@ def state_to_homo_trans(position, euler_angles):
     T = np.identity(4)
     T[:3, :3] = R
     T[:3, 3] = position
-    T[3, :3] = 0
 
     return T
 
@@ -186,6 +185,9 @@ def twist_to_homo_trans(twist, dt):
     twist: [v_x, v_y, v_z, omega_x, omega_y, omega_z]
     dt: time step
     """
+
+    # T_inc = 
+
 
 
 
