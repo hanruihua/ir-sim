@@ -149,7 +149,8 @@ def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
 
     assert velocity.shape[0] >= 6 and state.shape[0] >= 6
 
-    current_HT = state_to_homo_trans(state[:3], state[3:])
+    state_HT = state_to_homo_trans(state[:3], state[3:])
+    vel_HT = twist_to_homo_trans(velocity, step_time)
     
     
 
@@ -177,6 +178,19 @@ def state_to_homo_trans(position, euler_angles):
     T[3, :3] = 0
 
     return T
+
+def twist_to_homo_trans(twist, dt):
+
+    """
+    Convert a twist to a transformation matrix over time dt.
+    twist: [v_x, v_y, v_z, omega_x, omega_y, omega_z]
+    dt: time step
+    """
+
+
+
+
+    
 
 
     
