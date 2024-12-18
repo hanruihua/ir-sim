@@ -152,8 +152,6 @@ def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
     state_HT = state_to_homo_trans(state[:3], state[3:])
     vel_HT = twist_to_homo_trans(velocity, step_time)
     
-    
-
     if noise:
         print("Noise is not supported for rigid3d kinematics Now.")
     
