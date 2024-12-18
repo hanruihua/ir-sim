@@ -179,16 +179,43 @@ class ObjectFactory:
         goal=[1, 9, 0],
     ):
         """
-        Generate lists of states and goals for objects.
+        Generate a list of state vectors for multiple objects based on the specified distribution method.
+
+        This function creates initial states for multiple objects in the simulation environment.
+        It supports various distribution methods such as 'manual', 'circle', and 'random' to
+        position the objects according to specific patterns or randomness.
 
         Args:
-            number (int): Number of objects.
-            distribution (dict): Distribution type for generating states.
-            state (list): Initial state for objects.
-            goal (list): Goal state for objects.
+            state (Optional[List[float]]): 
+                Base state vector [x, y, theta] to use as a template for generating states.
+                If None, default values will be used.
+            number (int): 
+                Number of state vectors to generate.
+            distribution (Dict[str, Any]): 
+                Configuration dictionary specifying the distribution method and its parameters.
+                - 'name' (str): 
+                    Name of the distribution method. Supported values are:
+                    - 'manual': States are specified manually.
+                    - 'circle': States are arranged in a circular pattern.
+                    - 'random': States are placed at random positions.
+                - Additional parameters depend on the distribution method:
+                    - For 'manual':
+                        Manually specified states and goal.
+                    - For 'circle':
+                        - 'center' (List[float]): Center coordinates [x, y] of the circle.
+                        - 'radius' (float): Radius of the circle.
+                    - For 'random':
+                        - 'range_low' (List[float]): Lower bounds for random state values. 
+                        - 'range_high' (List[float]): Upper bounds for random state values.
 
         Returns:
-            tuple: Lists of states and goals.
+            List[List[float]]: 
+                A list containing generated state vectors and goal vectors for objects.
+
+        Raises:
+            ValueError: 
+                If the distribution method specified in 'name' is not supported or if required
+                parameters for a distribution method are missing.
         """
         if distribution["name"] == "manual":
             state_list = convert_list_length(state, number)
