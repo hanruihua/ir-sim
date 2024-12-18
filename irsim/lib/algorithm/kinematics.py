@@ -178,15 +178,36 @@ def state_to_homo_trans(position, euler_angles):
 
     return T
 
+
 def twist_to_homo_trans(twist, dt):
-
     """
-    Convert a twist to a transformation matrix over time dt.
-    twist: [v_x, v_y, v_z, omega_x, omega_y, omega_z]
-    dt: time step
+    Convert a twist (linear and angular velocity) to an incremental transformation matrix.
+    
+    Parameters:
+    - twist: List or array of [v_x, v_y, v_z, omega_x, omega_y, omega_z]
+    - dt: Time step duration (seconds)
+    
+    Returns:
+    - 4x4 Incremental transformation matrix.
     """
-
-    # T_inc = 
+    v = np.array(twist[:3]) * dt  # Linear displacement
+    omega = np.array(twist[3:]) * dt  # Angular displacement
+    theta = np.linalg.norm(omega)
+    
+    if theta < 1e-6:
+        # No rotation
+        R = np.identity(3)
+        t = v
+    else:
+        # Normalize rotation axis
+        axis = omega / theta
+        R = axangles.axangle2mat(axis, theta)
+        t = v  # Assuming small angles where rotation and translation commute for simplicity
+    
+    T_inc = np.identity(4)
+    T_inc[:3, :3] = R
+    T_inc[:3, 3] = t
+    return T_inc
 
 
 
