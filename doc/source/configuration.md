@@ -144,53 +144,66 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `unobstructed` | Flag to indicate if the object is unobstructed by other objects                                            | `bool` | `False`                             |  -->
 
 
-## Object Configuration (Robot and Obstacle Configuration)
+## Object Configuration (Robot and Obstacle)
 
 All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
 
 ### Parameters
 
-| Parameter        | Description                                                                                                                                                   | Type              | Default            |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ------------------ |
-| `number`         | Number of objects to create with the given configuration.                                                                                                     | `int`             | `1`                |
-| `distribution`   | Defines how multiple objects are distributed when `number` is greater than one. Supported methods are `'manual'`, `'circle'`, and `'random'`.                 | `dict`            | `{name: 'manual'}` |
-| `kinematics`     | Kinematic model of the object. Supported names are `'diff'` (differential drive), `'omni'`, and `'acker'` (Ackermann steering).                               | `dict`            | `None`             |
-| `shape`          | Shape of the object for collision detection and visualization. Supported names are `'circle'`, `'rectangle'`, `'polygon'`, etc. Requires specific parameters. | `dict`            | `{name: 'circle'}` |
-| `state`          | Initial state vector `[x, y, theta, ...]` of the object. Dimensions beyond the required are truncated; missing dimensions are filled with zeros.              | `list` of `float` | `[0, 0, 0]`        |
-| `velocity`       | Initial velocity vector. Format depends on the kinematics model (e.g., `[v, omega]` for differential drive).                                                  | `list` of `float` | `[0, 0]`           |
-| `goal`           | Goal state vector `[x, y, theta, ...]` towards which the object moves. Used by behaviors for navigation.                                                      | `list` of `float` | `[10, 10, 0]`      |
-| `behavior`       | Behavior configuration dictating object movement. Supported names include `'dash'`, `'rvo'`, etc., with optional parameters.                                  | `dict`            | `None`             |
-| `role`           | Role of the object in the simulation, either `'robot'` or `'obstacle'`.                                                                                       | `str`             | Varies by section  |
-| `color`          | Visualization color of the object in the simulation.                                                                                                          | `str`             | `'k'` (black)      |
-| `static`         | Indicates if the object is static (does not move). Static objects ignore kinematics and behaviors.                                                            | `bool`            | `False`            |
-| `vel_min`        | Minimum velocity limits for each control dimension. Used to constrain the object's velocity.                                                                  | `list` of `float` | `[-1, -1]`         |
-| `vel_max`        | Maximum velocity limits for each control dimension. Constraints for the object's velocity.                                                                    | `list` of `float` | `[1, 1]`           |
-| `acce`           | Acceleration limits specifying the maximum change in velocity per time step.                                                                                  | `list` of `float` | `[inf, inf]`       |
-| `angle_range`    | Allowed range of orientation angles `[min, max]` in radians. The object's orientation is wrapped within this range.                                           | `list` of `float` | `[-pi, pi]`        |
-| `goal_threshold` | Threshold distance to determine if the object has reached its goal.                                                                                           | `float`           | `0.1`              |
-| `sensors`        | List of sensor configurations attached to the object. Each sensor is defined by a dict specifying its type and parameters.                                    | `list` of `dict`  | `None`             |
-| `arrive_mode`    | Mode for arrival detection: `'position'` (based on position) or `'state'` (includes orientation).                                                             | `str`             | `'position'`       |
-| `description`    | Description or label for the object. Can be used for identification or attaching images in visualizations.                                                    | `str`             | `None`             |
-| `unobstructed`   | Indicates if the object is considered to have an unobstructed path, ignoring collisions in certain scenarios.                                                 | `bool`            | `False`            |
-| `plot`           | Plotting options for visualization. Can include flags like `'show_goal'`, `'show_text'`, `'show_arrow'`, `'show_trajectory'`, etc.                            | `dict`            | `{}`               |
-| `state_dim`      | Dimension of the state vector. If not specified, it is inferred from the kinematics model.                                                                    | `int`             | `None`             |
-| `vel_dim`        | Dimension of the velocity vector. If not specified, it is inferred from the kinematics model.                                                                 | `int`             | `None`             |
+| Parameter        | Description                                           | Type              | Default            |
+| ---------------- | ----------------------------------------------------- | ----------------- | ------------------ |
+| `number`         | Number of objects to create                           | `int`             | `1`                |
+| `distribution`   | Defines how multiple objects are distributed          | `dict`            | `{name: 'manual'}` |
+| `kinematics`     | Kinematic model of the object.                        | `dict`            | `None`             |
+| `shape`          | Shape of the object.                                  | `dict`            | `{name: 'circle'}` |
+| `state`          | Initial state vector of the object.                   | `list` of `float` | `[0, 0, 0]`        |
+| `velocity`       | Initial velocity vector.                              | `list` of `float` | `[0, 0]`           |
+| `goal`           | Goal state vector.                                    | `list` of `float` | `[10, 10, 0]`      |
+| `behavior`       | Behavior configuration dictating object movement.     | `dict`            | `None`             |
+| `role`           | Role of the object in the simulation.                 | `str`             | `Obstacle`         |
+| `color`          | Visualization color of the object in the simulation.  | `str`             | `'k'` (black)      |
+| `static`         | Indicates if the object is static                     | `bool`            | `False`            |
+| `vel_min`        | Minimum velocity limits for each control dimension.   | `list` of `float` | `[-1, -1]`         |
+| `vel_max`        | Maximum velocity limits for each control dimension.   | `list` of `float` | `[1, 1]`           |
+| `acce`           | Acceleration limits.                                  | `list` of `float` | `[inf, inf]`       |
+| `angle_range`    | Range of orientation angles in radians.               | `list` of `float` | `[-pi, pi]`        |
+| `goal_threshold` | Threshold distance to determine goal arrive.          | `float`           | `0.1`              |
+| `sensors`        | List of sensor configurations attached to the object. | `list` of `dict`  | `None`             |
+| `arrive_mode`    | Mode for arrival detection.                           | `str`             | `'position'`       |
+| `description`    | Image Description or label for the object.            | `str`             | `None`             |
+| `unobstructed`   | if the object ignores collisions.                     | `bool`            | `False`            |
+| `plot`           | Plotting options for Object visualization.            | `dict`            | `{}`               |
+| `state_dim`      | Dimension of the state vector.                        | `int`             | `None`             |
+| `vel_dim`        | Dimension of the velocity vector.                     | `int`             | `None`             |
 
 ### Detailed Description of Parameters
 ----
 
 - **`number`**:
-  Specifies the number of objects to create using the given configuration. Useful when combined with the `distribution` parameter to instantiate multiple objects with varying initial states or positions.
+  Specifies the number of objects to create using the given configuration. 
+<br/>
 
-- **`distribution`**:
-  Defines how multiple objects are spatially distributed when `number` is greater than one. Supported distribution types include:
-  - `'manual'`: Manually specify initial states and goals for each object.
-  - `'random'`: Randomly distribute objects within specified ranges.
-  - `'circle'`: Arrange objects in a circular formation around a specified center.
+- **`distribution`** ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list)):
+  Defines how multiple objects are spatially distributed when `number` is greater than `1`. Supported distribution types include:
+  - `'manual'`: Manually specify initial states and goals for each object. 
+    - In this case, the `state` (or goal) parameters must be provided for each object. If the provided list is shorter than the number of objects, the last state (or goal) is repeated. 
+    ~ **e.g.** `{name: 'manual'}`.
+  - `'random'`: Randomly distribute objects within specified ranges. Optional parameters:
+    - `range_low` (list): Lower bounds for random distribution. Default is `[0, 0, -3.14]`.
+    - `range_high` (list): Upper bounds for random distribution. Default is `[10, 10, 3.14]`.
+    ~ **e.g.** `{name: 'random', range_low: [0, 0, -3.14], range_high: [30, 10, 3.14]}`.
+  - `'circle'`: Arrange objects in a circular formation around a specified center. Optional parameters:
+    - `center` (list): Center coordinates of the circle. Default is `[5, 5, 0]`.
+    - `radius` (float): Radius of the circle. Default is `4.0`.
+    ~ **e.g.** `{name: 'circle', center: [2, 5, 0], radius: 5.0}`.
+<br/>
 
-- **`kinematics`**:
+- **`kinematics`([source]())**:
   Sets the kinematic model governing the object's movement. Supported models:
-  - `'diff'`: Differential drive, suitable for robots that can rotate in place (e.g., two-wheel robots).
+  - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). Optional parameters:
+    - `noise` (bool): whether to add noise to the velocity commands. Default is False.
+    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.
+    ~**e.g.** `{name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}`.
   - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation.
   - `'acker'`: Ackermann steering, typical for car-like vehicles requiring a turning radius.
 
