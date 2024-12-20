@@ -1,7 +1,7 @@
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
-from transforms3d import euler
+# from transforms3d import euler
 
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
@@ -145,67 +145,67 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     return new_position
 
 
-def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
+# def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
 
-    assert velocity.shape[0] >= 6 and state.shape[0] >= 6
+#     assert velocity.shape[0] >= 6 and state.shape[0] >= 6
 
-    state_HT = state_to_homo_trans(state[:3], state[3:])
-    vel_HT = twist_to_homo_trans(velocity, step_time)
+#     state_HT = state_to_homo_trans(state[:3], state[3:])
+#     vel_HT = twist_to_homo_trans(velocity, step_time)
     
-    if noise:
-        print("Noise is not supported for rigid3d kinematics Now.")
+#     if noise:
+#         print("Noise is not supported for rigid3d kinematics Now.")
     
-
-
-def state_to_homo_trans(position, euler_angles):
-    """
-    Create a homogeneous transformation matrix from state (position and Euler angles). 
-    
-    Parameters:
-    - position: List or array of [x, y, z] coordinates.
-    - euler_angles: List or array of [roll, pitch, yaw] in radians.
-    
-    Returns:
-    - 4x4 Homogeneous transformation matrix. (SE3)
-    """
-    # Convert Euler angles to rotation matrix
-    R = euler.euler2mat(*euler_angles, axes='sxyz')  # 'sxyz' specifies the axis order
-    T = np.identity(4)
-    T[:3, :3] = R
-    T[:3, 3] = position
-
-    return T
 
 
-def twist_to_homo_trans(twist, dt):
-    """
-    Convert a twist (linear and angular velocity) to an incremental transformation matrix.
+# def state_to_homo_trans(position, euler_angles):
+#     """
+#     Create a homogeneous transformation matrix from state (position and Euler angles). 
     
-    Parameters:
-    - twist: List or array of [v_x, v_y, v_z, omega_x, omega_y, omega_z]
-    - dt: Time step duration (seconds)
+#     Parameters:
+#     - position: List or array of [x, y, z] coordinates.
+#     - euler_angles: List or array of [roll, pitch, yaw] in radians.
     
-    Returns:
-    - 4x4 Incremental transformation matrix.
-    """
-    v = np.array(twist[:3]) * dt  # Linear displacement
-    omega = np.array(twist[3:]) * dt  # Angular displacement
-    theta = np.linalg.norm(omega)
+#     Returns:
+#     - 4x4 Homogeneous transformation matrix. (SE3)
+#     """
+#     # Convert Euler angles to rotation matrix
+#     R = euler.euler2mat(*euler_angles, axes='sxyz')  # 'sxyz' specifies the axis order
+#     T = np.identity(4)
+#     T[:3, :3] = R
+#     T[:3, 3] = position
+
+#     return T
+
+
+# def twist_to_homo_trans(twist, dt):
+#     """
+#     Convert a twist (linear and angular velocity) to an incremental transformation matrix.
     
-    if theta < 1e-6:
-        # No rotation
-        R = np.identity(3)
-        t = v
-    else:
-        # Normalize rotation axis
-        axis = omega / theta
-        R = axangles.axangle2mat(axis, theta)
-        t = v  # Assuming small angles where rotation and translation commute for simplicity
+#     Parameters:
+#     - twist: List or array of [v_x, v_y, v_z, omega_x, omega_y, omega_z]
+#     - dt: Time step duration (seconds)
     
-    T_inc = np.identity(4)
-    T_inc[:3, :3] = R
-    T_inc[:3, 3] = t
-    return T_inc
+#     Returns:
+#     - 4x4 Incremental transformation matrix.
+#     """
+#     v = np.array(twist[:3]) * dt  # Linear displacement
+#     omega = np.array(twist[3:]) * dt  # Angular displacement
+#     theta = np.linalg.norm(omega)
+    
+#     if theta < 1e-6:
+#         # No rotation
+#         R = np.identity(3)
+#         t = v
+#     else:
+#         # Normalize rotation axis
+#         axis = omega / theta
+#         R = axangles.axangle2mat(axis, theta)
+#         t = v  # Assuming small angles where rotation and translation commute for simplicity
+    
+#     T_inc = np.identity(4)
+#     T_inc[:3, :3] = R
+#     T_inc[:3, 3] = t
+#     return T_inc
 
 
 

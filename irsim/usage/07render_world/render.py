@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make(save_ani=True, display=False, projection='3d')
+env = irsim.make(save_ani=True, display=False)
 
 for i in range(300):
 
