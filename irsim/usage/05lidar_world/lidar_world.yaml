@@ -17,7 +17,7 @@ robot:
     behavior: {name: 'dash'} # move toward to the goal directly 
 
     sensors:
-      - type: 'lidar2d'
+      - name: 'lidar2d'
         range_min: 0
         range_max: 5
         angle_range: 3.14 #  4.7123
@@ -26,10 +26,8 @@ robot:
         std: 0.2
         angle_std: 0.2
         offset: [0, 0, 0]
-        reso: 0.1
         alpha: 0.3
-        
-
+      
 obstacle:
   - shape: {name: 'circle', radius: 1.0}  # radius
     state: [5, 5, 0]  
