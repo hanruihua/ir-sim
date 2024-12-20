@@ -22,8 +22,6 @@ env.end() # close the environment
 
 2. Create a configuration YAML file *robot_world.yaml* and copy the following code snippet to the configuration file.
 
-```yaml
-
 All the configurations are set in the YAML file. You can change the configurations in the YAML file to customize the simulation. The following is an example of the configuration file *robot_world.yaml*.
 
 ```yaml

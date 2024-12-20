@@ -61,7 +61,7 @@ release = '2.2.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.githubpages', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion'
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.githubpages', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion', 'sphinx_copybutton'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

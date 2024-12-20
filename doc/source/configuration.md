@@ -181,42 +181,148 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 - **`number`**:
   Specifies the number of objects to create using the given configuration. 
-<br/>
+
+  **e.g.** 
+  ```yaml
+  robot:
+    - number: 5
+  ```
 
 - **`distribution`** ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list)):
   Defines how multiple objects are spatially distributed when `number` is greater than `1`. Supported distribution types include:
   - `'manual'`: Manually specify initial states and goals for each object. 
-    - In this case, the `state` (or goal) parameters must be provided for each object. If the provided list is shorter than the number of objects, the last state (or goal) is repeated. 
-    ~ **e.g.** `{name: 'manual'}`.
+    - In this case, the `state` (or goal) parameters must be provided for each object. If the provided list is shorter than the number of objects, the last state (or goal) is repeated.
+
+    **e.g.** 
+    ```yaml
+    distribution: {name: 'manual'}
+    state: [[1, 1, 0], [2, 2, 0], [3, 3, 0]]
+    goal: [[9, 9, 0], [8, 8, 0], [7, 7, 0]]
+    ```
+
   - `'random'`: Randomly distribute objects within specified ranges. Optional parameters:
     - `range_low` (list): Lower bounds for random distribution. Default is `[0, 0, -3.14]`.
-    - `range_high` (list): Upper bounds for random distribution. Default is `[10, 10, 3.14]`.
-    ~ **e.g.** `{name: 'random', range_low: [0, 0, -3.14], range_high: [30, 10, 3.14]}`.
+    - `range_high` (list): Upper bounds for random distribution. Default is `[10, 10, 3.14]`. 
+
+    **e.g.** 
+    ```yaml
+    distribution: {name: 'random', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
+    ```
+
   - `'circle'`: Arrange objects in a circular formation around a specified center. Optional parameters:
     - `center` (list): Center coordinates of the circle. Default is `[5, 5, 0]`.
-    - `radius` (float): Radius of the circle. Default is `4.0`.
-    ~ **e.g.** `{name: 'circle', center: [2, 5, 0], radius: 5.0}`.
-<br/>
+    - `radius` (float): Radius of the circle. Default is `4.0`.  
 
-- **`kinematics`([source]())**:
+    **e.g.** 
+    ```yaml
+    distribution: {name: 'circle', center: [5, 5, 0], radius: 4.0}
+    ```
+
+- **`kinematics`**:
   Sets the kinematic model governing the object's movement. Supported models:
   - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). Optional parameters:
-    - `noise` (bool): whether to add noise to the velocity commands. Default is False.
-    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.
-    ~**e.g.** `{name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}`.
+    - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
+    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.    
+
+    **e.g.** 
+    ```yaml
+    kinematics: {name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}
+    ```
+
   - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation.
+    - `noise` (bool): whether to add noise to the velocity commands. Default is False.
+    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.   
+
+    **e.g.** 
+    ```yaml
+    kinematics: {name: 'omni', noise: True, alpha: [0.03, 0, 0, 0.03]}
+    ```
+   
   - `'acker'`: Ackermann steering, typical for car-like vehicles requiring a turning radius.
+    - `noise` (bool): whether to add noise to the velocity commands. Default is False.
+    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.  
+    - `mode` (str): steering mode, either `steer` or `angular`. Default is `steer`.
+      - `steer`: the object is controlled by linear and steer angle.
+      - `angular`: the object is controlled by linear and angular velocity. 
 
-  Additional parameters may be required, such as `wheelbase` for the `'acker'` model, denoting the distance between the front and rear axles.
+    **e.g.** 
+    ```yaml
+    kinematics: {name: 'acker', noise: True, alpha: [0.03, 0, 0, 0.03], mode: 'steer'}
+    ```
 
-- **`wheelbase`**:
-  Specifies the distance between the front and rear wheels for objects using the `'acker'` kinematics model. This parameter affects the turning radius and handling of the vehicle.
+  **Note**: When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration.
 
 - **`shape`**:
-  Determines the geometric shape used for collision detection and visualization. Supported shapes and required parameters:
-  - `'circle'`: Requires `radius`.
-  - `'rectangle'`: Requires `length` and `width`.
-  - `'polygon'`: Requires a list of `vertices` defining the polygon.
+  Determines the geometric shape used for collision detection and visualization in the original state. Supported shapes and required parameters:
+
+  - **`'circle'`**: Represents a circular shape.
+    - **`radius`** (`float`): Radius of the circle. Default is `0.2`.
+    - **`random_shape`** (`bool`): Whether to generate a random radius. Default is `False`.
+    - **`radius_range`** (`list`): Range `[min_radius, max_radius]` for random radius generation if `random_shape` is `True`. Default is `[0.1, 1.0]`.
+    - **`wheelbase`** (`float`): Wheelbase of the Ackermann steering vehicle. Required when using `'acker'` kinematics. Default is `None`.
+
+    **Example:**
+    ```yaml
+    shape: {name: 'circle', radius: 0.2}
+    ```
+
+  - **`'rectangle'`**: Represents a rectangular shape.
+    - **`length`** (`float`): Length of the rectangle along the x-axis. Default is `1.0`.
+    - **`width`** (`float`): Width of the rectangle along the y-axis. Default is `1.0`.
+    - **`wheelbase`** (`float`): Wheelbase of the Ackermann steering vehicle. Required when using `'acker'` kinematics. Default is `None`.
+
+    **Example:**
+    ```yaml
+    shape: {name: 'rectangle', length: 1.0, width: 0.5}
+    ```
+  
+  - **`'polygon'`**: Represents a polygonal shape defined by a list of vertices.
+    - **`vertices`** (`list`): List of vertices defining the polygon in the format `[[x1, y1], [x2, y2], ...]`, if not provided, a random polygon will be generated.
+    - **`random_shape`** (`bool`): Whether to generate a series of random polygons. Default is `False`.
+    - **`is_convex`** (`bool`): Whether to generate a series of random convex polygons. Default is `False`.
+    - parameters for random polygon generation, see [random_generate_polygon](https://ir-sim.readthedocs.io/en/latest/irsim.lib.html#module-irsim.lib.generation) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+      
+    **Example:**
+    ```yaml
+    shape:
+      name: 'polygon'
+      vertices: 
+        - [4.5, 4.5]
+        - [5.5, 4.5]
+        - [5.5, 5.5]
+        - [4.5, 5.5]
+    ```
+
+    or 
+
+    ```yaml
+    shape:
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]} 
+    ```
+  
+  - **`'linestring'`**: Represents a line string shape defined by a list of vertices. Similar to a polygon but generates a line string.
+    - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
+    - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
+    - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `False`.
+    - parameters for random line string generation (polygon), see [random_generate_polygon](https://ir-sim.readthedocs.io/en/latest/irsim.lib.html#module-irsim.lib.generation) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+
+    **Example:**
+    ```yaml
+    shape:
+      name: 'linestring'
+      vertices: 
+        - [4.5, 4.5]
+        - [5.5, 4.5]
+        - [5.5, 5.5]
+        - [4.5, 5.5]
+    ```
+    
+    or 
+
+    ```yaml
+    shape:
+      - {name: 'linestring', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]} 
+    ```
 
 - **`state`**:
   Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros.

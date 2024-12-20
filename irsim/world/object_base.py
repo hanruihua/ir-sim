@@ -68,7 +68,7 @@ class ObjectBase:
     including robots and obstacles, managing their state, velocity, goals,
     and kinematics.
 
-    
+
     Args:
         shape (dict): Parameters defining the shape of the object for geometry creation.
             The dictionary should contain keys and values required by the GeometryFactory to create
