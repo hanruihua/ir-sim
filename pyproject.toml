@@ -19,16 +19,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = ['matplotlib==3.9.0',
+                'shapely==2.0.6',
                 'numpy',
-                'scipy',
                 'pyyaml',
                 'imageio',
-                'shapely==2.0.6',
-                'loguru',
-                'transforms3d',]
+                'loguru']
 
 [project.optional-dependencies]
 keyboard = ['pynput']
+all = ['pynput']
 
 [tool.setuptools.packages.find]
 where = ["./"]
