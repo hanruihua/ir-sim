@@ -267,7 +267,7 @@ class ObjectBase:
             ]
 
             self.lidar = [
-                sensor for sensor in self.sensors if sensor.sensor_type == "lidar"
+                sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"
             ][0]
         else:
             self.sensors = []
@@ -797,9 +797,12 @@ class ObjectBase:
         self.plot_patch_list.append(goal_circle)
 
     def plot_text(self, ax, **kwargs):
+        '''
+        To be completed.
+        '''
         pass
 
-    def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, **kwargs):
+    def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color='gold', **kwargs):
         """
         Plot an arrow indicating the velocity orientation of the object.
 
@@ -812,7 +815,6 @@ class ObjectBase:
         x = self.state_re[0][0]
         y = self.state_re[1][0]
         theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
-        arrow_color = kwargs.get("arrow_color", "gold")
 
         arrow = mpl.patches.Arrow(
             x,
@@ -885,6 +887,9 @@ class ObjectBase:
             ax.add_patch(car_circle)
 
     def plot_uncertainty(self, ax, **kwargs):
+        '''
+        To be completed.
+        '''
         pass
 
     def plot_clear(self):
