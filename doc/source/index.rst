@@ -34,7 +34,13 @@ The simple demonstration of the simulator is shown below:
    install
    quick_start
    configuration
-   usage
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide:
+
+   usage/make_environment
+
 
 .. toctree::
    :maxdepth: 2

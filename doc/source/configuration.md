@@ -51,18 +51,19 @@ obstacle:
 
 The `world` section contains the configuration of the simulation environment. The following table details the configuration parameters for the world:
 
-| Parameter        | Description                                                                                    | Type              | Default   |
-| ---------------- | ---------------------------------------------------------------------------------------------- | ----------------- | --------- |
-| `name`           | Name of the world                                                                              | `str`             | `"world"` |
-| `height`         | Height of the world (meter)                                                                    | `float`           | `10`      |
-| `width`          | Width of the world  (meter)                                                                    | `float`           | `10`      |
-| `step_time`      | Time interval between simulation steps (in seconds)                                            | `float`           | `0.1`     |
-| `sample_time`    | Time interval between samples for rendering and data extraction (in seconds)                   | `float`           | `0.1`     |
-| `offset`         | Offset for the world's position in `[x, y]` coordinates                                        | `list` of `float` | `[0, 0]`  |
-| `control_mode`   | Control mode of the simulation (`"auto"` or `"keyboard"`)                                      | `str`             | `"auto"`  |
-| `collision_mode` | Collision handling mode (`"stop"`, `"reactive"`, `"unobstructed"`)                             | `str`             | `"stop"`  |
-| `obstacle_map`   | Path to the image file representing the obstacle map                                           | `str` (file path) | `None`    |
-| `mdownsample`    | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. | `int`             | `1`       |
+| **Parameter**    | **Type**          | **Default** | **Description**                                                                                |
+| ---------------- | ----------------- | ----------- | ---------------------------------------------------------------------------------------------- |
+| `name`           | `str`             | `"world"`   | Name of the world                                                                              |
+| `height`         | `float`           | `10`        | Height of the world (meter)                                                                    |
+| `width`          | `float`           | `10`        | Width of the world (meter)                                                                     |
+| `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                            |
+| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                   |
+| `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                        |
+| `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                             |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`)                    |
+| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                           |
+| `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. |
+
 
 ### Detailed Description of Parameters
 
@@ -86,14 +87,14 @@ The `world` section contains the configuration of the simulation environment. Th
 
 - **`control_mode`**:  
   Configures how the objects in the simulation is controlled:
-  - `"auto"`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
-  - `"keyboard"`: Manual control via keyboard inputs. The key inputs are defined in the file.
+  - `auto`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
+  - `keyboard`: Manual control via keyboard inputs. The key inputs are defined in the file.
 
 - **`collision_mode`**:  
   Defines how collisions between objects are handled in the simulation:
-  - `"stop"`: Stops the movement of objects upon collision.
-  - `"reactive"`: Objects react to collisions based on predefined behaviors. 
-  - `"unobstructed"`: Allows objects to pass through each other without consideration of any collision.
+  - `stop`: Stops the movement of objects upon collision.
+  - `reactive`: Objects react to collisions based on predefined behaviors. 
+  - `unobstructed`: Allows objects to pass through each other without consideration of any collision.
 
 - **`obstacle_map`**:  
   Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle. 
@@ -115,7 +116,7 @@ world:
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
   control_mode: 'auto'                # Control mode ('auto' or 'keyboard')
   collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'reactive')
-  obstacle_map: "path/to/map.png"      # Path to the obstacle map image file
+  obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
 ```
 
@@ -123,58 +124,36 @@ world:
 
 - **`obstacle_map`**: Replace `"path/to/map.png"` with the actual file path to your obstacle map image. Ensure that the image is in a compatible format (e.g., PNG, JPEG) and properly represents obstacle locations.
 
-<!-- ## Object Configuration (Robot and Obstacle Configuration)
-
-All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
-
-| Parameter      | Description                                                                                                   | Type   | Default            |
-| -------------- | ------------------------------------------------------------------------------------------------------------- | ------ | ------------------ |
-| `number`       | number of the configured objects                                                                              | `int`  | `1`                |
-| `distribution` | distribution of the multiple objects, support dictionary values are `manual`, `circle`, and  `random`.        | `int`  | `{name: 'manual'}` |
-| `kinematics`   | Defines the kinematics model of the object. Support name values in Dictionary are `diff`, `omni`, `acker`.    | `dict` | `None`             |
-| `shape`        | Defines the shape of the object. Support name values in Dictionary are `circle`, `rectangle`, `polygon`, etc. | `dict` | `{name: 'circle'}` |
-| `state`        | Initial state of the object in the format `[x, y, theta]`                                                     | `list` | `[0, 0, 0]`        |
-| `velocity`     | Initial velocity of the object                                                                                | `list` | `[0, 0]`           |
-
-| `behavior`     | Defines the behavior of the object. Possible values are `dash`, `rvo`, etc.                                | `dict` | `{'name': 'dash'}`                  | 
-| `color`        | Color of the object in the simulation                                                                      | `str`  | `'g'`                               | 
-| `plot`         | Plotting options for the object                                                                            | `dict` | `{'show_trajectory': True}`         | 
-| `sensors`      | List of sensors attached to the object                                                                     | `list` | `None`                              |
-| `distribution` | Distribution of multiple objects                                                                           | `dict` | `None`                              | 
-| `unobstructed` | Flag to indicate if the object is unobstructed by other objects                                            | `bool` | `False`                             |  -->
-
-
 ## Object Configuration (Robot and Obstacle)
 
 All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
 
-### Parameters
+| Parameter        | Type              | Default            | Description                                                                              |
+| ---------------- | ----------------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| `number`         | `int`             | `1`                | Number of objects to create.                                                             |
+| `distribution`   | `dict`            | `{name: 'manual'}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
+| `kinematics`     | `dict`            | `None`             | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
+| `shape`          | `dict`            | `{name: 'circle'}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
+| `state`          | `list` of `float` | `[0, 0, 0]`        | Initial state vector of the object.                                                      |
+| `velocity`       | `list` of `float` | `[0, 0]`           | Initial velocity vector.                                                                 |
+| `goal`           | `list` of `float` | `[10, 10, 0]`      | Goal state vector.                                                                       |
+| `behavior`       | `dict`            | `None`             | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
+| `role`           | `str`             | `Obstacle`         | Role of the object in the simulation.                                                    |
+| `color`          | `str`             | `'k'` (black)      | Visualization color of the object in the simulation.                                     |
+| `static`         | `bool`            | `False`            | Indicates if the object is static.                                                       |
+| `vel_min`        | `list` of `float` | `[-1, -1]`         | Minimum velocity limits for each control dimension.                                      |
+| `vel_max`        | `list` of `float` | `[1, 1]`           | Maximum velocity limits for each control dimension.                                      |
+| `acce`           | `list` of `float` | `[inf, inf]`       | Acceleration limits.                                                                     |
+| `angle_range`    | `list` of `float` | `[-pi, pi]`        | Range of orientation angles in radians.                                                  |
+| `goal_threshold` | `float`           | `0.1`              | Threshold distance to determine goal arrival.                                            |
+| `sensors`        | `list` of `dict`  | `None`             | List of sensor configurations attached to the object. Support name: `lidar2d`            |
+| `arrive_mode`    | `str`             | `'position'`       | Mode for arrival detection.                                                              |
+| `description`    | `str`             | `None`             | Image description or label for the object.                                               |
+| `unobstructed`   | `bool`            | `False`            | Indicates if the object ignores collisions.                                              |
+| `plot`           | `dict`            | `{}`               | Plotting options for object visualization.                                               |
+| `state_dim`      | `int`             | `None`             | Dimension of the state vector.                                                           |
+| `vel_dim`        | `int`             | `None`             | Dimension of the velocity vector.                                                        |
 
-| Parameter        | Description                                           | Type              | Default            |
-| ---------------- | ----------------------------------------------------- | ----------------- | ------------------ |
-| `number`         | Number of objects to create                           | `int`             | `1`                |
-| `distribution`   | Defines how multiple objects are distributed          | `dict`            | `{name: 'manual'}` |
-| `kinematics`     | Kinematic model of the object.                        | `dict`            | `None`             |
-| `shape`          | Shape of the object.                                  | `dict`            | `{name: 'circle'}` |
-| `state`          | Initial state vector of the object.                   | `list` of `float` | `[0, 0, 0]`        |
-| `velocity`       | Initial velocity vector.                              | `list` of `float` | `[0, 0]`           |
-| `goal`           | Goal state vector.                                    | `list` of `float` | `[10, 10, 0]`      |
-| `behavior`       | Behavior configuration dictating object movement.     | `dict`            | `None`             |
-| `role`           | Role of the object in the simulation.                 | `str`             | `Obstacle`         |
-| `color`          | Visualization color of the object in the simulation.  | `str`             | `'k'` (black)      |
-| `static`         | Indicates if the object is static                     | `bool`            | `False`            |
-| `vel_min`        | Minimum velocity limits for each control dimension.   | `list` of `float` | `[-1, -1]`         |
-| `vel_max`        | Maximum velocity limits for each control dimension.   | `list` of `float` | `[1, 1]`           |
-| `acce`           | Acceleration limits.                                  | `list` of `float` | `[inf, inf]`       |
-| `angle_range`    | Range of orientation angles in radians.               | `list` of `float` | `[-pi, pi]`        |
-| `goal_threshold` | Threshold distance to determine goal arrive.          | `float`           | `0.1`              |
-| `sensors`        | List of sensor configurations attached to the object. | `list` of `dict`  | `None`             |
-| `arrive_mode`    | Mode for arrival detection.                           | `str`             | `'position'`       |
-| `description`    | Image Description or label for the object.            | `str`             | `None`             |
-| `unobstructed`   | if the object ignores collisions.                     | `bool`            | `False`            |
-| `plot`           | Plotting options for Object visualization.            | `dict`            | `{}`               |
-| `state_dim`      | Dimension of the state vector.                        | `int`             | `None`             |
-| `vel_dim`        | Dimension of the velocity vector.                     | `int`             | `None`             |
 
 ### Detailed Description of Parameters
 ----
@@ -217,7 +196,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```yaml
     distribution: {name: 'circle', center: [5, 5, 0], radius: 4.0}
     ```
-
+  
 - **`kinematics`**:
   Sets the kinematic model governing the object's movement. Supported models:
   - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). Optional parameters:
@@ -325,76 +304,222 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```
 
 - **`state`**:
-  Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros.
+  Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros. 
+
+  **Example:**
+  ```yaml
+  state: [1.0, 1.0, 0.2]
+  ```
 
 - **`velocity`**:
-  Specifies the initial velocity of the object. The format depends on the kinematics model:
+  Specifies the initial velocity (list) of the object. The format depends on the kinematics model:
   - For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is angular velocity.
   - For `'omni'`: `[vx, vy]`, velocities along the x and y axes.
   - For `'acker'`: Typically `[v, phi]`, where `v` is linear velocity and `phi` is steering angle.
 
+  **Example:**
+  ```yaml
+  velocity: [1.0, 0.5]
+  ```
+
 - **`goal`**:
-  Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation.
+  Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]`. Default is `[10.0, 10.0, 0.0]`.
+
+  **Example:**
+  ```yaml
+  goal: [10.0, 10.0, 0.2]
+  ```
 
 - **`behavior`**:
-  Configures the movement behavior of the object. Behaviors can be simple or complex and may include additional parameters. Supported behaviors:
+  Configures the movement behavior of the object. Behaviors can be simple or complex and may include additional parameters. Supported behavior names:
   - `'dash'`: Moves directly toward the goal at maximum allowable speed.
-  - `'rvo'`: Implements Reciprocal Velocity Obstacles for collision avoidance among multiple moving objects.
+    - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
+    - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
+    - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
+    - `angle_tolerance` (float): Tolerance for orientation alignment with `diff` and `acker` kinematics. Default is `0.1`. 
+  
+    **Example:**
+    ```yaml
+    behavior: {name: 'dash', wander: True, range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], angle_tolerance: 0.1}
+    ```
 
-  Behaviors can be specified as a string (name) or a dictionary with parameters (e.g., `{name: 'rvo', neighbor_distance: 5}`).
+  - `'rvo'`: Implements Reciprocal Velocity Obstacles for collision avoidance among multiple moving objects. Support kinematics are `diff` and `omni`.
+    - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
+    - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
+    - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
+    - `vxmax` (float): Maximum linear velocity in x axis. Default is `1.5`.
+    - `vymax` (float): Maximum linear velocity in y axis. Default is `1.5`.
+    - `acceler` (float): Maximum acceleration. Default is `1.0`.
+    - `factor` (float): Factor for the RVO algorithm. Default is `1.0`.
+    - `mode` (str): Mode for RVO algorithm, either `rvo`, `hrvo`, or `vo`. Default is `rvo`. 
+      - `rvo`: Reciprocal Velocity Obstacles. For multi-agent collision avoidance.
+      - `hrvo`: Hybrid Reciprocal Velocity Obstacles. Combine RVO with VO to avoid deadlocks.
+      - `vo`: Velocity Obstacles. For obstacle avoidance.
+
+    **Example:**
+    ```yaml
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acceler: 1.0, factor: 1.0, mode: 'rvo', wander: False}
+    ```
 
 - **`role`**:
-  Defines the object's role in the simulation:
+  Defines the object's role in the simulation, determined by the section it belongs to:
   - `'robot'`: An active entity typically controlled by behaviors or input commands.
   - `'obstacle'`: A passive entity that may or may not move but is considered during collision detection.
 
 - **`color`**:
-  Specifies the object's color in visualizations for easy identification.
+  Specifies the object's color in visualizations for easy identification. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
+
+  **Example:**
+  ```yaml
+  color: 'r'
+  ```
 
 - **`static`**:
   A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state.
 
+  **Example:**
+  ```yaml
+  static: True
+  ```
+
 - **`vel_min`** and **`vel_max`**:
-  Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds.
+  Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds. 
 
 - **`acce`**:
   Defines acceleration limits as the maximum change in velocity per time step for each control dimension. This parameter simulates the physical limitations of the object's motion capabilities.
 
 - **`angle_range`**:
-  Specifies the allowed range of orientation angles `[min, max]` in radians. The object's orientation angle `theta` is wrapped within this range to maintain consistency.
+  Specifies the allowed range of orientation angles `[min, max]` in radians. The object's orientation angle `theta` is wrapped within this range to maintain consistency. 
 
 - **`goal_threshold`**:
   Determines the proximity threshold to the goal at which the object is considered to have arrived. Once within this distance, arrival behaviors or state changes may be triggered.
 
+  **Example:**
+  ```yaml
+  vel_min: [-1, -1]
+  vel_max: [1, 1]
+  acce: [0.5, 0.1]
+  angle_range: [-pi, pi]
+  goal_threshold: 0.1
+  ```
+
 - **`sensors`**:
-  Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Examples include:
-  - `{sensor_type: 'lidar', range: 10.0, fov: 180}`
-  - `{sensor_type: 'camera', resolution: [640, 480]}`
+  Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Currently supported sensor `name` (or `type`) include:
+  - `lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
+    - `range_min` (float): Minimum detection range. Default is `0.0`.
+    - `range_max` (float): Maximum detection range. Default is `10.0`.
+    - `angle_range` (float): Total angle range of the sensor. Default is `pi`.
+    - `number` (int): Number of laser beams. Default is `100`.
+    - `scan_time` (float): Time taken for one complete scan. Default is `0.1`.
+    - `noise` (bool): Whether noise is added to measurements. Default is `False`.
+    - `std` (float): Standard deviation for range noise if `noise` is `True`. Default is `0.2`.
+    - `angle_std` (float): Standard deviation for angle noise if `noise` is `True`. Default is `0.02`.
+    - `offset` (list): Offset of the sensor from the object's position (x, y, theta). Default is `[0, 0, 0]`.
+    - `alpha` (float): Transparency for plotting. Default is `0.3`.
+    - `has_velocity` (bool): Whether measures the lidar point velocity. Default is `False`.
+    - `color` (str): Color of the sensor. Default is `r`.
+
+    **Example:**
+    ```yaml
+    
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0
+        range_max: 5
+        angle_range: 3.14 
+        number: 200
+        noise: False
+        std: 0.2
+        angle_std: 0.2
+        offset: [0, 0, 0]
+        alpha: 0.3
+    ```
 
 - **`arrive_mode`**:
   Chooses the method for determining if the object has arrived at its goal:
-  - `'position'`: Arrival is based solely on proximity to the goal position.
-  - `'state'`: Considers both position and orientation in the arrival check.
+  - `'position'`: Arrival is based solely on proximity to the goal position (`[x, y]`).
+  - `'state'`: Considers both position and orientation in the arrival check (`[x, y, theta]`).
+
+   **Example:**
+    ```yaml
+    arrive_mode: 'position'
+    ```
 
 - **`description`**:
-  Provides a text label or identifier for the object, which can be displayed in visualizations. It may also reference an image file for representing the object graphically.
+  Provides a image for representing the object graphically. Supports image file located in world/description. You can also set the absolute path of the image file by your need.
 
-- **`group`**:
-  Assigns the object to a specific group, which can be utilized for grouping behaviors or for organizational purposes within the simulation.
+  - `car_green.png`: A default image for the ackermann steering vehicle.
+  - `car_blue.png`
+  - `car_red.png`
+  - `diff_robot0.png`
+  - `diff_robot1.png`
+  
+  **Example:**
+  ```yaml
+  description: 'car_blue.png'
+  ```
 
 - **`unobstructed`**:
-  When set to `True`, the object is treated as having an unobstructed path, ignoring collisions with other objects and obstacles. This can be useful for testing or for objects that must not be impeded.
+  When set to `True`, this object is treated as having an unobstructed path, ignoring collisions with other objects and obstacles. This can be useful for testing or for objects that must not be impeded.
 
 - **`plot`**:
   Contains plotting options controlling the visual representation of the object. Supported options include:
-  - `'show_goal'`: Whether to display the object's goal in visualizations.
-  - `'show_text'`: Display labels or descriptions with the object.
-  - `'show_arrow'`: Show arrows indicating velocity or heading direction.
-  - `'show_trajectory'`: Plot the path the object has taken over time.
-  - Additional customization parameters like `'trail_freq'`, `'goal_color'`, `'traj_style'`, etc.
+  - `'show_goal'`(bool): Whether to display the object's goal in visualizations. Default is `False`. 
+  - `'show_arrow'`: Show arrows indicating velocity or heading direction. Default is `False`. If `True`, the following parameters can be set:
+    - `arrow_length` (float): Length of the arrow. Default is `0.4`.
+    - `arrow_width` (float): Width of the arrow. Default is `0.6`.
+    - `arrow_color` (str): Color of the arrow. Default is `'gold'`.
+  - `'show_trajectory'`: Plot the path the object has taken over time. Default is `False`. If `True`, the following parameters can be set:
+    - `traj_color` (str): Color of the trajectory. Default is the object's color.
+    - `traj_style` (str): Line style of the trajectory. Default is `'-'`.
+    - `traj_width` (float): Line width of the trajectory. Default is the object's width.
+    - `traj_alpha` (float): Transparency of the trajectory. Default is `0.5`.
+  - `show_trail` (bool): Show the trail of the object. Default is `False`. If `True`, the following parameters can be set:
+    - `trail_type` (str): Type of trail shape. Default is the object's shape.
+    - `trail_edgecolor` (str): Edge color of the trail. Default is the object's color.
+    - `trail_linewidth` (float): Line width of the trail. Default is `0.8`.
+    - `trail_alpha` (float): Transparency of the trail. Default is `0.7`.
+    - `trail_fill` (bool): Whether to fill the trail shape. Default is `False`.
+    - `trail_color` (str): Color of the trail. Default is the object's color.
+    - `trail_freq` (int): Frequency of trail updates. Default is `2`.
+  - `show_sensor` (bool): Display the sensor in the visualization. Default is `True`.
+  - `goal_color` (str): Color of the goal marker. Default is the object's color.
 
+  **Example:**
+  ```yaml
+
+  plot:
+    show_goal: True
+    show_arrow: True
+    arrow_length: 0.4
+    arrow_width: 0.6
+    arrow_color: 'gold'
+    show_trajectory: True
+    traj_color: 'blue'
+    traj_style: '-'
+    traj_width: 0.6
+    traj_alpha: 0.5
+    show_trail: True
+    trail_type: 'circle'
+    trail_edgecolor: 'red'
+    trail_linewidth: 0.8
+    trail_alpha: 0.7
+    trail_fill: False
+    trail_color: 'red'
+    trail_freq: 2
+    show_sensor: True
+    goal_color: 'red'
+  ```
+  
 - **`state_dim`** and **`vel_dim`**:
   Specify the dimensions of the state and velocity vectors. These are typically inferred from the kinematics model but can be explicitly set if needed.
+
+  **Example:**
+  ```yaml
+
+  state_dim: 3
+  vel_dim: 2
+  ```
 
 ### Example Object Configurations
 
@@ -402,49 +527,63 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```yaml
 robot:
-  - number: 5
-    distribution: {name: 'random', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
-    kinematics: {name: 'omni'}
-    shape: {name: 'circle', radius: 0.2}
-    behavior: {name: 'rvo', neighbor_distance: 5, max_neighbors: 10}
-    goal: [5, 5, 0]
-    color: 'blue'
-    vel_max: [1.0, 1.0]
-    sensors:
-      - {sensor_type: 'lidar', range: 5.0, fov: 360}
+  - number: 10
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
 ```
 
-#### Example 2: Configuring Static Obstacles
+#### Example 2: Configuring Various Obstacles
 
 ```yaml
 obstacle:
-  - shape: {name: 'rectangle', length: 2.0, width: 1.0}
-    state: [3, 3, 0]
-    static: True
-    color: 'gray'
+  - shape: {name: 'circle', radius: 1.0}  # radius
+    state: [5, 5, 0]  
+  
+  - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
+    state: [6, 5, 1] 
 
-  - shape: {name: 'circle', radius: 1.0}
-    state: [6, 6, 0]
-    static: True
+  - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
+    state: [0, 0, 0] 
     unobstructed: True
-    color: 'darkgreen'
+
+  - shape:
+      name: 'polygon'
+      vertices: 
+        - [4.5, 4.5]
+        - [5.5, 4.5]
+        - [5.5, 5.5]
+        - [4.5, 5.5]
 ```
 
 #### Example 3: Configuring an Ackermann Steering Vehicle
 
 ```yaml
-robot:
-  - kinematics: {name: 'acker', wheelbase: 2.5}
-    shape: {name: 'rectangle', length: 4.5, width: 2.0}
-    state: [2, 2, 0]
-    goal: [8, 8, 0]
+robot:  
+  - kinematics: {name: 'acker'}  
+    shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
+    state: [1, 1, 0, 0]
+    goal: [40, 40, 0]
+    vel_max: [4, 1]
     behavior: {name: 'dash'}
-    vel_max: [2.0, 0.5]  # Maximum linear and steering velocities
-    acce: [0.5, 0.1]
-    color: 'red'
+    plot:
+      show_trajectory: True
 ```
 
-### Notes:
+#### Notes:
 
 - **Multiple Objects**: When configuring multiple objects, use the `number` and `distribution` parameters to efficiently generate them. For instance, setting `number: 10` with a `distribution` of `'random'` can quickly populate the simulation with randomly placed objects.
 
@@ -452,14 +591,8 @@ robot:
 
 - **Group Configurations**: By default, objects within the same group share configurations. To customize individual objects within a group, add sub-parameters using `-`. Unspecified objects will inherit the last defined configuration within the group.
 
-- **Unobstructed Flag**: Use the `unobstructed` flag with caution. Setting it to `True` allows the object to ignore collisions, which can be useful for certain simulation scenarios but may lead to unrealistic interactions.
-
 - **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) should have velocities in `[v, omega]`, while an omnidirectional robot (`'omni'`) uses `[vx, vy]`.
 
-- **Sensors**: Adding sensors to objects enhances their ability to perceive the environment. The sensor configurations require correct parameterization to function as intended.
-
-- **Arrival Modes**: Choose the `arrive_mode` that best suits your simulation. For precise positioning, `'position'` may suffice. If orientation is critical, use `'state'` to include heading in arrival checks.
-
-- **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter. This can greatly aid in debugging and presentation by highlighting trajectories, goals, and other aspects.
+- **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter for each object if the `plot` section is located in the object configuration. If it is located in the root of the object configuration, it will be applied to all objects.
 
 By carefully configuring these parameters, you can create a rich and dynamic simulation environment tailored to your specific needs.
