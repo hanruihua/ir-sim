@@ -43,6 +43,9 @@ class ObjectInfo:
     angle_range: np.ndarray
     goal_threshold: float
     wheelbase: float
+    G: np.ndarray
+    h: np.ndarray
+    cone_type: str
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -53,8 +56,10 @@ class ObstacleInfo:
     center: np.ndarray
     vertex: np.ndarray
     velocity: np.ndarray
-    cone_type: str
     radius: float
+    G: np.ndarray
+    h: np.ndarray
+    cone_type: str
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -100,7 +105,7 @@ class ObjectBase:
             The object's orientation will be wrapped within this range. Defaults to [-pi, pi].
         behavior (dict or str): Behavioral mode or configuration of the object.
             Can be a behavior name (str) or a dictionary with behavior parameters. If None, default behavior is applied.
-            Defaults to None.
+            Defaults to {'name': 'dash'}, moving to the goal directly.
         goal_threshold (float): Threshold distance to determine if the object has reached its goal.
             When the object is within this distance to the goal, it's considered to have arrived. Defaults to 0.1.
         sensors (list of dict): List of sensor configurations attached to the object.
@@ -169,7 +174,7 @@ class ObjectBase:
         vel_max=[1, 1],
         acce=[inf, inf],
         angle_range=[-pi, pi],
-        behavior=None,
+        behavior={'name':'dash'},
         goal_threshold=0.1,
         sensors=None,
         arrive_mode="position",
@@ -988,6 +993,9 @@ class ObjectBase:
             self.vertices[:, :-1],
             self._velocity,
             self.radius,
+            self.G,
+            self.h,
+            self.cone_type,
         )
 
     def get_init_Gh(self):
@@ -1163,3 +1171,7 @@ class ObjectBase:
     def beh_config(self):
         # behavior config dictory
         return self.obj_behavior.behavior_dict
+    
+    @property
+    def cone_type(self):
+        return self.gf.cone_type
