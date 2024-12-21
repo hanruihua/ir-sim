@@ -130,31 +130,31 @@ world:
 
 All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
 
-| Parameter        | Type              | Default            | Description                                                                              |
-| ---------------- | ----------------- | ------------------ | ---------------------------------------------------------------------------------------- |
-| `number`         | `int`             | `1`                | Number of objects to create.                                                             |
-| `distribution`   | `dict`            | `{name: 'manual'}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
-| `kinematics`     | `dict`            | `None`             | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
-| `shape`          | `dict`            | `{name: 'circle'}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
-| `state`          | `list` of `float` | `[0, 0, 0]`        | Initial state vector of the object.                                                      |
-| `velocity`       | `list` of `float` | `[0, 0]`           | Initial velocity vector.                                                                 |
-| `goal`           | `list` of `float` | `[10, 10, 0]`      | Goal state vector.                                                                       |
-| `behavior`       | `dict`            | `None`             | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
-| `role`           | `str`             | `Obstacle`         | Role of the object in the simulation.                                                    |
-| `color`          | `str`             | `'k'` (black)      | Visualization color of the object in the simulation.                                     |
-| `static`         | `bool`            | `False`            | Indicates if the object is static.                                                       |
-| `vel_min`        | `list` of `float` | `[-1, -1]`         | Minimum velocity limits for each control dimension.                                      |
-| `vel_max`        | `list` of `float` | `[1, 1]`           | Maximum velocity limits for each control dimension.                                      |
-| `acce`           | `list` of `float` | `[inf, inf]`       | Acceleration limits.                                                                     |
-| `angle_range`    | `list` of `float` | `[-pi, pi]`        | Range of orientation angles in radians.                                                  |
-| `goal_threshold` | `float`           | `0.1`              | Threshold distance to determine goal arrival.                                            |
-| `sensors`        | `list` of `dict`  | `None`             | List of sensor configurations attached to the object. Support name: `lidar2d`            |
-| `arrive_mode`    | `str`             | `'position'`       | Mode for arrival detection.                                                              |
-| `description`    | `str`             | `None`             | Image description or label for the object.                                               |
-| `unobstructed`   | `bool`            | `False`            | Indicates if the object ignores collisions.                                              |
-| `plot`           | `dict`            | `{}`               | Plotting options for object visualization.                                               |
-| `state_dim`      | `int`             | `None`             | Dimension of the state vector.                                                           |
-| `vel_dim`        | `int`             | `None`             | Dimension of the velocity vector.                                                        |
+| Parameter        | Type              | Default          | Description                                                                              |
+| ---------------- | ----------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| `number`         | `int`             | `1`              | Number of objects to create.                                                             |
+| `distribution`   | `dict`            | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
+| `kinematics`     | `dict`            | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
+| `shape`          | `dict`            | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
+| `state`          | `list` of `float` | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
+| `velocity`       | `list` of `float` | `[0, 0]`         | Initial velocity vector.                                                                 |
+| `goal`           | `list` of `float` | `[10, 10, 0]`    | Goal state vector.                                                                       |
+| `behavior`       | `dict`            | `{name: dash}`   | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
+| `role`           | `str`             | `Obstacle`       | Role of the object in the simulation.                                                    |
+| `color`          | `str`             | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
+| `static`         | `bool`            | `False`          | Indicates if the object is static.                                                       |
+| `vel_min`        | `list` of `float` | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                      |
+| `vel_max`        | `list` of `float` | `[1, 1]`         | Maximum velocity limits for each control dimension.                                      |
+| `acce`           | `list` of `float` | `[inf, inf]`     | Acceleration limits.                                                                     |
+| `angle_range`    | `list` of `float` | `[-pi, pi]`      | Range of orientation angles in radians.                                                  |
+| `goal_threshold` | `float`           | `0.1`            | Threshold distance to determine goal arrival.                                            |
+| `sensors`        | `list` of `dict`  | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`            |
+| `arrive_mode`    | `str`             | `'position'`     | Mode for arrival detection.                                                              |
+| `description`    | `str`             | `None`           | Image description or label for the object.                                               |
+| `unobstructed`   | `bool`            | `False`          | Indicates if the object ignores collisions.                                              |
+| `plot`           | `dict`            | `{}`             | Plotting options for object visualization.                                               |
+| `state_dim`      | `int`             | `None`           | Dimension of the state vector.                                                           |
+| `vel_dim`        | `int`             | `None`           | Dimension of the velocity vector.                                                        |
 
 
 ### Detailed Description of Parameters
