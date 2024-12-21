@@ -14,7 +14,7 @@ It provides the following features:
   - Real-time visualization of simulation outcomes.
   - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
 
-The simple demonstration of the simulator is shown below:
+The simple demonstrations of the simulator are shown below:
 
 .. image:: https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b
   :width: 49%
