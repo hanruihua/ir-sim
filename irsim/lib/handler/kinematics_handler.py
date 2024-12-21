@@ -76,14 +76,14 @@ class AckermannKinematics(KinematicsHandler):
         )
         return next_state
 
-class Rigid3DKinematics(KinematicsHandler):
+# class Rigid3DKinematics(KinematicsHandler):
     
-    def __init__(self, name, noise, alpha):
-        super().__init__(name, noise, alpha)
+#     def __init__(self, name, noise, alpha):
+#         super().__init__(name, noise, alpha)
 
-    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
-        next_state = rigid3d_kinematics(state, velocity, step_time, self.noise, self.alpha)
-        return next_state
+#     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
+#         next_state = rigid3d_kinematics(state, velocity, step_time, self.noise, self.alpha)
+#         return next_state
 
 class KinematicsFactory:
     """

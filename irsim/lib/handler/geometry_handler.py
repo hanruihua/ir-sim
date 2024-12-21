@@ -67,16 +67,22 @@ class geometry_handler(ABC):
         if self.name == "circle":
             G = np.array([[1, 0], [0, 1], [0, 0]])
             h = np.array([[0], [0], [-self.radius]])
+            cone_type = "norm2"
+            convex_flag = True
             
         elif self.name == "polygon" or self.name == "rectangle":
 
             convex_flag, _ = is_convex_and_ordered(self.init_vertices)
 
-            assert convex_flag, "Object Vertices are not convex"
+            # assert convex_flag, "Polygon Objects are not convex"
 
             G, h = gen_inequal_from_vertex(self.init_vertices)
 
-        return G, h
+            cone_type = "Rpositive"
+        else:
+            G, h, cone_type, convex_flag = None, None, None, None
+
+        return G, h, cone_type, convex_flag
 
 
     def cal_length_width(self, geometry):

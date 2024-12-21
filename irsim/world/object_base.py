@@ -46,6 +46,7 @@ class ObjectInfo:
     G: np.ndarray
     h: np.ndarray
     cone_type: str
+    convex_flag: bool
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -60,6 +61,7 @@ class ObstacleInfo:
     G: np.ndarray
     h: np.ndarray
     cone_type: str
+    convex_flag: bool
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -204,6 +206,8 @@ class ObjectBase:
             else None
         )
 
+        self.G, self.h, self.cone_type, self.convex_flag = self.gf.get_init_Gh()
+
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
             (self.state_dim, 1) if state_dim is not None else self.state_shape
@@ -251,6 +255,10 @@ class ObjectBase:
             np.c_[angle_range],
             goal_threshold,
             self.wheelbase,
+            self.G,
+            self.h,
+            self.cone_type,
+            self.convex_flag,
         )
 
         self.obstacle_info = None
@@ -567,30 +575,6 @@ class ObjectBase:
             geometry: The shapely geometry of the object.
         """
         self._init_geometry = geometry
-
-    def generate_Gh(self, shape, shape_tuple):
-        """
-        Generate G and h for convex object.
-
-        Args:
-            shape (str): The shape of the object.
-            shape_tuple: Tuple to initialize the geometry.
-
-        Returns:
-            tuple: G matrix, h vector, and cone type.
-        """
-        if shape == "circle":
-            radius = shape_tuple[2]
-            G = np.array([[1, 0], [0, 1], [0, 0]])
-            h = np.array([[0], [0], [-radius]])
-            cone_type = "norm2"
-
-        else:
-            init_vertex = np.array(shape_tuple).T
-            G, h = gen_inequal_from_vertex(init_vertex)
-            cone_type = "Rpositive"
-
-        return G, h, cone_type
 
     def geometry_state_transition(self):
         pass
@@ -996,6 +980,7 @@ class ObjectBase:
             self.G,
             self.h,
             self.cone_type,
+            self.convex_flag,
         )
 
     def get_init_Gh(self):
@@ -1172,6 +1157,3 @@ class ObjectBase:
         # behavior config dictory
         return self.obj_behavior.behavior_dict
     
-    @property
-    def cone_type(self):
-        return self.gf.cone_type
