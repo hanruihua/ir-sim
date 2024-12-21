@@ -28,7 +28,6 @@
 - [x] Construct the object base class for the robot and obstacles
 - [ ] All the rotation and translation can be represented by the homogeneous transformation matrix
 - [ ] transfer the function from the previous version
-- [ ] Maze generator
 - [ ] real robot size (LIMO, BYD)
 - [ ] Using decorator to update
 - [x] code annotation for main class
@@ -60,7 +59,7 @@
 - [ ] draw error band (uncertainty)  https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html#sphx-glr-gallery-lines-bars-and-markers-curve-error-band-py 
 - [ ] Provide polygon shape robot
 - [ ] develop a lib for configuration of the shape, refer to rviz marker
-- [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. 
+- [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. ( Maze generator)
 - [ ] Make the dependency of the package optional
 - [ ] 3D rigid body
 - [ ] Documentation
