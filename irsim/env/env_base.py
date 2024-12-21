@@ -15,7 +15,6 @@ from irsim.world.object_factory import ObjectFactory
 from matplotlib import pyplot as plt
 import platform
 import numpy as np
-from pynput import keyboard
 from .env_logger import EnvLogger
 from irsim.lib import random_generate_polygon
 from shapely import Polygon
@@ -23,6 +22,10 @@ from typing import Optional
 import importlib
 from irsim.world import ObjectBase
 
+try:
+    from pynput import keyboard
+except ImportError:
+    print("pynput is not installed, keyboard control is disabled.")
 
 class EnvBase:
     """
