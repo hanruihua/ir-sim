@@ -259,7 +259,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the polygon in the format `[[x1, y1], [x2, y2], ...]`, if not provided, a random polygon will be generated.
     - **`random_shape`** (`bool`): Whether to generate a series of random polygons. Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex polygons. Default is `False`.
-    - parameters for random polygon generation, see [random_generate_polygon](https://ir-sim.readthedocs.io/en/latest/irsim.lib.html#module-irsim.lib.generation) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+    - parameters for random polygon generation, see [random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
       
     **Example:**
     ```yaml
@@ -583,7 +583,7 @@ robot:
       show_trajectory: True
 ```
 
-#### Notes:
+!!! Note:
 
 - **Multiple Objects**: When configuring multiple objects, use the `number` and `distribution` parameters to efficiently generate them. For instance, setting `number: 10` with a `distribution` of `'random'` can quickly populate the simulation with randomly placed objects.
 
