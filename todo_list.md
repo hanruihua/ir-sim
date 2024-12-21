@@ -63,3 +63,5 @@
 - [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. 
 - [ ] Make the dependency of the package optional
 - [ ] 3D rigid body
+- [ ] Documentation
+- [ ] Demonstrations in readme
