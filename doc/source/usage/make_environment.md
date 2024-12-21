@@ -11,7 +11,7 @@ import irsim
 env = irsim.make('empty_world.yaml')
 ```
 
-The `make` function creates an environment from a configuration file. Support parameters can be found in [EnvBase]() class. The configuration file is a YAML file that specifies the properties of the environment. The `empty_world.yaml` file is a simple configuration file that creates an empty environment. This file is listed below:
+The `make` function creates an environment from a configuration file. Support parameters can be found in [EnvBase](#irsim.env.env_base.EnvBase) class. The configuration file is a YAML file that specifies the properties of the environment. The `empty_world.yaml` file is a simple configuration file that creates an empty environment. This file is listed below:
 
 ```yaml
 world:
@@ -25,5 +25,4 @@ world:
   obstacle_map: null # the path of obstacle map
 ```
 
-The detailed YAML configuration syntax is introduced in the [YAML Syntax]()
 

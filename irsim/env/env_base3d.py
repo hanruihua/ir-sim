@@ -8,6 +8,10 @@ import itertools
 
 class EnvBase3D(EnvBase):
 
+    '''
+    This class is the 3D version of the environment class. It inherits from the :py:class:`.EnvBase` class to provide the 3D plot environment.
+    '''
+
     def __init__(self, world_name, **kwargs):
 
         super().__init__(world_name, **kwargs)

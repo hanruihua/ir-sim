@@ -174,7 +174,7 @@ class EnvPlot:
             label (str): Label for the trajectory.
             show_direction (bool): Whether to show the direction of the trajectory.
             refresh (bool): Whether to refresh the plot.
-            kwargs: Additional plotting options.
+            kwargs: Additional plotting options for ax.plot()
         """
         if isinstance(traj, list):
             path_x_list = [p[0, 0] for p in traj]

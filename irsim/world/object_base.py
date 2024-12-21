@@ -609,12 +609,32 @@ class ObjectBase:
             return state
 
     def plot(self, ax, **kwargs):
+
         """
         Plot the object on a given axis.
 
         Args:
             ax: Matplotlib axis.
-            **kwargs: Additional plotting options.
+            kwargs:
+                - show_goal (bool): Whether show the goal position.  
+                - show_text (bool): Whether show text information. To be completed.  
+                - show_arrow (bool): Whether show the velocity arrow.
+                - show_uncertainty (bool): Whether show the uncertainty. To be completed.
+                - show_trajectory (bool): Whether show the trajectory.
+                - show_trail (bool): Whether show the trail.
+                - show_sensor (bool): Whether show the sensor.
+                - trail_freq (int): Frequency of trail display.
+                - goal_color (str): Color of the goal marker.
+                - traj_color (str): Color of the trajectory.
+                - traj_style (str): Style of the trajectory.
+                - traj_width (float): Width of the trajectory.
+                - traj_alpha (float): Transparency of the trajectory.
+                - edgecolor (str): Edge color of the trail.
+                - linewidth (float): Width of the trail.
+                - trail_alpha (float): Transparency of the trail.
+                - trail_fill (bool): Whether fill the trail.
+                - trail_color (str): Color of the trail.
+
         """
         self.state_re = self.state
         self.goal_re = self.goal
@@ -961,13 +981,12 @@ class ObjectBase:
         Get information about the object as an obstacle.
 
         Returns:
-            ObstacleInfo: Obstacle-related information.
+            ObstacleInfo: Obstacle-related information, including state, vertices, velocity, and radius.
         """
         return ObstacleInfo(
             self.state[:2, :],
             self.vertices[:, :-1],
             self._velocity,
-            self.info.cone_type,
             self.radius,
         )
 

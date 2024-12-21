@@ -41,11 +41,12 @@ obstacle:
     unobstructed: True
 ```
 
-**Note**:
+:::{Note}
   - To include several robots or obstacles in the configuration file, add separate entries under the robot and obstacle sections using `-` for each additional item.
   - Parameters such as distribution, shape, behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
   - When dealing with multiple objects (i.e., when the number is greater than 1), utilize the `distribution` parameter to define how these objects are distributed.
   - By default, all objects within the same group share identical configurations. To customize individual objects within a group, add sub-parameters using `-`. Any additional objects not explicitly configured will inherit the settings of the last specified object in the group.
+:::
 
 ## World Configuration
 
@@ -120,9 +121,10 @@ world:
   mdownsample: 2                      # Downsampling factor for the obstacle map
 ```
 
-**Notes:**
+:::{warning}
+**`obstacle_map`**: Replace `"path/to/map.png"` with the actual file path to your obstacle map image. Ensure that the image is in a compatible format (e.g., PNG, JPEG) and properly represents obstacle locations.
+:::
 
-- **`obstacle_map`**: Replace `"path/to/map.png"` with the actual file path to your obstacle map image. Ensure that the image is in a compatible format (e.g., PNG, JPEG) and properly represents obstacle locations.
 
 ## Object Configuration (Robot and Obstacle)
 
@@ -229,7 +231,9 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     kinematics: {name: 'acker', noise: True, alpha: [0.03, 0, 0, 0.03], mode: 'steer'}
     ```
 
-  **Note**: When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration.
+  :::{warning}
+    When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration.
+  :::
 
 - **`shape`**:
   Determines the geometric shape used for collision detection and visualization in the original state. Supported shapes and required parameters:
@@ -283,7 +287,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
     - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `False`.
-    - parameters for random line string generation (polygon), see [random_generate_polygon](https://ir-sim.readthedocs.io/en/latest/irsim.lib.html#module-irsim.lib.generation) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+    - parameters for random line string generation (polygon), see [random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
 
     **Example:**
     ```yaml
@@ -523,6 +527,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ### Example Object Configurations
 
+:::{tip}
+Let's give readers a helpful hint!
+:::
+
 #### Example 1: Configuring Multiple Robots with RVO Behavior
 
 ```yaml
@@ -582,22 +590,19 @@ robot:
     plot:
       show_trajectory: True
 ```
-> [!NOTE]  
-> Highlights information that users should take into account, even when skimming.
-> 
-> [!NOTE]
-> When configuring multiple objects, use the `number` and `distribution` parameters to efficiently generate them. For instance, setting `number: 10` with a `distribution` of `'random'` can quickly populate the simulation with randomly placed objects. 
-> - **Dictionary Parameters**: All dictionary-type parameters (e.g., `distribution`, `shape`, `kinematics`, `behavior`) must include a `'name'` key to specify their type. Omitting the `'name'` key will result in default values or errors.
-> - **Group Configurations**: By default, objects within the same group share configurations. To customize individual objects within a group, add sub-parameters using `-`. Unspecified objects will inherit the last defined configuration within the group.
-> - **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) should have velocities in `[v, omega]`, while an omnidirectional robot (`'omni'`) uses `[vx, vy]`.
-> - **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter for each object if the `plot` section is located in the object configuration. If it is located in the root of the object configuration, it will be applied to all objects. 
+
+:::{Note}
+- **Multiple Objects**: When configuring multiple objects, use the `number` and `distribution` parameters to efficiently generate them. For instance, setting `number: 10` with a `distribution` of `'random'` can quickly populate the simulation with randomly placed objects. 
+- **Dictionary Parameters**: All dictionary-type parameters (e.g., `distribution`, `shape`, `kinematics`, `behavior`) must include a `'name'` key to specify their type. Omitting the `'name'` key will result in default values or errors.
+- **Group Configurations**: By default, objects within the same group share configurations. To customize individual objects within a group, add sub-parameters using `-`. Unspecified objects will inherit the last defined configuration within the group.
+- **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) should have velocities in `[v, omega]`, while an omnidirectional robot (`'omni'`) uses `[vx, vy]`.
+- **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter for each object if the `plot` section is located in the object configuration. If it is located in the root of the object configuration, it will be applied to all objects. 
+:::
 
 By carefully configuring these parameters, you can create a rich and dynamic simulation environment tailored to your specific needs.
 
 
 
 
-
-- **Multiple Objects**: 
 
 

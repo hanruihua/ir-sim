@@ -19,32 +19,49 @@ class Lidar2D:
     """
     Simulates a 2D Lidar sensor for detecting obstacles in the environment.
 
-    Attributes:
-        sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d".
-        range_min (float): Minimum detection range in meters. Default is 0.
-        range_max (float): Maximum detection range in meters. Default is 10.
-        angle_range (float): Total angle range of the sensor in radians. Default is pi.
-        angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
-        angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
-        angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / number.
-        number (int): Number of laser beams. Default is 100.
-        scan_time (float): Time taken to complete one full scan in seconds. Default is 0.1.
-        noise (bool): Whether to add noise to the measurements. Default is False.
-        std (float): Standard deviation for range noise in meters. Effective only if `noise` is True. Default is 0.2.
-        angle_std (float): Standard deviation for angle noise in radians. Effective only if `noise` is True. Default is 0.02.
-        offset (np.ndarray): Offset of the sensor relative to the object's position, formatted as [x, y, theta]. Default is [0, 0, 0].
-        lidar_origin (np.ndarray): Origin position of the Lidar sensor, considering offset and the object's state.
-        alpha (float): Transparency level for plotting the laser beams. Default is 0.3.
-        has_velocity (bool): Whether the sensor measures the velocity of detected points. Default is False.
-        velocity (np.ndarray): Velocity data for each laser beam, formatted as (2, number) array. Effective only if `has_velocity` is True. Initialized to zeros.
-        time_inc (float): Time increment for each scan, simulating the sensor's time resolution. Default is 5e-4.
-        range_data (np.ndarray): Array storing range data for each laser beam. Initialized to `range_max` for all beams.
-        angle_list (np.ndarray): Array of angles corresponding to each laser beam, distributed linearly from `angle_min` to `angle_max`.
-        color (str): Color of the sensor's representation in visualizations. Default is "r" (red).
-        obj_id (int): ID of the associated object, used to differentiate between multiple sensors or objects in the environment. Default is 0.
-        plot_patch_list (list): List storing plot patches (e.g., line collections) for visualization purposes.
-        plot_line_list (list): List storing plot lines for visualization purposes.
-        plot_text_list (list): List storing plot text elements for visualization purposes.
+    Args:
+        state (np.ndarray): Initial state of the sensor.
+        obj_id (int): ID of the associated object.
+        range_min (float): Minimum detection range.
+        range_max (float): Maximum detection range.
+        angle_range (float): Total angle range of the sensor.
+        number (int): Number of laser beams.
+        scan_time (float): Time taken for one complete scan.
+        noise (bool): Whether noise is added to measurements.
+        std (float): Standard deviation for range noise.
+        angle_std (float): Standard deviation for angle noise.
+        offset (list): Offset of the sensor from the object's position.
+        alpha (float): Transparency for plotting.
+        has_velocity (bool): Whether the sensor measures velocity.
+        **kwargs: Additional arguments.
+            color (str): Color of the sensor.
+
+    Attr:
+        - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d". 
+        - range_min (float): Minimum detection range in meters. Default is 0.
+        - range_max (float): Maximum detection range in meters. Default is 10.
+        - angle_range (float): Total angle range of the sensor in radians. Default is pi.
+        - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
+        - angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
+        - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / number.
+        - number (int): Number of laser beams. Default is 100.
+        - scan_time (float): Time taken to complete one full scan in seconds. Default is 0.1.
+        - noise (bool): Whether to add noise to the measurements. Default is False.
+        - std (float): Standard deviation for range noise in meters. Effective only if `noise` is True. Default is 0.2.
+        - angle_std (float): Standard deviation for angle noise in radians. Effective only if `noise` is True. Default is 0.02.
+        - offset (np.ndarray): Offset of the sensor relative to the object's position, formatted as [x, y, theta]. Default is [0, 0, 0].
+        - lidar_origin (np.ndarray): Origin position of the Lidar sensor, considering offset and the object's state.
+        - alpha (float): Transparency level for plotting the laser beams. Default is 0.3.
+        - has_velocity (bool): Whether the sensor measures the velocity of detected points. Default is False.
+        - velocity (np.ndarray): Velocity data for each laser beam, formatted as (2, number) array. Effective only if `has_velocity` is True. Initialized to zeros.
+        - time_inc (float): Time increment for each scan, simulating the sensor's time resolution. Default is 5e-4.
+        - range_data (np.ndarray): Array storing range data for each laser beam. Initialized to `range_max` for all beams.
+        - angle_list (np.ndarray): Array of angles corresponding to each laser beam, distributed linearly from `angle_min` to `angle_max`.
+        - color (str): Color of the sensor's representation in visualizations. Default is "r" (red).
+        - obj_id (int): ID of the associated object, used to differentiate between multiple sensors or objects in the environment. Default is 0.
+        - plot_patch_list (list): List storing plot patches (e.g., line collections) for visualization purposes.
+        - plot_line_list (list): List storing plot lines for visualization purposes.
+        - plot_text_list (list): List storing plot text elements for visualization purposes.
     """
 
     def __init__(
@@ -67,22 +84,7 @@ class Lidar2D:
         """
         Initialize the Lidar2D sensor.
 
-        Args:
-            state (np.ndarray): Initial state of the sensor.
-            obj_id (int): ID of the associated object.
-            range_min (float): Minimum detection range.
-            range_max (float): Maximum detection range.
-            angle_range (float): Total angle range of the sensor.
-            number (int): Number of laser beams.
-            scan_time (float): Time taken for one complete scan.
-            noise (bool): Whether noise is added to measurements.
-            std (float): Standard deviation for range noise.
-            angle_std (float): Standard deviation for angle noise.
-            offset (list): Offset of the sensor from the object's position.
-            alpha (float): Transparency for plotting.
-            has_velocity (bool): Whether the sensor measures velocity.
-            **kwargs: Additional arguments.
-                color (str): Color of the sensor.
+        
         """
         self.sensor_type = "lidar2d"
 

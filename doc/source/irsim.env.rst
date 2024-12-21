@@ -9,6 +9,11 @@ irsim.env.env\_base
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: irsim.env.env_base3d
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 irsim.env.env\_logger
 ------------------------------
 
