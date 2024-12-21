@@ -40,8 +40,15 @@ The simple demonstration of the simulator is shown below:
    :caption: User Guide:
 
    usage/make_environment
-
-
+   usage/configure_robots
+   usage/configure_obstacles
+   usage/configure_lidar2d
+   usage/configure_behavior
+   usage/configure_grid_map
+   usage/configure_keyboard_control
+   usage/save_animation
+   usage/configure_3d_plot
+   
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation:

@@ -289,7 +289,7 @@ class EnvPlot:
             keep_len (int): Length of the last frame. Default is 30.
             rm_fig_path (bool): Whether to remove the figure path after saving. Default is True.
             kwargs: Additional arguments for saving the animation.
-                See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html for details.
+                See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
         self.saved_ani_kwargs.update({"subrectangles": True})
         self.saved_ani_kwargs.update(kwargs)

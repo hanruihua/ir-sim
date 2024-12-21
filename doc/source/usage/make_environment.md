@@ -25,4 +25,13 @@ world:
   obstacle_map: null # the path of obstacle map
 ```
 
+:::{tip}
+The default YAML configuration file is same as the name of python script. Thus, if you create a python script named `test.py`, the default YAML configuration file is `test.yaml`. And you can simply use `irsim.make()` to create the environment. Please place the YAML configuration file in the same directory as the python script.
+
+```python
+import irsim
+
+env = irsim.make()
+```
+:::
 
