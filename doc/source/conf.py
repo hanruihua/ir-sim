@@ -119,6 +119,13 @@ source_suffix = {
 #     "tasklist",
 # ]
 
+json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
+
+html_theme_options = {
+    "switcher": {
+        "json_url": json_url,
+    },
+}
 
 
 def setup(app):
