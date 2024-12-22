@@ -66,41 +66,41 @@ The `world` section contains the configuration of the simulation environment. Th
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. |
 
 
-### Detailed Description of Parameters
+### Detailed Description of World Parameters
 
-- **`name`**:  
+##### **`name`**:  
   Defines the name of the world used in the simulation. This can be useful for identifying different simulation environments.
 
-- **`height`**:  
+##### **`height`**:  
   Specifies the vertical size of the world in units of meters in the Y-axis direction plotted on the screen.
 
-- **`width`**:  
+##### **`width`**:  
   Specifies the horizontal size of the world in units of of meters in the X-axis direction plotted on the screen.
 
-- **`step_time`**:  
+##### **`step_time`**:  
   Determines the time interval between each simulation step. A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but need longer time to run the simulation.
 
-- **`sample_time`**:  
+##### **`sample_time`**:  
   Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur.
 
-- **`offset`**:  
+##### **`offset`**:  
   Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement.
 
-- **`control_mode`**:  
+##### **`control_mode`**:  
   Configures how the objects in the simulation is controlled:
   - `auto`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
   - `keyboard`: Manual control via keyboard inputs. The key inputs are defined in the file.
 
-- **`collision_mode`**:  
+##### **`collision_mode`**:  
   Defines how collisions between objects are handled in the simulation:
   - `stop`: Stops the movement of objects upon collision.
   - `reactive`: Objects react to collisions based on predefined behaviors. 
   - `unobstructed`: Allows objects to pass through each other without consideration of any collision.
 
-- **`obstacle_map`**:  
+##### **`obstacle_map`**:  
   Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle. 
 
-- **`mdownsample`**:  
+##### **`mdownsample`**:  
   Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
 
 ### Complete Example of World Configuration
@@ -157,10 +157,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `vel_dim`        | `int`             | `None`           | Dimension of the velocity vector.                                                        |
 
 
-### Detailed Description of Parameters
+### Detailed Description of robot and obstacle Parameters
 ----
 
-- **`number`**:
+##### **`number`**:
   Specifies the number of objects to create using the given configuration. 
 
   **e.g.** 
@@ -169,7 +169,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - number: 5
   ```
 
-- **`distribution`** ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list)):
+##### **`distribution`** ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list)):
   Defines how multiple objects are spatially distributed when `number` is greater than `1`. Supported distribution types include:
   - `'manual'`: Manually specify initial states and goals for each object. 
     - In this case, the `state` (or goal) parameters must be provided for each object. If the provided list is shorter than the number of objects, the last state (or goal) is repeated.
@@ -199,7 +199,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     distribution: {name: 'circle', center: [5, 5, 0], radius: 4.0}
     ```
   
-- **`kinematics`**:
+##### **`kinematics`**:
   Sets the kinematic model governing the object's movement. Supported models:
   - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
@@ -235,7 +235,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration.
   :::
 
-- **`shape`**:
+##### **`shape`**:
   Determines the geometric shape used for collision detection and visualization in the original state. Supported shapes and required parameters:
 
   - **`'circle'`**: Represents a circular shape.
@@ -307,7 +307,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
       - {name: 'linestring', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]} 
     ```
 
-- **`state`**:
+##### **`state`**:
   Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros. 
 
   **Example:**
@@ -315,7 +315,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   state: [1.0, 1.0, 0.2]
   ```
 
-- **`velocity`**:
+##### **`velocity`**:
   Specifies the initial velocity (list) of the object. The format depends on the kinematics model:
   - For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is angular velocity.
   - For `'omni'`: `[vx, vy]`, velocities along the x and y axes.
@@ -326,7 +326,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   velocity: [1.0, 0.5]
   ```
 
-- **`goal`**:
+##### **`goal`**:
   Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]`. Default is `[10.0, 10.0, 0.0]`.
 
   **Example:**
@@ -334,7 +334,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   goal: [10.0, 10.0, 0.2]
   ```
 
-- **`behavior`**:
+##### **`behavior`**:
   Configures the movement behavior of the object. Behaviors can be simple or complex and may include additional parameters. Supported behavior names:
   - `'dash'`: Moves directly toward the goal at maximum allowable speed.
     - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
@@ -365,12 +365,12 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acceler: 1.0, factor: 1.0, mode: 'rvo', wander: False}
     ```
 
-- **`role`**:
+##### **`role`**:
   Defines the object's role in the simulation, determined by the section it belongs to:
   - `'robot'`: An active entity typically controlled by behaviors or input commands.
   - `'obstacle'`: A passive entity that may or may not move but is considered during collision detection.
 
-- **`color`**:
+##### **`color`**:
   Specifies the object's color in visualizations for easy identification. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
 
   **Example:**
@@ -378,7 +378,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   color: 'r'
   ```
 
-- **`static`**:
+##### **`static`**:
   A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state.
 
   **Example:**
@@ -386,16 +386,16 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   static: True
   ```
 
-- **`vel_min`** and **`vel_max`**:
+##### **`vel_min`** and **`vel_max`**:
   Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds. 
 
-- **`acce`**:
+##### **`acce`**:
   Defines acceleration limits as the maximum change in velocity per time step for each control dimension. This parameter simulates the physical limitations of the object's motion capabilities.
 
-- **`angle_range`**:
+##### **`angle_range`**:
   Specifies the allowed range of orientation angles `[min, max]` in radians. The object's orientation angle `theta` is wrapped within this range to maintain consistency. 
 
-- **`goal_threshold`**:
+##### **`goal_threshold`**:
   Determines the proximity threshold to the goal at which the object is considered to have arrived. Once within this distance, arrival behaviors or state changes may be triggered.
 
   **Example:**
@@ -407,7 +407,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   goal_threshold: 0.1
   ```
 
-- **`sensors`**:
+##### **`sensors`**:
   Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Currently supported sensor `name` (or `type`) include:
   - `lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
     - `range_min` (float): Minimum detection range. Default is `0.0`.
@@ -439,7 +439,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
         alpha: 0.3
     ```
 
-- **`arrive_mode`**:
+##### **`arrive_mode`**:
   Chooses the method for determining if the object has arrived at its goal:
   - `'position'`: Arrival is based solely on proximity to the goal position (`[x, y]`).
   - `'state'`: Considers both position and orientation in the arrival check (`[x, y, theta]`).
@@ -449,7 +449,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     arrive_mode: 'position'
     ```
 
-- **`description`**:
+##### **`description`**:
   Provides a image for representing the object graphically. Supports image file located in world/description. You can also set the absolute path of the image file by your need.
 
   - `car_green.png`: A default image for the ackermann steering vehicle.
@@ -463,10 +463,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   description: 'car_blue.png'
   ```
 
-- **`unobstructed`**:
+##### **`unobstructed`**:
   When set to `True`, this object is treated as having an unobstructed path, ignoring collisions with other objects and obstacles. This can be useful for testing or for objects that must not be impeded.
 
-- **`plot`**:
+##### **`plot`**:
   Contains plotting options controlling the visual representation of the object. Supported options include:
   - `'show_goal'`(bool): Whether to display the object's goal in visualizations. Default is `False`. 
   - `'show_arrow'`: Show arrows indicating velocity or heading direction. Default is `False`. If `True`, the following parameters can be set:
@@ -515,7 +515,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     goal_color: 'red'
   ```
   
-- **`state_dim`** and **`vel_dim`**:
+##### **`state_dim`** and **`vel_dim`**:
   Specify the dimensions of the state and velocity vectors. These are typically inferred from the kinematics model but can be explicitly set if needed.
 
   **Example:**
