@@ -24,8 +24,9 @@ from irsim.world import ObjectBase
 
 try:
     from pynput import keyboard
+    keyboard_module = True
 except ImportError:
-    print("pynput is not installed, keyboard control is disabled.")
+    keyboard_module = False
 
 class EnvBase:
     """
@@ -87,7 +88,13 @@ class EnvBase:
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-            self.init_keyboard(self.env_config.parse["keyboard"])
+            if not keyboard_module:
+                self.logger.error(
+                    "Keyboard module is not installed. Auto control applied. Please install pynput by 'pip install pynput'."
+                )
+                world_param.control_mode = "auto"
+            else:
+                self.init_keyboard(self.env_config.parse["keyboard"])
 
         if full:
             system_platform = platform.system()
