@@ -201,7 +201,7 @@ class ObjectBase:
             GeometryFactory.create_geometry(**shape) if shape is not None else None
         )
         self.kf = (
-            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, **kinematics)
+            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, role=role, **kinematics)
             if kinematics is not None
             else None
         )

@@ -97,6 +97,7 @@ class KinematicsFactory:
         alpha: list = None,
         mode: str = 'steer',
         wheelbase: float = None,
+        role: str = 'robot'
     ) -> KinematicsHandler:
         name = name.lower() if name else None
         if name == "omni":
@@ -105,9 +106,13 @@ class KinematicsFactory:
             return DifferentialKinematics(name, noise, alpha)
         elif name == "acker":
             return AckermannKinematics(name, noise, alpha, mode, wheelbase)
-        elif name == 'rigid3d':
-            return Rigid3DKinematics(name, noise, alpha)
+        # elif name == 'rigid3d':
+        #     return Rigid3DKinematics(name, noise, alpha)
         else:
-            print(f"Unknown kinematics type: {name}, object will be stationary.")
+            if role=='robot':
+                print(f"Unknown kinematics type: {name}, the robot will be stationary.")
+            else:
+                pass
+            
             return None
             

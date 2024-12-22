@@ -74,11 +74,11 @@ class geometry_handler(ABC):
 
             convex_flag, _ = is_convex_and_ordered(self.init_vertices)
 
-            # assert convex_flag, "Polygon Objects are not convex"
-
-            G, h = gen_inequal_from_vertex(self.init_vertices)
-
-            cone_type = "Rpositive"
+            if convex_flag:
+                G, h = gen_inequal_from_vertex(self.init_vertices)
+                cone_type = "Rpositive"
+            else:
+                G, h, cone_type = None, None, None
         else:
             G, h, cone_type, convex_flag = None, None, None, None
 
