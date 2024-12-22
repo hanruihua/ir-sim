@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir-sim"
-version = "2.2.7"
+version = "2.3.0"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
@@ -32,7 +32,8 @@ keyboard = ['pynput']
 all = ['pynput']
 
 [tool.setuptools.packages.find]
-where = ["./"]
+include = ["irsim*"]
+exclude = ["doc*", "tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.png", "*.yaml"]
