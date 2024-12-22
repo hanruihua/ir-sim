@@ -1,6 +1,8 @@
 Make Environment
 =======
 
+## Python script and YAML configuration file
+
 To start the simulation, you need to create an environment. The environment is a container for all the objects in the simulation. It is also responsible for updating the state of the simulation at each time step.
 
 Follow the steps below to create an environment:
@@ -24,6 +26,10 @@ world:
   collision_mode: null # stop, react, None
   obstacle_map: null # the path of obstacle map
 ```
+
+## Explanation 
+
+The `world` section specifies the properties of the world. The `height` and `width` parameters specify the size of the world. The `step_time` parameter specifies the time step for the simulation. The `sample_time` parameter specifies the time step for rendering and data extraction. The `offset` parameter specifies the offset of the world on the x and y axes. The `control_mode` parameter specifies the control mode of the simulation. The `collision_mode` parameter specifies the collision mode of the simulation. The `obstacle_map` parameter specifies the path of the obstacle map. Details of the parameters can be found in the [YAML Configuration](#../get_started/configuration).
 
 :::{tip}
 The default YAML configuration file is same as the name of python script. Thus, if you create a python script named `test.py`, the default YAML configuration file is `test.yaml`. And you can simply use `irsim.make()` to create the environment. Please place the YAML configuration file in the same directory as the python script.
