@@ -4,8 +4,9 @@
 - Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
 - Update the comments for the functions.
 - Add the coverage test for the project.
-
-
+- Complete the documentation for the project.
+- Fix some bugs of default parameters.
+- Add 3d plot environment.
 
 ## ir-sim 2.2.6
 
