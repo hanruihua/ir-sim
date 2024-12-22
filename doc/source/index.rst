@@ -37,7 +37,14 @@ The simple demonstrations of the simulator are shown below:
    :caption: User Guide:
 
    usage/index
-   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: YAML Configuration Syntax:
+
+   yaml_config/index
+
+
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation:

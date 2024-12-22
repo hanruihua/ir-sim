@@ -6,5 +6,4 @@ Get Started
 
    install
    quick_start
-   configuration
 
