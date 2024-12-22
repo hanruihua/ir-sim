@@ -2,11 +2,11 @@
 
 **Major Version Update:** 
 
-- Reorganize the lidar2d step function to make it faster.
-- Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
-- Update the comments for the functions.
+- Public the documentation for the project.
 - Add the coverage test for the project.
-- Complete the documentation for the project.
+- Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
+- Reorganize the lidar2d step function to make it faster.
+- Update the comments for the functions.
 - Fix some bugs in the project.
 - Add 3d plot environment.
 
