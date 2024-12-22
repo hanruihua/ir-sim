@@ -186,6 +186,6 @@ The demonstration of the multiple robots and obstacles in the simulation are sho
 ```
 
 :::{note}
-- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../get_started/configuration)
+- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../yaml_config/configuration/)
 :::
 

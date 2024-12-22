@@ -328,7 +328,7 @@ class ObjectBase:
         """
 
         if self.static or self.stop_flag or self.kf is None:
-            self._velocity = np.zeros_like(velocity)
+            self._velocity = np.zeros(self.vel_shape)
             return self.state
         else:
             self.pre_process()

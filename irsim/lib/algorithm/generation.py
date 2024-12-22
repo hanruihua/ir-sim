@@ -6,7 +6,7 @@ from typing import List
 
 def random_generate_polygon(
     number=1,
-    center_range=[0, 0, 10, 10],
+    center_range=[0, 0, 0, 0],
     avg_radius_range=[0.1, 1],
     irregularity_range=[0, 1],
     spikeyness_range=[0, 1],

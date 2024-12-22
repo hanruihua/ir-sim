@@ -66,7 +66,7 @@ The demonstration of the `rvo` behavior is shown in the following figure:
 - **`accer`:** The acceleration of the object.
 - **`factor`:** The factor to adjust the collision penalty. 
 
-Full list of behavior parameters can be found in the [YAML Configuration](../get_started/configuration/).
+Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration/).
 
 
 ## Advanced Configuration for Custom Behavior

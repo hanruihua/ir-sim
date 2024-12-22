@@ -44,7 +44,7 @@
 
 ## ir-sim 2.2.0
 
-- Rename the module from ir_sim to be irsim, rename the package name from ir_sim to be ir-sim
+- Rename the module from ir_sim to irsim, rename the package name from ir_sim to ir-sim
 - Add citation for the project
 - Refine the comments for the functions
 

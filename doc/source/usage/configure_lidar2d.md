@@ -77,7 +77,7 @@ To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined
 - **number**: The number of beams.
 - **alpha**: The transparency of the laser beam.
 
-A full list of parameters can be found in the [YAML Configuration](#../get_started/configuration/).
+A full list of parameters can be found in the [YAML Configuration](#../yaml_config/configuration/).
 
 
 ## Advanced Configuration with noise

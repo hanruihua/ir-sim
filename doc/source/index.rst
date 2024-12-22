@@ -50,3 +50,15 @@ The simple demonstrations of the simulator are shown below:
    :caption: API Documentation:
 
    api/modules
+
+
+Academic Cases
+--------------
+
+- `rl-rvo-nav(RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_
+
+- `RDA_planner(RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_
+
+Code Repository
+---------------
+`IR-SIM <https://github.com/hanruihua/ir-sim>`_

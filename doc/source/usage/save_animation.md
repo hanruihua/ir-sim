@@ -11,7 +11,7 @@ You can render the environment by calling the [env.render()](#irsim.env.env_base
 
 ## Save the animation
 
-You can save the animation of the simulation as a gif file very easily by setting the `save_ani` to be `True` in the `make()` function:
+You can save the animation of the simulation as a gif file very easily by setting the `save_ani` to `True` in the `make()` function:
 
 ```python
 
@@ -41,7 +41,7 @@ The principle of the animation generation is to save the images of each frame an
 
 ## 3D Plot
 
-You can simply set the `projection` parameter to be `3d` in `irsim.make` function to render the 3D plot of the simulation. The example is shown below:
+You can simply set the `projection` parameter to `3d` in `irsim.make` function to render the 3D plot of the simulation. The example is shown below:
 
 ```python
 
