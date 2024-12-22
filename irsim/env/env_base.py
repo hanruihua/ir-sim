@@ -21,6 +21,7 @@ from shapely import Polygon
 from typing import Optional
 import importlib
 from irsim.world import ObjectBase
+from tabulate import tabulate
 
 try:
     from pynput import keyboard
@@ -266,7 +267,7 @@ class EnvBase:
 
         self.key_vel = np.zeros((2, 1))
 
-        print("start to keyboard control")
+        self.logger.info("start to keyboard control")
 
         commands = [
             ["w", "forward"],
@@ -281,7 +282,11 @@ class EnvBase:
             ["r", "reset the environment"],
         ]
         # headers = ["key", "function"]
-        print(commands)
+        
+        headers = ["Key", "Function"]
+        # Generate the table using tabulate
+        table = tabulate(commands, headers=headers, tablefmt="grid")
+        print(table)
 
         self.listener = keyboard.Listener(
             on_press=self._on_press, on_release=self._on_release
