@@ -1,7 +1,7 @@
 Configure keyboard control
 ==========================
 
-The keyboard control is a manual control method that allows you to control the robot using the keyboard. 
+The keyboard control is a manual control method that allows you to control the robot using the keyboard. In this mode, the behavior of the robot is controlled by the user and the settings in the YAML file are ignored. 
 
 ## Keyboard Control Configuration Parameters
 
