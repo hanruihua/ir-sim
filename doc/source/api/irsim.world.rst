@@ -28,12 +28,12 @@ irsim.world.object\_factory
 irsim.world.sensor\_factory 
 ------------------------------------
 
-.. automodule:: irsim.world.sensors.sensor_factory
+.. automodule:: irsim.world.sensors.lidar2d
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: irsim.world.sensors.lidar2d
+.. automodule:: irsim.world.sensors.sensor_factory
    :members:
    :undoc-members:
    :show-inheritance:

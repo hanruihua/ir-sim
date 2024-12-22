@@ -37,8 +37,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.2.0'
-
+release = '2.3.0'
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))
@@ -94,8 +93,8 @@ exclude_patterns = []
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
-html_theme = "sphinx_rtd_theme"
+# html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 
 autodoc_member_order = 'bysource'
 

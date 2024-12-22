@@ -26,31 +26,20 @@ The simple demonstrations of the simulator are shown below:
   :alt: Alternative text
 
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Getting Started:
 
-   install
-   quick_start
-   configuration
+   get_started/index
 
 .. toctree::
    :maxdepth: 2
    :caption: User Guide:
 
-   usage/make_environment
-   usage/configure_robots
-   usage/configure_obstacles
-   usage/configure_lidar2d
-   usage/configure_behavior
-   usage/configure_grid_map
-   usage/configure_keyboard_control
-   usage/save_animation
-   usage/configure_3d_plot
+   usage/index
    
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation:
 
-   modules
+   api/modules
