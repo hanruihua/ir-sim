@@ -112,6 +112,7 @@ def DiffDash2(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
         angular = max_vel[1, 0] * np.sign(diff_radian)
 
     return np.array([[linear], [angular]])
+
 ```
 
 The `ego_object` is the object that you want to control, and the `objects` is the list of all objects in the simulation. The custom behavior function should return the velocity of the object. You can obtain the state, goal, and other properties from the objects. `DiffDash2` is the custom behavior function that calculates the dash velocity of the object. 
