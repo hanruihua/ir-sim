@@ -7,8 +7,26 @@ To effectively simulate robots within your environment, you need to define and c
 
 Each robot in the simulation is defined by a set of parameters in a YAML configuration file. Below is a simple example of a robot configuration:
 
-```yaml
+The python script:
 
+```python
+import irsim
+
+env = irsim.make('robot_world.yaml')
+
+for i in range(1000):
+
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end()
+```
+
+
+```yaml
 world:
   height: 10 
   width: 10   
@@ -40,25 +58,6 @@ robot:
 - **`goal`:** Specifies the target position and orientation for the robot.
 - **`plot`** (optional): Specifies the visualization settings for the robot. See [object.plot](#irsim.world.object_base.ObjectBase.plot) for more details.
 
-### Python Script 
-
-The python script to run the simulation is as follows:
-
-```python
-import irsim
-
-env = irsim.make('robot_world.yaml')
-
-for i in range(1000):
-
-    env.step()
-    env.render(0.05)
-
-    if env.done():
-        break
-
-env.end()
-```
 
 The robot has a default behavior of moving from its initial position to the goal position directly (`dash`) if the `kinematics` is set. 
 
@@ -134,9 +133,7 @@ The demonstration of the robots and obstacles in the simulation are shown below:
 Please make sure that the obstacles are not placed in the initial position of the robot. Otherwise, the robot will collide with the obstacles at the beginning of the simulation.
 :::
 
-## Advanced Configurations
-
-### Multiple Robots and Obstacles
+## Advanced Configurations for Multiple Robots and Obstacles
 
 To simulate multiple robots and obstacles within the same environment, simply add the `number` and `distribution` of robots and obstacles to the configuration file. Below is an example of a configuration file with multiple robots and obstacles: 
 
@@ -189,7 +186,6 @@ The demonstration of the multiple robots and obstacles in the simulation are sho
 ```
 
 :::{note}
-
-- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../configuration)
+- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../get_started/configuration)
 :::
 
