@@ -37,7 +37,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.3.0'
+release = '2.3'
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))
