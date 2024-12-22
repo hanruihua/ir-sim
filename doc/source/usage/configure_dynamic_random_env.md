@@ -76,7 +76,7 @@ The parameters to generate random obstacles with various shapes are the settings
 
 - For the `rvo` behavior, set the `wander` to `True` to enable the random movement of the obstacles when they reach the goal position. And the `rvo` behavior is used to avoid the collision among obstacles. `range_low` and `range_high` are the lower and upper bounds of the random distribution of the goal position of the obstacles. 
 
-- The `distribution` parameter is used to set the random distribution of the obstacles in a certain area. The `range_low` and `range_high` are the lower and upper bounds of the random distribution of the initial position of the obstacles.
+- The `distribution` parameter with name `random` is used to set the random distribution of the obstacles in a certain area. The `range_low` and `range_high` are the lower and upper bounds of the random distribution of the initial position of the obstacles.
 
 - The `shape` parameter is used to set the random shape of the obstacles by setting the `random_shape` to `True`. 
   - For circular obstacles, the `radius` will be randomly generated within `radius_range`. 
