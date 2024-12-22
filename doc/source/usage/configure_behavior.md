@@ -25,6 +25,8 @@ for i in range(1000):
 env.end()
 ```
 
+YAML file:
+
 ```yaml
 world:
   height: 10  # the height of the world
