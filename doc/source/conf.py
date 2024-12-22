@@ -17,9 +17,6 @@ import os
 import sys
 from unittest.mock import MagicMock
 
-
-
-
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
@@ -119,13 +116,14 @@ source_suffix = {
 #     "tasklist",
 # ]
 
-json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
+# json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
 
-html_theme_options = {
-    "switcher": {
-        "json_url": json_url,
-    },
-}
+# html_theme_options = {
+#     "switcher": {
+#         "json_url": json_url,
+#         "version_match": release,
+#     },
+# }
 
 
 def setup(app):
