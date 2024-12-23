@@ -41,6 +41,16 @@ It provides the following features:
 pip install ir-sim
 ```
 
+This does not include dependencies for all features of the simulator. To install additional optional dependencies, use the following pip commands:
+
+```
+# install dependencies for keyboard control
+pip install ir-sim[keyboard]
+
+# install all optional dependencies
+pip install ir-sim[all]  
+```
+
 - Or for development, you may install from source: 
 
 ```
