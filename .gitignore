@@ -135,3 +135,8 @@ test.py
 
 .vscode/
 *.code-workspace
+
+test/
+test.yaml
+result.json
+uv.lock

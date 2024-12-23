@@ -8,8 +8,6 @@ world:
   collision_mode: null # stop, react, None
   obstacle_map: null # the obstacle map
 
-plot:
-  no_axis: False
   
   
 

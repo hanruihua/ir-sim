@@ -5,7 +5,6 @@ import numpy as np
 from shapely import ops
 import time
 
-
 def file_check(file_name, root_path=None):
     """
     Check whether a file exists and return its absolute path.
@@ -22,7 +21,7 @@ def file_check(file_name, root_path=None):
     """
     if file_name is None:
         return None
-
+    
     if os.path.exists(file_name):
         abs_file_name = file_name
     elif os.path.exists(sys.path[0] + "/" + file_name):
@@ -41,45 +40,21 @@ def file_check(file_name, root_path=None):
 
     return abs_file_name
 
-
-def repeat_mk_dirs(path, max_num=100):
-    """
-    Create a directory, appending numbers if it already exists.
-
-    Args:
-        path (str): Path of the directory to create.
-        max_num (int): Maximum number of attempts.
-
-    Returns:
-        str: Path of the created directory.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-        return path
-    else:
-        if len(os.listdir(path)) == 0:  # empty dir
-            return path
-        else:
-            i = 1
-            while i < max_num:
-                new_path = path + "_" + str(i)
-                i = i + 1
-                if not os.path.exists(new_path):
-                    break
-            os.makedirs(new_path)
-            return new_path
-
-
 def WrapToPi(rad):
-    """
-    Transform an angle to the range [-pi, pi].
-
-    Args:
-        rad (float): Angle in radians.
-
-    Returns:
-        float: Wrapped angle.
-    """
+    '''The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
+    
+    Parameters
+    ----------
+    rad
+        The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to
+    transform to the range [-π, π]. The function ensures that the angle is within this range by wrapping
+    it around if it exceeds the bounds.
+    
+    Returns
+    -------
+        The function `WrapToPi(rad)` returns the angle `rad` wrapped to the range [-pi, pi].
+    
+    '''
     while rad > pi:
         rad = rad - 2 * pi
     while rad < -pi:
@@ -104,31 +79,6 @@ def WrapToRegion(rad, range):
     while rad < range[0]:
         rad = rad + 2 * pi
     return rad
-
-
-def extend_list(input_list, number):
-    """
-    Extend a list to a specific length.
-
-    Args:
-        input_list (list): List to extend.
-        number (int): Desired length.
-
-    Returns:
-        list: Extended list.
-    """
-    if not isinstance(input_list, list):
-        return [input_list] * number
-    if number == 0:
-        return []
-    if len(input_list) == 0:
-        return None
-    if len(input_list) <= number:
-        input_list.extend([input_list[-1]] * (number - len(input_list)))
-    if len(input_list) > number:
-        input_list = input_list[:number]
-    return input_list
-
 
 def convert_list_length(input_data, number=0):
     """
@@ -318,13 +268,13 @@ def geometry_transform(geometry, state):
         Transformed geometry.
     """
 
-    def transfor_with_state(x, y):
-        trans, rot = get_transform(state)
-        points = np.array([x, y])
-        new_points = rot @ points + trans
-        return (new_points[0, :], new_points[1, :])
+    trans, rot = get_transform(state)
 
-    new_geometry = ops.transform(transfor_with_state, geometry)
+    def transform_with_state(x, y):
+        new_x, new_y = rot @ np.array([x, y]) + trans
+        return (new_x, new_y)
+
+    new_geometry = ops.transform(transform_with_state, geometry)
     return new_geometry
 
 
@@ -397,7 +347,7 @@ def diff_to_omni(state_ori, vel_diff):
     return np.array([[vx], [vy]])
 
 
-def time_it(name="Function", print=True):
+def time_it(name="Function"):
     """
     Decorator to measure function execution time.
 
@@ -453,52 +403,6 @@ def time_it2(name="Function"):
         return wrapper
 
     return decorator
-
-
-def cal_init_vertex(length, width, wheelbase):
-    """
-    Calculate initial vertices of a rectangle representing a robot.
-
-    Args:
-        length (float): Length of the rectangle.
-        width (float): Width of the rectangle.
-        wheelbase (float): Wheelbase of the robot.
-
-    Returns:
-        np.array: Vertices of the rectangle (2x4).
-    """
-    start_x = -(length - wheelbase) / 2
-    start_y = -width / 2
-
-    point0 = np.array([[start_x], [start_y]])  # left bottom point
-    point1 = np.array([[start_x + length], [start_y]])
-    point2 = np.array([[start_x + length], [start_y + width]])
-    point3 = np.array([[start_x], [start_y + width]])
-
-    return np.hstack((point0, point1, point2, point3))
-
-
-def cal_init_vertex_diff(length, width):
-    """
-    Calculate initial vertices of a rectangle for differential drive robot.
-
-    Args:
-        length (float): Length of the rectangle.
-        width (float): Width of the rectangle.
-
-    Returns:
-        np.array: Vertices of the rectangle (2x4).
-    """
-    start_x = -length / 2
-    start_y = -width / 2
-
-    point0 = np.array([[start_x], [start_y]])  # left bottom point
-    point1 = np.array([[start_x + length], [start_y]])
-    point2 = np.array([[start_x + length], [start_y + width]])
-    point3 = np.array([[start_x], [start_y + width]])
-
-    return np.hstack((point0, point1, point2, point3))
-
 
 def cross_product(o, a, b):
     """
@@ -605,3 +509,17 @@ def distance(point1, point2):
         float: Distance between points.
     """
     return sqrt((point1[0, 0] - point2[0, 0]) ** 2 + (point1[1, 0] - point2[1, 0]) ** 2)
+
+def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
+
+    if isinstance(range_low, list):
+        range_low = np.c_[range_low]
+
+    if isinstance(range_high, list):
+        range_high = np.c_[range_high] 
+
+    return np.random.uniform(range_low, range_high)
+
+
+
+

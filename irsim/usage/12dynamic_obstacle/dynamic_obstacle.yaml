@@ -14,16 +14,19 @@ robot:
     goal: [9, 9, 0] 
     # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
     behavior: {name: 'dash'} # move toward to the goal directly 
-  
+    plot:
+      show_trajectory: True
+
+
 obstacle:
   - kinematics: {name: 'omni'}
     behavior: {name: 'dash'}
     shape: {name: 'circle', radius: 1.0}  # radius
     state: [5, 5, 0]  
   
-  - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
-    state: [6, 5, 1] 
+  # - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
+  #   state: [6, 5, 1] 
 
-  - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
-    state: [0, 0, 0] 
-    unobstructed: True
+  # - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
+  #   state: [0, 0, 0] 
+  #   unobstructed: True

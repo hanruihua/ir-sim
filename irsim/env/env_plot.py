@@ -8,6 +8,7 @@ import shutil
 import glob
 from math import sin, cos
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class EnvPlot:
@@ -23,6 +24,8 @@ class EnvPlot:
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         saved_ani (dict): Keyword arguments for saving the animation.
             See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
+        dpi: Dots per inch for the figure. Default is 100.
+        figure_pixels: Width and height of the figure in pixels. Default is [1920, 1080].
         kwargs: Additional options such as color_map, no_axis, and tight.
     """
 
@@ -34,13 +37,15 @@ class EnvPlot:
         y_range=[0, 10],
         saved_figure=dict(),
         saved_ani=dict(),
+        dpi: int = 100,
+        figure_pixels: list =[1920, 1080],
         **kwargs,
     ) -> None:
         """
         Initialize the EnvPlot instance.
         """
-        self.fig, self.ax = plt.subplots()
 
+        self.fig, self.ax = plt.subplots(figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi)
         self.x_range = x_range
         self.y_range = y_range
 
@@ -56,6 +61,8 @@ class EnvPlot:
 
         self.saved_figure_kwargs = saved_figure
         self.saved_ani_kwargs = saved_ani
+        self.dpi = dpi
+        self.figure_pixels = figure_pixels
 
         self.dyna_line_list = []
         self.dyna_point_list = []
@@ -70,7 +77,9 @@ class EnvPlot:
             no_axis (bool, optional): Whether to show the axis. Default is False.
             tight (bool, optional): Whether to show the axis tightly. Default is True.
         """
+
         self.ax.set_aspect("equal")
+        self.ax.set_aspect("equal") 
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 
@@ -143,6 +152,9 @@ class EnvPlot:
                 extent=self.x_range + self.y_range,
             )
 
+            if isinstance(self.ax, Axes3D):
+                print("Map will not show in 3D plot")
+
     def draw_trajectory(
         self,
         traj,
@@ -162,7 +174,7 @@ class EnvPlot:
             label (str): Label for the trajectory.
             show_direction (bool): Whether to show the direction of the trajectory.
             refresh (bool): Whether to refresh the plot.
-            kwargs: Additional plotting options.
+            kwargs: Additional plotting options for ax.plot()
         """
         if isinstance(traj, list):
             path_x_list = [p[0, 0] for p in traj]
@@ -176,12 +188,19 @@ class EnvPlot:
         if show_direction:
             if isinstance(traj, list):
                 u_list = [cos(p[2, 0]) for p in traj]
-                y_list = [sin(p[2, 0]) for p in traj]
+                v_list = [sin(p[2, 0]) for p in traj]
             elif isinstance(traj, np.ndarray):
                 u_list = [cos(p[2]) for p in traj.T]
-                y_list = [sin(p[2]) for p in traj.T]
+                v_list = [sin(p[2]) for p in traj.T]
 
-            self.ax.quiver(path_x_list, path_y_list, u_list, y_list)
+            if isinstance(self.ax, Axes3D):
+                path_z_list = [0] * len(path_x_list)
+                w_list = [0] * len(u_list)
+
+                self.ax.quiver(path_x_list, path_y_list, path_z_list, u_list, v_list, w_list)
+            
+            else:
+                self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
 
         if refresh:
             self.dyna_line_list.append(line)
@@ -221,29 +240,38 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(box_line)
 
-    def save_gif_figure(self, format="png", **kwargs):
+    def save_figure(self, file_name='', file_format="png", include_index=False, save_gif=False, **kwargs):
         """
-        Save the figure for generating animation.
+        Save the current figure.
 
         Args:
-            format (str): Format of the figure. Default is 'png'.
+            file_name (str): Name of the figure. Default is ''.
+            file_format (str): Format of the figure. Default is 'png'.
             kwargs: Additional arguments for saving the figure.
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
-        fp = pm.ani_buffer_path
+
+        if save_gif:
+            fp = pm.ani_buffer_path
+        else:
+            fp = pm.fig_path
 
         if not os.path.exists(fp):
             os.makedirs(fp)
 
-        order = str(world_param.count).zfill(3)
-
-        self.saved_figure_kwargs.update({"dpi": 100, "bbox_inches": "tight"})
+        self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
         self.saved_figure_kwargs.update(kwargs)
 
-        self.fig.savefig(
-            fp + "/" + order + "." + format, format=format, **self.saved_figure_kwargs
-        )
+        if include_index or save_gif:
+            order = str(world_param.count).zfill(3)
+            full_name = fp + "/" + file_name + '_' + order + "." + file_format
+        else:
+            full_name = fp + "/" + file_name + "." + file_format
 
+        self.fig.savefig(
+            full_name, format=file_format, **self.saved_figure_kwargs
+        )
+    
     def save_animate(
         self,
         ani_name="animation",
@@ -261,9 +289,9 @@ class EnvPlot:
             keep_len (int): Length of the last frame. Default is 30.
             rm_fig_path (bool): Whether to remove the figure path after saving. Default is True.
             kwargs: Additional arguments for saving the animation.
-                See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html for details.
+                See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
-        self.saved_ani_kwargs.update({"subrectangles": True})
+        self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
         self.saved_ani_kwargs.update(kwargs)
 
         env_param.logger.info("Start to create animation")
@@ -301,3 +329,44 @@ class EnvPlot:
         Display the plot.
         """
         plt.show()
+
+    def close(self):
+        """
+        Close the plot.
+        """
+        plt.close()
+
+
+def linewidth_from_data_units(linewidth, axis, reference='y'):
+    """
+    Convert a linewidth in data units to linewidth in points.
+
+    Parameters
+    ----------
+    linewidth: float
+        Linewidth in data units of the respective reference-axis
+    axis: matplotlib axis
+        The axis which is used to extract the relevant transformation
+        data (data limits and size must not change afterwards)
+    reference: string
+        The axis that is taken as a reference for the data width.
+        Possible values: 'x' and 'y'. Defaults to 'y'.
+
+    Returns
+    -------
+    linewidth: float
+        Linewidth in points
+    """
+    fig = axis.get_figure()
+    if reference == 'x':
+        length = fig.bbox_inches.width * axis.get_position().width
+        value_range = np.diff(axis.get_xlim())
+    elif reference == 'y':
+        length = fig.bbox_inches.height * axis.get_position().height
+        value_range = np.diff(axis.get_ylim())
+    # Convert length to points
+    length *= 72
+    # Scale linewidth to value range
+    return linewidth * (length / value_range)
+
+

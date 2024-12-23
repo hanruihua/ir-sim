@@ -1,18 +1,27 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, GeometryCollection, Point, is_valid, make_valid
-from irsim.util.util import geometry_transform, transform_point_with_state
+from shapely import MultiLineString, Point, is_valid
+from irsim.util.util import (
+    geometry_transform,
+    transform_point_with_state,
+    get_transform,
+)
 from irsim.global_param import env_param
 from shapely import get_coordinates
 from matplotlib.collections import LineCollection
+from shapely.strtree import STRtree
+from shapely.ops import unary_union
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 
 class Lidar2D:
     """
     Simulates a 2D Lidar sensor for detecting obstacles in the environment.
 
-    Attributes:
-        sensor_type (str): Type of sensor ("lidar").
+    Args:
+        state (np.ndarray): Initial state of the sensor.
+        obj_id (int): ID of the associated object.
         range_min (float): Minimum detection range.
         range_max (float): Maximum detection range.
         angle_range (float): Total angle range of the sensor.
@@ -21,9 +30,38 @@ class Lidar2D:
         noise (bool): Whether noise is added to measurements.
         std (float): Standard deviation for range noise.
         angle_std (float): Standard deviation for angle noise.
-        offset (np.ndarray): Offset of the sensor from the object's position.
+        offset (list): Offset of the sensor from the object's position.
         alpha (float): Transparency for plotting.
         has_velocity (bool): Whether the sensor measures velocity.
+        **kwargs: Additional arguments.
+            color (str): Color of the sensor.
+
+    Attr:
+        - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d". 
+        - range_min (float): Minimum detection range in meters. Default is 0.
+        - range_max (float): Maximum detection range in meters. Default is 10.
+        - angle_range (float): Total angle range of the sensor in radians. Default is pi.
+        - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
+        - angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
+        - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / number.
+        - number (int): Number of laser beams. Default is 100.
+        - scan_time (float): Time taken to complete one full scan in seconds. Default is 0.1.
+        - noise (bool): Whether to add noise to the measurements. Default is False.
+        - std (float): Standard deviation for range noise in meters. Effective only if `noise` is True. Default is 0.2.
+        - angle_std (float): Standard deviation for angle noise in radians. Effective only if `noise` is True. Default is 0.02.
+        - offset (np.ndarray): Offset of the sensor relative to the object's position, formatted as [x, y, theta]. Default is [0, 0, 0].
+        - lidar_origin (np.ndarray): Origin position of the Lidar sensor, considering offset and the object's state.
+        - alpha (float): Transparency level for plotting the laser beams. Default is 0.3.
+        - has_velocity (bool): Whether the sensor measures the velocity of detected points. Default is False.
+        - velocity (np.ndarray): Velocity data for each laser beam, formatted as (2, number) array. Effective only if `has_velocity` is True. Initialized to zeros.
+        - time_inc (float): Time increment for each scan, simulating the sensor's time resolution. Default is 5e-4.
+        - range_data (np.ndarray): Array storing range data for each laser beam. Initialized to `range_max` for all beams.
+        - angle_list (np.ndarray): Array of angles corresponding to each laser beam, distributed linearly from `angle_min` to `angle_max`.
+        - color (str): Color of the sensor's representation in visualizations. Default is "r" (red).
+        - obj_id (int): ID of the associated object, used to differentiate between multiple sensors or objects in the environment. Default is 0.
+        - plot_patch_list (list): List storing plot patches (e.g., line collections) for visualization purposes.
+        - plot_line_list (list): List storing plot lines for visualization purposes.
+        - plot_text_list (list): List storing plot text elements for visualization purposes.
     """
 
     def __init__(
@@ -46,23 +84,9 @@ class Lidar2D:
         """
         Initialize the Lidar2D sensor.
 
-        Args:
-            state (np.ndarray): Initial state of the sensor.
-            obj_id (int): ID of the associated object.
-            range_min (float): Minimum detection range.
-            range_max (float): Maximum detection range.
-            angle_range (float): Total angle range of the sensor.
-            number (int): Number of laser beams.
-            scan_time (float): Time taken for one complete scan.
-            noise (bool): Whether noise is added to measurements.
-            std (float): Standard deviation for range noise.
-            angle_std (float): Standard deviation for angle noise.
-            offset (list): Offset of the sensor from the object's position.
-            alpha (float): Transparency for plotting.
-            has_velocity (bool): Whether the sensor measures velocity.
-            **kwargs: Additional arguments.
+        
         """
-        self.sensor_type = "lidar"
+        self.sensor_type = "lidar2d"
 
         self.range_min = range_min
         self.range_max = range_max
@@ -136,18 +160,9 @@ class Lidar2D:
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
         new_geometry = geometry_transform(self._init_geometry, self._state)
 
-        intersect_index = []
+        new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
 
-        for ind, obj in enumerate(env_param.objects):
-            if self.obj_id != obj._id:
-                if new_geometry.intersects(obj._geometry):
-                    if not is_valid(obj._geometry):
-                        continue
-
-                    new_geometry = new_geometry.difference(obj._geometry)
-                    intersect_index.append(ind)
-
-        if len(intersect_index) == 0:
+        if len(intersect_indices) == 0:
             self._geometry = new_geometry
             self.calculate_range()
         else:
@@ -156,14 +171,56 @@ class Lidar2D:
                 g for g in new_geometry.geoms if g.intersects(origin_point)
             ]
             self._geometry = MultiLineString(filtered_geoms)
-            self.calculate_range_vel(intersect_index)
+            self.calculate_range_vel(intersect_indices)
+
+    def laser_geometry_process(self, lidar_geometry):
+
+        # filtered_objects = []
+
+        # for obj in env_param.objects:
+
+        #     if obj.id != self.obj_id and is_valid(obj.geometry) and not isinstance(obj.geometry, MultiPolygon):
+        #         filtered_objects.append(obj)
+
+        #     if isinstance(obj.geometry, MultiPolygon):
+        #         polygons = list(obj.geometry.geoms)
+        #         filtered_objects += polygons
+
+        filtered_objects = [
+            obj
+            for obj in env_param.objects
+            if obj._id != self.obj_id and is_valid(obj._geometry)
+        ]
+
+        geometries = [obj._geometry for obj in filtered_objects]
+        spatial_index = STRtree(geometries)
+        potential_geometries_index = spatial_index.query(lidar_geometry)
+
+        geometries_to_subtract = []
+        intersect_indices = []
+
+        for geom_index in potential_geometries_index:
+            geo = geometries[geom_index]
+            if lidar_geometry.intersects(geo):
+                geometries_to_subtract.append(geo)
+                intersect_indices.append(geom_index)
+
+        if geometries_to_subtract:
+            merged_geometry = unary_union(geometries_to_subtract)
+            lidar_geometry = lidar_geometry.difference(merged_geometry)
+
+        return lidar_geometry, intersect_indices
 
     def calculate_range(self):
         """
         Calculate the range data from the current geometry.
         """
         for index, l in enumerate(self._geometry.geoms):
-            self.range_data[index] = l.length
+            # self.range_data[index] = l.length
+            if self.noise:
+                self.range_data[index] = l.length + np.random.normal(0, self.std)
+            else:
+                self.range_data[index] = l.length
 
     def calculate_range_vel(self, intersect_index):
         """
@@ -173,7 +230,10 @@ class Lidar2D:
             intersect_index (list): List of intersected object indices.
         """
         for index, l in enumerate(self._geometry.geoms):
-            self.range_data[index] = l.length
+            # self.range_data[index] = l.length
+            self.range_data[index] = (
+                l.length + np.random.normal(0, self.std) if self.noise else l.length
+            )
 
             if self.has_velocity:
                 if l.length < self.range_max - 0.02:
@@ -230,19 +290,37 @@ class Lidar2D:
             ax: Matplotlib axis.
             **kwargs: Plotting options.
         """
-        coord = get_coordinates(self._geometry)
-
         lines = []
 
-        for i in range(0, len(coord), 2):
-            segment = [coord[i], coord[i + 1]]
+        for i in range(self.number):
+            x = self.range_data[i] * cos(self.angle_list[i])
+            y = self.range_data[i] * sin(self.angle_list[i])
+
+            position = self._state[0:2, 0]
+            trans, rot = get_transform(self._state)
+            range_end_position = rot @ np.array([[x], [y]]) + trans
+
+            if isinstance(ax, Axes3D):
+                position = np.array([position[0], position[1], 0])
+                end_position = np.array(
+                    [range_end_position[0, 0], range_end_position[1, 0], 0]
+                )
+                segment = [position, end_position]
+            else:
+                segment = [position, range_end_position[0:2, 0]]
+
             lines.append(segment)
 
-        line_segments = LineCollection(
-            lines, linewidths=1, colors="red", alpha=self.alpha, zorder=0
-        )
-
-        ax.add_collection(line_segments)
+        if isinstance(ax, Axes3D):
+            line_segments = Line3DCollection(
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
+            )
+            ax.add_collection3d(line_segments)
+        else:
+            line_segments = LineCollection(
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
+            )
+            ax.add_collection(line_segments)
 
         self.plot_patch_list.append(line_segments)
 

@@ -4,8 +4,8 @@ from irsim.world.sensors.lidar2d import Lidar2D
 class SensorFactory:
 
     def create_sensor(self, state, obj_id, **kwargs):
-
-        sensor_type = kwargs.get("type", "lidar2d")
+        
+        sensor_type = kwargs.get("name", kwargs.get("type", "lidar2d"))
 
         if sensor_type == "lidar2d":
             return Lidar2D(state, obj_id, **kwargs)

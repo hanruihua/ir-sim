@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make('dynamic_obstacle.yaml')
+env = irsim.make()
 
 for i in range(3000):
 
@@ -9,6 +9,5 @@ for i in range(3000):
 
     if env.done():
         break
-
 
 env.end()

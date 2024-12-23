@@ -1,19 +1,33 @@
-import yaml
+"""
+Class EnvBase is the base class of the environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
+
+Author: Ruihua Han (hanrh@connect.hku.hk)
+"""
+
+import matplotlib
+
+matplotlib.use("TkAgg")
 from irsim.env.env_config import EnvConfig
-from irsim.util.util import file_check
-from irsim.world import world
+from irsim.world import World
 from .env_plot import EnvPlot
 from irsim.global_param import world_param, env_param
 from irsim.world.object_factory import ObjectFactory
 from matplotlib import pyplot as plt
 import platform
 import numpy as np
-from pynput import keyboard
 from .env_logger import EnvLogger
-from irsim.lib.generation import random_generate_polygon
+from irsim.lib import random_generate_polygon
 from shapely import Polygon
 from typing import Optional
+import importlib
+from irsim.world import ObjectBase
+from tabulate import tabulate
 
+try:
+    from pynput import keyboard
+    keyboard_module = True
+except ImportError:
+    keyboard_module = False
 
 class EnvBase:
     """
@@ -40,9 +54,6 @@ class EnvBase:
         log_level: str = "INFO",
     ) -> None:
 
-        env_config = EnvConfig(world_name)
-        object_factory = ObjectFactory()
-
         # init env setting
         self.display = display
         self.disable_all_plot = disable_all_plot
@@ -50,20 +61,20 @@ class EnvBase:
         self.logger = EnvLogger(log_file, log_level)
         env_param.logger = self.logger
 
+        self.env_config = EnvConfig(world_name)
+        object_factory = ObjectFactory()
         # init objects (world, obstacle, robot)
-        self._world = world(world_name, **env_config.parse["world"])
+
+        self._world = World(world_name, **self.env_config.parse["world"])
 
         self._robot_collection = object_factory.create_from_parse(
-            env_config.parse["robot"], "robot"
+            self.env_config.parse["robot"], "robot"
         )
         self._obstacle_collection = object_factory.create_from_parse(
-            env_config.parse["obstacle"], "obstacle"
+            self.env_config.parse["obstacle"], "obstacle"
         )
         self._map_collection = object_factory.create_from_map(
             self._world.obstacle_positions, self._world.buffer_reso
-        )
-        self._object_collection = (
-            self._robot_collection + self._obstacle_collection + self._map_collection
         )
 
         # env parameters
@@ -72,12 +83,19 @@ class EnvBase:
             self.objects,
             self._world.x_range,
             self._world.y_range,
-            **env_config.parse["plot"],
+            **self.env_config.parse["plot"],
         )
+
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-            self.init_keyboard(env_config.parse["keyboard"])
+            if not keyboard_module:
+                self.logger.error(
+                    "Keyboard module is not installed. Auto control applied. Please install pynput by 'pip install pynput'."
+                )
+                world_param.control_mode = "auto"
+            else:
+                self.init_keyboard(self.env_config.parse["keyboard"])
 
         if full:
             system_platform = platform.system()
@@ -89,8 +107,10 @@ class EnvBase:
                 mng.full_screen_toggle()
 
     def __del__(self):
+        # env_param.objects = []
+
         print(
-            "Simulated Environment End with sim time elapsed: {} seconds".format(
+            "INFO: Simulated Environment End with sim time elapsed: {} seconds".format(
                 round(self._world.time, 2)
             )
         )
@@ -137,8 +157,8 @@ class EnvBase:
 
         Args:
             interval(float) :  Time interval between frames in seconds.
-            figure_kwargs(dict) : Additional keyword arguments for saving figures,  see https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for detail.
-            kwargs: Additional keyword arguments for drawing components. see object_base.plot() function for detail.
+            figure_kwargs(dict) : Additional keyword arguments for saving figures, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for detail.
+            kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
         """
 
         if not self.disable_all_plot:
@@ -148,7 +168,7 @@ class EnvBase:
                     plt.pause(interval)
 
                 if self.save_ani:
-                    self._env_plot.save_gif_figure(**figure_kwargs)
+                    self.save_figure(save_gif=True, **figure_kwargs)
 
                 self._env_plot.clear_components("dynamic", self.objects)
                 self._env_plot.draw_components("dynamic", self.objects, **kwargs)
@@ -168,7 +188,7 @@ class EnvBase:
         Args:
             traj (list): List of trajectory points (2 * 1 vector).
             traj_type: Type of the trajectory line, see matplotlib plot function for detail.
-            **kwargs: Additional keyword arguments for drawing the trajectory, see env_plot.draw_trajectory() function for detail.
+            **kwargs: Additional keyword arguments for drawing the trajectory, see :py:meth:`.EnvPlot.draw_trajectory` for detail.
         """
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
@@ -182,7 +202,7 @@ class EnvBase:
             s (int): Size of the points.
             c (str): Color of the points.
             refresh (bool): Flag to refresh the points in the figure.
-            **kwargs: Additional keyword arguments for drawing the points, see ax.scatter (https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html) function for detail.
+            **kwargs: Additional keyword arguments for drawing the points, see `ax.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_ function for detail.
         """
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
@@ -239,24 +259,34 @@ class EnvBase:
         self.key_id = keyboard_kwargs.get("key_id", 0)
         self.alt_flag = 0
 
-        plt.rcParams["keymap.save"].remove("s")
-        plt.rcParams["keymap.quit"].remove("q")
+        if "s" in plt.rcParams["keymap.save"]:
+            plt.rcParams["keymap.save"].remove("s")
+
+        if "q" in plt.rcParams["keymap.quit"]:
+            plt.rcParams["keymap.quit"].remove("q")
 
         self.key_vel = np.zeros((2, 1))
 
-        print("start to keyboard control")
-        print(
-            "w: forward",
-            "s: back forward",
-            "a: turn left",
-            "d: turn right",
-            "q: decrease linear velocity",
-            "e: increase linear velocity",
-            "z: decrease angular velocity",
-            "c: increase angular velocity",
-            "alt+num: change current control robot id",
-            "r: reset the environment",
-        )
+        self.logger.info("start to keyboard control")
+
+        commands = [
+            ["w", "forward"],
+            ["s", "back forward"],
+            ["a", "turn left"],
+            ["d", "turn right"],
+            ["q", "decrease linear velocity"],
+            ["e", "increase linear velocity"],
+            ["z", "decrease angular velocity"],
+            ["c", "increase angular velocity"],
+            ["alt+num", "change current control robot id"],
+            ["r", "reset the environment"],
+        ]
+        # headers = ["key", "function"]
+        
+        headers = ["Key", "Function"]
+        # Generate the table using tabulate
+        table = tabulate(commands, headers=headers, tablefmt="grid")
+        print(table)
 
         self.listener = keyboard.Listener(
             on_press=self._on_press, on_release=self._on_release
@@ -269,15 +299,25 @@ class EnvBase:
 
         Args:
             ending_time (float): Time in seconds to wait before closing the figure, default is 3 seconds.
-            **kwargs: Additional keyword arguments for saving the animation, see env_plot.save_animate() function for detail.
+            **kwargs: Additional keyword arguments for saving the animation, see :py:meth:`.EnvPlot.save_animate` for detail.
         """
+
+        if self.disable_all_plot:
+            return
 
         if self.save_ani:
             self._env_plot.save_animate(**kwargs)
 
-        self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
-        plt.pause(ending_time)
-        plt.close()
+        if self.display:
+            plt.pause(ending_time)
+            self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
+
+        plt.close("all")
+        env_param.objects = []
+        ObjectBase.reset_id_iter()
+
+        if world_param.control_mode == "keyboard":
+            self.listener.stop()
 
     def done(self, mode="all"):
         """
@@ -306,6 +346,8 @@ class EnvBase:
         """
 
         self._reset_all()
+        self.reset_plot()
+        self._world.reset()
         self.step(action=np.zeros((2, 1)))
 
     def _reset_all(self):
@@ -423,7 +465,7 @@ class EnvBase:
             id (int): Id of the robot.
 
         Returns:
-            Dict: Dict of lidar scan points, see lidar2d/get_scan() for detail.
+            Dict: Dict of lidar scan points, see :py:meth:`.world.sensors.lidar2d.Lidar2D.get_scan` for detail.
         """
 
         return self.robot_list[id].get_lidar_scan()
@@ -447,7 +489,7 @@ class EnvBase:
         Get the information of the obstacles in the environment.
 
         Returns:
-            list of dict: List of obstacle information, see Obstacle_Info in Object_base for detail.
+            list of dict: List of obstacle information, see :py:meth:`.ObjectBase.get_obstacle_info` for detail.
         """
 
         return [
@@ -462,14 +504,45 @@ class EnvBase:
             id (int): Id of the robot.
 
         Returns:
-            see ObjectInfo in Object_base for detail
+            see :py:meth:`.ObjectBase.get_info` for detail
         """
 
         return self.robot_list[id].get_info()
 
     # endregion: get information
 
+    def save_figure(
+        self, save_name=None, include_index=False, save_gif=False, **kwargs
+    ):
+        """
+        Save the current figure.
+        Args:
+            save_name: Name of the file with format to save the figure.
+            **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ function for detail.
+        """
+        file_save_name = save_name or self._world.name + ".png"
+
+        file_name, file_format = file_save_name.split(".")
+
+        self._env_plot.save_figure(
+            file_name, file_format, include_index, save_gif, **kwargs
+        )
+
     # region: property
+
+    def load_behavior(self, behaviors: str = "behavior_methods"):
+        """
+        Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details.
+        Please make sure the python file is placed in the same folder with the implemented script.
+
+        Args:
+            behaviors (str): name of the bevavior script.
+        """
+
+        try:
+            importlib.import_module(behaviors)
+        except ImportError as e:
+            print(f"Failed to load module '{behaviors}': {e}")
 
     @property
     def arrive(self, id=None, mode=None):
@@ -552,7 +625,7 @@ class EnvBase:
 
     @property
     def objects(self):
-        return self._object_collection
+        return self._robot_collection + self._obstacle_collection + self._map_collection
 
     @property
     def step_time(self):

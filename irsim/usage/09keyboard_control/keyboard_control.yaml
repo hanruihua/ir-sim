@@ -28,7 +28,6 @@ robot:
         std: 1   
         angle_std: 0.2
         offset: [0, 0, 0]
-        reso: 0.1
         alpha: 0.4
 
 

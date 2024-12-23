@@ -1,3 +1,32 @@
+## ir-sim 2.3.0
+
+**Major Version Update:** 
+
+- Public the documentation for the project.
+- Add the coverage test for the project.
+- Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
+- Reorganize the lidar2d step function to make it faster.
+- Update the comments for the functions.
+- Fix some bugs in the project.
+- Add 3d plot environment.
+
+## ir-sim 2.2.6
+
+- Reformulate the behavior lib, add custom behavior interface, see usage 13custom_behavior for detail
+- Add default name for the yaml file; default name is same with the python script; see usage: 12dynamic_obstacle for detail
+- Change the trajectory visualization style; see usage 02robot_world for detail
+- Reconstruct the save_figure function; see usage 07renderw_world for detail
+- Fix the bug of 'display' in the env.end() function.
+
+## ir-sim 2.2.5
+
+- Convert the GIF file to readme links to reduce the repository size
+- Modify the visualization of the arrow for the robot
+- Adjust figure size by pixel
+- Add reset for world time
+- Change the matplotlib backend to TkAgg
+- Fix some bugs on the visualization
+
 ## ir-sim 2.2.4
 
 - Fix collision avoidance bug for obstacles
@@ -17,7 +46,7 @@
 
 ## ir-sim 2.2.0
 
-- Rename the module from ir_sim to be irsim, rename the package name from ir_sim to be ir-sim
+- Rename the module from ir_sim to irsim, rename the package name from ir_sim to ir-sim
 - Add citation for the project
 - Refine the comments for the functions
 

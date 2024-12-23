@@ -1,19 +1,20 @@
 import numpy as np
-from irsim.world.robots.robot_diff import RobotDiff
-from irsim.world.robots.robot_acker import RobotAcker
-from irsim.world.robots.robot_omni import RobotOmni
-from irsim.world import ObjectBase
-from irsim.world.obstacles.obstacle_diff import ObstacleDiff
-from irsim.world.obstacles.obstacle_omni import ObstacleOmni
-from irsim.world.obstacles.obstacle_static import ObstacleStatic
-from irsim.world.map.obstacle_map import ObstacleMap
+
 from irsim.util.util import (
     convert_list_length,
     convert_list_length_dict,
-    is_list_of_numbers,
 )
-from irsim.global_param import env_param
-import random
+
+from irsim.world import (
+    RobotAcker,
+    RobotDiff,
+    RobotOmni,
+    ObstacleAcker,
+    ObstacleDiff,
+    ObstacleOmni,
+    ObjectStatic,
+    ObstacleMap
+)
 
 
 class ObjectFactory:
@@ -36,7 +37,7 @@ class ObjectFactory:
 
         if isinstance(parse, list):
             object_list = [
-                obj for sp in parse for obj in self.create_object(obj_type, **sp)
+                obj for group_index, sp in enumerate(parse) for obj in self.create_object(obj_type, group=group_index, **sp)
             ]
 
         elif isinstance(parse, dict):
@@ -59,7 +60,9 @@ class ObjectFactory:
             return []
         else:
             return [
-                ObstacleMap(shape="points", shape_tuple=points, color="k", reso=reso)
+                ObstacleMap(
+                    shape={"name": "map", "points": points, "reso": reso}, color="k"
+                )
             ]
 
     def create_object(
@@ -85,9 +88,16 @@ class ObjectFactory:
         Returns:
             list: List of created objects.
         """
-        state_list, goal_list = self.generate_state_list(
-            number, distribution, state, goal
-        )
+
+        if not distribution.get('3d', False):
+            state_list, goal_list = self.generate_state_list(
+                number, distribution, state, goal
+            )
+        else:
+            state_list, goal_list = self.generate_state_list3D(
+                number, distribution, state, goal
+            )
+
         object_list = list()
 
         for i in range(number):
@@ -109,45 +119,39 @@ class ObjectFactory:
 
         return object_list
 
-    def create_robot(self, kinematics=dict(), shape=dict(), **kwargs):
+    def create_robot(self, kinematics=dict(), **kwargs):
         """
         Create a robot based on kinematics.
 
         Args:
             kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
             **kwargs: Additional parameters for robot creation.
 
         Returns:
             Robot: An instance of a robot.
         """
-        kinematics_name = kinematics.get("name", "omni")
+        kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
-            return RobotDiff.create_with_shape(
-                "diff", shape, kinematics_dict=kinematics, **kwargs
-            )
+            return RobotDiff(kinematics=kinematics, **kwargs)
         elif kinematics_name == "acker":
-            return RobotAcker.create_with_shape(
-                "acker", shape, kinematics_dict=kinematics, **kwargs
-            )
+            return RobotAcker(kinematics=kinematics, **kwargs)
         elif kinematics_name == "omni":
-            return RobotOmni.create_with_shape(
-                "omni", shape, kinematics_dict=kinematics, **kwargs
-            )
+            return RobotOmni(kinematics=kinematics, **kwargs)
+        elif kinematics_name == "static" or kinematics_name is None:
+            return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
         else:
             raise NotImplementedError(
                 f"Robot kinematics {kinematics_name} not implemented"
             )
 
-    def create_obstacle(self, kinematics=dict(), shape=dict(), **kwargs):
+    def create_obstacle(self, kinematics=dict(), **kwargs):
         """
-        Create an obstacle based on kinematics.
+        Create a obstacle based on kinematics.
 
         Args:
             kinematics (dict): Kinematics configuration.
-            shape (dict): Shape configuration.
-            **kwargs: Additional parameters for obstacle creation.
+            **kwargs: Additional parameters for robot creation.
 
         Returns:
             Obstacle: An instance of an obstacle.
@@ -155,18 +159,16 @@ class ObjectFactory:
         kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
-            return ObstacleDiff.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
-            )
+            return ObstacleDiff(kinematics=kinematics, **kwargs)
         elif kinematics_name == "acker":
-            pass
+            return ObstacleAcker(kinematics=kinematics, **kwargs)
         elif kinematics_name == "omni":
-            return ObstacleOmni.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
-            )
+            return ObstacleOmni(kinematics=kinematics, **kwargs)
+        elif kinematics_name == "static" or kinematics_name is None:
+            return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
         else:
-            return ObstacleStatic.create_with_shape(
-                kinematics_name, shape, kinematics_dict=kinematics, **kwargs
+            raise NotImplementedError(
+                f"Robot kinematics {kinematics_name} not implemented"
             )
 
     def generate_state_list(
@@ -177,16 +179,43 @@ class ObjectFactory:
         goal=[1, 9, 0],
     ):
         """
-        Generate lists of states and goals for objects.
+        Generate a list of state vectors for multiple objects based on the specified distribution method.
+
+        This function creates initial states for multiple objects in the simulation environment.
+        It supports various distribution methods such as 'manual', 'circle', and 'random' to
+        position the objects according to specific patterns or randomness.
 
         Args:
-            number (int): Number of objects.
-            distribution (dict): Distribution type for generating states.
-            state (list): Initial state for objects.
-            goal (list): Goal state for objects.
+            state (Optional[List[float]]): 
+                Base state vector [x, y, theta] to use as a template for generating states.
+                If None, default values will be used.
+            number (int): 
+                Number of state vectors to generate.
+            distribution (Dict[str, Any]): 
+                Configuration dictionary specifying the distribution method and its parameters.
+                - 'name' (str): 
+                    Name of the distribution method. Supported values are:
+                    - 'manual': States are specified manually.
+                    - 'circle': States are arranged in a circular pattern.
+                    - 'random': States are placed at random positions.
+                - Additional parameters depend on the distribution method:
+                    - For 'manual':
+                        Manually specified states and goal.
+                    - For 'circle':
+                        - 'center' (List[float]): Center coordinates [x, y] of the circle.
+                        - 'radius' (float): Radius of the circle.
+                    - For 'random':
+                        - 'range_low' (List[float]): Lower bounds for random state values. 
+                        - 'range_high' (List[float]): Upper bounds for random state values.
 
         Returns:
-            tuple: Lists of states and goals.
+            List[List[float]]: 
+                A list containing generated state vectors and goal vectors for objects.
+
+        Raises:
+            ValueError: 
+                If the distribution method specified in 'name' is not supported or if required
+                parameters for a distribution method are missing.
         """
         if distribution["name"] == "manual":
             state_list = convert_list_length(state, number)
@@ -225,3 +254,8 @@ class ObjectFactory:
                 goal_list.append([goal_x, goal_y, 0])
 
         return state_list, goal_list
+
+
+    def generate_state_list3D(self, number=1, distribution={"name": "manual"}, state=[1, 1, 0], goal=[1, 9, 0]):
+        pass
+        return [], []

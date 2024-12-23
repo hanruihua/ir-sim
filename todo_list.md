@@ -1,0 +1,66 @@
+## To do list
+- [x] Basic framework
+- [x] Mobile robot movement
+- [x] collision check
+- [x] gif generation
+- [x] multi robots mode (collision)  
+- [x] sensor lidar
+- [x] env res
+- [x] collision check with discrete samples
+- [x] omni directional robots
+- [x] Add custom robot model
+- [x] Add sensor: gps, odometry
+- [x] Add noise (diff)
+- [x] line obstacle
+- [x] Add subplot 
+- [x] Add collision mode
+- [x] map obstacle
+- [x] Add functions to access obstacles with different types
+- [x] Add draw points
+- [x] reformulate obstacles and robots by Object class  
+- [x] Add the env logger 
+- [x] private and public methods and parameters in class
+- [x] Add regular event for other obstacles or robots
+- [x] Rearrange the framework of obstacles 
+- [x] Add function to construct obstacle and robot
+- [x] Attribute of the obstacles and robots
+- [x] robot description 
+- [x] Construct the object base class for the robot and obstacles
+- [ ] All the rotation and translation can be represented by the homogeneous transformation matrix
+- [ ] transfer the function from the previous version
+- [ ] real robot size (LIMO, BYD)
+- [ ] Using decorator to update
+- [x] code annotation for main class
+- [ ] Add the data monitor
+- [ ] Add the interface with gym
+- [ ] Support the feature of adding or eliminating obstacles by functions
+- [ ] Add functions to access obstacles with different types
+- [ ] Add more key functions for keyboard control
+- [ ] Develop Tools for tackling Data
+- [x] 3D visualization
+- [x] check whether the object is convex
+- [ ] Add synchronization and asynchronization mode
+- [ ] Add tf (similar like ROS tf)
+- [x] pytest
+- [ ] record and replay path
+- [ ] Plot velocity and acceleration
+- [ ] Some judgment functions for control
+- [x] Add example yaml files
+- [ ] Add some data structure for plot
+- [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
+- [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
+- [ ] LLM integration
+- [ ] organize the functions to calculate A, b, G, h
+- [x] Reformulate the behavior library
+- [x] Add comments for the functions
+- [ ] rewrite some lib functions by using c++ to improve the efficiency
+- [ ] Academic Color
+- [x] default yaml name (same as python file)
+- [ ] draw error band (uncertainty)  https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html#sphx-glr-gallery-lines-bars-and-markers-curve-error-band-py 
+- [ ] Provide polygon shape robot
+- [ ] develop a lib for configuration of the shape, refer to rviz marker
+- [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. ( Maze generator)
+- [ ] Make the dependency of the package optional
+- [ ] 3D rigid body
+- [ ] Documentation
+- [ ] Demonstrations in readme

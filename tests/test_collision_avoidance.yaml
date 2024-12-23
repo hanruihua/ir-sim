@@ -1,0 +1,76 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'unobstructed'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+robot:
+  - number: 2
+    distribution: {name: 'circle', radius: 2.0, center: [5, 5]}  
+    kinematics: 
+      - {name: 'diff'}
+
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0, mode: 'rvo'}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+  - number: 10
+    distribution: {name: 'circle', radius: 3.0, center: [5, 5]}  
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0, mode: 'vo'}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+  - number: 2
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0, mode: 'hrvo'}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+obstacle:
+  - number: 2
+    distribution: {name: 'circle', radius: 2.0, center: [5, 5]} 
+    kinematics: {name: 'omni'}
+    behavior: {name: 'rvo'}
+    shape: {name: 'circle', radius: 1.0}  # radius
+    state: [5, 5, 0]  
+
+    
+    

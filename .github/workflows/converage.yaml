@@ -1,0 +1,28 @@
+name: API workflow
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test python API
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install requirements
+      run: |
+        sudo apt-get update
+        sudo apt-get install python3-opengl xvfb python3-tk
+        python3 -m pip install --upgrade pip
+        pip install -e . --user
+    
+    - name: Install pytest
+      run: pip install pytest pytest-cov pynput
+    - name: Run tests and collect coverage
+      run: xvfb-run -s "-screen 0 1024x768x24" pytest --cov . --cov-report=xml --cov-report=html
+    - name: Upload coverage reports to Codecov
+      run: |
+        # Replace `linux` below with the appropriate OS
+        # Options are `alpine`, `linux`, `macos`, `windows`
+        curl -Os https://cli.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage-service.xml

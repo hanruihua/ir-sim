@@ -25,3 +25,11 @@ obstacle:
   - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
     state: [0, 0, 0] 
     unobstructed: True
+
+  - shape:
+      name: 'polygon'
+      vertices: 
+        - [4.5, 4.5]
+        - [5.5, 4.5]
+        - [5.5, 5.5]
+        - [4.5, 5.5]
