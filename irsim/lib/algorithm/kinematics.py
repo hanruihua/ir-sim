@@ -1,8 +1,7 @@
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
-# from transforms3d import euler
-
+# from transforms3d import euler, axangles
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
 
@@ -145,30 +144,43 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     return new_position
 
 
-# def rigid3d_kinematics(state, velocity, step_time, noise, alpha):
+# def rigid3d_kinematics(state, velocity, step_time):
 
-#     assert velocity.shape[0] >= 6 and state.shape[0] >= 6
+#     '''
+#     Args:
+#         state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the current position and orientation.
+#         velocity: A 6x1 vector [v_x, v_y, v_z, omega_x, omega_y, omega_z] representing the current velocities.
+#         step_time: The time step for the simulation.
+    
+#     Returns:
+#         new_state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the next state.
+#     '''
 
-#     state_HT = state_to_homo_trans(state[:3], state[3:])
+# #     assert velocity.shape[0] >= 6 and state.shape[0] >= 6
+
+#     state_HT = state_to_homo_trans(state)
 #     vel_HT = twist_to_homo_trans(velocity, step_time)
     
-#     if noise:
-#         print("Noise is not supported for rigid3d kinematics Now.")
-    
+#     new_HT = state_HT @ vel_HT
 
+#     new_state = homo_trans_to_state(new_HT)
 
-# def state_to_homo_trans(position, euler_angles):
+#     return new_state
+
+# def state_to_homo_trans(state):
 #     """
 #     Create a homogeneous transformation matrix from state (position and Euler angles). 
     
 #     Parameters:
-#     - position: List or array of [x, y, z] coordinates.
-#     - euler_angles: List or array of [roll, pitch, yaw] in radians.
+#         state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the current position and orientation.
     
 #     Returns:
 #     - 4x4 Homogeneous transformation matrix. (SE3)
 #     """
 #     # Convert Euler angles to rotation matrix
+#     position = state[:3]
+#     euler_angles = state[3:]
+
 #     R = euler.euler2mat(*euler_angles, axes='sxyz')  # 'sxyz' specifies the axis order
 #     T = np.identity(4)
 #     T[:3, :3] = R
@@ -206,6 +218,32 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 #     T_inc[:3, :3] = R
 #     T_inc[:3, 3] = t
 #     return T_inc
+
+
+# def homo_trans_to_state(homo_trans):
+
+#     '''
+#     generate the state from homo_trans 
+
+#     Args:
+#         homo_trans: 4x4 Homogeneous Transformation matrix.
+
+#     Return:
+#         state: [x, y, z, ]
+        
+#     '''
+    
+#     position = homo_trans[:3, 3]
+#     rotation_matrix = homo_trans[:3, :3]
+
+#     euler_angles = euler.mat2euler(rotation_matrix, 'sxyz')
+
+#     state = position + euler_angles
+
+#     return state
+    
+    
+
 
 
 

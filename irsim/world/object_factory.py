@@ -13,7 +13,8 @@ from irsim.world import (
     ObstacleDiff,
     ObstacleOmni,
     ObjectStatic,
-    ObstacleMap
+    ObstacleMap,
+    RobotRigid3D,
 )
 
 
@@ -140,6 +141,8 @@ class ObjectFactory:
             return RobotOmni(kinematics=kinematics, **kwargs)
         elif kinematics_name == "static" or kinematics_name is None:
             return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
+        # elif kinematics_name == "rigid3d":
+        #     return RobotRigid3D(kinematics=kinematics, **kwargs)
         else:
             raise NotImplementedError(
                 f"Robot kinematics {kinematics_name} not implemented"

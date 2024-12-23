@@ -127,6 +127,7 @@ class CircleGeometry(geometry_handler):
         else:
             return Point([wheelbase/2, 0]).buffer(radius)
 
+
 class PolygonGeometry(geometry_handler):
 
     def __init__(self, name, **kwargs):
@@ -244,6 +245,123 @@ class PointsGeometry(geometry_handler):
         return MultiPoint(points.T).buffer(reso / 2).boundary
 
 
+
+########################################3D Geometry Handler ############################################################# 
+
+# class geometry_handler3d(ABC):
+
+#     '''
+#     This class is used to handle the 3D geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
+#     '''
+
+#     def __init__(self, name: str, **kwargs):
+
+#         self.name = name
+#         self._init_geometry = self.construct_init_geometry(**kwargs)
+#         self.geometry = self._init_geometry
+#         self.wheelbase = kwargs.get('wheelbase', None)
+#         self.length, self.width, self.depth = self.cal_length_width(self._init_geometry)
+
+#     @abstractmethod
+#     def construct_init_geometry(self, **kwargs) :
+#         pass
+    
+
+#     def step(self, state):
+
+#         """
+#         Transform geometry to the new state.
+
+#         Args:
+#             state (np.ndarray): State vector [x, y, theta].
+
+#         Returns:
+#             Transformed geometry.
+#         """
+
+#         def transform_with_state(x, y):
+#             trans, rot = get_transform(state)
+#             points = np.array([x, y])
+#             new_points = rot @ points + trans
+#             return (new_points[0, :], new_points[1, :])
+
+#         new_geometry = transform(transform_with_state, self._init_geometry)
+#         self.geometry = new_geometry
+        
+#         return new_geometry
+
+
+#     def get_init_Gh(self):
+#         """
+#         Generate initial G and h for convex object.
+
+#         Returns:
+#             tuple: G matrix, h vector
+#         """
+
+#         if self.name == "circle":
+#             G = np.array([[1, 0], [0, 1], [0, 0]])
+#             h = np.array([[0], [0], [-self.radius]])
+            
+#         elif self.name == "polygon" or self.name == "rectangle":
+
+#             convex_flag, _ = is_convex_and_ordered(self.init_vertices)
+
+#             assert convex_flag, "Object Vertices are not convex"
+
+#             G, h = gen_inequal_from_vertex(self.init_vertices)
+
+#         return G, h
+
+
+#     def cal_length_width(self, geometry):
+#         min_x, min_y, max_x, max_y = bounds(geometry).tolist()
+#         length = max_x - min_x
+#         width = max_y - min_y
+
+#         return length, width
+    
+#     @property
+#     def vertices(self):
+#         if self.name == "linestring":
+#             x = self.geometry.xy[0]
+#             y = self.geometry.xy[1]
+#             return np.c_[x, y].T
+#         return self.geometry.exterior.coords._coords.T
+
+#     @property
+#     def init_vertices(self):
+#         if self.name == "linestring":
+#             x = self._init_geometry.xy[0]
+#             y = self._init_geometry.xy[1]
+#             return np.c_[x, y].T
+#         return self._init_geometry.exterior.coords._coords.T
+    
+#     @property
+#     def radius(self):
+#         return minimum_bounding_radius(self._init_geometry)
+
+
+
+
+# class Sphere3DGeometry(geometry_handler):
+#     def __init__(self, name, **kwargs):
+#         super().__init__(name, **kwargs)
+    
+#     def construct_init_geometry(self, radius: float=0.2, random_shape: bool=False, radius_range: list=[0.1, 1.0], wheelbase: float=None):
+        
+#         if random_shape:
+#             radius = np.random.uniform(*radius_range)
+        
+#         if wheelbase is None:
+#             return Point([0, 0]).buffer(radius)
+#         else:
+#             return Point([wheelbase/2, 0]).buffer(radius)
+
+
+
+
+
 class GeometryFactory:
     """
     Factory class to create geometry handlers.
@@ -270,6 +388,10 @@ class GeometryFactory:
 
         elif name == 'map':
             return PointsGeometry(name, **kwargs)
+
+        # elif name == 'sphere3d':
+        #     return Sphere3DGeometry(name, **kwargs)
+
         else:
             raise ValueError(f"Invalid geometry name: {name}")
 
