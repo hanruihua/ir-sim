@@ -25,10 +25,12 @@ for i in range(300):
     if env.done():
         break
 
-env.end(3)
+env.end(ending_time=3)
 ```
 
-The animation generation is done in the `env.end()` function. You can set the additional parameters in this function to control the animation generation. Details of the parameters can be found in the [env.end()](#irsim.env.env_base.EnvBase.end). Some of the parameters for `GIF` format are: 
+`ending_time` denotes how long the figure will be closed. The animation generation is also performed in this `env.end()` function. You can set the additional arguments in this function to control the animation generation. Details of the parameters can be found in the [env.end()](#irsim.env.env_base.EnvBase.end). 
+
+Some common parameters for `GIF` format you may use are: 
 
 - **`loop`:** The number of times the GIF should loop. Default 0 (meaning loop indefinitely).
 - **`duration `:** The duration (in seconds) of each frame. Either specify one value that is used for all frames, or one value for each frame. 
