@@ -21,6 +21,14 @@ class geometry_handler(ABC):
 
     @abstractmethod
     def construct_init_geometry(self, **kwargs) :
+        '''
+        Construct the initial geometry of the object.
+
+        Args:
+            **kwargs: shape parameters
+        
+        Returns: Geometry of the object
+        '''
         pass
     
 
@@ -59,16 +67,22 @@ class geometry_handler(ABC):
         if self.name == "circle":
             G = np.array([[1, 0], [0, 1], [0, 0]])
             h = np.array([[0], [0], [-self.radius]])
+            cone_type = "norm2"
+            convex_flag = True
             
         elif self.name == "polygon" or self.name == "rectangle":
 
             convex_flag, _ = is_convex_and_ordered(self.init_vertices)
 
-            assert convex_flag, "Object Vertices are not convex"
+            if convex_flag:
+                G, h = gen_inequal_from_vertex(self.init_vertices)
+                cone_type = "Rpositive"
+            else:
+                G, h, cone_type = None, None, None
+        else:
+            G, h, cone_type, convex_flag = None, None, None, None
 
-            G, h = gen_inequal_from_vertex(self.init_vertices)
-
-        return G, h
+        return G, h, cone_type, convex_flag
 
 
     def cal_length_width(self, geometry):
@@ -118,12 +132,20 @@ class PolygonGeometry(geometry_handler):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, vertices=None, random_shape: bool=False, is_convex: bool=True, **kwargs):
+    def construct_init_geometry(self, vertices=None, random_shape: bool=False, is_convex: bool=False, **kwargs):
 
-        '''
-        vertices: [[x1, y1], [x2, y2]..]
-        **kwargs: see random_generate_polygon()
-        '''
+        """
+        Construct a polygon geometry.
+
+        Args:
+            vertices: [[x1, y1], [x2, y2]..]
+            random_shape: whether to generate random shape, default is False
+            is_convex: whether to generate convex shape, default is False
+            **kwargs: see random_generate_polygon()
+        
+        Returns:
+            Polygon object
+        """
 
         if random_shape:
             if is_convex:
@@ -185,10 +207,18 @@ class LinestringGeometry(geometry_handler):
 
     def construct_init_geometry(self, vertices, random_shape: bool=False, is_convex: bool=True, **kwargs):
 
-        '''
-        vertices: [[x1, y1], [x2, y2]..]
-        **kwargs: see random_generate_polygon()
-        '''
+        """
+        Construct a LineString object.
+
+        Args:
+            vertices: [[x1, y1], [x2, y2]..]
+            random_shape: whether to generate random shape, default is False
+            is_convex: whether to generate convex shape, default is False
+            **kwargs: see random_generate_polygon()
+        
+        Returns:
+            LineString object
+        """
 
         if random_shape:
             if is_convex:

@@ -4,7 +4,7 @@ from irsim.lib.algorithm.kinematics import (
     differential_kinematics,
     ackermann_kinematics,
     omni_kinematics,
-    rigid3d_kinematics,
+    # rigid3d_kinematics,
 )
 
 
@@ -76,14 +76,14 @@ class AckermannKinematics(KinematicsHandler):
         )
         return next_state
 
-class Rigid3DKinematics(KinematicsHandler):
+# class Rigid3DKinematics(KinematicsHandler):
     
-    def __init__(self, name, noise, alpha):
-        super().__init__(name, noise, alpha)
+#     def __init__(self, name, noise, alpha):
+#         super().__init__(name, noise, alpha)
 
-    def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
-        next_state = rigid3d_kinematics(state, velocity, step_time, self.noise, self.alpha)
-        return next_state
+#     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
+#         next_state = rigid3d_kinematics(state, velocity, step_time, self.noise, self.alpha)
+#         return next_state
 
 class KinematicsFactory:
     """
@@ -97,6 +97,7 @@ class KinematicsFactory:
         alpha: list = None,
         mode: str = 'steer',
         wheelbase: float = None,
+        role: str = 'robot'
     ) -> KinematicsHandler:
         name = name.lower() if name else None
         if name == "omni":
@@ -105,9 +106,13 @@ class KinematicsFactory:
             return DifferentialKinematics(name, noise, alpha)
         elif name == "acker":
             return AckermannKinematics(name, noise, alpha, mode, wheelbase)
-        elif name == 'rigid3d':
-            return Rigid3DKinematics(name, noise, alpha)
+        # elif name == 'rigid3d':
+        #     return Rigid3DKinematics(name, noise, alpha)
         else:
-            print(f"Unknown kinematics type: {name}, object will be stationary.")
+            if role=='robot':
+                print(f"Unknown kinematics type: {name}, the robot will be stationary.")
+            else:
+                pass
+            
             return None
             

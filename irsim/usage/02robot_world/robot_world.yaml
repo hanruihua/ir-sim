@@ -12,10 +12,11 @@ robot:
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
   # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
-  behavior: {name: 'dash'} # move toward to the goal directly 
+  # behavior: {name: dash} # move toward to the goal directly 
   color: 'g'
   plot:
     show_trajectory: True
+    show_goal: True
   # description: 'diff_robot0.png'
     
   

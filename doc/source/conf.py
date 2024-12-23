@@ -17,9 +17,6 @@ import os
 import sys
 from unittest.mock import MagicMock
 
-
-
-
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
@@ -37,8 +34,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.2.0'
-
+release = '2.3.0'
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))
@@ -61,7 +57,16 @@ release = '2.2.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.githubpages', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion'
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion', 'sphinx_copybutton'
+]
+
+myst_enable_extensions = [
+    "amsmath",
+    "deflist",
+    "html_admonition",
+    "html_image",
+    "colon_fence",
+    # Add other extensions as needed
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -83,9 +88,43 @@ exclude_patterns = []
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
 
-
-html_theme = "sphinx_rtd_theme"
+# html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 
 autodoc_member_order = 'bysource'
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+
+# myst_enable_extensions = [
+#     "amsmath",
+#     "attrs_inline",
+#     "colon_fence",
+#     "deflist",
+#     "dollarmath",
+#     "fieldlist",
+#     "html_admonition",
+#     "html_image",
+#     "replacements",
+#     "smartquotes",
+#     "strikethrough",
+#     "substitution",
+#     "tasklist",
+# ]
+
+# json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
+
+# html_theme_options = {
+#     "switcher": {
+#         "json_url": json_url,
+#         "version_match": release,
+#     },
+# }
+
+
+def setup(app):
+    app.add_css_file('my_theme.css')

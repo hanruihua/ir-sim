@@ -15,3 +15,11 @@ class RobotDiff(ObjectBase):
         assert (
             state_dim >= 3
         ), "for differential robot, the state dimension should be greater than 3"
+
+
+    def plot(self, ax, **kwargs):
+
+        show_goal = self.plot_kwargs.get("show_goal", True)
+        show_arrow = self.plot_kwargs.get("show_arrow", True)
+
+        super().plot(ax, show_goal=show_goal, show_arrow=show_arrow, **kwargs)

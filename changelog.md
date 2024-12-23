@@ -1,11 +1,14 @@
 ## ir-sim 2.3.0
 
+**Major Version Update:** 
+
 - Reorganize the lidar2d step function to make it faster.
 - Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
 - Update the comments for the functions.
 - Add the coverage test for the project.
-
-
+- Complete the documentation for the project.
+- Fix some bugs in the project.
+- Add 3d plot environment.
 
 ## ir-sim 2.2.6
 
@@ -43,7 +46,7 @@
 
 ## ir-sim 2.2.0
 
-- Rename the module from ir_sim to be irsim, rename the package name from ir_sim to be ir-sim
+- Rename the module from ir_sim to irsim, rename the package name from ir_sim to ir-sim
 - Add citation for the project
 - Refine the comments for the functions
 

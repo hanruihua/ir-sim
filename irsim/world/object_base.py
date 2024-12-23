@@ -43,6 +43,10 @@ class ObjectInfo:
     angle_range: np.ndarray
     goal_threshold: float
     wheelbase: float
+    G: np.ndarray
+    h: np.ndarray
+    cone_type: str
+    convex_flag: bool
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -53,8 +57,11 @@ class ObstacleInfo:
     center: np.ndarray
     vertex: np.ndarray
     velocity: np.ndarray
-    cone_type: str
     radius: float
+    G: np.ndarray
+    h: np.ndarray
+    cone_type: str
+    convex_flag: bool
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -68,7 +75,6 @@ class ObjectBase:
     including robots and obstacles, managing their state, velocity, goals,
     and kinematics.
 
-    
     Args:
         shape (dict): Parameters defining the shape of the object for geometry creation.
             The dictionary should contain keys and values required by the GeometryFactory to create
@@ -100,7 +106,7 @@ class ObjectBase:
             The object's orientation will be wrapped within this range. Defaults to [-pi, pi].
         behavior (dict or str): Behavioral mode or configuration of the object.
             Can be a behavior name (str) or a dictionary with behavior parameters. If None, default behavior is applied.
-            Defaults to None.
+            Defaults to {'name': 'dash'}, moving to the goal directly.
         goal_threshold (float): Threshold distance to determine if the object has reached its goal.
             When the object is within this distance to the goal, it's considered to have arrived. Defaults to 0.1.
         sensors (list of dict): List of sensor configurations attached to the object.
@@ -169,7 +175,7 @@ class ObjectBase:
         vel_max=[1, 1],
         acce=[inf, inf],
         angle_range=[-pi, pi],
-        behavior=None,
+        behavior={'name':'dash'},
         goal_threshold=0.1,
         sensors=None,
         arrive_mode="position",
@@ -194,10 +200,12 @@ class ObjectBase:
             GeometryFactory.create_geometry(**shape) if shape is not None else None
         )
         self.kf = (
-            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, **kinematics)
+            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, role=role, **kinematics)
             if kinematics is not None
             else None
         )
+
+        self.G, self.h, self.cone_type, self.convex_flag = self.gf.get_init_Gh()
 
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
@@ -246,6 +254,10 @@ class ObjectBase:
             np.c_[angle_range],
             goal_threshold,
             self.wheelbase,
+            self.G,
+            self.h,
+            self.cone_type,
+            self.convex_flag,
         )
 
         self.obstacle_info = None
@@ -267,7 +279,7 @@ class ObjectBase:
             ]
 
             self.lidar = [
-                sensor for sensor in self.sensors if sensor.sensor_type == "lidar"
+                sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"
             ][0]
         else:
             self.sensors = []
@@ -315,7 +327,7 @@ class ObjectBase:
         """
 
         if self.static or self.stop_flag or self.kf is None:
-            self._velocity = np.zeros_like(velocity)
+            self._velocity = np.zeros(self.vel_shape)
             return self.state
         else:
             self.pre_process()
@@ -563,30 +575,6 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def generate_Gh(self, shape, shape_tuple):
-        """
-        Generate G and h for convex object.
-
-        Args:
-            shape (str): The shape of the object.
-            shape_tuple: Tuple to initialize the geometry.
-
-        Returns:
-            tuple: G matrix, h vector, and cone type.
-        """
-        if shape == "circle":
-            radius = shape_tuple[2]
-            G = np.array([[1, 0], [0, 1], [0, 0]])
-            h = np.array([[0], [0], [-radius]])
-            cone_type = "norm2"
-
-        else:
-            init_vertex = np.array(shape_tuple).T
-            G, h = gen_inequal_from_vertex(init_vertex)
-            cone_type = "Rpositive"
-
-        return G, h, cone_type
-
     def geometry_state_transition(self):
         pass
 
@@ -609,12 +597,32 @@ class ObjectBase:
             return state
 
     def plot(self, ax, **kwargs):
+
         """
         Plot the object on a given axis.
 
         Args:
             ax: Matplotlib axis.
-            **kwargs: Additional plotting options.
+            kwargs:
+                - show_goal (bool): Whether show the goal position.  
+                - show_text (bool): Whether show text information. To be completed.  
+                - show_arrow (bool): Whether show the velocity arrow.
+                - show_uncertainty (bool): Whether show the uncertainty. To be completed.
+                - show_trajectory (bool): Whether show the trajectory.
+                - show_trail (bool): Whether show the trail.
+                - show_sensor (bool): Whether show the sensor.
+                - trail_freq (int): Frequency of trail display.
+                - goal_color (str): Color of the goal marker.
+                - traj_color (str): Color of the trajectory.
+                - traj_style (str): Style of the trajectory.
+                - traj_width (float): Width of the trajectory.
+                - traj_alpha (float): Transparency of the trajectory.
+                - edgecolor (str): Edge color of the trail.
+                - linewidth (float): Width of the trail.
+                - trail_alpha (float): Transparency of the trail.
+                - trail_fill (bool): Whether fill the trail.
+                - trail_color (str): Color of the trail.
+
         """
         self.state_re = self.state
         self.goal_re = self.goal
@@ -797,9 +805,12 @@ class ObjectBase:
         self.plot_patch_list.append(goal_circle)
 
     def plot_text(self, ax, **kwargs):
+        '''
+        To be completed.
+        '''
         pass
 
-    def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, **kwargs):
+    def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color='gold', **kwargs):
         """
         Plot an arrow indicating the velocity orientation of the object.
 
@@ -812,7 +823,6 @@ class ObjectBase:
         x = self.state_re[0][0]
         y = self.state_re[1][0]
         theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
-        arrow_color = kwargs.get("arrow_color", "gold")
 
         arrow = mpl.patches.Arrow(
             x,
@@ -885,6 +895,9 @@ class ObjectBase:
             ax.add_patch(car_circle)
 
     def plot_uncertainty(self, ax, **kwargs):
+        '''
+        To be completed.
+        '''
         pass
 
     def plot_clear(self):
@@ -956,14 +969,17 @@ class ObjectBase:
         Get information about the object as an obstacle.
 
         Returns:
-            ObstacleInfo: Obstacle-related information.
+            ObstacleInfo: Obstacle-related information, including state, vertices, velocity, and radius.
         """
         return ObstacleInfo(
             self.state[:2, :],
             self.vertices[:, :-1],
             self._velocity,
-            self.info.cone_type,
             self.radius,
+            self.G,
+            self.h,
+            self.cone_type,
+            self.convex_flag,
         )
 
     def get_init_Gh(self):
@@ -1139,3 +1155,4 @@ class ObjectBase:
     def beh_config(self):
         # behavior config dictory
         return self.obj_behavior.behavior_dict
+    

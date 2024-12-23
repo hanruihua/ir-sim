@@ -4,6 +4,8 @@ sphinx-autodoc-typehints
 sphinx_multiversion
 myst_parser
 importlib-metadata
+sphinx_copybutton
+pydata-sphinx-theme
 # sphinx.ext.viewcode
 # sphinx.ext.githubpages
 # sphinx.ext.napoleon

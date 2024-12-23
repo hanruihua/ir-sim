@@ -14,7 +14,7 @@ It provides the following features:
   - Real-time visualization of simulation outcomes.
   - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
 
-The simple demonstration of the simulator is shown below:
+The simple demonstrations of the simulator are shown below:
 
 .. image:: https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b
   :width: 49%
@@ -26,18 +26,39 @@ The simple demonstration of the simulator is shown below:
   :alt: Alternative text
 
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Getting Started:
 
-   install
-   quick_start
-   configuration
-   usage
+   get_started/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide:
+
+   usage/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: YAML Configuration Syntax:
+
+   yaml_config/index
+
 
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation:
 
-   modules
+   api/modules
+
+
+Academic Cases
+--------------
+
+- `rl-rvo-nav(RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_
+
+- `RDA_planner(RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_
+
+Code Repository
+---------------
+`IR-SIM <https://github.com/hanruihua/ir-sim>`_

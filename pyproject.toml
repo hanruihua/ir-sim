@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir-sim"
-version = "2.2.7"
+version = "2.3.0"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
@@ -19,19 +19,21 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = ['matplotlib==3.9.0',
+                'shapely==2.0.6',
                 'numpy',
-                'scipy',
                 'pyyaml',
                 'imageio',
-                'shapely==2.0.6',
                 'loguru',
-                'transforms3d',]
+                'tabulate',
+]
 
 [project.optional-dependencies]
 keyboard = ['pynput']
+all = ['pynput']
 
 [tool.setuptools.packages.find]
-where = ["./"]
+include = ["irsim*"]
+exclude = ["doc*", "tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.png", "*.yaml"]

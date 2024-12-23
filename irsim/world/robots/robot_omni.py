@@ -17,4 +17,8 @@ class RobotOmni(ObjectBase):
         ), "for omni robot, the state dimension should be greater than 2"
 
     
+    def plot(self, ax, **kwargs):
 
+        show_goal = self.plot_kwargs.get("show_goal", True)
+        
+        super().plot(ax, show_goal=show_goal, **kwargs)
