@@ -150,8 +150,8 @@ obstacle:
 
 ``` -->
 
-## Cases
-- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav)(RAL & ICRA2023)
+## Academic Cases
+- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
 - [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
 
 
