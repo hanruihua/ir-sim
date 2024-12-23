@@ -14,7 +14,7 @@ from irsim.world import (
     ObstacleOmni,
     ObjectStatic,
     ObstacleMap,
-    RobotRigid3D,
+    # RobotRigid3D,
 )
 
 
