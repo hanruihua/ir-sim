@@ -64,3 +64,4 @@
 - [ ] 3D rigid body
 - [ ] Documentation
 - [ ] Demonstrations in readme
+- [ ] robotics arm support
