@@ -65,3 +65,4 @@
 - [ ] Documentation
 - [ ] Demonstrations in readme
 - [ ] robotics arm support
+- [ ] assign robot goals by mouse click
