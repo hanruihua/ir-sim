@@ -21,7 +21,7 @@ class ObjectBase3D(ObjectBase):
         def __init__(self, state=[0, 0, 0, 0, 0, 0], **kwargs):
             super().__init__(state=state, **kwargs)
 
-
+            
         
         
         

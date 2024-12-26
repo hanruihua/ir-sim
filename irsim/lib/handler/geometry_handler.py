@@ -248,47 +248,46 @@ class PointsGeometry(geometry_handler):
 
 ########################################3D Geometry Handler ############################################################# 
 
-# class geometry_handler3d(ABC):
+class geometry_handler3d(ABC):
 
-#     '''
-#     This class is used to handle the 3D geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
-#     '''
+    '''
+    This class is used to handle the 3D geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
+    '''
 
-#     def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, **kwargs):
 
-#         self.name = name
-#         self._init_geometry = self.construct_init_geometry(**kwargs)
-#         self.geometry = self._init_geometry
-#         self.wheelbase = kwargs.get('wheelbase', None)
-#         self.length, self.width, self.depth = self.cal_length_width(self._init_geometry)
+        self.name = name
+        self._init_geometry = self.construct_init_geometry(**kwargs)
+        self.geometry = self._init_geometry
+        self.wheelbase = kwargs.get('wheelbase', None)
+        self.length, self.width, self.depth = self.cal_length_width(self._init_geometry)
 
-#     @abstractmethod
-#     def construct_init_geometry(self, **kwargs) :
-#         pass
+    @abstractmethod
+    def construct_init_geometry(self, **kwargs) :
+        pass
     
+    def step(self, state):
 
-#     def step(self, state):
+        """
+        Transform geometry to the new state.
 
-#         """
-#         Transform geometry to the new state.
+        Args:
+            state (np.ndarray 6*1): [x, y, z, roll, pitch, roll].
 
-#         Args:
-#             state (np.ndarray): State vector [x, y, theta].
-
-#         Returns:
-#             Transformed geometry.
-#         """
-
-#         def transform_with_state(x, y):
-#             trans, rot = get_transform(state)
-#             points = np.array([x, y])
-#             new_points = rot @ points + trans
-#             return (new_points[0, :], new_points[1, :])
-
-#         new_geometry = transform(transform_with_state, self._init_geometry)
-#         self.geometry = new_geometry
+        Returns:
+            Transformed geometry.
+        """
         
-#         return new_geometry
+        def transform_with_state(x, y):
+            trans, rot = get_transform(state)
+            points = np.array([x, y])
+            new_points = rot @ points + trans
+            return (new_points[0, :], new_points[1, :])
+
+        new_geometry = transform(transform_with_state, self._init_geometry)
+        self.geometry = new_geometry
+        
+        return new_geometry
 
 
 #     def get_init_Gh(self):
@@ -391,6 +390,8 @@ class GeometryFactory:
 
         # elif name == 'sphere3d':
         #     return Sphere3DGeometry(name, **kwargs)
+        elif name == 'cuboid3d':
+            return Cuboid3DGeometry(name, **kwargs)
 
         else:
             raise ValueError(f"Invalid geometry name: {name}")
