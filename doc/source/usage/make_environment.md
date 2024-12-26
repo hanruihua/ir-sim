@@ -27,7 +27,7 @@ world:
   obstacle_map: null # the path of obstacle map
 ```
 
-## Explanation 
+## Important Parameters Explanation 
 
 - The `world` section specifies the properties of the world. 
 - The `height` and `width` parameters specify the size of the world. 

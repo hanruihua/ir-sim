@@ -70,7 +70,7 @@ The demonstration is shown in the following figure:
 :align: center
 ```
 
-## Important Parameters Explained
+## Important Parameters Explanation 
 
 The parameters to generate random obstacles with various shapes are the settings of `behavior`, `distribution`, and `shape` in the `obstacle` section.
 
