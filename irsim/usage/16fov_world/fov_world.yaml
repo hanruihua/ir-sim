@@ -1,0 +1,37 @@
+world:
+  height: 50  # the height of the world
+  width: 50   # the height of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+  # control_mode: 'keyboard'  # 'keyboard', 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}  # omni, diff, acker
+    shape: {name: 'circle', radius: 0.4}
+    state: [5, 5, 0, 0]
+    goal: [40, 40, 0]
+    vel_max: [3, 1]
+    vel_min: [-3, -1]
+    behavior: {name: 'dash'} # move toward to the goal directly
+    plot:
+        show_goal: False
+        show_trajectory: True
+
+obstacle:
+  - number: 10
+    distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
+    kinematics: {name: 'diff'}
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acceler: 1.0, factor: 2.0, mode: 'vo', wander: True, range_low: [15, 15, -3.14], range_high: [35, 35, 3.14], target_roles: 'all'}
+    vel_max: [3, 3.14]
+    vel_min: [-3, -3.14]
+    shape:
+      - {name: 'circle', radius: 0.5}  # radius
+    fov: 1.57 
+    fov_radius: 5.0
+    plot:
+      show_fov: True
+      show_arrow: True
+      arrow_length: 0.8

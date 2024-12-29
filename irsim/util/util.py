@@ -40,18 +40,19 @@ def file_check(file_name, root_path=None):
 
     return abs_file_name
 
-def WrapToPi(rad):
+def WrapToPi(rad, positive=False):
     '''The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
     
-    Parameters
-    ----------
-    rad
-        The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to
-    transform to the range [-π, π]. The function ensures that the angle is within this range by wrapping
-    it around if it exceeds the bounds.
+    Args:
+
+        rad (float): Angle in radians.
+            The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to
+        transform to the range [-π, π]. The function ensures that the angle is within this range by wrapping
+        it around if it exceeds the bounds.
+
+        positive (bool): Whether to return the positive value of the angle. Useful for angles difference.
     
-    Returns
-    -------
+    Returns:
         The function `WrapToPi(rad)` returns the angle `rad` wrapped to the range [-pi, pi].
     
     '''
@@ -59,7 +60,8 @@ def WrapToPi(rad):
         rad = rad - 2 * pi
     while rad < -pi:
         rad = rad + 2 * pi
-    return rad
+
+    return rad if not positive else abs(rad)
 
 
 def WrapToRegion(rad, range):
@@ -79,6 +81,10 @@ def WrapToRegion(rad, range):
     while rad < range[0]:
         rad = rad + 2 * pi
     return rad
+
+
+
+
 
 def convert_list_length(input_data, number=0):
     """
