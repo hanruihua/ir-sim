@@ -4,7 +4,7 @@ import numpy as np
 
 
 @register_behavior("diff", "dash_custom")
-def beh_diff_dash(ego_object, objects, **kwargs):
+def beh_diff_dash(ego_object, external_objects=[], **kwargs):
 
     print("This is a custom behavior example for differential drive with dash2")
 

@@ -12,7 +12,11 @@ class Behavior:
     Args:
         object_info (object): Object information from the object_base class ObjectInfo.
         behavior_dict (dict): Dictionary containing behavior parameters for different behaviors.
-            Options include: 'dash', 'rvo'.
+            Name Options include: 'dash', 'rvo'.
+            target_roles:
+                'all': all objects in the environment will be considered within this behavior.
+                'obstacle': only obstacles will be considered within this behavior.
+                'robot': only robots will be considered within this behavior.
     """
 
     def __init__(self, object_info=None, behavior_dict=None) -> None:
@@ -27,12 +31,13 @@ class Behavior:
         self.behavior_dict = dict() if behavior_dict is None else behavior_dict
         self.load_behavior()
 
-    def gen_vel(self, objects):
+    def gen_vel(self, ego_object, external_objects=[]):
         """
         Generate velocity for the agent based on the behavior dictionary.
 
         Args:
-            objects: all the objects in the evironment
+            ego_object: the object itself
+            external_objects: all the other objects in the environment
 
         Returns:
             np.array (2, 1): Generated velocity for the agent.
@@ -44,11 +49,20 @@ class Behavior:
             )
             return np.zeros((2, 1))
 
+        target_roles = self.behavior_dict.get("target_roles", 'all')
+
+        if target_roles == 'all':
+            external_objects = external_objects
+        elif target_roles == 'obstacle':
+            external_objects = [obj for obj in external_objects if obj.role == 'obstacle']
+        elif target_roles == 'robot':
+            external_objects = [obj for obj in external_objects if obj.role == 'robot']
+
         behavior_vel = self.invoke_behavior(
             self.object_info.kinematics,
             self.behavior_dict["name"],
-            ego_object=objects[self.object_info.id],
-            objects=objects,
+            ego_object=ego_object,
+            external_objects=external_objects,
             **self.behavior_dict,
         )
 

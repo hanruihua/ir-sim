@@ -4,10 +4,11 @@ from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
 from math import cos, sin
 
-@register_behavior("diff", "rvo")
-def beh_diff_rvo(ego_object, objects, **kwargs):
 
-    rvo_neighbor = ego_object.rvo_neighbors
+@register_behavior("diff", "rvo")
+def beh_diff_rvo(ego_object, external_objects, **kwargs):
+
+    rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
@@ -20,7 +21,7 @@ def beh_diff_rvo(ego_object, objects, **kwargs):
 
 
 @register_behavior("diff", "dash")
-def beh_diff_dash(ego_object, objects, **kwargs):
+def beh_diff_dash(ego_object, external_objects, **kwargs):
 
     state = ego_object.state
     goal = ego_object.goal
@@ -34,7 +35,7 @@ def beh_diff_dash(ego_object, objects, **kwargs):
 
 
 @register_behavior("omni", "dash")
-def beh_omni_dash(ego_object, objects, **kwargs):
+def beh_omni_dash(ego_object, external_objects, **kwargs):
 
     state = ego_object.state
     goal = ego_object.goal
@@ -46,9 +47,9 @@ def beh_omni_dash(ego_object, objects, **kwargs):
 
 
 @register_behavior("omni", "rvo")
-def beh_omni_rvo(ego_object, objects, **kwargs):
+def beh_omni_rvo(ego_object, external_objects, **kwargs):
 
-    rvo_neighbor = ego_object.rvo_neighbors
+    rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
@@ -59,8 +60,9 @@ def beh_omni_rvo(ego_object, objects, **kwargs):
 
     return behavior_vel
 
+
 @register_behavior("acker", "dash")
-def beh_acker_dash(ego_object, objects, **kwargs):
+def beh_acker_dash(ego_object, external_objects, **kwargs):
 
     state = ego_object.state
     goal = ego_object.goal
