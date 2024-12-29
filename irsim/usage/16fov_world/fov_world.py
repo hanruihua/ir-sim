@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make()
+env = irsim.make(save_ani=False)
 
 for i in range(3000):
 
