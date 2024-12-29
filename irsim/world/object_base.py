@@ -17,14 +17,15 @@ from typing import Optional
 import mpl_toolkits.mplot3d.art3d as art3d
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
-
+from matplotlib.patches import Wedge
+import math
 
 from irsim.util.util import (
     WrapToRegion,
     relative_position,
-    gen_inequal_from_vertex,
     diff_to_omni,
     random_point_range,
+    WrapToPi
 )
 
 
@@ -123,6 +124,8 @@ class ObjectBase:
             If None, it is inferred from the class attribute `vel_shape`. Defaults to None.
         unobstructed (bool): Indicates if the object should be considered to have an unobstructed path,
             ignoring obstacles in certain scenarios. Defaults to False.
+        fov (float): Field of view angles in radians for the object's sensors. Defaults to None. If set lidar, the default value is angle range of lidar.
+        fov_radius (float): Field of view radius for the object's sensors. Defaults to None. If set lidar, the default value is range_max of lidar.
         **kwargs: Additional keyword arguments for extended functionality.
             plot (dict): Plotting options for the object.
                 May include 'show_goal', 'show_text', 'show_arrow', 'show_uncertainty', 'show_trajectory',
@@ -184,6 +187,8 @@ class ObjectBase:
         state_dim=None,
         vel_dim=None,
         unobstructed=False,
+        fov=None,
+        fov_radius=None,
         **kwargs,
     ) -> None:
         """
@@ -272,6 +277,7 @@ class ObjectBase:
 
         # sensor
         sf = SensorFactory()
+        self.lidar = None
         if sensors is not None:
             self.sensors = [
                 sf.create_sensor(self._state[0:3], self._id, **sensor_kwargs)
@@ -283,6 +289,13 @@ class ObjectBase:
             ][0]
         else:
             self.sensors = []
+
+        if fov is None:
+            self.fov = self.lidar.angle_range if self.lidar is not None else None
+            self.fov_radius = self.lidar.range_max if self.lidar is not None else None
+        else:
+            self.fov = fov
+            self.fov_radius = fov_radius
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
@@ -404,14 +417,7 @@ class ObjectBase:
                     self.collision_obj.append(obj)
                     if self.role == "robot":
                         if not self.collision_flag:
-                            env_param.logger.warning(
-                                self.role
-                                + "{} is collided with {} at state {}".format(
-                                    self.id,
-                                    obj.id,
-                                    list(np.round(self.state[:2, 0], 2)),
-                                )
-                            )
+                            env_param.logger.warning(f'{self.name} is collided with {obj.name} at state {list(np.round(self.state[:2, 0], 2))}')
 
         self.collision_flag = any(collision_flags)
 
@@ -461,7 +467,7 @@ class ObjectBase:
                     self._goal = random_point_range(self.rl, self.rh)
                     self.arrive_flag = False
 
-                behavior_vel = self.obj_behavior.gen_vel(env_param.objects)
+                behavior_vel = self.obj_behavior.gen_vel(self.ego_object, self.external_objects)
 
         else:
             if isinstance(velocity, list):
@@ -532,6 +538,57 @@ class ObjectBase:
     def get_inequality_Gh(self):
         return self.gf.G, self.gf.h
 
+    def get_fov_detected_objects(self):
+
+        '''
+        Detect the env objects that in the field of view.
+
+
+        Returns:
+            list: The objects that in the field of view of the object.
+        '''
+
+        return [obj for obj in self.external_objects if self.fov_detect_object(obj)]
+
+
+    def fov_detect_object(self, detected_object):
+
+        '''
+        Detect the object that in the field of view.
+
+        Args:
+            object: The object to be detected.
+
+        Returns:
+            bool: Whether the object is in the field of view.
+        '''
+        
+        rx, ry = self.state[:2, 0]
+        px, py = detected_object.state[:2, 0]
+        radius_do = detected_object.radius
+        
+        dx = px - rx
+        dy = py - ry
+
+        rad_to_do = WrapToPi(math.atan2(dy, dx))
+        object_orientation = self.state[2, 0] 
+        
+        rad_diff = WrapToPi(rad_to_do - object_orientation, True)
+        distance_do = math.hypot(dx, dy)
+    
+        if distance_do == 0:
+            rad_offset = pi/2  
+        else:
+            rad_offset = WrapToPi(math.asin(min(radius_do / distance_do, 1)))
+        
+        fov_diff = abs(rad_diff - rad_offset)
+
+        if fov_diff <= (self.fov / 2) and (distance_do - radius_do) <= self.fov_radius:
+            return True
+        else:
+            return False
+
+
     def set_state(self, state=[0, 0, 0], init=False):
         """
         Set the state of the object.
@@ -565,6 +622,43 @@ class ObjectBase:
 
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
+
+    def set_velocity(self, velocity=[0, 0], init=False):
+
+        '''
+        Set the velocity of the object.
+        
+        Args:
+            velocity: The velocity of the object. Depending on the kinematics model.
+            init (bool): Whether to set the initial velocity (default False).
+        '''
+
+        if isinstance(velocity, list):
+            if len(velocity) > self.vel_dim:
+                temp_velocity = np.c_[velocity[: self.vel_dim]]
+            elif len(velocity) < self.vel_dim:
+                temp_velocity = np.c_[velocity + [0] * (self.vel_dim - len(velocity))]
+            else:
+                temp_velocity = np.c_[velocity]
+
+        elif isinstance(velocity, np.ndarray):
+            if velocity.shape[0] > self.vel_dim:
+                temp_velocity = velocity[: self.vel_dim]
+            elif velocity.shape[0] < self.vel_dim:
+                temp_velocity = np.r_[
+                    velocity,
+                    np.zeros((self.vel_dim - velocity.shape[0], velocity.shape[1])),
+                ]
+            else:
+                temp_velocity = velocity
+
+        assert self._velocity.shape == temp_velocity.shape
+
+        if init:
+            self._init_velocity = temp_velocity.copy()
+
+        self._velocity = temp_velocity.copy()
+
 
     def set_init_geometry(self, geometry):
         """
@@ -611,6 +705,7 @@ class ObjectBase:
                 - show_trajectory (bool): Whether show the trajectory.
                 - show_trail (bool): Whether show the trail.
                 - show_sensor (bool): Whether show the sensor.
+                - show_fov (bool): Whether show the field of view.
                 - trail_freq (int): Frequency of trail display.
                 - goal_color (str): Color of the goal marker.
                 - traj_color (str): Color of the trajectory.
@@ -637,6 +732,7 @@ class ObjectBase:
         show_trajectory = self.plot_kwargs.get("show_trajectory", False)
         show_trail = self.plot_kwargs.get("show_trail", False)
         show_sensor = self.plot_kwargs.get("show_sensor", True)
+        show_fov = self.plot_kwargs.get("show_fov", False)
         trail_freq = self.plot_kwargs.get("trail_freq", 2)
         goal_color = self.plot_kwargs.get("goal_color", self.color)
 
@@ -662,6 +758,9 @@ class ObjectBase:
 
         if show_sensor:
             [sensor.plot(ax, **self.plot_kwargs) for sensor in self.sensors]
+
+        if show_fov:
+            self.plot_fov(ax, **self.plot_kwargs)
 
     def plot_object(self, ax, **kwargs):
         """
@@ -822,7 +921,8 @@ class ObjectBase:
         """
         x = self.state_re[0][0]
         y = self.state_re[1][0]
-        theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
+
+        theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0]) if self.kinematics == "omni" else self.state_re[2][0]
 
         arrow = mpl.patches.Arrow(
             x,
@@ -893,6 +993,38 @@ class ObjectBase:
                 art3d.patch_2d_to_3d(car_circle, z=self.z)
 
             ax.add_patch(car_circle)
+
+    def plot_fov(self, ax, **kwargs):
+
+        '''
+        Plot the field of view of the object.
+        
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+                fov_color (str): Color of the field of view. Default is 'lightblue'.
+                fov_edge_color (str): Edge color of the field of view. Default is 'blue'.
+        '''
+
+        fov_color = kwargs.get("fov_color", "lightblue")
+        fov_edge_color = kwargs.get("fov_edge_color", "blue")
+        
+        direction = self.state[2, 0] if self.state_dim >= 3 else 0
+        position = self.state[:2, 0]
+
+        start_angle = direction - self.fov / 2
+        end_angle = direction + self.fov / 2
+
+        start_degree = 180 * start_angle / pi
+        end_degree = 180 * end_angle / pi
+
+        fov_wedge = Wedge(position, self.fov_radius, start_degree, end_degree, 
+                  facecolor=fov_color, alpha=0.5, edgecolor=fov_edge_color)
+        
+        ax.add_patch(fov_wedge)
+
+        self.plot_patch_list.append(fov_wedge)
+
 
     def plot_uncertainty(self, ax, **kwargs):
         '''
@@ -1024,6 +1156,10 @@ class ObjectBase:
         return self._state
 
     @property
+    def velocity(self):
+        return self._velocity
+
+    @property
     def goal(self):
         return self._goal
 
@@ -1066,6 +1202,19 @@ class ObjectBase:
     @property
     def vertices(self):
         return self.gf.vertices
+
+    @property
+    def external_objects(self):
+
+        '''
+        The environment objects that are not the self object.
+        '''
+
+        return [obj for obj in env_param.objects if self.id != obj.id]
+
+    @property
+    def ego_object(self):
+        return self
 
     @property
     def desired_omni_vel(self, goal_threshold=0.1):
@@ -1149,7 +1298,9 @@ class ObjectBase:
         elif self.kinematics == "diff" or self.kinematics == "acker":
             return diff_to_omni(self.state[2, 0], self._velocity)
         else:
-            raise ValueError("kinematics not implemented")
+            # raise ValueError("kinematics not implemented")
+            print("kinematics not implemented")
+            return np.zeros((2, 1))
 
     @property
     def beh_config(self):

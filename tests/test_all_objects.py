@@ -98,6 +98,17 @@ def test_all_objects():
         
     env8.end()
 
+    env9 = irsim.make('test_fov_world.yaml', save_ani=False, display=False)
+
+    for i in range(10):
+        for obs in env9.obstacle_list:
+            if obs.fov_detect_object(env9.robot):
+                pass
+            
+        env9.step()
+        env9.render(0.01)
+    env9.end()
+
     plt.close('all')
 
 if __name__ == "__main__":
