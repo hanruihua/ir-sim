@@ -484,7 +484,7 @@ class EnvBase:
 
         return self.robot_list[id].get_lidar_offset()
 
-    def get_obstacle_list(self):
+    def get_obstacle_info_list(self):
         """
         Get the information of the obstacles in the environment.
 
