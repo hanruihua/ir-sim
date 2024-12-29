@@ -1,3 +1,10 @@
+## ir-sim 2.3.1
+
+- Add FOV for the object (doc require)
+- Add Arguments for function WrapToPi
+- Add the role selection for the rvo behavior (doc require)
+
+
 ## ir-sim 2.3.0
 
 **Major Version Update:** 
