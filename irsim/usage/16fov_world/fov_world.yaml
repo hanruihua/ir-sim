@@ -13,11 +13,12 @@ robot:
     shape: {name: 'circle', radius: 0.4}
     state: [5, 5, 0, 0]
     goal: [40, 40, 0]
+    goal_threshold: 0.4
     vel_max: [3, 1]
     vel_min: [-3, -1]
-    behavior: {name: 'dash'} # move toward to the goal directly
+    behavior: {name: 'dash', wander: True, range_low: [15, 15, -3.14], range_high: [35, 35, 3.14]} 
     plot:
-        show_goal: False
+        show_goal: True
         show_trajectory: True
 
 obstacle:
