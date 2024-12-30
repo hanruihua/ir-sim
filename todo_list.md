@@ -66,3 +66,4 @@
 - [ ] Demonstrations in readme
 - [ ] robotics arm support
 - [ ] assign robot goals by mouse click
+- [ ] Add wrapper for ORCA algorithm
