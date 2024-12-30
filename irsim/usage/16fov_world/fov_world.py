@@ -5,7 +5,7 @@ env = irsim.make(save_ani=False)
 for i in range(3000):
 
     env.step()
-    # env.robot.set_state([0.5*i, 0.5*i, i])       
+    # env.robot.set_state([x, y, theta])       
     
     for obs in env.obstacle_list:
         if obs.fov_detect_object(env.robot):
