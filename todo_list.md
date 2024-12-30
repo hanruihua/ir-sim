@@ -60,9 +60,9 @@
 - [ ] Provide polygon shape robot
 - [ ] develop a lib for configuration of the shape, refer to rviz marker
 - [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. ( Maze generator)
-- [ ] Make the dependency of the package optional
+- [x] Make the dependency of the package optional
 - [ ] 3D rigid body
-- [ ] Documentation
+- [x] Documentation
 - [ ] robotics arm support
 - [ ] assign robot goals by mouse click
 - [ ] Add wrapper for ORCA algorithm
