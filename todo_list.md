@@ -67,3 +67,4 @@
 - [ ] assign robot goals by mouse click
 - [ ] Add wrapper for ORCA algorithm
 - [ ] Reorganize the structure of the readme demonstration
+- [ ] argument type hint
