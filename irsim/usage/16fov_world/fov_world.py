@@ -1,8 +1,13 @@
 import irsim
+from irsim.global_param.path_param import path_manager
 
-env = irsim.make(save_ani=False)
+path_manager.ani_path = path_manager.root_path + '/usage/16fov_world/test_123'
+path_manager.ani_buffer_path = path_manager.root_path + '/usage/16fov_world/test_123_buffer'
+full_path = path_manager.root_path + '/usage/16fov_world/fov_world.yaml'
 
-for i in range(3000):
+env = irsim.make(full_path, save_ani=True)
+
+for i in range(10):
 
     env.step()
     # env.robot.set_state([x, y, theta])       
@@ -14,7 +19,7 @@ for i in range(3000):
 
     env.render()
 
-    # if env.done():
-    #     break
+    if env.done():
+        break
 
 env.end()
