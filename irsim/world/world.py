@@ -3,7 +3,7 @@ from irsim.global_param import world_param
 import numpy as np
 import matplotlib.image as mpimg
 from typing import Optional
-
+import os
 
 class World:
     """
@@ -50,7 +50,8 @@ class World:
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
         """
-        self.name = name.split('.')[0]
+        
+        self.name = os.path.basename(name).split('.')[0]
         self.height = height
         self.width = width
         self.step_time = step_time

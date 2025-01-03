@@ -669,6 +669,37 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
+    def set_goal(self, goal=[10, 10, 0]):
+        '''
+        Set the goal of the object.
+
+        Args:
+            goal: The goal of the object [x, y, theta].
+        '''
+        if isinstance(goal, list):
+            if len(goal) > self.state_dim:
+                temp_goal = np.c_[goal[: self.state_dim]]
+            elif len(goal) < self.state_dim:
+                temp_goal = np.c_[goal + [0] * (self.state_dim - len(goal))]
+            else:
+                temp_goal = np.c_[goal]
+        
+        elif isinstance(goal, np.ndarray):
+            if goal.shape[0] > self.state_dim:
+                temp_goal = goal[: self.state_dim]
+            elif goal.shape[0] < self.state_dim:
+                temp_goal = np.r_[
+                    goal, np.zeros((self.state_dim - goal.shape[0], goal.shape[1]))
+                ]
+            else:
+                temp_goal = goal
+
+        assert self._goal.shape == temp_goal.shape
+
+        self._goal = temp_goal.copy()
+        
+
+
     def geometry_state_transition(self):
         pass
 

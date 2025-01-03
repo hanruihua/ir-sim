@@ -82,7 +82,7 @@ def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices)
     angle_steps = random_angle_steps(num_vertices, irregularity)
 
     points = []
-    angle = random.uniform(0, 2 * math.pi)
+    angle = np.random.uniform(0, 2 * math.pi)
     for i in range(num_vertices):
         radius = clip(random.gauss(avg_radius, spikeyness), 0, 2 * avg_radius)
         point = (
@@ -113,7 +113,7 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
     upper = (2 * math.pi / steps) + irregularity
     cumsum = 0
     for i in range(steps):
-        angle = random.uniform(lower, upper)
+        angle = np.random.uniform(lower, upper)
         angles.append(angle)
         cumsum += angle
 

@@ -25,9 +25,11 @@ from tabulate import tabulate
 
 try:
     from pynput import keyboard
+
     keyboard_module = True
 except ImportError:
     keyboard_module = False
+
 
 class EnvBase:
     """
@@ -118,7 +120,7 @@ class EnvBase:
     def __str__(self):
         return f"Environment: {self._world.name}"
 
-    def step(self, action=None, action_id=0):
+    def step(self, action: Optional[np.ndarray] = None, action_id=0):
         """
         Perform a simulation step in the environment.
 
@@ -142,16 +144,16 @@ class EnvBase:
 
         self._world.step()
 
-    def _objects_step(self, action=None):
+    def _objects_step(self, action: Optional[list] =None):
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
-    def _object_step(self, action, obj_id=0):
+    def _object_step(self, action: np.ndarray, obj_id: int = 0):
         self.objects[obj_id].step(action)
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     # render
-    def render(self, interval=0.05, figure_kwargs=dict(), **kwargs):
+    def render(self, interval: float =0.05, figure_kwargs=dict(), **kwargs):
         """
         Render the environment.
 
@@ -282,7 +284,7 @@ class EnvBase:
             ["r", "reset the environment"],
         ]
         # headers = ["key", "function"]
-        
+
         headers = ["Key", "Function"]
         # Generate the table using tabulate
         table = tabulate(commands, headers=headers, tablefmt="grid")
