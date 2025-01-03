@@ -1,8 +1,9 @@
 ## ir-sim 2.3.1
 
-- Add FOV for the object (doc require)
+- Add FOV for the object (doc require), see usage 16fov_world for detail
 - Add Arguments for function WrapToPi
 - Add the role selection for the rvo behavior (doc require)
+- Update Documentation (Fov, noise world, path manager)
 - Fix some bugs
 
 ## ir-sim 2.3.0
