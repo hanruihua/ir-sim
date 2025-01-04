@@ -2,13 +2,13 @@
 
 **Major Version Update:** 
 
-- Public the documentation for the project.
-- Add the coverage test for the project.
-- Reformulate the kinematics handler and geometry handler to configure the robot and obstacles.
-- Reorganize the lidar2d step function to make it faster.
+- Publish the documentation for the project.
+- Add coverage tests for the project.
+- Refactor the kinematics handler and geometry handler to configure the robot and obstacles.
+- Reorganize the lidar2d step function to improve its performance.
 - Update the comments for the functions.
 - Fix some bugs in the project.
-- Add 3d plot environment.
+- Add a 3D plotting environment.
 
 ## ir-sim 2.2.6
 
