@@ -98,7 +98,7 @@ class geometry_handler(ABC):
             x = self.geometry.xy[0]
             y = self.geometry.xy[1]
             return np.c_[x, y].T
-        return self.geometry.exterior.coords._coords.T
+        return self.geometry.exterior.coords._coords.T[:, :-1]
 
     @property
     def init_vertices(self):
@@ -106,7 +106,7 @@ class geometry_handler(ABC):
             x = self._init_geometry.xy[0]
             y = self._init_geometry.xy[1]
             return np.c_[x, y].T
-        return self._init_geometry.exterior.coords._coords.T
+        return self._init_geometry.exterior.coords._coords.T[:, :-1]
     
     @property
     def radius(self):
