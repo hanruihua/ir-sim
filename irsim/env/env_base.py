@@ -201,12 +201,13 @@ class EnvBase:
 
         Args:
             points (list): List of points (2*1) to be drawn.
+                or (np.array): (2, Num) to be drawn.
             s (int): Size of the points.
             c (str): Color of the points.
             refresh (bool): Flag to refresh the points in the figure.
             **kwargs: Additional keyword arguments for drawing the points, see `ax.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_ function for detail.
         """
-
+        
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
     def draw_box(self, vertex, refresh=True, color="-b"):

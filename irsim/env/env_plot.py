@@ -39,6 +39,7 @@ class EnvPlot:
         saved_ani=dict(),
         dpi: int = 100,
         figure_pixels: list =[1920, 1080],
+        
         **kwargs,
     ) -> None:
         """
@@ -205,25 +206,36 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(line)
 
-    def draw_points(self, point_list, s=10, c="m", refresh=True, **kwargs):
+    def draw_points(self, points, s=10, c="m", refresh=True, **kwargs):
         """
         Draw points on the plot.
 
         Args:
-            point_list (list): List of points, each point as [x, y].
+            points (list): List of points, each point as [x, y] or (2, 1) array
+                or (np.array): points array: (2, N), NL number of points
             s (int): Size of the points.
             c (str): Color of the points.
             refresh (bool): Whether to refresh the plot.
             kwargs: Additional plotting options.
         """
-        if point_list is not None:
-            x_coordinates = [point[0] for point in point_list]
-            y_coordinates = [point[1] for point in point_list]
 
-            points = self.ax.scatter(x_coordinates, y_coordinates, s, c, **kwargs)
+        if isinstance(points, list):
+            x_coordinates = [point[0] for point in points]
+            y_coordinates = [point[1] for point in points]
 
-            if refresh:
-                self.dyna_point_list.append(points)
+        elif isinstance(points, np.ndarray):
+
+            if points.shape[1] > 1:
+                x_coordinates = [point[0] for point in points.T]
+                y_coordinates = [point[1] for point in points.T]
+            else:
+                x_coordinates = points[0]
+                y_coordinates = points[1]
+
+        points_plot = self.ax.scatter(x_coordinates, y_coordinates, s, c, **kwargs)
+
+        if refresh:
+            self.dyna_point_list.append(points_plot)
 
     def draw_box(self, vertices, refresh=False, color="b-"):
         """
