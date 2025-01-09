@@ -34,6 +34,7 @@ class World:
         collision_mode: str = "stop",
         obstacle_map=None,
         mdownsample: int = 1,
+        **kwargs
     ) -> None:
         """
         Initialize the world object.
