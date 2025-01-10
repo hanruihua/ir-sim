@@ -70,3 +70,4 @@
 - [ ] argument type hint
 - [ ] Doc Noise world
 - [ ] Doc path manager and change the path
+- [ ] Use scipy convex hull to generate G and h
