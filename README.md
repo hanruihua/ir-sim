@@ -25,7 +25,7 @@ It provides the following features:
 - **Easy Configuration with YAML:** Easily set up and modify simulation scenarios using straightforward YAML files, no complex coding required for quick and flexible environment customization.
 - **Real-Time Visualization:** Visualize simulation outcomes in real time for immediate feedback and analysis.
 - **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
-- **Ideal for Algorithm Development:** Perfect for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
+- **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
 
 |                                           Robot                                           |                                           Car                                           |
 | :---------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------: |
