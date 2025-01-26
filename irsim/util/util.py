@@ -458,7 +458,7 @@ def is_convex_and_ordered(points):
     return True, "CCW" if direction > 0 else "CW"
 
 
-def gen_inequal_from_vertex(vertex):
+def gen_inequal_from_vertex(vertex: np.ndarray):
     """
     Generate inequality constraints for a convex polygon.
 
