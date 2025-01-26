@@ -6,7 +6,7 @@ User Guide
 
    make_environment
    configure_robots_obstacles
-   configure_lidar2d
+   configure_sensor
    configure_behavior
    configure_grid_map
    configure_keyboard_control
