@@ -44,11 +44,11 @@ robot:
 
 ### Important Parameters Explained
 
-- **`kinematics`:** Defines the movement model of the robot. Options include `'omni'`, `'diff'`, and `'acker'`. 
+- **`kinematics`:** Defines the movement model of the robot. Name options include `'omni'`, `'diff'`, and `'acker'`. 
   - `'omni'`: Omnidirectional wheels allowing movement in all directions.
   - `'diff'`: Differential drive allowing movement forward/backward and rotation.
   - `'acker'`: Ackermann steering, typical for car-like robots.
-- **`shape`:** Specifies the physical shape and size of the robot. Options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`.
+- **`shape`:** Specifies the physical shape and size of the robot. Name options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`.
     - `circle`: A circular robot with a specified radius.
     - `rectangle`: A rectangular robot with specified length and width.
     - `polygon`: A polygonal robot.
@@ -70,6 +70,10 @@ The robot has a default behavior of moving from its initial position to the goal
 
 :::{Note}
 The [rda_planner](https://github.com/hanruihua/RDA-planner) is a case of using the `env.step(velocity)` to run your own control algorithm.
+:::
+
+:::{Note}
+You can add Gaussian noise on the kinematics of the robot and obstacle by setting the `noise` to be True in parameter in the `kinematics` dictionary. See [kinematics](#../yaml_config/configuration/kinematics) for more details.
 :::
 
 ## Obstacle Configuration Parameters
