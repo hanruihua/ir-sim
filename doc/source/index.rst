@@ -6,13 +6,15 @@
 Welcome to IR-SIM's documentation!
 ==================================
 
-**Intelligent Robotics Simulation (IR-SIM)** is a Python based lightweight robotics simulator that provides a quite simple and easy-to-use interface for simulating various robot behaviors. The simulator is designed for research and educational purposes in the field of robotics. 
+**IR-SIM** is an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
 
 It provides the following features:
-  - A versatile and easy-to-use framework for simulating a variety of robot platforms with kinematics and sensors. 
-  - Customizable configurations and parameters using yaml files.
-  - Real-time visualization of simulation outcomes.
-  - Ideal for developing and testing algorithms related to robot navigation, motion planning, reinforcement learning.
+
+- **Versatile and User-Friendly Framework:** Simulate a wide range of robot platforms with diverse kinematics and sensors.
+- **Easy Configuration with YAML:** Easily set up and modify simulation scenarios using straightforward YAML files, no complex coding required for quick and flexible environment customization.
+- **Real-Time Visualization:** Visualize simulation outcomes in real time for immediate feedback and analysis.
+- **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
+- **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
 
 The simple demonstrations of the simulator are shown below:
 
@@ -22,6 +24,14 @@ The simple demonstrations of the simulator are shown below:
 
 
 .. image:: https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06
+  :width: 49%
+  :alt: Alternative text
+
+.. image:: https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc
+  :width: 49%
+  :alt: Alternative text
+
+.. image:: https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223
   :width: 49%
   :alt: Alternative text
 
