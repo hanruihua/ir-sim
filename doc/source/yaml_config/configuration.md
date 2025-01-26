@@ -155,6 +155,9 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `plot`           | `dict`            | `{}`             | Plotting options for object visualization.                                               |
 | `state_dim`      | `int`             | `None`           | Dimension of the state vector.                                                           |
 | `vel_dim`        | `int`             | `None`           | Dimension of the velocity vector.                                                        |
+| `fov`            | `float`           | `None`           | Field of view angles in radians for the object's sensors.                                |
+| `fov_radius`     | `float`           | `None`           | Field of view radius for the object's sensors.                                           |  
+
 
 
 ### Detailed Description of robot and obstacle Parameters
@@ -338,6 +341,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   Configures the movement behavior of the object. Behaviors can be simple or complex and may include additional parameters. Supported behavior names:
   - `'dash'`: Moves directly toward the goal at maximum allowable speed.
     - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
+    - `target_roles` (str): Only the objects with the target role will be applied to the behavior. Default is `all`. Currently, you can set the target role as `robot` or `obstacle`.
     - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
     - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
     - `angle_tolerance` (float): Tolerance for orientation alignment with `diff` and `acker` kinematics. Default is `0.1`. 
@@ -349,6 +353,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   - `'rvo'`: Implements Reciprocal Velocity Obstacles for collision avoidance among multiple moving objects. Support kinematics are `diff` and `omni`.
     - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
+    - `target_roles` (str): Only the objects with the target role will be applied to the behavior. Default is `all`. Currently, you can set the target role as `robot` or `obstacle`.
     - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
     - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
     - `vxmax` (float): Maximum linear velocity in x axis. Default is `1.5`.
@@ -487,6 +492,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `trail_color` (str): Color of the trail. Default is the object's color.
     - `trail_freq` (int): Frequency of trail updates. Default is `2`.
   - `show_sensor` (bool): Display the sensor in the visualization. Default is `True`.
+  - `show_fov` (bool): Display the field of view of the sensor. Default is `False`.
   - `goal_color` (str): Color of the goal marker. Default is the object's color.
 
   **Example:**
@@ -499,6 +505,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     arrow_width: 0.6
     arrow_color: 'gold'
     show_trajectory: True
+    show_fov: True
     traj_color: 'blue'
     traj_style: '-'
     traj_width: 0.6
@@ -523,6 +530,15 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   state_dim: 3
   vel_dim: 2
+  ```
+
+#### **`fov`** and **`fov_radius`**:
+  Define the field of view (FOV) for the object's sensors. The FOV is the angular range within which the sensor can detect objects. The `fov` parameter specifies the angular range in radians, while `fov_radius` sets the maximum detection distance.
+
+  **Example:**
+  ```yaml
+  fov: 1.57
+  fov_radius: 5.0
   ```
 
 ### Example Object Configurations
