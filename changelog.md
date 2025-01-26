@@ -2,9 +2,8 @@
 
 - Update relevant documentation.
 - Fix some bugs
-
 - New Features:
-  - Add FOV for the object, see usage 16fov_world for detail.
+  - Add FOV for the object, see usage 15fov_world for detail.
   - Add arguments for function WrapToPi.
   - Add the role selection for the behaviors.
 
