@@ -43,6 +43,9 @@ class EnvPlot3D(EnvPlot):
             kwargs: Additional plotting options.
         """
 
+        if points is None:
+            return
+
         if isinstance(points, list):
             x_coordinates = [point[0] for point in points]
             y_coordinates = [point[1] for point in points]
