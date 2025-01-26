@@ -25,7 +25,7 @@ from irsim.util.util import (
     relative_position,
     diff_to_omni,
     random_point_range,
-    WrapToPi
+    WrapToPi,
 )
 
 
@@ -158,6 +158,9 @@ class ObjectBase:
         role (str): Role of the object (e.g., "robot", "obstacle").
         info (ObjectInfo): Information container for the object.
         wheelbase (float): Distance between the front and rear wheels. Specified for ackermann robots.
+        fov (float): Field of view angles in radians.
+        fov_radius (float): Field of view radius.
+
     """
 
     id_iter = itertools.count()
@@ -166,29 +169,29 @@ class ObjectBase:
 
     def __init__(
         self,
-        shape=None,
-        kinematics=None,
-        state=[0, 0, 0],
-        velocity=[0, 0],
-        goal=[10, 10, 0],
+        shape: Optional[dict] = None,
+        kinematics: Optional[dict] = None,
+        state: list = [0, 0, 0],
+        velocity: list = [0, 0],
+        goal: list = [10, 10, 0],
         role: str = "obstacle",
-        color="k",
-        static=False,
-        vel_min=[-1, -1],
-        vel_max=[1, 1],
-        acce=[inf, inf],
-        angle_range=[-pi, pi],
-        behavior={'name':'dash'},
-        goal_threshold=0.1,
-        sensors=None,
-        arrive_mode="position",
-        description=None,
-        group=0,
-        state_dim=None,
-        vel_dim=None,
-        unobstructed=False,
-        fov=None,
-        fov_radius=None,
+        color: str = "k",
+        static: bool = False,
+        vel_min: list = [-1, -1],
+        vel_max: list = [1, 1],
+        acce: list = [inf, inf],
+        angle_range: list = [-pi, pi],
+        behavior: dict = {"name": "dash"},
+        goal_threshold: float = 0.1,
+        sensors: Optional[dict] = None,
+        arrive_mode: str = "position",
+        description: str = None,
+        group: int = 0,
+        state_dim: int = None,
+        vel_dim: int = None,
+        unobstructed: bool = False,
+        fov: float = None,
+        fov_radius: float = None,
         **kwargs,
     ) -> None:
         """
@@ -205,7 +208,9 @@ class ObjectBase:
             GeometryFactory.create_geometry(**shape) if shape is not None else None
         )
         self.kf = (
-            KinematicsFactory.create_kinematics(wheelbase=self.wheelbase, role=role, **kinematics)
+            KinematicsFactory.create_kinematics(
+                wheelbase=self.wheelbase, role=role, **kinematics
+            )
             if kinematics is not None
             else None
         )
@@ -327,7 +332,7 @@ class ObjectBase:
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
-    def step(self, velocity=None, **kwargs):
+    def step(self, velocity: Optional[np.ndarray] = None, **kwargs: any):
         """
         Perform a simulation step, updating the object's state.
 
@@ -417,7 +422,9 @@ class ObjectBase:
                     self.collision_obj.append(obj)
                     if self.role == "robot":
                         if not self.collision_flag:
-                            env_param.logger.warning(f'{self.name} is collided with {obj.name} at state {list(np.round(self.state[:2, 0], 2))}')
+                            env_param.logger.warning(
+                                f"{self.name} is collided with {obj.name} at state {list(np.round(self.state[:2, 0], 2))}"
+                            )
 
         self.collision_flag = any(collision_flags)
 
@@ -467,7 +474,9 @@ class ObjectBase:
                     self._goal = random_point_range(self.rl, self.rh)
                     self.arrive_flag = False
 
-                behavior_vel = self.obj_behavior.gen_vel(self.ego_object, self.external_objects)
+                behavior_vel = self.obj_behavior.gen_vel(
+                    self.ego_object, self.external_objects
+                )
 
         else:
             if isinstance(velocity, list):
@@ -539,48 +548,45 @@ class ObjectBase:
         return self.gf.G, self.gf.h
 
     def get_fov_detected_objects(self):
-
-        '''
+        """
         Detect the env objects that in the field of view.
 
 
         Returns:
             list: The objects that in the field of view of the object.
-        '''
+        """
 
         return [obj for obj in self.external_objects if self.fov_detect_object(obj)]
 
-
-    def fov_detect_object(self, detected_object):
-
-        '''
-        Detect the object that in the field of view.
+    def fov_detect_object(self, detected_object: "ObjectBase"):
+        """
+        Detect whether the input object is in the field of view.
 
         Args:
-            object: The object to be detected.
+            object: The object that to be detected.
 
         Returns:
             bool: Whether the object is in the field of view.
-        '''
-        
+        """
+
         rx, ry = self.state[:2, 0]
         px, py = detected_object.state[:2, 0]
         radius_do = detected_object.radius
-        
+
         dx = px - rx
         dy = py - ry
 
         rad_to_do = WrapToPi(math.atan2(dy, dx))
-        object_orientation = self.state[2, 0] 
-        
+        object_orientation = self.state[2, 0]
+
         rad_diff = WrapToPi(rad_to_do - object_orientation, True)
         distance_do = math.hypot(dx, dy)
-    
+
         if distance_do == 0:
-            rad_offset = pi/2  
+            rad_offset = pi / 2
         else:
             rad_offset = WrapToPi(math.asin(min(radius_do / distance_do, 1)))
-        
+
         fov_diff = abs(rad_diff - rad_offset)
 
         if fov_diff <= (self.fov / 2) and (distance_do - radius_do) <= self.fov_radius:
@@ -588,8 +594,7 @@ class ObjectBase:
         else:
             return False
 
-
-    def set_state(self, state=[0, 0, 0], init=False):
+    def set_state(self, state: list=[0, 0, 0], init: bool=False):
         """
         Set the state of the object.
 
@@ -623,15 +628,14 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
-    def set_velocity(self, velocity=[0, 0], init=False):
-
-        '''
+    def set_velocity(self, velocity: list=[0, 0], init: bool=False):
+        """
         Set the velocity of the object.
-        
+
         Args:
             velocity: The velocity of the object. Depending on the kinematics model.
             init (bool): Whether to set the initial velocity (default False).
-        '''
+        """
 
         if isinstance(velocity, list):
             if len(velocity) > self.vel_dim:
@@ -659,7 +663,6 @@ class ObjectBase:
 
         self._velocity = temp_velocity.copy()
 
-
     def set_init_geometry(self, geometry):
         """
         Set the initial geometry of the object.
@@ -670,12 +673,12 @@ class ObjectBase:
         self._init_geometry = geometry
 
     def set_goal(self, goal=[10, 10, 0]):
-        '''
+        """
         Set the goal of the object.
 
         Args:
             goal: The goal of the object [x, y, theta].
-        '''
+        """
         if isinstance(goal, list):
             if len(goal) > self.state_dim:
                 temp_goal = np.c_[goal[: self.state_dim]]
@@ -683,7 +686,7 @@ class ObjectBase:
                 temp_goal = np.c_[goal + [0] * (self.state_dim - len(goal))]
             else:
                 temp_goal = np.c_[goal]
-        
+
         elif isinstance(goal, np.ndarray):
             if goal.shape[0] > self.state_dim:
                 temp_goal = goal[: self.state_dim]
@@ -697,8 +700,6 @@ class ObjectBase:
         assert self._goal.shape == temp_goal.shape
 
         self._goal = temp_goal.copy()
-        
-
 
     def geometry_state_transition(self):
         pass
@@ -722,15 +723,14 @@ class ObjectBase:
             return state
 
     def plot(self, ax, **kwargs):
-
         """
         Plot the object on a given axis.
 
         Args:
             ax: Matplotlib axis.
             kwargs:
-                - show_goal (bool): Whether show the goal position.  
-                - show_text (bool): Whether show text information. To be completed.  
+                - show_goal (bool): Whether show the goal position.
+                - show_text (bool): Whether show text information. To be completed.
                 - show_arrow (bool): Whether show the velocity arrow.
                 - show_uncertainty (bool): Whether show the uncertainty. To be completed.
                 - show_trajectory (bool): Whether show the trajectory.
@@ -935,12 +935,14 @@ class ObjectBase:
         self.plot_patch_list.append(goal_circle)
 
     def plot_text(self, ax, **kwargs):
-        '''
+        """
         To be completed.
-        '''
+        """
         pass
 
-    def plot_arrow(self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color='gold', **kwargs):
+    def plot_arrow(
+        self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color="gold", **kwargs
+    ):
         """
         Plot an arrow indicating the velocity orientation of the object.
 
@@ -953,7 +955,11 @@ class ObjectBase:
         x = self.state_re[0][0]
         y = self.state_re[1][0]
 
-        theta = atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0]) if self.kinematics == "omni" else self.state_re[2][0]
+        theta = (
+            atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
+            if self.kinematics == "omni"
+            else self.state_re[2][0]
+        )
 
         arrow = mpl.patches.Arrow(
             x,
@@ -1026,20 +1032,19 @@ class ObjectBase:
             ax.add_patch(car_circle)
 
     def plot_fov(self, ax, **kwargs):
-
-        '''
+        """
         Plot the field of view of the object.
-        
+
         Args:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
                 fov_color (str): Color of the field of view. Default is 'lightblue'.
                 fov_edge_color (str): Edge color of the field of view. Default is 'blue'.
-        '''
+        """
 
         fov_color = kwargs.get("fov_color", "lightblue")
         fov_edge_color = kwargs.get("fov_edge_color", "blue")
-        
+
         direction = self.state[2, 0] if self.state_dim >= 3 else 0
         position = self.state[:2, 0]
 
@@ -1049,18 +1054,24 @@ class ObjectBase:
         start_degree = 180 * start_angle / pi
         end_degree = 180 * end_angle / pi
 
-        fov_wedge = Wedge(position, self.fov_radius, start_degree, end_degree, 
-                  facecolor=fov_color, alpha=0.5, edgecolor=fov_edge_color)
-        
+        fov_wedge = Wedge(
+            position,
+            self.fov_radius,
+            start_degree,
+            end_degree,
+            facecolor=fov_color,
+            alpha=0.5,
+            edgecolor=fov_edge_color,
+        )
+
         ax.add_patch(fov_wedge)
 
         self.plot_patch_list.append(fov_wedge)
 
-
     def plot_uncertainty(self, ax, **kwargs):
-        '''
+        """
         To be completed.
-        '''
+        """
         pass
 
     def plot_clear(self):
@@ -1236,10 +1247,9 @@ class ObjectBase:
 
     @property
     def external_objects(self):
-
-        '''
+        """
         The environment objects that are not the self object.
-        '''
+        """
 
         return [obj for obj in env_param.objects if self.id != obj.id]
 
@@ -1337,4 +1347,3 @@ class ObjectBase:
     def beh_config(self):
         # behavior config dictory
         return self.obj_behavior.behavior_dict
-    

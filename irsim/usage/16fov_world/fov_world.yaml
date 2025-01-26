@@ -11,8 +11,8 @@ world:
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker
     shape: {name: 'circle', radius: 0.4}
-    state: [5, 5, 0, 0]
-    goal: [40, 40, 0]
+    state: [10, 10, 0, 0]
+    goal: [45, 45, 0]
     goal_threshold: 0.4
     vel_max: [3, 1]
     vel_min: [-3, -1]
