@@ -71,3 +71,6 @@
 - [ ] Doc Noise world
 - [ ] Doc path manager and change the path
 - [ ] Use scipy convex hull to generate G and h
+- [ ] Analyze the performance (jerks, acceleration, etc.)
+- [ ] Interface with ROS
+- [ ] Interface with Pybullet or Gazebo
