@@ -663,7 +663,7 @@ class ObjectBase:
 
         self._velocity = temp_velocity.copy()
 
-    def set_init_geometry(self, geometry):
+    def set_init_geometry(self, geometry: shapely.geometry.base.BaseGeometry):
         """
         Set the initial geometry of the object.
 
@@ -672,7 +672,7 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def set_goal(self, goal=[10, 10, 0]):
+    def set_goal(self, goal: list=[10, 10, 0]):
         """
         Set the goal of the object.
 
@@ -704,7 +704,7 @@ class ObjectBase:
     def geometry_state_transition(self):
         pass
 
-    def input_state_check(self, state, dim=3):
+    def input_state_check(self, state: np.ndarray, dim: int=3):
         """
         Check and adjust the state to match the desired dimension.
 
