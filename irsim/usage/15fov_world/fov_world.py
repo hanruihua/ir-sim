@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make(save_ani=False)
+env = irsim.make(save_ani=True)
 
 for i in range(200):
 
@@ -10,9 +10,9 @@ for i in range(200):
         if obs.fov_detect_object(env.robot):
             print(f'The robot is in the FOV of the {obs.name}. The parameters of this obstacle are: state [x, y, theta]: {obs.state.flatten()}, velocity [linear, angular]: {obs.velocity.flatten()}, fov in radian: {obs.fov}.')
 
-    env.render()
+    env.render(figure_kwargs={'dpi': 100})
 
-    if env.done():
-        break
+    # if env.done():
+    #     break
 
 env.end()
