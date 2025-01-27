@@ -66,9 +66,9 @@
 - [ ] robotics arm support
 - [ ] assign robot goals by mouse click
 - [ ] Add wrapper for ORCA algorithm
-- [ ] Reorganize the structure of the readme demonstration
+- [x] Reorganize the structure of the readme demonstration
 - [ ] argument type hint
-- [ ] Doc Noise world
+- [x] Doc Noise world
 - [ ] Doc path manager and change the path
 - [ ] Use scipy convex hull to generate G and h
 - [ ] Analyze the performance (jerks, acceleration, etc.)
