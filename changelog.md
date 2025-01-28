@@ -1,3 +1,7 @@
+## ir-sim 2.3.2
+
+ir-sim 2.3.2 is a bug fix release with no new features compared to 2.3.1.
+
 ## ir-sim 2.3.1
 
 - Update relevant documentation.
