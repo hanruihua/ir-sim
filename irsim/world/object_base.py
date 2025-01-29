@@ -244,7 +244,7 @@ class ObjectBase:
         self.unobstructed = unobstructed
 
         # information
-        self.static = static
+        self.static = static if self.kf is not None else True
         self.vel_min = np.c_[vel_min]
         self.vel_max = np.c_[vel_max]
         self.color = color
@@ -344,7 +344,7 @@ class ObjectBase:
             np.ndarray: The new state of the object.
         """
 
-        if self.static or self.stop_flag or self.kf is None:
+        if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
             return self.state
         else:
@@ -1339,8 +1339,6 @@ class ObjectBase:
         elif self.kinematics == "diff" or self.kinematics == "acker":
             return diff_to_omni(self.state[2, 0], self._velocity)
         else:
-            # raise ValueError("kinematics not implemented")
-            print("kinematics not implemented")
             return np.zeros((2, 1))
 
     @property
