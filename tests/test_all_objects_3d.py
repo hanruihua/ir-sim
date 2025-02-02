@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 plt.close('all')
 
+
 @time_it("test_all_objects")
 def test_all_objects():
-
     env1 = irsim.make("test_collision_avoidance.yaml", save_ani=False, full=False, display=False, projection='3d')
 
     for i in range(50):
@@ -16,12 +16,12 @@ def test_all_objects():
         env1.render(0.01)
 
         env1.draw_trajectory(env1.robot.trajectory, show_direction=True)
-        
+
         if env1.done():
             print('done')
 
     env1.end()
-    
+
     env2 = irsim.make('test_all_objects.yaml', display=False, projection='3d')
 
     env2.random_polygon_shape()
@@ -95,10 +95,20 @@ def test_all_objects():
     for i in range(10):
         env8.step()
         env8.render(0.01)
-        
+
     env8.end()
 
+    env9 = irsim.make('test_multi_objects_world.yaml', save_ani=False, display=False, projection='3d')
+
+    env9.random_obstacle_position(ids=[3, 4, 5, 6, 7])
+
+    for i in range(5):
+        env9.step()
+        env9.render(0.01)
+    env9.end()
+
     plt.close('all')
+
 
 if __name__ == "__main__":
     test_all_objects()
