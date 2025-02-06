@@ -106,15 +106,22 @@ robot:
   color: 'g' # green
 ```
 
-
 ### Advanced Usage
 
 The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 ## Academic Cases
 - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
-- [RDA_planner](https://github.com/hanruihua/RDA_planner)（RAL & IROS2023）
+- [RDA_planner](https://github.com/hanruihua/RDA_planner) (RAL & IROS2023)
 
+## Contributing
+
+This project is under development. I appreciate and welcome all contributions. Just open an issue or a pull request.   Here are some simple ways to start contributing:
+
+- Enhance the website documentation, such as the API and tutorials.
+- Add new sensors, behaviors, robot models, and functional interfaces.
+- Add new usage examples and benchmarks.
+- Report bugs and issues.
 
 ## Acknowledgement
 
