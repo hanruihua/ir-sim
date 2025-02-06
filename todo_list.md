@@ -27,7 +27,7 @@
 - [x] robot description 
 - [x] Construct the object base class for the robot and obstacles
 - [ ] All the rotation and translation can be represented by the homogeneous transformation matrix
-- [ ] transfer the function from the previous version
+- [ ] transfer the function from the previous version (agent text)
 - [ ] real robot size (LIMO, BYD)
 - [ ] Using decorator to update
 - [x] code annotation for main class
