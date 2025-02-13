@@ -366,7 +366,7 @@ class EnvBase:
 
     # region: environment change
     def random_obstacle_position(
-        self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids = None
+            self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids=None, non_overlapping=False
     ):
         """
         Random obstacle positions in the environment.
@@ -374,23 +374,33 @@ class EnvBase:
         Args:
             range_low (list [x, y, theta]): Lower bound of the random range for the obstacle states. Default is [0, 0, -3.14].
             range_high (list [x, y, theta]): Upper bound of the random range for the obstacle states. Default is [10, 10, 3.14].
-            ids (list or None): A list of object IDs to randomize, or None to randomize all.
+            ids (list): A list of IDs of objects for which to set random positions. Default is None.
+            non_overlapping (bool): If set, the obstacles that will be reset to random obstacles will not overlap with other obstacles. Default is False.
         """
         if ids is None:
             ids = [obs.id for obs in self.obstacle_list]
-
         if isinstance(range_low, list):
             range_low = np.c_[range_low]
 
         if isinstance(range_high, list):
             range_high = np.c_[range_high]
 
-        random_states = np.random.uniform(
-            range_low, range_high, (3, self.obstacle_number)
-        )
         for i, obj in enumerate(self.obstacle_list):
             if obj.id in ids:
-                obj.set_state(random_states[:, i].reshape(3, 1), init=True)
+                if not non_overlapping:
+                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                else:
+                    ids.pop(ids.index(obj.id))
+                    col = True
+                    counter = 0
+                    while col:
+                        if counter > 1000:
+                            raise ValueError("Could not resolve object positions. Max iterations reached.")
+                        obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                        collisions = [obj.check_collision(obj2) for obj2 in env_param.objects if
+                                      (obj.id != obj2.id and obj2.id not in ids)]
+                        col = bool(sum(collisions))
+                        counter += 1
 
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
