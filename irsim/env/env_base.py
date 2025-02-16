@@ -349,10 +349,10 @@ class EnvBase:
         """
 
         self._reset_all()
-        self.reset_plot()
-        self._world.reset()
         self.step(action=np.zeros((2, 1)))
-
+        self._world.reset()
+        self.reset_plot()
+        
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
 
@@ -363,6 +363,7 @@ class EnvBase:
 
         plt.cla()
         self._env_plot.init_plot(self._world.grid_map, self.objects)
+
 
     # region: environment change
     def random_obstacle_position(
@@ -385,23 +386,25 @@ class EnvBase:
         if isinstance(range_high, list):
             range_high = np.c_[range_high]
 
-        for i, obj in enumerate(self.obstacle_list):
-            if obj.id in ids:
-                if not non_overlapping:
-                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
-                else:
-                    ids.pop(ids.index(obj.id))
-                    col = True
-                    counter = 0
-                    while col:
-                        if counter > 1000:
-                            raise ValueError("Could not resolve object positions. Max iterations reached.")
-                        obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
-                        collisions = [obj.check_collision(obj2) for obj2 in env_param.objects if
-                                      (obj.id != obj2.id and obj2.id not in ids)]
-                        col = bool(sum(collisions))
-                        counter += 1
+        selected_obs = [obs for obs in self.obstacle_list if obs.id in ids]
+        existing_obj = [obj for obj in self.objects if obj.id not in ids]
 
+        for obj in selected_obs:
+
+            if not non_overlapping:
+                obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+            else:
+                counter = 0
+
+                while counter < 100:
+                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+
+                    if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
+                        counter += 1
+                    else:
+                        existing_obj.append(obj)
+                        break
+        
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
 

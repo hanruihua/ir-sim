@@ -91,7 +91,7 @@ class EnvPlot:
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
 
-        self.draw_components("static", objects)
+        self.draw_components("all", objects)
         self.draw_grid_map(grid_map)
 
         if no_axis:
