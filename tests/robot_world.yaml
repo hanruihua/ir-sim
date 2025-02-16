@@ -1,0 +1,46 @@
+world:
+  height: 10  # the height of the world
+  width: 10   # the height of the world
+  step_time: 0.3  # 10Hz calculate each step
+  sample_time: 0.3  # 10 Hz for render and data extraction
+  collision_mode: 'react'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    vel_min: [ 0, -1.0 ]
+    vel_max: [ 1.0, 1.0 ]
+    state: [2, 2, 0, 0]
+    goal: [9, 9, 0]
+    arrive_mode: position
+    goal_threshold: 0.3
+
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 7
+        angle_range: 3.14
+        number: 180
+        noise: True
+        std: 0.08
+        angle_std: 0.1
+        offset: [ 0, 0, 0 ]
+        alpha: 0.3
+
+    plot:
+      show_trajectory: True
+
+obstacle:
+  - number: 5
+    kinematics: {name: 'omni'}
+    distribution: {name: 'random', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
+    behavior: {name: 'rvo', wander: True, range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], vxmax: 0.2, vymax: 0.2, factor: 1.0}
+    vel_max: [0.2, 0.2]
+    vel_min: [-0.2, -0.2]
+    shape:
+      - {name: 'circle', radius: 1.0, random_shape: True}
+      - {name: 'polygon', random_shape: true, avg_radius_range: [0.5, 1.0], irregularity_range: [0, 0.4], spikeyness_range: [0, 0.4], num_vertices_range: [4, 6]}
+
+  - shape: { name: 'linestring', vertices: [ [ 0, 0 ], [ 10, 0 ], [ 10, 10 ], [ 0, 10 ],[ 0, 0 ]  ] }  # vertices
+    kinematics: {name: 'static'}
+    state: [ 0, 0, 0 ]
