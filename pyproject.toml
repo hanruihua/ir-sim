@@ -26,8 +26,6 @@ dependencies = [
     'imageio',
     'loguru',
     'tabulate',
-    "robot-descriptions>=1.14.0",
-    "pinocchio>=0.4.3",
 ]
 
 [project.optional-dependencies]
