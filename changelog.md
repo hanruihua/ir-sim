@@ -1,3 +1,9 @@
+## ir-sim 2.3.3
+-
+- Fix some bugs
+- Features:
+  - random_obstacle_position
+
 ## ir-sim 2.3.2
 
 ir-sim 2.3.2 is a bug fix release with no new features compared to 2.3.1.
