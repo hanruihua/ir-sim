@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'matplotlib',
+    'matplotlib==3.9.0',
     'shapely==2.0.6',
     'numpy',
     'pyyaml',
