@@ -514,7 +514,7 @@ class ObjectBase:
 
     def mid_process(self, state):
         """
-        Process state in the middle of a step.
+        Process state in the middle of a step. Make sure the state is within the desired dimension.
 
         Args:
             state (np.ndarray): State vector.
@@ -526,10 +526,13 @@ class ObjectBase:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
 
         if state.shape[0] < self.state_dim:
-            state = np.r_[
-                state,
-                np.zeros((self.state_dim - state.shape[0], state.shape[1])),
-            ]
+            pad_value = self.state[self.state_dim - 1, 0] if self.state.shape[0] >= self.state_dim else 0
+
+            pad_rows = self.state_dim - state.shape[0]
+            
+            padding = pad_value * np.ones((pad_rows, state.shape[1]))
+            state = np.concatenate((state, padding), axis=0)
+
         elif state.shape[0] > self.state_dim:
             state = state[: self.state_dim]
 
