@@ -372,7 +372,7 @@ class reciprocal_vel_obs:
                 2 * vel[0] - self.state[2] - moving[2],
                 2 * vel[1] - self.state[3] - moving[3],
             ]
-            vel_trans_speed = np.sqrt(vel_trans[0] ** 2 + vel_trans[1] ** 2)
+            vel_trans_speed = np.sqrt(vel_trans[0] ** 2 + vel_trans[1] ** 2) + 1e-7
 
             tc = dis_vel / vel_trans_speed
 
