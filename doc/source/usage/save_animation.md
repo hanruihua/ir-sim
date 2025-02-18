@@ -9,7 +9,7 @@ You can render the environment by calling the [env.render()](#irsim.env.env_base
 - **`figure_kwargs`:** The parameters of the figures. Such as the transparent, bbox_inches, dpi, etc. Default {}. See [savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details.
 - **`kwargs`:** These additional parameters are passed to the all the [object.plot](#irsim.world.object_base.ObjectBase.plot) function for default settings. 
 
-## Save the animation
+## Save the animation as GIF file
 
 You can save the animation of the simulation as a gif file very easily by setting the `save_ani` to `True` in the `make()` function:
 
@@ -40,6 +40,35 @@ Some common parameters for `GIF` format you may use are:
 :::{tip}
 The principle of the animation generation is to save the images of each frame and then combine them into a gif file.
 :::
+
+## Save the animation as a video
+
+You can save the animation of the simulation as a video file such as mp4 file by setting the suffix of the file to `.mp4` in the [env.end()](#irsim.env.env_base.EnvBase.end) function. Please make sure you have the `ffmpeg` installed in your system by `pip install imageio[ffmpeg]`. The example is shown below:
+
+```python 
+
+env = irsim.make(save_ani=True)
+
+for i in range(300):
+
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end(ending_time=3, suffix='.mp4')
+```
+
+:::{tip}
+More `suffix` for the animation file format can be found on [imageio docs](https://imageio.readthedocs.io/en/stable/formats/video_formats.html) 
+:::
+
+
+
+
+
+
 
 ## 3D Plot
 
