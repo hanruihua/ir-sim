@@ -42,7 +42,7 @@ def test_all_objects():
     for i in range(3):
         env3.step()
         env3.render(0.01)
-    env3.end()
+    env3.end(ani_name='test_animation')
 
     env4 = irsim.make('test_collision_world.yaml', save_ani=False, display=False, projection='3d')
 
