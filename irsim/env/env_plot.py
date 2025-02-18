@@ -310,7 +310,9 @@ class EnvPlot:
             kwargs: Additional arguments for saving the animation.
                 See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
-        self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
+        if suffix=='.gif':
+            self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
+            
         self.saved_ani_kwargs.update(kwargs)
 
         env_param.logger.info("Start to create animation")
