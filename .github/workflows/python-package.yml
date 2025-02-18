@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ "main", "dev" ]
 
+# on:
+#   release:
+#     types: [published]
+
 jobs:
   build:
 
