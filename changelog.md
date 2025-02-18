@@ -1,4 +1,4 @@
-## ir-sim 2.3.3
+## ir-sim 2.3.4
 
 - Fix some bugs:
   - omni robot dynamics
