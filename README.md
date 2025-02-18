@@ -38,7 +38,7 @@ It provides the following features:
 
 ## Prerequisite
 
-- Python: >= 3.8
+- Python: >= 3.9
 
 ## Installation
 
