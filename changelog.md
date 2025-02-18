@@ -1,9 +1,14 @@
 ## ir-sim 2.3.3
--
-- Fix some bugs
-- Features:
-  - random_obstacle_position
 
+- Fix some bugs:
+  - omni robot dynamics
+  - rvo zero division
+  - python version compatibility
+
+- New Features:
+  - Update random_obstacle_position function to support selection of obstacles and non-overlapping features.
+  - Support saving the animation as video.
+  
 ## ir-sim 2.3.2
 
 ir-sim 2.3.2 is a bug fix release with no new features compared to 2.3.1.
