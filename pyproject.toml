@@ -12,15 +12,15 @@ authors = [
 ]
 description = "an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'matplotlib==3.9.0',
-    'shapely==2.0.6',
+    'matplotlib<=3.9.0',
+    'shapely>=2.0.6',
     'numpy',
     'pyyaml',
     'imageio',
