@@ -77,3 +77,4 @@
 - [ ] Add more occupancy grid map images
 - [ ] Add ORCA Behavior
 - [ ] unify the G, h and obstacles, object information
+- [ ] organize the test cases
