@@ -5,6 +5,7 @@ import matplotlib.image as mpimg
 from typing import Optional
 import os
 
+
 class World:
     """
     Represents the main simulation environment, managing objects and maps.
@@ -34,7 +35,7 @@ class World:
         collision_mode: str = "stop",
         obstacle_map=None,
         mdownsample: int = 1,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initialize the world object.
@@ -51,8 +52,8 @@ class World:
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
         """
-        
-        self.name = os.path.basename(name).split('.')[0]
+
+        self.name = os.path.basename(name).split(".")[0]
         self.height = height
         self.width = width
         self.step_time = step_time
@@ -102,7 +103,7 @@ class World:
             grid_map = grid_map[::mdownsample, ::mdownsample]
 
             if len(grid_map.shape) > 2:
-                print('convert to grayscale')
+                print("convert to grayscale")
                 grid_map = self.rgb2gray(grid_map)
 
             grid_map = 100 * (1 - grid_map)  # range: 0 - 100
@@ -122,7 +123,6 @@ class World:
             self.reso = np.zeros((2, 1))
 
         return grid_map, obstacle_index, obstacle_positions
-
 
     def reset(self):
         """
@@ -152,6 +152,5 @@ class World:
         """
         return np.max(self.reso)
 
-
     def rgb2gray(self, rgb):
-        return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
+        return np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])

@@ -5,6 +5,7 @@ import numpy as np
 from shapely import ops
 import time
 
+
 def file_check(file_name, root_path=None):
     """
     Check whether a file exists and return its absolute path.
@@ -21,7 +22,7 @@ def file_check(file_name, root_path=None):
     """
     if file_name is None:
         return None
-    
+
     if os.path.exists(file_name):
         abs_file_name = file_name
     elif os.path.exists(sys.path[0] + "/" + file_name):
@@ -40,9 +41,10 @@ def file_check(file_name, root_path=None):
 
     return abs_file_name
 
+
 def WrapToPi(rad, positive=False):
-    '''The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
-    
+    """The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
+
     Args:
 
         rad (float): Angle in radians.
@@ -51,11 +53,11 @@ def WrapToPi(rad, positive=False):
         it around if it exceeds the bounds.
 
         positive (bool): Whether to return the positive value of the angle. Useful for angles difference.
-    
+
     Returns:
         The function `WrapToPi(rad)` returns the angle `rad` wrapped to the range [-pi, pi].
-    
-    '''
+
+    """
     while rad > pi:
         rad = rad - 2 * pi
     while rad < -pi:
@@ -81,9 +83,6 @@ def WrapToRegion(rad, range):
     while rad < range[0]:
         rad = rad + 2 * pi
     return rad
-
-
-
 
 
 def convert_list_length(input_data, number=0):
@@ -410,6 +409,7 @@ def time_it2(name="Function"):
 
     return decorator
 
+
 def cross_product(o, a, b):
     """
     Compute the cross product of vectors OA and OB.
@@ -516,16 +516,13 @@ def distance(point1, point2):
     """
     return sqrt((point1[0, 0] - point2[0, 0]) ** 2 + (point1[1, 0] - point2[1, 0]) ** 2)
 
+
 def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
     if isinstance(range_low, list):
         range_low = np.c_[range_low]
 
     if isinstance(range_high, list):
-        range_high = np.c_[range_high] 
+        range_high = np.c_[range_high]
 
     return np.random.uniform(range_low, range_high)
-
-
-
-

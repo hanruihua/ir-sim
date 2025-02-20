@@ -5,10 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import cos, sin
 
+
 class EnvPlot3D(EnvPlot):
 
     def __init__(
-        self,grid_map=None,
+        self,
+        grid_map=None,
         objects=[],
         x_range=[0, 10],
         y_range=[0, 10],
@@ -16,20 +18,29 @@ class EnvPlot3D(EnvPlot):
         saved_figure=dict(),
         saved_ani=dict(),
         dpi: int = 100,
-        figure_pixels: list =[1920, 1080],
+        figure_pixels: list = [1920, 1080],
         **kwargs,
     ):
-        super().__init__(grid_map, objects, x_range, y_range, saved_figure, saved_ani, dpi, figure_pixels, **kwargs)
-        
+        super().__init__(
+            grid_map,
+            objects,
+            x_range,
+            y_range,
+            saved_figure,
+            saved_ani,
+            dpi,
+            figure_pixels,
+            **kwargs,
+        )
+
         self.clear_components()
         self.ax.remove()
 
-        self.ax = self.fig.add_subplot(projection='3d')
+        self.ax = self.fig.add_subplot(projection="3d")
         self.z_range = z_range
 
         self.init_plot(grid_map, objects, **kwargs)
         self.ax.set_zlim(z_range)
-
 
     def draw_points(self, points, s=10, c="m", refresh=True, **kwargs):
         """
@@ -62,8 +73,9 @@ class EnvPlot3D(EnvPlot):
                 y_coordinates = points[1]
                 z_coordinates = points[2]
 
-    
-        points = self.ax.scatter(x_coordinates, y_coordinates, z_coordinates, 'z', s, c, **kwargs)
+        points = self.ax.scatter(
+            x_coordinates, y_coordinates, z_coordinates, "z", s, c, **kwargs
+        )
 
         if refresh:
             self.dyna_point_list.append(points)
@@ -98,10 +110,12 @@ class EnvPlot3D(EnvPlot):
             path_y_list = [p[1] for p in traj.T]
             path_z_list = [p[2] for p in traj.T]
 
-        line = self.ax.plot(path_x_list, path_y_list, path_z_list, traj_type, label=label, **kwargs)
+        line = self.ax.plot(
+            path_x_list, path_y_list, path_z_list, traj_type, label=label, **kwargs
+        )
 
         if show_direction:
-            print('Not support currently')
+            print("Not support currently")
             # if isinstance(traj, list):
             #     u_list = [cos(p[2, 0]) for p in traj]
             #     v_list = [sin(p[2, 0]) for p in traj]
@@ -114,12 +128,9 @@ class EnvPlot3D(EnvPlot):
             #     w_list = [0] * len(u_list)
 
             #     self.ax.quiver(path_x_list, path_y_list, path_z_list, u_list, v_list, w_list)
-            
+
             # else:
             #     self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
 
         if refresh:
             self.dyna_line_list.append(line)
-
-
-

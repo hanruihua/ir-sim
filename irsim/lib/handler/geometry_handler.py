@@ -1,39 +1,48 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from irsim.util.util import get_transform, gen_inequal_from_vertex, is_convex_and_ordered
+from irsim.util.util import (
+    get_transform,
+    gen_inequal_from_vertex,
+    is_convex_and_ordered,
+)
 from shapely.ops import transform
-from shapely import Point, Polygon, LineString, minimum_bounding_radius, MultiPoint, bounds
+from shapely import (
+    Point,
+    Polygon,
+    LineString,
+    minimum_bounding_radius,
+    MultiPoint,
+    bounds,
+)
 from irsim.lib import random_generate_polygon
 
-class geometry_handler(ABC):
 
-    '''
+class geometry_handler(ABC):
+    """
     This class is used to handle the geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
-    '''
+    """
 
     def __init__(self, name: str, **kwargs):
 
         self.name = name
         self._init_geometry = self.construct_init_geometry(**kwargs)
         self.geometry = self._init_geometry
-        self.wheelbase = kwargs.get('wheelbase', None)
+        self.wheelbase = kwargs.get("wheelbase", None)
         self.length, self.width = self.cal_length_width(self._init_geometry)
 
     @abstractmethod
-    def construct_init_geometry(self, **kwargs) :
-        '''
+    def construct_init_geometry(self, **kwargs):
+        """
         Construct the initial geometry of the object.
 
         Args:
             **kwargs: shape parameters
-        
+
         Returns: Geometry of the object
-        '''
+        """
         pass
-    
 
     def step(self, state):
-
         """
         Transform geometry to the new state.
 
@@ -52,9 +61,8 @@ class geometry_handler(ABC):
 
         new_geometry = transform(transform_with_state, self._init_geometry)
         self.geometry = new_geometry
-        
-        return new_geometry
 
+        return new_geometry
 
     def get_init_Gh(self):
         """
@@ -71,7 +79,7 @@ class geometry_handler(ABC):
             h = np.array([[0], [0], [-self.radius]])
             cone_type = "norm2"
             convex_flag = True
-            
+
         elif self.name == "polygon" or self.name == "rectangle":
 
             convex_flag, _ = is_convex_and_ordered(self.init_vertices[:, :-1])
@@ -86,14 +94,13 @@ class geometry_handler(ABC):
 
         return G, h, cone_type, convex_flag
 
-
     def cal_length_width(self, geometry):
         min_x, min_y, max_x, max_y = bounds(geometry).tolist()
         length = max_x - min_x
         width = max_y - min_y
 
         return length, width
-    
+
     @property
     def vertices(self):
         if self.name == "linestring":
@@ -104,34 +111,41 @@ class geometry_handler(ABC):
 
     @property
     def init_vertices(self):
-        '''
+        """
         return init_vertices: [[x1, y1], [x2, y2]....    [[x1, y1]]]; [x1, y1] will repeat twice
-        '''
+        """
 
         if self.name == "linestring":
             x = self._init_geometry.xy[0]
             y = self._init_geometry.xy[1]
             return np.c_[x, y].T
         return self._init_geometry.exterior.coords._coords.T[:, :-1]
-    
+
     @property
     def radius(self):
         return minimum_bounding_radius(self._init_geometry)
+
 
 class CircleGeometry(geometry_handler):
 
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, radius: float=0.2, random_shape: bool=False, radius_range: list=[0.1, 1.0], wheelbase: float=None):
-        
+    def construct_init_geometry(
+        self,
+        radius: float = 0.2,
+        random_shape: bool = False,
+        radius_range: list = [0.1, 1.0],
+        wheelbase: float = None,
+    ):
+
         if random_shape:
             radius = np.random.uniform(*radius_range)
-        
+
         if wheelbase is None:
             return Point([0, 0]).buffer(radius)
         else:
-            return Point([wheelbase/2, 0]).buffer(radius)
+            return Point([wheelbase / 2, 0]).buffer(radius)
 
 
 class PolygonGeometry(geometry_handler):
@@ -139,8 +153,13 @@ class PolygonGeometry(geometry_handler):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, vertices=None, random_shape: bool=False, is_convex: bool=False, **kwargs):
-
+    def construct_init_geometry(
+        self,
+        vertices=None,
+        random_shape: bool = False,
+        is_convex: bool = False,
+        **kwargs,
+    ):
         """
         Construct a polygon geometry.
 
@@ -149,51 +168,53 @@ class PolygonGeometry(geometry_handler):
             random_shape: whether to generate random shape, default is False
             is_convex: whether to generate convex shape, default is False
             **kwargs: see random_generate_polygon()
-        
+
         Returns:
             Polygon object
         """
 
         if random_shape:
             if is_convex:
-                kwargs.setdefault('spikeyness_range', [0, 0])
+                kwargs.setdefault("spikeyness_range", [0, 0])
                 vertices = random_generate_polygon(**kwargs)
             else:
                 vertices = random_generate_polygon(**kwargs)
 
         elif vertices is None:
-            print('No vertices provided for polygon. Using default square')
+            print("No vertices provided for polygon. Using default square")
             vertices = [
                 (-1, -1),
                 (1, -1),
                 (1, 1),
                 (-1, 1),
             ]
-        
-        return Polygon(vertices) 
+
+        return Polygon(vertices)
+
 
 class RectangleGeometry(geometry_handler):
 
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, length: float=1.0, width: float = 1.0, wheelbase: float=None):
-
-        '''
+    def construct_init_geometry(
+        self, length: float = 1.0, width: float = 1.0, wheelbase: float = None
+    ):
+        """
         Args
             length: in x axis
             width: in y axis
             wheelbase: for ackermann robot
-        '''
+        """
 
         if wheelbase is None:
 
             vertices = [
-                        (-length / 2, -width / 2),
-                        (length / 2, -width / 2),
-                        (length / 2, width / 2),
-                        (-length / 2, width / 2),
-                        ]
+                (-length / 2, -width / 2),
+                (length / 2, -width / 2),
+                (length / 2, width / 2),
+                (-length / 2, width / 2),
+            ]
         else:
             start_x = -(length - wheelbase) / 2
             start_y = -width / 2
@@ -202,9 +223,10 @@ class RectangleGeometry(geometry_handler):
                 (start_x, start_y),
                 (start_x + length, start_y),
                 (start_x + length, start_y + width),
-                (start_x, start_y + width),]
+                (start_x, start_y + width),
+            ]
 
-        return Polygon(vertices) 
+        return Polygon(vertices)
 
 
 class LinestringGeometry(geometry_handler):
@@ -212,8 +234,9 @@ class LinestringGeometry(geometry_handler):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, vertices, random_shape: bool=False, is_convex: bool=True, **kwargs):
-
+    def construct_init_geometry(
+        self, vertices, random_shape: bool = False, is_convex: bool = True, **kwargs
+    ):
         """
         Construct a LineString object.
 
@@ -222,7 +245,7 @@ class LinestringGeometry(geometry_handler):
             random_shape: whether to generate random shape, default is False
             is_convex: whether to generate convex shape, default is False
             **kwargs: see random_generate_polygon()
-        
+
         Returns:
             LineString object
         """
@@ -233,47 +256,45 @@ class LinestringGeometry(geometry_handler):
             else:
                 vertices = random_generate_polygon(**kwargs)
 
-        return LineString(vertices) 
-    
+        return LineString(vertices)
+
+
 class PointsGeometry(geometry_handler):
-    
+
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_init_geometry(self, points: np.ndarray, reso: float=0.1):
-
-        '''
+    def construct_init_geometry(self, points: np.ndarray, reso: float = 0.1):
+        """
         Args:
             points: (2, N) array of points
             reso: resolution for the buffer
-        '''
+        """
 
         return MultiPoint(points.T).buffer(reso / 2).boundary
 
 
+########################################3D Geometry Handler #############################################################
 
-########################################3D Geometry Handler ############################################################# 
 
 class geometry_handler3d(ABC):
-
-    '''
+    """
     This class is used to handle the 3D geometry of the object. It reads the shape parameters from yaml file and constructs the geometry of the object.
-    '''
+    """
 
     def __init__(self, name: str, **kwargs):
 
         self.name = name
         self._init_geometry = self.construct_init_geometry(**kwargs)
         self.geometry = self._init_geometry
-        self.wheelbase = kwargs.get('wheelbase', None)
+        self.wheelbase = kwargs.get("wheelbase", None)
         self.length, self.width, self.depth = self.cal_length_width(self._init_geometry)
 
     @abstractmethod
-    def construct_init_geometry(self, **kwargs) :
+    def construct_init_geometry(self, **kwargs):
         pass
-    
-    def step(self, state):
 
+    def step(self, state):
         """
         Transform geometry to the new state.
 
@@ -283,7 +304,7 @@ class geometry_handler3d(ABC):
         Returns:
             Transformed geometry.
         """
-        
+
         def transform_with_state(x, y):
             trans, rot = get_transform(state)
             points = np.array([x, y])
@@ -292,7 +313,7 @@ class geometry_handler3d(ABC):
 
         new_geometry = transform(transform_with_state, self._init_geometry)
         self.geometry = new_geometry
-        
+
         return new_geometry
 
 
@@ -307,7 +328,7 @@ class geometry_handler3d(ABC):
 #         if self.name == "circle":
 #             G = np.array([[1, 0], [0, 1], [0, 0]])
 #             h = np.array([[0], [0], [-self.radius]])
-            
+
 #         elif self.name == "polygon" or self.name == "rectangle":
 
 #             convex_flag, _ = is_convex_and_ordered(self.init_vertices)
@@ -325,7 +346,7 @@ class geometry_handler3d(ABC):
 #         width = max_y - min_y
 
 #         return length, width
-    
+
 #     @property
 #     def vertices(self):
 #         if self.name == "linestring":
@@ -341,30 +362,25 @@ class geometry_handler3d(ABC):
 #             y = self._init_geometry.xy[1]
 #             return np.c_[x, y].T
 #         return self._init_geometry.exterior.coords._coords.T
-    
+
 #     @property
 #     def radius(self):
 #         return minimum_bounding_radius(self._init_geometry)
 
 
-
-
 # class Sphere3DGeometry(geometry_handler):
 #     def __init__(self, name, **kwargs):
 #         super().__init__(name, **kwargs)
-    
+
 #     def construct_init_geometry(self, radius: float=0.2, random_shape: bool=False, radius_range: list=[0.1, 1.0], wheelbase: float=None):
-        
+
 #         if random_shape:
 #             radius = np.random.uniform(*radius_range)
-        
+
 #         if wheelbase is None:
 #             return Point([0, 0]).buffer(radius)
 #         else:
 #             return Point([wheelbase/2, 0]).buffer(radius)
-
-
-
 
 
 class GeometryFactory:
@@ -373,10 +389,7 @@ class GeometryFactory:
     """
 
     @staticmethod
-    def create_geometry(
-        name: str = "circle",
-        **kwargs
-    ) -> geometry_handler:
+    def create_geometry(name: str = "circle", **kwargs) -> geometry_handler:
         name = name.lower()
 
         if name == "circle":
@@ -384,14 +397,14 @@ class GeometryFactory:
 
         elif name == "polygon":
             return PolygonGeometry(name, **kwargs)
-        
-        elif name == 'rectangle':
+
+        elif name == "rectangle":
             return RectangleGeometry(name, **kwargs)
-        
-        elif name == 'linestring':
+
+        elif name == "linestring":
             return LinestringGeometry(name, **kwargs)
 
-        elif name == 'map':
+        elif name == "map":
             return PointsGeometry(name, **kwargs)
 
         # elif name == 'sphere3d':
@@ -401,15 +414,3 @@ class GeometryFactory:
 
         else:
             raise ValueError(f"Invalid geometry name: {name}")
-
-
-
-
-
-
-
-
-
-
-
-

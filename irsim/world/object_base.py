@@ -526,10 +526,14 @@ class ObjectBase:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
 
         if state.shape[0] < self.state_dim:
-            pad_value = self.state[self.state_dim - 1, 0] if self.state.shape[0] >= self.state_dim else 0
+            pad_value = (
+                self.state[self.state_dim - 1, 0]
+                if self.state.shape[0] >= self.state_dim
+                else 0
+            )
 
             pad_rows = self.state_dim - state.shape[0]
-            
+
             padding = pad_value * np.ones((pad_rows, state.shape[1]))
             state = np.concatenate((state, padding), axis=0)
 
@@ -597,7 +601,7 @@ class ObjectBase:
         else:
             return False
 
-    def set_state(self, state: list=[0, 0, 0], init: bool=False):
+    def set_state(self, state: list = [0, 0, 0], init: bool = False):
         """
         Set the state of the object.
 
@@ -631,7 +635,7 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
-    def set_velocity(self, velocity: list=[0, 0], init: bool=False):
+    def set_velocity(self, velocity: list = [0, 0], init: bool = False):
         """
         Set the velocity of the object.
 
@@ -675,7 +679,7 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def set_goal(self, goal: list=[10, 10, 0]):
+    def set_goal(self, goal: list = [10, 10, 0]):
         """
         Set the goal of the object.
 
@@ -707,7 +711,7 @@ class ObjectBase:
     def geometry_state_transition(self):
         pass
 
-    def input_state_check(self, state: np.ndarray, dim: int=3):
+    def input_state_check(self, state: np.ndarray, dim: int = 3):
         """
         Check and adjust the state to match the desired dimension.
 

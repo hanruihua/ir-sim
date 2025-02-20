@@ -144,7 +144,7 @@ class EnvBase:
 
         self._world.step()
 
-    def _objects_step(self, action: Optional[list] =None):
+    def _objects_step(self, action: Optional[list] = None):
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
@@ -153,7 +153,7 @@ class EnvBase:
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     # render
-    def render(self, interval: float =0.05, figure_kwargs=dict(), **kwargs):
+    def render(self, interval: float = 0.05, figure_kwargs=dict(), **kwargs):
         """
         Render the environment.
 
@@ -207,7 +207,7 @@ class EnvBase:
             refresh (bool): Flag to refresh the points in the figure.
             **kwargs: Additional keyword arguments for drawing the points, see `ax.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_ function for detail.
         """
-        
+
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
     def draw_box(self, vertex, refresh=True, color="-b"):
@@ -352,7 +352,7 @@ class EnvBase:
         self.step(action=np.zeros((2, 1)))
         self._world.reset()
         self.reset_plot()
-        
+
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
 
@@ -364,10 +364,13 @@ class EnvBase:
         plt.cla()
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
-
     # region: environment change
     def random_obstacle_position(
-            self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids=None, non_overlapping=False
+        self,
+        range_low=[0, 0, -3.14],
+        range_high=[10, 10, 3.14],
+        ids=None,
+        non_overlapping=False,
     ):
         """
         Random obstacle positions in the environment.
@@ -392,19 +395,23 @@ class EnvBase:
         for obj in selected_obs:
 
             if not non_overlapping:
-                obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                obj.set_state(
+                    np.random.uniform(range_low, range_high, (3, 1)), init=True
+                )
             else:
                 counter = 0
 
                 while counter < 100:
-                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                    obj.set_state(
+                        np.random.uniform(range_low, range_high, (3, 1)), init=True
+                    )
 
                     if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
                         counter += 1
                     else:
                         existing_obj.append(obj)
                         break
-        
+
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
 

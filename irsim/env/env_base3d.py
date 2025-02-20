@@ -6,11 +6,11 @@ from irsim.global_param import world_param, env_param
 from irsim.world.object_base import ObjectBase
 import itertools
 
-class EnvBase3D(EnvBase):
 
-    '''
+class EnvBase3D(EnvBase):
+    """
     This class is the 3D version of the environment class. It inherits from the :py:class:`.EnvBase` class to provide the 3D plot environment.
-    '''
+    """
 
     def __init__(self, world_name, **kwargs):
 
@@ -44,13 +44,3 @@ class EnvBase3D(EnvBase):
         )
 
         env_param.objects = self.objects
-
-
-
-
-
-
-
-
-    
-    

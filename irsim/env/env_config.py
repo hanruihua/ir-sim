@@ -2,6 +2,7 @@ import yaml
 from irsim.util.util import file_check
 from irsim.global_param import env_param
 
+
 class EnvConfig:
     """
     The base class of environment parameters read from yaml file.
@@ -30,7 +31,9 @@ class EnvConfig:
                     if key in self._kwargs_parse.keys():
                         self._kwargs_parse[key] = com_list[key]
                     else:
-                        env_param.logger.error(f"There are invalid key: '{key}' in {world_name} file!")
+                        env_param.logger.error(
+                            f"There are invalid key: '{key}' in {world_name} file!"
+                        )
                         raise KeyError
 
         else:
@@ -38,7 +41,7 @@ class EnvConfig:
 
     @property
     def parse(self):
-        '''
+        """
         The parsed kwargs from the yaml file.
-        '''
+        """
         return self._kwargs_parse
