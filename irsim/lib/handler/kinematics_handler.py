@@ -49,7 +49,8 @@ class OmniKinematics(KinematicsHandler):
         super().__init__(name, noise, alpha)
 
     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
-        next_state = omni_kinematics(state, velocity, step_time, self.noise, self.alpha)
+        next_position = omni_kinematics(state[0:2], velocity, step_time, self.noise, self.alpha)
+        next_state = np.concatenate((next_position, state[2:]))
         return next_state
 
 

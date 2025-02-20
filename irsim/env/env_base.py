@@ -349,10 +349,10 @@ class EnvBase:
         """
 
         self._reset_all()
-        self.reset_plot()
-        self._world.reset()
         self.step(action=np.zeros((2, 1)))
-
+        self._world.reset()
+        self.reset_plot()
+        
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
 
@@ -364,9 +364,10 @@ class EnvBase:
         plt.cla()
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
+
     # region: environment change
     def random_obstacle_position(
-        self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids = None
+            self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids=None, non_overlapping=False
     ):
         """
         Random obstacle positions in the environment.
@@ -374,24 +375,36 @@ class EnvBase:
         Args:
             range_low (list [x, y, theta]): Lower bound of the random range for the obstacle states. Default is [0, 0, -3.14].
             range_high (list [x, y, theta]): Upper bound of the random range for the obstacle states. Default is [10, 10, 3.14].
-            ids (list or None): A list of object IDs to randomize, or None to randomize all.
+            ids (list): A list of IDs of objects for which to set random positions. Default is None.
+            non_overlapping (bool): If set, the obstacles that will be reset to random obstacles will not overlap with other obstacles. Default is False.
         """
         if ids is None:
             ids = [obs.id for obs in self.obstacle_list]
-
         if isinstance(range_low, list):
             range_low = np.c_[range_low]
 
         if isinstance(range_high, list):
             range_high = np.c_[range_high]
 
-        random_states = np.random.uniform(
-            range_low, range_high, (3, self.obstacle_number)
-        )
-        for i, obj in enumerate(self.obstacle_list):
-            if obj.id in ids:
-                obj.set_state(random_states[:, i].reshape(3, 1), init=True)
+        selected_obs = [obs for obs in self.obstacle_list if obs.id in ids]
+        existing_obj = [obj for obj in self.objects if obj.id not in ids]
 
+        for obj in selected_obs:
+
+            if not non_overlapping:
+                obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+            else:
+                counter = 0
+
+                while counter < 100:
+                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+
+                    if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
+                        counter += 1
+                    else:
+                        existing_obj.append(obj)
+                        break
+        
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
 

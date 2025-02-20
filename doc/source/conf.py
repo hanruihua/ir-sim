@@ -16,6 +16,7 @@
 import os
 import sys
 from unittest.mock import MagicMock
+import irsim
 
 class Mock(MagicMock):
     @classmethod
@@ -34,7 +35,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = '2.3.2'
+release = irsim.__version__
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))

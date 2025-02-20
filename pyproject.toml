@@ -6,28 +6,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir-sim"
-version = "2.3.2"
+version = "2.3.4"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
-description = "Open-source, lightweight robot 2D simulator based on Python, specifically designed for intelligent robotics navigation and learning."
+description = "an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    'matplotlib',
-    'shapely==2.0.6',
+    'matplotlib<3.10.0',
+    'shapely>=2.0.3',
     'numpy',
     'pyyaml',
     'imageio',
     'loguru',
     'tabulate',
-    "robot-descriptions>=1.14.0",
-    "pinocchio>=0.4.3",
 ]
 
 [project.optional-dependencies]

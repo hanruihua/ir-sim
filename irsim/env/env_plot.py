@@ -79,15 +79,19 @@ class EnvPlot:
             tight (bool, optional): Whether to show the axis tightly. Default is True.
         """
 
-        self.ax.set_aspect("equal")
-        self.ax.set_aspect("equal") 
+        if isinstance(self.ax, Axes3D):
+            self.ax.set_box_aspect([1, 1, 1])
+        else:
+            self.ax.set_aspect("equal")
+            self.ax.set_aspect("equal") 
+            
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
 
-        self.draw_components("static", objects)
+        self.draw_components("all", objects)
         self.draw_grid_map(grid_map)
 
         if no_axis:
@@ -306,7 +310,9 @@ class EnvPlot:
             kwargs: Additional arguments for saving the animation.
                 See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
-        self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
+        if suffix=='.gif':
+            self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
+            
         self.saved_ani_kwargs.update(kwargs)
 
         env_param.logger.info("Start to create animation")
