@@ -675,12 +675,13 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def set_goal(self, goal: list=[10, 10, 0]):
+    def set_goal(self, goal: list = [10, 10, 0], init: bool = False):
         """
         Set the goal of the object.
 
         Args:
             goal: The goal of the object [x, y, theta].
+            init (bool): Whether to set the initial goal (default False).
         """
         if isinstance(goal, list):
             if len(goal) > self.state_dim:
@@ -701,6 +702,9 @@ class ObjectBase:
                 temp_goal = goal
 
         assert self._goal.shape == temp_goal.shape
+
+        if init:
+            self._init_goal = temp_goal.copy()
 
         self._goal = temp_goal.copy()
 
