@@ -76,4 +76,4 @@
 - [ ] Interface with Pybullet or Gazebo
 - [ ] Add more occupancy grid map images
 - [ ] Add ORCA Behavior
-- [ ] binary occupancy grid map
+- [ ] Add binary occupancy grid map for indoor navigation
