@@ -49,3 +49,4 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://github.com/hanruihua/ir-sim"
+"Documentation" = "https://ir-sim.readthedocs.io/en/latest/"
