@@ -111,7 +111,7 @@ robot:
 The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 ## Academic Cases
-- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2022)
+- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
 - [RDA_planner](https://github.com/hanruihua/RDA_planner) (RAL & IROS2023)
 - [NeuPAN](https://github.com/hanruihua/NeuPAN) (T-RO 2025)
 
