@@ -1,12 +1,17 @@
 ## ir-sim 2.3.5
 
+- Bug Fixes:
+  
 
-
+- New Features:
+  - Add the show_text for the object, run usage: 06multi_objects_world for detail.
+  - Add abbr name for the object, run usage: 06multi_objects_world for detail.
+  - Add init parameters for the set_goal function.
 
 
 ## ir-sim 2.3.4
 
-- Fix some bugs:
+- Bug Fixes:
   - omni robot dynamics
   - rvo zero division
   - python version compatibility
