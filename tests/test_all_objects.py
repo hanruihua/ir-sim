@@ -32,6 +32,11 @@ def test_all_objects():
     env2.robot.get_lidar_offset()
     env2.robot.get_init_Gh()
 
+    env2.get_obstacle_info_list()
+    env2.get_robot_info_list()
+
+    env2.delete_objects([1, 2])
+
     for i in range(10):
         env2.step()
         env2.render(0.01)
