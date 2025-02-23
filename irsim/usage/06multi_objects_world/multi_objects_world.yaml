@@ -26,6 +26,8 @@ robot:
     color: 
       - 'royalblue'
       - 'red'
+    plot:
+      show_text: True
   
   - number: 4
     distribution: {name: 'random'}
@@ -39,6 +41,8 @@ robot:
 
     plot:
       goal_color: 'purple'
+    plot:
+      show_text: True
 
 
 obstacle:
@@ -49,6 +53,9 @@ obstacle:
       - {name: 'circle', radius: 0.4}  # radius
       - {name: 'circle', radius: 0.1}  # radius
     color: 'k'
+    plot:
+      show_text: True
+
 
     
     

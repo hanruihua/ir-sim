@@ -493,6 +493,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `trail_freq` (int): Frequency of trail updates. Default is `2`.
   - `show_sensor` (bool): Display the sensor in the visualization. Default is `True`.
   - `show_fov` (bool): Display the field of view of the sensor. Default is `False`.
+  - `show_text` (bool): Display the text of the object. Default is `False`.
+    - `text_color` (str): Color of the text. Default is `k`.
+    - `text_size` (int): Font size of the text. Default is `10`.
+    - `text_position` (list): Position of the text. Default is `[-radius-0.1, radius+0.1]`.
   - `goal_color` (str): Color of the goal marker. Default is the object's color.
 
   **Example:**
@@ -506,6 +510,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     arrow_color: 'gold'
     show_trajectory: True
     show_fov: True
+    show_text: True
     traj_color: 'blue'
     traj_style: '-'
     traj_width: 0.6

@@ -784,7 +784,7 @@ class ObjectBase:
             self.plot_goal(ax, goal_color)
 
         if show_text:
-            self.plot_text(ax)
+            self.plot_text(ax, **self.plot_kwargs)
 
         if show_arrow:
             self.plot_arrow(ax, **self.plot_kwargs)
@@ -947,9 +947,26 @@ class ObjectBase:
 
     def plot_text(self, ax, **kwargs):
         """
-        To be completed.
+        Plot the text of the object.
+
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+                text_color (str): Color of the text, default is 'k'.
+                text_size (int): Font size of the text, default is 10.
+                text_position (list): Position of the text in xy, default is [-radius-0.1, radius+0.1].
         """
-        pass
+
+        text_color = kwargs.get("text_color", "k")
+        text_size = kwargs.get("text_size", 10)
+        text_position = kwargs.get("text_position", [-self.radius-0.1, self.radius+0.1])
+
+        x, y = self.state[0, 0], self.state[1, 0]
+        
+        text = ax.text(x + text_position[0], y + text_position[1], self.abbr, fontsize = text_size, color = text_color)
+
+        self.plot_text_list.append(text)
+
 
     def plot_arrow(
         self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color="gold", **kwargs
@@ -1179,6 +1196,10 @@ class ObjectBase:
     @property
     def name(self):
         return self.info.role + "_" + str(self.id)
+
+    @property
+    def abbr(self):
+        return self.info.role[0] + str(self.id)
 
     @property
     def shape(self):
