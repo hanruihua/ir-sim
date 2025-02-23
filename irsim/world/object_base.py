@@ -13,7 +13,7 @@ from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
-from typing import Optional
+from typing import Optional, Union
 import mpl_toolkits.mplot3d.art3d as art3d
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
@@ -318,8 +318,12 @@ class ObjectBase:
         self.plot_text_list = []
         self.collision_obj = []
 
-    def __eq__(self, o: object) -> bool:
-        return self._id == o._id
+    def __eq__(self, o: "ObjectBase") -> bool:
+
+        if isinstance(o, ObjectBase):
+            return self._id == o._id
+        else:
+            return False
 
     def __hash__(self) -> int:
         return self._id
@@ -328,7 +332,7 @@ class ObjectBase:
         return f"ObjectBase: {self._id}"
 
     @classmethod
-    def reset_id_iter(cls, start=0, step=1):
+    def reset_id_iter(cls, start: int = 0, step: int = 1):
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
@@ -512,7 +516,7 @@ class ObjectBase:
     def post_process(self):
         pass
 
-    def mid_process(self, state):
+    def mid_process(self, state: np.ndarray):
         """
         Process state in the middle of a step. Make sure the state is within the desired dimension.
 
@@ -601,7 +605,7 @@ class ObjectBase:
         else:
             return False
 
-    def set_state(self, state: list = [0, 0, 0], init: bool = False):
+    def set_state(self, state: Union[list, np.ndarray]= [0, 0, 0], init: bool = False):
         """
         Set the state of the object.
 
@@ -635,7 +639,7 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
-    def set_velocity(self, velocity: list = [0, 0], init: bool = False):
+    def set_velocity(self, velocity: Union[list, np.ndarray] = [0, 0], init: bool = False):
         """
         Set the velocity of the object.
 
@@ -679,7 +683,7 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def set_goal(self, goal: list = [10, 10, 0], init: bool = False):
+    def set_goal(self, goal: Union[list, np.ndarray] = [10, 10, 0], init: bool = False):
         """
         Set the goal of the object.
 
@@ -860,7 +864,7 @@ class ObjectBase:
         else:
             self.plot_object_image(ax, self.description, **kwargs)
 
-    def plot_object_image(self, ax, description, **kwargs):
+    def plot_object_image(self, ax, description: str, **kwargs):
 
         # x = self.vertices[0, 0]
         # y = self.vertices[1, 0]
@@ -885,7 +889,7 @@ class ObjectBase:
 
         self.plot_patch_list.append(robot_img)
 
-    def plot_trajectory(self, ax, keep_length=0, **kwargs):
+    def plot_trajectory(self, ax, keep_length: int = 0, **kwargs):
         """
         Plot the trajectory of the object.
 
@@ -922,7 +926,7 @@ class ObjectBase:
             )
         )
 
-    def plot_goal(self, ax, goal_color="r"):
+    def plot_goal(self, ax, goal_color: str = "r"):
         """
         Plot the goal position of the object.
 
@@ -969,7 +973,7 @@ class ObjectBase:
 
 
     def plot_arrow(
-        self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color="gold", **kwargs
+        self, ax, arrow_length: float = 0.4, arrow_width: float = 0.6, arrow_color: str = "gold", **kwargs
     ):
         """
         Plot an arrow indicating the velocity orientation of the object.
@@ -1140,6 +1144,13 @@ class ObjectBase:
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
+
+    def remove(self):
+        """
+        Remove the object from the environment.
+        """
+        del self
+
 
     def get_vel_range(self):
         """
