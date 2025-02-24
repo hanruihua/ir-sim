@@ -27,12 +27,12 @@ It provides the following features:
 - **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
 - **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
 
-|                                                        Scenarios                                                        |                                                                    Description                                                                    |
+|                                                       Scenarios                                                        |                                                                    Description                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b" alt="drawing" width="280"/> | In scenarios involving multiple circular differential robots, each robot employs Reciprocal Velocity Obstacle (RVO) behavior to avoid collisions. |
 | <img src="https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06" alt="drawing" width="280"/> |                   A car-like robot controlled via keyboard navigates a binary map using a 2D LiDAR sensor to detect obstacles.                    |
-| <img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" alt="drawing" width="280"/> |                                 Each robot employing RVO behavior is equipped with a field of view (FOV) to detect other robots within this area.  |
-| <img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" alt="drawing" width="280"/> |  A car-like robot navigates through the randomly generated and moving obstacles  |
+| <img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" alt="drawing" width="280"/> |                 Each robot employing RVO behavior is equipped with a field of view (FOV) to detect other robots within this area.                 |
+| <img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" alt="drawing" width="280"/> |                                  A car-like robot navigates through the randomly generated and moving obstacles                                   |
 
 
 
@@ -109,6 +109,17 @@ robot:
 ### Advanced Usage
 
 The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
+
+
+## Support
+
+| **Category** | **Features**                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| **Kinematics** | Differential Drive mobile Robot<br>Omni-Directional mobile Robot<br>Ackermann Steering mobile Robot |
+| **Sensors**  | 2D LiDAR <br> FOV detector  
+
+
+
 
 ## Academic Cases
 - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
