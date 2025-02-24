@@ -111,12 +111,16 @@ robot:
 The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 
-## Support
+## Current Support
+
+Currently, the simulator supports the following features. Further features, such as additional sensors, behaviors, and robot models, are under development.
 
 | **Category** | **Features**                                                                                     |
 | ------------ | ------------------------------------------------------------------------------------------------ |
 | **Kinematics** | Differential Drive mobile Robot<br>Omni-Directional mobile Robot<br>Ackermann Steering mobile Robot |
-| **Sensors**  | 2D LiDAR <br> FOV detector  
+| **Sensors**  | 2D LiDAR <br> FOV detector  |
+| **Geometry** | Circle<br>Rectangle<br>Polygon <br> linestring <br> Binary Grid Map |
+| **Behavior** | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior)|
 
 
 
