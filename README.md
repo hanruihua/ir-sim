@@ -119,8 +119,8 @@ Currently, the simulator supports the following features. Further features, such
 | ------------ | ------------------------------------------------------------------------------------------------ |
 | **Kinematics** | Differential Drive mobile Robot<br>Omni-Directional mobile Robot<br>Ackermann Steering mobile Robot |
 | **Sensors**  | 2D LiDAR <br> FOV detector  |
-| **Geometry** | Circle<br>Rectangle<br>Polygon <br> linestring <br> Binary Grid Map |
-| **Behavior** | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior)|
+| **Geometries** | Circle<br>Rectangle<br>Polygon <br> linestring <br> Binary Grid Map |
+| **Behaviors** | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior)|
 
 
 
