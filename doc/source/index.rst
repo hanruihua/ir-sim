@@ -6,16 +6,14 @@
 Welcome to IR-SIM's documentation!
 ==================================
 
-**IR-SIM** is an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
+**IR-SIM** is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple, user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
 
-It provides the following features:
+## Features
 
-- **Versatile and User-Friendly Framework:** Simulate a wide range of robot platforms with diverse kinematics and sensors.
-- **Easy Configuration with YAML:** Easily set up and modify simulation scenarios using straightforward YAML files, no complex coding required for quick and flexible environment customization.
-- **Real-Time Visualization:** Visualize simulation outcomes in real time for immediate feedback and analysis.
-- **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
-- **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
-
+- Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors. 
+- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required.
+- Visualize simulation outcomes in real time for immediate feedback and analysis using a naive visualizer matplotlib.
+- Support collision detection and behavior control for each object in the simulation.
 The simple demonstrations of the simulator are shown below:
 
 .. image:: https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b
