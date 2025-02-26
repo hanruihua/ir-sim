@@ -17,15 +17,22 @@
 
 **Documentation:** [https://ir-sim.readthedocs.io/en](https://ir-sim.readthedocs.io/en/latest/)
 
-IR-SIM is an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable.
+IR-SIM is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple, user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
 
-It provides the following features:
+## Features
 
-- **Versatile and User-Friendly Framework:** Simulate a wide range of robot platforms with diverse kinematics and sensors.
+- Simulate the robot platforms with diverse kinematics and sensors (Current support). 
+- Quickly configure and customize simulation scenarios using straightforward YAML files, no complex coding required.
+- Visualize simulation outcomes in real time for immediate feedback and analysis with naive visualizer using matplotlib.
+- Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
+
+Built with minimal use of the standard library, IR-SIM is especially suited for research and educational purposes, allowing users to quickly configure and customize simulation scenarios using simple YAML files.
+
 - **Easy Configuration with YAML:** Easily set up and modify simulation scenarios using straightforward YAML files, no complex coding required for quick and flexible environment customization.
-- **Real-Time Visualization:** Visualize simulation outcomes in real time for immediate feedback and analysis.
 - **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
 - **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
+- 
+
 
 |                                                        Scenarios                                                        |                                                                    Description                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------: |
