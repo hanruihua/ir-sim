@@ -21,20 +21,14 @@ IR-SIM is an open-source, lightweight robot simulator based on Python, designed 
 
 ## Features
 
-- Simulate the robot platforms with diverse kinematics and sensors (Current support). 
-- Quickly configure and customize simulation scenarios using straightforward YAML files, no complex coding required.
-- Visualize simulation outcomes in real time for immediate feedback and analysis with naive visualizer using matplotlib.
-- Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
+- Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors  ([support](#support)). 
+- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required.
+- Visualize simulation outcomes in real time for immediate feedback and analysis using a naive visualizer matplotlib.
+- Support collision detection and behavior control for each object in the simulation.
 
-Built with minimal use of the standard library, IR-SIM is especially suited for research and educational purposes, allowing users to quickly configure and customize simulation scenarios using simple YAML files.
+## Demonstrations
 
-- **Easy Configuration with YAML:** Easily set up and modify simulation scenarios using straightforward YAML files, no complex coding required for quick and flexible environment customization.
-- **Predefined Benchmark Behaviors:** Utilize a comprehensive library of pre-defined behaviors that serve as benchmarks for evaluating and comparing algorithm performance.
-- **Ideal for Algorithm Development:** Suitable for developing and testing algorithms related to robot navigation, motion planning, optimal control, and reinforcement learning.
-- 
-
-
-|                                                       Scenarios                                                        |                                                                    Description                                                                    |
+|                                                      Scenarios                                                        |                                                                    Description                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b" alt="drawing" width="280"/> | In scenarios involving multiple circular differential robots, each robot employs Reciprocal Velocity Obstacle (RVO) behavior to avoid collisions. |
 | <img src="https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06" alt="drawing" width="280"/> |                   A car-like robot controlled via keyboard navigates a binary map using a 2D LiDAR sensor to detect obstacles.                    |
@@ -118,7 +112,7 @@ robot:
 The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
 
 
-## Current Support
+## Support
 
 Currently, the simulator supports the following features. Further features, such as additional sensors, behaviors, and robot models, are under development.
 
