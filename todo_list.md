@@ -1,4 +1,4 @@
-## To do list
+## To Do List
 - [x] Basic framework
 - [x] Mobile robot movement
 - [x] collision check
@@ -63,7 +63,7 @@
 - [x] Make the dependency of the package optional
 - [ ] 3D rigid body
 - [x] Documentation
-- [ ] robotics arm support
+- [ ] robotics arm, UAV support
 - [ ] assign robot goals by mouse click
 - [ ] Add wrapper for ORCA algorithm
 - [x] Reorganize the structure of the readme demonstration
@@ -74,8 +74,8 @@
 - [ ] Analyze the performance (jerks, acceleration, etc.)
 - [ ] Interface with ROS
 - [ ] Interface with Pybullet or Gazebo
-- [ ] Add more occupancy grid map images
 - [ ] Add ORCA Behavior
 - [ ] unify the G, h and obstacles, object information
 - [ ] organize the test cases
 - [ ] Add binary occupancy grid map for indoor navigation
+- [ ] traffic scenarios
