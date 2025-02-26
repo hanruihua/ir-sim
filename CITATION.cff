@@ -4,8 +4,7 @@ authors:
 - family-names: "Han"
   given-names: "Ruihua"
   orcid: "https://orcid.org/0000-0001-6206-5289"
-title: "IR-SIM: An open-source lightweight robot simulator"
-version: 2.1.4
+title: "IR-SIM: An open-source lightweight simulator for robot navigation, control, and learning"
 url: "https://github.com/hanruihua/ir-sim"
 preferred-citation:
   type: generic
@@ -13,12 +12,8 @@ preferred-citation:
   - family-names: "Han"
     given-names: "Ruihua"
     orcid: "https://orcid.org/0000-0001-6206-5289"
-  
-  - family-names: "Development Team"
-    given-names: ""
 
-  title: "IR-SIM: An open-source lightweight robot simulator"
+  title: "IR-SIM: An open-source lightweight simulator for robot navigation, control, and learning"
   year: 2024
   url: "https://github.com/hanruihua/ir-sim"
-
 

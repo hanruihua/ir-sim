@@ -38,15 +38,16 @@ class EnvPlot:
         saved_figure=dict(),
         saved_ani=dict(),
         dpi: int = 100,
-        figure_pixels: list =[1920, 1080],
-        
+        figure_pixels: list = [1920, 1080],
         **kwargs,
     ) -> None:
         """
         Initialize the EnvPlot instance.
         """
 
-        self.fig, self.ax = plt.subplots(figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi)
+        self.fig, self.ax = plt.subplots(
+            figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi
+        )
         self.x_range = x_range
         self.y_range = y_range
 
@@ -83,8 +84,8 @@ class EnvPlot:
             self.ax.set_box_aspect([1, 1, 1])
         else:
             self.ax.set_aspect("equal")
-            self.ax.set_aspect("equal") 
-            
+            self.ax.set_aspect("equal")
+
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 
@@ -202,8 +203,10 @@ class EnvPlot:
                 path_z_list = [0] * len(path_x_list)
                 w_list = [0] * len(u_list)
 
-                self.ax.quiver(path_x_list, path_y_list, path_z_list, u_list, v_list, w_list)
-            
+                self.ax.quiver(
+                    path_x_list, path_y_list, path_z_list, u_list, v_list, w_list
+                )
+
             else:
                 self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
 
@@ -259,7 +262,14 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(box_line)
 
-    def save_figure(self, file_name='', file_format="png", include_index=False, save_gif=False, **kwargs):
+    def save_figure(
+        self,
+        file_name="",
+        file_format="png",
+        include_index=False,
+        save_gif=False,
+        **kwargs,
+    ):
         """
         Save the current figure.
 
@@ -283,14 +293,12 @@ class EnvPlot:
 
         if include_index or save_gif:
             order = str(world_param.count).zfill(3)
-            full_name = fp + "/" + file_name + '_' + order + "." + file_format
+            full_name = fp + "/" + file_name + "_" + order + "." + file_format
         else:
             full_name = fp + "/" + file_name + "." + file_format
 
-        self.fig.savefig(
-            full_name, format=file_format, **self.saved_figure_kwargs
-        )
-    
+        self.fig.savefig(full_name, format=file_format, **self.saved_figure_kwargs)
+
     def save_animate(
         self,
         ani_name="animation",
@@ -310,9 +318,9 @@ class EnvPlot:
             kwargs: Additional arguments for saving the animation.
                 See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
-        if suffix=='.gif':
+        if suffix == ".gif":
             self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
-            
+
         self.saved_ani_kwargs.update(kwargs)
 
         env_param.logger.info("Start to create animation")
@@ -358,7 +366,7 @@ class EnvPlot:
         plt.close()
 
 
-def linewidth_from_data_units(linewidth, axis, reference='y'):
+def linewidth_from_data_units(linewidth, axis, reference="y"):
     """
     Convert a linewidth in data units to linewidth in points.
 
@@ -379,15 +387,13 @@ def linewidth_from_data_units(linewidth, axis, reference='y'):
         Linewidth in points
     """
     fig = axis.get_figure()
-    if reference == 'x':
+    if reference == "x":
         length = fig.bbox_inches.width * axis.get_position().width
         value_range = np.diff(axis.get_xlim())
-    elif reference == 'y':
+    elif reference == "y":
         length = fig.bbox_inches.height * axis.get_position().height
         value_range = np.diff(axis.get_ylim())
     # Convert length to points
     length *= 72
     # Scale linewidth to value range
     return linewidth * (length / value_range)
-
-

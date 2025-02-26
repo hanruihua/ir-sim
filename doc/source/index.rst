@@ -69,6 +69,9 @@ Academic Cases
 
 - `RDA_planner(RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_
 
+- `NeuPAN(T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_
+
+
 Code Repository
 ---------------
 `IR-SIM <https://github.com/hanruihua/ir-sim>`_

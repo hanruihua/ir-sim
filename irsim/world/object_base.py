@@ -13,7 +13,7 @@ from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 import matplotlib.transforms as mtransforms
 from matplotlib import image
-from typing import Optional
+from typing import Optional, Union
 import mpl_toolkits.mplot3d.art3d as art3d
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3D
@@ -318,8 +318,12 @@ class ObjectBase:
         self.plot_text_list = []
         self.collision_obj = []
 
-    def __eq__(self, o: object) -> bool:
-        return self._id == o._id
+    def __eq__(self, o: "ObjectBase") -> bool:
+
+        if isinstance(o, ObjectBase):
+            return self._id == o._id
+        else:
+            return False
 
     def __hash__(self) -> int:
         return self._id
@@ -328,7 +332,7 @@ class ObjectBase:
         return f"ObjectBase: {self._id}"
 
     @classmethod
-    def reset_id_iter(cls, start=0, step=1):
+    def reset_id_iter(cls, start: int = 0, step: int = 1):
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
@@ -512,7 +516,7 @@ class ObjectBase:
     def post_process(self):
         pass
 
-    def mid_process(self, state):
+    def mid_process(self, state: np.ndarray):
         """
         Process state in the middle of a step. Make sure the state is within the desired dimension.
 
@@ -526,10 +530,14 @@ class ObjectBase:
             state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
 
         if state.shape[0] < self.state_dim:
-            pad_value = self.state[self.state_dim - 1, 0] if self.state.shape[0] >= self.state_dim else 0
+            pad_value = (
+                self.state[self.state_dim - 1, 0]
+                if self.state.shape[0] >= self.state_dim
+                else 0
+            )
 
             pad_rows = self.state_dim - state.shape[0]
-            
+
             padding = pad_value * np.ones((pad_rows, state.shape[1]))
             state = np.concatenate((state, padding), axis=0)
 
@@ -597,7 +605,7 @@ class ObjectBase:
         else:
             return False
 
-    def set_state(self, state: list=[0, 0, 0], init: bool=False):
+    def set_state(self, state: Union[list, np.ndarray]= [0, 0, 0], init: bool = False):
         """
         Set the state of the object.
 
@@ -631,7 +639,7 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
-    def set_velocity(self, velocity: list=[0, 0], init: bool=False):
+    def set_velocity(self, velocity: Union[list, np.ndarray] = [0, 0], init: bool = False):
         """
         Set the velocity of the object.
 
@@ -675,12 +683,13 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
-    def set_goal(self, goal: list=[10, 10, 0]):
+    def set_goal(self, goal: Union[list, np.ndarray] = [10, 10, 0], init: bool = False):
         """
         Set the goal of the object.
 
         Args:
             goal: The goal of the object [x, y, theta].
+            init (bool): Whether to set the initial goal (default False).
         """
         if isinstance(goal, list):
             if len(goal) > self.state_dim:
@@ -702,12 +711,15 @@ class ObjectBase:
 
         assert self._goal.shape == temp_goal.shape
 
+        if init:
+            self._init_goal = temp_goal.copy()
+
         self._goal = temp_goal.copy()
 
     def geometry_state_transition(self):
         pass
 
-    def input_state_check(self, state: np.ndarray, dim: int=3):
+    def input_state_check(self, state: np.ndarray, dim: int = 3):
         """
         Check and adjust the state to match the desired dimension.
 
@@ -776,7 +788,7 @@ class ObjectBase:
             self.plot_goal(ax, goal_color)
 
         if show_text:
-            self.plot_text(ax)
+            self.plot_text(ax, **self.plot_kwargs)
 
         if show_arrow:
             self.plot_arrow(ax, **self.plot_kwargs)
@@ -852,7 +864,7 @@ class ObjectBase:
         else:
             self.plot_object_image(ax, self.description, **kwargs)
 
-    def plot_object_image(self, ax, description, **kwargs):
+    def plot_object_image(self, ax, description: str, **kwargs):
 
         # x = self.vertices[0, 0]
         # y = self.vertices[1, 0]
@@ -877,7 +889,7 @@ class ObjectBase:
 
         self.plot_patch_list.append(robot_img)
 
-    def plot_trajectory(self, ax, keep_length=0, **kwargs):
+    def plot_trajectory(self, ax, keep_length: int = 0, **kwargs):
         """
         Plot the trajectory of the object.
 
@@ -914,7 +926,7 @@ class ObjectBase:
             )
         )
 
-    def plot_goal(self, ax, goal_color="r"):
+    def plot_goal(self, ax, goal_color: str = "r"):
         """
         Plot the goal position of the object.
 
@@ -939,12 +951,29 @@ class ObjectBase:
 
     def plot_text(self, ax, **kwargs):
         """
-        To be completed.
+        Plot the text of the object.
+
+        Args:
+            ax: Matplotlib axis.
+            **kwargs: Additional plotting options.
+                text_color (str): Color of the text, default is 'k'.
+                text_size (int): Font size of the text, default is 10.
+                text_position (list): Position of the text in xy, default is [-radius-0.1, radius+0.1].
         """
-        pass
+
+        text_color = kwargs.get("text_color", "k")
+        text_size = kwargs.get("text_size", 10)
+        text_position = kwargs.get("text_position", [-self.radius-0.1, self.radius+0.1])
+
+        x, y = self.state[0, 0], self.state[1, 0]
+        
+        text = ax.text(x + text_position[0], y + text_position[1], self.abbr, fontsize = text_size, color = text_color)
+
+        self.plot_text_list.append(text)
+
 
     def plot_arrow(
-        self, ax, arrow_length=0.4, arrow_width=0.6, arrow_color="gold", **kwargs
+        self, ax, arrow_length: float = 0.4, arrow_width: float = 0.6, arrow_color: str = "gold", **kwargs
     ):
         """
         Plot an arrow indicating the velocity orientation of the object.
@@ -1116,6 +1145,13 @@ class ObjectBase:
         self.stop_flag = False
         self.trajectory = []
 
+    def remove(self):
+        """
+        Remove the object from the environment.
+        """
+        del self
+
+
     def get_vel_range(self):
         """
         Get the velocity range considering acceleration limits.
@@ -1171,6 +1207,10 @@ class ObjectBase:
     @property
     def name(self):
         return self.info.role + "_" + str(self.id)
+
+    @property
+    def abbr(self):
+        return self.info.role[0] + str(self.id)
 
     @property
     def shape(self):

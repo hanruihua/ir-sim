@@ -45,18 +45,22 @@ class Behavior:
 
         if self.behavior_dict is None or not self.behavior_dict:
             env_param.logger.warning(
-                "Behavior not defined for object {}. Robot will be static".format(self.object_info.id)
+                "Behavior not defined for object {}. Robot will be static".format(
+                    self.object_info.id
+                )
             )
             return np.zeros((2, 1))
 
-        target_roles = self.behavior_dict.get("target_roles", 'all')
+        target_roles = self.behavior_dict.get("target_roles", "all")
 
-        if target_roles == 'all':
+        if target_roles == "all":
             external_objects = external_objects
-        elif target_roles == 'obstacle':
-            external_objects = [obj for obj in external_objects if obj.role == 'obstacle']
-        elif target_roles == 'robot':
-            external_objects = [obj for obj in external_objects if obj.role == 'robot']
+        elif target_roles == "obstacle":
+            external_objects = [
+                obj for obj in external_objects if obj.role == "obstacle"
+            ]
+        elif target_roles == "robot":
+            external_objects = [obj for obj in external_objects if obj.role == "robot"]
 
         behavior_vel = self.invoke_behavior(
             self.object_info.kinematics,

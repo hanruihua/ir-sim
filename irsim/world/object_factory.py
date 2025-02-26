@@ -38,7 +38,9 @@ class ObjectFactory:
 
         if isinstance(parse, list):
             object_list = [
-                obj for group_index, sp in enumerate(parse) for obj in self.create_object(obj_type, group=group_index, **sp)
+                obj
+                for group_index, sp in enumerate(parse)
+                for obj in self.create_object(obj_type, group=group_index, **sp)
             ]
 
         elif isinstance(parse, dict):
@@ -90,7 +92,7 @@ class ObjectFactory:
             list: List of created objects.
         """
 
-        if not distribution.get('3d', False):
+        if not distribution.get("3d", False):
             state_list, goal_list = self.generate_state_list(
                 number, distribution, state, goal
             )
@@ -189,14 +191,14 @@ class ObjectFactory:
         position the objects according to specific patterns or randomness.
 
         Args:
-            state (Optional[List[float]]): 
+            state (Optional[List[float]]):
                 Base state vector [x, y, theta] to use as a template for generating states.
                 If None, default values will be used.
-            number (int): 
+            number (int):
                 Number of state vectors to generate.
-            distribution (Dict[str, Any]): 
+            distribution (Dict[str, Any]):
                 Configuration dictionary specifying the distribution method and its parameters.
-                - 'name' (str): 
+                - 'name' (str):
                     Name of the distribution method. Supported values are:
                     - 'manual': States are specified manually.
                     - 'circle': States are arranged in a circular pattern.
@@ -208,15 +210,15 @@ class ObjectFactory:
                         - 'center' (List[float]): Center coordinates [x, y] of the circle.
                         - 'radius' (float): Radius of the circle.
                     - For 'random':
-                        - 'range_low' (List[float]): Lower bounds for random state values. 
+                        - 'range_low' (List[float]): Lower bounds for random state values.
                         - 'range_high' (List[float]): Upper bounds for random state values.
 
         Returns:
-            List[List[float]]: 
+            List[List[float]]:
                 A list containing generated state vectors and goal vectors for objects.
 
         Raises:
-            ValueError: 
+            ValueError:
                 If the distribution method specified in 'name' is not supported or if required
                 parameters for a distribution method are missing.
         """
@@ -258,7 +260,8 @@ class ObjectFactory:
 
         return state_list, goal_list
 
-
-    def generate_state_list3D(self, number=1, distribution={"name": "manual"}, state=[1, 1, 0], goal=[1, 9, 0]):
+    def generate_state_list3D(
+        self, number=1, distribution={"name": "manual"}, state=[1, 1, 0], goal=[1, 9, 0]
+    ):
         pass
         return [], []

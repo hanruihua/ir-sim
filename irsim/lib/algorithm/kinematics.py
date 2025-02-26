@@ -1,6 +1,7 @@
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
+
 # from transforms3d import euler, axangles
 
 # reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
@@ -151,7 +152,7 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 #         state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the current position and orientation.
 #         velocity: A 6x1 vector [v_x, v_y, v_z, omega_x, omega_y, omega_z] representing the current velocities.
 #         step_time: The time step for the simulation.
-    
+
 #     Returns:
 #         new_state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the next state.
 #     '''
@@ -160,7 +161,7 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 
 #     state_HT = state_to_homo_trans(state)
 #     vel_HT = twist_to_homo_trans(velocity, step_time)
-    
+
 #     new_HT = state_HT @ vel_HT
 
 #     new_state = homo_trans_to_state(new_HT)
@@ -169,11 +170,11 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 
 # def state_to_homo_trans(state):
 #     """
-#     Create a homogeneous transformation matrix from state (position and Euler angles). 
-    
+#     Create a homogeneous transformation matrix from state (position and Euler angles).
+
 #     Parameters:
 #         state: A 6x1 vector [x, y, z, roll, pitch, yaw] representing the current position and orientation.
-    
+
 #     Returns:
 #     - 4x4 Homogeneous transformation matrix. (SE3)
 #     """
@@ -192,18 +193,18 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 # def twist_to_homo_trans(twist, dt):
 #     """
 #     Convert a twist (linear and angular velocity) to an incremental transformation matrix.
-    
+
 #     Parameters:
 #     - twist: List or array of [v_x, v_y, v_z, omega_x, omega_y, omega_z]
 #     - dt: Time step duration (seconds)
-    
+
 #     Returns:
 #     - 4x4 Incremental transformation matrix.
 #     """
 #     v = np.array(twist[:3]) * dt  # Linear displacement
 #     omega = np.array(twist[3:]) * dt  # Angular displacement
 #     theta = np.linalg.norm(omega)
-    
+
 #     if theta < 1e-6:
 #         # No rotation
 #         R = np.identity(3)
@@ -213,7 +214,7 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 #         axis = omega / theta
 #         R = axangles.axangle2mat(axis, theta)
 #         t = v  # Assuming small angles where rotation and translation commute for simplicity
-    
+
 #     T_inc = np.identity(4)
 #     T_inc[:3, :3] = R
 #     T_inc[:3, 3] = t
@@ -223,16 +224,16 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 # def homo_trans_to_state(homo_trans):
 
 #     '''
-#     generate the state from homo_trans 
+#     generate the state from homo_trans
 
 #     Args:
 #         homo_trans: 4x4 Homogeneous Transformation matrix.
 
 #     Return:
 #         state: [x, y, z, ]
-        
+
 #     '''
-    
+
 #     position = homo_trans[:3, 3]
 #     rotation_matrix = homo_trans[:3, :3]
 
@@ -241,16 +242,3 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
 #     state = position + euler_angles
 
 #     return state
-    
-    
-
-
-
-
-
-
-    
-
-
-    
-    

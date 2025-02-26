@@ -79,6 +79,8 @@ class EnvBase:
             self._world.obstacle_positions, self._world.buffer_reso
         )
 
+        self._objects = self._robot_collection + self._obstacle_collection + self._map_collection
+
         # env parameters
         self._env_plot = EnvPlot(
             self._world.grid_map,
@@ -116,7 +118,7 @@ class EnvBase:
                 round(self._world.time, 2)
             )
         )
-
+    
     def __str__(self):
         return f"Environment: {self._world.name}"
 
@@ -144,7 +146,7 @@ class EnvBase:
 
         self._world.step()
 
-    def _objects_step(self, action: Optional[list] =None):
+    def _objects_step(self, action: Optional[list] = None):
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
@@ -153,7 +155,7 @@ class EnvBase:
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     # render
-    def render(self, interval: float =0.05, figure_kwargs=dict(), **kwargs):
+    def render(self, interval: float = 0.05, figure_kwargs=dict(), **kwargs):
         """
         Render the environment.
 
@@ -182,8 +184,13 @@ class EnvBase:
 
         self._env_plot.show()
 
+
+    
+
+
+
     # draw various components
-    def draw_trajectory(self, traj, traj_type="g-", **kwargs):
+    def draw_trajectory(self, traj: list, traj_type: str = "g-", **kwargs):
         """
         Draw the trajectory on the environment figure.
 
@@ -195,7 +202,7 @@ class EnvBase:
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
 
-    def draw_points(self, points, s=30, c="b", refresh=True, **kwargs):
+    def draw_points(self, points: list, s: int = 30, c: str = "b", refresh: bool = True, **kwargs):
         """
         Draw points on the environment figure.
 
@@ -207,10 +214,10 @@ class EnvBase:
             refresh (bool): Flag to refresh the points in the figure.
             **kwargs: Additional keyword arguments for drawing the points, see `ax.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_ function for detail.
         """
-        
+
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
-    def draw_box(self, vertex, refresh=True, color="-b"):
+    def draw_box(self, vertex: list, refresh: bool = True, color: str = "-b"):
         """
         Draw a box by the vertices.
 
@@ -222,7 +229,7 @@ class EnvBase:
         self._env_plot.draw_box(vertex, refresh, color)
 
     # keyboard control
-    def init_keyboard(self, keyboard_kwargs=dict()):
+    def init_keyboard(self, keyboard_kwargs: dict = dict()):
         """
         Initialize keyboard control for the environment.
 
@@ -296,7 +303,7 @@ class EnvBase:
         )
         self.listener.start()
 
-    def end(self, ending_time=3.0, **kwargs):
+    def end(self, ending_time: float = 3.0, **kwargs):
         """
         End the simulation, save the animation, and close the environment.
 
@@ -322,7 +329,7 @@ class EnvBase:
         if world_param.control_mode == "keyboard":
             self.listener.stop()
 
-    def done(self, mode="all"):
+    def done(self, mode: str = "all"):
         """
         Check if the simulation is done.
 
@@ -352,7 +359,7 @@ class EnvBase:
         self.step(action=np.zeros((2, 1)))
         self._world.reset()
         self.reset_plot()
-        
+
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
 
@@ -364,10 +371,13 @@ class EnvBase:
         plt.cla()
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
-
     # region: environment change
     def random_obstacle_position(
-            self, range_low=[0, 0, -3.14], range_high=[10, 10, 3.14], ids=None, non_overlapping=False
+        self,
+        range_low: list = [0, 0, -3.14],
+        range_high: list = [10, 10, 3.14],
+        ids: list = None,
+        non_overlapping: bool = False,
     ):
         """
         Random obstacle positions in the environment.
@@ -392,29 +402,33 @@ class EnvBase:
         for obj in selected_obs:
 
             if not non_overlapping:
-                obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                obj.set_state(
+                    np.random.uniform(range_low, range_high, (3, 1)), init=True
+                )
             else:
                 counter = 0
 
                 while counter < 100:
-                    obj.set_state(np.random.uniform(range_low, range_high, (3, 1)), init=True)
+                    obj.set_state(
+                        np.random.uniform(range_low, range_high, (3, 1)), init=True
+                    )
 
                     if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
                         counter += 1
                     else:
                         existing_obj.append(obj)
                         break
-        
+
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
 
     def random_polygon_shape(
         self,
-        center_range=[0, 0, 10, 10],
-        avg_radius_range=[0.1, 1],
-        irregularity_range=[0, 1],
-        spikeyness_range=[0, 1],
-        num_vertices_range=[4, 10],
+        center_range: list = [0, 0, 10, 10],
+        avg_radius_range: list = [0.1, 1],
+        irregularity_range: list = [0, 1],
+        spikeyness_range: list = [0, 1],
+        num_vertices_range: list = [4, 10],
     ):
         """
         Random polygon shapes for the obstacles in the environment.
@@ -463,6 +477,48 @@ class EnvBase:
 
     # endregion: environment change
 
+
+    # region: object operation
+
+    def add_object(self, obj: ObjectBase):
+        """
+        Add the object to the environment.
+        """
+        self._objects.append(obj)
+    
+    def add_objects(self, objs: list):
+        """
+        Add the objects to the environment.
+        """
+        self._objects.extend(objs)
+
+
+    def delete_object(self, target_id: int):
+        """
+        Delete the object with the given id.
+        """
+
+        for obj in self._objects:
+            if obj.id == target_id:
+                obj.plot_clear()
+                self._objects.remove(obj)
+                break
+    
+    def delete_objects(self, target_ids: list):
+        """
+        Delete the objects with the given ids.
+        """
+
+        del_obj = [obj for obj in self._objects if obj.id in target_ids]
+
+        for obj in del_obj:
+            obj.plot_clear()
+            self._objects.remove(obj)
+
+    # endregion: object operation
+
+
+
     # region: get information
 
     def get_robot_state(self):
@@ -476,7 +532,7 @@ class EnvBase:
 
         return self.robot._state
 
-    def get_lidar_scan(self, id=0):
+    def get_lidar_scan(self, id: int = 0):
         """
         Get the lidar scan of the robot with the given id.
 
@@ -489,7 +545,7 @@ class EnvBase:
 
         return self.robot_list[id].get_lidar_scan()
 
-    def get_lidar_offset(self, id=0):
+    def get_lidar_offset(self, id: int = 0):
         """
         Get the lidar offset of the robot with the given id.
 
@@ -512,10 +568,10 @@ class EnvBase:
         """
 
         return [
-            obj.get_obstacle_info() for obj in self.objects if obj.role == "obstacle"
+            obj.get_obstacle_info() for obj in self.obstacle_list
         ]
 
-    def get_robot_info(self, id=0):
+    def get_robot_info(self, id: int = 0):
         """
         Get the information of the robot with the given id.
 
@@ -528,10 +584,20 @@ class EnvBase:
 
         return self.robot_list[id].get_info()
 
+    def get_robot_info_list(self):
+        """
+        Get the information of the robots in the environment.
+
+        Returns:
+            list of dict: List of robot information, see :py:meth:`.ObjectBase.get_info` for detail.
+        """
+
+        return [obj.get_info() for obj in self.robot_list]
+
     # endregion: get information
 
     def save_figure(
-        self, save_name=None, include_index=False, save_gif=False, **kwargs
+        self, save_name: str = None, include_index: bool = False, save_gif: bool = False, **kwargs
     ):
         """
         Save the current figure.
@@ -564,7 +630,7 @@ class EnvBase:
             print(f"Failed to load module '{behaviors}': {e}")
 
     @property
-    def arrive(self, id=None, mode=None):
+    def arrive(self, id: Optional[int] = None, mode: Optional[str] = None):
         """
         Check if the robot(s) have arrived at their destination.
 
@@ -593,7 +659,7 @@ class EnvBase:
             )
 
     @property
-    def collision(self, id=None, mode=None):
+    def check_collision(self, id: Optional[int] = None, mode: Optional[str] = None):
         """
         Check if the robot(s) have collided.
 
@@ -644,7 +710,7 @@ class EnvBase:
 
     @property
     def objects(self):
-        return self._robot_collection + self._obstacle_collection + self._map_collection
+        return self._objects
 
     @property
     def step_time(self):

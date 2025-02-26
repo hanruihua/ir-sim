@@ -39,5 +39,14 @@ exclude = ["doc*", "tests*"]
 [tool.setuptools.package-data]
 "*" = ["*.png", "*.yaml"]
 
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/hanruihua/ir-sim"
+"Documentation" = "https://ir-sim.readthedocs.io/en/latest/"
