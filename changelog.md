@@ -1,7 +1,7 @@
 ## ir-sim 2.3.5
 
 - Bug Fixes:
-  - dimension of init vertices for the polygon object
+  - Dimension of init vertices for the polygon object
 
 - New Features:
   - Complete the feature of show_text for the object, run usage: 06multi_objects_world for detail.
