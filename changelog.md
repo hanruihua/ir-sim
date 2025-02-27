@@ -1,14 +1,15 @@
 ## ir-sim 2.3.5
 
 - Bug Fixes:
-  
+  - dimension of init vertices for the polygon object
 
 - New Features:
-  - Add the show_text for the object, run usage: 06multi_objects_world for detail.
+  - Complete the feature of show_text for the object, run usage: 06multi_objects_world for detail.
   - Add abbr name for the object, run usage: 06multi_objects_world for detail.
   - Add init parameters for the set_goal function.
   - Add add_object, add_objects, delete_object, delete_objects functions for the environment to support adding or eliminating obstacles.
-  - TAdd type hint for the functions.
+  - Update type hint for the functions and format the code with black.
+  - Add get_Gh function for the object.
 
 ## ir-sim 2.3.4
 
