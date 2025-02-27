@@ -17,7 +17,7 @@
 
 **Documentation:** [https://ir-sim.readthedocs.io/en](https://ir-sim.readthedocs.io/en/latest/)
 
-**IR-SIM** is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple, user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
+**IR-SIM** is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple and user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
 
 ## Features
 
