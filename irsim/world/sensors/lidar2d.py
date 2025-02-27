@@ -175,16 +175,6 @@ class Lidar2D:
 
     def laser_geometry_process(self, lidar_geometry):
 
-        # filtered_objects = []
-
-        # for obj in env_param.objects:
-
-        #     if obj.id != self.obj_id and is_valid(obj.geometry) and not isinstance(obj.geometry, MultiPolygon):
-        #         filtered_objects.append(obj)
-        #     if isinstance(obj.geometry, MultiPolygon):
-        #         polygons = list(obj.geometry.geoms)
-        #         filtered_objects += polygons
-
         filtered_objects = [
             obj
             for obj in env_param.objects
