@@ -185,13 +185,13 @@ class ObjectBase:
         goal_threshold: float = 0.1,
         sensors: Optional[dict] = None,
         arrive_mode: str = "position",
-        description: str = None,
+        description: Optional[str] = None,
         group: int = 0,
-        state_dim: int = None,
-        vel_dim: int = None,
+        state_dim: Optional[int] = None,
+        vel_dim: Optional[int] = None,
         unobstructed: bool = False,
-        fov: float = None,
-        fov_radius: float = None,
+        fov: Optional[float] = None,
+        fov_radius: Optional[float] = None,
         **kwargs,
     ) -> None:
         """
@@ -215,7 +215,10 @@ class ObjectBase:
             else None
         )
 
-        self.G, self.h, self.cone_type, self.convex_flag = self.gf.get_init_Gh()
+        if self.gf is not None:
+            self.G, self.h, self.cone_type, self.convex_flag = self.gf.get_init_Gh()
+        else:
+            self.G, self.h, self.cone_type, self.convex_flag = None, None, None, None
 
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
@@ -745,7 +748,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             kwargs:
                 - show_goal (bool): Whether show the goal position.
-                - show_text (bool): Whether show text information. To be completed.
+                - show_text (bool): Whether show text information.
                 - show_arrow (bool): Whether show the velocity arrow.
                 - show_uncertainty (bool): Whether show the uncertainty. To be completed.
                 - show_trajectory (bool): Whether show the trajectory.
@@ -1203,6 +1206,13 @@ class ObjectBase:
             G matrix and h vector.
         """
         return self.gf.get_init_Gh()
+
+    def get_Gh(self):
+
+        """
+        Get the generalized inequality matrices G and h for the convex object's.
+        """
+        return self.gf.get_Gh(center=self.position, radius=self.radius, vertices=self.vertices)
 
     @property
     def name(self):
