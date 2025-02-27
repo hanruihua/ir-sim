@@ -31,12 +31,11 @@
 - [ ] real robot size (LIMO, BYD)
 - [ ] Using decorator to update
 - [x] code annotation for main class
-- [ ] Add the data monitor
 - [ ] Add the interface with gym
 - [x] Support the feature of adding or eliminating obstacles by functions
 - [ ] Add functions to access obstacles with different types
 - [ ] Add more key functions for keyboard control
-- [ ] Develop Tools for tackling Data
+- [ ] Develop Tools for tackling Data. Add the data monitor
 - [x] 3D visualization
 - [x] check whether the object is convex
 - [ ] Add synchronization and asynchronization mode
@@ -50,7 +49,6 @@
 - [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
 - [ ] LLM integration
-- [ ] organize the functions to calculate A, b, G, h
 - [x] Reformulate the behavior library
 - [x] Add comments for the functions
 - [ ] rewrite some lib functions by using c++ to improve the efficiency
@@ -79,3 +77,4 @@
 - [ ] organize the test cases
 - [ ] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
+- [ ] improve coverage of the code
