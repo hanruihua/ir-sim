@@ -10,7 +10,7 @@ version = "2.3.5"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
-description = "an open-source, lightweight robot simulator based on Python, specifically designed for intelligent robotics navigation and learning. Primarily intended for research and educational purposes, it is user-friendly and easily customizable."
+description = "IR-SIM is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple and user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
