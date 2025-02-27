@@ -31,6 +31,7 @@ def test_all_objects():
     env2.robot.get_lidar_scan()
     env2.robot.get_lidar_offset()
     env2.robot.get_init_Gh()
+    env2.robot.get_Gh()
 
     env2.get_obstacle_info_list()
     env2.get_robot_info_list()
