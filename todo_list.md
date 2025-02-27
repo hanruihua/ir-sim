@@ -42,7 +42,6 @@
 - [ ] Add tf (similar like ROS tf)
 - [x] pytest
 - [ ] record and replay path
-- [ ] Plot velocity and acceleration
 - [ ] Some judgment functions for control
 - [x] Add example yaml files
 - [ ] Add some data structure for plot
@@ -73,7 +72,6 @@
 - [ ] Interface with ROS
 - [ ] Interface with Pybullet or Gazebo
 - [ ] Add ORCA Behavior
-- [ ] unify the G, h and obstacles, object information
 - [ ] organize the test cases
 - [ ] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
