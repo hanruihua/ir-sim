@@ -761,11 +761,12 @@ class ObjectBase:
                 - traj_style (str): Style of the trajectory.
                 - traj_width (float): Width of the trajectory.
                 - traj_alpha (float): Transparency of the trajectory.
-                - edgecolor (str): Edge color of the trail.
-                - linewidth (float): Width of the trail.
+                - trail_edgecolor (str): Edge color of the trail.
+                - trail_linewidth (float): Width of the trail.
                 - trail_alpha (float): Transparency of the trail.
                 - trail_fill (bool): Whether fill the trail.
                 - trail_color (str): Color of the trail.
+                - obj_linestyle (str): Style of the object edge line.
 
         """
         self.state_re = self.state
@@ -785,7 +786,8 @@ class ObjectBase:
         trail_freq = self.plot_kwargs.get("trail_freq", 2)
         goal_color = self.plot_kwargs.get("goal_color", self.color)
 
-        self.plot_object(ax, **kwargs)
+
+        self.plot_object(ax, **self.plot_kwargs)
 
         if show_goal:
             self.plot_goal(ax, goal_color)
@@ -819,13 +821,16 @@ class ObjectBase:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
         """
+        
+        obj_linestyle = kwargs.get("obj_linestyle", "-")
+
         if self.description is None or isinstance(ax, Axes3D):
             x = self.state_re[0, 0]
             y = self.state_re[1, 0]
 
             if self.shape == "circle":
                 object_patch = mpl.patches.Circle(
-                    xy=(x, y), radius=self.radius, color=self.color
+                    xy=(x, y), radius=self.radius, color=self.color, linestyle=obj_linestyle
                 )
                 object_patch.set_zorder(3)
 
@@ -835,7 +840,7 @@ class ObjectBase:
                 ax.add_patch(object_patch)
 
             elif self.shape == "polygon" or self.shape == "rectangle":
-                object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color)
+                object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color, linestyle=obj_linestyle)
                 object_patch.set_zorder(3)
 
                 if isinstance(ax, Axes3D):
@@ -854,7 +859,7 @@ class ObjectBase:
                     )
                 else:
                     object_patch = mpl.lines.Line2D(
-                        self.vertices[0, :], self.vertices[1, :], color=self.color
+                        self.vertices[0, :], self.vertices[1, :], color=self.color, linestyle=obj_linestyle
                     )
                 object_patch.set_zorder(3)
                 ax.add_line(object_patch)
@@ -1022,8 +1027,8 @@ class ObjectBase:
             **kwargs: Additional plotting options.
         """
         trail_type = kwargs.get("trail_type", self.shape)
-        trail_edgecolor = kwargs.get("edgecolor", self.color)
-        trail_linewidth = kwargs.get("linewidth", 0.8)
+        trail_edgecolor = kwargs.get("trail_edgecolor", self.color)
+        trail_linewidth = kwargs.get("trail_linewidth", 0.8)
         trail_alpha = kwargs.get("trail_alpha", 0.7)
         trail_fill = kwargs.get("trail_fill", False)
         trail_color = kwargs.get("trail_color", self.color)

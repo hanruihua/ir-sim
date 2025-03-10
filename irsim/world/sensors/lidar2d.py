@@ -178,7 +178,7 @@ class Lidar2D:
         filtered_objects = [
             obj
             for obj in env_param.objects
-            if obj._id != self.obj_id and is_valid(obj._geometry)
+            if obj._id != self.obj_id and is_valid(obj._geometry) and not obj.unobstructed
         ]
 
         geometries = [obj._geometry for obj in filtered_objects]

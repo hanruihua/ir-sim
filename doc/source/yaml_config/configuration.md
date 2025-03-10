@@ -498,6 +498,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `text_size` (int): Font size of the text. Default is `10`.
     - `text_position` (list): Position of the text. Default is `[-radius-0.1, radius+0.1]`.
   - `goal_color` (str): Color of the goal marker. Default is the object's color.
+  - `obj_linestyle` (str): Line style of the object edge. Default is `'-'`. You can set the line style as `'-'`, `'--'`, `':'`, `'-.'`, `'None'`.
 
   **Example:**
   ```yaml
@@ -525,6 +526,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     trail_freq: 2
     show_sensor: True
     goal_color: 'red'
+    obj_linestyle: '--'
   ```
   
 ##### **`state_dim`** and **`vel_dim`**:

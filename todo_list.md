@@ -76,3 +76,4 @@
 - [ ] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
 - [ ] improve coverage of the code
+- [ ] modular yaml import so that ir-sim can read the yaml file separately
