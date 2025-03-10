@@ -77,3 +77,4 @@
 - [ ] traffic scenarios
 - [ ] improve coverage of the code
 - [ ] modular yaml import so that ir-sim can read the yaml file separately
+- [ ] Add the interface with opendrive
