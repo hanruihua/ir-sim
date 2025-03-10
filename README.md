@@ -12,17 +12,17 @@
 <a href="https://pepy.tech/project/ir-sim"><img src="https://img.shields.io/pepy/dt/ir-sim" alt="PyPI Downloads"></a>
 <a href="https://codecov.io/gh/hanruihua/ir-sim" > <img src="https://codecov.io/gh/hanruihua/ir-sim/branch/dev/graph/badge.svg?token=OSC8I5QCQ0"/> </a>
 <a href="https://ir-sim.readthedocs.io/en/latest/"> <img alt="Read the Docs" src="https://img.shields.io/readthedocs/ir-sim"/> </a>
-
+<a href="https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue"> <img src="https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python Version"></a>
 </div>
 
 **Documentation:** [https://ir-sim.readthedocs.io/en](https://ir-sim.readthedocs.io/en/latest/)
 
-IR-SIM is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple, user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
+**IR-SIM** is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple and user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements. 
 
 ## Features
 
 - Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors  ([support](#support)). 
-- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required.
+- Quickly configure and customize simulation scenarios using straightforward YAML files. No complex coding required.
 - Visualize simulation outcomes in real time for immediate feedback and analysis using a naive visualizer matplotlib.
 - Support collision detection and behavior control for each object in the simulation.
 
@@ -124,16 +124,19 @@ Currently, the simulator supports the following features. Further features, such
 | **Behaviors** | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior)|
 
 
+## Cases
 
+- Academic Projects:
+  - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
+  - [RDA_planner](https://github.com/hanruihua/RDA_planner) (RAL & IROS2023)
+  - [NeuPAN](https://github.com/hanruihua/NeuPAN) (T-RO 2025)
 
-## Academic Cases
-- [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
-- [RDA_planner](https://github.com/hanruihua/RDA_planner) (RAL & IROS2023)
-- [NeuPAN](https://github.com/hanruihua/NeuPAN) (T-RO 2025)
+- Deep Reinforcement Learning Projects:
+  - [DRL-robot-navigation-IR-SIM](https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM)
 
 ## Contributing
 
-This project is under development. I appreciate and welcome all contributions. Just open an issue or a pull request.   Here are some simple ways to start contributing:
+This project is under development. I appreciate and welcome all contributions. Just open an issue or a pull request. Here are some simple ways to start contributing:
 
 - Enhance the website documentation, such as the API and tutorials.
 - Add new sensors, behaviors, robot models, and functional interfaces.
