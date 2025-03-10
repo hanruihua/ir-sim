@@ -1,3 +1,13 @@
+## ir-sim 2.3.6
+
+- Bug Fixes:
+  - Lidar2d sensor can pass through the unobstructed objects.
+
+- New Features:
+  - Add the `obj_linestyle` parameter for the object to set the line style of the object edge.
+
+
+
 ## ir-sim 2.3.5
 
 - Bug Fixes:
