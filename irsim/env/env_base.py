@@ -6,7 +6,13 @@ Author: Ruihua Han (hanrh@connect.hku.hk)
 
 import matplotlib
 
-matplotlib.use("TkAgg")
+try:
+    matplotlib.use("TkAgg")
+except Exception as e:
+    print(f"Failed to use 'TkAgg' backend: {e}")
+    print("Falling back to 'Agg' backend.")
+    matplotlib.use("Agg")
+
 from irsim.env.env_config import EnvConfig
 from irsim.world import World
 from .env_plot import EnvPlot
