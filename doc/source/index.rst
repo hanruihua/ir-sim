@@ -70,6 +70,12 @@ Academic Cases
 - `NeuPAN(T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_
 
 
+Deep Reinforcement Learning Cases
+---------------------------
+
+- `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
+
+
 Code Repository
 ---------------
 `IR-SIM <https://github.com/hanruihua/ir-sim>`_
