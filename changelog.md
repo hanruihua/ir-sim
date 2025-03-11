@@ -1,10 +1,13 @@
 ## ir-sim 2.3.6
 
 - Bug Fixes:
-  - Lidar2d sensor can pass through the unobstructed objects.
+  - Lidar2d sensor pass through the unobstructed objects now.
+  - Fix the matplotlib backend error when running in the headless server.
+  - Fix the error of object vertices.
+  - 
 
 - New Features:
-  - Add the `obj_linestyle` parameter for the object to set the line style of the object edge.
+  - Add the `obj_linestyle` parameter for the object to set the line style of the object edge. see usage: `05lidar_world` for detail.
 
 
 
