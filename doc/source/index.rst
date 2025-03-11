@@ -60,8 +60,10 @@ The simple demonstrations of the simulator are shown below:
    api/modules
 
 
-Academic Cases
+Cases
 --------------
+
+**Academic**
 
 - `rl-rvo-nav(RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_
 
@@ -69,9 +71,7 @@ Academic Cases
 
 - `NeuPAN(T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_
 
-
-Deep Reinforcement Learning Cases
----------------------------
+**Deep Reinforcement Learning**
 
 - `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
 
