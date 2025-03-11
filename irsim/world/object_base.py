@@ -1160,7 +1160,7 @@ class ObjectBase:
         del self
 
 
-    def get_vel_range(self):
+    def get_vel_range(self) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the velocity range considering acceleration limits.
 
@@ -1176,7 +1176,7 @@ class ObjectBase:
 
         return min_vel, max_vel
 
-    def get_info(self):
+    def get_info(self) -> ObjectInfo:
         """
         Get object information.
 
@@ -1185,7 +1185,7 @@ class ObjectBase:
         """
         return self.info
 
-    def get_obstacle_info(self):
+    def get_obstacle_info(self) -> ObstacleInfo:
         """
         Get information about the object as an obstacle.
 
@@ -1203,7 +1203,7 @@ class ObjectBase:
             self.convex_flag,
         )
 
-    def get_init_Gh(self):
+    def get_init_Gh(self) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the generalized inequality matrices G and h for the convex object's.
 
@@ -1212,7 +1212,7 @@ class ObjectBase:
         """
         return self.gf.get_init_Gh()
 
-    def get_Gh(self):
+    def get_Gh(self) -> tuple[np.ndarray, np.ndarray]:
 
         """
         Get the generalized inequality matrices G and h for the convex object's.
@@ -1220,99 +1220,279 @@ class ObjectBase:
         return self.gf.get_Gh(center=self.position, radius=self.radius, vertices=self.vertices)
 
     @property
-    def name(self):
+    def name(self) -> str:
+
+        '''
+        Get the name of the object.
+
+        Returns:
+            str: The name of the object.
+        '''
+
         return self.info.role + "_" + str(self.id)
 
     @property
-    def abbr(self):
+    def abbr(self) -> str:
+
+        '''
+        Get the abbreviation of the object.
+
+        Returns:
+            str: The abbreviation of the object.
+        '''
+
         return self.info.role[0] + str(self.id)
 
     @property
-    def shape(self):
+    def shape(self) -> str:
+
+        '''
+        Get the shape name of the object.
+
+        Returns:
+            str: The shape name of the object.
+        '''
+
         return self.gf.name
 
     @property
-    def z(self):
+    def z(self) -> float:
+
+        '''
+        Get the z coordinate of the object. For 3D object, the z coordinate is the height of the object, for 2D object, the z coordinate is 0.
+
+        Returns:
+            float: The z coordinate of the object.
+        '''
+
         return self.state[2, 0] if self.state_dim >= 6 else 0
 
     @property
-    def kinematics(self):
+    def kinematics(self) -> str:
+
+        '''
+        Get the kinematics name of the object.
+
+        Returns:
+            str: The kinematics name of the object.
+        '''
+
         return self.kf.name if self.kf is not None else None
 
     @property
-    def geometry(self):
+    def geometry(self) -> shapely.geometry.base.BaseGeometry:
+
+        '''
+        Get the geometry Instance of the object.
+
+        Returns:
+            shapely.geometry.base.BaseGeometry: The geometry of the object.
+        '''
+
         return self._geometry
 
     @property
-    def centroid(self):
+    def centroid(self) -> np.ndarray:
+
+        '''
+        Get the centroid of the object.
+
+        Returns:
+            np.ndarray: The centroid of the object.
+        '''
+
         return self._geometry.centroid.coords._coords.T
 
     @property
-    def id(self):
+    def id(self) -> int:
+
+        '''
+        Get the id of the object.
+
+        Returns:
+            int: The id of the object.
+        '''
+
         return self._id
 
     @property
-    def state(self):
+    def state(self) -> np.ndarray:
+
+        '''
+        Get the state of the object.
+
+        Returns:
+            np.ndarray: The state of the object.
+        '''
+
         return self._state
 
     @property
-    def velocity(self):
+    def velocity(self) -> np.ndarray:
+
+        '''
+        Get the velocity of the object.
+
+        Returns:
+            np.ndarray: The velocity of the object.
+        '''
+
         return self._velocity
 
     @property
-    def goal(self):
+    def goal(self) -> np.ndarray:
+
+        '''
+        Get the goal of the object.
+
+        Returns:
+            np.ndarray: The goal of the object.
+        '''
+
         return self._goal
 
     @property
-    def position(self):
+    def position(self) -> np.ndarray:
+
+        '''
+        Get the position of the object.
+
+        Returns:
+            np.ndarray: The position of the object .
+        '''
+
         return self._state[:2]
 
     @property
-    def radius(self):
+    def radius(self) -> float:
+
+        '''
+        Get the radius of the object.
+
+        Returns:
+            float: The radius of the object.
+        '''
+
         return self.gf.radius
 
     @property
-    def length(self):
+    def length(self) -> float:
+
+        '''
+        Get the length of the object.
+
+        Returns:
+            float: The length of the object.
+        '''
+
         return self.gf.length
 
     @property
-    def width(self):
+    def width(self) -> float:
+
+        '''
+        Get the width of the object.
+
+        Returns:
+            float: The width of the object.
+        '''
+
         return self.gf.width
 
     @property
-    def wheelbase(self):
+    def wheelbase(self) -> float:
+
+        '''
+        Get the wheelbase of the object.
+
+        Returns:
+            float: The wheelbase of the object.
+        '''
+
         return self.gf.wheelbase
 
     @property
-    def radius_extend(self):
+    def radius_extend(self) -> float:
+
+        '''
+        Get the radius of the object with a buffer.
+
+        Returns:
+            float: The radius of the object with a buffer.
+        '''
+
         return self.radius + 0.1
 
     @property
-    def arrive(self):
+    def arrive(self) -> bool:
+
+        '''
+        Get the arrive flag of the object.
+
+        Returns:
+            bool: The arrive flag of the object.
+        '''
+
         return self.arrive_flag
 
     @property
-    def collision(self):
+    def collision(self) -> bool:
+
+        '''
+        Get the collision flag of the object.
+
+        Returns:
+            bool: The collision flag of the object.
+        '''
+
         return self.collision_flag
 
     @property
     def ineq_Ab(self):
+
+        '''
+        Get the inequality matrix A and b of the object.
+
+        Returns:
+            tuple: The inequality matrix A and b of the object.
+        '''
+
         return self.get_inequality_Ab()
 
     @property
-    def vertices(self):
+    def vertices(self) -> np.ndarray:
+
+        '''
+        Get the vertices of the object.
+
+        Returns:
+            np.ndarray: The vertices of the object.
+        '''
+
         return self.gf.vertices
 
     @property
     def external_objects(self):
-        """
+
+        '''
         The environment objects that are not the self object.
-        """
+
+        Returns:
+            list: The environment objects that are not the self object.
+        '''
 
         return [obj for obj in env_param.objects if self.id != obj.id]
 
     @property
     def ego_object(self):
+
+        '''
+        Get the ego object.
+
+        Returns:
+            ObjectBase: The ego object.
+        '''
+
         return self
 
     @property
@@ -1401,5 +1581,12 @@ class ObjectBase:
 
     @property
     def beh_config(self):
-        # behavior config dictory
+        
+        '''
+        Get the behavior configuration of the object.
+
+        Returns:
+            dict: The behavior configuration of the object.
+        '''
+
         return self.obj_behavior.behavior_dict
