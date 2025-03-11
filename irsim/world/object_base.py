@@ -1194,7 +1194,7 @@ class ObjectBase:
         """
         return ObstacleInfo(
             self.state[:2, :],
-            self.vertices[:, :-1],
+            self.vertices,
             self._velocity,
             self.radius,
             self.G,
