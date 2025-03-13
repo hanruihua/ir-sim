@@ -138,7 +138,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `shape`          | `dict`            | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
 | `state`          | `list` of `float` | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
 | `velocity`       | `list` of `float` | `[0, 0]`         | Initial velocity vector.                                                                 |
-| `goal`           | `list` of `float` | `[10, 10, 0]`    | Goal state vector.                                                                       |
+| `goal`           | `list` of `float` or `list` of `list` of `float` | `[10, 10, 0]`    | Goal state(s) vector.                                                                       |
 | `behavior`       | `dict`            | `{name: dash}`   | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
 | `role`           | `str`             | `Obstacle`       | Role of the object in the simulation.                                                    |
 | `color`          | `str`             | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
@@ -330,11 +330,18 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```
 
 ##### **`goal`**:
-  Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]`. Default is `[10.0, 10.0, 0.0]`.
+  Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]` or `[[x, y, theta], [x, y, theta], ...]` for multiple goals. Default is `[10.0, 10.0, 0.0]`.
 
   **Example:**
   ```yaml
   goal: [10.0, 10.0, 0.2]
+  ```
+
+  or for multiple goals for the single object (Pay attention to the difference between the single goal for multiple objects and multiple goals for the single object)
+
+  ```yaml
+  goal: 
+    - [[10.0, 10.0, 0.2], [5.0, 4.0, 1.0], [3.0, 3.0, 2.0]]
   ```
 
 ##### **`behavior`**:
