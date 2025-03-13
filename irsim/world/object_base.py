@@ -430,7 +430,7 @@ class ObjectBase:
                     if self.role == "robot":
                         if not self.collision_flag:
                             env_param.logger.warning(
-                                f"{self.name} is collided with {obj.name} at state {list(np.round(self.state[:2, 0], 2))}"
+                                f"{self.name} collided with {obj.name} at state {np.round(self.state[:2, 0], 2).tolist()}"
                             )
 
         self.collision_flag = any(collision_flags)
