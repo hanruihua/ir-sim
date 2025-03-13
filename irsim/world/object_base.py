@@ -1,24 +1,23 @@
 import shapely
 import logging
 import itertools
+import math
 import numpy as np
 import matplotlib as mpl
+import matplotlib.transforms as mtransforms
+import mpl_toolkits.mplot3d.art3d as art3d
+from matplotlib.patches import Wedge
+from matplotlib import image
+from mpl_toolkits.mplot3d import Axes3D
 from dataclasses import dataclass
-from irsim.lib import Behavior
-from math import inf, pi, atan2, cos, sin, sqrt
+from math import inf, pi, atan2, cos, sin
+from typing import Optional, Union
+from collections import deque
+from irsim.lib import Behavior, KinematicsFactory, GeometryFactory
 from irsim.global_param import world_param, env_param
-from irsim.lib import KinematicsFactory, GeometryFactory
 from irsim.world import SensorFactory
 from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
-import matplotlib.transforms as mtransforms
-from matplotlib import image
-from typing import Optional, Union
-import mpl_toolkits.mplot3d.art3d as art3d
-from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Line3D
-from matplotlib.patches import Wedge
-import math
 
 from irsim.util.util import (
     WrapToRegion,
@@ -26,6 +25,7 @@ from irsim.util.util import (
     diff_to_omni,
     random_point_range,
     WrapToPi,
+    is_2d_list,
 )
 
 
@@ -89,7 +89,7 @@ class ObjectBase:
             and missing dimensions are filled with zeros. Defaults to [0, 0, 0].
         velocity (list of float): Initial velocity vector [vx, vy] or according to the kinematics model.
             Defaults to [0, 0].
-        goal (list of float): Goal state vector [x, y, theta, ...].
+        goal (list of float or list of list of float): Goal state vector [x, y, theta, ...] or [[x, y, theta], [x, y, theta], ...] for multiple goals
             Used by behaviors to determine the desired movement. Defaults to [10, 10, 0].
         role (str): Role of the object in the simulation, e.g., "robot" or "obstacle".
             Defaults to "obstacle".
@@ -234,8 +234,8 @@ class ObjectBase:
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
 
-        self._goal = np.c_[goal]
-        self._init_goal = np.c_[goal]
+        self._goal = deque(goal) if is_2d_list(goal) else deque([goal])
+        self._init_goal = self._goal.copy()
 
         self._geometry = self.gf.step(self.state)
         self.group = group
@@ -312,7 +312,7 @@ class ObjectBase:
         self.wander = self.beh_config.get("wander", False)
 
         if self.wander:
-            self._goal = random_point_range(self.rl, self.rh)
+            self._goal = deque([random_point_range(self.rl, self.rh).flatten().tolist()])
 
         # plot
         self.plot_kwargs = kwargs.get("plot", dict())
@@ -409,7 +409,11 @@ class ObjectBase:
             diff = np.linalg.norm(self.state[:2] - self.goal[:2])
 
         if diff < self.goal_threshold:
-            self.arrive_flag = True
+            if len(self._goal) == 1:
+                self.arrive_flag = True
+            else:
+                self._goal.popleft()
+                self.arrive_flag = False    
         else:
             self.arrive_flag = False
 
@@ -478,7 +482,7 @@ class ObjectBase:
 
             else:
                 if self.wander and self.arrive_flag:
-                    self._goal = random_point_range(self.rl, self.rh)
+                    self._goal = deque([random_point_range(self.rl, self.rh).flatten().tolist()])
                     self.arrive_flag = False
 
                 behavior_vel = self.obj_behavior.gen_vel(
@@ -691,9 +695,18 @@ class ObjectBase:
         Set the goal of the object.
 
         Args:
-            goal: The goal of the object [x, y, theta].
+            goal: The goal of the object [x, y, theta] or [[x, y, theta], [x, y, theta], ...]
             init (bool): Whether to set the initial goal (default False).
         """
+
+        if is_2d_list(goal):
+            self._goal = deque(goal)
+
+            if init:
+                self._init_goal = self._goal.copy()
+            
+            return 
+
         if isinstance(goal, list):
             if len(goal) > self.state_dim:
                 temp_goal = np.c_[goal[: self.state_dim]]
@@ -712,12 +725,14 @@ class ObjectBase:
             else:
                 temp_goal = goal
 
-        assert self._goal.shape == temp_goal.shape
+        assert self.goal.shape == temp_goal.shape
+
+        goal_deque = deque([temp_goal.copy().flatten().tolist()])
 
         if init:
-            self._init_goal = temp_goal.copy()
+            self._init_goal = goal_deque
 
-        self._goal = temp_goal.copy()
+        self._goal = goal_deque
 
     def geometry_state_transition(self):
         pass
@@ -851,7 +866,7 @@ class ObjectBase:
             elif self.shape == "linestring":
 
                 if isinstance(ax, Axes3D):
-                    object_patch = Line3D(
+                    object_patch = art3d.Line3D(
                         self.vertices[0, :],
                         self.vertices[1, :],
                         zs=self.z * np.ones((3,)),
@@ -1349,7 +1364,7 @@ class ObjectBase:
             np.ndarray: The goal of the object.
         '''
 
-        return self._goal
+        return np.c_[self._goal[0]]
 
     @property
     def position(self) -> np.ndarray:

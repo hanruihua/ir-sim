@@ -4,6 +4,7 @@ from math import pi, atan2, sin, cos, sqrt
 import numpy as np
 from shapely import ops
 import time
+from typing import Any
 
 
 def file_check(file_name, root_path=None):
@@ -519,6 +520,17 @@ def distance(point1, point2):
 
 def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
+    '''
+    Generate a random point within a range.
+
+    Args:
+        range_low (list): Lower bound of the range.
+        range_high (list): Upper bound of the range.
+
+    Returns:
+        np.array: Random point within the range.
+    '''
+
     if isinstance(range_low, list):
         range_low = np.c_[range_low]
 
@@ -526,3 +538,22 @@ def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
         range_high = np.c_[range_high]
 
     return np.random.uniform(range_low, range_high)
+
+
+def is_2d_list(data: list) -> bool:
+    """
+    Returns True if 'data' is a non-empty list of lists (or tuples), indicating a 2D structure.
+    Returns False if 'data' is a single list
+    """
+
+    if isinstance(data, np.ndarray):
+        return False
+
+    # assert isinstance(data, list)
+    # Check if data is a list and is not empty.
+    if data:
+        first_element = data[0]
+        if isinstance(first_element, (list, tuple)):
+            return True
+            
+    return False

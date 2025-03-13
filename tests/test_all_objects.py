@@ -58,6 +58,7 @@ def test_all_objects():
     env4.end()
 
     env5 = irsim.make('test_multi_objects_world.yaml', save_ani=False, display=False)
+    env5.robot.set_goal([[5, 10, 0]])
 
     env5.random_obstacle_position()
 
