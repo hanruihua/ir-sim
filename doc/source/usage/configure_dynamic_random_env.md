@@ -29,7 +29,7 @@ YAML File:
 ```yaml
 world:
   height: 50  # the height of the world
-  width: 50   # the height of the world
+  width: 50   # the width of the world
   control_mode: 'keyboard'  
 
 robot:

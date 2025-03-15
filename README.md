@@ -93,7 +93,7 @@ YAML Configuration: robot_world.yaml
 
 world:
   height: 10  # the height of the world
-  width: 10   # the height of the world
+  width: 10   # the width of the world
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 

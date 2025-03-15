@@ -30,7 +30,7 @@ YAML file:
 ```yaml
 world:
   height: 10  # the height of the world
-  width: 10   # the height of the world
+  width: 10   # the width of the world
 
 robot:
   - number: 10
@@ -155,7 +155,7 @@ Now, you can use the custom behavior `dash_custom` in the YAML configuration fil
 ```yaml
 world:
   height: 10  # the height of the world
-  width: 10   # the height of the world
+  width: 10   # the width of the world
 
 robot:
   - number: 10

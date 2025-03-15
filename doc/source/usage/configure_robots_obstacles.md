@@ -144,7 +144,7 @@ To simulate multiple robots and obstacles within the same environment, simply ad
 ```yaml
 world:
   height: 10  # the height of the world
-  width: 10   # the height of the world
+  width: 10   # the width of the world
 
 robot:
   - number: 2

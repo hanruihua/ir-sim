@@ -27,7 +27,7 @@ All the configurations are set in the YAML file. You can change the configuratio
 ```yaml
 world:
   height: 10  # the height of the world
-  width: 10   # the height of the world
+  width: 10   # the width of the world
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
