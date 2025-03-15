@@ -79,3 +79,4 @@
 - [ ] modular yaml import so that ir-sim can read the yaml file separately
 - [ ] Add the interface with opendrive
 - [ ] Complete the collision mode
+- [ ] Interface with URDF file
