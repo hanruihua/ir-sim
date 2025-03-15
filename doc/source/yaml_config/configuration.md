@@ -12,7 +12,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive', 'unobstructed_obstacles'
 
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker
@@ -61,7 +61,7 @@ The `world` section contains the configuration of the simulation environment. Th
 | `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                   |
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                        |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                             |
-| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`)                    |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`)                    |
 | `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                           |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. |
 
@@ -96,6 +96,7 @@ The `world` section contains the configuration of the simulation environment. Th
   - `stop`: Stops the movement of objects upon collision.
   - `reactive`: Objects react to collisions based on predefined behaviors. 
   - `unobstructed`: Allows objects to pass through each other without consideration of any collision.
+  - `unobstructed_obstacles`: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
 
 ##### **`obstacle_map`**:  
   Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle. 
@@ -116,7 +117,7 @@ world:
   sample_time: 0.1                    # Time interval for rendering and data extraction (10 Hz)
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
   control_mode: 'auto'                # Control mode ('auto' or 'keyboard')
-  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'reactive')
+  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'reactive', 'unobstructed_obstacles')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
 ```
