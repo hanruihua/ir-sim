@@ -59,7 +59,7 @@ pip install ir-sim[keyboard]
 pip install ir-sim[all]  
 ```
 
-- Or if you want to install the latest main version from the source code: 
+- Or if you want to install the latest main branch version (which is more up-to-date than the PyPI version) from the source code:
 
 ```
 git clone https://github.com/hanruihua/ir-sim.git    
