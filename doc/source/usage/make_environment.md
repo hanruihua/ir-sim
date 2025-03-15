@@ -22,8 +22,8 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  control_mode: 'auto' # 0: manual, 1: auto
-  collision_mode: null # stop, react, None
+  control_mode: 'auto' # auto, keyboard
+  collision_mode: 'stop' # stop, reactive, unobstructed, unobstructed_obstacles
   obstacle_map: null # the path of obstacle map
 ```
 
