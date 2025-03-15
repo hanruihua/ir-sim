@@ -398,6 +398,10 @@ class ObjectBase:
                 )
             elif self.role == "obstacle":
                 self.stop_flag = False
+        else:
+            if world_param.count % 50 == 0 and self.role == "robot":
+                env_param.logger.warning(f"collision mode {world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used")
+        
 
     def check_arrive_status(self):
         """
@@ -421,20 +425,18 @@ class ObjectBase:
         """
         Check if the object is in collision with others.
         """
-        collision_flags = [
-            self.check_collision(obj) for obj in env_param.objects if self.id != obj.id
-        ]
+        collision_flags = [self.check_collision(obj) for obj in self.external_objects if not obj.unobstructed] 
 
         self.collision_obj = []
 
-        for obj in env_param.objects:
-            if self.id != obj.id:
+        for obj in self.external_objects:
+            if not obj.unobstructed:
                 if self.check_collision(obj):
                     self.collision_obj.append(obj)
                     if self.role == "robot":
                         if not self.collision_flag:
                             env_param.logger.warning(
-                                f"{self.name} collided with {obj.name} at state {np.round(self.state[:2, 0], 2).tolist()}"
+                                f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
                             )
 
         self.collision_flag = any(collision_flags)
@@ -1540,7 +1542,7 @@ class ObjectBase:
             list: List of RVO neighbor states [x, y, vx, vy, radius].
         """
         return [
-            obj.rvo_neighbor_state for obj in env_param.objects if self.id != obj.id
+            obj.rvo_neighbor_state for obj in self.external_objects if not obj.unobstructed
         ]
 
     @property
