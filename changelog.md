@@ -1,3 +1,16 @@
+## ir-sim 2.3.7
+
+- Bug Fixes:
+  - Fix the bug of the collision mode
+  - Fix the typo in readme and documentation
+  - Fix the error in log message
+
+- New Features:
+  - Multiple Goal Support.
+  - Add the requirement files. 
+  - Unobstructed obstacles will not be considered in the collision check.
+
+
 ## ir-sim 2.3.6
 
 - Bug Fixes:
