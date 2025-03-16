@@ -730,6 +730,10 @@ class EnvBase:
     def obstacle_number(self):
         return len(self.obstacle_list)
 
+    @property
+    def robot_number(self):
+        return len(self.robot_list)
+
     # endregion: property
 
     # region: keyboard control
@@ -812,6 +816,7 @@ class EnvBase:
                 print("current angular velocity ", self.key_ang_max)
 
             if key.char == "r":
+                print("reset the environment")
                 self.reset()
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
