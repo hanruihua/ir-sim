@@ -13,7 +13,7 @@ robot:
   goal: 
     - [[9, 9, 0], [2, 4, 1], [3, 3, 2]]
   # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
-  # behavior: {name: dash} # move toward to the goal directly 
+  behavior: {name: dash} # move toward to the goal directly 
   color: 'g'
   plot:
     show_trajectory: True
