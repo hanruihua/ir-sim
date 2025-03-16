@@ -181,7 +181,7 @@ class ObjectBase:
         vel_max: list = [1, 1],
         acce: list = [inf, inf],
         angle_range: list = [-pi, pi],
-        behavior: dict = {"name": "dash"},
+        behavior: Optional[dict] = None,
         goal_threshold: float = 0.1,
         sensors: Optional[dict] = None,
         arrive_mode: str = "position",

@@ -1,8 +1,9 @@
 import numpy as np
-from irsim.global_param import env_param
+from irsim.global_param import env_param, world_param
 import importlib
 from typing import Tuple, Any
 from .behavior_registry import behaviors_map
+
 
 
 class Behavior:
@@ -44,11 +45,15 @@ class Behavior:
         """
 
         if self.behavior_dict is None or not self.behavior_dict:
-            env_param.logger.warning(
-                "Behavior not defined for object {}. Robot will be static".format(
-                    self.object_info.id
-                )
-            )
+            
+            if world_param.control_mode == "auto":
+                if world_param.count == 1:
+                    env_param.logger.warning(
+                        "Behavior not defined for Object {}. This object will be static. Available behaviors: rvo, dash".format(
+                            self.object_info.id,
+                        )
+                    )
+                    
             return np.zeros((2, 1))
 
         target_roles = self.behavior_dict.get("target_roles", "all")
