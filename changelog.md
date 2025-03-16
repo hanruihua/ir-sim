@@ -1,9 +1,10 @@
 ## ir-sim 2.3.7
 
 - Bug Fixes:
-  - Fix the bug of the collision mode
-  - Fix the typo in readme and documentation
-  - Fix the error in log message
+  - Fix the bug of the collision mode.
+  - Fix the typo in readme and documentation.
+  - Fix the error in log message.
+  - Fix the multi-object keyboard control error. 
 
 - New Features:
   - Multiple Goal Support.
