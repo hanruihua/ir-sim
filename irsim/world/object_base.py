@@ -425,19 +425,23 @@ class ObjectBase:
         """
         Check if the object is in collision with others.
         """
-        collision_flags = [self.check_collision(obj) for obj in self.external_objects if not obj.unobstructed] 
+        collision_flags = []
 
         self.collision_obj = []
 
         for obj in self.external_objects:
             if not obj.unobstructed:
                 if self.check_collision(obj):
+                    collision_flags.append(True)
                     self.collision_obj.append(obj)
+                    
                     if self.role == "robot":
                         if not self.collision_flag:
                             env_param.logger.warning(
                                 f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
                             )
+                else:
+                    collision_flags.append(False)
 
         self.collision_flag = any(collision_flags)
 
