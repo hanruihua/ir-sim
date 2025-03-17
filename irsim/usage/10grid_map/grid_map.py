@@ -1,6 +1,6 @@
 import irsim
 
-env = irsim.make('grid_map.yaml', save_ani=False, full=False)
+env = irsim.make('grid_map_hm3d.yaml', save_ani=True, full=False)
 
 for i in range(1000):
 
