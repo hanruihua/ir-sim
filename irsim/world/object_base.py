@@ -696,6 +696,42 @@ class ObjectBase:
         """
         self._init_geometry = geometry
 
+    def set_random_goal(self, obstacle_list, init: bool = False, free: bool = True, goal_check_radius: float = 0.2, limits: list = None):
+        """
+        Set random goal(s) in the environment. If free set to True, the goal will be placed only in the free from
+        obstacles part of the environment.
+
+        Args:
+            obstacle_list: List of objects in the environment
+            init (bool): Whether to set the initial goal (default False).
+            free (bool): Whether to check that goal is placed in a position free of obstacles.
+            goal_check_radius (float): Radius in which to check if the goal is free of obstacles.
+            limits (list): List of lower and upper bound limits in which to set the random goal position.
+        """
+        if limits is None:
+            limits = [self.rl, self.rh]
+
+        deque_goals = deque()
+        for _ in range(len(self._goal)):
+            if free:
+                covered_goal = True
+                while covered_goal:
+                    goal = random_point_range(limits[0], limits[1]).flatten().tolist()
+                    shape = {"name": "circle", "radius": goal_check_radius}
+                    gf = GeometryFactory.create_geometry(**shape)
+                    geometry = gf.step(np.c_[goal])
+                    covered_goal = any(
+                        [
+                            shapely.intersects(geometry, obj._geometry)
+                            for obj in obstacle_list
+                        ]
+                    )
+            else :
+                goal = random_point_range(limits[0], limits[1]).flatten().tolist()
+            deque_goals.append(goal)
+
+        self.set_goal(deque_goals, init=init)
+
     def set_goal(self, goal: Union[list, np.ndarray] = [10, 10, 0], init: bool = False):
         """
         Set the goal of the object.
