@@ -1,8 +1,8 @@
 """
-Generate navigable 2D grid maps from 3D spaces datasets.
+Generate navigable 2D binary maps from 3D spaces datasets.
 
 Processes navigation mesh vertices from 3D spaces datasets 
-(like Habitat-Matterport 3D) to create 2D occupancy grid maps. 
+(like Habitat-Matterport 3D) to create 2D occupancy binary maps. 
 Key features:
 - Identifies navigable vs. non-navigable regions using geometric analysis
 - Visualizes obstacles with diagonal hatch patterns
@@ -52,12 +52,12 @@ def create_regions(
     return unreachable_region, min_x, min_y, max_x, max_y
 
 
-def plot_grid_map(
+def draw_binary_map(
     unreachable_region: ShapelyPolygon,
     bounds: Tuple[float, float, float, float]
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
-    Generate matplotlib visualization of the grid map with hatched obstacles.
+    Generate matplotlib visualization of the binary map with hatched obstacles.
 
     Args:
         unreachable_region: Geometry representing non-navigable areas
@@ -103,9 +103,9 @@ def plot_grid_map(
     return fig, ax
 
 
-def save_grid_map(fig: plt.Figure, output_file: str) -> None:
+def save_binary_map(fig: plt.Figure, output_file: str) -> None:
     """
-    Save grid map visualization to file and convert to grayscale.
+    Save binary map visualization to file and convert to grayscale.
 
     Args:
         fig: Matplotlib figure object to save
@@ -129,7 +129,7 @@ def save_grid_map(fig: plt.Figure, output_file: str) -> None:
 
 
 def main() -> None:
-    """Main execution flow for generating and saving grid map."""
+    """Main execution flow for generating and saving binary map."""
     # Example usage with scenario 00824-Dd4bFSTQ8gi of HM3D dataset
     current_dir = os.path.dirname(__file__)
     vertices_path = os.path.join(current_dir, "navmesh_vertices_hm3d.npy")
@@ -139,8 +139,8 @@ def main() -> None:
     obstacles, *bounds = create_regions(navmesh_vertices)
     
     # Generate and save visualization
-    map_fig, _ = plot_grid_map(obstacles, bounds)
-    save_grid_map(map_fig, f"{current_dir}/grid_map_hm3d.png")
+    map_fig, _ = draw_binary_map(obstacles, bounds)
+    save_binary_map(map_fig, f"{current_dir}/binary_map_hm3d.png")
 
 
 if __name__ == "__main__":
