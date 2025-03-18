@@ -7,9 +7,6 @@ Key features:
 - Identifies navigable vs. non-navigable regions using geometric analysis
 - Visualizes obstacles with diagonal hatch patterns
 - Exports grayscale images (pure white=navigable, hatched=obstacles)
-
-Note: Navigation mesh vertices could be extracted using Habitat-Sim's 
-`PathFinder.build_navmesh_vertices()` method.
 """
 
 import os
@@ -131,8 +128,9 @@ def save_binary_map(fig: plt.Figure, output_file: str) -> None:
 def main() -> None:
     """Main execution flow for generating and saving binary map."""
     # Example usage with scenario 00824-Dd4bFSTQ8gi of HM3D dataset
+    scene_name = "00824-Dd4bFSTQ8gi"
     current_dir = os.path.dirname(__file__)
-    vertices_path = os.path.join(current_dir, "navmesh_vertices_hm3d.npy")
+    vertices_path = os.path.join(current_dir, f"binary_map_dataset_hm3d/{scene_name}_navmesh_vertices.npy")
     
     # Process navigation mesh data
     navmesh_vertices = np.load(vertices_path)
@@ -140,7 +138,7 @@ def main() -> None:
     
     # Generate and save visualization
     map_fig, _ = draw_binary_map(obstacles, bounds)
-    save_binary_map(map_fig, f"{current_dir}/binary_map_hm3d.png")
+    save_binary_map(map_fig, f"{current_dir}/binary_map_dataset_hm3d/{scene_name}_binary_map.png")
 
 
 if __name__ == "__main__":
