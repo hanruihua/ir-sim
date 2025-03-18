@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.image as mpimg
 from typing import Optional
 import os
-from irsim.world.map.binary_map_generation import create_regions, draw_binary_map, save_binary_map
+from irsim.global_param.path_param import path_manager as pm
 
 
 class World:
@@ -97,7 +97,7 @@ class World:
         Returns:
             tuple: Grid map, obstacle indices, and positions.
         """
-        abs_obstacle_map = file_check(obstacle_map)
+        abs_obstacle_map = file_check(obstacle_map, root_path=pm.root_path + "/world/map")
 
         if abs_obstacle_map is not None:
             grid_map = mpimg.imread(abs_obstacle_map)
@@ -124,23 +124,6 @@ class World:
             self.reso = np.zeros((2, 1))
 
         return grid_map, obstacle_index, obstacle_positions
-
-    def gen_binary_map_from_3d_space(self, mesh_vertices):
-        """
-        Generate a binary map from a 3D space dataset (e.g. Habitat-Matterport 3D).
-
-        Args:
-            mesh_vertices: numpy array of shape (N, 2)
-        
-        Returns:
-            Save the binary map to the current directory.
-        """
-
-        current_dir = os.path.dirname(__file__)
-        obstacles, *bounds = create_regions(mesh_vertices)
-        map_fig, _ = draw_binary_map(obstacles, bounds)
-        save_binary_map(map_fig, f"{current_dir}/binary_map_hm3d.png")
-        
 
     def reset(self):
         """
