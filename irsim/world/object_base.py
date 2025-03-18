@@ -737,6 +737,10 @@ class ObjectBase:
                         ]
                     )
                     counter += 1
+                if counter == max_attempts:
+                    env_param.logger.warning(
+                        f"Could not place the goal in a position free of obstacles in {max_attempts} tries"
+                    )
             else :
                 goal = random_point_range(range_limits[0], range_limits[1]).flatten().tolist()
             deque_goals.append(goal)
