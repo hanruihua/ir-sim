@@ -25,9 +25,9 @@ robot:
     sensors: 
       - type: 'lidar2d'
         range_min: 0
-        range_max: 20
+        range_max: 15
         angle_range: 3.14
-        number: 40
+        number: 100
         noise: False
         std: 1   
         angle_std: 0.2

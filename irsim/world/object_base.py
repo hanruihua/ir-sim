@@ -18,6 +18,8 @@ from irsim.global_param import world_param, env_param
 from irsim.world import SensorFactory
 from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
+from shapely.strtree import STRtree
+from shapely.geometry import MultiLineString
 
 from irsim.util.util import (
     WrapToRegion,
@@ -455,6 +457,16 @@ class ObjectBase:
         Returns:
             bool: True if collision occurs, False otherwise.
         """
+
+        if obj.shape == "map":
+            line_strings = list(obj._geometry.geoms) 
+            tree = STRtree(line_strings)
+            candidate_indices = tree.query(self.geometry)
+            filtered_lines = [line_strings[i] for i in candidate_indices]
+            filtered_multi_line = MultiLineString(filtered_lines)
+
+            return shapely.intersects(self.geometry, filtered_multi_line)
+
         return shapely.intersects(self.geometry, obj._geometry)
 
     def gen_behavior_vel(self, velocity: Optional[np.ndarray] = None) -> np.ndarray:

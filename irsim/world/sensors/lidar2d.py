@@ -198,14 +198,15 @@ class Lidar2D:
         geometries_to_subtract = []
         intersect_indices = []
 
-        center = Point(self.lidar_origin[0, 0], self.lidar_origin[1, 0])
-        max_distance = self.range_max
-
         for geom_index in potential_geometries_index:
             geo = geometries[geom_index]
+            obj = filtered_objects[geom_index]
 
-            if geo.geom_type == 'MultiLineString':
-                filtered_lines = [line for line in geo.geoms if center.distance(line) <= max_distance + 0.1]
+            if obj.shape == 'map':
+                linestrings = [line for line in geo.geoms]
+                tree = STRtree(linestrings)
+                potential_intersections = tree.query(lidar_geometry)
+                filtered_lines = [linestrings[i] for i in potential_intersections]
                 filtered_multi_lines = MultiLineString(filtered_lines)
 
                 if lidar_geometry.intersects(filtered_multi_lines):
