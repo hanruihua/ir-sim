@@ -19,5 +19,4 @@ class PathManager:
     ani_path: str = sys.path[0] + "/animation"
     fig_path: str = sys.path[0] + "/figure"
 
-
 path_manager = PathManager()
