@@ -34,7 +34,8 @@ def file_check(file_name, root_path=None):
         if root_path is None:
             raise FileNotFoundError("File not found: " + file_name)
         else:
-            root_file_name = root_path + "/" + file_name
+            # root_file_name = root_path + "/" + file_name
+            root_file_name = find_file(root_path, file_name)
             if os.path.exists(root_file_name):
                 abs_file_name = root_file_name
             else:
@@ -42,6 +43,12 @@ def file_check(file_name, root_path=None):
 
     return abs_file_name
 
+
+def find_file(root_path, target_filename):
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        if target_filename in filenames:
+            return os.path.join(dirpath, target_filename)
+    return None
 
 def WrapToPi(rad, positive=False):
     """The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
