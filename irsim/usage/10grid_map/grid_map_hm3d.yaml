@@ -6,7 +6,7 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
   control_mode: 'keyboard'  # 'keyboard', 'auto'
-  obstacle_map: 'hm1.png' 
+  obstacle_map: 'hm3d_2.png' 
   mdownsample: 2
 
 robot:
