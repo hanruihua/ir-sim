@@ -1,3 +1,19 @@
+## ir-sim 2.4.0
+
+
+- New Features:
+  - Add binary map generated from the 3D scene dataset (Hm3d).
+  - Accelerate collision check for larger binary map.
+  - Support Multiple Goal setting.
+  - Add the requirement files. 
+  - Set random goals call for objects.
+  
+- Bug Fixes:
+  - Fix the bug of the collision mode, unobstructed obstacles will not be considered in the collision check.
+  - Fix the typo in readme and documentation.
+  - Fix the error in log message.
+  - Fix the multi-object keyboard control error. 
+
 ## ir-sim 2.3.6
 
 - Bug Fixes:
