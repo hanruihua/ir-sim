@@ -5,7 +5,7 @@ Each object in the simulation can be assigned a behavior independently to simula
 
 ## Behavior Configuration Parameters
 
-Currently, there are two built-in behaviors: `dash` and `rvo`. By default, the moving objects in the simulation have the `dash` behavior, which moves the object from its initial position to the goal position directly. `rvo` refers to the Reciprocal Velocity Obstacle (RVO) algorithm, which is a dynamic collision avoidance algorithm for multiple agents. The example of this behavior is shown below:
+Currently, there are two built-in behaviors: `dash` and `rvo`. By default, the moving objects' behavior is static, which means the object will not move. You can set the behavior of the object to `dash` or `rvo` in the YAML configuration file. The `dash` behavior is a simple behavior that moves the object from its initial position to the goal position directly. The `rvo` behavior is a dynamic collision avoidance algorithm for multiple agents. The example of this behavior is shown below:
 
 python script:
 

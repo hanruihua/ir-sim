@@ -147,7 +147,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `state`          | `list` of `float` | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
 | `velocity`       | `list` of `float` | `[0, 0]`         | Initial velocity vector.                                                                 |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[10, 10, 0]`    | Goal state(s) vector.                                                                       |
-| `behavior`       | `dict`            | `{name: dash}`   | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
+| `behavior`       | `dict`            | `None`   | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
 | `role`           | `str`             | `Obstacle`       | Role of the object in the simulation.                                                    |
 | `color`          | `str`             | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
 | `static`         | `bool`            | `False`          | Indicates if the object is static.                                                       |
