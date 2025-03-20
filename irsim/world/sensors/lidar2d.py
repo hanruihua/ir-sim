@@ -175,6 +175,16 @@ class Lidar2D:
 
     def laser_geometry_process(self, lidar_geometry):
 
+        '''
+        Find the intersected objects and return the intersected indices with the lidar geometry
+        
+        Args:
+            lidar_geometry (shapely.geometry.MultiLineString): The geometry of the lidar.
+
+        Returns:
+            list: The indices of the intersected objects.
+        '''
+
         filtered_objects = [
             obj
             for obj in env_param.objects
@@ -190,9 +200,23 @@ class Lidar2D:
 
         for geom_index in potential_geometries_index:
             geo = geometries[geom_index]
-            if lidar_geometry.intersects(geo):
-                geometries_to_subtract.append(geo)
-                intersect_indices.append(geom_index)
+            obj = filtered_objects[geom_index]
+
+            if obj.shape == 'map':
+                linestrings = [line for line in geo.geoms]
+                tree = STRtree(linestrings)
+                potential_intersections = tree.query(lidar_geometry)
+                filtered_lines = [linestrings[i] for i in potential_intersections]
+                filtered_multi_lines = MultiLineString(filtered_lines)
+
+                if lidar_geometry.intersects(filtered_multi_lines):
+                    geometries_to_subtract.append(filtered_multi_lines)
+                    intersect_indices.append(geom_index)
+
+            else:
+                if lidar_geometry.intersects(geo):
+                    geometries_to_subtract.append(geo)
+                    intersect_indices.append(geom_index)
 
         if geometries_to_subtract:
             merged_geometry = unary_union(geometries_to_subtract)

@@ -6,7 +6,7 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
   control_mode: 'keyboard'  # 'keyboard', 'auto'
-  obstacle_map: 'hm3d_2.png' 
+  obstacle_map: 'hm3d_2.png' # hm3d_1.png, hm3d_2.png, hm3d_3.png, hm3d_4.png, hm3d_5.png, hm3d_6.png, hm3d_7.png, hm3d_8.png, hm3d_9.png
   mdownsample: 2
 
 robot:
@@ -25,7 +25,7 @@ robot:
     sensors: 
       - type: 'lidar2d'
         range_min: 0
-        range_max: 20
+        range_max: 15
         angle_range: 3.14
         number: 100
         noise: False
