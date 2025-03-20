@@ -9,11 +9,10 @@
   - Set random goals call for objects.
   
 - Bug Fixes:
-  - Fix the bug of the collision mode.
+  - Fix the bug of the collision mode, unobstructed obstacles will not be considered in the collision check.
   - Fix the typo in readme and documentation.
   - Fix the error in log message.
   - Fix the multi-object keyboard control error. 
-  - Unobstructed obstacles will not be considered in the collision check.
 
 ## ir-sim 2.3.6
 
