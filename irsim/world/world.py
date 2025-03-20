@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.image as mpimg
 from typing import Optional
 import os
+from irsim.global_param.path_param import path_manager as pm
 
 
 class World:
@@ -96,7 +97,7 @@ class World:
         Returns:
             tuple: Grid map, obstacle indices, and positions.
         """
-        abs_obstacle_map = file_check(obstacle_map)
+        abs_obstacle_map = file_check(obstacle_map, root_path=pm.root_path + "/world/map/binary_map_generator_hm3d")
 
         if abs_obstacle_map is not None:
             grid_map = mpimg.imread(abs_obstacle_map)
