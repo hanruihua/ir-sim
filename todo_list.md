@@ -73,7 +73,7 @@
 - [ ] Interface with Pybullet or Gazebo
 - [ ] Add ORCA Behavior
 - [ ] organize the test cases
-- [ ] Add binary occupancy grid map for indoor navigation
+- [x] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
 - [ ] improve coverage of the code
 - [ ] modular yaml import so that ir-sim can read the yaml file separately
