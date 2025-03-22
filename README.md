@@ -22,8 +22,8 @@
 ## Features
 
 - Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors  ([support](#support)). 
-- Quickly configure and customize simulation scenarios using straightforward YAML files. No complex coding required.
-- Visualize simulation outcomes in real time for immediate feedback and analysis using a naive visualizer matplotlib.
+- Quickly configure and customize scenarios using straightforward YAML files. No complex coding required.
+- Visualize simulation outcomes in real time using a naive visualizer matplotlib for immediate debugging.
 - Support collision detection and behavior control for each object in the simulation.
 
 ## Demonstrations
