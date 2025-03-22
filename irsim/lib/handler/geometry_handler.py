@@ -13,6 +13,9 @@ from shapely import (
     minimum_bounding_radius,
     MultiPoint,
     bounds,
+    is_valid,
+    make_valid,
+    envelope,
 )
 from irsim.lib import random_generate_polygon
 
@@ -256,8 +259,18 @@ class PolygonGeometry(geometry_handler):
                 (-1, 1),
             ]
 
-        return Polygon(vertices)
+        polygon = Polygon(vertices)
 
+        if is_valid(polygon):
+            return polygon
+        else:
+            print("Invalid polygon. Making it valid.")
+            valid_polygons = make_valid(polygon)
+
+            polygon = envelope(valid_polygons)
+
+            return make_valid(polygon)
+        
 
 class RectangleGeometry(geometry_handler):
 
