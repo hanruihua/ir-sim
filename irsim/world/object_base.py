@@ -1119,7 +1119,7 @@ class ObjectBase:
 
         r_phi_ang = 180 * self.state[2, 0] / pi
 
-        if trail_type == "rectangle" or trail_type == "polygon":
+        if trail_type == "rectangle":
             start_x = self.vertices[0, 0]
             start_y = self.vertices[1, 0]
 
@@ -1139,6 +1139,14 @@ class ObjectBase:
                 art3d.patch_2d_to_3d(car_rect, z=self.z)
 
             ax.add_patch(car_rect)
+
+        elif trail_type == "polygon":
+            car_polygon = mpl.patches.Polygon(self.vertices.T, edgecolor=trail_color, alpha=trail_alpha, linewidth=trail_linewidth, fill=False, facecolor=trail_color)
+
+            if isinstance(ax, Axes3D):
+                art3d.patch_2d_to_3d(car_polygon, z=self.z)
+
+            ax.add_patch(car_polygon)
 
         elif trail_type == "circle":
             car_circle = mpl.patches.Circle(
