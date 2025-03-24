@@ -325,17 +325,35 @@ class Lidar2D:
             lines.append(segment)
 
         if isinstance(ax, Axes3D):
-            line_segments = Line3DCollection(
+            self.line_segments = Line3DCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
             )
-            ax.add_collection3d(line_segments)
+            ax.add_collection3d(self.line_segments)
         else:
-            line_segments = LineCollection(
+            self.line_segments = LineCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
             )
-            ax.add_collection(line_segments)
+            ax.add_collection(self.line_segments)
 
-        self.plot_patch_list.append(line_segments)
+        self.plot_patch_list.append(self.line_segments)
+    
+    def set_laser_color(self, laser_indices, laser_color: str = 'blue'):
+
+        """
+        Set a specific color of the selected lasers.
+
+        Args:
+            laser_indices (list): The indices of the lasers to set the color.
+            laser_color (str): The color to set the selected lasers. Default is 'blue'.
+        """
+
+        current_color = [self.color] * self.number
+
+        for index in laser_indices:
+            if index < self.number:
+                current_color[index] = laser_color
+
+        self.line_segments.set_color(current_color)
 
     def plot_clear(self):
         """
