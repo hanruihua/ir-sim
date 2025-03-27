@@ -212,7 +212,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   
 ##### **`kinematics`**:
   Sets the kinematic model governing the object's movement. Supported models:
-  - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). Optional parameters:
+  - `'diff'`: Differential drive robot, suitable for robots that can rotate in place (e.g., two-wheel robots). This type of robot is controlled by linear and angular velocity. Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
     - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.    
 
@@ -221,7 +221,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     kinematics: {name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}
     ```
 
-  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation.
+  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation. This type of robot is controlled by velocities along the x and y axes. Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is False.
     - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.   
 
