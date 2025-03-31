@@ -5,7 +5,7 @@ import numpy as np
 from shapely import ops
 import time
 from typing import Any
-
+from irsim.global_param import env_param 
 
 def file_check(file_name, root_path=None):
     """
@@ -32,14 +32,18 @@ def file_check(file_name, root_path=None):
         abs_file_name = os.getcwd() + "/" + file_name
     else:
         if root_path is None:
-            raise FileNotFoundError("File not found: " + file_name)
+            # raise FileNotFoundError("File not found: " + file_name)
+            env_param.logger.warning(f"{file_name} not found")
+            return None
         else:
             # root_file_name = root_path + "/" + file_name
             root_file_name = find_file(root_path, file_name)
             if os.path.exists(root_file_name):
                 abs_file_name = root_file_name
             else:
-                raise FileNotFoundError("File not found: " + root_file_name)
+                # raise FileNotFoundError("File not found: " + root_file_name)
+                env_param.logger.warning(f"{file_name} not found")
+                return None
 
     return abs_file_name
 

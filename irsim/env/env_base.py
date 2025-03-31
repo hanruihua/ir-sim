@@ -70,18 +70,18 @@ class EnvBase:
         env_param.logger = self.logger
 
         self.env_config = EnvConfig(world_name)
-        object_factory = ObjectFactory()
+        self.object_factory = ObjectFactory()
         # init objects (world, obstacle, robot)
 
         self._world = World(world_name, **self.env_config.parse["world"])
 
-        self._robot_collection = object_factory.create_from_parse(
+        self._robot_collection = self.object_factory.create_from_parse(
             self.env_config.parse["robot"], "robot"
         )
-        self._obstacle_collection = object_factory.create_from_parse(
+        self._obstacle_collection = self.object_factory.create_from_parse(
             self.env_config.parse["obstacle"], "obstacle"
         )
-        self._map_collection = object_factory.create_from_map(
+        self._map_collection = self.object_factory.create_from_map(
             self._world.obstacle_positions, self._world.buffer_reso
         )
 
@@ -161,13 +161,14 @@ class EnvBase:
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     # render
-    def render(self, interval: float = 0.05, figure_kwargs=dict(), **kwargs):
+    def render(self, interval: float = 0.05, figure_kwargs=dict(), mode: str = "dynamic", **kwargs):
         """
         Render the environment.
 
         Args:
             interval(float) :  Time interval between frames in seconds.
             figure_kwargs(dict) : Additional keyword arguments for saving figures, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for detail.
+            mode(str) : "dynamic", "static", "all" to specify which type of objects to draw and clear.
             kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
         """
 
@@ -180,8 +181,8 @@ class EnvBase:
                 if self.save_ani:
                     self.save_figure(save_gif=True, **figure_kwargs)
 
-                self._env_plot.clear_components("dynamic", self.objects)
-                self._env_plot.draw_components("dynamic", self.objects, **kwargs)
+                self._env_plot.clear_components(mode, self.objects)
+                self._env_plot.draw_components(mode, self.objects, **kwargs)
 
     def show(self):
         """
@@ -485,6 +486,22 @@ class EnvBase:
 
 
     # region: object operation
+
+    def create_obstacle(self, **kwargs):
+
+        """
+        Create an obstacle in the environment.
+
+        Args:
+            **kwargs: Additional parameters for obstacle creation.
+                see ObjectFactory.create_obstacle for detail
+
+        Returns:
+            Obstacle: An instance of an obstacle.
+        """
+
+        return self.object_factory.create_obstacle(**kwargs)
+
 
     def add_object(self, obj: ObjectBase):
         """
