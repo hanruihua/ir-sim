@@ -168,7 +168,7 @@ class EnvBase:
         Args:
             interval(float) :  Time interval between frames in seconds.
             figure_kwargs(dict) : Additional keyword arguments for saving figures, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for detail.
-            mode(str) : "dynamic", "static", "all" to specify which objects to draw and clear.
+            mode(str) : "dynamic", "static", "all" to specify which type of objects to draw and clear.
             kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
         """
 
