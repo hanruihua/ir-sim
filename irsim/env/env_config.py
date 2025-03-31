@@ -37,7 +37,7 @@ class EnvConfig:
                         raise KeyError
 
         else:
-            env_param.logger.error(f" {world_name} YAML File not found! ")
+            env_param.logger.warning(f"{world_name} YAML File not found!, using default world config.")
 
     @property
     def parse(self):

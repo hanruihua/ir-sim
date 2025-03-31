@@ -259,9 +259,3 @@ class ObjectFactory:
                 goal_list.append([goal_x, goal_y, 0])
 
         return state_list, goal_list
-
-    # def generate_state_list3D(
-    #     self, number=1, distribution={"name": "manual"}, state=[1, 1, 0], goal=[1, 9, 0]
-    # ):
-    #     pass
-    #     return [], []
