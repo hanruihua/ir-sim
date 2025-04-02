@@ -810,7 +810,7 @@ class ObjectBase:
 
         Args:
             laser_indices (list): The indices of the lasers to set the color.
-            laser_color (str): The color to set the lasers. Default is 'blue'.
+            laser_color (str): The color to set the lasers. Default is 'cyan'.
         """
 
         if self.lidar is not None:
