@@ -1,5 +1,17 @@
-## ir-sim 2.4.0
+## ir-sim 2.4.1
 
+- Bug Fixes:
+  - Fix the polygon trail type bug.
+  - Fix 
+
+- New Features:
+  - Make sure the obstacles are valid polygons.
+  - Add functions to set the laser color.
+  - Env can be initialized without yaml files.
+  - Add the render `mode` to select the objects to render. `static`, `dynamic`, `all`.
+  - Enhance readme and Documentation.
+
+## ir-sim 2.4.0
 
 - New Features:
   - Add binary map generated from the 3D scene dataset (Hm3d).
