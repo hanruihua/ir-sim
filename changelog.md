@@ -2,7 +2,6 @@
 
 - Bug Fixes:
   - Fix the polygon trail type bug.
-  - Fix 
 
 - New Features:
   - Make sure the obstacles are valid polygons.
