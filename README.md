@@ -128,7 +128,7 @@ Currently, the simulator supports the following features. Further features, such
 
 - Academic Projects:
   - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav): [RAL & ICRA2023] A Reinforcement Learned based RVO behavior for multi-robot navigation.
-  - [RDA_planner](https://github.com/hanruihua/RDA_planner): [RAL & IROS2023] An Accelerated Collision Free Motion Planner for Autonomous Navigation in Cluttered Environments.
+  - [RDA_planner](https://github.com/hanruihua/RDA_planner): [RAL & IROS2023] An Accelerated Collision Free Motion Planner for Cluttered Environments.
   - [NeuPAN](https://github.com/hanruihua/NeuPAN): [T-RO 2025] Direct Point Robot Navigation with End-to-End Model-based Learning.
 
 - Deep Reinforcement Learning Projects:
