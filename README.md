@@ -124,12 +124,12 @@ Currently, the simulator supports the following features. Further features, such
 | **Behaviors** | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior)|
 
 
-## Cases
+## Projects Using IR-SIM
 
 - Academic Projects:
-  - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) (RAL & ICRA2023)
-  - [RDA_planner](https://github.com/hanruihua/RDA_planner) (RAL & IROS2023)
-  - [NeuPAN](https://github.com/hanruihua/NeuPAN) (T-RO 2025)
+  - [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav): [RAL & ICRA2023] A Reinforcement Learned based RVO behavior for multi-robot navigation.
+  - [RDA_planner](https://github.com/hanruihua/RDA_planner): [RAL & IROS2023] An Accelerated Collision Free Motion Planner for Autonomous Navigation in Cluttered Environments.
+  - [NeuPAN](https://github.com/hanruihua/NeuPAN): [T-RO 2025] Direct Point Robot Navigation with End-to-End Model-based Learning.
 
 - Deep Reinforcement Learning Projects:
   - [DRL-robot-navigation-IR-SIM](https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM)
