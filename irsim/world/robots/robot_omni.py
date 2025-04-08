@@ -3,7 +3,7 @@ from irsim.world import ObjectBase
 
 class RobotOmni(ObjectBase):
     def __init__(
-        self, color="g", state_dim=2, **kwargs
+        self, color="g", state_dim=3, **kwargs
     ):
         super(RobotOmni, self).__init__(
             role="robot",
