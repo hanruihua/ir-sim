@@ -48,7 +48,7 @@ class Behavior:
             
             if world_param.control_mode == "auto":
                 if world_param.count == 1:
-                    env_param.logger.warning(
+                    self.logger.warning(
                         "Behavior not defined for Object {}. This object will be static. Available behaviors: rvo, dash".format(
                             self.object_info.id,
                         )
@@ -110,3 +110,7 @@ class Behavior:
             )
 
         return func(**kwargs)
+    
+    @property
+    def logger(self):
+        return env_param.logger

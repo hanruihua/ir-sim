@@ -323,7 +323,7 @@ class EnvPlot:
 
         self.saved_ani_kwargs.update(kwargs)
 
-        env_param.logger.info("Start to create animation")
+        self.logger.info("Start to create animation")
 
         ap = pm.ani_path
         fp = pm.ani_buffer_path
@@ -348,7 +348,7 @@ class EnvPlot:
             ap + "/" + ani_name + suffix, image_list, **self.saved_ani_kwargs
         )
 
-        env_param.logger.info("Animation created successfully, saved in " + ap)
+        self.logger.info("Animation created successfully, saved in " + ap)
 
         if rm_fig_path:
             shutil.rmtree(fp)
@@ -364,6 +364,10 @@ class EnvPlot:
         Close the plot.
         """
         plt.close()
+    
+    @property
+    def logger(self):
+        return env_param.logger
 
 
 def linewidth_from_data_units(linewidth, axis, reference="y"):
