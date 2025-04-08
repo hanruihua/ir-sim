@@ -1708,3 +1708,29 @@ class ObjectBase:
         """
         
         return env_param.logger
+
+
+    @property
+    def heading(self):
+        """
+        Get the heading of the object.
+
+        Returns:
+            float: The heading of the object.
+        """
+
+        if self.kinematics == "omni":
+            heading = atan2(self.velocity[1, 0], self.velocity[0, 0])
+        elif self.kinematics == "diff" or self.kinematics == "acker":
+            heading = self.state[2, 0]
+        else:
+            self.logger.warning(f"The kinematics of the object {self.name} is not supported.")
+
+        return heading
+
+    @property
+    def orientation(self):
+        """
+        Get the orientation of the object.
+        """
+        return self.state[2, 0]
