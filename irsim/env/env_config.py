@@ -31,13 +31,13 @@ class EnvConfig:
                     if key in self._kwargs_parse.keys():
                         self._kwargs_parse[key] = com_list[key]
                     else:
-                        env_param.logger.error(
+                        self.logger.error(
                             f"There are invalid key: '{key}' in {world_name} file!"
                         )
                         raise KeyError
 
         else:
-            env_param.logger.warning(f"{world_name} YAML File not found!, using default world config.")
+            self.logger.warning(f"{world_name} YAML File not found!, using default world config.")
 
     @property
     def parse(self):
@@ -45,3 +45,10 @@ class EnvConfig:
         The parsed kwargs from the yaml file.
         """
         return self._kwargs_parse
+    
+    @property
+    def logger(self):
+        '''
+        Get the logger of the env_param.
+        '''
+        return env_param.logger

@@ -66,8 +66,7 @@ class EnvBase:
         self.display = display
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
-        self.logger = EnvLogger(log_file, log_level)
-        env_param.logger = self.logger
+        env_param.logger = EnvLogger(log_file, log_level)
 
         self.env_config = EnvConfig(world_name)
         self.object_factory = ObjectFactory()
@@ -750,6 +749,10 @@ class EnvBase:
     @property
     def robot_number(self):
         return len(self.robot_list)
+    
+    @property
+    def logger(self):
+        return env_param.logger
 
     # endregion: property
 
