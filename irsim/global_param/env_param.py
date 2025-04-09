@@ -5,3 +5,4 @@ Logger: A logger object to log messages
 
 objects = []
 logger = None
+GeometryTree = None
