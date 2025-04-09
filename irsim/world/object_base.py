@@ -428,22 +428,20 @@ class ObjectBase:
         Check if the object is in collision with others.
         """
         collision_flags = []
-
         self.collision_obj = []
 
-        for obj in self.external_objects:
-            if not obj.unobstructed:
-                if self.check_collision(obj):
-                    collision_flags.append(True)
-                    self.collision_obj.append(obj)
-                    
-                    if self.role == "robot":
-                        if not self.collision_flag:
-                            self.logger.warning(
-                                f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
-                            )
-                else:
-                    collision_flags.append(False)
+        for obj in self.possible_collision_objects:
+            if self.check_collision(obj):
+                collision_flags.append(True)
+                self.collision_obj.append(obj)
+            
+                if self.role == "robot":
+                    if not self.collision_flag:
+                        self.logger.warning(
+                            f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
+                        )
+            else:
+                collision_flags.append(False)
 
         self.collision_flag = any(collision_flags)
 
@@ -1601,6 +1599,31 @@ class ObjectBase:
         '''
 
         return self
+
+    @property
+    def possible_collision_objects(self):
+
+        '''
+        Get the possible collision objects of the object from the tree.
+
+        Returns:
+            list: The possible collision objects of the object.
+        '''
+
+        tree = env_param.GeometryTree
+        possible = []
+
+        candidates_index = tree.query(self.geometry)
+        
+        for index in candidates_index:
+            obj = env_param.objects[index]
+
+            if obj.unobstructed or obj.id == self.id:
+                continue
+            else:
+                possible.append(obj)
+
+        return possible
 
     @property
     def desired_omni_vel(self, goal_threshold=0.1):

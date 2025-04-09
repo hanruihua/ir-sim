@@ -28,6 +28,7 @@ from typing import Optional
 import importlib
 from irsim.world import ObjectBase
 from tabulate import tabulate
+from shapely.strtree import STRtree
 
 try:
     from pynput import keyboard
@@ -85,6 +86,7 @@ class EnvBase:
         )
 
         self._objects = self._robot_collection + self._obstacle_collection + self._map_collection
+        self.build_tree()
 
         # env parameters
         self._env_plot = EnvPlot(
@@ -507,12 +509,14 @@ class EnvBase:
         Add the object to the environment.
         """
         self._objects.append(obj)
+        self.build_tree()
     
     def add_objects(self, objs: list):
         """
         Add the objects to the environment.
         """
         self._objects.extend(objs)
+        self.build_tree()
 
 
     def delete_object(self, target_id: int):
@@ -525,6 +529,8 @@ class EnvBase:
                 obj.plot_clear()
                 self._objects.remove(obj)
                 break
+        
+        self.build_tree()
     
     def delete_objects(self, target_ids: list):
         """
@@ -536,9 +542,18 @@ class EnvBase:
         for obj in del_obj:
             obj.plot_clear()
             self._objects.remove(obj)
+        
+        self.build_tree()
+
+
+    def build_tree(self):
+        """
+        Build the geometry tree for the objects in the environment to detect the possible collision objects.
+        """
+        tree = STRtree([obj.geometry for obj in self._objects])
+        env_param.GeometryTree = tree
 
     # endregion: object operation
-
 
 
     # region: get information
@@ -635,8 +650,6 @@ class EnvBase:
             file_name, file_format, include_index, save_gif, **kwargs
         )
 
-    # region: property
-
     def load_behavior(self, behaviors: str = "behavior_methods"):
         """
         Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details.
@@ -651,64 +664,8 @@ class EnvBase:
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
 
-    @property
-    def arrive(self, id: Optional[int] = None, mode: Optional[str] = None):
-        """
-        Check if the robot(s) have arrived at their destination.
 
-        Args:
-            id (int, optional): Id of the specific robot to check. Default is None.
-            mode (str, optional): Mode to check for all or any robots. Must be 'all' or 'any'. Default is None.
-
-        Returns:
-            bool: Arrival status of the specified robot or all/any robots.
-        """
-
-        # If a specific robot id is provided
-        if id is not None:
-            # Ensure the id is an integer
-            assert isinstance(id, int), "id should be integer"
-            # Return the arrival status of the specified robot
-            return self.robot_list[id].arrive
-        else:
-            # Ensure the mode is either 'all' or 'any'
-            assert mode in ["all", "any"], "mode should be all or any"
-            # Return True if all robots have arrived, otherwise return True if any robot has arrived
-            return (
-                all([obj.arrive for obj in self.robot_list])
-                if mode == "all"
-                else any([obj.arrive for obj in self.robot_list])
-            )
-
-    @property
-    def check_collision(self, id: Optional[int] = None, mode: Optional[str] = None):
-        """
-        Check if the robot(s) have collided.
-
-        Args:
-            id (int, optional): Id of the specific robot to check. Default is None.
-            mode (str, optional): Mode to check for all or any robots. Must be 'all' or 'any'. Default is None.
-
-        Returns:
-            bool: Collision status of the specified robot or all/any robots.
-        """
-
-        # If a specific robot id is provided
-        if id is not None:
-            # Ensure the id is an integer
-            assert isinstance(id, int), "id should be integer"
-            # Return the collision status of the specified robot
-            return self.robot_list[id].collision
-        else:
-            # Ensure the mode is either 'all' or 'any'
-            assert mode in ["all", "any"], "mode should be all or any"
-            # Return True if all robots have collided, otherwise return True if any robot has collided
-            return (
-                all([obj.collision for obj in self.robot_list])
-                if mode == "all"
-                else any([obj.collision for obj in self.robot_list])
-            )
-
+    # region: property
     @property
     def robot_list(self):
         """
