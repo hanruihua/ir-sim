@@ -24,7 +24,7 @@ import numpy as np
 from .env_logger import EnvLogger
 from irsim.lib import random_generate_polygon
 from shapely import Polygon
-from typing import Optional
+from typing import Optional, Union
 import importlib
 from irsim.world import ObjectBase
 from tabulate import tabulate
@@ -85,7 +85,9 @@ class EnvBase:
             self._world.obstacle_positions, self._world.buffer_reso
         )
 
-        self._objects = self._robot_collection + self._obstacle_collection + self._map_collection
+        self._objects = (
+            self._robot_collection + self._obstacle_collection + self._map_collection
+        )
         self.build_tree()
 
         # env parameters
@@ -125,11 +127,13 @@ class EnvBase:
                 round(self._world.time, 2)
             )
         )
-    
+
     def __str__(self):
         return f"Environment: {self._world.name}"
 
-    def step(self, action: Optional[np.ndarray] = None, action_id=0):
+    def step(
+        self, action: Union[np.ndarray, list] = None, action_id: Union[int, list] = 0
+    ):
         """
         Perform a simulation step in the environment.
 
@@ -140,16 +144,23 @@ class EnvBase:
                 - omnidirectional robot action: v_x -- velocity in x; v_y -- velocity in y
                 - Ackermann robot action: linear velocity, Steering angle
 
-            action_id (int): Apply the action to the robot with the given id.
+            action_id (int or list of int): Apply the action(s) to the robot(s) with the given id(s).
         """
 
         if isinstance(action, list):
-            self._objects_step(action)
+            if isinstance(action_id, list):
+                for a, ai in zip(action, action_id):
+                    self._object_step(a, ai)
+            else:
+                self._objects_step(action)
         else:
             if world_param.control_mode == "keyboard":
                 self._object_step(self.key_vel, self.key_id)
             else:
-                self._object_step(action, action_id)
+                if isinstance(action_id, list):
+                    self._object_step(action, action_id[0])
+                else:
+                    self._object_step(action, action_id)
 
         self._world.step()
 
@@ -162,7 +173,13 @@ class EnvBase:
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     # render
-    def render(self, interval: float = 0.05, figure_kwargs=dict(), mode: str = "dynamic", **kwargs):
+    def render(
+        self,
+        interval: float = 0.05,
+        figure_kwargs=dict(),
+        mode: str = "dynamic",
+        **kwargs,
+    ):
         """
         Render the environment.
 
@@ -192,11 +209,6 @@ class EnvBase:
 
         self._env_plot.show()
 
-
-    
-
-
-
     # draw various components
     def draw_trajectory(self, traj: list, traj_type: str = "g-", **kwargs):
         """
@@ -210,7 +222,9 @@ class EnvBase:
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
 
-    def draw_points(self, points: list, s: int = 30, c: str = "b", refresh: bool = True, **kwargs):
+    def draw_points(
+        self, points: list, s: int = 30, c: str = "b", refresh: bool = True, **kwargs
+    ):
         """
         Draw points on the environment figure.
 
@@ -485,11 +499,9 @@ class EnvBase:
 
     # endregion: environment change
 
-
     # region: object operation
 
     def create_obstacle(self, **kwargs):
-
         """
         Create an obstacle in the environment.
 
@@ -503,21 +515,19 @@ class EnvBase:
 
         return self.object_factory.create_obstacle(**kwargs)
 
-
     def add_object(self, obj: ObjectBase):
         """
         Add the object to the environment.
         """
         self._objects.append(obj)
         self.build_tree()
-    
+
     def add_objects(self, objs: list):
         """
         Add the objects to the environment.
         """
         self._objects.extend(objs)
         self.build_tree()
-
 
     def delete_object(self, target_id: int):
         """
@@ -529,9 +539,9 @@ class EnvBase:
                 obj.plot_clear()
                 self._objects.remove(obj)
                 break
-        
+
         self.build_tree()
-    
+
     def delete_objects(self, target_ids: list):
         """
         Delete the objects with the given ids.
@@ -542,9 +552,8 @@ class EnvBase:
         for obj in del_obj:
             obj.plot_clear()
             self._objects.remove(obj)
-        
-        self.build_tree()
 
+        self.build_tree()
 
     def build_tree(self):
         """
@@ -554,7 +563,6 @@ class EnvBase:
         env_param.GeometryTree = tree
 
     # endregion: object operation
-
 
     # region: get information
 
@@ -604,9 +612,7 @@ class EnvBase:
             list of dict: List of obstacle information, see :py:meth:`.ObjectBase.get_obstacle_info` for detail.
         """
 
-        return [
-            obj.get_obstacle_info() for obj in self.obstacle_list
-        ]
+        return [obj.get_obstacle_info() for obj in self.obstacle_list]
 
     def get_robot_info(self, id: int = 0):
         """
@@ -634,7 +640,11 @@ class EnvBase:
     # endregion: get information
 
     def save_figure(
-        self, save_name: str = None, include_index: bool = False, save_gif: bool = False, **kwargs
+        self,
+        save_name: str = None,
+        include_index: bool = False,
+        save_gif: bool = False,
+        **kwargs,
     ):
         """
         Save the current figure.
@@ -663,7 +673,6 @@ class EnvBase:
             importlib.import_module(behaviors)
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
-
 
     # region: property
     @property
@@ -706,7 +715,7 @@ class EnvBase:
     @property
     def robot_number(self):
         return len(self.robot_list)
-    
+
     @property
     def logger(self):
         return env_param.logger
