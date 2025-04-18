@@ -3,13 +3,14 @@
 - Bug Fixes:
   - Change omni robot default state dim to be 3.
   - Remove the check_collision and arrive property in the env_base.
+  - Fix bugs in test cases; Remove some old features (#50).
 
 - New Features:
   - Reorganize the logger functions.
-  - Add object heading and orientation (#48)
+  - Add object heading and orientation (#48).
   - Formulate the geometry tree for the collision check
+  - Improve test coverage of this code (#50).
   
-
 ## ir-sim 2.4.1
 
 - Bug Fixes:
