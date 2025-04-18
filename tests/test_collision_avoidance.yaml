@@ -11,6 +11,7 @@ robot:
   - number: 2
     distribution: {name: 'circle', radius: 2.0, center: [5, 5]}  
     kinematics: 
+      - {name: 'omni'}
       - {name: 'diff'}
 
     shape: 
@@ -19,8 +20,22 @@ robot:
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
-    arrive_mode: position
+    arrive_mode: state
     goal_threshold: 0.15
+
+    sensors: 
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 20
+        angle_range: 3.14
+        number: 100
+        noise: False
+        std: 1   
+        angle_std: 0.2
+        offset: [0, 0, 0]
+        reso: 0.1
+        alpha: 0.4
+    
     plot:
       show_trail: true
       show_goal: true
@@ -33,7 +48,7 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0, mode: 'vo'}
+    behavior: {name: 'rvo', vxmax: 3.5, vymax: 3.5, accer: 1.0, factor: 1.0, mode: 'vo'}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
@@ -70,7 +85,7 @@ obstacle:
     kinematics: {name: 'omni'}
     behavior: {name: 'rvo'}
     shape: {name: 'circle', radius: 1.0}  # radius
-    state: [5, 5, 0]  
+    state: [5, 5]  
 
     
     

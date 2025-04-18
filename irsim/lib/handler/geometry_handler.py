@@ -198,7 +198,7 @@ class geometry_handler(ABC):
 
 class CircleGeometry(geometry_handler):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str = "circle", **kwargs):
         super().__init__(name, **kwargs)
 
     def construct_init_geometry(
@@ -220,7 +220,7 @@ class CircleGeometry(geometry_handler):
 
 class PolygonGeometry(geometry_handler):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str = "polygon", **kwargs):
         super().__init__(name, **kwargs)
 
     def construct_init_geometry(
@@ -274,7 +274,7 @@ class PolygonGeometry(geometry_handler):
 
 class RectangleGeometry(geometry_handler):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str = "rectangle", **kwargs):
         super().__init__(name, **kwargs)
 
     def construct_init_geometry(
@@ -311,7 +311,7 @@ class RectangleGeometry(geometry_handler):
 
 class LinestringGeometry(geometry_handler):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str = "linestring", **kwargs):
         super().__init__(name, **kwargs)
 
     def construct_init_geometry(
@@ -341,7 +341,7 @@ class LinestringGeometry(geometry_handler):
 
 class PointsGeometry(geometry_handler):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str = "map", **kwargs):
         super().__init__(name, **kwargs)
 
     def construct_init_geometry(self, points: np.ndarray, reso: float = 0.1):

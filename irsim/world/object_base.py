@@ -578,8 +578,6 @@ class ObjectBase:
     def get_lidar_offset(self):
         return self.lidar.get_offset()
 
-    def get_inequality_Gh(self):
-        return self.gf.G, self.gf.h
 
     def get_fov_detected_objects(self):
         """
@@ -637,24 +635,12 @@ class ObjectBase:
             init (bool): Whether to set the initial state (default False).
         """
         if isinstance(state, list):
-            if len(state) > self.state_dim:
-                temp_state = np.c_[state[: self.state_dim]]
-            elif len(state) < self.state_dim:
-                temp_state = np.c_[state + [0] * (self.state_dim - len(state))]
-            else:
-                temp_state = np.c_[state]
+            assert len(state) == self.state_dim, "The state dimension is not correct. Your input state length is {} and the state dimension should be {}".format(len(state), self.state_dim)
+            temp_state = np.c_[state]
 
         elif isinstance(state, np.ndarray):
-            if state.shape[0] > self.state_dim:
-                temp_state = state[: self.state_dim]
-            elif state.shape[0] < self.state_dim:
-                temp_state = np.r_[
-                    state, np.zeros((self.state_dim - state.shape[0], state.shape[1]))
-                ]
-            else:
-                temp_state = state
-
-        assert self.state.shape == temp_state.shape
+            assert state.shape[0] == self.state_dim, "The state dimension is not correct. Your input state dimension is {} and the state dimension should be {}".format(state.shape[0], self.state_dim)
+            temp_state = state.reshape(self.state_dim, 1)
 
         if init:
             self._init_state = temp_state.copy()
@@ -672,25 +658,12 @@ class ObjectBase:
         """
 
         if isinstance(velocity, list):
-            if len(velocity) > self.vel_dim:
-                temp_velocity = np.c_[velocity[: self.vel_dim]]
-            elif len(velocity) < self.vel_dim:
-                temp_velocity = np.c_[velocity + [0] * (self.vel_dim - len(velocity))]
-            else:
-                temp_velocity = np.c_[velocity]
+            assert len(velocity) == self.vel_dim, "The velocity dimension is not correct. Your input velocity length is {} and the velocity dimension should be {}".format(len(velocity), self.vel_dim)
+            temp_velocity = np.c_[velocity]
 
         elif isinstance(velocity, np.ndarray):
-            if velocity.shape[0] > self.vel_dim:
-                temp_velocity = velocity[: self.vel_dim]
-            elif velocity.shape[0] < self.vel_dim:
-                temp_velocity = np.r_[
-                    velocity,
-                    np.zeros((self.vel_dim - velocity.shape[0], velocity.shape[1])),
-                ]
-            else:
-                temp_velocity = velocity
-
-        assert self._velocity.shape == temp_velocity.shape
+            assert velocity.shape[0] == self.vel_dim, "The velocity dimension is not correct. Your input velocity dimension is {} and the velocity dimension should be {}".format(velocity.shape[0], self.vel_dim)
+            temp_velocity = velocity.reshape(self.vel_dim, 1)
 
         if init:
             self._init_velocity = temp_velocity.copy()
@@ -775,24 +748,12 @@ class ObjectBase:
             return 
 
         if isinstance(goal, list):
-            if len(goal) > self.state_dim:
-                temp_goal = np.c_[goal[: self.state_dim]]
-            elif len(goal) < self.state_dim:
-                temp_goal = np.c_[goal + [0] * (self.state_dim - len(goal))]
-            else:
-                temp_goal = np.c_[goal]
+            assert len(goal) == self.state_dim, "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be {}".format(len(goal), self.state_dim)
+            temp_goal = np.c_[goal]
 
         elif isinstance(goal, np.ndarray):
-            if goal.shape[0] > self.state_dim:
-                temp_goal = goal[: self.state_dim]
-            elif goal.shape[0] < self.state_dim:
-                temp_goal = np.r_[
-                    goal, np.zeros((self.state_dim - goal.shape[0], goal.shape[1]))
-                ]
-            else:
-                temp_goal = goal
-
-        assert self.goal.shape == temp_goal.shape
+            assert goal.shape[0] == self.state_dim, "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be {}".format(goal.shape[0], self.state_dim)
+            temp_goal = goal
 
         goal_deque = deque([temp_goal.copy().flatten().tolist()])
 
@@ -816,8 +777,8 @@ class ObjectBase:
         else:
             self.logger.warning("No lidar sensor found for this object.")
 
-    def geometry_state_transition(self):
-        pass
+    # def geometry_state_transition(self):
+    #     pass
 
     def input_state_check(self, state: np.ndarray, dim: int = 3):
         """
@@ -1072,7 +1033,10 @@ class ObjectBase:
 
         x, y = self.state[0, 0], self.state[1, 0]
         
-        text = ax.text(x + text_position[0], y + text_position[1], self.abbr, fontsize = text_size, color = text_color)
+        if isinstance(ax, Axes3D):
+            text = ax.text(x + text_position[0], y + text_position[1], self.z, self.abbr, fontsize = text_size, color = text_color)
+        else:
+            text = ax.text(x + text_position[0], y + text_position[1], self.abbr, fontsize = text_size, color = text_color)
 
         self.plot_text_list.append(text)
 
@@ -1551,18 +1515,6 @@ class ObjectBase:
         '''
 
         return self.collision_flag
-
-    @property
-    def ineq_Ab(self):
-
-        '''
-        Get the inequality matrix A and b of the object.
-
-        Returns:
-            tuple: The inequality matrix A and b of the object.
-        '''
-
-        return self.get_inequality_Ab()
 
     @property
     def vertices(self) -> np.ndarray:
