@@ -65,6 +65,10 @@ class EnvBase:
 
         # init env setting
         self.display = display
+
+        if not self.display:
+            matplotlib.use("Agg")
+
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
         env_param.logger = EnvLogger(log_file, log_level)

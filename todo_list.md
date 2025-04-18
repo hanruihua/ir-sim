@@ -82,3 +82,4 @@
 - [ ] Interface with URDF file
 - [ ] Add subwindows for the simulation
 - [x] Formulate the geometry tree for the collision check
+- [ ] Make multiple env instances 
