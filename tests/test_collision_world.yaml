@@ -4,7 +4,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  collision_mode: 'unobstructed_obstacles'  # 'stop', 'unobstructed', 'reactive', 'unobstructed_obstacles'
   control_mode: 'auto'  # 'keyboard', 'auto'
 
 robot:
@@ -19,10 +19,16 @@ robot:
 obstacle:
   - shape: {name: 'circle', radius: 1.0}  # radius
     state: [5, 5, 0]  
-  
-  
+   
   - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
     state: [6, 5, 1] 
+  
+  - number: 2
+    distribution: {name: 'circle', radius: 2.0, center: [5, 5]} 
+    kinematics: {name: 'omni'}
+    behavior: {name: 'rvo'}
+    shape: {name: 'circle', radius: 1.0}  # radius
+    state: [5, 5, 0]  
     
 
   # - shape: {name: 'circle', radius: 0.4}  # radius

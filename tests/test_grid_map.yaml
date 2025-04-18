@@ -21,6 +21,7 @@ robot:
       traj_color: 'g'
       show_trajectory: True
       show_goal: False
+      trail_type: 'polygon'
 
     sensors: 
       - type: 'lidar2d'
