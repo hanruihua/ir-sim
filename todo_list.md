@@ -72,7 +72,7 @@
 - [ ] Interface with ROS
 - [ ] Interface with Pybullet or Gazebo
 - [ ] Add ORCA Behavior
-- [ ] organize the test cases
+- [x] organize the test cases
 - [x] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
 - [ ] improve coverage of the code
