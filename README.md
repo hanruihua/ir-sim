@@ -138,10 +138,9 @@ Currently, the simulator supports the following features. Further features, such
 
 This project is under development. I appreciate and welcome all contributions. Just open an issue or a pull request. Here are some simple ways to start contributing:
 
-- Enhance the website documentation, such as the API and tutorials.
-- Add new sensors, behaviors, robot models, and functional interfaces.
-- Add new usage examples and benchmarks.
 - Report bugs and issues.
+- Enhance the website documentation, such as the API and tutorials.
+- Add new usage examples and benchmarks.
 
 ## Acknowledgement
 
