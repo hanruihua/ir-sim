@@ -242,14 +242,17 @@ def transform_point_with_state(point, state):
     Transform a point using a state.
 
     Args:
-        point (np.array): Point [x, y] (2x1).
+        point (np.array): Point [x, y, theta] (3x1).
         state (np.array): State [x, y, theta] (3x1).
 
     Returns:
         np.array: Transformed point (2x1).
     """
     trans, rot = get_transform(state)
-    new_point = rot @ point[0:2] + trans
+    new_position = rot @ point[0:2] + trans
+    new_theta = WrapToPi(point[2, 0] + state[2, 0])
+    new_point = np.array([new_position[0, 0], new_position[1, 0], new_theta]).reshape((3, 1))
+
     return new_point
 
 

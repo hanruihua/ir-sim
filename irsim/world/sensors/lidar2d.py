@@ -102,7 +102,6 @@ class Lidar2D:
         self.std = std
         self.angle_std = angle_std
         self.offset = np.c_[offset]
-        self.lidar_origin = self.offset
 
         self.alpha = alpha
         self.has_velocity = has_velocity
@@ -309,8 +308,8 @@ class Lidar2D:
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
-            position = self._state[0:2, 0]
-            trans, rot = get_transform(self._state)
+            position = self.lidar_origin[0:2, 0] 
+            trans, rot = get_transform(self.lidar_origin)
             range_end_position = rot @ np.array([[x], [y]]) + trans
 
             if isinstance(ax, Axes3D):
