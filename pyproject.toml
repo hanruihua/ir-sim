@@ -30,6 +30,7 @@ dependencies = [
     'imageio',
     'loguru',
     'tabulate',
+    'scipy',
 ]
 
 [project.optional-dependencies]
