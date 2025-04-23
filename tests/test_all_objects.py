@@ -50,7 +50,8 @@ def test_collision_avoidance():
     env.get_lidar_scan()
     env.get_lidar_offset()
     env.get_robot_info()
-    
+    env.get_map()
+
     file_check('123.yaml')
     file_check('123.yaml', root_path='.')
     WrapToRegion(4, [-pi, pi])

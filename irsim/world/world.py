@@ -5,7 +5,7 @@ import matplotlib.image as mpimg
 from typing import Optional
 import os
 from irsim.global_param.path_param import path_manager as pm
-
+from irsim.world.map import Map
 
 class World:
     """
@@ -124,6 +124,14 @@ class World:
             self.reso = np.zeros((2, 1))
 
         return grid_map, obstacle_index, obstacle_positions
+
+
+    def get_map(self, resolution: float = 0.1, obstacle_list: list = []):
+        """
+        Get the map of the world with the given resolution.
+        """
+        return Map(self.width, self.height, resolution, obstacle_list, self.grid_map)
+
 
     def reset(self):
         """

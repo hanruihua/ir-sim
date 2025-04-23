@@ -641,6 +641,12 @@ class EnvBase:
 
         return [obj.get_info() for obj in self.robot_list]
 
+    def get_map(self, resolution: float = 0.1):
+        """
+        Get the map of the environment with the given resolution.
+        """
+        return self._world.get_map(resolution, self.obstacle_list)
+
     # endregion: get information
 
     def save_figure(
