@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -17,16 +18,9 @@ from irsim.lib.path_planners.rrt import RRT
 )
 def test_rrt_planner(planner, resolution):
     env = irsim.make("test_collision_world.yaml", save_ani=False, full=False, display=False)
-    planner = planner(env, resolution)
+    map = env.get_map()
+    planner = planner(map, resolution)
     robot_info = env.get_robot_info()
     robot_state = env.get_robot_state()
-    rx, ry = planner.planning(
-        robot_state[0].item(),
-        robot_state[1].item(),
-        robot_info.goal[0].item(),
-        robot_info.goal[1].item(),
-    )
-
-    plt.plot(rx, ry, "-r")
-    plt.pause(0.001)
-    plt.show()
+    trajectory = planner.planning(robot_state, robot_info.goal)
+    env.draw_trajectory(trajectory, traj_type="r-")

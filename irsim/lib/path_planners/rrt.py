@@ -28,6 +28,13 @@ class RRT:
         """
 
         def __init__(self, x, y):
+            """
+            Initialize Node
+
+            Args:
+                x (float): x position of the node
+                y (float): y position of the node
+            """
             self.x = x
             self.y = y
             self.path_x = []
@@ -35,17 +42,25 @@ class RRT:
             self.parent = None
 
     class AreaBounds:
+        """
+        Area Bounds
+        """
+        def __init__(self, map):
+            """
+            Initialize AreaBounds
 
-        def __init__(self, env):
+            Args:
+                env (EnvBase): environment where the planning will take place
+            """
             self.xmin, self.ymin = 0, 0
             self.xmax, self.ymax = (
-                env.env_config.parse["world"]["width"],
-                env.env_config.parse["world"]["height"],
+                map.width,
+                map.height,
             )
 
     def __init__(
         self,
-        env,
+        map,
         robot_radius,
         expand_dis=1.0,
         path_resolution=0.25,
@@ -55,17 +70,20 @@ class RRT:
         """
         Initialize RRT planner
 
-        env (EnvBase): environment where the planning will take place
-        robot_radius (float): robot body modeled as circle with given radius
-
+        Args:
+            map (Map): map where the planning will take place
+            robot_radius (float): robot body modeled as circle with given radius
+            expand_dis (float): expansion distance
+            path_resolution (float): resolution of the path
+            goal_sample_rate (int): goal sample rate
+            max_iter (int): max iteration count
         """
-        self.env = env
-        self.obstacle_list = self.env.obstacle_list[:]
+        self.obstacle_list = map.obstacle_list[:]
         self.max_x, self.max_y = (
-            self.env.env_config.parse["world"]["width"],
-            self.env.env_config.parse["world"]["height"],
+            map.width,
+            map.height,
         )
-        self.play_area = self.AreaBounds(self.env)
+        self.play_area = self.AreaBounds(map)
         self.min_rand = 0.0
         self.max_rand = max(self.max_x, self.max_y)
         self.expand_dis = expand_dis
@@ -75,14 +93,20 @@ class RRT:
         self.node_list = []
         self.robot_radius = robot_radius
 
-    def planning(self, start_x, start_y, goal_x, goal_y, show_animation=True):
+    def planning(self, start_pose, goal_pose, show_animation=True):
         """
         rrt path planning
 
-        show_animation: flag for animation on or off
+        Args:
+            start_pose (np.array): start pose [x,y]
+            goal_pose (np.array): goal pose [x,y]
+            show_animation (bool): If true, shows the animation of planning process
+
+        Returns:
+            (np.array): xy position array of the final path
         """
-        self.start = self.Node(start_x, start_y)
-        self.end = self.Node(goal_x, goal_y)
+        self.start = self.Node(start_pose[0].item(), start_pose[1].item())
+        self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
 
         self.node_list = [self.start]
         for i in range(self.max_iter):
@@ -109,10 +133,29 @@ class RRT:
                 if self.check_collision(final_node, self.robot_radius):
                     return self.generate_final_course(len(self.node_list) - 1)
 
-        return None, None  # cannot find path
+        return None  # cannot find path
 
     def steer(self, from_node, to_node, extend_length=float("inf")):
+        """
+        Generate a new node by steering from `from_node` towards `to_node`.
 
+        This method incrementally moves from `from_node` in the direction of `to_node`,
+        using a fixed step size (`self.path_resolution`) and not exceeding the
+        specified `extend_length`. The result is a new node that approximates a path
+        from the start node toward the goal, constrained by resolution and maximum
+        step distance.
+
+        If the final position is within one resolution step of `to_node`, it snaps the
+        new node exactly to `to_node`.
+
+        Args:
+            from_node (Node): The node from which to begin extending.
+            to_node (Node): The target node to steer toward.
+            extend_length (float, optional): The maximum length to extend. Defaults to infinity.
+
+        Returns:
+            (Node): A new node with updated position, path history (path_x, path_y),
+        """
         new_node = self.Node(from_node.x, from_node.y)
         d, theta = self.calc_distance_and_angle(new_node, to_node)
 
@@ -142,6 +185,15 @@ class RRT:
         return new_node
 
     def generate_final_course(self, goal_ind):
+        """
+        Generate the final path
+
+        Args:
+            goal_ind (int): index of the final goal
+
+        Returns:
+            (np.array): xy position array of the final path
+        """
         path = [[self.end.x, self.end.y]]
         node = self.node_list[goal_ind]
         while node.parent is not None:
@@ -150,14 +202,30 @@ class RRT:
         path.append([node.x, node.y])
         rx = [node[0] for node in path]
         ry = [node[1] for node in path]
-        return rx, ry
+        return np.array([rx, ry])
 
     def calc_dist_to_goal(self, x, y):
+        """
+        Calculate distance to goal
+
+        Args:
+            x (float): x coordinate of the position
+            y (float): y coordinate of the position
+
+        Returns:
+            (float): distance to the goal
+        """
         dx = x - self.end.x
         dy = y - self.end.y
         return math.hypot(dx, dy)
 
     def get_random_node(self):
+        """
+        Create random node
+
+        Returns:
+            (Node): new random node
+        """
         if random.randint(0, 100) > self.goal_sample_rate:
             rnd = self.Node(
                 random.uniform(self.min_rand, self.max_rand),
@@ -241,6 +309,16 @@ class RRT:
             return True  # inside - ok
 
     def check_collision(self, node, robot_radius):
+        """
+        Check if node is acceptable - free of collisions
+
+        Args:
+            node (Node): node to check
+            robot_radius (float): robot radius
+
+        Returns:
+            (bool): True if there is no collision. False otherwise
+        """
 
         if node is None:
             return False
@@ -252,6 +330,17 @@ class RRT:
         return ~self.check_node(node.x, node.y, robot_radius)  # return True if safe
 
     def check_node(self, x, y, rr):
+        """
+        Check positon for a collision
+
+        Args:
+            x (float): x value of the position
+            y (float): y value of the position
+            rr (float): robot radius
+
+        Returns:
+            (bool): True if there is a collision. False otherwise
+        """
         node_position = [x, y]
         shape = {"name": "circle", "radius": rr}
         gf = GeometryFactory.create_geometry(**shape)

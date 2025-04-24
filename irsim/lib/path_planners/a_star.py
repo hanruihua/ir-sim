@@ -21,34 +21,47 @@ from irsim.lib.handler.geometry_handler import GeometryFactory
 
 class AStarPlanner:
 
-    def __init__(self, env, resolution):
+    def __init__(self, map, resolution):
         """
         Initialize A* planner
 
-        env (EnvBase): environment where the planning will take place
-        resolution: grid resolution [m]
+        Args:
+            map (Map): map where the planning will take place
+            resolution (float): grid resolution [m]
         """
 
         self.resolution = resolution
-        self.env = env
-        self.obstacle_list = self.env.obstacle_list[:]
+        self.obstacle_list = map.obstacle_list[:]
         self.min_x, self.min_y = 0, 0
         self.max_x, self.max_y = (
-            self.env.env_config.parse["world"]["width"],
-            self.env.env_config.parse["world"]["height"],
+            map.height,
+            map.width,
         )
         self.x_width = round((self.max_x - self.min_x) / self.resolution)
         self.y_width = round((self.max_y - self.min_y) / self.resolution)
         self.motion = self.get_motion_model()
 
     class Node:
+        """Node class"""
+
         def __init__(self, x, y, cost, parent_index):
+            """
+            Initialize Node
+
+            Args:
+                x (float): x position of the node
+                y (float): y position of the node
+                cost (float): heuristic cost of the node
+                parent_index (int): Nodes parent index
+            """
+
             self.x = x  # index of grid
             self.y = y  # index of grid
             self.cost = cost
             self.parent_index = parent_index
 
         def __str__(self):
+            """str function for Node class"""
             return (
                 str(self.x)
                 + ","
@@ -59,30 +72,27 @@ class AStarPlanner:
                 + str(self.parent_index)
             )
 
-    def planning(self, sx, sy, gx, gy, show_animation=True):
+    def planning(self, start_pose, goal_pose, show_animation=True):
         """
         A star path search
 
-        input:
-            s_x: start x position [m]
-            s_y: start y position [m]
-            gx: goal x position [m]
-            gy: goal y position [m]
+        Args:
+            start_pose (np.array): start pose [x,y]
+            goal_pose (np.array): goal pose [x,y]
+            show_animation (bool): If true, shows the animation of planning process
 
-        output:
-            rx: x position list of the final path
-            ry: y position list of the final path
+        Returns:
+            (np.array): xy position array of the final path
         """
-
         start_node = self.Node(
-            self.calc_xy_index(sx, self.min_x),
-            self.calc_xy_index(sy, self.min_y),
+            self.calc_xy_index(start_pose[0].item(), self.min_x),
+            self.calc_xy_index(start_pose[1].item(), self.min_y),
             0.0,
             -1,
         )
         goal_node = self.Node(
-            self.calc_xy_index(gx, self.min_x),
-            self.calc_xy_index(gy, self.min_y),
+            self.calc_xy_index(goal_pose[0].item(), self.min_x),
+            self.calc_xy_index(goal_pose[1].item(), self.min_y),
             0.0,
             -1,
         )
@@ -155,10 +165,19 @@ class AStarPlanner:
 
         rx, ry = self.calc_final_path(goal_node, closed_set)
 
-        return rx, ry
+        return np.array([rx, ry])
 
     def calc_final_path(self, goal_node, closed_set):
-        # generate final course
+        """Generate the final path
+
+        Args:
+            goal_node (Node): final goal node
+            closed_set (dict): dict of closed nodes
+
+        Returns:
+            rx (list): list of x positions of final path
+            ry (list): list of y positions of final path
+        """
         rx, ry = [self.calc_grid_position(goal_node.x, self.min_x)], [
             self.calc_grid_position(goal_node.y, self.min_y)
         ]
@@ -181,20 +200,51 @@ class AStarPlanner:
         """
         calc grid position
 
-        :param index:
-        :param min_position:
-        :return:
+        Args:
+            index (int): index of a node
+            min_position (float): min value of search space
+
+        Returns:
+            (float): position of coordinates along the given axis
         """
         pos = index * self.resolution + min_position
         return pos
 
     def calc_xy_index(self, position, min_pos):
+        """
+        calc xy index of node
+
+        Args:
+            position (float): position of a node
+            min_pos (float): min value of search space
+
+        Returns:
+            (int): index of position along the given axis
+        """
         return round((position - min_pos) / self.resolution)
 
     def calc_grid_index(self, node):
+        """
+        calc grid index of node
+
+        Args:
+            node (Node): node to calculate the index for
+
+        Returns:
+            (float): grid index of the node
+        """
         return (node.y - self.min_y) * self.x_width + (node.x - self.min_x)
 
     def verify_node(self, node):
+        """
+        Check if node is acceptable - within limits of search space and free of collisions
+
+        Args:
+            node (Node): node to check
+
+        Returns:
+            (bool): True if node is acceptable. False otherwise
+        """
         px = self.calc_grid_position(node.x, self.min_x)
         py = self.calc_grid_position(node.y, self.min_y)
 
@@ -214,6 +264,16 @@ class AStarPlanner:
         return True
 
     def check_node(self, x, y):
+        """
+        Check positon for a collision
+
+        Args:
+            x (float): x value of the position
+            y (float): y value of the position
+
+        Returns:
+            result (bool): True if there is a collision. False otherwise
+        """
         node_position = [x, y]
         shape = {
             "name": "rectangle",
