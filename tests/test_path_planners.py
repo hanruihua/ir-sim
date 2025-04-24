@@ -16,7 +16,7 @@ from irsim.lib.path_planners.rrt import RRT
         (PRMPlanner, 0.3),
     ],
 )
-def test_rrt_planner(planner, resolution):
+def test_path_planners(planner, resolution):
     env = irsim.make("test_collision_world.yaml", save_ani=False, full=False, display=False)
     map = env.get_map()
     planner = planner(map, resolution)
