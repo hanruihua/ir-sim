@@ -21,21 +21,21 @@ from irsim.lib.handler.geometry_handler import GeometryFactory
 
 class AStarPlanner:
 
-    def __init__(self, map, resolution):
+    def __init__(self, env_map, resolution):
         """
         Initialize A* planner
 
         Args:
-            map (Map): map where the planning will take place
+            env_map (Env): environment map where the planning will take place
             resolution (float): grid resolution [m]
         """
 
         self.resolution = resolution
-        self.obstacle_list = map.obstacle_list[:]
+        self.obstacle_list = env_map.obstacle_list[:]
         self.min_x, self.min_y = 0, 0
         self.max_x, self.max_y = (
-            map.height,
-            map.width,
+            env_map.height,
+            env_map.width,
         )
         self.x_width = round((self.max_x - self.min_x) / self.resolution)
         self.y_width = round((self.max_y - self.min_y) / self.resolution)

@@ -45,7 +45,7 @@ class RRT:
         """
         Area Bounds
         """
-        def __init__(self, map):
+        def __init__(self, env_map):
             """
             Initialize AreaBounds
 
@@ -54,13 +54,13 @@ class RRT:
             """
             self.xmin, self.ymin = 0, 0
             self.xmax, self.ymax = (
-                map.width,
-                map.height,
+                env_map.width,
+                env_map.height,
             )
 
     def __init__(
         self,
-        map,
+        env_map,
         robot_radius,
         expand_dis=1.0,
         path_resolution=0.25,
@@ -71,19 +71,19 @@ class RRT:
         Initialize RRT planner
 
         Args:
-            map (Map): map where the planning will take place
+            env_map (Env): environment map where the planning will take place
             robot_radius (float): robot body modeled as circle with given radius
             expand_dis (float): expansion distance
             path_resolution (float): resolution of the path
             goal_sample_rate (int): goal sample rate
             max_iter (int): max iteration count
         """
-        self.obstacle_list = map.obstacle_list[:]
+        self.obstacle_list = env_map.obstacle_list[:]
         self.max_x, self.max_y = (
-            map.width,
-            map.height,
+            env_map.width,
+            env_map.height,
         )
-        self.play_area = self.AreaBounds(map)
+        self.play_area = self.AreaBounds(env_map)
         self.min_rand = 0.0
         self.max_rand = max(self.max_x, self.max_y)
         self.expand_dis = expand_dis

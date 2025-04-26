@@ -18,8 +18,8 @@ from irsim.lib.path_planners.rrt import RRT
 )
 def test_path_planners(planner, resolution):
     env = irsim.make("test_collision_world.yaml", save_ani=False, full=False, display=False)
-    map = env.get_map()
-    planner = planner(map, resolution)
+    env_map = env.get_map()
+    planner = planner(env_map, resolution)
     robot_info = env.get_robot_info()
     robot_state = env.get_robot_state()
     trajectory = planner.planning(robot_state, robot_info.goal)

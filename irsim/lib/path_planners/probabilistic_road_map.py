@@ -50,12 +50,12 @@ class Node:
 
 
 class PRMPlanner:
-    def __init__(self, map, robot_radius, n_sample=500, n_knn=10, max_edge_len=30.0):
+    def __init__(self, env_map, robot_radius, n_sample=500, n_knn=10, max_edge_len=30.0):
         """
         Initialize PRM planner
 
         Args:
-            map (Map): map where the planning will take place
+            env_map (Env): environment map where the planning will take place
             robot_radius (float): robot body modeled as circle with given radius
             n_sample (int): number of samples
             n_knn (int): number of edges
@@ -63,11 +63,11 @@ class PRMPlanner:
         """
 
         self.rr = robot_radius
-        self.obstacle_list = map.obstacle_list[:]
+        self.obstacle_list = env_map.obstacle_list[:]
         self.min_x, self.min_y = 0, 0
         self.max_x, self.max_y = (
-            map.width,
-            map.height,
+            env_map.width,
+            env_map.height,
         )
         self.n_sample = n_sample
         self.n_knn = n_knn
