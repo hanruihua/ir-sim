@@ -1,3 +1,10 @@
+
+'''
+This file is the implementation of the environment plot to visualize the environment objects.
+
+Author: Ruihua Han
+'''
+
 import matplotlib.pyplot as plt
 import logging
 from irsim.global_param.path_param import path_manager as pm

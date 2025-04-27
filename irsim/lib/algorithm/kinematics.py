@@ -1,11 +1,15 @@
+
+'''
+This file is the implementation of the kinematics for different robots.
+
+Author: Ruihua Han
+
+reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
+'''
+
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
-
-# from transforms3d import euler, axangles
-
-# reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
-
 
 def differential_kinematics(
     state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]

@@ -1,8 +1,13 @@
+
+'''
+This file is the implementation of the generation of random polygons.
+Author: Ruihua Han
+'''
+
 import math
 import random
 import numpy as np
 from typing import List
-
 
 def random_generate_polygon(
     number=1,

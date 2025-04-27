@@ -1,10 +1,13 @@
+'''
+This file is the implementation of the Reciprocal Velocity Obstacle (RVO) algorithm for multi-robot collision avoidance.
+
+Author: Ruihua Han
+
+reference: https://github.com/MengGuo/RVO_Py_MAS
+'''
+
 import numpy as np
 from math import sin, cos, atan2, asin, pi
-
-
-# state: [x, y, vx, vy, radius, vx_des, vy_des]
-# obs_state_list: [[x, y, vx, vy, radius]]
-# rvo_vel: [vx, vy]
 
 
 class reciprocal_vel_obs:
