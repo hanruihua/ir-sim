@@ -1,3 +1,14 @@
+## ir-sim 2.4.3
+
+- Bug Fixes:
+  - Fix lidar offset plot bug.
+  
+- New Features:
+  - Implement several classic path planner, A star, RRT, and PRM adapted from python robotics repo.
+  - Add draw quiver functions
+  - Add world plot parameters in yaml file.
+  - Update requirements.
+
 ## ir-sim 2.4.2
 
 - Bug Fixes:
