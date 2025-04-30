@@ -6,7 +6,9 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   plot:
     no_axis: true
-
+    saved_figure:
+      dpi: 200
+    
 robot:
   kinematics: {name: 'diff'}  # omni, diff, acker
   shape: {name: 'circle', radius: 0.2}  # radius

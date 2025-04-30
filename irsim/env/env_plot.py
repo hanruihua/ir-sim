@@ -29,8 +29,6 @@ class EnvPlot:
         y_range (list): The range of y-axis values. Default is [0, 10].
         saved_figure (dict): Keyword arguments for saving the figure.
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
-        saved_ani (dict): Keyword arguments for saving the animation.
-            See https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html#gif-pil for details.
         dpi: Dots per inch for the figure. Default is 100.
         figure_pixels: Width and height of the figure in pixels. Default is [1920, 1080].
         kwargs: Additional options such as color_map, no_axis, and tight.
@@ -43,14 +41,14 @@ class EnvPlot:
         x_range=[0, 10],
         y_range=[0, 10],
         saved_figure=dict(),
-        saved_ani=dict(),
-        dpi: int = 100,
         figure_pixels: list = [1920, 1080],
         **kwargs,
     ) -> None:
         """
         Initialize the EnvPlot instance.
         """
+
+        dpi = saved_figure.get('dpi', 100)
 
         self.fig, self.ax = plt.subplots(
             figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi
@@ -68,8 +66,14 @@ class EnvPlot:
 
         self.color_map.update(kwargs.get("color_map", dict()))
 
-        self.saved_figure_kwargs = saved_figure
-        self.saved_ani_kwargs = saved_ani
+        self.saved_figure_kwargs = {
+            "dpi": 100,
+            "bbox_inches": "tight",
+        }
+
+        self.saved_figure_kwargs.update(saved_figure) 
+        self.saved_ani_kwargs = {}
+
         self.dpi = dpi
         self.figure_pixels = figure_pixels
 
@@ -298,7 +302,6 @@ class EnvPlot:
         if not os.path.exists(fp):
             os.makedirs(fp)
 
-        self.saved_figure_kwargs.update({"dpi": self.dpi, "bbox_inches": "tight"})
         self.saved_figure_kwargs.update(kwargs)
 
         if include_index or save_gif:
@@ -322,16 +325,17 @@ class EnvPlot:
 
         Args:
             ani_name (str): Name of the animation. Default is 'animation'.
-            suffix (str): Suffix of the animation file. Default is '.gif'.
             keep_len (int): Length of the last frame. Default is 30.
+            suffix (str): Suffix of the animation file. Default is '.gif'.
             rm_fig_path (bool): Whether to remove the figure path after saving. Default is True.
             kwargs: Additional arguments for saving the animation.
                 See `format_gif <https://imageio.readthedocs.io/en/v2.8.0/format_gif-pil.html>`_ for details.
         """
+        
         if suffix == ".gif":
             self.saved_ani_kwargs.update({"subrectangles": True, "loop": 0})
 
-        self.saved_ani_kwargs.update(kwargs)
+        self.saved_ani_kwargs.update(kwargs)    
 
         self.logger.info("Start to create animation")
 

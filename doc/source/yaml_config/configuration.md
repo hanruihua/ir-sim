@@ -52,18 +52,19 @@ obstacle:
 
 The `world` section contains the configuration of the simulation environment. The following table details the configuration parameters for the world:
 
-| **Parameter**    | **Type**          | **Default** | **Description**                                                                                |
-| ---------------- | ----------------- | ----------- | ---------------------------------------------------------------------------------------------- |
-| `name`           | `str`             | `"world"`   | Name of the world                                                                              |
-| `height`         | `float`           | `10`        | Height of the world (meter)                                                                    |
-| `width`          | `float`           | `10`        | Width of the world (meter)                                                                     |
-| `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                            |
-| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                   |
-| `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                        |
-| `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                             |
-| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`)                    |
-| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                           |
-| `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load. |
+| **Parameter**    | **Type**          | **Default** | **Description**                                                                                         |
+| ---------------- | ----------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
+| `name`           | `str`             | `"world"`   | Name of the world                                                                                       |
+| `height`         | `float`           | `10`        | Height of the world (meter)                                                                             |
+| `width`          | `float`           | `10`        | Width of the world (meter)                                                                              |
+| `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                                     |
+| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                            |
+| `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                 |
+| `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                      |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`) |
+| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                    |
+| `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.          |
+| `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world. |
 
 
 ### Detailed Description of World Parameters
@@ -111,6 +112,15 @@ The `world` section contains the configuration of the simulation environment. Th
 ##### **`mdownsample`**:  
   Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
 
+##### **`plot`**:  
+  Specifies the plotting options for initializing the plot of the world.
+
+  - `saved_figure`: default dpi is 100; default format is `png`; default bbox_inches is `tight`. see [matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details.
+  - `figure_pixels`: Width and height of the figure in pixels. Default is [1920, 1080].
+  - `no_axis`: Whether to show the axis. Default is False.
+  - `tight`: Whether to use tight layout. Default is True.
+
+
 ### Complete Example of World Configuration
 
 Below is a comprehensive example of the `world` section in the YAML configuration file:
@@ -138,33 +148,33 @@ world:
 
 All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
 
-| Parameter        | Type              | Default          | Description                                                                              |
-| ---------------- | ----------------- | ---------------- | ---------------------------------------------------------------------------------------- |
-| `number`         | `int`             | `1`              | Number of objects to create.                                                             |
-| `distribution`   | `dict`            | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
-| `kinematics`     | `dict`            | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
-| `shape`          | `dict`            | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
-| `state`          | `list` of `float` | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
-| `velocity`       | `list` of `float` | `[0, 0]`         | Initial velocity vector.                                                                 |
-| `goal`           | `list` of `float` or `list` of `list` of `float` | `[10, 10, 0]`    | Goal state(s) vector.                                                                       |
-| `behavior`       | `dict`            | `None`   | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
-| `role`           | `str`             | `Obstacle`       | Role of the object in the simulation.                                                    |
-| `color`          | `str`             | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
-| `static`         | `bool`            | `False`          | Indicates if the object is static.                                                       |
-| `vel_min`        | `list` of `float` | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                      |
-| `vel_max`        | `list` of `float` | `[1, 1]`         | Maximum velocity limits for each control dimension.                                      |
-| `acce`           | `list` of `float` | `[inf, inf]`     | Acceleration limits.                                                                     |
-| `angle_range`    | `list` of `float` | `[-pi, pi]`      | Range of orientation angles in radians.                                                  |
-| `goal_threshold` | `float`           | `0.1`            | Threshold distance to determine goal arrival.                                            |
-| `sensors`        | `list` of `dict`  | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`            |
-| `arrive_mode`    | `str`             | `'position'`     | Mode for arrival detection.                                                              |
-| `description`    | `str`             | `None`           | Image description or label for the object.                                               |
-| `unobstructed`   | `bool`            | `False`          | Indicates if the object ignores collisions.                                              |
-| `plot`           | `dict`            | `{}`             | Plotting options for object visualization.                                               |
-| `state_dim`      | `int`             | `None`           | Dimension of the state vector.                                                           |
-| `vel_dim`        | `int`             | `None`           | Dimension of the velocity vector.                                                        |
-| `fov`            | `float`           | `None`           | Field of view angles in radians for the object's sensors.                                |
-| `fov_radius`     | `float`           | `None`           | Field of view radius for the object's sensors.                                           |  
+| Parameter        | Type                                             | Default          | Description                                                                              |
+| ---------------- | ------------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------- |
+| `number`         | `int`                                            | `1`              | Number of objects to create.                                                             |
+| `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
+| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
+| `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
+| `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
+| `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                 |
+| `goal`           | `list` of `float` or `list` of `list` of `float` | `[10, 10, 0]`    | Goal state(s) vector.                                                                    |
+| `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
+| `role`           | `str`                                            | `Obstacle`       | Role of the object in the simulation.                                                    |
+| `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
+| `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                       |
+| `vel_min`        | `list` of `float`                                | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                      |
+| `vel_max`        | `list` of `float`                                | `[1, 1]`         | Maximum velocity limits for each control dimension.                                      |
+| `acce`           | `list` of `float`                                | `[inf, inf]`     | Acceleration limits.                                                                     |
+| `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                  |
+| `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                            |
+| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`            |
+| `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                              |
+| `description`    | `str`                                            | `None`           | Image description or label for the object.                                               |
+| `unobstructed`   | `bool`                                           | `False`          | Indicates if the object ignores collisions.                                              |
+| `plot`           | `dict`                                           | `{}`             | Plotting options for object visualization.                                               |
+| `state_dim`      | `int`                                            | `None`           | Dimension of the state vector.                                                           |
+| `vel_dim`        | `int`                                            | `None`           | Dimension of the velocity vector.                                                        |
+| `fov`            | `float`                                          | `None`           | Field of view angles in radians for the object's sensors.                                |
+| `fov_radius`     | `float`                                          | `None`           | Field of view radius for the object's sensors.                                           |
 
 
 
