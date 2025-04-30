@@ -85,3 +85,4 @@
 - [x] Formulate the geometry tree for the collision check
 - [ ] Make multiple env instances 
 - [ ] Add various navigation algorithms implemented on the ir-sim
+- [ ] complete color map
