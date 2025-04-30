@@ -75,7 +75,8 @@
 - [x] organize the test cases
 - [x] Add binary occupancy grid map for indoor navigation
 - [ ] traffic scenarios
-- [ ] improve coverage of the code
+- [x] improve coverage of the code over 90%
+- [ ] improve coverage of the code over 99%
 - [ ] modular yaml import so that ir-sim can read the yaml file separately
 - [ ] Add the interface with opendrive
 - [ ] Complete the reactive collision mode
@@ -83,3 +84,4 @@
 - [ ] Add subwindows for the simulation
 - [x] Formulate the geometry tree for the collision check
 - [ ] Make multiple env instances 
+- [ ] Add various navigation algorithms implemented on the ir-sim
