@@ -75,6 +75,7 @@ class EnvPlot:
 
         self.dyna_line_list = []
         self.dyna_point_list = []
+        self.dyna_quiver_list = []
 
     def init_plot(self, grid_map, objects, no_axis=False, tight=True):
         """
@@ -137,9 +138,11 @@ class EnvPlot:
             [obj.plot_clear() for obj in objects if not obj.static]
             [line.pop(0).remove() for line in self.dyna_line_list]
             [points.remove() for points in self.dyna_point_list]
+            [quiver.remove() for quiver in self.dyna_quiver_list]
 
             self.dyna_line_list = []
             self.dyna_point_list = []
+            self.dyna_quiver_list = []
 
         elif mode == "static":
             pass
