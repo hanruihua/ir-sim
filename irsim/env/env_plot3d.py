@@ -16,8 +16,6 @@ class EnvPlot3D(EnvPlot):
         y_range=[0, 10],
         z_range=[0, 10],
         saved_figure=dict(),
-        saved_ani=dict(),
-        dpi: int = 100,
         figure_pixels: list = [1920, 1080],
         **kwargs,
     ):
@@ -27,8 +25,6 @@ class EnvPlot3D(EnvPlot):
             x_range,
             y_range,
             saved_figure,
-            saved_ani,
-            dpi,
             figure_pixels,
             **kwargs,
         )
