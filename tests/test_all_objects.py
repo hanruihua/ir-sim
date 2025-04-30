@@ -162,6 +162,33 @@ def test_keyboard_control():
             env._on_release(mock_key)
         env.step()
         env.render(0.01)
+    
+    # Test Alt key functionality
+    # Create a mock Alt key
+    alt_key = Mock(spec=keyboard.Key)
+    alt_key.name = "alt"
+    
+    # Create mock number keys
+    num_keys = [Mock(spec=keyboard.Key, char=str(i)) for i in range(5)]
+    
+    # Press Alt key
+    env._on_press(alt_key)
+    assert env.alt_flag == True, "After pressing Alt key, alt_flag should be True"
+    
+    # Test number keys with Alt pressed
+    for i, num_key in enumerate(num_keys):
+        env._on_press(num_key)
+        if i < env.robot_number:
+            assert env.key_id == i, f"After pressing Alt+{i}, control ID should change to {i}"
+        else:
+            # If robot number is less than the pressed number, it should print "out of number of robots"
+            # but we can't easily test the print output, so we just check that key_id is set
+            assert env.key_id == i, f"After pressing Alt+{i}, control ID should be set to {i}"
+            
+    # Release Alt key
+    env._on_release(alt_key)
+    assert env.alt_flag == False, "After releasing Alt key, alt_flag should be False"
+    
     env.end()
     assert True  # Add keyboard control related assertions
 
