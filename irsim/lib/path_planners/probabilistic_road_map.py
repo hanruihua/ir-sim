@@ -50,7 +50,9 @@ class Node:
 
 
 class PRMPlanner:
-    def __init__(self, env_map, robot_radius, n_sample=500, n_knn=10, max_edge_len=30.0):
+    def __init__(
+        self, env_map, robot_radius, n_sample=500, n_knn=10, max_edge_len=30.0
+    ):
         """
         Initialize PRM planner
 
@@ -86,7 +88,12 @@ class PRMPlanner:
         Returns:
             (np.array): xy position array of the final path
         """
-        start_x, start_y, goal_x, goal_y = start_pose[0].item(), start_pose[1].item(), goal_pose[0].item(), goal_pose[1].item()
+        start_x, start_y, goal_x, goal_y = (
+            start_pose[0].item(),
+            start_pose[1].item(),
+            goal_pose[0].item(),
+            goal_pose[1].item(),
+        )
         sample_x, sample_y = self.sample_points(start_x, start_y, goal_x, goal_y, rng)
         if show_animation:
             plt.plot(sample_x, sample_y, ".b")
