@@ -86,3 +86,4 @@
 - [ ] Make multiple env instances 
 - [ ] Add various navigation algorithms implemented on the ir-sim
 - [ ] complete color map
+- [ ] multiprocess for large scale simulation
