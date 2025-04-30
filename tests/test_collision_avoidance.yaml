@@ -6,6 +6,8 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'unobstructed'  # 'stop', 'unobstructed', 'reactive'
   control_mode: 'auto'  # 'keyboard', 'auto'
+  plot:
+    no_axis: true
 
 robot:
   - number: 2
@@ -86,6 +88,8 @@ obstacle:
     behavior: {name: 'rvo'}
     shape: {name: 'circle', radius: 1.0}  # radius
     state: [5, 5]  
+
+
 
     
     

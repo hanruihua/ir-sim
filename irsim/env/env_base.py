@@ -100,7 +100,7 @@ class EnvBase:
             self.objects,
             self._world.x_range,
             self._world.y_range,
-            **self.env_config.parse["plot"],
+            **self._world.plot_parse,
         )
 
         env_param.objects = self.objects
@@ -253,6 +253,12 @@ class EnvBase:
             color: color of the box, default 'b-'
         """
         self._env_plot.draw_box(vertex, refresh, color)
+
+    def draw_quiver(self, point, refresh=False, **kwargs):
+        self._env_plot.draw_quiver(point, refresh, **kwargs)
+    
+    def draw_quivers(self, points, refresh=False, **kwargs):
+        self._env_plot.draw_quivers(points, refresh, **kwargs)
 
     # keyboard control
     def init_keyboard(self, keyboard_kwargs: dict = dict()):

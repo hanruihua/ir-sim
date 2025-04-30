@@ -71,6 +71,8 @@ class World:
             obstacle_map, mdownsample
         )
 
+        self.plot_parse = kwargs.get("plot", dict())
+
         # Set world parameters
         world_param.step_time = step_time
         world_param.control_mode = control_mode
