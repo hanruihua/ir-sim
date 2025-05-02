@@ -45,12 +45,13 @@ class RRT:
         """
         Area Bounds
         """
+
         def __init__(self, env_map):
             """
             Initialize AreaBounds
 
             Args:
-                env (EnvBase): environment where the planning will take place
+                env_map (EnvBase): environment where the planning will take place
             """
             self.xmin, self.ymin = 0, 0
             self.xmax, self.ymax = (
