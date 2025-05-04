@@ -1,5 +1,5 @@
 from irsim.world import ObjectBase
-
+from shapely.strtree import STRtree
 
 class ObstacleMap(ObjectBase):
 
@@ -17,3 +17,10 @@ class ObstacleMap(ObjectBase):
             static=static,
             **kwargs,
         )
+
+
+        self.linestrings = [line for line in self.geometry.geoms]
+        self.geometry_tree = STRtree(self.linestrings)
+
+
+    

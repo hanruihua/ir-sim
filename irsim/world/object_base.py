@@ -429,7 +429,7 @@ class ObjectBase:
         """
         collision_flags = []
         self.collision_obj = []
-
+        
         for obj in self.possible_collision_objects:
             if self.check_collision(obj):
                 collision_flags.append(True)

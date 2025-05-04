@@ -183,29 +183,26 @@ class Lidar2D:
         Returns:
             list: The indices of the intersected objects.
         '''
+        
+        object_tree = env_param.GeometryTree
+        objects = env_param.objects
+        geometries = [obj._geometry for obj in objects]
 
-        filtered_objects = [
-            obj
-            for obj in env_param.objects
-            if obj._id != self.obj_id and is_valid(obj._geometry) and not obj.unobstructed
-        ]
-
-        geometries = [obj._geometry for obj in filtered_objects]
-        spatial_index = STRtree(geometries)
-        potential_geometries_index = spatial_index.query(lidar_geometry)
+        potential_geometries_index = object_tree.query(lidar_geometry)
 
         geometries_to_subtract = []
         intersect_indices = []
 
         for geom_index in potential_geometries_index:
             geo = geometries[geom_index]
-            obj = filtered_objects[geom_index]
+            obj = objects[geom_index]
+
+            if obj._id == self.obj_id or not is_valid(obj._geometry) or obj.unobstructed:
+                continue
 
             if obj.shape == 'map':
-                linestrings = [line for line in geo.geoms]
-                tree = STRtree(linestrings)
-                potential_intersections = tree.query(lidar_geometry)
-                filtered_lines = [linestrings[i] for i in potential_intersections]
+                potential_intersections = obj.geometry_tree.query(lidar_geometry)
+                filtered_lines = [obj.linestrings[i] for i in potential_intersections]
                 filtered_multi_lines = MultiLineString(filtered_lines)
 
                 if lidar_geometry.intersects(filtered_multi_lines):
