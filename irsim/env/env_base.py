@@ -531,12 +531,14 @@ class EnvBase:
         Add the object to the environment.
         """
         self._objects.append(obj)
+        self.build_tree()
 
     def add_objects(self, objs: list):
         """
         Add the objects to the environment.
         """
         self._objects.extend(objs)
+        self.build_tree()
 
     def delete_object(self, target_id: int):
         """
@@ -548,6 +550,8 @@ class EnvBase:
                 obj.plot_clear()
                 self._objects.remove(obj)
                 break
+        
+        self.build_tree()
 
     def delete_objects(self, target_ids: list):
         """
@@ -559,6 +563,8 @@ class EnvBase:
         for obj in del_obj:
             obj.plot_clear()
             self._objects.remove(obj)
+        
+        self.build_tree()
 
 
     def build_tree(self):
