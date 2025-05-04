@@ -28,6 +28,7 @@ from irsim.util.util import (
     random_point_range,
     WrapToPi,
     is_2d_list,
+    file_check,
 )
 
 
@@ -314,7 +315,9 @@ class ObjectBase:
         self.wander = self.beh_config.get("wander", False)
 
         if self.wander:
-            self._goal = deque([random_point_range(self.rl, self.rh).flatten().tolist()])
+            self._goal = deque(
+                [random_point_range(self.rl, self.rh).flatten().tolist()]
+            )
 
         # plot
         self.plot_kwargs = kwargs.get("plot", dict())
@@ -402,8 +405,9 @@ class ObjectBase:
                 self.stop_flag = False
         else:
             if world_param.count % 50 == 0 and self.role == "robot":
-                self.logger.warning(f"collision mode {world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used")
-        
+                self.logger.warning(
+                    f"collision mode {world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
+                )
 
     def check_arrive_status(self):
         """
@@ -419,7 +423,7 @@ class ObjectBase:
                 self.arrive_flag = True
             else:
                 self._goal.popleft()
-                self.arrive_flag = False    
+                self.arrive_flag = False
         else:
             self.arrive_flag = False
 
@@ -429,12 +433,12 @@ class ObjectBase:
         """
         collision_flags = []
         self.collision_obj = []
-        
+
         for obj in self.possible_collision_objects:
             if self.check_collision(obj):
                 collision_flags.append(True)
                 self.collision_obj.append(obj)
-            
+
                 if self.role == "robot":
                     if not self.collision_flag:
                         self.logger.warning(
@@ -457,7 +461,7 @@ class ObjectBase:
         """
 
         if obj.shape == "map":
-            line_strings = list(obj._geometry.geoms) 
+            line_strings = list(obj._geometry.geoms)
             tree = STRtree(line_strings)
             candidate_indices = tree.query(self.geometry)
             filtered_lines = [line_strings[i] for i in candidate_indices]
@@ -498,7 +502,9 @@ class ObjectBase:
 
             else:
                 if self.wander and self.arrive_flag:
-                    self._goal = deque([random_point_range(self.rl, self.rh).flatten().tolist()])
+                    self._goal = deque(
+                        [random_point_range(self.rl, self.rh).flatten().tolist()]
+                    )
                     self.arrive_flag = False
 
                 behavior_vel = self.obj_behavior.gen_vel(
@@ -578,7 +584,6 @@ class ObjectBase:
     def get_lidar_offset(self):
         return self.lidar.get_offset()
 
-
     def get_fov_detected_objects(self):
         """
         Detect the env objects that in the field of view.
@@ -626,7 +631,7 @@ class ObjectBase:
         else:
             return False
 
-    def set_state(self, state: Union[list, np.ndarray]= [0, 0, 0], init: bool = False):
+    def set_state(self, state: Union[list, np.ndarray] = [0, 0, 0], init: bool = False):
         """
         Set the state of the object.
 
@@ -635,11 +640,19 @@ class ObjectBase:
             init (bool): Whether to set the initial state (default False).
         """
         if isinstance(state, list):
-            assert len(state) == self.state_dim, "The state dimension is not correct. Your input state length is {} and the state dimension should be {}".format(len(state), self.state_dim)
+            assert (
+                len(state) == self.state_dim
+            ), "The state dimension is not correct. Your input state length is {} and the state dimension should be {}".format(
+                len(state), self.state_dim
+            )
             temp_state = np.c_[state]
 
         elif isinstance(state, np.ndarray):
-            assert state.shape[0] == self.state_dim, "The state dimension is not correct. Your input state dimension is {} and the state dimension should be {}".format(state.shape[0], self.state_dim)
+            assert (
+                state.shape[0] == self.state_dim
+            ), "The state dimension is not correct. Your input state dimension is {} and the state dimension should be {}".format(
+                state.shape[0], self.state_dim
+            )
             temp_state = state.reshape(self.state_dim, 1)
 
         if init:
@@ -648,7 +661,9 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
-    def set_velocity(self, velocity: Union[list, np.ndarray] = [0, 0], init: bool = False):
+    def set_velocity(
+        self, velocity: Union[list, np.ndarray] = [0, 0], init: bool = False
+    ):
         """
         Set the velocity of the object.
 
@@ -658,11 +673,19 @@ class ObjectBase:
         """
 
         if isinstance(velocity, list):
-            assert len(velocity) == self.vel_dim, "The velocity dimension is not correct. Your input velocity length is {} and the velocity dimension should be {}".format(len(velocity), self.vel_dim)
+            assert (
+                len(velocity) == self.vel_dim
+            ), "The velocity dimension is not correct. Your input velocity length is {} and the velocity dimension should be {}".format(
+                len(velocity), self.vel_dim
+            )
             temp_velocity = np.c_[velocity]
 
         elif isinstance(velocity, np.ndarray):
-            assert velocity.shape[0] == self.vel_dim, "The velocity dimension is not correct. Your input velocity dimension is {} and the velocity dimension should be {}".format(velocity.shape[0], self.vel_dim)
+            assert (
+                velocity.shape[0] == self.vel_dim
+            ), "The velocity dimension is not correct. Your input velocity dimension is {} and the velocity dimension should be {}".format(
+                velocity.shape[0], self.vel_dim
+            )
             temp_velocity = velocity.reshape(self.vel_dim, 1)
 
         if init:
@@ -687,7 +710,7 @@ class ObjectBase:
         goal_check_radius: float = 0.2,
         range_limits: list = None,
         max_attempts: int = 100,
-        ):
+    ):
         """
         Set random goal(s) in the environment. If free set to True, the goal will be placed only in the free from
         obstacles part of the environment.
@@ -709,7 +732,11 @@ class ObjectBase:
                 covered_goal = True
                 counter = 0
                 while covered_goal and counter < max_attempts:
-                    goal = random_point_range(range_limits[0], range_limits[1]).flatten().tolist()
+                    goal = (
+                        random_point_range(range_limits[0], range_limits[1])
+                        .flatten()
+                        .tolist()
+                    )
                     shape = {"name": "circle", "radius": goal_check_radius}
                     gf = GeometryFactory.create_geometry(**shape)
                     geometry = gf.step(np.c_[goal])
@@ -724,8 +751,12 @@ class ObjectBase:
                     self.logger.warning(
                         f"Could not place the goal in a position free of obstacles in {max_attempts} tries"
                     )
-            else :
-                goal = random_point_range(range_limits[0], range_limits[1]).flatten().tolist()
+            else:
+                goal = (
+                    random_point_range(range_limits[0], range_limits[1])
+                    .flatten()
+                    .tolist()
+                )
             deque_goals.append(goal)
 
         self.set_goal(deque_goals, init=init)
@@ -744,15 +775,23 @@ class ObjectBase:
 
             if init:
                 self._init_goal = self._goal.copy()
-            
-            return 
+
+            return
 
         if isinstance(goal, list):
-            assert len(goal) == self.state_dim, "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be {}".format(len(goal), self.state_dim)
+            assert (
+                len(goal) == self.state_dim
+            ), "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be {}".format(
+                len(goal), self.state_dim
+            )
             temp_goal = np.c_[goal]
 
         elif isinstance(goal, np.ndarray):
-            assert goal.shape[0] == self.state_dim, "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be {}".format(goal.shape[0], self.state_dim)
+            assert (
+                goal.shape[0] == self.state_dim
+            ), "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be {}".format(
+                goal.shape[0], self.state_dim
+            )
             temp_goal = goal
 
         goal_deque = deque([temp_goal.copy().flatten().tolist()])
@@ -762,8 +801,7 @@ class ObjectBase:
 
         self._goal = goal_deque
 
-
-    def set_laser_color(self, laser_indices, laser_color: str = 'cyan'):
+    def set_laser_color(self, laser_indices, laser_color: str = "cyan"):
         """
         Set the color of the lasers.
 
@@ -844,7 +882,6 @@ class ObjectBase:
         trail_freq = self.plot_kwargs.get("trail_freq", 2)
         goal_color = self.plot_kwargs.get("goal_color", self.color)
 
-
         self.plot_object(ax, **self.plot_kwargs)
 
         if show_goal:
@@ -879,7 +916,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
         """
-        
+
         obj_linestyle = kwargs.get("obj_linestyle", "-")
 
         if self.description is None or isinstance(ax, Axes3D):
@@ -888,7 +925,10 @@ class ObjectBase:
 
             if self.shape == "circle":
                 object_patch = mpl.patches.Circle(
-                    xy=(x, y), radius=self.radius, color=self.color, linestyle=obj_linestyle
+                    xy=(x, y),
+                    radius=self.radius,
+                    color=self.color,
+                    linestyle=obj_linestyle,
                 )
                 object_patch.set_zorder(3)
 
@@ -898,7 +938,9 @@ class ObjectBase:
                 ax.add_patch(object_patch)
 
             elif self.shape == "polygon" or self.shape == "rectangle":
-                object_patch = mpl.patches.Polygon(xy=self.vertices.T, color=self.color, linestyle=obj_linestyle)
+                object_patch = mpl.patches.Polygon(
+                    xy=self.vertices.T, color=self.color, linestyle=obj_linestyle
+                )
                 object_patch.set_zorder(3)
 
                 if isinstance(ax, Axes3D):
@@ -917,7 +959,10 @@ class ObjectBase:
                     )
                 else:
                     object_patch = mpl.lines.Line2D(
-                        self.vertices[0, :], self.vertices[1, :], color=self.color, linestyle=obj_linestyle
+                        self.vertices[0, :],
+                        self.vertices[1, :],
+                        color=self.color,
+                        linestyle=obj_linestyle,
                     )
                 object_patch.set_zorder(3)
                 ax.add_line(object_patch)
@@ -940,7 +985,10 @@ class ObjectBase:
         r_phi = self.state[2, 0]
         r_phi_ang = 180 * r_phi / pi
 
-        robot_image_path = path_manager.root_path + "/world/description/" + description
+        robot_image_path = file_check(
+            description, root_path=path_manager.root_path + "/world/description/"
+        )
+
         robot_img_read = image.imread(robot_image_path)
 
         robot_img = ax.imshow(
@@ -1029,20 +1077,39 @@ class ObjectBase:
 
         text_color = kwargs.get("text_color", "k")
         text_size = kwargs.get("text_size", 10)
-        text_position = kwargs.get("text_position", [-self.radius-0.1, self.radius+0.1])
+        text_position = kwargs.get(
+            "text_position", [-self.radius - 0.1, self.radius + 0.1]
+        )
 
         x, y = self.state[0, 0], self.state[1, 0]
-        
+
         if isinstance(ax, Axes3D):
-            text = ax.text(x + text_position[0], y + text_position[1], self.z, self.abbr, fontsize = text_size, color = text_color)
+            text = ax.text(
+                x + text_position[0],
+                y + text_position[1],
+                self.z,
+                self.abbr,
+                fontsize=text_size,
+                color=text_color,
+            )
         else:
-            text = ax.text(x + text_position[0], y + text_position[1], self.abbr, fontsize = text_size, color = text_color)
+            text = ax.text(
+                x + text_position[0],
+                y + text_position[1],
+                self.abbr,
+                fontsize=text_size,
+                color=text_color,
+            )
 
         self.plot_text_list.append(text)
 
-
     def plot_arrow(
-        self, ax, arrow_length: float = 0.4, arrow_width: float = 0.6, arrow_color: str = "gold", **kwargs
+        self,
+        ax,
+        arrow_length: float = 0.4,
+        arrow_width: float = 0.6,
+        arrow_color: str = "gold",
+        **kwargs,
     ):
         """
         Plot an arrow indicating the velocity orientation of the object.
@@ -1118,7 +1185,14 @@ class ObjectBase:
             ax.add_patch(car_rect)
 
         elif trail_type == "polygon":
-            car_polygon = mpl.patches.Polygon(self.vertices.T, edgecolor=trail_color, alpha=trail_alpha, linewidth=trail_linewidth, fill=False, facecolor=trail_color)
+            car_polygon = mpl.patches.Polygon(
+                self.vertices.T,
+                edgecolor=trail_color,
+                alpha=trail_alpha,
+                linewidth=trail_linewidth,
+                fill=False,
+                facecolor=trail_color,
+            )
 
             if isinstance(ax, Axes3D):
                 art3d.patch_2d_to_3d(car_polygon, z=self.z)
@@ -1228,7 +1302,6 @@ class ObjectBase:
         """
         del self
 
-
     def get_vel_range(self) -> tuple[np.ndarray, np.ndarray]:
         """
         Get the velocity range considering acceleration limits.
@@ -1282,291 +1355,269 @@ class ObjectBase:
         return self.gf.get_init_Gh()
 
     def get_Gh(self) -> tuple[np.ndarray, np.ndarray]:
-
         """
         Get the generalized inequality matrices G and h for the convex object's.
         """
-        return self.gf.get_Gh(center=self.position, radius=self.radius, vertices=self.vertices)
+        return self.gf.get_Gh(
+            center=self.position, radius=self.radius, vertices=self.vertices
+        )
 
     @property
     def name(self) -> str:
-
-        '''
+        """
         Get the name of the object.
 
         Returns:
             str: The name of the object.
-        '''
+        """
 
         return self.info.role + "_" + str(self.id)
 
     @property
     def abbr(self) -> str:
-
-        '''
+        """
         Get the abbreviation of the object.
 
         Returns:
             str: The abbreviation of the object.
-        '''
+        """
 
         return self.info.role[0] + str(self.id)
 
     @property
     def shape(self) -> str:
-
-        '''
+        """
         Get the shape name of the object.
 
         Returns:
             str: The shape name of the object.
-        '''
+        """
 
         return self.gf.name
 
     @property
     def z(self) -> float:
-
-        '''
+        """
         Get the z coordinate of the object. For 3D object, the z coordinate is the height of the object, for 2D object, the z coordinate is 0.
 
         Returns:
             float: The z coordinate of the object.
-        '''
+        """
 
         return self.state[2, 0] if self.state_dim >= 6 else 0
 
     @property
     def kinematics(self) -> str:
-
-        '''
+        """
         Get the kinematics name of the object.
 
         Returns:
             str: The kinematics name of the object.
-        '''
+        """
 
         return self.kf.name if self.kf is not None else None
 
     @property
     def geometry(self) -> shapely.geometry.base.BaseGeometry:
-
-        '''
+        """
         Get the geometry Instance of the object.
 
         Returns:
             shapely.geometry.base.BaseGeometry: The geometry of the object.
-        '''
+        """
 
         return self._geometry
 
     @property
     def centroid(self) -> np.ndarray:
-
-        '''
+        """
         Get the centroid of the object.
 
         Returns:
             np.ndarray: The centroid of the object.
-        '''
+        """
 
         return self._geometry.centroid.coords._coords.T
 
     @property
     def id(self) -> int:
-
-        '''
+        """
         Get the id of the object.
 
         Returns:
             int: The id of the object.
-        '''
+        """
 
         return self._id
 
     @property
     def state(self) -> np.ndarray:
-
-        '''
+        """
         Get the state of the object.
 
         Returns:
             np.ndarray: The state of the object.
-        '''
+        """
 
         return self._state
 
     @property
     def velocity(self) -> np.ndarray:
-
-        '''
+        """
         Get the velocity of the object.
 
         Returns:
             np.ndarray: The velocity of the object.
-        '''
+        """
 
         return self._velocity
 
     @property
     def goal(self) -> np.ndarray:
-
-        '''
+        """
         Get the goal of the object.
 
         Returns:
             np.ndarray: The goal of the object.
-        '''
+        """
 
         return np.c_[self._goal[0]]
 
     @property
     def position(self) -> np.ndarray:
-
-        '''
+        """
         Get the position of the object.
 
         Returns:
             np.ndarray: The position of the object .
-        '''
+        """
 
         return self._state[:2]
 
     @property
     def radius(self) -> float:
-
-        '''
+        """
         Get the radius of the object.
 
         Returns:
             float: The radius of the object.
-        '''
+        """
 
         return self.gf.radius
 
     @property
     def length(self) -> float:
-
-        '''
+        """
         Get the length of the object.
 
         Returns:
             float: The length of the object.
-        '''
+        """
 
         return self.gf.length
 
     @property
     def width(self) -> float:
-
-        '''
+        """
         Get the width of the object.
 
         Returns:
             float: The width of the object.
-        '''
+        """
 
         return self.gf.width
 
     @property
     def wheelbase(self) -> float:
-
-        '''
+        """
         Get the wheelbase of the object.
 
         Returns:
             float: The wheelbase of the object.
-        '''
+        """
 
         return self.gf.wheelbase
 
     @property
     def radius_extend(self) -> float:
-
-        '''
+        """
         Get the radius of the object with a buffer.
 
         Returns:
             float: The radius of the object with a buffer.
-        '''
+        """
 
         return self.radius + 0.1
 
     @property
     def arrive(self) -> bool:
-
-        '''
+        """
         Get the arrive flag of the object.
 
         Returns:
             bool: The arrive flag of the object.
-        '''
+        """
 
         return self.arrive_flag
 
     @property
     def collision(self) -> bool:
-
-        '''
+        """
         Get the collision flag of the object.
 
         Returns:
             bool: The collision flag of the object.
-        '''
+        """
 
         return self.collision_flag
 
     @property
     def vertices(self) -> np.ndarray:
-
-        '''
+        """
         Get the vertices of the object.
 
         Returns:
             np.ndarray: The vertices of the object.
-        '''
+        """
 
         return self.gf.vertices
 
     @property
     def external_objects(self):
-
-        '''
+        """
         The environment objects that are not the self object.
 
         Returns:
             list: The environment objects that are not the self object.
-        '''
+        """
 
         return [obj for obj in env_param.objects if self.id != obj.id]
 
     @property
     def ego_object(self):
-
-        '''
+        """
         Get the ego object.
 
         Returns:
             ObjectBase: The ego object.
-        '''
+        """
 
         return self
 
     @property
     def possible_collision_objects(self):
-
-        '''
+        """
         Get the possible collision objects of the object from the tree.
 
         Returns:
             list: The possible collision objects of the object.
-        '''
+        """
 
         tree = env_param.GeometryTree
         possible = []
 
         candidates_index = tree.query(self.geometry)
-        
+
         for index in candidates_index:
             obj = env_param.objects[index]
 
@@ -1607,7 +1658,9 @@ class ObjectBase:
             list: List of RVO neighbor states [x, y, vx, vy, radius].
         """
         return [
-            obj.rvo_neighbor_state for obj in self.external_objects if not obj.unobstructed
+            obj.rvo_neighbor_state
+            for obj in self.external_objects
+            if not obj.unobstructed
         ]
 
     @property
@@ -1663,16 +1716,15 @@ class ObjectBase:
 
     @property
     def beh_config(self):
-        
-        '''
+        """
         Get the behavior configuration of the object.
 
         Returns:
             dict: The behavior configuration of the object.
-        '''
+        """
 
         return self.obj_behavior.behavior_dict
-    
+
     @property
     def logger(self):
         """
@@ -1681,9 +1733,8 @@ class ObjectBase:
         Returns:
             Logger: The logger associated in the env_param.
         """
-        
-        return env_param.logger
 
+        return env_param.logger
 
     @property
     def heading(self):
@@ -1699,7 +1750,9 @@ class ObjectBase:
         elif self.kinematics == "diff" or self.kinematics == "acker":
             heading = self.state[2, 0]
         else:
-            self.logger.warning(f"The kinematics of the object {self.name} is not supported.")
+            self.logger.warning(
+                f"The kinematics of the object {self.name} is not supported."
+            )
 
         return heading
 
