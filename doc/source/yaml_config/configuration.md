@@ -389,6 +389,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
       - `rvo`: Reciprocal Velocity Obstacles. For multi-agent collision avoidance.
       - `hrvo`: Hybrid Reciprocal Velocity Obstacles. Combine RVO with VO to avoid deadlocks.
       - `vo`: Velocity Obstacles. For obstacle avoidance.
+    - `neighbor_threshold` (float): Distance threshold to filter the neighbors to the self robot. Default is `3.0`.
 
     **Example:**
     ```yaml

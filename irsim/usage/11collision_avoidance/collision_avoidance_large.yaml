@@ -1,6 +1,6 @@
 world:
-  height: 10  # the height of the world
-  width: 10   # the width of the world
+  height: 50  # the height of the world
+  width: 50   # the width of the world
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
@@ -9,8 +9,8 @@ world:
 
 
 robot:
-  - number: 10
-    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
+  - number: 50
+    distribution: {name: 'circle', radius: 20.0, center: [25, 25]}  
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
