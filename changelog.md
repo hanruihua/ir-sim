@@ -1,3 +1,17 @@
+## ir-sim 2.4.4
+
+- Bug Fixes:
+  - Fix geometry tree bug
+  - Fix 3D plot bug
+
+- New Features:
+  - Add rrt star path planner
+  - Add neighbor_threshold parameter for the rvo behavior
+
+- Enhancements:
+  - Update the distance function to accelerate the rvo algorithm
+  - Update the robot image
+
 ## ir-sim 2.4.3
 
 - Bug Fixes:
