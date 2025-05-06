@@ -6,6 +6,7 @@ from shapely import ops
 import time
 from typing import Any
 from irsim.global_param import env_param 
+import math
 
 def file_check(file_name, root_path=None):
     """
@@ -206,7 +207,7 @@ def relative_position(position1, position2, topi=True):
         tuple: Distance and angle (radians).
     """
     diff = position2[0:2] - position1[0:2]
-    distance = np.linalg.norm(diff)
+    distance = dist_hypot(position1[0, 0], position1[1, 0], position2[0, 0], position2[1, 0])
     radian = atan2(diff[1, 0], diff[0, 0])
     if topi:
         radian = WrapToPi(radian)
@@ -529,8 +530,11 @@ def distance(point1, point2):
     Returns:
         float: Distance between points.
     """
-    return sqrt((point1[0, 0] - point2[0, 0]) ** 2 + (point1[1, 0] - point2[1, 0]) ** 2)
+    return dist_hypot(point1[0, 0], point1[1, 0], point2[0, 0], point2[1, 0])
 
+
+def dist_hypot(x1, y1, x2, y2):
+    return math.hypot(x2 - x1, y2 - y1)
 
 def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
@@ -571,3 +575,6 @@ def is_2d_list(data: list) -> bool:
             return True
             
     return False
+
+
+

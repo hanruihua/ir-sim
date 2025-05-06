@@ -98,6 +98,7 @@ def OmniRVO(
         acceler (float): Acceleration factor (default 1).
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
+        neighbor_threshold (float): Neighbor threshold (default 3.0).
 
     Returns:
         np.array: Velocity [vx, vy] (2x1).
@@ -138,6 +139,7 @@ def DiffRVO(
         acceler (float): Acceleration factor (default 1).
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
+        neighbor_threshold (float): Neighbor threshold (default 3.0).
 
     Returns:
         np.array: Velocity [linear, angular] (2x1).

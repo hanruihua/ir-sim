@@ -8,7 +8,7 @@ reference: https://github.com/MengGuo/RVO_Py_MAS
 
 import numpy as np
 from math import sin, cos, atan2, asin, pi
-
+from irsim.util.util import dist_hypot
 
 class reciprocal_vel_obs:
     """
@@ -208,7 +208,7 @@ class reciprocal_vel_obs:
 
             cur_v = [vx - rvo_apex[0], vy - rvo_apex[1]]
 
-            dis_rv = reciprocal_vel_obs.distance(rvo_apex, vo_apex)
+            dis_rv = dist_hypot(rvo_apex[0], rvo_apex[1], vo_apex[0], vo_apex[1])
             radians_rv = atan2(rvo_apex[1] - vo_apex[1], rvo_apex[0] - vo_apex[0])
 
             diff = line_left_ori - radians_rv
@@ -348,7 +348,7 @@ class reciprocal_vel_obs:
 
         if len(vo_outside) != 0:
             return min(
-                vo_outside, key=lambda v: reciprocal_vel_obs.distance(v, vel_des)
+                vo_outside, key=lambda v: dist_hypot(v[0], v[1], vel_des[0], vel_des[1])
             )
 
         else:
@@ -360,8 +360,8 @@ class reciprocal_vel_obs:
 
         for moving in self.obs_state_list:
 
-            distance = reciprocal_vel_obs.distance(
-                [moving[0], moving[1]], [self.state[0], self.state[1]]
+            distance = dist_hypot(
+                moving[0], moving[1], self.state[0], self.state[1]
             )
             diff = distance**2 - (self.state[4] + moving[4]) ** 2
 
@@ -384,40 +384,9 @@ class reciprocal_vel_obs:
         if tc_min == 0:
             tc_min = 0.0001
 
-        penalty_vel = factor * (1 / tc_min) + reciprocal_vel_obs.distance(vel_des, vel)
+        penalty_vel = factor * (1 / tc_min) + dist_hypot(vel_des[0], vel_des[1], vel[0], vel[1])
 
         return penalty_vel
-
-    # @staticmethod
-    # def between_radians(radians_left, radians_right, radians):
-
-    #     if radians_left <= pi and radians_right >= -pi:
-    #         if radians >= radians_right and radians <= radians_left:
-    #             return True
-    #         else:
-    #             return False
-
-    #     elif radians_left > pi:
-
-    #         radians_2pi = radians + 2 * pi
-
-    #         if (radians >= radians_right and radians <= pi) or (
-    #             radians_2pi >= pi and radians_2pi <= radians_left
-    #         ):
-    #             return True
-    #         else:
-    #             return False
-
-    #     elif radians_right < -pi:
-
-    #         radians_2pi = radians - 2 * pi
-
-    #         if (radians >= -pi and radians <= radians_left) or (
-    #             radians_2pi <= -pi and radians_2pi >= radians_right
-    #         ):
-    #             return True
-    #         else:
-    #             return False
 
     # judge the direction by vector
     @staticmethod
@@ -432,10 +401,6 @@ class reciprocal_vel_obs:
             return False
 
     @staticmethod
-    def distance(point1, point2):
-
-        return np.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2)
-
-    @staticmethod
     def cross_product(vector1, vector2):
         return float(vector1[0] * vector2[1] - vector2[0] * vector1[1])
+
