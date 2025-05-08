@@ -801,17 +801,18 @@ class ObjectBase:
 
         self._goal = goal_deque
 
-    def set_laser_color(self, laser_indices, laser_color: str = "cyan"):
+    def set_laser_color(self, laser_indices, laser_color: str = "cyan", alpha: float = 0.3):
         """
         Set the color of the lasers.
 
         Args:
             laser_indices (list): The indices of the lasers to set the color.
             laser_color (str): The color to set the lasers. Default is 'cyan'.
+            alpha (float): The transparency of the lasers. Default is 0.3.
         """
 
         if self.lidar is not None:
-            self.lidar.set_laser_color(laser_indices, laser_color)
+            self.lidar.set_laser_color(laser_indices, laser_color, alpha)
         else:
             self.logger.warning("No lidar sensor found for this object.")
 

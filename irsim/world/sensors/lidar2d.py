@@ -33,6 +33,7 @@ class Lidar2D:
         offset (list): Offset of the sensor from the object's position.
         alpha (float): Transparency for plotting.
         has_velocity (bool): Whether the sensor measures velocity.
+        blind_angles (list): List of angle ranges to be ignored, e.g. [ (-0.5, 0.5), (0.6, 0.7)]
         **kwargs: Additional arguments.
             color (str): Color of the sensor.
 
@@ -66,19 +67,20 @@ class Lidar2D:
 
     def __init__(
         self,
-        state=None,
-        obj_id=0,
-        range_min=0,
-        range_max=10,
-        angle_range=pi,
-        number=100,
-        scan_time=0.1,
-        noise=False,
-        std=0.2,
-        angle_std=0.02,
-        offset=[0, 0, 0],
-        alpha=0.3,
-        has_velocity=False,
+        state: np.ndarray = None,
+        obj_id: int = 0,
+        range_min: float = 0,
+        range_max: float = 10,
+        angle_range: float = pi,
+        number: int = 100,
+        scan_time: float = 0.1,
+        noise: bool = False,
+        std: float = 0.2,
+        angle_std: float = 0.02,
+        offset: list[float] = [0, 0, 0],
+        alpha: float = 0.3,
+        has_velocity: bool = False,
+        blind_angles: list[tuple] = None,
         **kwargs,
     ) -> None:
         """
@@ -132,6 +134,7 @@ class Lidar2D:
         segment_point_list = []
 
         for i in range(self.number):
+
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
@@ -333,7 +336,7 @@ class Lidar2D:
 
         self.plot_patch_list.append(self.line_segments)
     
-    def set_laser_color(self, laser_indices, laser_color: str = 'blue'):
+    def set_laser_color(self, laser_indices, laser_color: str = 'blue', alpha: float = 0.3):
 
         """
         Set a specific color of the selected lasers.
@@ -341,15 +344,19 @@ class Lidar2D:
         Args:
             laser_indices (list): The indices of the lasers to set the color.
             laser_color (str): The color to set the selected lasers. Default is 'blue'.
+            alpha (float): The transparency of the lasers. Default is 0.3.
         """
 
         current_color = [self.color] * self.number
+        current_alpha = [self.alpha] * self.number
 
         for index in laser_indices:
             if index < self.number:
                 current_color[index] = laser_color
+                current_alpha[index] = alpha
 
         self.line_segments.set_color(current_color)
+        self.line_segments.set_alpha(current_alpha)
 
     def plot_clear(self):
         """
