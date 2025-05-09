@@ -142,7 +142,7 @@ def test_multi_objects():
 def test_grid_map():
     """Test grid map"""
     env = irsim.make('test_grid_map.yaml', save_ani=False, display=False)
-    env.robot.set_laser_color([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    env.robot.set_laser_color([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], laser_color='blue', alpha=0.2)
 
     for i in range(6):
         env.step()
