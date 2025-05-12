@@ -289,15 +289,18 @@ def geometry_transform(geometry, state):
 
     Returns:
         Transformed geometry.
+
+    
+    shapely expects [a, b, d, e, xoff, yoff] for:
+    x' = a*x + b*y + xoff
+    y' = d*x + e*y + yoff
     """
     
     xoff, yoff, theta = state
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)
 
-    # shapely expects [a, b, d, e, xoff, yoff] for:
-    # x' = a*x + b*y + xoff
-    # y' = d*x + e*y + yoff
+
     a =  cos_t
     b = -sin_t
     d =  sin_t
