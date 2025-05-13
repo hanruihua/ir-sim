@@ -1,0 +1,42 @@
+world:
+  height: 50  # the height of the world
+  width: 50   # the width of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+
+robot:
+  - number: 50
+    distribution: {name: 'circle', radius: 20.0, center: [25, 25]}  
+    kinematics: {name: 'diff'}
+    shape: 
+      - {name: 'circle', radius: 0.2}  # radius
+    # behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, accer: 1.5, factor: 1.5}
+    behavior: {name: 'dash'}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    arrive_mode: position
+    goal_threshold: 0.15
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0
+        range_max: 5
+        angle_range: 3.14 #  4.7123
+        number: 200
+        noise: False
+        std: 0.2
+        angle_std: 0.2
+        offset: [0.1, 0.1, 0.5]
+        alpha: 0.3
+    

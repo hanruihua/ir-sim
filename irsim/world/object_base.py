@@ -20,6 +20,7 @@ from irsim.env.env_plot import linewidth_from_data_units
 from irsim.global_param.path_param import path_manager
 from shapely.strtree import STRtree
 from shapely.geometry import MultiLineString
+from shapely import prepare
 
 from irsim.util.util import (
     WrapToRegion,

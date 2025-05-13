@@ -7,6 +7,8 @@ import time
 from typing import Any
 from irsim.global_param import env_param 
 import math
+from shapely.affinity import affine_transform
+
 
 def file_check(file_name, root_path=None):
     """
@@ -282,21 +284,29 @@ def geometry_transform(geometry, state):
     Transform geometry using a state.
 
     Args:
-        geometry: Geometry to transform.
-        state (np.array): State [x, y, theta] (3x1).
+        geometry: Shapely geometry to transform.
+        state (np.array or sequence of 3 floats): [xoff, yoff, theta]
 
     Returns:
         Transformed geometry.
+
+    
+    shapely expects [a, b, d, e, xoff, yoff] for:
+    x' = a*x + b*y + xoff
+    y' = d*x + e*y + yoff
     """
+    
+    xoff, yoff, theta = state
+    cos_t = np.cos(theta)
+    sin_t = np.sin(theta)
 
-    trans, rot = get_transform(state)
 
-    def transform_with_state(x, y):
-        new_x, new_y = rot @ np.array([x, y]) + trans
-        return (new_x, new_y)
+    a =  cos_t
+    b = -sin_t
+    d =  sin_t
+    e =  cos_t
 
-    new_geometry = ops.transform(transform_with_state, geometry)
-    return new_geometry
+    return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
 
 def omni_to_diff(

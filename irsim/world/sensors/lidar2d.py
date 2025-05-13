@@ -1,19 +1,17 @@
 from math import pi, cos, sin
 import numpy as np
-from shapely import MultiLineString, Point, is_valid
+from shapely import MultiLineString, Point, is_valid, prepare
 from irsim.util.util import (
     geometry_transform,
     transform_point_with_state,
     get_transform,
 )
 from irsim.global_param import env_param
-from shapely import get_coordinates
 from matplotlib.collections import LineCollection
 from shapely.strtree import STRtree
 from shapely.ops import unary_union
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
-
 
 class Lidar2D:
     """
@@ -149,6 +147,7 @@ class Lidar2D:
         self._init_geometry = geometry_transform(self._init_geometry, self.offset)
         self.lidar_origin = transform_point_with_state(self.offset, state)
         self._geometry = geometry_transform(self._init_geometry, state)
+        
 
     def step(self, state):
         """
@@ -161,6 +160,7 @@ class Lidar2D:
 
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
         new_geometry = geometry_transform(self._init_geometry, self._state)
+        prepare(new_geometry)
 
         new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
 
@@ -174,6 +174,76 @@ class Lidar2D:
             ]
             self._geometry = MultiLineString(filtered_geoms)
             self.calculate_range_vel(intersect_indices)
+
+    # def laser_geometry_process(self, lidar_geometry):
+    #     """
+    #     1) Query the global tree for candidate object indices whose bounds overlap the LIDAR lines.
+    #     2) Filter out self, invalid, or unobstructed objects.
+    #     3) Split candidates into 'map' vs. other shapes.
+    #     4) Use Shapely ≥2.0's vectorized `intersects` to test all at once.
+    #     5) Merge (unary_union) and subtract in one go.
+    #     Returns the clipped LIDAR geometry and list of object‐indices intersected.
+    #     """
+
+    #     object_tree = env_param.GeometryTree
+    #     objects = env_param.objects
+    #     geometries = [obj._geometry for obj in objects]
+
+    #     # 1) bounding‐box query
+    #     candidate_idxs = object_tree.query(lidar_geometry)
+    #     if len(candidate_idxs) == 0:
+    #         return lidar_geometry, []
+
+    #     # 2) filter out self, invalid, or unobstructed
+    #     filtered = [
+    #         i for i in candidate_idxs
+    #         if (objects[i]._id != self.obj_id
+    #             and is_valid(geometries[i])
+    #             and not objects[i].unobstructed)
+    #     ]
+    #     if not filtered:
+    #         return lidar_geometry, []
+        
+    #     map_ml = {
+    #         i: MultiLineString(obj.linestrings)
+    #         for i, obj in enumerate(objects)
+    #         if obj.shape == 'map'
+    #     }
+
+    #     # 3) partition into map‐geoms vs others
+    #     map_idxs    = [i for i in filtered if i in map_ml]
+    #     nonmap_idxs = [i for i in filtered if i not in map_ml]
+
+    #     to_subtract = []
+    #     intersect_indices = []
+
+    #     # 4a) test non‐map shapes in bulk
+    #     if nonmap_idxs:
+    #         batch = [ geometries[i] for i in nonmap_idxs ]
+    #         mask = np.asarray(intersects(batch, lidar_geometry))
+    #         hits = np.nonzero(mask)[0]
+    #         for hit in hits:
+    #             idx = nonmap_idxs[hit]
+    #             to_subtract.append(geometries[idx])
+    #             intersect_indices.append(idx)
+
+    #     # 4b) test 'map' shapes in bulk
+    #     if map_idxs:
+    #         batch = [ map_ml[i] for i in map_idxs ]
+    #         mask = np.asarray(intersects(batch, lidar_geometry))
+    #         hits = np.nonzero(mask)[0]
+    #         for hit in hits:
+    #             idx = map_idxs[hit]
+    #             to_subtract.append(map_ml[idx])
+    #             intersect_indices.append(idx)
+
+    #     # 5) if any intersections, subtract their union from the LIDAR
+    #     if to_subtract:
+    #         merged = unary_union(to_subtract)
+    #         lidar_geometry = lidar_geometry.difference(merged)
+
+    #     return lidar_geometry, intersect_indices
+
 
     def laser_geometry_process(self, lidar_geometry):
 
@@ -207,6 +277,7 @@ class Lidar2D:
                 potential_intersections = obj.geometry_tree.query(lidar_geometry)
                 filtered_lines = [obj.linestrings[i] for i in potential_intersections]
                 filtered_multi_lines = MultiLineString(filtered_lines)
+                # prepare(filtered_multi_lines)
 
                 if lidar_geometry.intersects(filtered_multi_lines):
                     geometries_to_subtract.append(filtered_multi_lines)
