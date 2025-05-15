@@ -29,6 +29,7 @@ import importlib
 from irsim.world import ObjectBase
 from tabulate import tabulate
 from shapely.strtree import STRtree
+from operator import attrgetter
 
 try:
     from pynput import keyboard
@@ -92,6 +93,8 @@ class EnvBase:
         self._objects = (
             self._robot_collection + self._obstacle_collection + self._map_collection
         )
+        
+        self._objects.sort(key=attrgetter("id"))
         self.build_tree()
 
         # env parameters
@@ -745,7 +748,7 @@ class EnvBase:
     @property
     def logger(self):
         return env_param.logger
-
+    
     # endregion: property
 
     # region: keyboard control

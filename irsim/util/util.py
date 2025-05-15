@@ -296,7 +296,7 @@ def geometry_transform(geometry, state):
     y' = d*x + e*y + yoff
     """
     
-    xoff, yoff, theta = state
+    xoff, yoff, theta = state[:3]
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)
 

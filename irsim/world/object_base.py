@@ -1312,10 +1312,10 @@ class ObjectBase:
             tuple: Minimum and maximum velocities.
         """
         min_vel = np.maximum(
-            self.vel_min, self._velocity - self.info.acce * world_param.step_time
+            self.vel_min, self.velocity - self.info.acce * world_param.step_time
         )
         max_vel = np.minimum(
-            self.vel_max, self._velocity + self.info.acce * world_param.step_time
+            self.vel_max, self.velocity + self.info.acce * world_param.step_time
         )
 
         return min_vel, max_vel
@@ -1339,7 +1339,7 @@ class ObjectBase:
         return ObstacleInfo(
             self.state[:2, :],
             self.vertices,
-            self._velocity,
+            self.velocity,
             self.radius,
             self.G,
             self.h,
@@ -1710,9 +1710,9 @@ class ObjectBase:
             (2*1) np.ndarray: Velocity [vx, vy].
         """
         if self.kinematics == "omni":
-            return self._velocity
+            return self.velocity
         elif self.kinematics == "diff" or self.kinematics == "acker":
-            return diff_to_omni(self.state[2, 0], self._velocity)
+            return diff_to_omni(self.state[2, 0], self.velocity)
         else:
             return np.zeros((2, 1))
 
