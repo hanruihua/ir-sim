@@ -295,11 +295,12 @@ def geometry_transform(geometry, state):
     x' = a*x + b*y + xoff
     y' = d*x + e*y + yoff
     """
+
+    xoff, yoff = state[:2]
+    theta = state[2] if len(state) == 3 else 0
     
-    xoff, yoff, theta = state[:3]
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)
-
 
     a =  cos_t
     b = -sin_t
