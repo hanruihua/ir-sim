@@ -4,6 +4,7 @@ from irsim.util.util import (
     get_transform,
     gen_inequal_from_vertex,
     is_convex_and_ordered,
+    geometry_transform,
 )
 from shapely.ops import transform
 from shapely import (
@@ -55,17 +56,10 @@ class geometry_handler(ABC):
         Returns:
             Transformed geometry.
         """
+        
+        self.geometry = geometry_transform(self._init_geometry, state)
 
-        def transform_with_state(x, y):
-            trans, rot = get_transform(state)
-            points = np.array([x, y])
-            new_points = rot @ points + trans
-            return (new_points[0, :], new_points[1, :])
-
-        new_geometry = transform(transform_with_state, self._init_geometry)
-        self.geometry = new_geometry
-
-        return new_geometry
+        return self.geometry
 
     def get_init_Gh(self):
         """
