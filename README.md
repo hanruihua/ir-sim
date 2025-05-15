@@ -133,6 +133,7 @@ Currently, the simulator supports the following features. Further features, such
 
 - Deep Reinforcement Learning Projects:
   - [DRL-robot-navigation-IR-SIM](https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM)
+  - [AutoNavRL](https://github.com/harshmahesheka/AutoNavRL)
 
 ## Contributing
 
