@@ -74,7 +74,7 @@ Cases
 **Deep Reinforcement Learning**
 
 - `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
-
+- `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_
 
 Code Repository
 ---------------
