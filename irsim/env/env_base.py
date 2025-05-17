@@ -183,7 +183,7 @@ class EnvBase:
     # render
     def render(
         self,
-        interval: float = 0.05,
+        interval: float = 0.02,
         figure_kwargs=dict(),
         mode: str = "dynamic",
         **kwargs,
@@ -207,8 +207,9 @@ class EnvBase:
                 if self.save_ani:
                     self.save_figure(save_gif=True, **figure_kwargs)
 
-                self._env_plot.clear_components(mode, self.objects)
-                self._env_plot.draw_components(mode, self.objects, **kwargs)
+                # self._env_plot.clear_components(mode, self.objects)
+                # self._env_plot.draw_components(mode, self.objects, **kwargs)
+                self._env_plot.step_objects_plot(mode, self.objects)
 
     def show(self):
         """

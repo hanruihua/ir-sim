@@ -392,6 +392,7 @@ class ObjectBase:
             self.stop_flag = any([not obj.unobstructed for obj in self.collision_obj])
 
         elif world_param.collision_mode == "reactive":
+            "to be implemented"
             pass
 
         elif world_param.collision_mode == "unobstructed":
@@ -802,7 +803,9 @@ class ObjectBase:
 
         self._goal = goal_deque
 
-    def set_laser_color(self, laser_indices, laser_color: str = "cyan", alpha: float = 0.3):
+    def set_laser_color(
+        self, laser_indices, laser_color: str = "cyan", alpha: float = 0.3
+    ):
         """
         Set the color of the lasers.
 
@@ -831,16 +834,26 @@ class ObjectBase:
         Returns:
             list: Adjusted state.
         """
+
         if len(state) > dim:
+            self.logger.warning("The state dimension is larger than the desired dimension. The state dimension is {} and the desired dimension is {}".format(len(state), dim))
             return state[:dim]
         elif len(state) < dim:
+            self.logger.warning("The state dimension is smaller than the desired dimension. The state dimension is {} and the desired dimension is {}".format(len(state), dim))
             return state + [0] * (dim - len(state))
         else:
             return state
 
+
     def plot(self, ax, **kwargs):
         """
         Plot the object on a given axis.
+        """
+        self._init_plot(ax, **kwargs)
+
+    def _init_plot(self, ax, **kwargs):
+        """
+        Initialize the plot patch list for the object.
 
         Args:
             ax: Matplotlib axis.
@@ -866,22 +879,38 @@ class ObjectBase:
                 - trail_color (str): Color of the trail.
                 - obj_linestyle (str): Style of the object edge line.
 
+        Attributes for plot:
+            object_patch: The patch of the object.
+            object_img: The image of the object.
+            goal_patch: The patch of the goal.
+            abbr_text: The abbreviation of the object.
+            arrow_patch: The patch of the arrow.
+            trajectory_line: The 2D line of the trajectory.
+            fov_patch: The patch of the field of view.
         """
-        self.state_re = self.state
-        self.goal_re = self.goal
-        self.plot_patch_list = []
+
+        self.attr_list = [
+            "object_patch",
+            "object_img",
+            "goal_patch",
+            "abbr_text",
+            "arrow_patch",
+            "trajectory_line",
+            "fov_patch",
+        ]
 
         self.plot_kwargs.update(kwargs)
+        self.ax = ax
 
         show_goal = self.plot_kwargs.get("show_goal", False)
         show_text = self.plot_kwargs.get("show_text", False)
         show_arrow = self.plot_kwargs.get("show_arrow", False)
         show_uncertainty = self.plot_kwargs.get("show_uncertainty", False)
         show_trajectory = self.plot_kwargs.get("show_trajectory", False)
-        show_trail = self.plot_kwargs.get("show_trail", False)
-        show_sensor = self.plot_kwargs.get("show_sensor", True)
+        self.show_trail = self.plot_kwargs.get("show_trail", False)
+        self.show_sensor = self.plot_kwargs.get("show_sensor", True)
         show_fov = self.plot_kwargs.get("show_fov", False)
-        trail_freq = self.plot_kwargs.get("trail_freq", 2)
+        self.trail_freq = self.plot_kwargs.get("trail_freq", 2)
         goal_color = self.plot_kwargs.get("goal_color", self.color)
 
         self.plot_object(ax, **self.plot_kwargs)
@@ -901,79 +930,200 @@ class ObjectBase:
         if show_trajectory:
             self.plot_trajectory(ax, **self.plot_kwargs)
 
-        if show_trail and world_param.count % trail_freq == 0:
+        if self.show_trail and world_param.count % self.trail_freq == 0:
             self.plot_trail(ax, **self.plot_kwargs)
 
-        if show_sensor:
-            [sensor.plot(ax, **self.plot_kwargs) for sensor in self.sensors]
+        if self.show_sensor:
+            [sensor.init_plot(ax, **self.plot_kwargs) for sensor in self.sensors]
 
         if show_fov:
             self.plot_fov(ax, **self.plot_kwargs)
+
+    def step_plot(self):
+        """
+        This function updates the positions and properties of all plot elements:
+        object_patch, object_img, goal_patch, arrow_patch, trajectory_line, fov_patch.
+        """
+
+        x = self.state[0, 0]
+        y = self.state[1, 0]
+        r_phi = self.state[2, 0]
+        r_phi_ang = 180 * r_phi / pi
+
+        goal_x = self.goal[0, 0]
+        goal_y = self.goal[1, 0]
+
+        for attr in self.attr_list:
+            if hasattr(self, attr):
+                patch = getattr(self, attr)
+
+                if attr == "object_patch":
+                    if isinstance(patch, mpl.patches.Circle):
+                        patch.set_center((x, y))
+                    elif isinstance(patch, mpl.patches.Polygon):
+                        patch.set_xy(self.vertices.T)
+                        
+                    elif isinstance(patch, mpl.lines.Line2D):
+                        vertices = self.vertices
+                        cos_phi = np.cos(r_phi)
+                        sin_phi = np.sin(r_phi)
+                        rotation_matrix = np.array(
+                            [[cos_phi, -sin_phi], [sin_phi, cos_phi]]
+                        )
+                        rotated_vertices = np.dot(vertices.T, rotation_matrix.T).T
+                        translated_vertices = rotated_vertices + np.array([[x], [y]])
+                        patch.set_data(
+                            translated_vertices[0, :], translated_vertices[1, :]
+                        )
+
+                elif attr == "object_img":
+                    if isinstance(patch, mpl.image.AxesImage):
+                        # Update image position and rotation
+                        start_x = self.vertices[0, 0]
+                        start_y = self.vertices[1, 0]
+                        
+                        # Update image extent
+                        patch.set_extent([
+                            start_x, 
+                            start_x + self.length, 
+                            start_y, 
+                            start_y + self.width
+                        ])
+
+                        # Create new transform
+                        trans_data = (
+                            mtransforms.Affine2D()
+                            .rotate_deg_around(start_x, start_y, r_phi_ang)
+                            + self.ax.transData
+                        )
+                        patch.set_transform(trans_data)
+                        
+                elif attr == "goal_patch":
+                    if isinstance(patch, mpl.patches.Circle):
+                        patch.set_center((goal_x, goal_y))
+
+                elif attr == "arrow_patch":
+                    if isinstance(patch, mpl.patches.Arrow):
+                        # Calculate arrow end point based on orientation
+                        arrow_length = 0.4  # Default arrow length
+                        dx = arrow_length * np.cos(r_phi)
+                        dy = arrow_length * np.sin(r_phi)
+                        patch.set_data(x=x, y=y, dx=dx, dy=dy)
+
+                elif attr == "trajectory_line":
+                    if isinstance(patch, list) and len(patch) > 0:
+                        line = patch[0]
+                        x_list = [t[0, 0] for t in self.trajectory]
+                        y_list = [t[1, 0] for t in self.trajectory]
+
+                        ax = line.axes
+                        if ax is not None:
+                            linewidth = linewidth_from_data_units(self.width, ax, "y")
+                            line.set_linewidth(linewidth)
+
+                        line.set_data(x_list, y_list)
+
+                elif attr == "fov_patch":
+                    if isinstance(patch, mpl.patches.Wedge):
+                        patch.set_center((x, y))
+                        patch.set_theta1(180 * (r_phi - self.fov / 2) / pi)
+                        patch.set_theta2(180 * (r_phi + self.fov / 2) / pi)
+
+        # Update text position if exists
+        if hasattr(self, "abbr_text"):
+            text = self.abbr_text
+            text_position = [-self.radius - 0.1, self.radius + 0.1]
+            text.set_position((x + text_position[0], y + text_position[1]))
+        
+        if self.show_trail and world_param.count % self.trail_freq == 0:
+            self.plot_trail(self.ax, **self.plot_kwargs)
+
+        if self.show_sensor:
+            [sensor.step_plot() for sensor in self.sensors]
 
     def plot_object(self, ax, **kwargs):
         """
         Plot the object itself.
 
         Args:
-            ax: Matplotlib axis.
-            **kwargs: Additional plotting options.
+            ax: Matplotlib axis object
+            **kwargs: Additional plotting options
+                - obj_linestyle (str): Line style for object outline, defaults to '-'
+                - zorder (int): Drawing layer order, defaults to 3
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: When object shape is not supported
         """
-
         obj_linestyle = kwargs.get("obj_linestyle", "-")
+        zorder = kwargs.get("zorder", 3) if self.role == 'robot' else 1
 
+        # Get object position
+        x = self.state[0, 0]
+        y = self.state[1, 0]
+
+        # Handle 3D plot or no description case
         if self.description is None or isinstance(ax, Axes3D):
-            x = self.state_re[0, 0]
-            y = self.state_re[1, 0]
-
-            if self.shape == "circle":
-                object_patch = mpl.patches.Circle(
-                    xy=(x, y),
-                    radius=self.radius,
-                    color=self.color,
-                    linestyle=obj_linestyle,
-                )
-                object_patch.set_zorder(3)
-
-                if isinstance(ax, Axes3D):
-                    art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
-
-                ax.add_patch(object_patch)
-
-            elif self.shape == "polygon" or self.shape == "rectangle":
-                object_patch = mpl.patches.Polygon(
-                    xy=self.vertices.T, color=self.color, linestyle=obj_linestyle
-                )
-                object_patch.set_zorder(3)
-
-                if isinstance(ax, Axes3D):
-                    art3d.patch_2d_to_3d(object_patch, z=self.z)
-
-                ax.add_patch(object_patch)
-
-            elif self.shape == "linestring":
-
-                if isinstance(ax, Axes3D):
-                    object_patch = art3d.Line3D(
-                        self.vertices[0, :],
-                        self.vertices[1, :],
-                        zs=self.z * np.ones((3,)),
-                        color=self.color,
-                    )
-                else:
-                    object_patch = mpl.lines.Line2D(
-                        self.vertices[0, :],
-                        self.vertices[1, :],
+            try:
+                if self.shape == "circle":
+                    object_patch = mpl.patches.Circle(
+                        xy=(x, y),
+                        radius=self.radius,
                         color=self.color,
                         linestyle=obj_linestyle,
                     )
-                object_patch.set_zorder(3)
-                ax.add_line(object_patch)
+                    object_patch.set_zorder(zorder)
 
-            elif self.shape == "map":
-                return
+                    if isinstance(ax, Axes3D):
+                        art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
 
-            self.plot_patch_list.append(object_patch)
+                    ax.add_patch(object_patch)
 
+                elif self.shape in ["polygon", "rectangle"]:
+                    object_patch = mpl.patches.Polygon(
+                        xy=self.vertices.T, color=self.color, linestyle=obj_linestyle
+                    )
+                    object_patch.set_zorder(zorder)
+
+                    if isinstance(ax, Axes3D):
+                        art3d.patch_2d_to_3d(object_patch, z=self.z)
+
+                    ax.add_patch(object_patch)
+
+                elif self.shape == "linestring":
+                    if isinstance(ax, Axes3D):
+                        object_patch = art3d.Line3D(
+                            self.vertices[0, :],
+                            self.vertices[1, :],
+                            zs=self.z * np.ones((3,)),
+                            color=self.color,
+                        )
+                    else:
+                        object_patch = mpl.lines.Line2D(
+                            self.vertices[0, :],
+                            self.vertices[1, :],
+                            color=self.color,
+                            linestyle=obj_linestyle,
+                        )
+                    object_patch.set_zorder(zorder)
+                    ax.add_line(object_patch)
+
+                elif self.shape == "map":
+                    return
+
+                else:
+                    raise ValueError(f"Unsupported shape type: {self.shape}")
+
+                self.plot_patch_list.append(object_patch)
+                self.object_patch = object_patch
+
+            except Exception as e:
+                self.logger.error(f"Error occurred while plotting object: {str(e)}")
+                raise
+
+        # Handle case with description
         else:
             self.plot_object_image(ax, self.description, **kwargs)
 
@@ -996,14 +1146,17 @@ class ObjectBase:
         robot_img = ax.imshow(
             robot_img_read,
             extent=[start_x, start_x + self.length, start_y, start_y + self.width],
+            zorder=3,
         )
         trans_data = (
-            mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
+            mtransforms.Affine2D()
+            .rotate_deg_around(start_x, start_y, r_phi_ang)
             + ax.transData
         )
         robot_img.set_transform(trans_data)
 
         self.plot_patch_list.append(robot_img)
+        self.object_img = robot_img
 
     def plot_trajectory(self, ax, keep_length: int = 0, **kwargs):
         """
@@ -1029,18 +1182,19 @@ class ObjectBase:
 
         solid_capstyle = "round" if self.shape == "circle" else "butt"
 
-        self.plot_line_list.append(
-            ax.plot(
-                x_list,
-                y_list,
-                color=traj_color,
-                linestyle=traj_style,
-                linewidth=linewidth,
-                solid_joinstyle="round",
-                solid_capstyle=solid_capstyle,
-                alpha=traj_alpha,
-            )
+        traj_line = ax.plot(
+            x_list,
+            y_list,
+            color=traj_color,
+            linestyle=traj_style,
+            linewidth=linewidth,
+            solid_joinstyle="round",
+            solid_capstyle=solid_capstyle,
+            alpha=traj_alpha,
         )
+
+        self.plot_line_list.append(traj_line)
+        self.trajectory_line = traj_line
 
     def plot_goal(self, ax, goal_color: str = "r"):
         """
@@ -1050,8 +1204,8 @@ class ObjectBase:
             ax: Matplotlib axis.
             goal_color (str): Color of the goal marker.
         """
-        goal_x = self.goal_re[0, 0]
-        goal_y = self.goal_re[1, 0]
+        goal_x = self.goal[0, 0]
+        goal_y = self.goal[1, 0]
 
         goal_circle = mpl.patches.Circle(
             xy=(goal_x, goal_y), radius=self.radius, color=goal_color, alpha=0.5
@@ -1064,6 +1218,7 @@ class ObjectBase:
         ax.add_patch(goal_circle)
 
         self.plot_patch_list.append(goal_circle)
+        self.goal_patch = goal_circle
 
     def plot_text(self, ax, **kwargs):
         """
@@ -1104,6 +1259,7 @@ class ObjectBase:
             )
 
         self.plot_text_list.append(text)
+        self.abbr_text = text
 
     def plot_arrow(
         self,
@@ -1122,13 +1278,13 @@ class ObjectBase:
             arrow_width (float): Width of the arrow.
             **kwargs: Additional plotting options.
         """
-        x = self.state_re[0][0]
-        y = self.state_re[1][0]
+        x = self.state[0, 0]
+        y = self.state[1, 0]
 
         theta = (
             atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
             if self.kinematics == "omni"
-            else self.state_re[2][0]
+            else self.state[2, 0]
         )
 
         arrow = mpl.patches.Arrow(
@@ -1147,6 +1303,7 @@ class ObjectBase:
         ax.add_patch(arrow)
 
         self.plot_patch_list.append(arrow)
+        self.arrow_patch = arrow
 
     def plot_trail(self, ax, **kwargs):
         """
@@ -1169,7 +1326,7 @@ class ObjectBase:
             start_x = self.vertices[0, 0]
             start_y = self.vertices[1, 0]
 
-            car_rect = mpl.patches.Rectangle(
+            trail_rect = mpl.patches.Rectangle(
                 xy=(start_x, start_y),
                 width=self.length,
                 height=self.width,
@@ -1182,9 +1339,9 @@ class ObjectBase:
             )
 
             if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(car_rect, z=self.z)
+                art3d.patch_2d_to_3d(trail_rect, z=self.z)
 
-            ax.add_patch(car_rect)
+            ax.add_patch(trail_rect)
 
         elif trail_type == "polygon":
             car_polygon = mpl.patches.Polygon(
@@ -1252,6 +1409,7 @@ class ObjectBase:
         ax.add_patch(fov_wedge)
 
         self.plot_patch_list.append(fov_wedge)
+        self.fov_patch = fov_wedge
 
     def plot_uncertainty(self, ax, **kwargs):
         """
