@@ -297,7 +297,7 @@ def geometry_transform(geometry, state):
     """
 
     xoff, yoff = state[:2]
-    theta = state[2] if len(state) == 3 else 0
+    theta = state[2] if len(state) >= 3 else 0
     
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)

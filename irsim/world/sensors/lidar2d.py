@@ -298,6 +298,13 @@ class Lidar2D:
     def plot(self, ax, **kwargs):
         """
         Plot the Lidar's detected lines on a given axis.
+        """
+        self.init_plot(ax, **kwargs)
+
+
+    def init_plot(self, ax, **kwargs):
+        """
+        Plot the Lidar's detected lines on a given axis.
 
         Args:
             ax: Matplotlib axis.
@@ -325,18 +332,47 @@ class Lidar2D:
             lines.append(segment)
 
         if isinstance(ax, Axes3D):
-            self.line_segments = Line3DCollection(
-                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
+            self.laser_LineCollection = Line3DCollection(
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
-            ax.add_collection3d(self.line_segments)
+            ax.add_collection3d(self.laser_2D_lines)
         else:
-            self.line_segments = LineCollection(
-                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=0
+            self.laser_LineCollection = LineCollection(
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
-            ax.add_collection(self.line_segments)
+            ax.add_collection(self.laser_LineCollection)
 
-        self.plot_patch_list.append(self.line_segments)
+        self.plot_patch_list.append(self.laser_LineCollection)
     
+
+    def step_plot(self):
+        """
+        Update the plot for the Lidar.
+        """
+        ax = self.laser_LineCollection.axes
+        lines = []
+
+        for i in range(self.number):
+            x = self.range_data[i] * cos(self.angle_list[i])
+            y = self.range_data[i] * sin(self.angle_list[i])
+
+            position = self.lidar_origin[0:2, 0] 
+            trans, rot = get_transform(self.lidar_origin)
+            range_end_position = rot @ np.array([[x], [y]]) + trans
+
+            if isinstance(ax, Axes3D):
+                position = np.array([position[0], position[1], 0])
+                end_position = np.array(
+                    [range_end_position[0, 0], range_end_position[1, 0], 0]
+                )
+                segment = [position, end_position]
+            else:
+                segment = [position, range_end_position[0:2, 0]]
+
+            lines.append(segment)
+
+        self.laser_LineCollection.set_segments(lines)
+
     def set_laser_color(self, laser_indices, laser_color: str = 'blue', alpha: float = 0.3):
 
         """
@@ -356,8 +392,8 @@ class Lidar2D:
                 current_color[index] = laser_color
                 current_alpha[index] = alpha
 
-        self.line_segments.set_color(current_color)
-        self.line_segments.set_alpha(current_alpha)
+        self.laser_LineCollection.set_color(current_color)
+        self.laser_LineCollection.set_alpha(current_alpha)
 
     def plot_clear(self):
         """
