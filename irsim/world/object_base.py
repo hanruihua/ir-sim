@@ -836,14 +836,21 @@ class ObjectBase:
         """
 
         if len(state) > dim:
-            self.logger.warning("The state dimension is larger than the desired dimension. The state dimension is {} and the desired dimension is {}".format(len(state), dim))
+            self.logger.warning(
+                "The state dimension is larger than the desired dimension. The state dimension is {} and the desired dimension is {}".format(
+                    len(state), dim
+                )
+            )
             return state[:dim]
         elif len(state) < dim:
-            self.logger.warning("The state dimension is smaller than the desired dimension. The state dimension is {} and the desired dimension is {}".format(len(state), dim))
+            self.logger.warning(
+                "The state dimension is smaller than the desired dimension. The state dimension is {} and the desired dimension is {}".format(
+                    len(state), dim
+                )
+            )
             return state + [0] * (dim - len(state))
         else:
             return state
-
 
     def plot(self, ax, **kwargs):
         """
@@ -889,7 +896,7 @@ class ObjectBase:
             fov_patch: The patch of the field of view.
         """
 
-        self.attr_list = [
+        self.plot_attr_list = [
             "object_patch",
             "object_img",
             "goal_patch",
@@ -939,10 +946,24 @@ class ObjectBase:
         if show_fov:
             self.plot_fov(ax, **self.plot_kwargs)
 
-    def step_plot(self):
+    def step_plot(self, **kwargs):
         """
         This function updates the positions and properties of all plot elements:
         object_patch, object_img, goal_patch, arrow_patch, trajectory_line, fov_patch.
+
+        Args:
+            **kwargs: Additional plotting options
+                - goal_color (str): Color of the goal marker.
+                - traj_color (str): Color of the trajectory.
+                - traj_style (str): Style of the trajectory.
+                - traj_width (float): Width of the trajectory.
+                - traj_alpha (float): Transparency of the trajectory.
+                - trail_edgecolor (str): Edge color of the trail.
+                - trail_linewidth (float): Width of the trail.
+                - trail_alpha (float): Transparency of the trail.
+                - trail_fill (bool): Whether fill the trail.
+                - trail_color (str): Color of the trail.
+                - obj_linestyle (str): Style of the object edge line.
         """
 
         x = self.state[0, 0]
@@ -953,16 +974,38 @@ class ObjectBase:
         goal_x = self.goal[0, 0]
         goal_y = self.goal[1, 0]
 
-        for attr in self.attr_list:
+        for attr in self.plot_attr_list:
             if hasattr(self, attr):
                 patch = getattr(self, attr)
 
                 if attr == "object_patch":
+
+                    if isinstance(self.ax, Axes3D):
+                        # path = patch.get_path()
+                        # patch.set_3d_properties(path._vertices, zs=self.z, zdir='z')
+                        trans = (
+                            mpl.transforms.Affine2D()
+                            .rotate(0)
+                            .translate(0., 0.) + self.ax.transData
+                        )
+                        patch.set_transform(trans)
+                        pass
+
                     if isinstance(patch, mpl.patches.Circle):
-                        patch.set_center((x, y))
+                        # patch.set_center((x, y))
+                        # trans = (
+                        #     mpl.transforms.Affine2D()
+                        #     .rotate_deg_around(x, y, r_phi_ang)
+                        # )
+                        trans = (mpl.transforms.Affine2D()
+                                .rotate(r_phi)
+                                .translate(x, y)
+                                + self.ax.transData)
+                        patch.set_transform(trans)
+
                     elif isinstance(patch, mpl.patches.Polygon):
                         patch.set_xy(self.vertices.T)
-                        
+
                     elif isinstance(patch, mpl.lines.Line2D):
                         vertices = self.vertices
                         cos_phi = np.cos(r_phi)
@@ -975,32 +1018,41 @@ class ObjectBase:
                         patch.set_data(
                             translated_vertices[0, :], translated_vertices[1, :]
                         )
+                    
+                    if "obj_linestyle" in kwargs:
+                        patch.set_linestyle(kwargs["obj_linestyle"])
 
                 elif attr == "object_img":
                     if isinstance(patch, mpl.image.AxesImage):
                         # Update image position and rotation
                         start_x = self.vertices[0, 0]
                         start_y = self.vertices[1, 0]
-                        
+
                         # Update image extent
-                        patch.set_extent([
-                            start_x, 
-                            start_x + self.length, 
-                            start_y, 
-                            start_y + self.width
-                        ])
+                        patch.set_extent(
+                            [
+                                start_x,
+                                start_x + self.length,
+                                start_y,
+                                start_y + self.width,
+                            ]
+                        )
 
                         # Create new transform
                         trans_data = (
-                            mtransforms.Affine2D()
-                            .rotate_deg_around(start_x, start_y, r_phi_ang)
+                            mtransforms.Affine2D().rotate_deg_around(
+                                start_x, start_y, r_phi_ang
+                            )
                             + self.ax.transData
                         )
                         patch.set_transform(trans_data)
-                        
+
                 elif attr == "goal_patch":
                     if isinstance(patch, mpl.patches.Circle):
                         patch.set_center((goal_x, goal_y))
+
+                        if "goal_color" in kwargs:
+                            patch.set_color(kwargs["goal_color"])
 
                 elif attr == "arrow_patch":
                     if isinstance(patch, mpl.patches.Arrow):
@@ -1018,10 +1070,22 @@ class ObjectBase:
 
                         ax = line.axes
                         if ax is not None:
-                            linewidth = linewidth_from_data_units(self.width, ax, "y")
-                            line.set_linewidth(linewidth)
+                            linewidth = kwargs.get("traj_width", self.width)
+                            linewidth_data = linewidth_from_data_units(
+                                linewidth, ax, "y"
+                            )
+                            line.set_linewidth(linewidth_data)
 
                         line.set_data(x_list, y_list)
+
+                        if "traj_color" in kwargs:
+                            line.set_color(kwargs["traj_color"])
+
+                        if "traj_style" in kwargs:
+                            line.set_linestyle(kwargs["traj_style"])
+
+                        if "traj_alpha" in kwargs:
+                            line.set_alpha(kwargs["traj_alpha"])
 
                 elif attr == "fov_patch":
                     if isinstance(patch, mpl.patches.Wedge):
@@ -1034,7 +1098,7 @@ class ObjectBase:
             text = self.abbr_text
             text_position = [-self.radius - 0.1, self.radius + 0.1]
             text.set_position((x + text_position[0], y + text_position[1]))
-        
+
         if self.show_trail and world_param.count % self.trail_freq == 0:
             self.plot_trail(self.ax, **self.plot_kwargs)
 
@@ -1058,7 +1122,7 @@ class ObjectBase:
             ValueError: When object shape is not supported
         """
         obj_linestyle = kwargs.get("obj_linestyle", "-")
-        zorder = kwargs.get("zorder", 3) if self.role == 'robot' else 1
+        zorder = kwargs.get("zorder", 3) if self.role == "robot" else 1
 
         # Get object position
         x = self.state[0, 0]
@@ -1149,8 +1213,7 @@ class ObjectBase:
             zorder=3,
         )
         trans_data = (
-            mtransforms.Affine2D()
-            .rotate_deg_around(start_x, start_y, r_phi_ang)
+            mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
             + ax.transData
         )
         robot_img.set_transform(trans_data)
@@ -1267,6 +1330,7 @@ class ObjectBase:
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
         arrow_color: str = "gold",
+        arrow_zorder: int = 4,
         **kwargs,
     ):
         """
@@ -1299,7 +1363,7 @@ class ObjectBase:
         if isinstance(ax, Axes3D):
             art3d.patch_2d_to_3d(arrow, z=self.z)
 
-        arrow.set_zorder(3)
+        arrow.set_zorder(arrow_zorder)
         ax.add_patch(arrow)
 
         self.plot_patch_list.append(arrow)

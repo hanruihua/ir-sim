@@ -88,3 +88,4 @@
 - [ ] complete color map
 - [ ] multiprocess for large scale simulation
 - [ ] refine documentation 
+- [ ] reformulate the plot function

@@ -117,16 +117,16 @@ class EnvPlot:
     def init_objects_plot(self, objects):
         [obj._init_plot(self.ax) for obj in objects]
 
-    def step_objects_plot(self, mode='dynamic', objects=[]):
+    def step_objects_plot(self, mode='dynamic', objects=[], **kwargs):
         """
         Update the plot for the objects.
         """
         if mode == 'dynamic':
-            [obj.step_plot() for obj in objects if not obj.static]
+            [obj.step_plot(**kwargs) for obj in objects if not obj.static]
         elif mode == 'static':
-            [obj.step_plot() for obj in objects if obj.static]
+            [obj.step_plot(**kwargs) for obj in objects if obj.static]
         elif mode == 'all':
-            [obj.step_plot() for obj in objects]
+            [obj.step_plot(**kwargs) for obj in objects]
         else:
             self.logger.error("Error: Invalid draw mode")
 
