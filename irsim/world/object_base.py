@@ -852,11 +852,11 @@ class ObjectBase:
         else:
             return state
 
-    def plot(self, ax, **kwargs):
-        """
-        Plot the object on a given axis.
-        """
-        self._init_plot(ax, **kwargs)
+    # def plot(self, ax, **kwargs):
+    #     """
+    #     Plot the object on a given axis.
+    #     """
+    #     self._init_plot(ax, **kwargs)
 
     def _init_plot(self, ax, **kwargs):
         """
@@ -866,6 +866,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             kwargs:
                 - show_goal (bool): Whether show the goal position.
+                - goal_color (str): Color of the goal.
                 - show_text (bool): Whether show text information.
                 - show_arrow (bool): Whether show the velocity arrow.
                 - show_uncertainty (bool): Whether show the uncertainty. To be completed.
@@ -873,13 +874,12 @@ class ObjectBase:
                 - show_trail (bool): Whether show the trail.
                 - show_sensor (bool): Whether show the sensor.
                 - show_fov (bool): Whether show the field of view.
-                - trail_freq (int): Frequency of trail display.
-                - goal_color (str): Color of the goal marker.
                 - traj_color (str): Color of the trajectory.
                 - traj_style (str): Style of the trajectory.
                 - traj_width (float): Width of the trajectory.
                 - traj_alpha (float): Transparency of the trajectory.
                 - trail_edgecolor (str): Edge color of the trail.
+                - trail_freq (int): Frequency of trail display.
                 - trail_linewidth (float): Width of the trail.
                 - trail_alpha (float): Transparency of the trail.
                 - trail_fill (bool): Whether fill the trail.
@@ -1105,7 +1105,8 @@ class ObjectBase:
         if self.show_sensor:
             [sensor.step_plot() for sensor in self.sensors]
 
-    def plot_object(self, ax, **kwargs):
+
+    def plot_object(self, ax, state, **kwargs):
         """
         Plot the object itself.
 
@@ -1190,6 +1191,7 @@ class ObjectBase:
         # Handle case with description
         else:
             self.plot_object_image(ax, self.description, **kwargs)
+
 
     def plot_object_image(self, ax, description: str, **kwargs):
 
