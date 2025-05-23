@@ -152,7 +152,7 @@ class geometry_handler(ABC):
         assert self.name == "circle"
 
         G = np.array([[1, 0], [0, 1], [0, 0]])
-        h = np.row_stack((center, -radius * np.ones((1, 1))))
+        h = np.vstack((center, -radius * np.ones((1, 1))))
         cone_type = "norm2"
         convex_flag = True
 
