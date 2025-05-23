@@ -852,45 +852,66 @@ class ObjectBase:
         else:
             return state
 
-
     def _init_plot(self, ax, **kwargs):
-
         """
-        Initialize the plot patch list for the object.
+        Initialize plotting elements for the object, creating patches, lines, and other visual components.
+        All elements are created at the origin and will be positioned using transforms in _step_plot.
 
         Args:
-            ax: Matplotlib axis.
-            kwargs:
-                - show_goal (bool): Whether show the goal position.
-                - goal_color (str): Color of the goal.
-                - show_text (bool): Whether show text information.
+            ax: Matplotlib axis object for plotting.
+            **kwargs: Plotting configuration options:
+            
+            Object visualization properties:
+                - obj_linestyle (str): Line style for object outline (e.g., '-', '--', ':', '-.').
+                - obj_zorder (int): Z-order (drawing layer) for object elements.
+                - obj_color (str): Color of the object.
+                - obj_alpha (float): Transparency of the object (0.0 to 1.0).
 
-                - show_arrow (bool): Whether show the velocity arrow.
-                - show_uncertainty (bool): Whether show the uncertainty. To be completed.
-                - show_trajectory (bool): Whether show the trajectory.
-                - show_trail (bool): Whether show the trail.
-                - show_sensor (bool): Whether show the sensor.
-                - show_fov (bool): Whether show the field of view.
-                - traj_color (str): Color of the trajectory.
-                - traj_style (str): Style of the trajectory.
-                - traj_width (float): Width of the trajectory.
-                - traj_alpha (float): Transparency of the trajectory.
-                - trail_edgecolor (str): Edge color of the trail.
-                - trail_freq (int): Frequency of trail display.
-                - trail_linewidth (float): Width of the trail.
-                - trail_alpha (float): Transparency of the trail.
-                - trail_fill (bool): Whether fill the trail.
-                - trail_color (str): Color of the trail.
-                - obj_linestyle (str): Style of the object edge line.
+                - show_goal (bool): Whether to show the goal position. Defaults to False.
+                    - goal_color (str): Color of the goal marker. Defaults to object color.
+                    - goal_zorder (int): Z-order of the goal marker. Defaults to 1.
+                    - goal_alpha (float): Transparency of the goal marker. Defaults to 0.5.
+                - show_text (bool): Whether to show text information. Defaults to False.
+                    - text_color (str): Color of the text. Defaults to 'k'.
+                    - text_size (int): Font size of the text. Defaults to 10.
+                    - text_zorder (int): Z-order of the text. Defaults to 2.
+                - show_arrow (bool): Whether to show the velocity arrow. Defaults to False.
+                    - arrow_color (str): Color of the arrow. Defaults to "gold".
+                    - arrow_length (float): Length of the arrow. Defaults to 0.4.
+                    - arrow_width (float): Width of the arrow. Defaults to 0.6.
+                    - arrow_zorder (int): Z-order of the arrow. Defaults to 4.
+                - show_trajectory (bool): Whether to show the trajectory line. Defaults to False.
+                    - traj_color (str): Color of the trajectory. Defaults to object color.
+                    - traj_style (str): Line style of the trajectory. Defaults to "-".
+                    - traj_width (float): Width of the trajectory line. Defaults to object width.
+                    - traj_alpha (float): Transparency of the trajectory. Defaults to 0.5.
+                - show_trail (bool): Whether to show object trails. Defaults to False.
+                    - trail_freq (int): Frequency of trail display (every N steps). Defaults to 2.
+                    - trail_edgecolor (str): Edge color of the trail. Defaults to object color.
+                    - trail_linewidth (float): Width of the trail outline. Defaults to 0.8.
+                    - trail_alpha (float): Transparency of the trail. Defaults to 0.7.
+                    - trail_fill (bool): Whether to fill the trail shape. Defaults to False.
+                    - trail_color (str): Fill color of the trail. Defaults to object color.
+                - show_sensor (bool): Whether to show sensor visualizations. Defaults to True.
+                - show_fov (bool): Whether to show field of view visualization. Defaults to False.
+                    - fov_color (str): Fill color of the field of view. Defaults to "lightblue".
+                    - fov_edge_color (str): Edge color of the field of view. Defaults to "blue".
+                    - fov_zorder (int): Z-order of the field of view. Defaults to 1.
+                    - fov_alpha (float): Transparency of the field of view. Defaults to 0.5.
 
-        Attributes for plot:
-            object_patch: The patch of the object.
-            object_img: The image of the object.
-            goal_patch: The patch of the goal.
-            abbr_text: The abbreviation of the object.
-            arrow_patch: The patch of the arrow.
-            trajectory_line: The 2D line of the trajectory.
-            fov_patch: The patch of the field of view.
+        Creates and stores the following plot elements:
+            - object_patch: Main object visualization (patch)
+            - object_line: Object outline for linestring shapes (line) 
+            - object_img: Object image for description-based visualization
+            - goal_patch: Goal position marker (patch)
+            - abbr_text: Object abbreviation text label
+            - arrow_patch: Velocity direction arrow (patch)
+            - trajectory_line: Trajectory path visualization (line)
+            - fov_patch: Field of view visualization (patch)
+
+        Note:
+            All visual elements are initially created at the origin (0,0) and will be 
+            positioned correctly during _step_plot using matplotlib transforms and set_data methods.
         """
 
         self.plot_attr_list = [
@@ -910,58 +931,101 @@ class ObjectBase:
         show_goal = self.plot_kwargs.get("show_goal", False)
         show_text = self.plot_kwargs.get("show_text", False)
         show_arrow = self.plot_kwargs.get("show_arrow", False)
-        show_uncertainty = self.plot_kwargs.get("show_uncertainty", False)
         show_trajectory = self.plot_kwargs.get("show_trajectory", False)
         self.show_trail = self.plot_kwargs.get("show_trail", False)
         self.show_sensor = self.plot_kwargs.get("show_sensor", True)
         show_fov = self.plot_kwargs.get("show_fov", False)
-        self.trail_freq = self.plot_kwargs.get("trail_freq", 2)
-        goal_color = self.plot_kwargs.get("goal_color", self.color)
 
-        self.plot_object(ax, np.zeros((3, 1)), self.init_vertices, **self.plot_kwargs)
+        self.trail_freq = self.plot_kwargs.get("trail_freq", 2)
+        # show_uncertainty = self.plot_kwargs.get("show_uncertainty", False)
+
+        if self.shape != 'map':
+            self.plot_object(ax, np.zeros((3, 1)), self.init_vertices, **self.plot_kwargs)
 
         if show_goal:
-            self.plot_goal(ax, np.zeros((3, 1)), self.init_vertices, goal_color)
+            self.plot_goal(ax, np.zeros((3, 1)), self.init_vertices, **self.plot_kwargs)
 
         if show_text:
-            self.plot_text(ax, **self.plot_kwargs)
+            self.plot_text(ax, np.zeros((3, 1)), **self.plot_kwargs)
 
         if show_arrow:
-            self.plot_arrow(ax, **self.plot_kwargs)
-
-        if show_uncertainty:
-            self.plot_uncertainty(ax, **self.plot_kwargs)
+            self.plot_arrow(ax, np.zeros((3, 1)), np.zeros((2, 1)), **self.plot_kwargs)
 
         if show_trajectory:
-            self.plot_trajectory(ax, **self.plot_kwargs)
+            self.plot_trajectory(ax, [], **self.plot_kwargs)
 
         if self.show_trail and world_param.count % self.trail_freq == 0:
-            self.plot_trail(ax, **self.plot_kwargs)
+            self.plot_trail(self.ax, self.state, self.vertices, **self.plot_kwargs)
 
         if self.show_sensor:
             [sensor.init_plot(ax, **self.plot_kwargs) for sensor in self.sensors]
 
         if show_fov:
             self.plot_fov(ax, **self.plot_kwargs)
+        
+        # if show_uncertainty:
+        #     self.plot_uncertainty(ax, **self.plot_kwargs)
 
-    def step_plot(self, **kwargs):
+    def _step_plot(self, **kwargs):
         """
-        This function updates the positions and properties of all plot elements:
-        object_patch, object_img, goal_patch, arrow_patch, trajectory_line, fov_patch.
+        Update the positions and properties of all plot elements created in _init_plot.
+        Elements are updated using transforms for patches and set_data for lines, based on the object's current state.
+
+        Update methods by element type:
+        - Patches (object_patch, goal_patch, arrow_patch, fov_patch): Updated using matplotlib transforms
+        - Lines (object_line, trajectory_line): Updated using set_data method  
+        - Text (abbr_text): Updated using set_position method
+        - Images (object_img): Updated using extent and transform methods
 
         Args:
-            **kwargs: Additional plotting options
+            **kwargs: Dynamic plotting properties to update during rendering:
+                
+                Object visualization properties:
+                - obj_linestyle (str): Line style for object outline (e.g., '-', '--', ':', '-.').
+                - obj_zorder (int): Z-order (drawing layer) for object elements.
+                - obj_color (str): Color of the object.
+                - obj_alpha (float): Transparency of the object (0.0 to 1.0).
+
+                Goal visualization properties:
                 - goal_color (str): Color of the goal marker.
-                - traj_color (str): Color of the trajectory.
-                - traj_style (str): Style of the trajectory.
-                - traj_width (float): Width of the trajectory.
-                - traj_alpha (float): Transparency of the trajectory.
+                - goal_alpha (float): Transparency of the goal marker.
+                - goal_zorder (int): Z-order for goal elements.
+                
+                Arrow visualization properties:
+                - arrow_color (str): Color of the velocity arrow.
+                - arrow_alpha (float): Transparency of the arrow.
+                - arrow_zorder (int): Z-order for arrow elements.
+                
+                Trajectory visualization properties:
+                - traj_color (str): Color of the trajectory line.
+                - traj_style (str): Line style of the trajectory (e.g., '-', '--', ':', '-.').
+                - traj_width (float): Width of the trajectory line.
+                - traj_alpha (float): Transparency of the trajectory line.
+                - traj_zorder (int): Z-order for trajectory elements.
+                
+                Text visualization properties:
+                - text_color (str): Color of the text label.
+                - text_size (int): Font size of the text.
+                - text_alpha (float): Transparency of the text.
+                - text_zorder (int): Z-order for text elements.
+                
+                Field of view properties:
+                - fov_color (str): Fill color of the field of view.
+                - fov_alpha (float): Transparency of the field of view.
+                - fov_edge_color (str): Edge color of the field of view.
+                - fov_zorder (int): Z-order for FOV elements.
+                
+                Trail visualization properties (for new trail elements):
                 - trail_edgecolor (str): Edge color of the trail.
-                - trail_linewidth (float): Width of the trail.
+                - trail_linewidth (float): Width of the trail outline.
                 - trail_alpha (float): Transparency of the trail.
-                - trail_fill (bool): Whether fill the trail.
-                - trail_color (str): Color of the trail.
-                - obj_linestyle (str): Style of the object edge line.
+                - trail_fill (bool): Whether to fill the trail shape.
+                - trail_color (str): Fill color of the trail.
+                - trail_zorder (int): Z-order for trail elements.
+
+        Note:
+            This method updates existing plot elements in place. Trail elements are created
+            new each time based on trail_freq setting and are not updated but recreated.
         """
 
         x = self.state[0, 0]
@@ -974,26 +1038,31 @@ class ObjectBase:
 
         for attr in self.plot_attr_list:
             if hasattr(self, attr):
-                patch = getattr(self, attr)
+                element = getattr(self, attr)
 
                 if attr == "object_patch":
+                    # For patches created at origin in _init_plot, use transform to position them
+                    trans = (
+                        mpl.transforms.Affine2D().rotate(r_phi).translate(x, y)
+                        + self.ax.transData
+                    )
+                    element.set_transform(trans)
+
+                    # Update object patch properties
+                    if "obj_linestyle" in kwargs:
+                        element.set_linestyle(kwargs["obj_linestyle"])
+
+                    if "obj_zorder" in kwargs:
+                        element.set_zorder(kwargs["obj_zorder"])
                     
-                    trans = (mpl.transforms.Affine2D()
-                                .rotate(r_phi)
-                                .translate(x, y)
-                                + self.ax.transData)
-                    
-                    patch.set_transform(trans)
-                    # if isinstance(self.ax, Axes3D):
-                    #     # path = patch.get_path()
-                    #     # patch.set_3d_properties(path._vertices, zs=self.z, zdir='z')
-                    #     trans = (
-                    #         mpl.transforms.Affine2D()
-                    #         .rotate(r_phi)
-                    #         .translate(x, y) + self.ax.transData
-                    #     )
-                    #     patch.set_transform(trans)
+                    if "obj_color" in kwargs:
+                        element.set_color(kwargs["obj_color"])
+                        
+                    if "obj_alpha" in kwargs:
+                        element.set_alpha(kwargs["obj_alpha"])
+
                 elif attr == "object_line":
+                    # For lines, use set_data to update coordinates
                     vertices = self.vertices
                     cos_phi = np.cos(r_phi)
                     sin_phi = np.sin(r_phi)
@@ -1002,21 +1071,30 @@ class ObjectBase:
                     )
                     rotated_vertices = np.dot(vertices.T, rotation_matrix.T).T
                     translated_vertices = rotated_vertices + np.array([[x], [y]])
-                    patch.set_data(
+                    element.set_data(
                         translated_vertices[0, :], translated_vertices[1, :]
                     )
-                    
-                if "obj_linestyle" in kwargs:
-                    patch.set_linestyle(kwargs["obj_linestyle"])
 
+                    # Update object line properties
+                    if "obj_linestyle" in kwargs:
+                        element.set_linestyle(kwargs["obj_linestyle"])
+                        
+                    if "obj_color" in kwargs:
+                        element.set_color(kwargs["obj_color"])
+                        
+                    if "obj_alpha" in kwargs:
+                        element.set_alpha(kwargs["obj_alpha"])
+                        
+                    if "obj_zorder" in kwargs:
+                        element.set_zorder(kwargs["obj_zorder"])
+                        
                 elif attr == "object_img":
-                    
-                    # Update image position and rotation
+                    # Update image position and rotation using transform
                     start_x = self.vertices[0, 0]
                     start_y = self.vertices[1, 0]
 
-                    # Update image extent
-                    patch.set_extent(
+                    # Update image extent based on current vertices
+                    element.set_extent(
                         [
                             start_x,
                             start_x + self.length,
@@ -1025,35 +1103,71 @@ class ObjectBase:
                         ]
                     )
 
-                    # Create new transform
+                    # Create new transform for image
                     trans_data = (
                         mtransforms.Affine2D().rotate_deg_around(
                             start_x, start_y, r_phi_ang
                         )
                         + self.ax.transData
                     )
-                    patch.set_transform(trans_data)
+                    element.set_transform(trans_data)
 
                 elif attr == "goal_patch":
-                    if isinstance(patch, mpl.patches.Circle):
-                        patch.set_center((goal_x, goal_y))
+                    # Update goal patch using transform (goal was created at origin)
+                    goal_orientation = self.goal[2, 0] if self.goal.shape[0] > 2 else 0
+                    trans = (
+                        mpl.transforms.Affine2D()
+                        .rotate(goal_orientation)
+                        .translate(goal_x, goal_y)
+                        + self.ax.transData
+                    )
+                    element.set_transform(trans)
 
-                        if "goal_color" in kwargs:
-                            patch.set_color(kwargs["goal_color"])
+                    # Update goal patch properties
+                    if "goal_color" in kwargs:
+                        element.set_color(kwargs["goal_color"])
+                        
+                    if "goal_alpha" in kwargs:
+                        element.set_alpha(kwargs["goal_alpha"])
+                        
+                    if "goal_zorder" in kwargs:
+                        element.set_zorder(kwargs["goal_zorder"])
 
                 elif attr == "arrow_patch":
-                    if isinstance(patch, mpl.patches.Arrow):
-                        # Calculate arrow end point based on orientation
-                        arrow_length = 0.4  # Default arrow length
-                        dx = arrow_length * np.cos(r_phi)
-                        dy = arrow_length * np.sin(r_phi)
-                        patch.set_data(x=x, y=y, dx=dx, dy=dy)
+                    # Update arrow patch using transform (arrow was created at origin)
+                    if isinstance(element, mpl.patches.Arrow):
+                        # Calculate orientation for arrow direction
+                        theta = (
+                            atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
+                            if self.kinematics == "omni"
+                            else r_phi
+                        )
+
+                        # Transform: rotate arrow to correct orientation, then translate to position
+                        trans = (
+                            mpl.transforms.Affine2D().rotate(theta).translate(x, y)
+                            + self.ax.transData
+                        )
+                        element.set_transform(trans)
+                        
+                        # Update arrow patch properties
+                        if "arrow_color" in kwargs:
+                            element.set_color(kwargs["arrow_color"])
+                            
+                        if "arrow_alpha" in kwargs:
+                            element.set_alpha(kwargs["arrow_alpha"])
+                            
+                        if "arrow_zorder" in kwargs:
+                            element.set_zorder(kwargs["arrow_zorder"])
 
                 elif attr == "trajectory_line":
-                    if isinstance(patch, list) and len(patch) > 0:
-                        line = patch[0]
+                    # Update trajectory line using set_data
+                    if isinstance(element, list) and len(element) > 0:
+                        line = element[0]
                         x_list = [t[0, 0] for t in self.trajectory]
                         y_list = [t[1, 0] for t in self.trajectory]
+
+                        line.set_data(x_list, y_list)
 
                         ax = line.axes
                         if ax is not None:
@@ -1063,8 +1177,6 @@ class ObjectBase:
                             )
                             line.set_linewidth(linewidth_data)
 
-                        line.set_data(x_list, y_list)
-
                         if "traj_color" in kwargs:
                             line.set_color(kwargs["traj_color"])
 
@@ -1073,38 +1185,88 @@ class ObjectBase:
 
                         if "traj_alpha" in kwargs:
                             line.set_alpha(kwargs["traj_alpha"])
+                            
+                        if "traj_zorder" in kwargs:
+                            line.set_zorder(kwargs["traj_zorder"])
 
                 elif attr == "fov_patch":
-                    if isinstance(patch, mpl.patches.Wedge):
-                        patch.set_center((x, y))
-                        patch.set_theta1(180 * (r_phi - self.fov / 2) / pi)
-                        patch.set_theta2(180 * (r_phi + self.fov / 2) / pi)
+                    # Update FOV patch using transform (created at origin)
+                    if isinstance(element, mpl.patches.Wedge):
+                        direction = r_phi if self.state_dim >= 3 else 0
+                        start_angle = direction - self.fov / 2
+                        end_angle = direction + self.fov / 2
 
-        # Update text position if exists
+                        # Update wedge angles and position
+                        element.set_theta1(180 * start_angle / pi)
+                        element.set_theta2(180 * end_angle / pi)
+
+                        trans = (
+                            mpl.transforms.Affine2D().translate(x, y)
+                            + self.ax.transData
+                        )
+                        element.set_transform(trans)
+                        
+                        # Update FOV patch properties
+                        if "fov_color" in kwargs:
+                            element.set_facecolor(kwargs["fov_color"])
+                            
+                        if "fov_alpha" in kwargs:
+                            element.set_alpha(kwargs["fov_alpha"])
+                            
+                        if "fov_edge_color" in kwargs:
+                            element.set_edgecolor(kwargs["fov_edge_color"])
+                            
+                        if "fov_zorder" in kwargs:
+                            element.set_zorder(kwargs["fov_zorder"])
+
+        # Update text position using set_position (text was created at origin)
         if hasattr(self, "abbr_text"):
             text = self.abbr_text
             text_position = [-self.radius - 0.1, self.radius + 0.1]
             text.set_position((x + text_position[0], y + text_position[1]))
+            
+            # Update text properties
+            if "text_color" in kwargs:
+                text.set_color(kwargs["text_color"])
+                
+            if "text_size" in kwargs:
+                text.set_fontsize(kwargs["text_size"])
+                
+            if "text_alpha" in kwargs:
+                text.set_alpha(kwargs["text_alpha"])
+                
+            if "text_zorder" in kwargs:
+                text.set_zorder(kwargs["text_zorder"])
 
+        # Handle trail plotting (creates new elements each time)
         if self.show_trail and world_param.count % self.trail_freq == 0:
-            self.plot_trail(self.ax, **self.plot_kwargs)
+            self.plot_trail(self.ax, self.state, self.vertices, **self.plot_kwargs)
 
+        # Update sensors
         if self.show_sensor:
             [sensor.step_plot() for sensor in self.sensors]
 
-
-    def plot_object(self, ax, state: Optional[np.ndarray] = np.zeros((3, 1)), vertices: Optional[np.ndarray] = None, **kwargs):
-        
+    def plot_object(
+        self,
+        ax,
+        state: Optional[np.ndarray] = None,
+        vertices: Optional[np.ndarray] = None,
+        **kwargs,
+    ):
         """
-        Plot the object itself.
+        Plot the object itself in the specified coordinate system.
 
         Args:
             ax: Matplotlib axis object
-            state: State of the object (x, y, r_phi) for circle
-            vertices: Vertices of the object [[x1, y1], [x2, y2], ...] for polygon and rectangle
+            state: State of the object (x, y, r_phi) defining position and orientation.
+                   If None, uses the object's current state. Defaults to None.
+            vertices: Vertices of the object [[x1, y1], [x2, y2], ...] for polygon and rectangle shapes.
+                     If None, uses the object's current vertices. Defaults to None.
             **kwargs: Additional plotting options
                 - obj_linestyle (str): Line style for object outline, defaults to '-'
-                - zorder (int): Drawing layer order, defaults to 3
+                - obj_zorder (int): Drawing layer order, defaults to 3 if object is robot, 1 if object is the obstacle.
+                - obj_color (str): Color of the object, defaults to 'k' (black).
+                - obj_alpha (float): Transparency of the object, defaults to 1.0.
 
         Returns:
             None
@@ -1113,7 +1275,10 @@ class ObjectBase:
             ValueError: When object shape is not supported
         """
         obj_linestyle = kwargs.get("obj_linestyle", "-")
-        zorder = kwargs.get("zorder", 3) if self.role == "robot" else 1
+        obj_zorder = kwargs.get("obj_zorder", 3) if self.role == "robot" else 1
+
+        state = self.state if state is None else state
+        vertices = self.vertices if vertices is None else vertices
 
         # Handle 3D plot or no description case
         if self.description is None or isinstance(ax, Axes3D):
@@ -1125,12 +1290,21 @@ class ObjectBase:
                         color=self.color,
                         linestyle=obj_linestyle,
                     )
+                    object_patch.set_zorder(obj_zorder)
+
+                    if isinstance(ax, Axes3D):
+                        art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
+
+                    ax.add_patch(object_patch)
+                    self.plot_patch_list.append(object_patch)
+                    self.object_patch = object_patch
+
                 elif self.shape in ["polygon", "rectangle"]:
                     object_patch = mpl.patches.Polygon(
                         xy=vertices.T, color=self.color, linestyle=obj_linestyle
                     )
 
-                    object_patch.set_zorder(zorder)
+                    object_patch.set_zorder(obj_zorder)
 
                     if isinstance(ax, Axes3D):
                         art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
@@ -1154,7 +1328,7 @@ class ObjectBase:
                             color=self.color,
                             linestyle=obj_linestyle,
                         )
-                    object_line.set_zorder(zorder)
+                    object_line.set_zorder(obj_zorder)
                     ax.add_line(object_line)
                     self.plot_line_list.append(object_line)
                     self.object_line = object_line
@@ -1169,9 +1343,16 @@ class ObjectBase:
                 raise
 
         else:
-            self.plot_object_image(ax, self.description, **kwargs)
+            self.plot_object_image(ax, state, vertices, self.description, **kwargs)
 
-    def plot_object_image(self, ax, state: Optional[np.ndarray] = None, vertices: Optional[np.ndarray] = None, description: str = None, **kwargs):
+    def plot_object_image(
+        self,
+        ax,
+        state: Optional[np.ndarray] = None,
+        vertices: Optional[np.ndarray] = None,
+        description: str = None,
+        **kwargs,
+    ):
 
         start_x = vertices[0, 0]
         start_y = vertices[1, 0]
@@ -1198,22 +1379,37 @@ class ObjectBase:
         self.plot_patch_list.append(robot_img)
         self.object_img = robot_img
 
-    def plot_trajectory(self, ax, keep_length: int = 0, **kwargs):
+    def plot_trajectory(
+        self, ax, trajectory: Optional[list] = None, keep_length: int = 0, **kwargs
+    ):
         """
-        Plot the trajectory of the object.
+        Plot the trajectory path of the object using the specified trajectory data.
 
         Args:
             ax: Matplotlib axis.
-            keep_length (int): Number of steps to keep in the plot.
-            **kwargs: Additional plotting options.
+            trajectory: List of trajectory points to plot, where each point is a numpy array [x, y, theta, ...].
+                       If None, uses self.trajectory. Defaults to None.
+            keep_length (int): Number of steps to keep from the end of trajectory.
+                              If 0, plots entire trajectory. Defaults to 0.
+            **kwargs: Additional plotting options:
+                traj_color (str): Color of the trajectory line.
+                traj_style (str): Line style of the trajectory.
+                traj_width (float): Width of the trajectory line.
+                traj_alpha (float): Transparency of the trajectory line.
+                traj_zorder (int): Zorder of the trajectory.
         """
+
+        if trajectory is None:
+            trajectory = self.trajectory
+
         traj_color = kwargs.get("traj_color", self.color)
         traj_style = kwargs.get("traj_style", "-")
         traj_width = kwargs.get("traj_width", self.width)
         traj_alpha = kwargs.get("traj_alpha", 0.5)
+        traj_zorder = kwargs.get("traj_zorder", 0)
 
-        x_list = [t[0, 0] for t in self.trajectory[-keep_length:]]
-        y_list = [t[1, 0] for t in self.trajectory[-keep_length:]]
+        x_list = [t[0, 0] for t in trajectory[-keep_length:]]
+        y_list = [t[1, 0] for t in trajectory[-keep_length:]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
 
@@ -1231,60 +1427,87 @@ class ObjectBase:
             solid_joinstyle="round",
             solid_capstyle=solid_capstyle,
             alpha=traj_alpha,
+            zorder=traj_zorder,
         )
 
         self.plot_line_list.append(traj_line)
         self.trajectory_line = traj_line
 
-    def plot_goal(self, ax, goal_state: Optional[np.ndarray] = None, vertices: Optional[np.ndarray] = None, goal_color: str = "r"):
+    def plot_goal(
+        self,
+        ax,
+        goal_state: Optional[np.ndarray] = None,
+        vertices: Optional[np.ndarray] = None,
+        goal_color: Optional[str] = None,
+        goal_zorder: Optional[int] = 1,
+        goal_alpha: Optional[float] = 0.5,
+        **kwargs,
+    ):
         """
-        Plot the goal position of the object.
+        Plot the goal position of the object in the specified coordinate system.
 
         Args:
             ax: Matplotlib axis.
-            goal_color (str): Color of the goal marker.
+            goal_state: State of the goal (x, y, r_phi) defining goal position and orientation.
+                       If None, uses [0, 0, 0]. Defaults to None.
+            vertices: Vertices for polygon/rectangle goal shapes.
+                     If None, uses init_vertices. Defaults to None.
+            goal_color (str): Color of the goal marker. Defaults to be the color of the object.
+            goal_zorder (int): Zorder of the goal marker. Defaults to 1.
+            goal_alpha (float): Transparency of the goal marker. Defaults to 0.5.
         """
+
+        if goal_color is None:
+            goal_color = self.color
 
         if self.shape == "circle":
             goal_patch = mpl.patches.Circle(
                 xy=(goal_state[0, 0], goal_state[1, 0]),
                 radius=self.radius,
                 color=goal_color,
-                alpha=0.5,
+                alpha=goal_alpha,
             )
         else:
-            goal_patch = mpl.patches.Polygon(
-                xy=vertices.T, color=self.color
-            )
+            goal_patch = mpl.patches.Polygon(xy=vertices.T, color=goal_color)
 
         if isinstance(ax, Axes3D):
             art3d.patch_2d_to_3d(goal_patch, z=self.z)
 
-        goal_patch.set_zorder(1)
+        goal_patch.set_zorder(goal_zorder)
         ax.add_patch(goal_patch)
 
         self.plot_patch_list.append(goal_patch)
         self.goal_patch = goal_patch
 
-    def plot_text(self, ax, **kwargs):
+    def plot_text(self, ax, state: Optional[np.ndarray] = None, **kwargs):
         """
-        Plot the text of the object.
+        Plot the text label of the object at the specified position.
 
         Args:
             ax: Matplotlib axis.
+            state: State of the object (x, y, r_phi) to determine text position.
+                   If None, uses the object's current state. Defaults to None.
             **kwargs: Additional plotting options.
                 text_color (str): Color of the text, default is 'k'.
                 text_size (int): Font size of the text, default is 10.
-                text_position (list): Position of the text in xy, default is [-radius-0.1, radius+0.1].
+                text_position (list): Position offset from object center [dx, dy],
+                                    default is [-radius-0.1, radius+0.1].
+                text_zorder (int): Zorder of the text. Defaults to 2.
+                text_alpha (float): Transparency of the text. Defaults to 1.
         """
+
+        if state is None:
+            state = self.state
 
         text_color = kwargs.get("text_color", "k")
         text_size = kwargs.get("text_size", 10)
         text_position = kwargs.get(
             "text_position", [-self.radius - 0.1, self.radius + 0.1]
         )
+        text_zorder = kwargs.get("text_zorder", 2)
+        text_alpha = kwargs.get("text_alpha", 1)
 
-        x, y = self.state[0, 0], self.state[1, 0]
+        x, y = state[0, 0], state[1, 0]
 
         if isinstance(ax, Axes3D):
             text = ax.text(
@@ -1294,6 +1517,8 @@ class ObjectBase:
                 self.abbr,
                 fontsize=text_size,
                 color=text_color,
+                zorder=text_zorder,
+                alpha=text_alpha,
             )
         else:
             text = ax.text(
@@ -1302,6 +1527,8 @@ class ObjectBase:
                 self.abbr,
                 fontsize=text_size,
                 color=text_color,
+                zorder=text_zorder,
+                alpha=text_alpha,
             )
 
         self.plot_text_list.append(text)
@@ -1310,28 +1537,43 @@ class ObjectBase:
     def plot_arrow(
         self,
         ax,
+        state: Optional[np.ndarray] = None,
+        velocity: Optional[np.ndarray] = None,
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
-        arrow_color: str = "gold",
+        arrow_color: Optional[str] = None,
         arrow_zorder: int = 4,
         **kwargs,
     ):
         """
-        Plot an arrow indicating the velocity orientation of the object.
+        Plot an arrow indicating the velocity orientation of the object at the specified position.
 
         Args:
             ax: Matplotlib axis.
-            arrow_length (float): Length of the arrow.
-            arrow_width (float): Width of the arrow.
-            **kwargs: Additional plotting options.
+            state: State of the object (x, y, r_phi) to determine arrow position.
+                   If None, uses the object's current state. Defaults to None.
+            velocity: Velocity of the object to determine arrow direction.
+                     If None, uses the object's current velocity_xy. Defaults to None.
+            arrow_length (float): Length of the arrow. Defaults to 0.4.
+            arrow_width (float): Width of the arrow. Defaults to 0.6.
+            arrow_color (str): Color of the arrow. Defaults to "gold".
+            arrow_zorder (int): Z-order for drawing layer. Defaults to 4.
         """
-        x = self.state[0, 0]
-        y = self.state[1, 0]
+
+        if state is None:
+            state = self.state
+        if velocity is None:
+            velocity = self.velocity_xy
+        if arrow_color is None:
+            arrow_color = "gold"
+
+        x = state[0, 0]
+        y = state[1, 0]
 
         theta = (
-            atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
-            if self.kinematics == "omni"
-            else self.state[2, 0]
+            atan2(velocity[1, 0], velocity[0, 0])
+            if self.kinematics == "omni" and velocity is not None
+            else state[2, 0]
         )
 
         arrow = mpl.patches.Arrow(
@@ -1352,26 +1594,50 @@ class ObjectBase:
         self.plot_patch_list.append(arrow)
         self.arrow_patch = arrow
 
-    def plot_trail(self, ax, **kwargs):
+    def plot_trail(
+        self,
+        ax,
+        state: Optional[np.ndarray] = None,
+        vertices: Optional[np.ndarray] = None,
+        **kwargs,
+    ):
         """
-        Plot the trail of the object.
+        Plot the trail/outline of the object at the specified position for visualization purposes.
 
         Args:
             ax: Matplotlib axis.
-            **kwargs: Additional plotting options.
+            state: State of the object (x, y, r_phi) to determine trail position and orientation.
+                   If None, uses the object's current state. Defaults to None.
+            vertices: Vertices of the object for polygon and rectangle trail shapes.
+                     If None, uses the object's current vertices. Defaults to None.
+            **kwargs: Additional plotting options:
+                trail_type (str): Type of trail shape, defaults to object's shape.
+                trail_edgecolor (str): Edge color of the trail.
+                trail_linewidth (float): Line width of the trail edge.
+                trail_alpha (float): Transparency of the trail.
+                trail_fill (bool): Whether to fill the trail shape.
+                trail_color (str): Fill color of the trail.
+                trail_zorder (int): Z-order of the trail.
         """
+
+        if state is None:
+            state = self.state
+        if vertices is None:
+            vertices = self.vertices
+
         trail_type = kwargs.get("trail_type", self.shape)
         trail_edgecolor = kwargs.get("trail_edgecolor", self.color)
         trail_linewidth = kwargs.get("trail_linewidth", 0.8)
         trail_alpha = kwargs.get("trail_alpha", 0.7)
         trail_fill = kwargs.get("trail_fill", False)
         trail_color = kwargs.get("trail_color", self.color)
+        trail_zorder = kwargs.get("trail_zorder", 0)
 
-        r_phi_ang = 180 * self.state[2, 0] / pi
+        r_phi_ang = 180 * state[2, 0] / pi
 
         if trail_type == "rectangle":
-            start_x = self.vertices[0, 0]
-            start_y = self.vertices[1, 0]
+            start_x = vertices[0, 0]
+            start_y = vertices[1, 0]
 
             trail_rect = mpl.patches.Rectangle(
                 xy=(start_x, start_y),
@@ -1383,6 +1649,7 @@ class ObjectBase:
                 alpha=trail_alpha,
                 linewidth=trail_linewidth,
                 facecolor=trail_color,
+                zorder=trail_zorder,
             )
 
             if isinstance(ax, Axes3D):
@@ -1392,7 +1659,7 @@ class ObjectBase:
 
         elif trail_type == "polygon":
             car_polygon = mpl.patches.Polygon(
-                self.vertices.T,
+                vertices.T,
                 edgecolor=trail_color,
                 alpha=trail_alpha,
                 linewidth=trail_linewidth,
@@ -1406,8 +1673,9 @@ class ObjectBase:
             ax.add_patch(car_polygon)
 
         elif trail_type == "circle":
+            # For circle, use the state position as center
             car_circle = mpl.patches.Circle(
-                xy=self.centroid,
+                xy=(state[0, 0], state[1, 0]),
                 radius=self.radius,
                 edgecolor=trail_edgecolor,
                 fill=trail_fill,
@@ -1429,10 +1697,14 @@ class ObjectBase:
             **kwargs: Additional plotting options.
                 fov_color (str): Color of the field of view. Default is 'lightblue'.
                 fov_edge_color (str): Edge color of the field of view. Default is 'blue'.
+                fov_zorder (int): Z-order of the field of view. Default is 1.
+                fov_alpha (float): Transparency of the field of view. Default is 0.5.
         """
 
         fov_color = kwargs.get("fov_color", "lightblue")
         fov_edge_color = kwargs.get("fov_edge_color", "blue")
+        fov_zorder = kwargs.get("fov_zorder", 1)
+        fov_alpha = kwargs.get("fov_alpha", 0.5)
 
         direction = self.state[2, 0] if self.state_dim >= 3 else 0
         position = self.state[:2, 0]
@@ -1449,8 +1721,9 @@ class ObjectBase:
             start_degree,
             end_degree,
             facecolor=fov_color,
-            alpha=0.5,
+            alpha=fov_alpha,
             edgecolor=fov_edge_color,
+            zorder=fov_zorder,
         )
 
         ax.add_patch(fov_wedge)
@@ -1670,7 +1943,7 @@ class ObjectBase:
 
     @property
     def init_state(self) -> np.ndarray:
-        """     
+        """
         Get the initial state of the object.
 
         Returns:
@@ -1679,7 +1952,6 @@ class ObjectBase:
 
         return self._init_state
 
-        
     @property
     def velocity(self) -> np.ndarray:
         """
@@ -1801,14 +2073,13 @@ class ObjectBase:
 
         return self.gf.vertices
 
-    @property   
+    @property
     def init_vertices(self) -> np.ndarray:
         """
         Get the initial vertices of the object.
         """
 
         return self.gf.init_vertices
-
 
     @property
     def external_objects(self):

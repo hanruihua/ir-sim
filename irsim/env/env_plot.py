@@ -16,6 +16,7 @@ import glob
 from math import sin, cos
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from dataclasses import dataclass
 
 
 class EnvPlot:
@@ -81,7 +82,7 @@ class EnvPlot:
         self.dyna_point_list = []
         self.dyna_quiver_list = []
 
-    def init_plot(self, grid_map, objects, no_axis=False, tight=True):
+    def init_plot(self, grid_map, objects, no_axis=False, tight=True, **kwargs):
         """
         Initialize the plot with the given grid map and objects.
 
@@ -105,7 +106,7 @@ class EnvPlot:
         self.ax.set_ylabel("y [m]")
 
         # self.draw_components("all", objects)
-        self.init_objects_plot(objects)
+        self.init_objects_plot(objects, **kwargs)
         self.draw_grid_map(grid_map)
 
         if no_axis:
@@ -114,19 +115,20 @@ class EnvPlot:
             self.fig.tight_layout()
 
 
-    def init_objects_plot(self, objects):
-        [obj._init_plot(self.ax) for obj in objects]
+    def init_objects_plot(self, objects, **kwargs):
+        [obj._init_plot(self.ax, **kwargs) for obj in objects]
+        self.step_objects_plot('all', objects, **kwargs)
 
     def step_objects_plot(self, mode='dynamic', objects=[], **kwargs):
         """
         Update the plot for the objects.
         """
         if mode == 'dynamic':
-            [obj.step_plot(**kwargs) for obj in objects if not obj.static]
+            [obj._step_plot(**kwargs) for obj in objects if not obj.static]
         elif mode == 'static':
-            [obj.step_plot(**kwargs) for obj in objects if obj.static]
+            [obj._step_plot(**kwargs) for obj in objects if obj.static]
         elif mode == 'all':
-            [obj.step_plot(**kwargs) for obj in objects]
+            [obj._step_plot(**kwargs) for obj in objects]
         else:
             self.logger.error("Error: Invalid draw mode")
 
@@ -435,3 +437,5 @@ def linewidth_from_data_units(linewidth, axis, reference="y"):
     length *= 72
     # Scale linewidth to value range
     return linewidth * (length / value_range)
+
+
