@@ -327,6 +327,7 @@ class ObjectBase:
         self.plot_line_list = []
         self.plot_text_list = []
         self.collision_obj = []
+        self.plot_trail_list = []
 
     def __eq__(self, o: "ObjectBase") -> bool:
 
@@ -1666,7 +1667,7 @@ class ObjectBase:
             start_x = vertices[0, 0]
             start_y = vertices[1, 0]
 
-            trail_rect = mpl.patches.Rectangle(
+            trail = mpl.patches.Rectangle(
                 xy=(start_x, start_y),
                 width=self.length,
                 height=self.width,
@@ -1680,12 +1681,12 @@ class ObjectBase:
             )
 
             if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(trail_rect, z=self.z)
+                art3d.patch_2d_to_3d(trail, z=self.z)
 
-            ax.add_patch(trail_rect)
+            ax.add_patch(trail)
 
         elif trail_type == "polygon":
-            car_polygon = mpl.patches.Polygon(
+            trail = mpl.patches.Polygon(
                 vertices.T,
                 edgecolor=trail_color,
                 alpha=trail_alpha,
@@ -1695,13 +1696,13 @@ class ObjectBase:
             )
 
             if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(car_polygon, z=self.z)
+                art3d.patch_2d_to_3d(trail, z=self.z)
 
-            ax.add_patch(car_polygon)
+            ax.add_patch(trail)
 
         elif trail_type == "circle":
             # For circle, use the state position as center
-            car_circle = mpl.patches.Circle(
+            trail = mpl.patches.Circle(
                 xy=(state[0, 0], state[1, 0]),
                 radius=self.radius,
                 edgecolor=trail_edgecolor,
@@ -1711,9 +1712,14 @@ class ObjectBase:
             )
 
             if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(car_circle, z=self.z)
+                art3d.patch_2d_to_3d(trail, z=self.z)
 
-            ax.add_patch(car_circle)
+            ax.add_patch(trail)
+        
+        else:
+            raise ValueError(f"Invalid trail type: {trail_type}")
+
+        self.plot_trail_list.append(trail)
 
     def plot_fov(self, ax, **kwargs):
         """
@@ -1763,7 +1769,7 @@ class ObjectBase:
         """
         pass
 
-    def plot_clear(self):
+    def plot_clear(self, all: bool = False):
         """
         Clear all plotted elements from the axis.
         """
@@ -1771,10 +1777,14 @@ class ObjectBase:
         [line.pop(0).remove() for line in self.plot_line_list]
         [text.remove() for text in self.plot_text_list]
 
+        if all:
+            [trail.remove() for trail in self.plot_trail_list]
+            self.plot_trail_list = []
+
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
-
+        
         [sensor.plot_clear() for sensor in self.sensors]
 
     def done(self):

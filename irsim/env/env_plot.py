@@ -170,10 +170,18 @@ class EnvPlot:
             self.dyna_quiver_list = []
 
         elif mode == "static":
-            pass
+            [obj.plot_clear() for obj in objects if obj.static]
 
         elif mode == "all":
-            [obj.plot_clear() for obj in objects]
+            [obj.plot_clear(all=True) for obj in objects]
+            
+            [line.pop(0).remove() for line in self.dyna_line_list]
+            [points.remove() for points in self.dyna_point_list]
+            [quiver.remove() for quiver in self.dyna_quiver_list]
+
+            self.dyna_line_list = []
+            self.dyna_point_list = []
+            self.dyna_quiver_list = []
 
     def draw_grid_map(self, grid_map=None, **kwargs):
         """

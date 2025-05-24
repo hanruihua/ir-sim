@@ -97,20 +97,20 @@ def test_grid_map_3d():
     env.end()
     assert gh is not None
 
-# def test_keyboard_control_3d():
-#     """Test keyboard control in 3D projection"""
-#     env = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False, projection='3d')
-#     key_list = ['w', 'a', 's', 'd', 'q', 'e', 'z', 'c', 'r']
-#     mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
+def test_keyboard_control_3d():
+    """Test keyboard control in 3D projection"""
+    env = irsim.make('test_keyboard_control.yaml', save_ani=False, display=False, projection='3d')
+    key_list = ['w', 'a', 's', 'd', 'q', 'e', 'z', 'c', 'r']
+    mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
     
-#     for i in range(3):
-#         for mock_key in mock_keys:
-#             env._on_press(mock_key)
-#             env._on_release(mock_key)
-#         env.step()
-#         env.render(0.01)
-#     env.end()
-#     assert True  # Add keyboard control related assertions
+    for i in range(3):
+        for mock_key in mock_keys:
+            env._on_press(mock_key)
+            env._on_release(mock_key)
+        env.step()
+        env.render(0.01)
+    env.end()
+    assert True  # Add keyboard control related assertions
 
 def test_custom_behavior_3d():
     """Test custom behavior in 3D projection"""

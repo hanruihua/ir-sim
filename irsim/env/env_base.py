@@ -408,7 +408,7 @@ class EnvBase:
         Reset the environment figure.
         """
 
-        plt.cla()
+        self._env_plot.clear_components("all", self.objects)
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
     # region: environment change
