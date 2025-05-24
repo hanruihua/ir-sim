@@ -50,11 +50,11 @@
 - [x] 3D visualization
 - [x] Show the text of the object
 - [x] Draw points
-- [x] **Reformulate plot function - Transform-based plotting architecture**
-- [x] **FOV transform fixes for proper field of view visualization**
-- [x] **Lidar2D plotting with matplotlib transforms**
-- [x] **3D plotting fixes for patches, lines, and other elements**
-- [x] **Consistent plotting API with state/vertices parameters**
+- [x] Reformulate plot function - Transform-based plotting architecture
+- [x] FOV transform fixes for proper field of view visualization
+- [x] Lidar2D plotting with matplotlib transforms
+- [x] 3D plotting fixes for patches, lines, and other elements
+- [x] Consistent plotting API with state/vertices parameters
 - [ ] Draw error band (uncertainty) https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html
 - [ ] Academic Color
 - [ ] Add some data structure for plot
