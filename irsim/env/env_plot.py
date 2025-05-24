@@ -16,6 +16,7 @@ import glob
 from math import sin, cos
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from dataclasses import dataclass
 
 
 class EnvPlot:
@@ -81,7 +82,7 @@ class EnvPlot:
         self.dyna_point_list = []
         self.dyna_quiver_list = []
 
-    def init_plot(self, grid_map, objects, no_axis=False, tight=True):
+    def init_plot(self, grid_map, objects, no_axis=False, tight=True, **kwargs):
         """
         Initialize the plot with the given grid map and objects.
 
@@ -104,13 +105,33 @@ class EnvPlot:
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
 
-        self.draw_components("all", objects)
+        # self.draw_components("all", objects)
+        self.init_objects_plot(objects, **kwargs)
         self.draw_grid_map(grid_map)
 
         if no_axis:
             plt.axis("off")
         if tight:
             self.fig.tight_layout()
+
+
+    def init_objects_plot(self, objects, **kwargs):
+        [obj._init_plot(self.ax, **kwargs) for obj in objects]
+        self.step_objects_plot('all', objects, **kwargs)
+
+    def step_objects_plot(self, mode='dynamic', objects=[], **kwargs):
+        """
+        Update the plot for the objects.
+        """
+        if mode == 'dynamic':
+            [obj._step_plot(**kwargs) for obj in objects if not obj.static]
+        elif mode == 'static':
+            [obj._step_plot(**kwargs) for obj in objects if obj.static]
+        elif mode == 'all':
+            [obj._step_plot(**kwargs) for obj in objects]
+        else:
+            self.logger.error("Error: Invalid draw mode")
+
 
     def draw_components(self, mode="all", objects=[], **kwargs):
         """
@@ -128,7 +149,7 @@ class EnvPlot:
         elif mode == "all":
             [obj.plot(self.ax, **kwargs) for obj in objects]
         else:
-            logging.error("Error: Invalid draw mode")
+            self.logger.error("Error: Invalid draw mode")
 
     def clear_components(self, mode="all", objects=[]):
         """
@@ -170,6 +191,7 @@ class EnvPlot:
                 cmap="Greys",
                 origin="lower",
                 extent=self.x_range + self.y_range,
+                zorder=0,
             )
 
             if isinstance(self.ax, Axes3D):
@@ -415,3 +437,5 @@ def linewidth_from_data_units(linewidth, axis, reference="y"):
     length *= 72
     # Scale linewidth to value range
     return linewidth * (length / value_range)
+
+

@@ -14,12 +14,12 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, accer: 1.5, factor: 1.5}
+    behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, accer: 1.0, factor: 2.0, neighbor_threshold: 5.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
     arrive_mode: position
-    goal_threshold: 0.15
+    goal_threshold: 0.2
     plot:
       show_trail: true
       show_goal: true

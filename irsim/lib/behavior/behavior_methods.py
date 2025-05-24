@@ -15,7 +15,7 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
     acceler = kwargs.get("acceler", 1.0)
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
-    neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
+    neighbor_threshold = kwargs.get("neighbor_threshold", 10.0)
     behavior_vel = DiffRVO(rvo_state, rvo_neighbor, vxmax, vymax, acceler, factor, mode, neighbor_threshold)
 
     return behavior_vel

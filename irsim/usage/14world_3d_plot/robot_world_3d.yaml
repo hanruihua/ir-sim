@@ -18,6 +18,17 @@ robot:
     show_trajectory: True
     show_trail: True
   # description: 'diff_robot0.png'
+
+  sensors:
+      - name: 'lidar2d'
+        range_min: 0
+        range_max: 5
+        angle_range: 3.14 #  4.7123
+        number: 200
+        noise: False
+        std: 0.2
+        angle_std: 0.2
+        alpha: 0.3
     
   
     

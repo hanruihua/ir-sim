@@ -64,7 +64,7 @@ The `world` section contains the configuration of the simulation environment. Th
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`) |
 | `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                    |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.          |
-| `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world. |
+| `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                |
 
 
 ### Detailed Description of World Parameters
@@ -498,61 +498,124 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   When set to `True`, this object is treated as having an unobstructed path, ignoring collisions with other objects and obstacles. This can be useful for testing or for objects that must not be impeded.
 
 ##### **`plot`**:
-  Contains plotting options controlling the visual representation of the object. Supported options include:
-  - `'show_goal'`(bool): Whether to display the object's goal in visualizations. Default is `False`. 
-  - `'show_arrow'`: Show arrows indicating velocity or heading direction. Default is `False`. If `True`, the following parameters can be set:
-    - `arrow_length` (float): Length of the arrow. Default is `0.4`.
-    - `arrow_width` (float): Width of the arrow. Default is `0.6`.
-    - `arrow_color` (str): Color of the arrow. Default is `'gold'`.
-  - `'show_trajectory'`: Plot the path the object has taken over time. Default is `False`. If `True`, the following parameters can be set:
+  Contains plotting options controlling the visual representation of the object. All plot elements are initially created at the origin and positioned using transforms and data updates during animation.
+
+  **Object Visualization Properties:**
+  - `obj_linestyle` (str): Line style for object outline (e.g., '-', '--', ':', '-.'). Default is '-'.
+  - `obj_zorder` (int): Z-order (drawing layer) for object elements. Default is 3 for robots, 1 for obstacles.
+  - `obj_color` (str): Color of the object. Default is the object's color property.
+  - `obj_alpha` (float): Transparency of the object (0.0 to 1.0). Default is 1.0.
+  - `obj_linewidth` (float): Width of the object outline. Default varies by object type.
+
+  **Goal Visualization:**
+  - `show_goal` (bool): Whether to show the goal position. Default is False.
+    - `goal_color` (str): Color of the goal marker. Default is the object's color.
+    - `goal_alpha` (float): Transparency of the goal marker (0.0 to 1.0). Default is 0.5.
+    - `goal_zorder` (int): Z-order of the goal marker. Default is 1.
+
+  **Text Label Visualization:**
+  - `show_text` (bool): Whether to show text information. Default is False.
+    - `text_color` (str): Color of the text. Default is 'k' (black).
+    - `text_size` (int): Font size of the text. Default is 10.
+    - `text_alpha` (float): Transparency of the text (0.0 to 1.0). Default is 1.0.
+    - `text_zorder` (int): Z-order of the text. Default is 2.
+    - `text_position` (list): Position offset from object center [dx, dy]. Default is [-radius-0.1, radius+0.1].
+
+  **Velocity Arrow Visualization:**
+  - `show_arrow` (bool): Whether to show the velocity arrow. Default is False.
+    - `arrow_color` (str): Color of the arrow. Default is "gold".
+    - `arrow_length` (float): Length of the arrow. Default is 0.4.
+    - `arrow_width` (float): Width of the arrow. Default is 0.6.
+    - `arrow_alpha` (float): Transparency of the arrow (0.0 to 1.0). Default is 1.0.
+    - `arrow_zorder` (int): Z-order of the arrow. Default is 4.
+
+  **Trajectory Path Visualization:**
+  - `show_trajectory` (bool): Whether to show the trajectory line. Default is False.
     - `traj_color` (str): Color of the trajectory. Default is the object's color.
-    - `traj_style` (str): Line style of the trajectory. Default is `'-'`.
-    - `traj_width` (float): Line width of the trajectory. Default is the object's width.
-    - `traj_alpha` (float): Transparency of the trajectory. Default is `0.5`.
-  - `show_trail` (bool): Show the trail of the object. Default is `False`. If `True`, the following parameters can be set:
+    - `traj_style` (str): Line style of the trajectory (e.g., '-', '--', ':', '-.'). Default is "-".
+    - `traj_width` (float): Width of the trajectory line. Default is the object's width.
+    - `traj_alpha` (float): Transparency of the trajectory (0.0 to 1.0). Default is 0.5.
+    - `traj_zorder` (int): Z-order for trajectory elements. Default is 0.
+
+  **Object Trail Visualization:**
+  - `show_trail` (bool): Whether to show object trails. Default is False.
+    - `trail_freq` (int): Frequency of trail display (every N steps). Default is 2.
     - `trail_type` (str): Type of trail shape. Default is the object's shape.
     - `trail_edgecolor` (str): Edge color of the trail. Default is the object's color.
-    - `trail_linewidth` (float): Line width of the trail. Default is `0.8`.
-    - `trail_alpha` (float): Transparency of the trail. Default is `0.7`.
-    - `trail_fill` (bool): Whether to fill the trail shape. Default is `False`.
-    - `trail_color` (str): Color of the trail. Default is the object's color.
-    - `trail_freq` (int): Frequency of trail updates. Default is `2`.
-  - `show_sensor` (bool): Display the sensor in the visualization. Default is `True`.
-  - `show_fov` (bool): Display the field of view of the sensor. Default is `False`.
-  - `show_text` (bool): Display the text of the object. Default is `False`.
-    - `text_color` (str): Color of the text. Default is `k`.
-    - `text_size` (int): Font size of the text. Default is `10`.
-    - `text_position` (list): Position of the text. Default is `[-radius-0.1, radius+0.1]`.
-  - `goal_color` (str): Color of the goal marker. Default is the object's color.
-  - `obj_linestyle` (str): Line style of the object edge. Default is `'-'`. You can set the line style as `'-'`, `'--'`, `':'`, `'-.'`, `'None'`.
+    - `trail_linewidth` (float): Width of the trail outline. Default is 0.8.
+    - `trail_alpha` (float): Transparency of the trail (0.0 to 1.0). Default is 0.7.
+    - `trail_fill` (bool): Whether to fill the trail shape. Default is False.
+    - `trail_color` (str): Fill color of the trail. Default is the object's color.
+    - `trail_zorder` (int): Z-order for trail elements. Default is 0.
+
+  **Sensor Visualization:**
+  - `show_sensor` (bool): Whether to show sensor visualizations. Default is True.
+
+  **Field of View Visualization:**
+  - `show_fov` (bool): Whether to show field of view visualization. Default is False.
+    - `fov_color` (str): Fill color of the field of view. Default is "lightblue".
+    - `fov_edge_color` (str): Edge color of the field of view. Default is "blue".
+    - `fov_alpha` (float): Transparency of the field of view (0.0 to 1.0). Default is 0.5.
+    - `fov_zorder` (int): Z-order of the field of view. Default is 1.
+
+  **Note:** All visual elements are created at the origin during initialization and positioned using matplotlib transforms (for patches) and set_data methods (for lines) during animation updates.
 
   **Example:**
   ```yaml
-
   plot:
+    # Object appearance
+    obj_linestyle: '--'
+    obj_zorder: 3
+    obj_color: 'blue'
+    obj_alpha: 0.8
+    obj_linewidth: 2.0
+    
+    # Goal visualization
     show_goal: True
-    show_arrow: True
-    arrow_length: 0.4
-    arrow_width: 0.6
-    arrow_color: 'gold'
-    show_trajectory: True
-    show_fov: True
+    goal_color: 'red'
+    goal_alpha: 0.7
+    goal_zorder: 2
+    
+    # Text labels
     show_text: True
-    traj_color: 'blue'
+    text_color: 'black'
+    text_size: 12
+    text_alpha: 0.9
+    text_zorder: 5
+    
+    # Velocity arrows
+    show_arrow: True
+    arrow_color: 'gold'
+    arrow_length: 0.5
+    arrow_width: 0.8
+    arrow_alpha: 0.9
+    arrow_zorder: 4
+    
+    # Trajectory path
+    show_trajectory: True
+    traj_color: 'green'
     traj_style: '-'
     traj_width: 0.6
-    traj_alpha: 0.5
+    traj_alpha: 0.6
+    traj_zorder: 1
+    
+    # Object trails
     show_trail: True
-    trail_type: 'circle'
-    trail_edgecolor: 'red'
-    trail_linewidth: 0.8
-    trail_alpha: 0.7
+    trail_freq: 3
+    trail_edgecolor: 'purple'
+    trail_linewidth: 1.0
+    trail_alpha: 0.5
     trail_fill: False
-    trail_color: 'red'
-    trail_freq: 2
+    trail_color: 'purple'
+    trail_zorder: 0
+    
+    # Sensors and FOV
     show_sensor: True
-    goal_color: 'red'
-    obj_linestyle: '--'
+    show_fov: True
+    fov_color: 'lightblue'
+    fov_edge_color: 'blue'
+    fov_alpha: 0.3
+    fov_zorder: 1
   ```
   
 ##### **`state_dim`** and **`vel_dim`**:

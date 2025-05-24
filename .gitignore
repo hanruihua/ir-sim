@@ -139,7 +139,6 @@ test.py
 test/
 test.yaml
 result.json
-uv.lock
 test.html
 
 test_animation.gif
