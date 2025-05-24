@@ -80,10 +80,10 @@ class geometry_handler(ABC):
 
         elif self.name == "polygon" or self.name == "rectangle":
 
-            convex_flag, _ = is_convex_and_ordered(self.init_vertices)
+            convex_flag, _ = is_convex_and_ordered(self.original_vertices)
 
             if convex_flag:
-                G, h = gen_inequal_from_vertex(self.init_vertices)
+                G, h = gen_inequal_from_vertex(self.original_vertices)
                 cone_type = "Rpositive"
             else:
                 G, h, cone_type = None, None, None
@@ -176,7 +176,14 @@ class geometry_handler(ABC):
     @property
     def init_vertices(self):
         """
-        return init_vertices: [[x1, y1], [x2, y2]....    [[x1, y1]]]; [x1, y1] will repeat twice
+        return original_vertices: [[x1, y1], [x2, y2]....    [[x1, y1]]]; [x1, y1] will repeat twice
+        """
+        assert "this property is renamed to be original_vertices"
+
+    @property
+    def original_vertices(self):
+        """
+        Get the original vertices of the object.
         """
 
         if self.name == "linestring":
