@@ -1,5 +1,6 @@
 from math import pi, cos, sin
 import numpy as np
+import matplotlib.transforms as mtransforms
 from shapely import MultiLineString, Point, is_valid, prepare
 from irsim.util.util import (
     geometry_transform,
@@ -12,6 +13,7 @@ from shapely.strtree import STRtree
 from shapely.ops import unary_union
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
+from typing import Optional
 
 class Lidar2D:
     """
@@ -143,12 +145,14 @@ class Lidar2D:
 
             segment_point_list.append(segment)
 
-        self._init_geometry = MultiLineString(segment_point_list)
-        self._init_geometry = geometry_transform(self._init_geometry, self.offset)
+        self.origin_state = self.offset
+        geometry = MultiLineString(segment_point_list)
+        self._original_geometry = geometry_transform(geometry, self.origin_state)
         self.lidar_origin = transform_point_with_state(self.offset, state)
-        self._geometry = geometry_transform(self._init_geometry, state)
         
-
+        self._geometry = geometry_transform(self._original_geometry, state)
+        self._init_geometry = self._geometry
+        
     def step(self, state):
         """
         Update the Lidar's state and process intersections with environment objects.
@@ -159,7 +163,7 @@ class Lidar2D:
         self._state = state
 
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
-        new_geometry = geometry_transform(self._init_geometry, self._state)
+        new_geometry = geometry_transform(self._original_geometry, self._state)
         prepare(new_geometry)
 
         new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
@@ -295,83 +299,124 @@ class Lidar2D:
         """
         return np.squeeze(self.offset).tolist()
 
-    def plot(self, ax, **kwargs):
+    def plot(self, ax, state: Optional[np.ndarray] = None, **kwargs):
         """
         Plot the Lidar's detected lines on a given axis.
         """
-        self.init_plot(ax, **kwargs)
+        if state is None:
+            state = self.state
 
+        self._plot(ax, state, **kwargs)
 
-    def init_plot(self, ax, **kwargs):
+    def _init_plot(self, ax, **kwargs):
         """
-        Plot the Lidar's detected lines on a given axis.
+        Initialize the plot for the Lidar.
+        """
+        self._plot(ax, self.origin_state, **kwargs)
+
+    @property
+    def state(self) -> np.ndarray:
+        """
+        Get the current state of the lidar sensor.
+
+        Returns:
+            np.ndarray: Current state of the sensor.
+        """
+        return self._state
+
+    def _plot(self, ax, state, **kwargs):
+        """
+        Plot the Lidar's detected lines using the specified state for positioning.
+        Creates line segments in local coordinates and applies transforms to position them.
 
         Args:
             ax: Matplotlib axis.
+            state: State vector [x, y, theta, ...] defining lidar position and orientation.
             **kwargs: Plotting options.
         """
         lines = []
 
+        # Create line segments in local coordinates (relative to lidar origin)
         for i in range(self.number):
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
-            position = self.lidar_origin[0:2, 0] 
-            trans, rot = get_transform(self.lidar_origin)
-            range_end_position = rot @ np.array([[x], [y]]) + trans
-
+            # Create segment from local origin (0,0) to range endpoint in local coordinates
             if isinstance(ax, Axes3D):
-                position = np.array([position[0], position[1], 0])
-                end_position = np.array(
-                    [range_end_position[0, 0], range_end_position[1, 0], 0]
-                )
-                segment = [position, end_position]
+                segment = [np.array([0, 0, 0]), np.array([x, y, 0])]
             else:
-                segment = [position, range_end_position[0:2, 0]]
+                segment = [np.array([0, 0]), np.array([x, y])]
 
             lines.append(segment)
 
+        # Create LineCollection
         if isinstance(ax, Axes3D):
             self.laser_LineCollection = Line3DCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
-            ax.add_collection3d(self.laser_2D_lines)
+            ax.add_collection3d(self.laser_LineCollection)
         else:
             self.laser_LineCollection = LineCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
             ax.add_collection(self.laser_LineCollection)
 
+            # Apply transform for 2D case - use provided state for positioning
+            if state is not None and len(state) > 0:
+
+                lidar_x = self.lidar_origin[0, 0]
+                lidar_y = self.lidar_origin[1, 0]
+                lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+
+                # Create transform: rotate by lidar orientation, then translate to lidar position
+                trans = (
+                    mtransforms.Affine2D().rotate(lidar_theta).translate(lidar_x, lidar_y)
+                    + ax.transData
+                )
+                self.laser_LineCollection.set_transform(trans)
+
         self.plot_patch_list.append(self.laser_LineCollection)
     
 
-    def step_plot(self):
+    def _step_plot(self):
         """
-        Update the plot for the Lidar.
+        Update the lidar visualization using matplotlib transforms based on current state.
+        Creates line segments in local coordinates and applies transform to position them.
         """
+        if not hasattr(self, 'laser_LineCollection'):
+            return
+
         ax = self.laser_LineCollection.axes
         lines = []
 
+        # Create line segments in local coordinates (relative to lidar origin)
         for i in range(self.number):
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
-            position = self.lidar_origin[0:2, 0] 
-            trans, rot = get_transform(self.lidar_origin)
-            range_end_position = rot @ np.array([[x], [y]]) + trans
-
+            # Create segment from local origin to range endpoint
             if isinstance(ax, Axes3D):
-                position = np.array([position[0], position[1], 0])
-                end_position = np.array(
-                    [range_end_position[0, 0], range_end_position[1, 0], 0]
-                )
-                segment = [position, end_position]
+                segment = [np.array([0, 0, 0]), np.array([x, y, 0])]
             else:
-                segment = [position, range_end_position[0:2, 0]]
+                segment = [np.array([0, 0]), np.array([x, y])]
 
             lines.append(segment)
 
+        # Update line segments
         self.laser_LineCollection.set_segments(lines)
+
+        # Apply transform to position the LineCollection based on current lidar origin
+        if not isinstance(ax, Axes3D):  # 2D case
+            lidar_x = self.lidar_origin[0, 0]
+            lidar_y = self.lidar_origin[1, 0]
+            lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+
+            # Create transform: rotate by lidar orientation, then translate to lidar position
+            trans = (
+                mtransforms.Affine2D().rotate(lidar_theta).translate(lidar_x, lidar_y)
+                + ax.transData
+            )
+            self.laser_LineCollection.set_transform(trans)
 
     def set_laser_color(self, laser_indices, laser_color: str = 'blue', alpha: float = 0.3):
 

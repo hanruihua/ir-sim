@@ -242,6 +242,7 @@ class ObjectBase:
         self._init_goal = self._goal.copy()
 
         self._geometry = self.gf.step(self.state)
+        self._init_geometry = self._geometry
         self.group = group
 
         # flag
@@ -695,14 +696,12 @@ class ObjectBase:
 
         self._velocity = temp_velocity.copy()
 
-    # def set_init_geometry(self, geometry: shapely.geometry.base.BaseGeometry):
-    #     """
-    #     Set the initial geometry of the object.
 
-    #     Args:
-    #         geometry: The shapely geometry of the object.
-    #     """
-    #     self._init_geometry = geometry
+    def set_original_geometry(self, geometry: shapely.geometry.base.BaseGeometry):
+        """
+        Set the original geometry of the object.
+        """
+        self.gf._original_geometry = geometry
 
     def set_random_goal(
         self,
@@ -820,9 +819,6 @@ class ObjectBase:
         else:
             self.logger.warning("No lidar sensor found for this object.")
 
-    # def geometry_state_transition(self):
-    #     pass
-
     def input_state_check(self, state: np.ndarray, dim: int = 3):
         """
         Check and adjust the state to match the desired dimension.
@@ -852,13 +848,38 @@ class ObjectBase:
         else:
             return state
 
-    def _init_plot(self, ax, **kwargs):
+
+    def plot(self, ax, state: Optional[np.ndarray] = None, vertices: Optional[np.ndarray] = None, **kwargs):
+
         """
-        Initialize plotting elements for the object, creating patches, lines, and other visual components.
-        All elements are created at the origin and will be positioned using transforms in _step_plot.
+        Plot the object on the given axis.
 
         Args:
             ax: Matplotlib axis object for plotting.
+            state: State vector [x, y, theta, ...] defining object position and orientation.
+            vertices: Vertices array defining object shape for polygon/rectangle objects.
+            **kwargs: Plotting configuration options.
+        """
+
+        if state is None:
+            state = self.state
+        if vertices is None:
+            vertices = self.vertices
+
+        self._plot(ax, state, vertices, **kwargs)
+
+    def _init_plot(self, ax, **kwargs):
+        """Initialize plotting elements using zero state and initial vertices."""
+        return self._plot(ax, np.zeros((3, 1)), self.original_vertices, **kwargs)
+
+    def _plot(self, ax, state, vertices, **kwargs):
+        """
+        Plot the object with the specified state and vertices.
+
+        Args:
+            ax: Matplotlib axis object for plotting.
+            state: State vector [x, y, theta, ...] defining object position and orientation.
+            vertices: Vertices array defining object shape for polygon/rectangle objects.
             **kwargs: Plotting configuration options:
             
             Object visualization properties:
@@ -909,9 +930,8 @@ class ObjectBase:
             - trajectory_line: Trajectory path visualization (line)
             - fov_patch: Field of view visualization (patch)
 
-        Note:
-            All visual elements are initially created at the origin (0,0) and will be 
-            positioned correctly during _step_plot using matplotlib transforms and set_data methods.
+        Returns:
+            list: List of plot attribute names that were created.
         """
 
         self.plot_attr_list = [
@@ -937,34 +957,36 @@ class ObjectBase:
         show_fov = self.plot_kwargs.get("show_fov", False)
 
         self.trail_freq = self.plot_kwargs.get("trail_freq", 2)
-        # show_uncertainty = self.plot_kwargs.get("show_uncertainty", False)
 
         if self.shape != 'map':
-            self.plot_object(ax, np.zeros((3, 1)), self.init_vertices, **self.plot_kwargs)
+            self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
         if show_goal:
-            self.plot_goal(ax, np.zeros((3, 1)), self.init_vertices, **self.plot_kwargs)
+            goal_state = self.goal if np.any(state) else np.zeros((3, 1))
+            goal_vertices = self.original_vertices if vertices is self.original_vertices else vertices
+            self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
 
         if show_text:
-            self.plot_text(ax, np.zeros((3, 1)), **self.plot_kwargs)
+            self.plot_text(ax, state, **self.plot_kwargs)
 
         if show_arrow:
-            self.plot_arrow(ax, np.zeros((3, 1)), np.zeros((2, 1)), **self.plot_kwargs)
+            current_velocity = self.velocity_xy if np.any(state) else np.zeros((2, 1))
+            self.plot_arrow(ax, state, current_velocity, **self.plot_kwargs)
 
         if show_trajectory:
-            self.plot_trajectory(ax, [], **self.plot_kwargs)
+            trajectory_data = self.trajectory if np.any(state) else []
+            self.plot_trajectory(ax, trajectory_data, **self.plot_kwargs)
 
-        if self.show_trail and world_param.count % self.trail_freq == 0:
-            self.plot_trail(self.ax, self.state, self.vertices, **self.plot_kwargs)
+        if self.show_trail and np.any(state) and world_param.count % self.trail_freq == 0:
+            self.plot_trail(ax, state, vertices, **self.plot_kwargs)
 
         if self.show_sensor:
-            [sensor.init_plot(ax, **self.plot_kwargs) for sensor in self.sensors]
+            [sensor.plot(ax, state, **self.plot_kwargs) for sensor in self.sensors]
 
         if show_fov:
             self.plot_fov(ax, **self.plot_kwargs)
-        
-        # if show_uncertainty:
-        #     self.plot_uncertainty(ax, **self.plot_kwargs)
+
+        return self.plot_attr_list
 
     def _step_plot(self, **kwargs):
         """
@@ -1013,7 +1035,7 @@ class ObjectBase:
                 - fov_color (str): Fill color of the field of view.
                 - fov_alpha (float): Transparency of the field of view.
                 - fov_edge_color (str): Edge color of the field of view.
-                - fov_zorder (int): Z-order for FOV elements.
+                - fov_zorder (int): Z-order of the field of view.
                 
                 Trail visualization properties (for new trail elements):
                 - trail_edgecolor (str): Edge color of the trail.
@@ -1193,15 +1215,10 @@ class ObjectBase:
                     # Update FOV patch using transform (created at origin)
                     if isinstance(element, mpl.patches.Wedge):
                         direction = r_phi if self.state_dim >= 3 else 0
-                        start_angle = direction - self.fov / 2
-                        end_angle = direction + self.fov / 2
 
-                        # Update wedge angles and position
-                        element.set_theta1(180 * start_angle / pi)
-                        element.set_theta2(180 * end_angle / pi)
-
+                        # Transform: rotate FOV to correct orientation, then translate to position
                         trans = (
-                            mpl.transforms.Affine2D().translate(x, y)
+                            mpl.transforms.Affine2D().rotate(direction).translate(x, y)
                             + self.ax.transData
                         )
                         element.set_transform(trans)
@@ -1244,7 +1261,7 @@ class ObjectBase:
 
         # Update sensors
         if self.show_sensor:
-            [sensor.step_plot() for sensor in self.sensors]
+            [sensor._step_plot() for sensor in self.sensors]
 
     def plot_object(
         self,
@@ -1330,7 +1347,7 @@ class ObjectBase:
                         )
                     object_line.set_zorder(obj_zorder)
                     ax.add_line(object_line)
-                    self.plot_line_list.append(object_line)
+                    self.plot_patch_list.append(object_line)
                     self.object_line = object_line
 
                 elif self.shape == "map":
@@ -1451,7 +1468,7 @@ class ObjectBase:
             goal_state: State of the goal (x, y, r_phi) defining goal position and orientation.
                        If None, uses [0, 0, 0]. Defaults to None.
             vertices: Vertices for polygon/rectangle goal shapes.
-                     If None, uses init_vertices. Defaults to None.
+                     If None, uses original_vertices. Defaults to None.
             goal_color (str): Color of the goal marker. Defaults to be the color of the object.
             goal_zorder (int): Zorder of the goal marker. Defaults to 1.
             goal_alpha (float): Transparency of the goal marker. Defaults to 0.5.
@@ -1691,6 +1708,7 @@ class ObjectBase:
     def plot_fov(self, ax, **kwargs):
         """
         Plot the field of view of the object.
+        Creates FOV wedge at origin, will be positioned using transforms in step_plot.
 
         Args:
             ax: Matplotlib axis.
@@ -1706,17 +1724,12 @@ class ObjectBase:
         fov_zorder = kwargs.get("fov_zorder", 0)
         fov_alpha = kwargs.get("fov_alpha", 0.5)
 
-        direction = self.state[2, 0] if self.state_dim >= 3 else 0
-        position = self.state[:2, 0]
-
-        start_angle = direction - self.fov / 2
-        end_angle = direction + self.fov / 2
-
-        start_degree = 180 * start_angle / pi
-        end_degree = 180 * end_angle / pi
+        # Create FOV wedge at origin with no rotation (-fov/2 to +fov/2 around 0 degrees)
+        start_degree = -180 * self.fov / (2 * pi)
+        end_degree = 180 * self.fov / (2 * pi)
 
         fov_wedge = Wedge(
-            position,
+            (0, 0),  # Create at origin
             self.fov_radius,
             start_degree,
             end_degree,
@@ -2074,12 +2087,12 @@ class ObjectBase:
         return self.gf.vertices
 
     @property
-    def init_vertices(self) -> np.ndarray:
+    def original_vertices(self) -> np.ndarray:
         """
-        Get the initial vertices of the object.
+        Get the original vertices of the object.
         """
 
-        return self.gf.init_vertices
+        return self.gf.original_vertices
 
     @property
     def external_objects(self):
