@@ -29,8 +29,8 @@ class EnvPlot3D(EnvPlot):
             **kwargs,
         )
 
-        self.clear_components()
-        self.ax.remove()
+        # self.clear_components()
+        # self.ax.remove()
 
         self.ax = self.fig.add_subplot(projection="3d")
         self.z_range = z_range
