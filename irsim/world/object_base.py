@@ -977,8 +977,8 @@ class ObjectBase:
             trajectory_data = self.trajectory if np.any(state) else []
             self.plot_trajectory(ax, trajectory_data, **self.plot_kwargs)
 
-        if self.show_trail and np.any(state) and world_param.count % self.trail_freq == 0:
-            self.plot_trail(ax, state, vertices, **self.plot_kwargs)
+        if self.show_trail and world_param.count % self.trail_freq == 0 and world_param.count > 0:
+            self.plot_trail(ax, state, self.vertices, **self.plot_kwargs)
 
         if self.show_sensor:
             [sensor.plot(ax, state, **self.plot_kwargs) for sensor in self.sensors]
@@ -990,7 +990,7 @@ class ObjectBase:
 
     def _step_plot(self, **kwargs):
         """
-        Update the positions and properties of all plot elements created in _init_plot.
+        Update the positions and properties of all plot elements created in _init_plot for 2D plotting. In the 3D case, the patches are updated using draw_component and clear_component method.
         Elements are updated using transforms for patches and set_data for lines, based on the object's current state.
 
         Update methods by element type:
@@ -1084,7 +1084,7 @@ class ObjectBase:
                         element.set_alpha(kwargs["obj_alpha"])
 
                 elif attr == "object_line":
-                    # For lines, use set_data to update coordinates
+                    # For lines, use set_data to update coordinates (works for both 2D and 3D)
                     vertices = self.vertices
                     cos_phi = np.cos(r_phi)
                     sin_phi = np.sin(r_phi)
@@ -1093,6 +1093,7 @@ class ObjectBase:
                     )
                     rotated_vertices = np.dot(vertices.T, rotation_matrix.T).T
                     translated_vertices = rotated_vertices + np.array([[x], [y]])
+                    
                     element.set_data(
                         translated_vertices[0, :], translated_vertices[1, :]
                     )
@@ -1135,6 +1136,7 @@ class ObjectBase:
                     element.set_transform(trans_data)
 
                 elif attr == "goal_patch":
+                    
                     # Update goal patch using transform (goal was created at origin)
                     goal_orientation = self.goal[2, 0] if self.goal.shape[0] > 2 else 0
                     trans = (
@@ -1172,24 +1174,29 @@ class ObjectBase:
                         )
                         element.set_transform(trans)
                         
-                        # Update arrow patch properties
-                        if "arrow_color" in kwargs:
-                            element.set_color(kwargs["arrow_color"])
-                            
-                        if "arrow_alpha" in kwargs:
-                            element.set_alpha(kwargs["arrow_alpha"])
-                            
-                        if "arrow_zorder" in kwargs:
-                            element.set_zorder(kwargs["arrow_zorder"])
+                    # Update arrow patch properties
+                    if "arrow_color" in kwargs:
+                        element.set_color(kwargs["arrow_color"])
+                        
+                    if "arrow_alpha" in kwargs:
+                        element.set_alpha(kwargs["arrow_alpha"])
+                        
+                    if "arrow_zorder" in kwargs:
+                        element.set_zorder(kwargs["arrow_zorder"])
 
                 elif attr == "trajectory_line":
-                    # Update trajectory line using set_data
+                    # Update trajectory line using set_data (works for both 2D and 3D)
                     if isinstance(element, list) and len(element) > 0:
                         line = element[0]
                         x_list = [t[0, 0] for t in self.trajectory]
                         y_list = [t[1, 0] for t in self.trajectory]
 
-                        line.set_data(x_list, y_list)
+                        if isinstance(self.ax, Axes3D):
+                            # For 3D, add z-coordinate (set to 0)
+                            z_list = [0] * len(x_list)
+                            line.set_data_3d(x_list, y_list, z_list)
+                        else:
+                            line.set_data(x_list, y_list)
 
                         ax = line.axes
                         if ax is not None:
@@ -1212,6 +1219,7 @@ class ObjectBase:
                             line.set_zorder(kwargs["traj_zorder"])
 
                 elif attr == "fov_patch":
+                    
                     # Update FOV patch using transform (created at origin)
                     if isinstance(element, mpl.patches.Wedge):
                         direction = r_phi if self.state_dim >= 3 else 0
@@ -1223,23 +1231,24 @@ class ObjectBase:
                         )
                         element.set_transform(trans)
                         
-                        # Update FOV patch properties
-                        if "fov_color" in kwargs:
-                            element.set_facecolor(kwargs["fov_color"])
-                            
-                        if "fov_alpha" in kwargs:
-                            element.set_alpha(kwargs["fov_alpha"])
-                            
-                        if "fov_edge_color" in kwargs:
-                            element.set_edgecolor(kwargs["fov_edge_color"])
-                            
-                        if "fov_zorder" in kwargs:
-                            element.set_zorder(kwargs["fov_zorder"])
+                    # Update FOV patch properties
+                    if "fov_color" in kwargs:
+                        element.set_facecolor(kwargs["fov_color"])
+                        
+                    if "fov_alpha" in kwargs:
+                        element.set_alpha(kwargs["fov_alpha"])
+                        
+                    if "fov_edge_color" in kwargs:
+                        element.set_edgecolor(kwargs["fov_edge_color"])
+                        
+                    if "fov_zorder" in kwargs:
+                        element.set_zorder(kwargs["fov_zorder"])
 
-        # Update text position using set_position (text was created at origin)
+        # Update text position using set_position (works for both 2D and 3D)
         if hasattr(self, "abbr_text"):
             text = self.abbr_text
             text_position = [-self.radius - 0.1, self.radius + 0.1]
+            
             text.set_position((x + text_position[0], y + text_position[1]))
             
             # Update text properties
@@ -1261,7 +1270,7 @@ class ObjectBase:
 
         # Update sensors
         if self.show_sensor:
-            [sensor._step_plot() for sensor in self.sensors]
+            [sensor.step_plot() for sensor in self.sensors]
 
     def plot_object(
         self,
@@ -1738,6 +1747,9 @@ class ObjectBase:
             edgecolor=fov_edge_color,
             zorder=fov_zorder,
         )
+
+        if isinstance(ax, Axes3D):
+            art3d.patch_2d_to_3d(fov_wedge, z=self.z)
 
         ax.add_patch(fov_wedge)
 

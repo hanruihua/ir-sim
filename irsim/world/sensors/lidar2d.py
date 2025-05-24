@@ -336,26 +336,42 @@ class Lidar2D:
         """
         lines = []
 
-        # Create line segments in local coordinates (relative to lidar origin)
-        for i in range(self.number):
-            x = self.range_data[i] * cos(self.angle_list[i])
-            y = self.range_data[i] * sin(self.angle_list[i])
-
-            # Create segment from local origin (0,0) to range endpoint in local coordinates
-            if isinstance(ax, Axes3D):
-                segment = [np.array([0, 0, 0]), np.array([x, y, 0])]
-            else:
-                segment = [np.array([0, 0]), np.array([x, y])]
-
-            lines.append(segment)
-
-        # Create LineCollection
         if isinstance(ax, Axes3D):
+            # For 3D plotting, calculate actual world coordinates since transforms don't work the same way
+            if state is not None and len(state) > 0:
+                # Calculate lidar position based on object state and sensor offset
+                lidar_x = self.lidar_origin[0, 0]
+                lidar_y = self.lidar_origin[1, 0]
+                lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+            else:
+                lidar_x, lidar_y, lidar_theta = 0, 0, 0
+
+            # Create line segments in world coordinates for 3D
+            for i in range(self.number):
+                x_local = self.range_data[i] * cos(self.angle_list[i])
+                y_local = self.range_data[i] * sin(self.angle_list[i])
+                
+                # Transform to world coordinates
+                x_world = lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
+                y_world = lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
+                
+                start_point = np.array([lidar_x, lidar_y, 0])
+                end_point = np.array([x_world, y_world, 0])
+                segment = [start_point, end_point]
+                lines.append(segment)
+
             self.laser_LineCollection = Line3DCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
             ax.add_collection3d(self.laser_LineCollection)
         else:
+            # For 2D plotting, create line segments in local coordinates and use transforms
+            for i in range(self.number):
+                x = self.range_data[i] * cos(self.angle_list[i])
+                y = self.range_data[i] * sin(self.angle_list[i])
+                segment = [np.array([0, 0]), np.array([x, y])]
+                lines.append(segment)
+
             self.laser_LineCollection = LineCollection(
                 lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
             )
@@ -389,23 +405,37 @@ class Lidar2D:
         ax = self.laser_LineCollection.axes
         lines = []
 
-        # Create line segments in local coordinates (relative to lidar origin)
-        for i in range(self.number):
-            x = self.range_data[i] * cos(self.angle_list[i])
-            y = self.range_data[i] * sin(self.angle_list[i])
+        if isinstance(ax, Axes3D):
+            # For 3D plotting, calculate actual world coordinates
+            lidar_x = self.lidar_origin[0, 0]
+            lidar_y = self.lidar_origin[1, 0]
+            lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
 
-            # Create segment from local origin to range endpoint
-            if isinstance(ax, Axes3D):
-                segment = [np.array([0, 0, 0]), np.array([x, y, 0])]
-            else:
+            # Create line segments in world coordinates for 3D
+            for i in range(self.number):
+                x_local = self.range_data[i] * cos(self.angle_list[i])
+                y_local = self.range_data[i] * sin(self.angle_list[i])
+                
+                # Transform to world coordinates
+                x_world = lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
+                y_world = lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
+                
+                start_point = np.array([lidar_x, lidar_y, 0])
+                end_point = np.array([x_world, y_world, 0])
+                segment = [start_point, end_point]
+                lines.append(segment)
+        else:
+            # For 2D plotting, create line segments in local coordinates
+            for i in range(self.number):
+                x = self.range_data[i] * cos(self.angle_list[i])
+                y = self.range_data[i] * sin(self.angle_list[i])
                 segment = [np.array([0, 0]), np.array([x, y])]
-
-            lines.append(segment)
+                lines.append(segment)
 
         # Update line segments
         self.laser_LineCollection.set_segments(lines)
 
-        # Apply transform to position the LineCollection based on current lidar origin
+        # Apply transform to position the LineCollection based on current lidar origin (2D only)
         if not isinstance(ax, Axes3D):  # 2D case
             lidar_x = self.lidar_origin[0, 0]
             lidar_y = self.lidar_origin[1, 0]
@@ -417,6 +447,12 @@ class Lidar2D:
                 + ax.transData
             )
             self.laser_LineCollection.set_transform(trans)
+
+    def step_plot(self):
+        """
+        Public method to update the lidar visualization, calls _step_plot.
+        """
+        self._step_plot()
 
     def set_laser_color(self, laser_indices, laser_color: str = 'blue', alpha: float = 0.3):
 
