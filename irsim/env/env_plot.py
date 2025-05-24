@@ -10,7 +10,7 @@ import logging
 from irsim.global_param.path_param import path_manager as pm
 from irsim.global_param import world_param, env_param
 import os
-import imageio
+import imageio.v2 as imageio
 import shutil
 import glob
 from math import sin, cos
