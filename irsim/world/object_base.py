@@ -1703,7 +1703,7 @@ class ObjectBase:
 
         fov_color = kwargs.get("fov_color", "lightblue")
         fov_edge_color = kwargs.get("fov_edge_color", "blue")
-        fov_zorder = kwargs.get("fov_zorder", 1)
+        fov_zorder = kwargs.get("fov_zorder", 0)
         fov_alpha = kwargs.get("fov_alpha", 0.5)
 
         direction = self.state[2, 0] if self.state_dim >= 3 else 0
