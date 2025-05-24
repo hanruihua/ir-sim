@@ -190,7 +190,11 @@ class geometry_handler(ABC):
             x = self._original_geometry.xy[0]
             y = self._original_geometry.xy[1]
             return np.c_[x, y].T
-        return self._original_geometry.exterior.coords._coords.T[:, :-1]
+
+        elif self.name == "map":
+            return None
+        else:
+            return self._original_geometry.exterior.coords._coords.T[:, :-1]
 
     @property
     def radius(self):
