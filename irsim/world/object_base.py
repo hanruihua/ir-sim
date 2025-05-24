@@ -1116,24 +1116,25 @@ class ObjectBase:
                     start_x = self.vertices[0, 0]
                     start_y = self.vertices[1, 0]
 
-                    # Update image extent based on current vertices
-                    element.set_extent(
-                        [
-                            start_x,
-                            start_x + self.length,
-                            start_y,
-                            start_y + self.width,
-                        ]
-                    )
-
-                    # Create new transform for image
-                    trans_data = (
-                        mtransforms.Affine2D().rotate_deg_around(
-                            start_x, start_y, r_phi_ang
+                    if not isinstance(self.ax, Axes3D):
+                        # Update image extent based on current vertices
+                        element.set_extent(
+                            [
+                                start_x,
+                                start_x + self.length,
+                                start_y,
+                                start_y + self.width,
+                            ]
                         )
-                        + self.ax.transData
-                    )
-                    element.set_transform(trans_data)
+
+                        # Create new transform for image
+                        trans_data = (
+                            mtransforms.Affine2D().rotate_deg_around(
+                                start_x, start_y, r_phi_ang
+                            )
+                            + self.ax.transData
+                        )
+                        element.set_transform(trans_data)
 
                 elif attr == "goal_patch":
                     
