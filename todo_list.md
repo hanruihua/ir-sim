@@ -1,91 +1,123 @@
-## To Do List
+# IR-SIM Todo List
+
+## 🎯 Core Framework
 - [x] Basic framework
 - [x] Mobile robot movement
-- [x] collision check
-- [x] gif generation
-- [x] multi robots mode (collision)  
-- [x] sensor lidar
-- [x] env res
-- [x] collision check with discrete samples
-- [x] omni directional robots
-- [x] Add custom robot model
-- [x] Add sensor: gps, odometry
-- [x] Add noise (diff)
-- [x] line obstacle
-- [x] Add subplot 
-- [x] Add collision mode
-- [x] map obstacle
-- [x] Add functions to access obstacles with different types
-- [x] Add draw points
-- [x] reformulate obstacles and robots by Object class  
-- [x] Add the env logger 
-- [x] private and public methods and parameters in class
-- [x] Add regular event for other obstacles or robots
-- [x] Rearrange the framework of obstacles 
+- [x] Collision check
+- [x] Multi robots mode (collision)
+- [x] Reformulate obstacles and robots by Object class
+- [x] Construct the object base class for the robot and obstacles
+- [x] Rearrange the framework of obstacles
 - [x] Add function to construct obstacle and robot
 - [x] Attribute of the obstacles and robots
-- [x] robot description 
-- [x] Construct the object base class for the robot and obstacles
+- [x] Formulate the geometry tree for the collision check
 - [ ] All the rotation and translation can be represented by the homogeneous transformation matrix
-- [x] show the text of the object
-- [ ] real robot size (LIMO, BYD)
-- [ ] Using decorator to update
-- [x] code annotation for main class
-- [ ] Add the interface with gym
-- [x] Support the feature of adding or eliminating obstacles by functions
-- [ ] Add functions to access obstacles with different types
-- [ ] Add more key functions for keyboard control
+
+## 🤖 Robot & Movement
+- [x] Omni directional robots
+- [x] Add custom robot model
+- [x] Robot description
+- [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim
+- [x] Reformulate the behavior library
+- [ ] Real robot size (LIMO, BYD)
+- [ ] Provide polygon shape robot
+- [ ] 3D rigid body
+- [ ] Robotics arm, UAV support
+- [ ] Interface with URDF file
+
+## 📡 Sensors & Data
+- [x] Sensor lidar
+- [x] Add sensor: gps, odometry
+- [x] Add noise (diff)
 - [ ] Develop Tools for tackling Data. Add the data monitor
+- [ ] Record and replay path
+- [ ] Analyze the performance (jerks, acceleration, etc.)
+
+## 🗺️ Environment & Obstacles
+- [x] Line obstacle
+- [x] Map obstacle
+- [x] Add functions to access obstacles with different types
+- [x] Support the feature of adding or eliminating obstacles by functions
+- [x] Add binary occupancy grid map for indoor navigation
+- [x] Check whether the object is convex
+- [ ] Add functions to access obstacles with different types (refinement needed)
+- [ ] Develop a lib for configuration of the shape, refer to rviz marker
+- [ ] Use scipy convex hull to generate G and h
+
+## 🎨 Visualization & Plotting
+- [x] GIF generation
+- [x] Add subplot
 - [x] 3D visualization
-- [x] check whether the object is convex
+- [x] Show the text of the object
+- [x] Draw points
+- [x] **Reformulate plot function - Transform-based plotting architecture**
+- [x] **FOV transform fixes for proper field of view visualization**
+- [x] **Lidar2D plotting with matplotlib transforms**
+- [x] **3D plotting fixes for patches, lines, and other elements**
+- [x] **Consistent plotting API with state/vertices parameters**
+- [ ] Draw error band (uncertainty) https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html
+- [ ] Academic Color
+- [ ] Add some data structure for plot
+- [ ] Complete color map
+- [ ] Add subwindows for the simulation
+
+## 🔧 System & Performance
+- [x] Add collision mode
+- [x] Add regular event for other obstacles or robots
+- [x] Private and public methods and parameters in class
+- [x] Add the env logger
+- [x] Make the dependency of the package optional
+- [ ] Using decorator to update
 - [ ] Add synchronization and asynchronization mode
 - [ ] Add tf (similar like ROS tf)
-- [x] pytest
-- [ ] record and replay path
+- [ ] Rewrite some lib functions by using c++ to improve the efficiency
+- [ ] Multiprocess for large scale simulation
+- [ ] Make multiple env instances
+
+## 🎮 Control & Interaction
+- [x] Env res
+- [x] Collision check with discrete samples
+- [ ] Add more key functions for keyboard control
+- [ ] Assign robot goals by mouse click
 - [ ] Some judgment functions for control
-- [x] Add example yaml files
-- [ ] Add some data structure for plot
-- [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim. 
+- [ ] Complete the reactive collision mode
+
+## 🧪 Testing & Quality
+- [x] Pytest
+- [x] Organize the test cases
+- [x] Improve coverage of the code over 90%
+- [ ] Improve coverage of the code over 99%
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
-- [ ] LLM integration
-- [x] Reformulate the behavior library
-- [x] Add comments for the functions
-- [ ] rewrite some lib functions by using c++ to improve the efficiency
-- [ ] Academic Color
-- [x] default yaml name (same as python file)
-- [ ] draw error band (uncertainty)  https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html#sphx-glr-gallery-lines-bars-and-markers-curve-error-band-py 
-- [ ] Provide polygon shape robot
-- [ ] develop a lib for configuration of the shape, refer to rviz marker
-- [ ] Add make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic. ( Maze generator)
-- [x] Make the dependency of the package optional
-- [ ] 3D rigid body
+
+## 📚 Documentation & Examples
 - [x] Documentation
-- [ ] robotics arm, UAV support
-- [ ] assign robot goals by mouse click
-- [ ] Add wrapper for ORCA algorithm
+- [x] Code annotation for main class
+- [x] Add comments for the functions
+- [x] Add example yaml files
+- [x] Default yaml name (same as python file)
 - [x] Reorganize the structure of the readme demonstration
-- [x] argument type hint
+- [x] Argument type hint
 - [x] Doc Noise world
 - [ ] Doc path manager and change the path
-- [ ] Use scipy convex hull to generate G and h
-- [ ] Analyze the performance (jerks, acceleration, etc.)
+- [ ] Refine documentation
+
+## 🔗 External Interfaces
+- [ ] Add the interface with gym
 - [ ] Interface with ROS
 - [ ] Interface with Pybullet or Gazebo
-- [ ] Add ORCA Behavior
-- [x] organize the test cases
-- [x] Add binary occupancy grid map for indoor navigation
-- [ ] traffic scenarios
-- [x] improve coverage of the code over 90%
-- [ ] improve coverage of the code over 99%
-- [ ] modular yaml import so that ir-sim can read the yaml file separately
 - [ ] Add the interface with opendrive
-- [ ] Complete the reactive collision mode
-- [ ] Interface with URDF file
-- [ ] Add subwindows for the simulation
-- [x] Formulate the geometry tree for the collision check
-- [ ] Make multiple env instances 
+- [ ] Modular yaml import so that ir-sim can read the yaml file separately
+
+## 🧠 Advanced Features
+- [x] Add ORCA Behavior
+- [ ] Add wrapper for ORCA algorithm
+- [ ] LLM integration
 - [ ] Add various navigation algorithms implemented on the ir-sim
-- [ ] complete color map
-- [ ] multiprocess for large scale simulation
-- [ ] refine documentation 
-- [ ] reformulate the plot function
+
+## 🚗 Scenarios & Applications
+- [ ] Make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic (Maze generator)
+- [ ] Traffic scenarios
+
+---
+
+
