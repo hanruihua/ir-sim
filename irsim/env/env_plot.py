@@ -183,6 +183,7 @@ class EnvPlot:
             self.dyna_point_list = []
             self.dyna_quiver_list = []
 
+        
     def draw_grid_map(self, grid_map=None, **kwargs):
         """
         Draw the grid map on the plot.
