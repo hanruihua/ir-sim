@@ -1,5 +1,5 @@
 import irsim
-
+import time
 env = irsim.make(save_ani=False, full=False)
 
 for i in range(1000):

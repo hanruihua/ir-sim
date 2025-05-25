@@ -30,6 +30,7 @@ from irsim.world import ObjectBase
 from tabulate import tabulate
 from shapely.strtree import STRtree
 from operator import attrgetter
+from mpl_toolkits.mplot3d import Axes3D
 
 try:
     from pynput import keyboard
@@ -183,7 +184,7 @@ class EnvBase:
     # render
     def render(
         self,
-        interval: float = 0.05,
+        interval: float = 0.02,
         figure_kwargs=dict(),
         mode: str = "dynamic",
         **kwargs,
@@ -207,8 +208,13 @@ class EnvBase:
                 if self.save_ani:
                     self.save_figure(save_gif=True, **figure_kwargs)
 
-                self._env_plot.clear_components(mode, self.objects)
-                self._env_plot.draw_components(mode, self.objects, **kwargs)
+                if isinstance(self._env_plot.ax, Axes3D):
+                    self._env_plot.clear_components(mode, self.objects)
+                    self._env_plot.draw_components(mode, self.objects, **kwargs)
+                else:
+                    self._env_plot.clear_components(mode)
+                    self._env_plot.step_objects_plot(mode, self.objects, **kwargs)
+
 
     def show(self):
         """
@@ -404,7 +410,7 @@ class EnvBase:
         Reset the environment figure.
         """
 
-        plt.cla()
+        self._env_plot.clear_components("all", self.objects)
         self._env_plot.init_plot(self._world.grid_map, self.objects)
 
     # region: environment change
@@ -506,7 +512,7 @@ class EnvBase:
 
             if obj.shape == "polygon":
                 geom = Polygon(vertices_list[i])
-                obj.set_init_geometry(geom)
+                obj.set_original_geometry(geom)
 
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
