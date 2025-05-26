@@ -1,3 +1,22 @@
+## ir-sim 2.5.0
+
+This version improves performance (approximately 40% speed improvement) by refactoring the object plot function and the geometry transform operation for large environments.
+
+- New Features:
+  - Refactor the object plot function using Matplotlib patch transforms.  
+  - Add new object plot features and API.  
+  - Refactor the geometry-transform operation.  
+  - Improve test coverage.  
+  - Add a set-laser-color function.  
+  - Refine documentation and the to-do list.  
+  - Add a UV lock file for the project.  
+
+- Bug Fixes:
+  - Fix bugs in object plot.  
+  - Rename `init_vertices` to `original_vertices`.  
+  - Rename `init_geometry` to `original_geometry`.  
+  - Fix warning messages.
+
 ## ir-sim 2.4.4
 
 - Bug Fixes:
