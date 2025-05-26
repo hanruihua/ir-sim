@@ -33,7 +33,6 @@ class Lidar2D:
         offset (list): Offset of the sensor from the object's position.
         alpha (float): Transparency for plotting.
         has_velocity (bool): Whether the sensor measures velocity.
-        blind_angles (list): List of angle ranges to be ignored, e.g. [ (-0.5, 0.5), (0.6, 0.7)]
         **kwargs: Additional arguments.
             color (str): Color of the sensor.
 
@@ -80,7 +79,6 @@ class Lidar2D:
         offset: list[float] = [0, 0, 0],
         alpha: float = 0.3,
         has_velocity: bool = False,
-        blind_angles: list[tuple] = None,
         **kwargs,
     ) -> None:
         """
