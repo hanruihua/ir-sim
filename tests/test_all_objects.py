@@ -42,7 +42,7 @@ def test_collision_avoidance():
     env.robot.set_velocity(np.array([1, 1]).reshape(2, 1), init=True)
     env.robot.set_state([1, 1, 0])
     env.robot.set_state(np.array([1, 1, 0]).reshape(3, 1))
-    
+   
     obs = env.create_obstacle(shape={'name':'polygon', 'vertices': [[6, 5], [7, 5], [7, 6], [6, 6]]}) 
     env.add_object(obs)
     env.add_objects([obs])
@@ -67,7 +67,21 @@ def test_collision_avoidance():
 
     for i in range(20):
         env.step()
-        env.render(0.01)
+        
+        # Test different _step_plot arguments to verify element property updates
+        if i % 4 == 0:
+            # Test object color and alpha changes
+            env.render(0.01, obj_color='red', obj_alpha=0.7, obj_zorder=5)
+        elif i % 4 == 1:
+            # Test object linestyle and trajectory properties
+            env.render(0.01, obj_linestyle='--', traj_color='blue', traj_alpha=0.8, traj_width=0.3)
+        elif i % 4 == 2:
+            # Test goal and arrow properties
+            env.render(0.01, goal_color='green', goal_alpha=0.6, goal_zorder=3, arrow_color='orange', arrow_alpha=0.9, arrow_zorder=4)
+        else:
+            # Test text and FOV properties
+            env.render(0.01, text_color='purple', text_size=14, fov_color='cyan', fov_alpha=0.4, traj_style='--', traj_zorder=3, text_alpha=0.5, text_zorder=4)
+        
         env.draw_trajectory(env.robot.trajectory, show_direction=True)
         if env.done():
             break
@@ -213,7 +227,7 @@ def test_fov_detection():
     for i in range(30):
         detected = [obs.fov_detect_object(env.robot) for obs in env.obstacle_list]
         env.step()
-        env.render(0.01)
+        env.render(0.01, fov_color='red', fov_alpha=0.2, fov_edge_color='red', fov_zorder=2)
     env.end()
     assert isinstance(detected, list)
 

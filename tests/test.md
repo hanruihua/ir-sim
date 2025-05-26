@@ -1,0 +1,1 @@
+pytest --cov=ir-sim --cov-report html 

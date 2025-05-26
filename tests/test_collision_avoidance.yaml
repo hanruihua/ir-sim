@@ -41,9 +41,12 @@ robot:
     plot:
       show_trail: true
       show_goal: true
+      show_fov: true
+      show_text: true
+      show_arrow: true
+      show_trajectory: true
       trail_fill: true
       trail_alpha: 0.2
-      show_trajectory: false
 
   - number: 10
     distribution: {name: 'circle', radius: 3.0, center: [5, 5]}  
@@ -59,9 +62,12 @@ robot:
     plot:
       show_trail: true
       show_goal: true
+      show_text: true
+      show_arrow: true
+      show_trajectory: true
       trail_fill: true
       trail_alpha: 0.2
-      show_trajectory: false
+      
 
   - number: 2
     distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
