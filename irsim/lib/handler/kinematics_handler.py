@@ -4,7 +4,6 @@ from irsim.lib.algorithm.kinematics import (
     differential_kinematics,
     ackermann_kinematics,
     omni_kinematics,
-    # rigid3d_kinematics,
 )
 
 

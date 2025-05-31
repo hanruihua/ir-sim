@@ -385,7 +385,10 @@ class ObjectBase:
 
     def check_status(self):
         """
-        Check the current status, including arrival and collision.
+        Check the current status of the object, including arrival and collision detection.
+        
+        This method evaluates collision detection and sets stop flags based on the collision mode.
+        It also handles different collision modes like 'stop', 'reactive', 'unobstructed', etc.
         """
         self.check_arrive_status()
         self.check_collision_status()
@@ -415,7 +418,13 @@ class ObjectBase:
 
     def check_arrive_status(self):
         """
-        Check if the object has arrived at the goal.
+        Check if the object has arrived at its goal position.
+        
+        The arrival detection depends on the arrive_mode setting:
+        - "state": Compares full state (x, y, theta)
+        - "position": Compares only position (x, y)
+        
+        Updates the arrive_flag and handles multiple goals by removing completed ones.
         """
         if self.arrive_mode == "state":
             diff = np.linalg.norm(self.state[:3] - self.goal[:3])
@@ -433,7 +442,11 @@ class ObjectBase:
 
     def check_collision_status(self):
         """
-        Check if the object is in collision with others.
+        Check if the object is in collision with other objects in the environment.
+        
+        This method queries possible collision objects from the geometry tree and 
+        checks for intersections. It logs collision warnings for robots and updates
+        the collision_flag and collision_obj list.
         """
         collision_flags = []
         self.collision_obj = []
@@ -458,7 +471,7 @@ class ObjectBase:
         Check collision with another object.
 
         Args:
-            obj (ObjectBase): Another object.
+            obj (ObjectBase): Another object to check collision with.
 
         Returns:
             bool: True if collision occurs, False otherwise.
@@ -544,9 +557,21 @@ class ObjectBase:
         return behavior_vel_clip
 
     def pre_process(self):
+        """
+        Perform pre-processing before stepping the object.
+        
+        This method is called before velocity generation and state updates.
+        Can be overridden by subclasses to implement custom pre-processing logic.
+        """
         pass
 
     def post_process(self):
+        """
+        Perform post-processing after stepping the object.
+        
+        This method is called after state updates and sensor updates.
+        Can be overridden by subclasses to implement custom post-processing logic.
+        """
         pass
 
     def mid_process(self, state: np.ndarray):
@@ -580,12 +605,30 @@ class ObjectBase:
         return state
 
     def get_lidar_scan(self):
+        """
+        Get the lidar scan of the object.
+
+        Returns:
+            dict: Lidar scan data containing range and angle information.
+        """
         return self.lidar.get_scan()
 
     def get_lidar_points(self):
+        """
+        Get the lidar scan points of the object.
+
+        Returns:
+            np.ndarray: Array of lidar scan points.
+        """
         return self.lidar.get_points()
 
     def get_lidar_offset(self):
+        """
+        Get the lidar offset relative to the object.
+
+        Returns:
+            list: Lidar offset [x, y, theta] relative to the object center.
+        """
         return self.lidar.get_offset()
 
     def get_fov_detected_objects(self):
@@ -820,13 +863,13 @@ class ObjectBase:
         else:
             self.logger.warning("No lidar sensor found for this object.")
 
-    def input_state_check(self, state: np.ndarray, dim: int = 3):
+    def input_state_check(self, state: list, dim: int = 3):
         """
         Check and adjust the state to match the desired dimension.
 
         Args:
             state (list): State of the object.
-            dim (int): Desired dimension.
+            dim (int): Desired dimension. Defaults to 3.
 
         Returns:
             list: Adjusted state.
@@ -1381,7 +1424,22 @@ class ObjectBase:
         description: str = None,
         **kwargs,
     ):
+        """
+        Plot the object using an image file based on the description.
 
+        Args:
+            ax: Matplotlib axis object for plotting.
+            state (Optional[np.ndarray]): State of the object (x, y, r_phi) defining position and orientation.
+                                        If None, uses the object's current state. Defaults to None.
+            vertices (Optional[np.ndarray]): Vertices of the object for positioning the image.
+                                           If None, uses the object's current vertices. Defaults to None.
+            description (str): Path or name of the image file to display. Defaults to None.
+            **kwargs: Additional plotting options (currently unused).
+
+        Note:
+            The image file is searched in the world/description/ directory relative to the project root.
+            The image is rotated and positioned according to the object's state and vertices.
+        """
         start_x = vertices[0, 0]
         start_y = vertices[1, 0]
         r_phi = state[2, 0]
@@ -1772,6 +1830,9 @@ class ObjectBase:
     def plot_clear(self, all: bool = False):
         """
         Clear all plotted elements from the axis.
+
+        Args:
+            all (bool): If True, also clears trail elements. If False, keeps trail elements. Defaults to False.
         """
         [patch.remove() for patch in self.plot_patch_list]
         [line.pop(0).remove() for line in self.plot_line_list]
@@ -1863,16 +1924,19 @@ class ObjectBase:
 
     def get_init_Gh(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Get the generalized inequality matrices G and h for the convex object's.
+        Get the initial generalized inequality matrices G and h for the convex object.
 
         Returns:
-            G matrix and h vector.
+            tuple[np.ndarray, np.ndarray]: Tuple containing initial G matrix and h vector.
         """
         return self.gf.get_init_Gh()
 
     def get_Gh(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Get the generalized inequality matrices G and h for the convex object's.
+        Get the generalized inequality matrices G and h for the convex object.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]: Tuple containing G matrix and h vector.
         """
         return self.gf.get_Gh(
             center=self.position, radius=self.radius, vertices=self.vertices
@@ -2113,41 +2177,40 @@ class ObjectBase:
     def original_vertices(self) -> np.ndarray:
         """
         Get the original vertices of the object.
-        """
 
+        Returns:
+            np.ndarray: The original vertices of the object before any transformations.
+        """
         return self.gf.original_vertices
 
     @property
     def external_objects(self):
         """
-        The environment objects that are not the self object.
+        Get the environment objects that are not the self object.
 
         Returns:
             list: The environment objects that are not the self object.
         """
-
         return [obj for obj in env_param.objects if self.id != obj.id]
 
     @property
     def ego_object(self):
         """
-        Get the ego object.
+        Get the ego object (this object itself).
 
         Returns:
-            ObjectBase: The ego object.
+            ObjectBase: The ego object (this object).
         """
-
         return self
 
     @property
     def possible_collision_objects(self):
         """
-        Get the possible collision objects of the object from the tree.
+        Get the possible collision objects of the object from the geometry tree.
 
         Returns:
-            list: The possible collision objects of the object.
+            list: The possible collision objects that could collide with this object.
         """
-
         tree = env_param.GeometryTree
         possible = []
 
@@ -2295,5 +2358,8 @@ class ObjectBase:
     def orientation(self):
         """
         Get the orientation of the object.
+
+        Returns:
+            float: The orientation angle of the object in radians.
         """
         return self.state[2, 0]

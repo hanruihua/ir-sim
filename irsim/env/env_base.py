@@ -253,21 +253,37 @@ class EnvBase:
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
-    def draw_box(self, vertex: list, refresh: bool = True, color: str = "-b"):
+    def draw_box(self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"):
         """
         Draw a box by the vertices.
 
         Args:
-            vertices: matrix of vertices, point_dim*vertex_num
-            refresh: whether to refresh the plot, default False
-            color: color of the box, default 'b-'
+            vertex (np.ndarray): matrix of vertices, point_dim*vertex_num
+            refresh (bool): whether to refresh the plot, default True
+            color (str): color of the box, default '-b'
         """
         self._env_plot.draw_box(vertex, refresh, color)
 
     def draw_quiver(self, point, refresh=False, **kwargs):
+        """
+        Draw a single quiver (arrow) on the environment figure.
+
+        Args:
+            point: Point data for the quiver
+            refresh (bool): Flag to refresh the quiver in the figure, default False
+            **kwargs: Additional keyword arguments for drawing the quiver
+        """
         self._env_plot.draw_quiver(point, refresh, **kwargs)
 
     def draw_quivers(self, points, refresh=False, **kwargs):
+        """
+        Draw multiple quivers (arrows) on the environment figure.
+
+        Args:
+            points: Points data for the quivers
+            refresh (bool): Flag to refresh the quivers in the figure, default False
+            **kwargs: Additional keyword arguments for drawing the quivers
+        """
         self._env_plot.draw_quivers(points, refresh, **kwargs)
 
     # keyboard control
@@ -380,6 +396,9 @@ class EnvBase:
 
                 - all (str): Check if all objects are done.
                 - any (str): Check if any of the objects are done.
+
+        Returns:
+            bool: True if the simulation is done based on the specified mode, False otherwise.
         """
 
         done_list = [obj.done() for obj in self.objects if obj.role == "robot"]
@@ -538,6 +557,9 @@ class EnvBase:
     def add_object(self, obj: ObjectBase):
         """
         Add the object to the environment.
+
+        Args:
+            obj (ObjectBase): The object to be added to the environment.
         """
         self._objects.append(obj)
         self.build_tree()
@@ -545,6 +567,9 @@ class EnvBase:
     def add_objects(self, objs: list):
         """
         Add the objects to the environment.
+
+        Args:
+            objs (list): List of objects to be added to the environment.
         """
         self._objects.extend(objs)
         self.build_tree()
@@ -552,6 +577,9 @@ class EnvBase:
     def delete_object(self, target_id: int):
         """
         Delete the object with the given id.
+
+        Args:
+            target_id (int): ID of the object to be deleted.
         """
 
         for obj in self._objects:
@@ -565,6 +593,9 @@ class EnvBase:
     def delete_objects(self, target_ids: list):
         """
         Delete the objects with the given ids.
+
+        Args:
+            target_ids (list): List of IDs of objects to be deleted.
         """
 
         del_obj = [obj for obj in self._objects if obj.id in target_ids]
@@ -661,6 +692,12 @@ class EnvBase:
     def get_map(self, resolution: float = 0.1):
         """
         Get the map of the environment with the given resolution.
+
+        Args:
+            resolution (float): Resolution of the map. Default is 0.1.
+
+        Returns:
+            The map of the environment with the specified resolution.
         """
         return self._world.get_map(resolution, self.obstacle_list)
 
@@ -675,8 +712,11 @@ class EnvBase:
     ):
         """
         Save the current figure.
+
         Args:
-            save_name: Name of the file with format to save the figure.
+            save_name (str): Name of the file with format to save the figure. Default is None.
+            include_index (bool): Flag to include index in the saved file name. Default is False.
+            save_gif (bool): Flag to save as GIF format. Default is False.
             **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ function for detail.
         """
         file_save_name = save_name or self._world.name + ".png"
@@ -725,34 +765,82 @@ class EnvBase:
 
     @property
     def objects(self):
+        """
+        Get all objects in the environment.
+
+        Returns:
+            list: List of all objects in the environment.
+        """
         return self._objects
     
     @property
     def static_objects(self):
+        """
+        Get all static objects in the environment.
+
+        Returns:
+            list: List of static objects in the environment.
+        """
         return [obj for obj in self.objects if obj.static]
 
     @property
     def dynamic_objects(self):
+        """
+        Get all dynamic objects in the environment.
+
+        Returns:
+            list: List of dynamic objects in the environment.
+        """
         return [obj for obj in self.objects if not obj.static]
 
     @property
     def step_time(self):
+        """
+        Get the step time of the simulation.
+
+        Returns:
+            float: Step time of the simulation from the world.
+        """
         return self._world.step_time
 
     @property
     def robot(self):
+        """
+        Get the first robot in the environment.
+
+        Returns:
+            Robot: The first robot object in the robot list.
+        """
         return self.robot_list[0]
 
     @property
     def obstacle_number(self):
+        """
+        Get the number of obstacles in the environment.
+
+        Returns:
+            int: Number of obstacles in the environment.
+        """
         return len(self.obstacle_list)
 
     @property
     def robot_number(self):
+        """
+        Get the number of robots in the environment.
+
+        Returns:
+            int: Number of robots in the environment.
+        """
         return len(self.robot_list)
 
     @property
     def logger(self):
+        """
+        Get the environment logger.
+
+        Returns:
+            EnvLogger: The logger instance for the environment.
+        """
         return env_param.logger
     
     # endregion: property

@@ -4,9 +4,52 @@ from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
 from math import cos, sin
 
+"""
+Behavior Methods Module
+
+This module contains behavior functions for different types of robots in the IR-Sim environment.
+It provides implementations for:
+
+1. Registered behavior functions (decorated with @register_behavior):
+   - beh_diff_rvo: Differential drive robot with RVO behavior
+   - beh_diff_dash: Differential drive robot with dash-to-goal behavior
+   - beh_omni_dash: Omnidirectional robot with dash-to-goal behavior
+   - beh_omni_rvo: Omnidirectional robot with RVO behavior
+   - beh_acker_dash: Ackermann steering robot with dash-to-goal behavior
+
+2. Core behavior calculation functions:
+   - OmniRVO: Omnidirectional RVO velocity calculation
+   - DiffRVO: Differential drive RVO velocity calculation
+   - OmniDash: Omnidirectional dash-to-goal velocity calculation
+   - DiffDash: Differential drive dash-to-goal velocity calculation
+   - AckerDash: Ackermann steering dash-to-goal velocity calculation
+
+These functions are designed to be used with the robot behavior system to control
+robot movements in various scenarios including collision avoidance (RVO) and
+goal-reaching behaviors (dash).
+
+"""
+
 
 @register_behavior("diff", "rvo")
 def beh_diff_rvo(ego_object, external_objects, **kwargs):
+    """
+    Behavior function for differential drive robot using RVO (Reciprocal Velocity Obstacles).
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments:
+            - vxmax (float): Maximum x velocity, default 1.5.
+            - vymax (float): Maximum y velocity, default 1.5.
+            - acceler (float): Acceleration factor, default 1.0.
+            - factor (float): Additional scaling factor, default 1.0.
+            - mode (str): RVO calculation mode, default "rvo".
+            - neighbor_threshold (float): Neighbor threshold distance, default 10.0.
+
+    Returns:
+        np.array: Velocity [linear, angular] (2x1) for differential drive.
+    """
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
@@ -23,6 +66,18 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
 
 @register_behavior("diff", "dash")
 def beh_diff_dash(ego_object, external_objects, **kwargs):
+    """
+    Behavior function for differential drive robot using dash-to-goal behavior.
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments:
+            - angle_tolerance (float): Allowable angular deviation, default 0.1.
+
+    Returns:
+        np.array: Velocity [linear, angular] (2x1) for differential drive.
+    """
 
     state = ego_object.state
     goal = ego_object.goal
@@ -37,6 +92,17 @@ def beh_diff_dash(ego_object, external_objects, **kwargs):
 
 @register_behavior("omni", "dash")
 def beh_omni_dash(ego_object, external_objects, **kwargs):
+    """
+    Behavior function for omnidirectional robot using dash-to-goal behavior.
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments (currently unused).
+
+    Returns:
+        np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
+    """
 
     state = ego_object.state
     goal = ego_object.goal
@@ -49,6 +115,23 @@ def beh_omni_dash(ego_object, external_objects, **kwargs):
 
 @register_behavior("omni", "rvo")
 def beh_omni_rvo(ego_object, external_objects, **kwargs):
+    """
+    Behavior function for omnidirectional robot using RVO (Reciprocal Velocity Obstacles).
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments:
+            - vxmax (float): Maximum x velocity, default 1.5.
+            - vymax (float): Maximum y velocity, default 1.5.
+            - acceler (float): Acceleration factor, default 1.0.
+            - factor (float): Additional scaling factor, default 1.0.
+            - mode (str): RVO calculation mode, default "rvo".
+            - neighbor_threshold (float): Neighbor threshold distance, default 3.0.
+
+    Returns:
+        np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
+    """
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
@@ -65,6 +148,18 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
 
 @register_behavior("acker", "dash")
 def beh_acker_dash(ego_object, external_objects, **kwargs):
+    """
+    Behavior function for Ackermann steering robot using dash-to-goal behavior.
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments:
+            - angle_tolerance (float): Allowable angular deviation, default 0.1.
+
+    Returns:
+        np.array: Velocity [linear, steering angle] (2x1) for Ackermann drive.
+    """
 
     state = ego_object.state
     goal = ego_object.goal
@@ -191,7 +286,7 @@ def DiffDash(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
 
     Args:
         state (np.array): Current state [x, y, theta] (3x1).
-        goal (np.array): Goal position [x, y, theta] (3x1).
+        goal (np.array): Goal position [x, y] (2x1).
         max_vel (np.array): Maximum velocity [linear, angular] (2x1).
         goal_threshold (float): Distance threshold to consider goal reached (default 0.1).
         angle_tolerance (float): Allowable angular deviation (default 0.2).
@@ -221,7 +316,7 @@ def AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance):
 
     Args:
         state (np.array): Current state [x, y, theta] (3x1).
-        goal (np.array): Goal position [x, y, theta] (3x1).
+        goal (np.array): Goal position [x, y] (2x1).
         max_vel (np.array): Maximum velocity [linear, steering angle] (2x1).
         goal_threshold (float): Distance threshold to consider goal reached.
         angle_tolerance (float): Allowable angular deviation.
