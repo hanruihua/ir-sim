@@ -54,6 +54,10 @@ def test_collision_avoidance():
     env.get_robot_info()
     env.get_map()
 
+    env.draw_quiver(np.array([1, 2, 2, 3]))
+    points = [np.array([1, 3, 2, 3]), np.array([1, 2, 2, 5])]
+    env.draw_quivers(points)
+
     file_check('123.yaml')
     file_check('123.yaml', root_path='.')
     WrapToRegion(4, [-pi, pi])

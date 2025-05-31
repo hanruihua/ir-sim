@@ -290,7 +290,7 @@ class EnvPlot:
             self.dyna_point_list.append(points_plot)
 
 
-    def draw_quiver(self, point, refresh=False, **kwargs):
+    def draw_quiver(self, point, refresh=False, color='black', **kwargs):
         """
         Draw a quiver plot on the plot.
 
@@ -302,19 +302,20 @@ class EnvPlot:
         if point is None:
             return
 
-        ax_point = self.ax.scatter(point[0], point[1], point[2], color=kwargs.get('point_color', 'blue'), label='Points')
+        ax_point = self.ax.scatter(point[0], point[1], color=color)
 
         ax_quiver = self.ax.quiver(
             point[0], point[1],  # starting positions
             point[2], point[3],  # vector components (direction)
-            length=0.2, normalize=True, color=kwargs.get('quiver_color', 'red'), label='Direction'
+            color=color,
+            **kwargs
         )
 
         if refresh:
             self.dyna_quiver_list.append(ax_quiver)
             self.dyna_point_list.append(ax_point)
 
-    def draw_quivers(self, points, refresh=False, **kwargs):
+    def draw_quivers(self, points, refresh=False, color='black', **kwargs):
         """
         Draw a series of quiver plot on the plot.
 
@@ -322,9 +323,9 @@ class EnvPlot:
             points (list or np.ndarray): List of points, each point as [x, y, u, v]. u, v are the components of the vector.
 
         """
-
-        for point in points.T:
-            self.draw_quiver(point, refresh, **kwargs)
+        
+        for point in points:
+            self.draw_quiver(point, refresh, color=color, **kwargs)
 
     def draw_box(self, vertices, refresh=False, color="b-"):
         """
