@@ -181,9 +181,9 @@ class geometry_handler(ABC):
         assert "this property is renamed to be original_vertices"
 
     @property
-    def original_vertices(self):
+    def original_vertices(self) -> np.ndarray:
         """
-        Get the original vertices of the object.
+        Get the original vertices of the geometry.
         """
 
         if self.name == "linestring":
@@ -195,6 +195,16 @@ class geometry_handler(ABC):
             return None
         else:
             return self._original_geometry.exterior.coords._coords.T[:, :-1]
+
+    @property
+    def original_centroid(self) -> np.ndarray:
+        """
+        Get the original centroid of the geometry.
+
+        Returns:
+            np.ndarray: The original centroid of the geometry.
+        """
+        return np.array(self._original_geometry.centroid.xy)
 
     @property
     def radius(self):
@@ -209,6 +219,7 @@ class CircleGeometry(geometry_handler):
     def construct_original_geometry(
         self,
         radius: float = 0.2,
+        center: list = [0, 0],
         random_shape: bool = False,
         radius_range: list = [0.1, 1.0],
         wheelbase: Optional[float] = None,
@@ -218,9 +229,9 @@ class CircleGeometry(geometry_handler):
             radius = np.random.uniform(*radius_range)
 
         if wheelbase is None:
-            return Point([0, 0]).buffer(radius)
+            return Point(center).buffer(radius)
         else:
-            return Point([wheelbase / 2, 0]).buffer(radius)
+            return Point([center[0] + wheelbase / 2, center[1]]).buffer(radius)
 
 
 class PolygonGeometry(geometry_handler):

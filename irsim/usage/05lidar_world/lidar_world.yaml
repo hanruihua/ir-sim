@@ -29,7 +29,7 @@ robot:
         alpha: 0.3
       
 obstacle:
-  - shape: {name: 'circle', radius: 1.0}  # radius
+  - shape: {name: 'circle', radius: 1.0, center: [1, 1]}  # radius
     state: [5, 5, 0]
     unobstructed: True
   

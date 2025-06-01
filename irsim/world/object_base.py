@@ -231,6 +231,8 @@ class ObjectBase:
         self.vel_dim = vel_dim if vel_dim is not None else self.vel_shape[0]
         self.vel_shape = (self.vel_dim, 1) if vel_dim is not None else self.vel_shape
 
+        self.role = role
+
         state = self.input_state_check(state, self.state_dim)
         self._state = np.c_[state]
         self._init_state = np.c_[state]
@@ -256,8 +258,7 @@ class ObjectBase:
         self.vel_min = np.c_[vel_min]
         self.vel_max = np.c_[vel_max]
         self.color = color
-        self.role = role
-
+        
         self.info = ObjectInfo(
             self._id,
             self.shape,
@@ -877,15 +878,15 @@ class ObjectBase:
 
         if len(state) > dim:
             self.logger.warning(
-                "The state dimension is larger than the desired dimension. The state dimension is {} and the desired dimension is {}".format(
-                    len(state), dim
+                "The state dimension {} of {} is larger than the desired dimension {}, the state dimension is truncated".format(
+                    len(state), self.abbr, dim
                 )
             )
             return state[:dim]
         elif len(state) < dim:
             self.logger.warning(
-                "The state dimension is smaller than the desired dimension. The state dimension is {} and the desired dimension is {}".format(
-                    len(state), dim
+                "The state dimension {} of {} is smaller than the desired dimension {}, zero padding is added".format(
+                    len(state), self.abbr, dim
                 )
             )
             return state + [0] * (dim - len(state))
@@ -914,7 +915,7 @@ class ObjectBase:
 
     def _init_plot(self, ax, **kwargs):
         """Initialize plotting elements using zero state and initial vertices."""
-        return self._plot(ax, np.zeros((3, 1)), self.original_vertices, **kwargs)
+        return self._plot(ax, self.original_state, self.original_vertices, **kwargs)
 
     def _plot(self, ax, state, vertices, **kwargs):
         """
@@ -1951,7 +1952,7 @@ class ObjectBase:
             str: The name of the object.
         """
 
-        return self.info.role + "_" + str(self.id)
+        return self.role + "_" + str(self.id)
 
     @property
     def abbr(self) -> str:
@@ -1962,7 +1963,7 @@ class ObjectBase:
             str: The abbreviation of the object.
         """
 
-        return self.info.role[0] + str(self.id)
+        return self.role[0] + str(self.id)
 
     @property
     def shape(self) -> str:
@@ -2182,6 +2183,27 @@ class ObjectBase:
             np.ndarray: The original vertices of the object before any transformations.
         """
         return self.gf.original_vertices
+
+    @property
+    def original_centroid(self) -> np.ndarray:
+        """
+        Get the center of the object.
+
+        Returns:
+            np.ndarray: The center of the object.
+        """
+        return self.gf.original_centroid
+
+    @property
+    def original_state(self) -> np.ndarray:
+        """
+        Get the original state of the object from the original centroid.
+
+        Returns:
+            np.ndarray (3,1): The original state of the object.
+        """
+        return np.vstack((self.original_centroid, 0))
+
 
     @property
     def external_objects(self):

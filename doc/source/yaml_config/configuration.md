@@ -144,7 +144,7 @@ world:
 :::
 
 
-## Object Configuration (Robot and Obstacle)
+## Object Configuration
 
 All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects.
 
@@ -261,13 +261,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   - **`'circle'`**: Represents a circular shape.
     - **`radius`** (`float`): Radius of the circle. Default is `0.2`.
+    - **`center`** (`list`): Center (x, y) of the circle. Default is `[0, 0]`.
     - **`random_shape`** (`bool`): Whether to generate a random radius. Default is `False`.
     - **`radius_range`** (`list`): Range `[min_radius, max_radius]` for random radius generation if `random_shape` is `True`. Default is `[0.1, 1.0]`.
     - **`wheelbase`** (`float`): Wheelbase of the Ackermann steering vehicle. Required when using `'acker'` kinematics. Default is `None`.
 
     **Example:**
     ```yaml
-    shape: {name: 'circle', radius: 0.2}
+    shape: {name: 'circle', radius: 0.2, center: [0, 0]}
     ```
 
   - **`'rectangle'`**: Represents a rectangular shape.
