@@ -875,20 +875,22 @@ class ObjectBase:
         Returns:
             list: Adjusted state.
         """
-
+        
         if len(state) > dim:
-            self.logger.warning(
-                "The state dimension {} of {} is larger than the desired dimension {}, the state dimension is truncated".format(
-                    len(state), self.abbr, dim
+            if self.role=='robot':
+                self.logger.warning(
+                    "The state dimension {} of {} is larger than the desired dimension {}, the state dimension is truncated".format(
+                        len(state), self.abbr, dim
+                    )
                 )
-            )
             return state[:dim]
         elif len(state) < dim:
-            self.logger.warning(
-                "The state dimension {} of {} is smaller than the desired dimension {}, zero padding is added".format(
-                    len(state), self.abbr, dim
+            if self.role=='robot':
+                self.logger.warning(
+                    "The state dimension {} of {} is smaller than the desired dimension {}, zero padding is added".format(
+                        len(state), self.abbr, dim
+                    )
                 )
-            )
             return state + [0] * (dim - len(state))
         else:
             return state
