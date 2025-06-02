@@ -1,3 +1,14 @@
+## ir-sim 2.5.1
+
+- Bug Fixes:
+  - Fix the goal plot coordinate bug.
+  - Fix grammar, format, and typos in the documentation and comments.
+  - Uniform the name of `accer` to `acce` for acceleration parameter.
+  - Remove state check warning for obstacles.
+
+- New Features:
+  - Add `center` for circular object.
+
 ## ir-sim 2.5.0
 
 This version improves performance (approximately 40% speed improvement) by refactoring the object plot function and the geometry transform operation for large environments.
