@@ -51,7 +51,7 @@ obstacle:
   - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # length, width
     state: [6, 5, 1] 
   
-  - shape: {name: 'linestring',vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
+  - shape: {name: 'linestring', vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
     state: [0, 0, 0] 
 ```
 
@@ -93,7 +93,7 @@ robot:
     goal: [9, 9, 0]
 
     sensors:
-      - type: 'lidar2d'
+      - name: 'lidar2d'
         range_min: 0
         range_max: 5
         angle_range: 3.14 #  4.7123
@@ -111,7 +111,7 @@ obstacle:
   - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # length, width
     state: [6, 5, 1] 
   
-  - shape: {name: 'linestring',vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
+  - shape: {name: 'linestring', vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
     state: [0, 0, 0] 
 
 ```

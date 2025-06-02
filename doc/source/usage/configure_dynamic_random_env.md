@@ -40,7 +40,7 @@ robot:
     vel_max: [4, 1]
 
     sensors: 
-      - type: 'lidar2d'
+      - name: 'lidar2d'
         range_min: 0
         range_max: 20
         angle_range: 3.14

@@ -76,10 +76,10 @@ The `world` section contains the configuration of the simulation environment. Th
   Specifies the vertical size of the world in units of meters in the Y-axis direction plotted on the screen.
 
 ##### **`width`**:  
-  Specifies the horizontal size of the world in units of of meters in the X-axis direction plotted on the screen.
+  Specifies the horizontal size of the world in units of meters in the X-axis direction plotted on the screen.
 
 ##### **`step_time`**:  
-  Determines the time interval between each simulation step. A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but need longer time to run the simulation.
+  Determines the time interval between each simulation step. A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but needs longer time to run the simulation.
 
 ##### **`sample_time`**:  
   Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur.
@@ -88,7 +88,7 @@ The `world` section contains the configuration of the simulation environment. Th
   Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement.
 
 ##### **`control_mode`**:  
-  Configures how the objects in the simulation is controlled:
+  Configures how the objects in the simulation are controlled:
   - `auto`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
   - `keyboard`: Manual control via keyboard inputs. The key inputs are defined in the file.
 
@@ -158,7 +158,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                 |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[10, 10, 0]`    | Goal state(s) vector.                                                                    |
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
-| `role`           | `str`                                            | `Obstacle`       | Role of the object in the simulation.                                                    |
+| `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                    |
 | `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
 | `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                       |
 | `vel_min`        | `list` of `float`                                | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                      |
@@ -384,7 +384,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
     - `vxmax` (float): Maximum linear velocity in x axis. Default is `1.5`.
     - `vymax` (float): Maximum linear velocity in y axis. Default is `1.5`.
-    - `acceler` (float): Maximum acceleration. Default is `1.0`.
+    - `acce` (float): Maximum acceleration. Default is `1.0`.
     - `factor` (float): Factor for the RVO algorithm. Default is `1.0`.
     - `mode` (str): Mode for RVO algorithm, either `rvo`, `hrvo`, or `vo`. Default is `rvo`. 
       - `rvo`: Reciprocal Velocity Obstacles. For multi-agent collision avoidance.
@@ -394,7 +394,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
     **Example:**
     ```yaml
-    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acceler: 1.0, factor: 1.0, mode: 'rvo', wander: False}
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0, mode: 'rvo', wander: False}
     ```
 
 ##### **`role`**:
@@ -624,12 +624,11 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   **Example:**
   ```yaml
-
   state_dim: 3
   vel_dim: 2
   ```
 
-#### **`fov`** and **`fov_radius`**:
+##### **`fov`** and **`fov_radius`**:
   Define the field of view (FOV) for the object's sensors. The FOV is the angular range within which the sensor can detect objects. The `fov` parameter specifies the angular range in radians, while `fov_radius` sets the maximum detection distance.
 
   **Example:**
@@ -641,7 +640,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 ### Example Object Configurations
 
 :::{tip}
-Let's give readers a helpful hint!
+Remember to carefully configure the parameters to match your simulation requirements. Test different configurations to achieve the desired behavior.
 :::
 
 #### Example 1: Configuring Multiple Robots with RVO Behavior
@@ -653,7 +652,7 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  
-    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0}
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
