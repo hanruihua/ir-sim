@@ -212,6 +212,7 @@ class EnvBase:
                     self._env_plot.clear_components(mode, self.objects)
                     self._env_plot.draw_components(mode, self.objects, **kwargs)
                 else:
+                    self._env_plot.clear_components(mode)
                     self._env_plot.step_objects_plot(mode, self.objects, **kwargs)
 
 
