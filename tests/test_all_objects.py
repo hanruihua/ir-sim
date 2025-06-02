@@ -36,6 +36,8 @@ def test_collision_avoidance():
     print(env.robot_number)
     print(env.dynamic_objects)
     print(env.static_objects)
+    print(env.robot.goal_vertices)
+    print(env.robot.original_vertices)
 
     env.robot.set_velocity([1, 1])
     env.robot.set_velocity([1, 1], init=True)

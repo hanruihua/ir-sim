@@ -19,6 +19,8 @@ robot:
 obstacle:
   - shape: {name: 'circle', radius: 1.0}  # radius
     state: [5, 5, 0]  
+    plot:
+      show_goal: True
   
   # - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # radius
   #   state: [6, 5, 1] 

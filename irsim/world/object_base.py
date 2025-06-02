@@ -246,7 +246,7 @@ class ObjectBase:
         self._goal_vertices = vertices_transform(self.original_vertices, self.goal)
 
         self._init_goal = self._goal.copy()
-        self._init_goal_vertices = self._goal_vertices.copy()
+        self._init_goal_vertices = self._goal_vertices.copy() if self._goal_vertices is not None else None
 
         self._geometry = self.gf.step(self.state)
         self.group = group
