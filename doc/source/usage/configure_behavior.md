@@ -38,7 +38,7 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2} 
-    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0}
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
@@ -65,7 +65,7 @@ The demonstration of the `rvo` behavior is shown in the following figure:
 - **`name`:** The name of the behavior. The default behavior is `dash`. The `rvo` behavior is a local collision avoidance algorithm for multiple agents.
 - **`vxmax`:** The maximum velocity in the x direction.
 - **`vymax`:** The maximum velocity in the y direction.
-- **`accer`:** The acceleration of the object.
+- **`acce`:** The acceleration of the object.
 - **`factor`:** The factor to adjust the collision penalty. 
 
 Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration/).

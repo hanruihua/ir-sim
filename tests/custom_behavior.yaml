@@ -14,7 +14,7 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, accer: 1.0, factor: 1.0}
+    behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['royalblue', 'red', 'green'] 
@@ -32,7 +32,7 @@ robot:
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    behavior: {name: 'dash', vxmax: 1.5, vymax: 1.5, accer: 1.0, factor: 1.0}
+    behavior: {name: 'dash', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
     color: ['orange', 'purple'] 

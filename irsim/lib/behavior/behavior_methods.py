@@ -42,7 +42,7 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
         **kwargs: Additional keyword arguments:
             - vxmax (float): Maximum x velocity, default 1.5.
             - vymax (float): Maximum y velocity, default 1.5.
-            - acceler (float): Acceleration factor, default 1.0.
+            - acce (float): Acceleration factor, default 1.0.
             - factor (float): Additional scaling factor, default 1.0.
             - mode (str): RVO calculation mode, default "rvo".
             - neighbor_threshold (float): Neighbor threshold distance, default 10.0.
@@ -55,11 +55,11 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
-    acceler = kwargs.get("acceler", 1.0)
+    acce = kwargs.get("acce", 1.0)
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 10.0)
-    behavior_vel = DiffRVO(rvo_state, rvo_neighbor, vxmax, vymax, acceler, factor, mode, neighbor_threshold)
+    behavior_vel = DiffRVO(rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold)
 
     return behavior_vel
 
@@ -124,7 +124,7 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
         **kwargs: Additional keyword arguments:
             - vxmax (float): Maximum x velocity, default 1.5.
             - vymax (float): Maximum y velocity, default 1.5.
-            - acceler (float): Acceleration factor, default 1.0.
+            - acce (float): Acceleration factor, default 1.0.
             - factor (float): Additional scaling factor, default 1.0.
             - mode (str): RVO calculation mode, default "rvo".
             - neighbor_threshold (float): Neighbor threshold distance, default 3.0.
@@ -137,11 +137,11 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
-    acceler = kwargs.get("acceler", 1.0)
+    acce = kwargs.get("acce", 1.0)
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
-    behavior_vel = OmniRVO(rvo_state, rvo_neighbor, vxmax, vymax, acceler, factor, mode, neighbor_threshold)
+    behavior_vel = OmniRVO(rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold)
 
     return behavior_vel
 
@@ -177,7 +177,7 @@ def OmniRVO(
     neighbor_list=None,
     vxmax=1.5,
     vymax=1.5,
-    acceler=1,
+    acce=1,
     factor=1.0,
     mode="rvo",
     neighbor_threshold=3.0,
@@ -190,7 +190,7 @@ def OmniRVO(
         neighbor_list (list): List of neighboring agents (default None).
         vxmax (float): Maximum x velocity (default 1.5).
         vymax (float): Maximum y velocity (default 1.5).
-        acceler (float): Acceleration factor (default 1).
+        acce (float): Acceleration factor (default 1).
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
         neighbor_threshold (float): Neighbor threshold (default 3.0).
@@ -206,7 +206,7 @@ def OmniRVO(
     filtered_neighbor_list = [neighbor for neighbor in neighbor_list if (x - neighbor[0])**2 + (y - neighbor[1])**2 < neighbor_threshold**2]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acceler, factor
+        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
 
@@ -218,7 +218,7 @@ def DiffRVO(
     neighbor_list=None,
     vxmax=1.5,
     vymax=1.5,
-    acceler=1,
+    acce=1,
     factor=1.0,
     mode="rvo",
     neighbor_threshold=3.0,
@@ -231,7 +231,7 @@ def DiffRVO(
         neighbor_list (list): List of neighboring agents (default None).
         vxmax (float): Maximum x velocity (default 1.5).
         vymax (float): Maximum y velocity (default 1.5).
-        acceler (float): Acceleration factor (default 1).
+        acce (float): Acceleration factor (default 1).
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
         neighbor_threshold (float): Neighbor threshold (default 3.0).
@@ -247,7 +247,7 @@ def DiffRVO(
     filtered_neighbor_list = [neighbor for neighbor in neighbor_list if (x - neighbor[0])**2 + (y - neighbor[1])**2 < neighbor_threshold**2]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acceler, factor
+        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
     rvo_vel_diff = omni_to_diff(state_tuple[-1], rvo_vel)

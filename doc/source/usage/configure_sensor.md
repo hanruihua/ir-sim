@@ -172,7 +172,7 @@ obstacle:
   - number: 10
     distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
     kinematics: {name: 'diff'}
-    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acceler: 1.0, factor: 2.0, mode: 'vo', wander: True, range_low: [15, 15, -3.14], range_high: [35, 35, 3.14], target_roles: 'all'}
+    behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 2.0, mode: 'vo', wander: True, range_low: [15, 15, -3.14], range_high: [35, 35, 3.14], target_roles: 'all'}
     vel_max: [3, 3.14]
     vel_min: [-3, -3.14]
     shape:

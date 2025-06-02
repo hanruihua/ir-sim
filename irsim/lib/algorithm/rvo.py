@@ -20,7 +20,7 @@ class reciprocal_vel_obs:
         obs_state_list (list) : List of states of static obstacles [[x, y, vx, vy, radius]].
         vxmax (float): Maximum velocity in the x direction.
         vymax (float): Maximum velocity in the y direction.
-        acceler (float): Acceleration limit.
+        acce (float): Acceleration limit.
     """
 
     def __init__(
@@ -29,7 +29,7 @@ class reciprocal_vel_obs:
         obs_state_list=[],
         vxmax=1.5,
         vymax=1.5,
-        acceler=0.5,
+        acce=0.5,
         factor=1.0,
     ):
 
@@ -37,7 +37,7 @@ class reciprocal_vel_obs:
         self.obs_state_list = obs_state_list
         self.vxmax = vxmax
         self.vymax = vymax
-        self.acceler = acceler
+        self.acce = acce
         self.factor = factor
 
     def update(self, state, obs_state_list):
@@ -311,11 +311,11 @@ class reciprocal_vel_obs:
         cur_vx = self.state[2]
         cur_vy = self.state[3]
 
-        cur_vx_min = max((cur_vx - self.acceler), -self.vxmax)
-        cur_vx_max = min((cur_vx + self.acceler), self.vxmax)
+        cur_vx_min = max((cur_vx - self.acce), -self.vxmax)
+        cur_vx_max = min((cur_vx + self.acce), self.vxmax)
 
-        cur_vy_min = max((cur_vy - self.acceler), -self.vymax)
-        cur_vy_max = min((cur_vy + self.acceler), self.vymax)
+        cur_vy_min = max((cur_vy - self.acce), -self.vymax)
+        cur_vy_max = min((cur_vy + self.acce), self.vymax)
 
         for new_vx in np.arange(cur_vx_min, cur_vx_max, 0.05):
             for new_vy in np.arange(cur_vy_min, cur_vy_max, 0.05):
