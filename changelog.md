@@ -1,3 +1,9 @@
+## ir-sim 2.5.2
+
+- Bug Fixes:
+  - Fix the bug of the clear components.
+
+
 ## ir-sim 2.5.1
 
 - Bug Fixes:
