@@ -310,6 +310,26 @@ def geometry_transform(geometry, state):
     return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
 
+def vertices_transform(vertices, state):
+    """
+    Transform vertices using a state.
+
+    Args:
+        vertices (np.array): Vertices of the object. (2xN)
+        state (np.array): State [x, y, theta] (3x1).
+
+    Returns:
+        np.array: Transformed vertices.
+    """
+
+    trans, rot = get_transform(state)
+    vertices = rot @ vertices + trans
+
+    return vertices
+
+
+
+
 def omni_to_diff(
     state_ori, vel_omni, w_max=1.5, guarantee_time=0.2, tolerance=0.1, mini_speed=0.02
 ):

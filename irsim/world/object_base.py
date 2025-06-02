@@ -21,6 +21,7 @@ from irsim.global_param.path_param import path_manager
 from shapely.strtree import STRtree
 from shapely.geometry import MultiLineString
 from shapely import prepare
+from irsim.lib.handler.geometry_handler import geometry_transform
 
 from irsim.util.util import (
     WrapToRegion,
@@ -30,6 +31,7 @@ from irsim.util.util import (
     WrapToPi,
     is_2d_list,
     file_check,
+    vertices_transform,
 )
 
 
@@ -241,10 +243,12 @@ class ObjectBase:
         self._init_velocity = np.c_[velocity]
 
         self._goal = deque(goal) if is_2d_list(goal) else deque([goal])
+        self._goal_vertices = vertices_transform(self.original_vertices, self.goal)
+
         self._init_goal = self._goal.copy()
+        self._init_goal_vertices = self._goal_vertices.copy()
 
         self._geometry = self.gf.step(self.state)
-        self._init_geometry = self._geometry
         self.group = group
 
         # flag
@@ -917,9 +921,9 @@ class ObjectBase:
 
     def _init_plot(self, ax, **kwargs):
         """Initialize plotting elements using zero state and initial vertices."""
-        return self._plot(ax, self.original_state, self.original_vertices, **kwargs)
+        return self._plot(ax, self.original_state, self.original_vertices, initial=True, **kwargs)
 
-    def _plot(self, ax, state, vertices, **kwargs):
+    def _plot(self, ax, state, vertices, initial: bool = False, **kwargs):
         """
         Plot the object with the specified state and vertices.
 
@@ -927,6 +931,7 @@ class ObjectBase:
             ax: Matplotlib axis object for plotting.
             state: State vector [x, y, theta, ...] defining object position and orientation.
             vertices: Vertices array defining object shape for polygon/rectangle objects.
+            initial: Whether the plot is for the initial state. Defaults to False.
             **kwargs: Plotting configuration options:
             
             Object visualization properties:
@@ -1009,8 +1014,8 @@ class ObjectBase:
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
         if show_goal:
-            goal_state = self.goal if np.any(state) else np.zeros((3, 1))
-            goal_vertices = self.original_vertices if vertices is self.original_vertices else vertices
+            goal_state = state if initial else self.goal
+            goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
 
         if show_text:
@@ -2078,6 +2083,17 @@ class ObjectBase:
         return np.c_[self._goal[0]]
 
     @property
+    def goal_vertices(self) -> np.ndarray:
+        """
+        Get the goal vertices of the object.
+
+        Returns:
+            np.ndarray: The goal vertices of the object.
+        """
+
+        return self._goal_vertices
+
+    @property
     def position(self) -> np.ndarray:
         """
         Get the position of the object.
@@ -2185,6 +2201,17 @@ class ObjectBase:
             np.ndarray: The original vertices of the object before any transformations.
         """
         return self.gf.original_vertices
+
+    @property
+    def original_geometry(self) -> shapely.geometry.base.BaseGeometry:
+        """
+        Get the original geometry of the object.
+
+        Returns:
+            shapely.geometry.base.BaseGeometry: The original geometry of the object.
+        """
+        return self.gf._original_geometry
+
 
     @property
     def original_centroid(self) -> np.ndarray:
