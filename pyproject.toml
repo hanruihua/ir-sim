@@ -35,7 +35,9 @@ dependencies = [
 
 [project.optional-dependencies]
 keyboard = ['pynput']
+test = ['pytest', 'pytest-cov']
 all = ['pynput']
+
 
 [tool.setuptools.packages.find]
 include = ["irsim*"]
