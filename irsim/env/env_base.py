@@ -5,12 +5,30 @@ Author: Ruihua Han
 """
 
 import matplotlib
+from irsim.global_param import env_param
 
-try:
-    matplotlib.use("TkAgg")
-except Exception as e:
-    print(f"Failed to use 'TkAgg' backend: {e}")
-    print("Falling back to 'Agg' backend.")
+# Define backend preferences for different operating systems
+BACKEND_PREFERENCES = {
+    'Darwin': ['MacOSX', 'TkAgg', 'Qt5Agg', 'Agg'],  # macOS
+    'Windows': ['TkAgg', 'Qt5Agg', 'Agg'],           # Windows
+    'Linux': ['TkAgg', 'Qt5Agg', 'Agg']              # Linux
+}
+
+# Get the current operating system from env_param
+backends = BACKEND_PREFERENCES.get(env_param.platform_name, ['Agg'])  # Default to Agg if OS not recognized
+backend_set = False
+
+for backend in backends:
+    try:
+        matplotlib.use(backend)
+        backend_set = True
+        print(f"Successfully set matplotlib backend to {backend}")
+        break
+    except Exception as e:
+        print(f"Failed to use '{backend}' backend: {e}")
+
+if not backend_set:
+    print("All backends failed. Falling back to 'Agg' backend.")
     matplotlib.use("Agg")
 
 from irsim.env.env_config import EnvConfig
