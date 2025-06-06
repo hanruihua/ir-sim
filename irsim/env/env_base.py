@@ -45,18 +45,17 @@ from shapely import Polygon
 from typing import Optional, Union
 import importlib
 from irsim.world import ObjectBase
-from tabulate import tabulate
 from shapely.strtree import STRtree
 from operator import attrgetter
 from mpl_toolkits.mplot3d import Axes3D
 
 try:
     from pynput import keyboard
-
+    from tabulate import tabulate
     keyboard_module = True
 except ImportError:
+    print("Warning: Keyboard module is not installed. Auto control applied. Please install keyboard dependency by 'pip install ir-sim[keyboard]'.")
     keyboard_module = False
-
 
 class EnvBase:
     """
@@ -128,6 +127,7 @@ class EnvBase:
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
+            
             if not keyboard_module:
                 self.logger.error(
                     "Keyboard module is not installed. Auto control applied. Please install pynput by 'pip install pynput'."

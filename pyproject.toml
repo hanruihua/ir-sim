@@ -29,14 +29,13 @@ dependencies = [
     'pyyaml',
     'imageio',
     'loguru',
-    'tabulate',
     'scipy',
 ]
 
 [project.optional-dependencies]
-keyboard = ['pynput']
+keyboard = ['pynput', 'tabulate']
 test = ['pytest', 'pytest-cov']
-all = ['pynput']
+all = ['pynput', 'tabulate', 'pytest', 'pytest-cov']
 
 
 [tool.setuptools.packages.find]
