@@ -13,7 +13,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install python3-opengl xvfb python3-tk
         python3 -m pip install --upgrade pip
-        pip install -e . --user
+        pip install -e .[all] --user
     
     - name: Install pytest
       run: pip install pytest pytest-cov pynput
