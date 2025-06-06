@@ -137,7 +137,7 @@ class EnvBase:
                 )
                 world_param.control_mode = "auto"
             else:
-                self.keyboard = KeyboardControl(**self.env_config.parse["keyboard"])
+                self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
 
         self.mouse = MouseControl()
 

@@ -105,8 +105,8 @@ def test_keyboard_control_3d():
     
     for i in range(3):
         for mock_key in mock_keys:
-            env._on_press(mock_key)
-            env._on_release(mock_key)
+            env.keyboard._on_press(mock_key)
+            env.keyboard._on_release(mock_key)
         env.step()
         env.render(0.01)
     env.end()

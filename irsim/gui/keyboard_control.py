@@ -6,12 +6,13 @@ from irsim.global_param import env_param
 
 class KeyboardControl:
 
-    def __init__(self, **keyboard_kwargs):
+    def __init__(self, env_ref=None, **keyboard_kwargs):
 
         """
         Initialize keyboard control for the environment.
 
         Args:
+            env_ref: Reference to the environment instance to access reset functionality
             keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings
 
                 - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].
@@ -39,6 +40,9 @@ class KeyboardControl:
                 - r: Reset the environment.
         """
 
+        # Store environment reference for reset functionality
+        self.env_ref = env_ref
+        
         vel_max = keyboard_kwargs.get("vel_max", [3.0, 1.0])
         self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
         self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
@@ -93,7 +97,7 @@ class KeyboardControl:
         try:
             if key.char.isdigit() and self.alt_flag:
 
-                if int(key.char) >= self.robot_number:
+                if self.env_ref and int(key.char) >= self.env_ref.robot_number:
                     print("out of number of robots")
                     self.key_id = int(key.char)
                 else:
@@ -121,7 +125,7 @@ class KeyboardControl:
 
                 if key.char.isdigit() and self.alt_flag:
 
-                    if int(key.char) >= self.robot_number:
+                    if self.env_ref and int(key.char) >= self.env_ref.robot_number:
                         print("out of number of robots")
                         self.key_id = int(key.char)
                     else:
@@ -162,7 +166,10 @@ class KeyboardControl:
 
             if key.char == "r":
                 print("reset the environment")
-                self.reset()
+                if self.env_ref is not None:
+                    self.env_ref.reset()
+                else:
+                    self.logger.warning("Environment reference not set. Cannot reset.")
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
