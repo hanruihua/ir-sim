@@ -12,6 +12,8 @@
 - [x] Attribute of the obstacles and robots
 - [x] Formulate the geometry tree for the collision check
 - [ ] All the rotation and translation can be represented by the homogeneous transformation matrix
+- [ ] rigid body motion
+- [ ] 2d simple arm
 
 ## 🤖 Robot & Movement
 - [x] Omni directional robots
@@ -88,6 +90,7 @@
 - [x] Improve coverage of the code over 90%
 - [ ] Improve coverage of the code over 99%
 - [ ] Test Scenario for the different robot models and planners: pursue and evade, follow, etc.
+- [ ] reduce the dependency of the package
 
 ## 📚 Documentation & Examples
 - [x] Documentation
