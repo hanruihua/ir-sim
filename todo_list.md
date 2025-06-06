@@ -83,6 +83,7 @@
 - [ ] Assign robot goals by mouse click
 - [ ] Some judgment functions for control
 - [ ] Complete the reactive collision mode
+- [ ] Add graphical user interface (GUI) for the matplotlib windows.  
 
 ## 🧪 Testing & Quality
 - [x] Pytest
