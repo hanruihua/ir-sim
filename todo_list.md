@@ -62,6 +62,7 @@
 - [ ] Add some data structure for plot
 - [ ] Complete color map
 - [ ] Add subwindows for the simulation
+- [ ] Refine plot function with collection of elements
 
 ## 🔧 System & Performance
 - [x] Add collision mode
