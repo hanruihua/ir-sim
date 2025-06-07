@@ -137,7 +137,7 @@ class EnvBase:
             else:
                 self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
 
-        self.mouse = MouseControl()
+        self.mouse = MouseControl(self._env_plot.ax)
 
         if full:
             system_platform = platform.system()
@@ -798,5 +798,13 @@ class EnvBase:
     @property
     def mouse_pos(self):
         return self.mouse.mouse_pos
+    
+    @property
+    def mouse_left_pos(self):
+        return self.mouse.left_click_pos
+    
+    @property
+    def mouse_right_pos(self):
+        return self.mouse.right_click_pos
 
     # endregion: property
