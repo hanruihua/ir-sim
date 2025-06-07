@@ -15,7 +15,7 @@ robot:
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly
     plot:
-      show_trail: True
+      show_trajectory: True
       traj_color: 'g'
 
     sensors: 
