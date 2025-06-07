@@ -42,7 +42,7 @@ class EnvPlot:
         x_range=[0, 10],
         y_range=[0, 10],
         saved_figure=dict(),
-        figure_pixels: list = [1920, 1080],
+        figure_pixels: list = [1180, 1080],
         **kwargs,
     ) -> None:
         """
