@@ -1,5 +1,5 @@
 import irsim
-
+import numpy as np
 '''
 Keyboard control:
 
@@ -34,13 +34,14 @@ Button:
 
 env = irsim.make(save_ani=False, full=False)
 
-for i in range(300):
+for i in range(10000):
 
     env.step()
     env.render(0.05, show_goal=False, show_trajectory=True)
     
-    if env.mouse_pos is not None:
-        print(env.mouse_pos)
+    if env.mouse_left_pos is not None:
+        goal = np.pad(env.mouse_left_pos, (0, 1), 'constant', constant_values=0)
+        env.robot.append_goal(goal)
 
     if env.done():
         break

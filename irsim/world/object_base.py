@@ -851,6 +851,20 @@ class ObjectBase:
 
         self._goal = goal_deque
 
+
+    def append_goal(self, goal: Union[list, np.ndarray]):
+        """
+        Append a goal to the goal list.
+        """
+
+        if isinstance(goal, list):
+            self._goal.append(goal)
+
+        elif isinstance(goal, np.ndarray):
+            self._goal.append(goal.flatten().tolist())
+
+
+
     def set_laser_color(
         self, laser_indices, laser_color: str = "cyan", alpha: float = 0.3
     ):
