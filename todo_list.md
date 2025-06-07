@@ -64,6 +64,7 @@
 - [ ] Add subwindows for the simulation
 - [ ] Add appearance file for the plot
 - [ ] Add GUI for the plot
+- [ ] Refine plot function with collection of elements
 
 ## 🔧 System & Performance
 - [x] Add collision mode
