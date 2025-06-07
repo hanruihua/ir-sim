@@ -54,10 +54,8 @@ from irsim.gui.mouse_control import MouseControl
 
 try:
     from irsim.gui.keyboard_control import KeyboardControl
-
     keyboard_module = True
 except ImportError:
-    print("Warning: Keyboard module is not installed. Auto control applied. Please install keyboard dependency by 'pip install ir-sim[keyboard]'.")
     keyboard_module = False
 
 class EnvBase:
@@ -133,7 +131,7 @@ class EnvBase:
             
             if not keyboard_module:
                 self.logger.error(
-                    "Keyboard module is not installed. Auto control applied. Please install pynput by 'pip install pynput'."
+                    "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
                 )
                 world_param.control_mode = "auto"
             else:
