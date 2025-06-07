@@ -11,12 +11,14 @@ robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker
     shape: {name: 'circle', radius: 1}
     state: [5, 5, 0, 0]
-    goal: [40, 40, 0]
+    goal: 
+      - [[40, 40, 0], [20, 20, 0]]
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly
     plot:
       show_trajectory: True
       traj_color: 'g'
+      show_goals: True
 
     sensors: 
       - type: 'lidar2d'
