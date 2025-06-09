@@ -62,6 +62,8 @@
 - [ ] Add some data structure for plot
 - [ ] Complete color map
 - [ ] Add subwindows for the simulation
+- [ ] Add appearance file for the plot
+- [ ] Add GUI for the plot
 
 ## 🔧 System & Performance
 - [x] Add collision mode
