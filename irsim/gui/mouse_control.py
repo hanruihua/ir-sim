@@ -47,10 +47,10 @@ class MouseControl:
     def on_click(self, event):
         """Handle mouse click events."""
         if event.button is MouseButton.LEFT:
-            self.left_click_pos = np.round((event.xdata, event.ydata), 2)
+            self.left_click_pos = np.round((event.xdata, event.ydata), 2) if event.inaxes is not None else None
         
         elif event.button is MouseButton.RIGHT:
-            self.right_click_pos = np.round((event.xdata, event.ydata), 2)
+            self.right_click_pos = np.round((event.xdata, event.ydata), 2) if event.inaxes is not None else None
         
         elif event.button is MouseButton.MIDDLE:
             # Middle mouse button (wheel click) resets zoom
