@@ -3,9 +3,9 @@ from irsim.world import ObjectBase
 
 class ObjectStatic(ObjectBase):
     def __init__(
-        self, color="k", role="obstacle", **kwargs
+        self, color="k", role="obstacle", state_dim=3, **kwargs
     ):
-        super(ObjectStatic, self).__init__(color=color, role=role, **kwargs
+        super(ObjectStatic, self).__init__(color=color, role=role, state_dim=state_dim, **kwargs
         )
 
         self.static=True
