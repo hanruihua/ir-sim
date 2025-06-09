@@ -359,7 +359,7 @@ class Lidar2D:
                 lines.append(segment)
 
             self.laser_LineCollection = Line3DCollection(
-                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=2
             )
             ax.add_collection3d(self.laser_LineCollection)
         else:
@@ -371,7 +371,7 @@ class Lidar2D:
                 lines.append(segment)
 
             self.laser_LineCollection = LineCollection(
-                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=3
+                lines, linewidths=1, colors=self.color, alpha=self.alpha, zorder=2
             )
             ax.add_collection(self.laser_LineCollection)
 

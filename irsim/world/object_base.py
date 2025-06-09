@@ -1354,7 +1354,7 @@ class ObjectBase:
             ValueError: When object shape is not supported
         """
         obj_linestyle = kwargs.get("obj_linestyle", "-")
-        obj_zorder = kwargs.get("obj_zorder", 3) if self.role == "robot" else 1
+        obj_zorder = kwargs.get("obj_zorder", 2) if self.role == "robot" else 1
 
         state = self.state if state is None else state
         vertices = self.vertices if vertices is None else vertices
@@ -1452,6 +1452,7 @@ class ObjectBase:
         start_y = vertices[1, 0]
         r_phi = state[2, 0]
         r_phi_ang = 180 * r_phi / pi
+        obj_zorder = kwargs.get("obj_zorder", 2)
 
         robot_image_path = file_check(
             description, root_path=path_manager.root_path + "/world/description/"
@@ -1462,7 +1463,7 @@ class ObjectBase:
         robot_img = ax.imshow(
             robot_img_read,
             extent=[start_x, start_x + self.length, start_y, start_y + self.width],
-            zorder=3,
+            zorder=obj_zorder,
         )
         trans_data = (
             mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
@@ -1636,7 +1637,7 @@ class ObjectBase:
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
         arrow_color: Optional[str] = None,
-        arrow_zorder: int = 4,
+        arrow_zorder: int = 3,
         **kwargs,
     ):
         """
