@@ -17,6 +17,12 @@ class MouseControl:
             ax: The matplotlib axes to control
             zoom_factor (float): Factor by which to zoom in/out. Default is 1.1.
                                 Higher values = more aggressive zooming.
+        
+                                
+        Attributes:
+            mouse_pos: The current mouse position
+            left_click_pos: The position of the left click
+            right_click_pos: The position of the right click
         """
         self.zoom_factor = zoom_factor
         self.mouse_pos = None
@@ -42,7 +48,6 @@ class MouseControl:
         else:
             self.mouse_pos = None
             self.current_axes = None
-
 
     def on_click(self, event):
         """Handle mouse click events."""
