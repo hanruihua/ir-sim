@@ -249,7 +249,7 @@ class EnvPlot:
                 )
 
             else:
-                self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
+                self.ax.quiver(path_x_list, path_y_list, u_list, v_list, width=0.003)
 
         if refresh:
             self.dyna_line_list.append(line)
