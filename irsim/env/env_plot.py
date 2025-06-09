@@ -97,8 +97,7 @@ class EnvPlot:
             self.ax.set_box_aspect([1, 1, 1])
         else:
             self.ax.set_aspect("equal")
-            self.ax.set_aspect("equal")
-
+        
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 
