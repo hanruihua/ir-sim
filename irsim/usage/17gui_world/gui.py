@@ -43,7 +43,7 @@ env = irsim.make(save_ani=False, full=False)
 
 for i in range(10000):
     env.step()
-    env.render(0.05, show_goal=False, show_trajectory=True)
+    env.render(0.05, show_goal=False)
     
     if env.mouse_left_pos is not None:
         mouse_left_pos = np.pad(env.mouse_left_pos, (0, 1), 'constant', constant_values=0)
