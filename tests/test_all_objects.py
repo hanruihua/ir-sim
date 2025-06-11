@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
 import time
+from irsim.gui.mouse_control import MouseControl
+from matplotlib.backend_bases import MouseButton
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
@@ -182,8 +184,8 @@ def test_keyboard_control():
     
     for i in range(3):
         for mock_key in mock_keys:
-            env._on_press(mock_key)
-            env._on_release(mock_key)
+            env.keyboard._on_press(mock_key)
+            env.keyboard._on_release(mock_key)
         env.step()
         env.render(0.01)
     
@@ -196,25 +198,121 @@ def test_keyboard_control():
     num_keys = [Mock(spec=keyboard.Key, char=str(i)) for i in range(5)]
     
     # Press Alt key
-    env._on_press(alt_key)
-    assert env.alt_flag == True, "After pressing Alt key, alt_flag should be True"
+    env.keyboard._on_press(alt_key)
+    assert env.keyboard.alt_flag == True, "After pressing Alt key, alt_flag should be True"
     
     # Test number keys with Alt pressed
     for i, num_key in enumerate(num_keys):
-        env._on_press(num_key)
+        env.keyboard._on_press(num_key)
         if i < env.robot_number:
-            assert env.key_id == i, f"After pressing Alt+{i}, control ID should change to {i}"
+            assert env.keyboard.key_id == i, f"After pressing Alt+{i}, control ID should change to {i}"
         else:
             # If robot number is less than the pressed number, it should print "out of number of robots"
             # but we can't easily test the print output, so we just check that key_id is set
-            assert env.key_id == i, f"After pressing Alt+{i}, control ID should be set to {i}"
+            assert env.keyboard.key_id == i, f"After pressing Alt+{i}, control ID should be set to {i}"
             
     # Release Alt key
-    env._on_release(alt_key)
-    assert env.alt_flag == False, "After releasing Alt key, alt_flag should be False"
+    env.keyboard._on_release(alt_key)
+    assert env.keyboard.alt_flag == False, "After releasing Alt key, alt_flag should be False"
     
     env.end()
     assert True  # Add keyboard control related assertions
+
+def test_mouse_control():
+    """Test mouse control functionality"""
+    env = irsim.make('test_multi_objects_world.yaml', save_ani=False, display=False)
+    
+    # Get the axes from the environment
+    ax = env._env_plot.ax
+    
+    # Initialize mouse control
+    mouse_control = MouseControl(ax, zoom_factor=1.2)
+    
+    # Test initial state
+    assert mouse_control.mouse_pos is None
+    assert mouse_control.left_click_pos is None
+    assert mouse_control.right_click_pos is None
+    assert mouse_control.zoom_factor == 1.2
+    
+    # Test mouse movement
+    mock_move_event = Mock()
+    mock_move_event.inaxes = ax
+    mock_move_event.xdata = 5.0
+    mock_move_event.ydata = 5.0
+    mouse_control.on_move(mock_move_event)
+    assert mouse_control.mouse_pos == (5.0, 5.0)
+    
+    # Test left click
+    mock_left_click = Mock()
+    mock_left_click.button = MouseButton.LEFT
+    mock_left_click.inaxes = ax
+    mock_left_click.xdata = 3.0
+    mock_left_click.ydata = 3.0
+    mouse_control.on_click(mock_left_click)
+    assert (mouse_control.left_click_pos == (3.0, 3.0)).all()
+    
+    # Test right click
+    mock_right_click = Mock()
+    mock_right_click.button = MouseButton.RIGHT
+    mock_right_click.inaxes = ax
+    mock_right_click.xdata = 7.0
+    mock_right_click.ydata = 7.0
+    mouse_control.on_click(mock_right_click)
+    assert (mouse_control.right_click_pos == (7.0, 7.0)).all()
+    
+    # Test middle click (zoom reset)
+    initial_xlim = ax.get_xlim()
+    initial_ylim = ax.get_ylim()
+    
+    # First zoom in using scroll
+    mock_scroll = Mock()
+    mock_scroll.inaxes = ax
+    mock_scroll.xdata = 5.0
+    mock_scroll.ydata = 5.0
+    mock_scroll.step = 1  # Scroll up
+    mouse_control.on_scroll(mock_scroll)
+    
+    # Verify zoom changed
+    assert ax.get_xlim() != initial_xlim
+    assert ax.get_ylim() != initial_ylim
+    
+    # Test middle click reset
+    mock_middle_click = Mock()
+    mock_middle_click.button = MouseButton.MIDDLE
+    mock_middle_click.inaxes = ax
+    mouse_control.on_click(mock_middle_click)
+    
+    # Verify zoom reset
+    assert ax.get_xlim() == initial_xlim
+    assert ax.get_ylim() == initial_ylim
+    
+    # Test zoom factor change
+    mouse_control.set_zoom_factor(1.5)
+    assert mouse_control.zoom_factor == 1.5
+    
+    # Test minimum zoom factor
+    mouse_control.set_zoom_factor(1.0)  # Try to set below minimum
+    assert mouse_control.zoom_factor == 1.1  # Should be set to minimum
+    
+    # Test mouse release
+    mock_left_release = Mock()
+    mock_left_release.button = MouseButton.LEFT
+    mouse_control.on_release(mock_left_release)
+    assert mouse_control.left_click_pos is None
+    
+    mock_right_release = Mock()
+    mock_right_release.button = MouseButton.RIGHT
+    mouse_control.on_release(mock_right_release)
+    assert mouse_control.right_click_pos is None
+    
+    # Test movement outside axes
+    mock_move_outside = Mock()
+    mock_move_outside.inaxes = None
+    mouse_control.on_move(mock_move_outside)
+    assert mouse_control.mouse_pos is None
+    
+    env.end()
+    assert True  # All tests passed if we reach here
 
 def test_custom_behavior():
     """Test custom behavior"""

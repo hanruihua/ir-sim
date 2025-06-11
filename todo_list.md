@@ -64,6 +64,7 @@
 - [ ] Add subwindows for the simulation
 - [ ] Add appearance file for the plot
 - [ ] Add GUI for the plot
+- [ ] Refine plot function with collection of elements
 
 ## 🔧 System & Performance
 - [x] Add collision mode
@@ -85,6 +86,7 @@
 - [ ] Assign robot goals by mouse click
 - [ ] Some judgment functions for control
 - [ ] Complete the reactive collision mode
+- [ ] Add graphical user interface (GUI) for the matplotlib windows.  
 
 ## 🧪 Testing & Quality
 - [x] Pytest

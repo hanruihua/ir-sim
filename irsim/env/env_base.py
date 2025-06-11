@@ -9,13 +9,15 @@ from irsim.global_param import env_param
 
 # Define backend preferences for different operating systems
 BACKEND_PREFERENCES = {
-    'Darwin': ['MacOSX', 'TkAgg', 'Qt5Agg', 'Agg'],  # macOS
-    'Windows': ['TkAgg', 'Qt5Agg', 'Agg'],           # Windows
-    'Linux': ['TkAgg', 'Qt5Agg', 'Agg']              # Linux
+    "Darwin": ["MacOSX", "TkAgg", "Qt5Agg", "Agg"],  # macOS
+    "Windows": ["TkAgg", "Qt5Agg", "Agg"],  # Windows
+    "Linux": ["TkAgg", "Qt5Agg", "Agg"],  # Linux
 }
 
 # Get the current operating system from env_param
-backends = BACKEND_PREFERENCES.get(env_param.platform_name, ['Agg'])  # Default to Agg if OS not recognized
+backends = BACKEND_PREFERENCES.get(
+    env_param.platform_name, ["Agg"]
+)  # Default to Agg if OS not recognized
 backend_set = False
 
 for backend in backends:
@@ -48,13 +50,12 @@ from irsim.world import ObjectBase
 from shapely.strtree import STRtree
 from operator import attrgetter
 from mpl_toolkits.mplot3d import Axes3D
+from irsim.gui.mouse_control import MouseControl
 
 try:
-    from pynput import keyboard
-    from tabulate import tabulate
+    from irsim.gui.keyboard_control import KeyboardControl
     keyboard_module = True
 except ImportError:
-    print("Warning: Keyboard module is not installed. Auto control applied. Please install keyboard dependency by 'pip install ir-sim[keyboard]'.")
     keyboard_module = False
 
 class EnvBase:
@@ -111,7 +112,7 @@ class EnvBase:
         self._objects = (
             self._robot_collection + self._obstacle_collection + self._map_collection
         )
-        
+
         self._objects.sort(key=attrgetter("id"))
         self.build_tree()
 
@@ -130,11 +131,13 @@ class EnvBase:
             
             if not keyboard_module:
                 self.logger.error(
-                    "Keyboard module is not installed. Auto control applied. Please install pynput by 'pip install pynput'."
+                    "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
                 )
                 world_param.control_mode = "auto"
             else:
-                self.init_keyboard(self.env_config.parse["keyboard"])
+                self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
+
+        self.mouse = MouseControl(self._env_plot.ax)
 
         if full:
             system_platform = platform.system()
@@ -233,7 +236,6 @@ class EnvBase:
                     self._env_plot.clear_components(mode)
                     self._env_plot.step_objects_plot(mode, self.objects, **kwargs)
 
-
     def show(self):
         """
         Show the environment figure.
@@ -304,81 +306,6 @@ class EnvBase:
         """
         self._env_plot.draw_quivers(points, refresh, **kwargs)
 
-    # keyboard control
-    def init_keyboard(self, keyboard_kwargs: dict = dict()):
-        """
-        Initialize keyboard control for the environment.
-
-        Args:
-            keyboard_kwargs (dict): Dictionary of keyword arguments for keyboard control settings
-
-                - vel_max (list): Maximum velocities [linear, angular]. Default is [3.0, 1.0].
-
-                - key_lv_max (float): Maximum linear velocity. Default is vel_max [0].
-
-                - key_ang_max (float): Maximum angular velocity. Default is vel_max [1].
-
-                - key_lv (float): Initial linear velocity. Default is 0.0.
-
-                - key_ang (float): Initial angular velocity. Default is 0.0.
-
-                - key_id (int): Initial robot control ID. Default is 0.
-
-            Keys:
-                - w: Move forward.
-                - s: Move backward.
-                - a: Turn left.
-                - d: Turn right.
-                - q: Decrease linear velocity.
-                - e: Increase linear velocity.
-                - z: Decrease angular velocity.
-                - c: Increase angular velocity.
-                - alt + num: Change the current control robot id.
-                - r: Reset the environment.
-        """
-
-        vel_max = keyboard_kwargs.get("vel_max", [3.0, 1.0])
-        self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
-        self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
-        self.key_lv = keyboard_kwargs.get("key_lv", 0.0)
-        self.key_ang = keyboard_kwargs.get("key_ang", 0.0)
-        self.key_id = keyboard_kwargs.get("key_id", 0)
-        self.alt_flag = 0
-
-        if "s" in plt.rcParams["keymap.save"]:
-            plt.rcParams["keymap.save"].remove("s")
-
-        if "q" in plt.rcParams["keymap.quit"]:
-            plt.rcParams["keymap.quit"].remove("q")
-
-        self.key_vel = np.zeros((2, 1))
-
-        self.logger.info("start to keyboard control")
-
-        commands = [
-            ["w", "forward"],
-            ["s", "back forward"],
-            ["a", "turn left"],
-            ["d", "turn right"],
-            ["q", "decrease linear velocity"],
-            ["e", "increase linear velocity"],
-            ["z", "decrease angular velocity"],
-            ["c", "increase angular velocity"],
-            ["alt+num", "change current control robot id"],
-            ["r", "reset the environment"],
-        ]
-        # headers = ["key", "function"]
-
-        headers = ["Key", "Function"]
-        # Generate the table using tabulate
-        table = tabulate(commands, headers=headers, tablefmt="grid")
-        print(table)
-
-        self.listener = keyboard.Listener(
-            on_press=self._on_press, on_release=self._on_release
-        )
-        self.listener.start()
-
     def end(self, ending_time: float = 3.0, **kwargs):
         """
         End the simulation, save the animation, and close the environment.
@@ -403,7 +330,7 @@ class EnvBase:
         ObjectBase.reset_id_iter()
 
         if world_param.control_mode == "keyboard":
-            self.listener.stop()
+            self.keyboard.listener.stop()
 
     def done(self, mode: str = "all"):
         """
@@ -605,7 +532,7 @@ class EnvBase:
                 obj.plot_clear()
                 self._objects.remove(obj)
                 break
-        
+
         self.build_tree()
 
     def delete_objects(self, target_ids: list):
@@ -621,9 +548,8 @@ class EnvBase:
         for obj in del_obj:
             obj.plot_clear()
             self._objects.remove(obj)
-        
-        self.build_tree()
 
+        self.build_tree()
 
     def build_tree(self):
         """
@@ -790,7 +716,7 @@ class EnvBase:
             list: List of all objects in the environment.
         """
         return self._objects
-    
+
     @property
     def static_objects(self):
         """
@@ -860,96 +786,25 @@ class EnvBase:
             EnvLogger: The logger instance for the environment.
         """
         return env_param.logger
+
+    @property
+    def key_vel(self):
+        return self.keyboard.key_vel
+
+    @property
+    def key_id(self):
+        return self.keyboard.key_id
+
+    @property
+    def mouse_pos(self):
+        return self.mouse.mouse_pos
     
+    @property
+    def mouse_left_pos(self):
+        return self.mouse.left_click_pos
+    
+    @property
+    def mouse_right_pos(self):
+        return self.mouse.right_click_pos
+
     # endregion: property
-
-    # region: keyboard control
-
-    def _on_press(self, key):
-        """
-        Handle key press events for keyboard control.
-
-        Args:
-            key (pynput.keyboard.Key): The key that was pressed.
-        """
-
-        try:
-            if key.char.isdigit() and self.alt_flag:
-
-                if int(key.char) >= self.robot_number:
-                    print("out of number of robots")
-                    self.key_id = int(key.char)
-                else:
-                    print("current control id: ", int(key.char))
-                    self.key_id = int(key.char)
-
-            if key.char == "w":
-                self.key_lv = self.key_lv_max
-            if key.char == "s":
-                self.key_lv = -self.key_lv_max
-            if key.char == "a":
-                self.key_ang = self.key_ang_max
-            if key.char == "d":
-                self.key_ang = -self.key_ang_max
-
-            self.key_vel = np.array([[self.key_lv], [self.key_ang]])
-
-        except AttributeError:
-
-            try:
-                if "alt" in key.name:
-                    self.alt_flag = True
-
-            except AttributeError:
-
-                if key.char.isdigit() and self.alt_flag:
-
-                    if int(key.char) >= self.robot_number:
-                        print("out of number of robots")
-                        self.key_id = int(key.char)
-                    else:
-                        print("current control id: ", int(key.char))
-                        self.key_id = int(key.char)
-
-    def _on_release(self, key):
-        """
-        Handle key release events for keyboard control.
-
-        Args:
-            key (pynput.keyboard.Key): The key that was released.
-        """
-
-        try:
-            if key.char == "w":
-                self.key_lv = 0
-            if key.char == "s":
-                self.key_lv = 0
-            if key.char == "a":
-                self.key_ang = 0
-            if key.char == "d":
-                self.key_ang = 0
-            if key.char == "q":
-                self.key_lv_max = self.key_lv_max - 0.2
-                print("current linear velocity", self.key_lv_max)
-            if key.char == "e":
-                self.key_lv_max = self.key_lv_max + 0.2
-                print("current linear velocity", self.key_lv_max)
-
-            if key.char == "z":
-                self.key_ang_max = self.key_ang_max - 0.2
-                print("current angular velocity ", self.key_ang_max)
-            if key.char == "c":
-                self.key_ang_max = self.key_ang_max + 0.2
-                print("current angular velocity ", self.key_ang_max)
-
-            if key.char == "r":
-                print("reset the environment")
-                self.reset()
-
-            self.key_vel = np.array([[self.key_lv], [self.key_ang]])
-
-        except AttributeError:
-            if "alt" in key.name:
-                self.alt_flag = False
-
-    # endregion:keyboard control

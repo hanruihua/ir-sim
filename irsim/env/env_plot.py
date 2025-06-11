@@ -17,7 +17,7 @@ from math import sin, cos
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from dataclasses import dataclass
-
+from irsim.gui.mouse_control import MouseControl
 
 class EnvPlot:
     """
@@ -42,7 +42,7 @@ class EnvPlot:
         x_range=[0, 10],
         y_range=[0, 10],
         saved_figure=dict(),
-        figure_pixels: list = [1920, 1080],
+        figure_pixels: list = [1180, 1080],
         **kwargs,
     ) -> None:
         """
@@ -97,8 +97,7 @@ class EnvPlot:
             self.ax.set_box_aspect([1, 1, 1])
         else:
             self.ax.set_aspect("equal")
-            self.ax.set_aspect("equal")
-
+        
         self.ax.set_xlim(self.x_range)
         self.ax.set_ylim(self.y_range)
 
@@ -113,8 +112,7 @@ class EnvPlot:
             plt.axis("off")
         if tight:
             self.fig.tight_layout()
-
-
+        
     def init_objects_plot(self, objects, **kwargs):
         [obj._init_plot(self.ax, **kwargs) for obj in objects]
         self.step_objects_plot('all', objects, **kwargs)
@@ -250,7 +248,7 @@ class EnvPlot:
                 )
 
             else:
-                self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
+                self.ax.quiver(path_x_list, path_y_list, u_list, v_list, width=0.003)
 
         if refresh:
             self.dyna_line_list.append(line)
@@ -448,6 +446,7 @@ class EnvPlot:
     @property
     def logger(self):
         return env_param.logger
+
 
 
 def linewidth_from_data_units(linewidth, axis, reference="y"):
