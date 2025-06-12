@@ -322,7 +322,7 @@ def vertices_transform(vertices, state):
         np.array: Transformed vertices.
     """
 
-    if vertices is None:
+    if vertices is None or state is None:
         return None
 
     trans, rot = get_transform(state)

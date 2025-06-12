@@ -180,7 +180,7 @@ class ObjectBase:
         kinematics: Optional[dict] = None,
         state: list = [0, 0, 0],
         velocity: list = [0, 0],
-        goal: list = [10, 10, 0],
+        goal: Optional[list] = None,
         role: str = "obstacle",
         color: str = "k",
         static: bool = False,
@@ -243,10 +243,14 @@ class ObjectBase:
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
 
-        self._goal = deque(goal) if is_2d_list(goal) else deque([goal])
+        if goal is None:
+            self._goal = None
+        else:
+            self._goal = deque(goal) if is_2d_list(goal) else deque([goal])
+
         self._goal_vertices = vertices_transform(self.original_vertices, self.goal)
 
-        self._init_goal = self._goal.copy()
+        self._init_goal = self._goal.copy() if self._goal is not None else None
         self._init_goal_vertices = (
             self._goal_vertices.copy() if self._goal_vertices is not None else None
         )
@@ -434,6 +438,11 @@ class ObjectBase:
 
         Updates the arrive_flag and handles multiple goals by removing completed ones.
         """
+
+        if self.goal is None:
+            self.arrive_flag = False
+            return
+
         if self.arrive_mode == "state":
             diff = np.linalg.norm(self.state[:3] - self.goal[:3])
         elif self.arrive_mode == "position":
@@ -832,17 +841,17 @@ class ObjectBase:
 
         if isinstance(goal, list):
             assert (
-                len(goal) == self.state_dim
-            ), "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be {}".format(
-                len(goal), self.state_dim
+                len(goal) >= 2
+            ), "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be at least 2".format(
+                len(goal)
             )
             temp_goal = np.c_[goal]
 
         elif isinstance(goal, np.ndarray):
             assert (
-                goal.shape[0] == self.state_dim
-            ), "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be {}".format(
-                goal.shape[0], self.state_dim
+                goal.shape[0] >= 2
+            ), "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be at least 2".format(
+                goal.shape[0]
             )
             temp_goal = goal
 
@@ -1033,7 +1042,7 @@ class ObjectBase:
         if self.shape != "map":
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
-        if show_goal:
+        if show_goal and self.goal is not None:
             goal_state = state if initial else self.goal
             goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
@@ -1230,6 +1239,9 @@ class ObjectBase:
                     #         self.ax.add_patch(new_element)
 
                     # else:
+                    if self.goal is None:
+                        return None
+                    
                     if self.goal.shape[0] > 2:
                         goal_state = self.goal
                     else:
@@ -1912,7 +1924,7 @@ class ObjectBase:
         Reset the object to its initial state.
         """
         self._state = self._init_state.copy()
-        self._goal = self._init_goal.copy()
+        self._goal = self._init_goal.copy() if self._init_goal is not None else None
         self._velocity = self._init_velocity.copy()
 
         self.collision_flag = False
@@ -2119,7 +2131,10 @@ class ObjectBase:
             np.ndarray: The goal of the object.
         """
 
-        return np.c_[self._goal[0]]
+        if self._goal is None:
+            return None
+        else:
+            return np.c_[self._goal[0]]
 
     @property
     def goal_vertices(self) -> np.ndarray:
@@ -2325,6 +2340,10 @@ class ObjectBase:
         Returns:
             np.ndarray: Desired velocity [vx, vy].
         """
+
+        if self.goal is None:
+            return np.zeros((2, 1))
+
         dis, radian = relative_position(self.state, self.goal)
 
         if dis > goal_threshold:

@@ -46,10 +46,9 @@ for i in range(10000):
     env.render(0.05, show_goal=False)
     
     if env.mouse_left_pos is not None:
-        mouse_left_pos = np.pad(env.mouse_left_pos, (0, 1), 'constant', constant_values=0)
-        env.robot.set_goal(mouse_left_pos)
+        env.robot.set_goal(env.mouse_left_pos)
 
-    if env.done():
-        break
+    # if env.done():
+    #     break
 
 env.end(3)
