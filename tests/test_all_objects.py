@@ -115,11 +115,22 @@ def test_polygon_and_lidar():
     
     env.get_obstacle_info_list()
     env.get_robot_info_list()
-    env.delete_objects([1, 2])
     
     for i in range(10):
+
+        if i < 5:
+            env.robot.set_goal(None)
+            env.robot_list[1].set_goal(None)
+            env.robot_list[2].set_goal(None)
+        else:
+            env.robot.set_goal([9, 9, 0])
+            env.robot_list[1].set_goal([9, 9, 0])
+            env.robot_list[2].set_goal([9, 9, 0])
+
         env.step()
         env.render(0.01)
+
+    env.delete_objects([1, 2])
     env.end()
     
     # assert points is not None

@@ -831,6 +831,10 @@ class ObjectBase:
             init (bool): Whether to set the initial goal (default False).
         """
 
+        if goal is None:
+            self._goal = None
+            return  
+
         if is_2d_list(goal):
             self._goal = deque(goal)
 
