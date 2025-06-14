@@ -192,6 +192,7 @@ class EnvBase:
                     self._object_step(action, action_id)
 
         self.build_tree()
+        self._objects_check_status()
         self._world.step()
 
     def _objects_step(self, action: Optional[list] = None):
@@ -201,6 +202,9 @@ class EnvBase:
     def _object_step(self, action: np.ndarray, obj_id: int = 0):
         self.objects[obj_id].step(action)
         [obj.step() for obj in self.objects if obj._id != obj_id]
+
+    def _objects_check_status(self):
+        [obj.check_status() for obj in self.objects]
 
     # render
     def render(
