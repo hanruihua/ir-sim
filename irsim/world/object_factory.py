@@ -70,11 +70,11 @@ class ObjectFactory:
 
     def create_object(
         self,
-        obj_type="robot",
-        number=1,
-        distribution={"name": "manual"},
-        state=[1, 1, 0],
-        goal=[1, 9, 0],
+        obj_type: str = "robot",
+        number: int = 1,
+        distribution: dict = {"name": "manual"},
+        state: list = [1, 1, 0],
+        goal: list = None,
         **kwargs,
     ):
         """

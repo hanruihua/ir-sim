@@ -180,7 +180,7 @@ class ObjectBase:
         kinematics: Optional[dict] = None,
         state: list = [0, 0, 0],
         velocity: list = [0, 0],
-        goal: list = [10, 10, 0],
+        goal: Optional[list] = None,
         role: str = "obstacle",
         color: str = "k",
         static: bool = False,
@@ -243,10 +243,18 @@ class ObjectBase:
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
 
-        self._goal = deque(goal) if is_2d_list(goal) else deque([goal])
-        self._goal_vertices = vertices_transform(self.original_vertices, self.goal)
-
-        self._init_goal = self._goal.copy()
+        # Set goal points
+        self._goal = (
+            deque(goal)
+            if goal is not None and is_2d_list(goal)
+            else deque([goal]) if goal is not None else None
+        )
+        self._goal_vertices = (
+            vertices_transform(self.original_vertices, self.goal)
+            if self.goal is not None
+            else None
+        )
+        self._init_goal = self._goal.copy() if self._goal is not None else None
         self._init_goal_vertices = (
             self._goal_vertices.copy() if self._goal_vertices is not None else None
         )
@@ -434,6 +442,11 @@ class ObjectBase:
 
         Updates the arrive_flag and handles multiple goals by removing completed ones.
         """
+
+        if self.goal is None:
+            self.arrive_flag = False
+            return
+
         if self.arrive_mode == "state":
             diff = np.linalg.norm(self.state[:3] - self.goal[:3])
         elif self.arrive_mode == "position":
@@ -822,6 +835,10 @@ class ObjectBase:
             init (bool): Whether to set the initial goal (default False).
         """
 
+        if goal is None:
+            self._goal = None
+            return
+
         if is_2d_list(goal):
             self._goal = deque(goal)
 
@@ -832,17 +849,17 @@ class ObjectBase:
 
         if isinstance(goal, list):
             assert (
-                len(goal) == self.state_dim
-            ), "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be {}".format(
-                len(goal), self.state_dim
+                len(goal) >= 2
+            ), "The goal dimension is not correct. Your input goal length is {} and the goal dimension should be at least 2".format(
+                len(goal)
             )
             temp_goal = np.c_[goal]
 
         elif isinstance(goal, np.ndarray):
             assert (
-                goal.shape[0] == self.state_dim
-            ), "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be {}".format(
-                goal.shape[0], self.state_dim
+                goal.shape[0] >= 2
+            ), "The goal dimension is not correct. Your input goal dimension is {} and the goal dimension should be at least 2".format(
+                goal.shape[0]
             )
             temp_goal = goal
 
@@ -1033,7 +1050,7 @@ class ObjectBase:
         if self.shape != "map":
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
-        if show_goal:
+        if show_goal and self.goal is not None:
             goal_state = state if initial else self.goal
             goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
@@ -1140,11 +1157,11 @@ class ObjectBase:
                     obj_kwargs = {
                         "color": kwargs.get("obj_color"),
                         "alpha": kwargs.get("obj_alpha"),
-                        "zorder": kwargs.get("obj_zorder")
+                        "zorder": kwargs.get("obj_zorder"),
                     }
                     # Filter out None values
                     obj_kwargs = {k: v for k, v in obj_kwargs.items() if v is not None}
-                    
+
                     self.set_element_property(element, self.state, **obj_kwargs)
 
                     # Update object patch properties that are not handled by set_element_property
@@ -1209,34 +1226,40 @@ class ObjectBase:
                     goal_kwargs = {
                         "color": kwargs.get("goal_color"),
                         "alpha": kwargs.get("goal_alpha"),
-                        "zorder": kwargs.get("goal_zorder")
+                        "zorder": kwargs.get("goal_zorder"),
                     }
 
-                    goal_kwargs = {k: v for k, v in goal_kwargs.items() if v is not None}
+                    goal_kwargs = {
+                        k: v for k, v in goal_kwargs.items() if v is not None
+                    }
 
                     # if self.show_goals:
 
                     #     for i in range(len(self._goal)):
-                            
+
                     #         temp_goal = np.c_[self._goal[i]]
 
                     #         if temp_goal.shape[0] > 2:
                     #             goal_state = temp_goal
                     #         else:
-                    #             goal_state = np.pad(temp_goal, (0, 1), 'constant', constant_values=0) 
+                    #             goal_state = np.pad(temp_goal, (0, 1), 'constant', constant_values=0)
 
                     #         new_element = copy.copy(element)
                     #         self.set_element_property(new_element, goal_state, **goal_kwargs)
                     #         self.ax.add_patch(new_element)
 
                     # else:
+                    if self.goal is None:
+                        return None
+
                     if self.goal.shape[0] > 2:
                         goal_state = self.goal
                     else:
-                        goal_state = np.pad(self.goal, (0, 1), 'constant', constant_values=0) 
+                        goal_state = np.pad(
+                            self.goal, (0, 1), "constant", constant_values=0
+                        )
 
                     self.set_element_property(element, goal_state, **goal_kwargs)
-
 
                 elif attr == "arrow_patch":
                     # Update arrow patch using set_element_property
@@ -1247,17 +1270,19 @@ class ObjectBase:
                             if self.kinematics == "omni"
                             else r_phi
                         )
-                        
+
                         arrow_state = np.array([[x], [y], [theta]])
-                        
+
                         arrow_kwargs = {
                             "color": kwargs.get("arrow_color"),
                             "alpha": kwargs.get("arrow_alpha"),
-                            "zorder": kwargs.get("arrow_zorder")
+                            "zorder": kwargs.get("arrow_zorder"),
                         }
                         # Filter out None values
-                        arrow_kwargs = {k: v for k, v in arrow_kwargs.items() if v is not None}
-                        
+                        arrow_kwargs = {
+                            k: v for k, v in arrow_kwargs.items() if v is not None
+                        }
+
                         self.set_element_property(element, arrow_state, **arrow_kwargs)
 
                 elif attr == "trajectory_line":
@@ -1299,20 +1324,22 @@ class ObjectBase:
                     if isinstance(element, mpl.patches.Wedge):
                         direction = r_phi if self.state_dim >= 3 else 0
                         fov_state = np.array([[x], [y], [direction]])
-                        
+
                         fov_kwargs = {
                             "alpha": kwargs.get("fov_alpha"),
-                            "zorder": kwargs.get("fov_zorder")
+                            "zorder": kwargs.get("fov_zorder"),
                         }
                         # Filter out None values
-                        fov_kwargs = {k: v for k, v in fov_kwargs.items() if v is not None}
-                        
+                        fov_kwargs = {
+                            k: v for k, v in fov_kwargs.items() if v is not None
+                        }
+
                         self.set_element_property(element, fov_state, **fov_kwargs)
-                        
+
                         # Update special FOV properties that are not handled by set_element_property
                         if "fov_color" in kwargs:
                             element.set_facecolor(kwargs["fov_color"])
-                            
+
                         if "fov_edge_color" in kwargs:
                             element.set_edgecolor(kwargs["fov_edge_color"])
 
@@ -1912,7 +1939,7 @@ class ObjectBase:
         Reset the object to its initial state.
         """
         self._state = self._init_state.copy()
-        self._goal = self._init_goal.copy()
+        self._goal = self._init_goal.copy() if self._init_goal is not None else None
         self._velocity = self._init_velocity.copy()
 
         self.collision_flag = False
@@ -2119,7 +2146,10 @@ class ObjectBase:
             np.ndarray: The goal of the object.
         """
 
-        return np.c_[self._goal[0]]
+        if self._goal is None:
+            return None
+        else:
+            return np.c_[self._goal[0]]
 
     @property
     def goal_vertices(self) -> np.ndarray:
@@ -2325,6 +2355,10 @@ class ObjectBase:
         Returns:
             np.ndarray: Desired velocity [vx, vy].
         """
+
+        if self.goal is None:
+            return np.zeros((2, 1))
+
         dis, radian = relative_position(self.state, self.goal)
 
         if dis > goal_threshold:

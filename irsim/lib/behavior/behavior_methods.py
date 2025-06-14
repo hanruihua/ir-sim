@@ -3,6 +3,7 @@ from irsim.lib import reciprocal_vel_obs
 from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
 from math import cos, sin
+from irsim.global_param import env_param, world_param
 
 """
 Behavior Methods Module
@@ -51,6 +52,11 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
         np.array: Velocity [linear, angular] (2x1) for differential drive.
     """
 
+    if ego_object.goal is None:
+        if world_param.count % 10 == 0:
+            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+        return np.zeros((2, 1))
+
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
@@ -85,6 +91,12 @@ def beh_diff_dash(ego_object, external_objects, **kwargs):
     _, max_vel = ego_object.get_vel_range()
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
+    if goal is None:
+        if world_param.count % 10 == 0:
+            env_param.logger.warning("Goal is None, please set the goal first for the dash behavior")
+
+        return np.zeros((2, 1))
+
     behavior_vel = DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance)
 
     return behavior_vel
@@ -103,6 +115,11 @@ def beh_omni_dash(ego_object, external_objects, **kwargs):
     Returns:
         np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
     """
+
+    if ego_object.goal is None:
+        if world_param.count % 10 == 0:
+            env_param.logger.warning("Goal is None, please set the goal first for the dash behavior")
+        return np.zeros((2, 1))
 
     state = ego_object.state
     goal = ego_object.goal
@@ -133,6 +150,11 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
         np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
     """
 
+    if ego_object.goal is None:
+        if world_param.count % 10 == 0:
+            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+        return np.zeros((2, 1))
+
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
@@ -160,6 +182,11 @@ def beh_acker_dash(ego_object, external_objects, **kwargs):
     Returns:
         np.array: Velocity [linear, steering angle] (2x1) for Ackermann drive.
     """
+
+    if ego_object.goal is None:
+        if world_param.count % 10 == 0:
+            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+        return np.zeros((2, 1))
 
     state = ego_object.state
     goal = ego_object.goal
@@ -198,6 +225,7 @@ def OmniRVO(
     Returns:
         np.array: Velocity [vx, vy] (2x1).
     """
+    
     if neighbor_list is None:
         neighbor_list = []
     
