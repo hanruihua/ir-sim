@@ -389,7 +389,6 @@ class ObjectBase:
             self._geometry = self.gf.step(self.state)
             self.sensor_step()
             self.post_process()
-            self.check_status()
             self.trajectory.append(self.state.copy())
             return next_state
 
