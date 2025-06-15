@@ -63,7 +63,7 @@
 - [ ] Complete color map
 - [ ] Add subwindows for the simulation
 - [ ] Add appearance file for the plot
-- [ ] Add GUI for the plot
+- [x] Add GUI for the plot
 - [ ] Refine plot function with collection of elements
 
 ## 🔧 System & Performance
