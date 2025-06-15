@@ -6,6 +6,7 @@ myst_parser
 importlib-metadata
 sphinx_copybutton
 pydata-sphinx-theme
+pynput
 # sphinx.ext.viewcode
 # sphinx.ext.githubpages
 # sphinx.ext.napoleon
