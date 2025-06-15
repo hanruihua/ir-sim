@@ -84,7 +84,74 @@ The demonstration controlled by the keyboard is shown below:
 
 ## Mouse Control
 
-IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use 
+IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use mouse left click to set the goal of the robot, as shown in the following figure.
+
+<img src="https://github.com/user-attachments/assets/8dff039d-629b-4102-b272-47a120712929" alt="drawing" width="280"/>
+
+Python script:
+
+```python
+env = irsim.make(save_ani=False, full=False)
+
+for i in range(10000):
+    env.step()
+    env.render(0.05, show_goal=False)
+    
+    if env.mouse_left_pos is not None:
+        env.robot.set_goal(env.mouse_left_pos)
+
+    if env.done():
+        break
+
+env.end(3)
+```
+
+YAML file:
+
+```yaml
+world:
+  height: 50 
+  width: 50  
+  step_time: 0.1 
+  sample_time: 0.1 
+  offset: [0, 0] 
+  collision_mode: 'stop' 
+  control_mode: 'auto' 
+  plot:
+    saved_figure:
+      bbox_inches: null
+
+robot:
+  - kinematics: {name: 'diff'} 
+    shape: {name: 'circle', radius: 1}
+    state: [5, 5, 0]
+    vel_max: [4, 1]
+    behavior: {name: 'dash'} 
+    plot:
+      show_trajectory: True
+      traj_color: 'g'
+      show_goals: True
+
+    sensors: 
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 20
+        angle_range: 3.14
+        number: 100
+        noise: False
+        std: 1   
+        angle_std: 0.2
+        offset: [0, 0, 0]
+        alpha: 0.4
+
+
+obstacle:
+  - number: 10
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]} 
+```
+
 
 ### Mouse Control Key Mapping
 
@@ -102,5 +169,3 @@ IR-SIM supports the mouse control to zoom in and out the environment and track t
 | `mouse_left_pos` | `tuple` | Position of left click (x, y) |
 | `mouse_right_pos` | `tuple` | Position of right click (x, y) |
 | `mouse_pos` | `tuple` | Current mouse position (x, y) |
-
-

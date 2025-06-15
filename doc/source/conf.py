@@ -16,7 +16,7 @@
 import os
 import sys
 from unittest.mock import MagicMock
-import irsim
+import importlib.metadata
 
 class Mock(MagicMock):
     @classmethod
@@ -25,6 +25,8 @@ class Mock(MagicMock):
 
 MOCK_MODULES = ['pynput', 'loguru']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+os.environ['PYNPUT_BACKEND'] = 'dummy'
 
 # Rest of your conf.py content
 
@@ -35,7 +37,7 @@ copyright = '2024, Ruihua Han'
 author = 'Ruihua Han'
 
 # The full version, including alpha/beta/rc tags
-release = irsim.__version__
+release = importlib.metadata.version("ir-sim")
 
 # print(os.path.abspath('../../'))
 # sys.path.insert(0, os.path.abspath('../../'))
