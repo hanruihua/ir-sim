@@ -12,8 +12,10 @@ robot:
     goal: [40, 40, 0]
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly
+    goal_threshold: 0.3
     plot:
       show_trajectory: True
+      show_goal: True
       
   
     
