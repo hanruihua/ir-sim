@@ -1049,7 +1049,7 @@ class ObjectBase:
         if self.shape != "map":
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
-        if show_goal and self.goal is not None:
+        if show_goal:
             goal_state = state if initial else self.goal
             goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
@@ -1232,24 +1232,11 @@ class ObjectBase:
                         k: v for k, v in goal_kwargs.items() if v is not None
                     }
 
-                    # if self.show_goals:
-
-                    #     for i in range(len(self._goal)):
-
-                    #         temp_goal = np.c_[self._goal[i]]
-
-                    #         if temp_goal.shape[0] > 2:
-                    #             goal_state = temp_goal
-                    #         else:
-                    #             goal_state = np.pad(temp_goal, (0, 1), 'constant', constant_values=0)
-
-                    #         new_element = copy.copy(element)
-                    #         self.set_element_property(new_element, goal_state, **goal_kwargs)
-                    #         self.ax.add_patch(new_element)
-
-                    # else:
                     if self.goal is None:
-                        return None
+                        element.set_visible(False)
+                        continue
+                    elif not element.get_visible():
+                        element.set_visible(True) 
 
                     if self.goal.shape[0] > 2:
                         goal_state = self.goal

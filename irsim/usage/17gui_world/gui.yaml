@@ -6,6 +6,9 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
   control_mode: 'auto'  # 'keyboard', 'auto'
+  plot:
+    saved_figure:
+      bbox_inches: null
 
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker

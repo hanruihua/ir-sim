@@ -54,7 +54,7 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
         return np.zeros((2, 1))
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
@@ -93,7 +93,7 @@ def beh_diff_dash(ego_object, external_objects, **kwargs):
 
     if goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is None, please set the goal first for the dash behavior")
+            env_param.logger.warning("Goal is currently None. This dash behavior is waiting for goal configuration")
 
         return np.zeros((2, 1))
 
@@ -118,7 +118,7 @@ def beh_omni_dash(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is None, please set the goal first for the dash behavior")
+            env_param.logger.warning("Goal is currently None. This dash behavior is waiting for goal configuration")
         return np.zeros((2, 1))
 
     state = ego_object.state
@@ -152,7 +152,7 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
         return np.zeros((2, 1))
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
@@ -185,7 +185,7 @@ def beh_acker_dash(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is None, please set the goal first for the rvo behavior")
+            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
         return np.zeros((2, 1))
 
     state = ego_object.state
