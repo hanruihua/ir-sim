@@ -1,3 +1,8 @@
+## ir-sim 2.5.4
+
+- Bug Fixes:
+  - Fix the pynput import error
+
 ## ir-sim 2.5.3
 
 - New Features:
