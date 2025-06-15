@@ -86,7 +86,11 @@ The demonstration controlled by the keyboard is shown below:
 
 IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use mouse left click to set the goal of the robot, as shown in the following figure.
 
-<img src="https://github.com/user-attachments/assets/8dff039d-629b-4102-b272-47a120712929" alt="drawing" width="280"/>
+```{image} gif/mouse.gif
+:alt: Select Parameters
+:width: 400px
+:align: center
+```
 
 Python script:
 
