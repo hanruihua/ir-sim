@@ -2,13 +2,18 @@ import pytest
 import irsim
 from irsim.util.util import time_it2, file_check, WrapToRegion, convert_list_length_dict, is_list_not_list_of_lists, is_list_of_lists, get_transform, get_affine_transform, distance
 from unittest.mock import Mock
-from pynput import keyboard
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
 import time
 from irsim.gui.mouse_control import MouseControl
 from matplotlib.backend_bases import MouseButton
+
+try:
+    from pynput import keyboard
+except ImportError:
+    pass
+
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
