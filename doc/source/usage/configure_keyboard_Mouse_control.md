@@ -1,11 +1,11 @@
-Configure keyboard control
+Configure keyboard/Mouse control
 ==========================
 
-The keyboard control is a manual control method that allows you to control the robot using the keyboard. In this mode, the behavior of the robot is controlled by the user and the settings in the YAML file are ignored. 
+IR-SIM support reading the keyboard and mouse input to control the robot manually.  
 
 ## Keyboard Control Configuration Parameters
 
-Please make sure the dependencies are installed before running the simulation with keyboard. The dependencies can be installed using the following command:
+In the keyboard control mode, the behavior of the robot is controlled by the user and the settings in the YAML file will be ignored. Please make sure the dependencies are installed before running the simulation with keyboard. The dependencies can be installed using the following command:
 
 ```bash
 pip install ir-sim[keyboard]
@@ -80,3 +80,27 @@ The demonstration controlled by the keyboard is shown below:
 | `c`      | Increase Angular Velocity       |
 | `alt+num`| Change Current Control Robot ID |
 | `r`      | Reset the Environment           |
+
+
+## Mouse Control
+
+IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use 
+
+### Mouse Control Key Mapping
+
+| Mouse Action | Function |
+|--------------|----------|
+| Mouse Movement | Track mouse position and update display coordinates |
+| Middle Click | Reset zoom to default view |
+| Scroll Up | Zoom in (centered on mouse position) |
+| Scroll Down | Zoom out (centered on mouse position) |
+
+### Mouse Position Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mouse_left_pos` | `tuple` | Position of left click (x, y) |
+| `mouse_right_pos` | `tuple` | Position of right click (x, y) |
+| `mouse_pos` | `tuple` | Current mouse position (x, y) |
+
+
