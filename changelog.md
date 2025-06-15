@@ -1,3 +1,19 @@
+## ir-sim 2.5.3
+
+- New Features:
+  - Add GUI module, including keyboard and mouse control. 
+  - Add mouse control documentation.
+  - Make the object default goal to be None.
+
+- Bug Fixes:
+  - Fix the backend error for macos system.
+  - Fix zorder issue for the object plot.
+  - Fix the object collision check issue. 
+
+- API Changes:
+  - Add `mouse_left_pos`, `mouse_right_pos`, and `mouse_pos` attributes to the environment for mouse control.
+  - Move keyboard_control.py to the gui folder. Thus the api of the keyboard is changed, such as from `env.alt_flag` to `env.keyboard.alt_flag`. 
+
 ## ir-sim 2.5.2
 
 - Bug Fixes:
