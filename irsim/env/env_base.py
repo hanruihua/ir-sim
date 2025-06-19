@@ -231,12 +231,7 @@ class EnvBase:
                 if self.save_ani:
                     self.save_figure(save_gif=True, **figure_kwargs)
 
-                if isinstance(self._env_plot.ax, Axes3D):
-                    self._env_plot.clear_components(mode, self.objects)
-                    self._env_plot.draw_components(mode, self.objects, **kwargs)
-                else:
-                    self._env_plot.clear_components(mode)
-                    self._env_plot.step_objects_plot(mode, self.objects, **kwargs)
+                self._env_plot.step(mode, self.objects, **kwargs)
 
     def show(self):
         """
@@ -651,6 +646,13 @@ class EnvBase:
 
     # endregion: get information
 
+    def set_title(self, title: str):
+        """
+        Set the title of the plot.
+        """
+
+        self._env_plot.set_title(title)
+
     def save_figure(
         self,
         save_name: str = None,
@@ -750,6 +752,13 @@ class EnvBase:
             float: Step time of the simulation from the world.
         """
         return self._world.step_time
+
+    @property
+    def time(self):
+        """
+        Get the time of the simulation.
+        """
+        return self._world.time
 
     @property
     def robot(self):
