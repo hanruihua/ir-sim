@@ -1,4 +1,3 @@
-
 '''
 This file is the implementation of the environment plot to visualize the environment objects.
 
@@ -16,8 +15,7 @@ import glob
 from math import sin, cos
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from dataclasses import dataclass
-from irsim.gui.mouse_control import MouseControl
+from typing import Optional
 
 class EnvPlot:
     """
@@ -32,6 +30,8 @@ class EnvPlot:
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         dpi: Dots per inch for the figure. Default is 100.
         figure_pixels: Width and height of the figure in pixels. Default is [1920, 1080].
+        show_title: Whether to show the title. Default is False.
+        title: The title of the plot. Default is Simulation Time in seconds.
         kwargs: Additional options such as color_map, no_axis, and tight.
     """
 
@@ -43,6 +43,8 @@ class EnvPlot:
         y_range=[0, 10],
         saved_figure=dict(),
         figure_pixels: list = [1180, 1080],
+        show_title: bool = True,
+        title: Optional[str] = None,
         **kwargs,
     ) -> None:
         """
@@ -78,6 +80,9 @@ class EnvPlot:
         self.dpi = dpi
         self.figure_pixels = figure_pixels
 
+        self.show_title = show_title
+        self.title = title
+
         self.dyna_line_list = []
         self.dyna_point_list = []
         self.dyna_quiver_list = []
@@ -102,7 +107,7 @@ class EnvPlot:
         self.ax.set_ylim(self.y_range)
 
         self.ax.set_xlabel("x [m]")
-        self.ax.set_ylabel("y [m]")
+        self.ax.set_ylabel("y [m]")# Set initial title
 
         # self.draw_components("all", objects)
         self.init_objects_plot(objects, **kwargs)
@@ -112,7 +117,20 @@ class EnvPlot:
             plt.axis("off")
         if tight:
             self.fig.tight_layout()
-        
+
+
+    def step(self, mode='dynamic', objects=[], **kwargs):
+
+        if isinstance(self.ax, Axes3D):
+            self.clear_components(mode, objects)
+            self.draw_components(mode, objects, **kwargs)
+        else:
+            self.clear_components(mode)
+            self.step_objects_plot(mode, objects, **kwargs)
+
+        if self.show_title:
+            self.update_title()
+
     def init_objects_plot(self, objects, **kwargs):
         [obj._init_plot(self.ax, **kwargs) for obj in objects]
         self.step_objects_plot('all', objects, **kwargs)
@@ -340,6 +358,12 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(box_line)
 
+    def update_title(self):
+        if self.title is not None:
+            self.ax.set_title(self.title, pad=3)
+        else:
+            self.ax.set_title(f"Simulation Time: {world_param.time:.2f}s", pad=3)
+
     def save_figure(
         self,
         file_name="",
@@ -447,6 +471,12 @@ class EnvPlot:
     def logger(self):
         return env_param.logger
 
+    def set_title(self, title: Optional[str] = None):
+        """
+        Set a custom title for the plot. If title is None, revert to default (simulation time).
+        """
+        self.title = title
+        self.update_title()
 
 
 def linewidth_from_data_units(linewidth, axis, reference="y"):
