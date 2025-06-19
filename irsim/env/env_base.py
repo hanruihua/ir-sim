@@ -116,11 +116,9 @@ class EnvBase:
 
         # env parameters
         self._env_plot = EnvPlot(
-            self._world.grid_map,
+            self._world,
             self.objects,
-            self._world.x_range,
-            self._world.y_range,
-            **self._world.plot_parse,
+            **self._world.plot_parse
         )
 
         env_param.objects = self.objects
@@ -136,6 +134,9 @@ class EnvBase:
                 self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
 
         self.mouse = MouseControl(self._env_plot.ax)
+
+        # flag
+        self.pause_flag = False
 
         if full:
             system_platform = platform.system()
@@ -174,6 +175,9 @@ class EnvBase:
             action_id (int or list of int): Apply the action(s) to the robot(s) with the given id(s).
         """
 
+        if self.pause_flag:
+            return
+
         if isinstance(action, list):
             if isinstance(action_id, list):
                 for a, ai in zip(action, action_id):
@@ -192,6 +196,7 @@ class EnvBase:
         self.build_tree()
         self._objects_check_status()
         self._world.step()
+        self.step_status()
 
     def _objects_step(self, action: Optional[list] = None):
         action = action + [None] * (len(self.objects) - len(action))
@@ -355,6 +360,35 @@ class EnvBase:
         elif mode == "any":
             return any(done_list)
 
+    def step_status(self):
+        '''
+        Get the status of the environment.
+        '''
+
+        arrive_list = [obj.arrive for obj in self.objects if obj.role == "robot"]
+        collision_list = [obj.collision for obj in self.objects if obj.role == "robot"]
+
+        if all(arrive_list):
+            self._world.status = "Arrived"
+        elif any(collision_list):
+            self._world.status = "Collision"
+        else:
+            self._world.status = "Running"
+
+    def pause(self):
+        '''
+        Pause the environment.
+        '''
+        self._world.status = "Pause"
+        self.pause_flag = True
+
+    def resume(self):
+        '''
+        Resume the environment.
+        '''
+        self._world.status = "Running"
+        self.pause_flag = False
+
     def reset(self):
         """
         Reset the environment.
@@ -381,7 +415,7 @@ class EnvBase:
         self,
         range_low: list = [0, 0, -3.14],
         range_high: list = [10, 10, 3.14],
-        ids: list = None,
+        ids: Optional[list] = None,
         non_overlapping: bool = False,
     ):
         """
@@ -759,6 +793,13 @@ class EnvBase:
         Get the time of the simulation.
         """
         return self._world.time
+
+    @property
+    def status(self):
+        """
+        Get the status of the environment.
+        """
+        return self._world.status
 
     @property
     def robot(self):

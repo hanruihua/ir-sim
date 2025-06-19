@@ -1,9 +1,11 @@
-from irsim.util.util import file_check
-from irsim.global_param import world_param
+import os
+from typing import Optional
+
 import numpy as np
 import matplotlib.image as mpimg
-from typing import Optional
-import os
+
+from irsim.util.util import file_check
+from irsim.global_param import world_param
 from irsim.global_param.path_param import path_manager as pm
 from irsim.world.map import Map
 
@@ -22,6 +24,8 @@ class World:
         collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
         obstacle_map: Image file for the obstacle map.
         mdownsample (int): Downsampling factor for the obstacle map.
+        status: Status of the world and objects.
+        plot: Plot configuration for the world.
     """
 
     def __init__(
@@ -36,6 +40,8 @@ class World:
         collision_mode: str = "stop",
         obstacle_map=None,
         mdownsample: int = 1,
+        plot: dict = dict(),
+        status: str = "None",
         **kwargs,
     ) -> None:
         """
@@ -54,7 +60,7 @@ class World:
             mdownsample (int): Downsampling factor for the obstacle map.
         """
 
-        self.name = os.path.basename(name).split(".")[0]
+        self.name = os.path.basename(name or "world").split(".")[0]
         self.height = height
         self.width = width
         self.step_time = step_time
@@ -71,7 +77,9 @@ class World:
             obstacle_map, mdownsample
         )
 
-        self.plot_parse = kwargs.get("plot", dict())
+        self.plot_parse = plot
+
+        self.status = status
 
         # Set world parameters
         world_param.step_time = step_time

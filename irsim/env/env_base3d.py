@@ -35,12 +35,9 @@ class EnvBase3D(EnvBase):
         self._env_plot.close()
 
         self._env_plot = EnvPlot3D(
-            self._world.grid_map,
+            self._world,
             self.objects,
-            self._world.x_range,
-            self._world.y_range,
-            self._world.z_range,
-            **self.env_config.parse["plot"],
+            **self._world.plot_parse
         )
 
         env_param.objects = self.objects
