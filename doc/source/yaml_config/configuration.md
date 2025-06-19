@@ -64,6 +64,7 @@ The `world` section contains the configuration of the simulation environment. Th
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`) |
 | `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                    |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.          |
+| `status`         | `str`             | `None` | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`)                          |
 | `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                |
 
 
@@ -112,11 +113,20 @@ The `world` section contains the configuration of the simulation environment. Th
 ##### **`mdownsample`**:  
   Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
 
+##### **`status`**:  
+  Sets the initial status of the simulation environment:
+  - `"Running"`: The simulation runs normally (default).
+  - `"Pause"`: The simulation starts in a paused state.
+  
+  The status can be dynamically changed during simulation using keyboard controls (space key) or programmatically.
+
 ##### **`plot`**:  
   Specifies the plotting options for initializing the plot of the world.
 
-  - `saved_figure`: default dpi is 100; default format is `png`; default bbox_inches is `tight`. see [matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details.
-  - `figure_pixels`: Width and height of the figure in pixels. Default is [1920, 1080].
+  - `saved_figure`: Default dpi is 100; default format is `png`; default bbox_inches is `tight`. See [matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details.
+  - `figure_pixels`: Width and height of the figure in pixels. Default is [1180, 1080].
+  - `show_title`: Whether to show the plot title. Default is True.
+  - `title`: Custom title for the plot. If not specified, shows simulation time and status.
   - `no_axis`: Whether to show the axis. Default is False.
   - `tight`: Whether to use tight layout. Default is True.
 
@@ -133,10 +143,18 @@ world:
   step_time: 0.1                      # Time interval between steps (10 Hz)
   sample_time: 0.1                    # Time interval for rendering and data extraction (10 Hz)
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
-  control_mode: 'auto'                # Control mode ('auto' or 'keyboard')
+  control_mode: 'keyboard'            # Control mode ('auto' or 'keyboard')
   collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'reactive', 'unobstructed_obstacles')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
+  status: "Running"                   # Initial simulation status ('Running' or 'Pause')
+  plot:                               # Plotting configuration
+    show_title: true                  # Show plot title
+    title: "Custom Simulation Title"  # Custom title (optional)
+    figure_pixels: [1200, 800]       # Figure size in pixels
+    saved_figure:                     # Figure saving options
+      dpi: 150                        # Resolution for saved figures
+      format: "png"                   # File format
 ```
 
 :::{warning}
