@@ -10,33 +10,20 @@ class EnvPlot3D(EnvPlot):
 
     def __init__(
         self,
-        grid_map=None,
+        world,
         objects=[],
-        x_range=[0, 10],
-        y_range=[0, 10],
-        z_range=[0, 10],
         saved_figure=dict(),
-        figure_pixels: list = [1920, 1080],
+        figure_pixels: list = [1180, 1080],
+        show_title: bool = True,
         **kwargs,
     ):
-        super().__init__(
-            grid_map,
-            objects,
-            x_range,
-            y_range,
-            saved_figure,
-            figure_pixels,
-            **kwargs,
-        )
-
-        # self.clear_components()
-        # self.ax.remove()
+        super().__init__(world, objects, saved_figure, figure_pixels, show_title, **kwargs)
 
         self.ax = self.fig.add_subplot(projection="3d")
-        self.z_range = z_range
+        self.z_range = world.z_range
 
-        self.init_plot(grid_map, objects, **kwargs)
-        self.ax.set_zlim(z_range)
+        self.init_plot(world.grid_map, objects, **kwargs)
+        self.ax.set_zlim(self.z_range)
 
     def draw_points(self, points, s=10, c="m", refresh=True, **kwargs):
         """
