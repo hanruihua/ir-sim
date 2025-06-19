@@ -108,6 +108,7 @@
 - [ ] Doc path manager and change the path
 - [ ] Refine documentation and the comment of the code function. 
 - [ ] Add tutorial with more examples. 
+- [ ] Doc of status; title; keyboard space
 
 ## 🔗 External Interfaces
 - [ ] Add the interface with gym
