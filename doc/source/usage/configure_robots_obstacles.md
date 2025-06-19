@@ -193,3 +193,79 @@ The demonstration of the multiple robots and obstacles in the simulation are sho
 - The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../yaml_config/configuration/)
 :::
 
+
+## Environment Status and Title Control
+
+IR-SIM supports environment plot titles and show current status. Here are examples:
+
+### Status Control
+
+```python
+import irsim
+
+# Create environment with initial pause status
+env = irsim.make('config.yaml')
+
+# Check current status
+print(f"Current status: {env.status}")
+
+# Programmatically control status
+env.pause()    # Pause the environment
+env.resume()   # Resume the environment
+
+# In keyboard mode, use space key to toggle pause/resume
+for i in range(1000):
+    env.step()
+    env.render(0.05)
+    
+    if env.status == "Pause":
+        print("Environment is paused")
+    
+    if env.done():
+        break
+
+env.end()
+```
+
+### Custom Plot Title
+
+```python
+import irsim
+
+env = irsim.make('config.yaml')
+
+# Set custom title
+env.set_title("My Custom Simulation")
+
+# The title will be displayed in the plot
+for i in range(100):
+    env.step()
+    env.render(0.05)
+
+env.end()
+```
+
+### YAML Configuration
+
+```yaml
+world:
+  height: 20
+  width: 20
+  control_mode: 'auto'
+  plot:
+    show_title: true
+  
+robot:
+  kinematics: {name: 'diff'}  # omni, diff, acker
+  shape: {name: 'circle', radius: 0.2}  # radius
+  # shape: {name: 'rectangle', length: 0.3, width: 1.0} 
+  state: [1, 1, 0]
+  goal: 
+    - [[9, 9, 0], [2, 4, 1], [3, 3, 2]]  
+  # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
+  behavior: {name: dash} # move toward to the goal directly 
+  color: 'g'
+  plot:
+    show_trajectory: True
+    show_goal: True
+```
