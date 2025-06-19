@@ -80,7 +80,35 @@ The demonstration controlled by the keyboard is shown below:
 | `c`      | Increase Angular Velocity       |
 | `alt+num`| Change Current Control Robot ID |
 | `r`      | Reset the Environment           |
+| `space`  | Toggle Pause/Resume Environment |
 
+### Environment Status Control
+
+The space key provides toggle functionality for controlling the simulation state:
+
+- **First press**: Pauses the environment (status changes to "Pause")
+- **Second press**: Resumes the environment (status changes to "Running")
+- **Subsequent presses**: Continue toggling between pause and resume states
+
+You can access the current environment status through the `env.status` attribute:
+
+```python
+import irsim
+
+env = irsim.make('your_config.yaml', control_mode='keyboard')
+
+for i in range(1000):
+    env.step()
+    env.render(0.05)
+    
+    # Check current status
+    print(f"Environment status: {env.status}")
+    
+    if env.done():
+        break
+
+env.end()
+```
 
 ## Mouse Control
 
