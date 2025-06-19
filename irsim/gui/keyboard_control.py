@@ -38,6 +38,7 @@ class KeyboardControl:
                 - c: Increase angular velocity.
                 - alt + num: Change the current control robot id.
                 - r: Reset the environment.
+                - space: pause/resume the environment.
         """
 
         # Store environment reference for reset functionality
@@ -72,6 +73,7 @@ class KeyboardControl:
             ["c", "increase angular velocity"],
             ["alt+num", "change current control robot id"],
             ["r", "reset the environment"],
+            ["space", "pause/resume the environment"],
         ]
         # headers = ["key", "function"]
 
@@ -112,15 +114,14 @@ class KeyboardControl:
                 self.key_ang = self.key_ang_max
             if key.char == "d":
                 self.key_ang = -self.key_ang_max
-
+            
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
-
             try:
                 if "alt" in key.name:
                     self.alt_flag = True
-
+                
             except AttributeError:
 
                 if key.char.isdigit() and self.alt_flag:
@@ -170,12 +171,20 @@ class KeyboardControl:
                     self.env_ref.reset()
                 else:
                     self.logger.warning("Environment reference not set. Cannot reset.")
-
+                
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
             if "alt" in key.name:
                 self.alt_flag = False
+
+            if key == keyboard.Key.space:
+                if self.env_ref.status == "Running":
+                    self.logger.info("pause the environment")
+                    self.env_ref.pause()
+                else:
+                    self.logger.info("resume the environment")
+                    self.env_ref.resume()
 
 
     @property

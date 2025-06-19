@@ -26,6 +26,8 @@ Keyboard Controls (control_mode: 'keyboard'):
 +---------+---------------------------------+
 | r       | Reset environment               |
 +---------+---------------------------------+
+| space   | Pause/Resume the environment    |
++---------+---------------------------------+
 
 Mouse Controls:
 - Mouse Movement: Track mouse position and update display coordinates
@@ -47,8 +49,6 @@ for i in range(10000):
     
     if env.mouse_left_pos is not None:
         env.robot.set_goal(env.mouse_left_pos)
-
-    env.set_title('Simulation time: {:.2f}s'.format(env.time))
     
     if env.done():
         break
