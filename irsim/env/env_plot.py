@@ -22,70 +22,69 @@ class EnvPlot:
     EnvPlot class for visualizing the environment.
 
     Args:
-        grid_map (optional): The grid map of the environment (PNG file).
-        objects: List of objects in the environment.
-        x_range (list): The range of x-axis values. Default is [0, 10].
-        y_range (list): The range of y-axis values. Default is [0, 10].
-        saved_figure (dict): Keyword arguments for saving the figure.
+        world: The world object containing environment information including grid_map, x_range, y_range.
+        objects (list, optional): List of objects in the environment. Default is [].
+        saved_figure (dict, optional): Keyword arguments for saving the figure.
             See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
-        dpi: Dots per inch for the figure. Default is 100.
-        figure_pixels: Width and height of the figure in pixels. Default is [1920, 1080].
-        show_title: Whether to show the title. Default is False.
-        title: The title of the plot. Default is Simulation Time in seconds.
+            Default is dict().
+        figure_pixels (list, optional): Width and height of the figure in pixels. Default is [1180, 1080].
+        show_title (bool, optional): Whether to show the title. Default is True.
         kwargs: Additional options such as color_map, no_axis, and tight.
     """
 
     def __init__(
         self,
-        grid_map=None,
+        world,
         objects=[],
-        x_range=[0, 10],
-        y_range=[0, 10],
         saved_figure=dict(),
         figure_pixels: list = [1180, 1080],
         show_title: bool = True,
-        title: Optional[str] = None,
         **kwargs,
     ) -> None:
         """
         Initialize the EnvPlot instance.
+        
+        Sets up the matplotlib figure, configures plotting parameters,
+        and initializes the plot with world data and objects.
         """
+        # Store world and basic properties
+        self.world = world
+        self.x_range = world.x_range
+        self.y_range = world.y_range
+        self.show_title = show_title
+        self.title = None
 
-        dpi = saved_figure.get('dpi', 100)
+        # Configure figure saving options
+        self.saved_figure_kwargs = {
+            "dpi": 100,
+            "bbox_inches": "tight",
+        }
+        self.saved_figure_kwargs.update(saved_figure) 
 
+        # Create matplotlib figure and axes
         self.fig, self.ax = plt.subplots(
-            figsize=(figure_pixels[0] / dpi, figure_pixels[1] / dpi), dpi=dpi
+            figsize=(figure_pixels[0] / self.saved_figure_kwargs['dpi'], figure_pixels[1] / self.saved_figure_kwargs['dpi']), dpi=self.saved_figure_kwargs['dpi']
         )
-        self.x_range = x_range
-        self.y_range = y_range
-
-        self.init_plot(grid_map, objects, **kwargs)
+        
+        # Initialize plot settings and appearance
         self.color_map = {
             "robot": "g",
             "obstacle": "k",
             "landmark": "b",
             "target": "pink",
         }
-
         self.color_map.update(kwargs.get("color_map", dict()))
-
-        self.saved_figure_kwargs = {
-            "dpi": 100,
-            "bbox_inches": "tight",
-        }
-
-        self.saved_figure_kwargs.update(saved_figure) 
+    
+        # Configure save options
         self.saved_ani_kwargs = {}
 
-        self.dpi = dpi
-        self.figure_pixels = figure_pixels
-
-        self.show_title = show_title
-        self.title = title
-
+        # Initialize dynamic plotting lists
         self.dyna_line_list = []
         self.dyna_point_list = []
         self.dyna_quiver_list = []
+        
+        # Initialize the plot with world data
+        self.init_plot(world.grid_map, objects, **kwargs)
 
     def init_plot(self, grid_map, objects, no_axis=False, tight=True, **kwargs):
         """
@@ -107,7 +106,7 @@ class EnvPlot:
         self.ax.set_ylim(self.y_range)
 
         self.ax.set_xlabel("x [m]")
-        self.ax.set_ylabel("y [m]")# Set initial title
+        self.ax.set_ylabel("y [m]")
 
         # self.draw_components("all", objects)
         self.init_objects_plot(objects, **kwargs)
@@ -362,7 +361,7 @@ class EnvPlot:
         if self.title is not None:
             self.ax.set_title(self.title, pad=3)
         else:
-            self.ax.set_title(f"Simulation Time: {world_param.time:.2f}s", pad=3)
+            self.ax.set_title(f"Simulation Time: {self.world.time:.2f}s, Status: {self.world.status}", pad=3)
 
     def save_figure(
         self,
