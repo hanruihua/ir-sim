@@ -69,6 +69,8 @@ def test_collision_avoidance():
     env.draw_quivers(points)
     env.draw_quivers(points, refresh=True)
 
+    env.set_title('Simulation time: {:.2f}s'.format(env.time))
+
     file_check('123.yaml')
     file_check('123.yaml', root_path='.')
     WrapToRegion(4, [-pi, pi])

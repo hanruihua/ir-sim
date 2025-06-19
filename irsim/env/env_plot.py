@@ -471,14 +471,6 @@ class EnvPlot:
     def logger(self):
         return env_param.logger
 
-    def set_title(self, title: Optional[str] = None):
-        """
-        Set a custom title for the plot. If title is None, revert to default (simulation time).
-        """
-        self.title = title
-        self.update_title()
-
-
 def linewidth_from_data_units(linewidth, axis, reference="y"):
     """
     Convert a linewidth in data units to linewidth in points.

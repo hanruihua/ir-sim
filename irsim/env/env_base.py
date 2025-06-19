@@ -651,11 +651,11 @@ class EnvBase:
         Set the title of the plot.
         """
 
-        self._env_plot.set_title(title)
+        self._env_plot.title = title
 
     def save_figure(
         self,
-        save_name: str = None,
+        save_name: Optional[str] = None,
         include_index: bool = False,
         save_gif: bool = False,
         **kwargs,
