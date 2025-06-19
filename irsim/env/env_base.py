@@ -203,6 +203,10 @@ class EnvBase:
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
     def _object_step(self, action: np.ndarray, obj_id: int = 0):
+
+        if len(self.objects) == 0:
+            return
+
         self.objects[obj_id].step(action)
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
