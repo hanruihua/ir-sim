@@ -211,10 +211,9 @@ def test_keyboard_control():
     # Create a mock Alt key
     alt_key = Mock(spec=keyboard.Key)
     alt_key.name = "alt"
-    
     # Create mock number keys
     num_keys = [Mock(spec=keyboard.Key, char=str(i)) for i in range(5)]
-    
+
     # Press Alt key
     env.keyboard._on_press(alt_key)
     assert env.keyboard.alt_flag == True, "After pressing Alt key, alt_flag should be True"
@@ -233,6 +232,23 @@ def test_keyboard_control():
     env.keyboard._on_release(alt_key)
     assert env.keyboard.alt_flag == False, "After releasing Alt key, alt_flag should be False"
     
+    # Test space key functionality - toggle pause/resume on release
+    # Method 3: Create a simple class that equals keyboard.Key.space
+    class SpaceKeyMock:
+        name = "space"
+        def __eq__(self, other):
+            return other == keyboard.Key.space
+    
+    space_key = SpaceKeyMock()
+    
+    # First release should pause the environment
+    env.keyboard._on_release(space_key)
+    assert env.status == "Pause", "After first space key release, status should be Pause"
+    
+    # Second release should resume the environment  
+    env.keyboard._on_release(space_key)
+    assert env.status == "Running", "After second space key release, status should be Running"
+
     env.end()
     assert True  # Add keyboard control related assertions
 
@@ -267,7 +283,7 @@ def test_mouse_control():
     mock_left_click.xdata = 3.0
     mock_left_click.ydata = 3.0
     mouse_control.on_click(mock_left_click)
-    assert (mouse_control.left_click_pos == (3.0, 3.0)).all()
+    assert mouse_control.left_click_pos is not None and mouse_control.left_click_pos[0] == 3.0 and mouse_control.left_click_pos[1] == 3.0
     
     # Test right click
     mock_right_click = Mock()
@@ -276,7 +292,7 @@ def test_mouse_control():
     mock_right_click.xdata = 7.0
     mock_right_click.ydata = 7.0
     mouse_control.on_click(mock_right_click)
-    assert (mouse_control.right_click_pos == (7.0, 7.0)).all()
+    assert mouse_control.right_click_pos is not None and mouse_control.right_click_pos[0] == 7.0 and mouse_control.right_click_pos[1] == 7.0
     
     # Test middle click (zoom reset)
     initial_xlim = ax.get_xlim()
