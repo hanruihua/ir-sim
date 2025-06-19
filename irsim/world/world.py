@@ -58,6 +58,8 @@ class World:
             collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
+            plot (dict): Plot configuration.
+            status (str): Initial simulation status.
         """
 
         self.name = os.path.basename(name or "world").split(".")[0]

@@ -147,7 +147,7 @@ world:
   collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'reactive', 'unobstructed_obstacles')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
-  status: "Running"                   # Initial simulation status ('Running' or 'Pause')
+  status: "Running"                   # Initial simulation status
   plot:                               # Plotting configuration
     show_title: true                  # Show plot title
     title: "Custom Simulation Title"  # Custom title (optional)
