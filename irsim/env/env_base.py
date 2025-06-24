@@ -5,7 +5,30 @@ Author: Ruihua Han
 """
 
 import matplotlib
-from irsim.global_param import env_param
+import platform
+import importlib
+import numpy as np
+from typing import Optional, Union
+from operator import attrgetter
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import pyplot as plt
+from shapely import Polygon
+from shapely.strtree import STRtree
+
+from irsim.global_param import env_param, world_param
+from irsim.env.env_config import EnvConfig
+from irsim.world import World, ObjectBase
+from .env_plot import EnvPlot
+from irsim.world.object_factory import ObjectFactory
+from .env_logger import EnvLogger
+from irsim.lib import random_generate_polygon
+from irsim.gui.mouse_control import MouseControl
+
+try:
+    from irsim.gui.keyboard_control import KeyboardControl
+    keyboard_module = True
+except ImportError:
+    keyboard_module = False
 
 # Define backend preferences for different operating systems
 BACKEND_PREFERENCES = {
@@ -14,49 +37,24 @@ BACKEND_PREFERENCES = {
     "Linux": ["TkAgg", "Qt5Agg", "Agg"],  # Linux
 }
 
-# Get the current operating system from env_param
-backends = BACKEND_PREFERENCES.get(
-    env_param.platform_name, ["Agg"]
-)  # Default to Agg if OS not recognized
-backend_set = False
 
-for backend in backends:
-    try:
-        matplotlib.use(backend)
-        backend_set = True
-        print(f"Successfully set matplotlib backend to {backend}")
-        break
-    except Exception as e:
-        print(f"Failed to use '{backend}' backend: {e}")
-
-if not backend_set:
-    print("All backends failed. Falling back to 'Agg' backend.")
+def _set_matplotlib_backend(backend_list):
+    """Attempt to set matplotlib backend from preference list."""
+    for backend in backend_list:
+        try:
+            matplotlib.use(backend)
+            return True
+        except Exception as e:
+            print(f"Failed to use '{backend}' backend: {e}")
+    
+    print("All backends failed. Falling back to 'Agg' backend. The environment will not be displayed.")
     matplotlib.use("Agg")
+    return False
 
-from irsim.env.env_config import EnvConfig
-from irsim.world import World
-from .env_plot import EnvPlot
-from irsim.global_param import world_param, env_param
-from irsim.world.object_factory import ObjectFactory
-from matplotlib import pyplot as plt
-import platform
-import numpy as np
-from .env_logger import EnvLogger
-from irsim.lib import random_generate_polygon
-from shapely import Polygon
-from typing import Optional, Union
-import importlib
-from irsim.world import ObjectBase
-from shapely.strtree import STRtree
-from operator import attrgetter
-from mpl_toolkits.mplot3d import Axes3D
-from irsim.gui.mouse_control import MouseControl
 
-try:
-    from irsim.gui.keyboard_control import KeyboardControl
-    keyboard_module = True
-except ImportError:
-    keyboard_module = False
+# Get the current operating system from env_param and set backend
+backends = BACKEND_PREFERENCES.get(env_param.platform_name, ["Agg"])
+backend_set = _set_matplotlib_backend(backends)
 
 class EnvBase:
     """
@@ -131,8 +129,8 @@ class EnvBase:
             
             if not keyboard_module:
                 self.logger.error(
-                    "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
-                )
+                        "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
+                    )
                 world_param.control_mode = "auto"
             else:
                 self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
@@ -142,26 +140,26 @@ class EnvBase:
         if full:
             system_platform = platform.system()
             if system_platform == "Linux":
-                plt.get_current_fig_manager().full_screen_toggle()
+                mng = plt.get_current_fig_manager()
+                if mng is not None:
+                    mng.full_screen_toggle()
 
             elif system_platform == "Windows":
                 mng = plt.get_current_fig_manager()
-                mng.full_screen_toggle()
+                if mng is not None:
+                    mng.full_screen_toggle()
+
+        # Log simulation start
+        self.logger.info(f"Simulation environment '{self._world.name}' has been initialized and started.")
 
     def __del__(self):
-        # env_param.objects = []
-
-        print(
-            "INFO: Simulated Environment End with sim time elapsed: {} seconds".format(
-                round(self._world.time, 2)
-            )
-        )
+        pass
 
     def __str__(self):
         return f"Environment: {self._world.name}"
 
     def step(
-        self, action: Union[np.ndarray, list] = None, action_id: Union[int, list] = 0
+        self, action: Optional[Union[np.ndarray, list]] = None, action_id: Optional[Union[int, list]] = 0
     ):
         """
         Perform a simulation step in the environment.
@@ -335,6 +333,8 @@ class EnvBase:
 
         if world_param.control_mode == "keyboard":
             self.keyboard.listener.stop()
+
+        self.logger.info(f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds.")
 
     def done(self, mode: str = "all"):
         """

@@ -560,16 +560,13 @@ class ObjectBase:
 
         # clip the behavior_vel by maximum and minimum limits
         if (behavior_vel < (min_vel - 0.01)).any():
-            logging.warning(
-                "input velocity {} is smaller than min_vel {}, velocity is clipped".format(
-                    behavior_vel.flatten(), min_vel.flatten()
-                )
+            self.logger.warning(
+                f"Input velocity {np.round(behavior_vel.flatten(), 2)} below min {np.round(min_vel.flatten(), 2)}. Clipped due to acceleration limit."
             )
+                
         elif (behavior_vel > (max_vel + 0.01)).any():
-            logging.warning(
-                "input velocity {} is larger than max_vel {}, velocity is clipped".format(
-                    behavior_vel.flatten(), max_vel.flatten()
-                )
+            self.logger.warning(
+                f"Input velocity {np.round(behavior_vel.flatten(), 2)} exceeds max {np.round(max_vel.flatten(), 2)}. Clipped due to acceleration limit."
             )
 
         behavior_vel_clip = np.clip(behavior_vel, min_vel, max_vel)

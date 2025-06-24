@@ -15,7 +15,9 @@ robot:
     shape: {name: 'circle', radius: 1}
     state: [5, 5, 0]
     vel_max: [4, 1]
+    vel_min: [-4, -1]
     behavior: {name: 'dash'} # move toward to the goal directly
+    goal_threshold: 0.2
     plot:
       show_trajectory: True
       traj_color: 'g'
