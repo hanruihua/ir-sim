@@ -372,6 +372,11 @@ class EnvBase:
         arrive_list = [obj.arrive for obj in self.objects if obj.role == "robot"]
         collision_list = [obj.collision for obj in self.objects if obj.role == "robot"]
 
+        if len(arrive_list) == 0:
+            arrive_list = [False]
+        if len(collision_list) == 0:
+            collision_list = [False]
+
         if all(arrive_list):
             self._world.status = "Arrived"
         elif any(collision_list):
@@ -402,6 +407,7 @@ class EnvBase:
         self.step(action=np.zeros((2, 1)))
         self._world.reset()
         self.reset_plot()
+        self._world.status = "Reset"
 
     def _reset_all(self):
         [obj.reset() for obj in self.objects]
