@@ -110,20 +110,22 @@ print(f"Current time: {env.time}")
 # Control simulation state
 env.pause()    # Pause the simulation
 env.resume()   # Resume the simulation
-env.reset()    # Reset to initial state
 
 # Simulation loop with status checking
-for i in range(1000):
+for i in range(50):
     env.step()
     env.render(0.05)
+
+    if i < 10:
+        env.pause()
+    elif i > 20 and i < 30:
+        env.resume()
     
     if env.status == "Pause":
         print("Environment is paused")
-        break
     
     if env.done():
         print("Simulation completed successfully")
-        break
 
 env.end()
 ```
@@ -133,7 +135,8 @@ env.end()
 - **`"Running"`**: Simulation is actively running
 - **`"Pause"`**: Simulation is paused
 - **`"Done"`**: Simulation has completed
-- **`"Reset"`**: Simulation has been reset to initial state
+- **`"Arrived"`**: All robots have arrived at their goals
+- **`"Collision"`**: A collision has occurred
 
 ## Configure Environment Title
 
