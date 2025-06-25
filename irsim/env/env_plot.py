@@ -37,7 +37,7 @@ class EnvPlot:
         world,
         objects=[],
         saved_figure=dict(),
-        figure_pixels: list = [1180, 1080],
+        figure_pixels: list = [1000, 800],
         show_title: bool = True,
         **kwargs,
     ) -> None:
