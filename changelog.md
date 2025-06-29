@@ -1,3 +1,14 @@
+## ir-sim 2.5.5
+
+- New Features:
+  - Add environment pause and resume function. You can pause/resume the environment by pressing `space` key in the keyboard control. see [keyboard control documentation](https://ir-sim.readthedocs.io/en/stable/usage/configure_keyboard_Mouse_control.html) for detail.
+  - Add environment title to show current simulation time and robots status. You can also customize the title by setting the `env.set_title` function. see [make env documentation](https://ir-sim.readthedocs.io/en/stable/usage/make_environment.html) for detail.
+  - Change the default figure pixel (size) to be 1000x800.
+  
+- Enhancements:
+  - Refine code style, log warning output, and website documentation.
+
+
 ## ir-sim 2.5.4
 
 - Bug Fixes:
