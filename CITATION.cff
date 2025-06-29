@@ -1,15 +1,11 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-authors:
-- family-names: "Han"
-  given-names: "Ruihua, et al."
+type: software
+message: "If you use IR-SIM in your work, please cite it as below."
 title: "IR-SIM: An open-source lightweight simulator for robot navigation, control, and learning"
-url: "https://github.com/hanruihua/ir-sim"
-preferred-citation:
-  type: generic
-  authors:
+authors:
   - family-names: "Han"
-    given-names: "Ruihua, et al."
-  title: "IR-SIM: An open-source lightweight simulator for robot navigation, control, and learning"
-  year: 2024
-  url: "https://github.com/hanruihua/ir-sim"
+    given-names:  "Ruihua"
+contributors:
+  - name: "Contributors to IR-SIM"
+url:     "https://github.com/hanruihua/ir-sim"
+license: "MIT"

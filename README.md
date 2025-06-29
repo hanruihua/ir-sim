@@ -142,9 +142,12 @@ Currently, the simulator supports the following features. Further features, such
 
 This project is under development. I appreciate and welcome all contributions. Just open an issue or a pull request. Here are some simple ways to start contributing:
 
-- Report bugs and issues.
-- Enhance the website documentation, such as the API and tutorials.
-- Add new usage examples and benchmarks.
+- Read the IR-SIM source code and improve the documentation, api, or address TODO list.
+- Enhance the [website documentation](https://ir-sim.readthedocs.io/en/stable/).
+- Polish the [usages](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage) and add new usage examples or test cases. 
+- Fix bugs and issues.
+
+Code style: [black](https://github.com/psf/black)
 
 ## Acknowledgement
 
