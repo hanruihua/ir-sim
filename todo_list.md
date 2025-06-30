@@ -15,7 +15,6 @@
 - [ ] Add transformation (like ROS tf)
 - [ ] Plugin system 
 
-
 ## 🤖 Robot & Movement
 - [x] Omni directional robots
 - [x] Add custom robot model
@@ -23,10 +22,9 @@
 - [x] Check the dimension of various values and fix the input error, such as state dim, velocity dim
 - [x] Provide polygon shape robot
 - [x] Reformulate the behavior library
-- [ ] Real robot size (LIMO, BYD)
 - [ ] 3D rigid body
 - [ ] Robotics arm, UAV support
-
+- [ ] Real robot description
 
 
 ## 📡 Sensors & Data
@@ -43,9 +41,10 @@
 - [x] Support the feature of adding or eliminating obstacles by functions
 - [x] Add binary occupancy grid map for indoor navigation
 - [x] Check whether the object is convex
-- [ ] Add functions to access obstacles with different types (refinement needed)
 - [x] Develop a lib for configuration of the shape, refer to rviz marker
+- [ ] Add functions to access obstacles with different types (refinement needed)
 - [ ] Use scipy convex hull to generate G and h
+
 
 ## 🎨 Visualization & Plotting
 - [x] GIF generation
