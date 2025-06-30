@@ -1272,8 +1272,8 @@ class ObjectBase:
                     # Update trajectory line using set_data (works for both 2D and 3D)
                     if isinstance(element, list) and len(element) > 0:
                         line = element[0]
-                        x_list = [t[0, 0] for t in self.trajectory]
-                        y_list = [t[1, 0] for t in self.trajectory]
+                        x_list = [t[0, 0] for t in self.trajectory[-self.keep_length:]]
+                        y_list = [t[1, 0] for t in self.trajectory[-self.keep_length:]]
 
                         if isinstance(self.ax, Axes3D):
                             # For 3D, add z-coordinate (set to 0)
@@ -1545,14 +1545,16 @@ class ObjectBase:
         if trajectory is None:
             trajectory = self.trajectory
 
+        self.keep_length = keep_length
+
         traj_color = kwargs.get("traj_color", self.color)
         traj_style = kwargs.get("traj_style", "-")
         traj_width = kwargs.get("traj_width", self.width)
         traj_alpha = kwargs.get("traj_alpha", 0.5)
         traj_zorder = kwargs.get("traj_zorder", 0)
 
-        x_list = [t[0, 0] for t in trajectory[-keep_length:]]
-        y_list = [t[1, 0] for t in trajectory[-keep_length:]]
+        x_list = [t[0, 0] for t in trajectory[-self.keep_length:]]
+        y_list = [t[1, 0] for t in trajectory[-self.keep_length:]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
 
