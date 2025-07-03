@@ -256,6 +256,6 @@ class ObjectFactory:
 
                 goal_x = center[0] - radius * np.cos(theta)
                 goal_y = center[1] - radius * np.sin(theta)
-                goal_list.append([goal_x, goal_y, 0])
+                goal_list.append([goal_x, goal_y, theta - np.pi])
 
         return state_list, goal_list
