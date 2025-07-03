@@ -493,10 +493,10 @@ def linewidth_from_data_units(linewidth, axis, reference="y"):
     fig = axis.get_figure()
     if reference == "x":
         length = fig.bbox_inches.width * axis.get_position().width
-        value_range = np.diff(axis.get_xlim())
+        value_range = np.diff(axis.get_xlim()).item()
     elif reference == "y":
         length = fig.bbox_inches.height * axis.get_position().height
-        value_range = np.diff(axis.get_ylim())
+        value_range = np.diff(axis.get_ylim()).item()
     # Convert length to points
     length *= 72
     # Scale linewidth to value range
