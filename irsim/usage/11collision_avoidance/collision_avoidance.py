@@ -10,4 +10,4 @@ for i in range(1000):
     if env.done():
         break
 
-env.end(5)
+env.end(3)
