@@ -1272,8 +1272,8 @@ class ObjectBase:
                     # Update trajectory line using set_data (works for both 2D and 3D)
                     if isinstance(element, list) and len(element) > 0:
                         line = element[0]
-                        x_list = [t[0, 0] for t in self.trajectory[-self.keep_length:]]
-                        y_list = [t[1, 0] for t in self.trajectory[-self.keep_length:]]
+                        x_list = [t[0, 0] for t in self.trajectory[-self.keep_traj_length:]]
+                        y_list = [t[1, 0] for t in self.trajectory[-self.keep_traj_length:]]
 
                         if isinstance(self.ax, Axes3D):
                             # For 3D, add z-coordinate (set to 0)
@@ -1523,7 +1523,7 @@ class ObjectBase:
         self.object_img = robot_img
 
     def plot_trajectory(
-        self, ax, trajectory: Optional[list] = None, keep_length: int = 0, **kwargs
+        self, ax, trajectory: Optional[list] = None, keep_traj_length: int = 0, **kwargs
     ):
         """
         Plot the trajectory path of the object using the specified trajectory data.
@@ -1532,7 +1532,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             trajectory: List of trajectory points to plot, where each point is a numpy array [x, y, theta, ...].
                        If None, uses self.trajectory. Defaults to None.
-            keep_length (int): Number of steps to keep from the end of trajectory.
+            keep_traj_length (int): Number of steps to keep from the end of trajectory.
                               If 0, plots entire trajectory. Defaults to 0.
             **kwargs: Additional plotting options:
                 traj_color (str): Color of the trajectory line.
@@ -1545,7 +1545,7 @@ class ObjectBase:
         if trajectory is None:
             trajectory = self.trajectory
 
-        self.keep_length = keep_length
+        self.keep_traj_length = keep_traj_length
 
         traj_color = kwargs.get("traj_color", self.color)
         traj_style = kwargs.get("traj_style", "-")
@@ -1553,8 +1553,8 @@ class ObjectBase:
         traj_alpha = kwargs.get("traj_alpha", 0.5)
         traj_zorder = kwargs.get("traj_zorder", 0)
 
-        x_list = [t[0, 0] for t in trajectory[-self.keep_length:]]
-        y_list = [t[1, 0] for t in trajectory[-self.keep_length:]]
+        x_list = [t[0, 0] for t in trajectory[-self.keep_traj_length:]]
+        y_list = [t[1, 0] for t in trajectory[-self.keep_traj_length:]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
 
@@ -1744,6 +1744,7 @@ class ObjectBase:
         ax,
         state: Optional[np.ndarray] = None,
         vertices: Optional[np.ndarray] = None,
+        keep_trail_length: int = 0,
         **kwargs,
     ):
         """
@@ -1755,6 +1756,7 @@ class ObjectBase:
                    If None, uses the object's current state. Defaults to None.
             vertices: Vertices of the object for polygon and rectangle trail shapes.
                      If None, uses the object's current vertices. Defaults to None.
+            keep_trail_length (int): Number of steps to keep from the recent trajectory of trail.
             **kwargs: Additional plotting options:
                 trail_type (str): Type of trail shape, defaults to object's shape.
                 trail_edgecolor (str): Edge color of the trail.
@@ -1837,6 +1839,9 @@ class ObjectBase:
             raise ValueError(f"Invalid trail type: {trail_type}")
 
         self.plot_trail_list.append(trail)
+
+        if len(self.plot_trail_list) > keep_trail_length and keep_trail_length > 0:
+            self.plot_trail_list.pop(0).remove()
 
     def plot_fov(self, ax, **kwargs):
         """

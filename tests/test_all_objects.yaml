@@ -88,3 +88,7 @@ obstacle:
     plot:
       show_goal: False
       show_arrow: True
+      show_trail: True
+      keep_trail_length: 10
+      keep_traj_length: 10
+      show_trajectory: True

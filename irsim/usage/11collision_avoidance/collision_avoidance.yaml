@@ -26,6 +26,7 @@ robot:
       trail_fill: true
       trail_alpha: 0.2
       show_trajectory: false
+      keep_trail_length: 15
 
     
     
