@@ -161,7 +161,7 @@ class World:
         Returns:
             float: Current time based on steps and step_time.
         """
-        return self.count * self.step_time
+        return round(self.count * self.step_time, 2)
 
     @property
     def buffer_reso(self):
