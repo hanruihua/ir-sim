@@ -95,11 +95,14 @@ html_theme_options = {
         "icon": "fa-brands fa-github",
       },
       {
-            "name": "PyPI",
-            "url": "https://pypi.org/project/ir-sim/",
-            "icon": "fa-custom fa-pypi",
+        "name": "PyPI",
+        "url": "https://pypi.org/project/ir-sim/",
+        "icon": "fa-custom fa-pypi",
     },
     ],
+    "logo": {
+        "text": "IR-SIM",
+    },
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
