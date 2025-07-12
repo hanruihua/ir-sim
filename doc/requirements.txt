@@ -8,4 +8,5 @@ sphinx_copybutton
 pydata-sphinx-theme
 pynput
 sphinx_design
+sphinx_inline_tabs
 
