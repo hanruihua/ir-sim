@@ -1,40 +1,142 @@
-Install the package
-=================================
+.. _install:
 
-You can install the package using the pip:
+Install
+=======
 
-.. code-block:: bash
+IR-SIM supports Python 3.9+ on Linux, macOS, and Windows. You can use
+pip or conda for installation.
 
-    pip install ir-sim
+.. card:: Instructions
 
-This will install the package and core dependencies for the base environment. For other optional dependencies, you can install them separately like the following:
+    .. tab:: pip
 
-**Optional dependencies:**
+        Install IR-SIM using `pip`_:
 
-For keyboard control, you can install the package with the following command:
+        ::
 
-.. code-block:: bash
+            pip install ir-sim
 
-    pip install ir-sim[keyboard]
+        This will install the package and core dependencies for the base environment.
 
-**All dependencies:**
+    .. tab:: conda
 
-To install all the optional dependencies. You can install the package with the following command:
+        `conda`_ is a system for package and environment management.
 
-.. code-block:: bash
+        1. Install `conda`_.
 
-    pip install ir-sim[all]
+        2. Create a new conda environment,
+        ::
+
+            conda create --name irsim_env
+            conda activate irsim_env
+
+        or activate an existing one
+
+        3. Install ``ir-sim`` from `conda-forge <https://conda-forge.org/>`_
+        ::
+
+            conda install -c conda-forge ir-sim
+
+    .. tab:: Install from source
+
+        We strongly recommend using a fresh virtual environment (virtualenv, conda, or uv) when installing IR-SIM from source.
+
+        IR-SIM has the following dependencies:
+
+        * Python >= 3.9
+        * `Matplotlib`_ >= 3.0
+        * `Shapely`_ >= 2.0.3
+        * `NumPy`_ >= 1.20
+        * `PyYAML`_ >= 5.0
+        * `ImageIO`_ >= 2.0
+        * `Loguru`_ >= 0.5
+        * `SciPy`_ >= 1.7
+
+        All required packages are installed automatically alongside IR-SIM.
+
+        Perform the following steps to install IR-SIM from source:
+
+        1. Clone the official `IR-SIM git repository`_, or a newly minted fork of the IR-SIM repository.
+        2. Navigate to the top-level of the cloned directory.
+        3. If you want to use IR-SIM with editable source code, run
+        ::
+
+            pip install -e .
+
+        otherwise, run
+        
+        ::
+
+            pip install .
+
+Install with Additional Features
+-------------------------------
+
+.. info:: Keyboard Control
+    :collapsible: open
+
+    IR-SIM supports keyboard control for interactive robot simulation.
+    Install the keyboard control dependencies:
+
+    ::
+
+        pip install ir-sim[keyboard]
+
+    This installs:
+    * `pynput`_ - For keyboard and mouse input handling
+    * `tabulate`_ - For formatted table output
+
+.. info:: Testing
+    :collapsible:
+
+    IR-SIM comes with a comprehensive test suite.
+    Install the testing dependencies:
+
+    ::
+
+        pip install ir-sim[test]
+
+    This installs:
+    * `pytest`_ - Testing framework
+    * `pytest-cov`_ - Coverage reporting
+
+.. info:: All Features
+    :collapsible:
+
+    To install all optional dependencies and features:
+
+    ::
+
+        pip install ir-sim[all]
+
+    This includes:
+    * Keyboard control features (`pynput`, `tabulate`)
+    * Testing framework (`pytest`, `pytest-cov`)
+    * Enhanced video support (`imageio[ffmpeg]`)
+
+Running the test suite
+----------------------
+IR-SIM comes with a comprehensive test suite, which can be run after installing `pytest`_.
+If installed from source, navigate to the root of the repository and run
+
+::
+
+    pytest
 
 
-**Source code:**
-
-or you can install the package from the source code for development:
-
-.. code-block:: bash
-
-    git clone https://github.com/hanruihua/ir-sim
-    cd ir-sim
-    pip install -e .
+.. _conda: https://docs.conda.io/en/latest/
+.. _Matplotlib: https://matplotlib.org/
+.. _Shapely: https://shapely.readthedocs.io/
+.. _NumPy: https://www.numpy.org/
+.. _PyYAML: https://pyyaml.org/
+.. _ImageIO: https://imageio.readthedocs.io/
+.. _Loguru: https://loguru.readthedocs.io/
+.. _SciPy: https://www.scipy.org/
+.. _pytest: https://docs.pytest.org/en/latest/
+.. _pynput: https://pypi.org/project/pynput/
+.. _tabulate: https://pypi.org/project/tabulate/
+.. _IR-SIM git repository: https://github.com/hanruihua/ir-sim
+.. _pip: https://pip.pypa.io/
 
 
 
