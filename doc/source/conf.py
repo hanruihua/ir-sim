@@ -80,10 +80,15 @@ html_static_path = ['_static']
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
 
-html_sidebars = {
-    "index": ["sidebar-nav-bs"],  # Homepage without search button in sidebar
-    "**": ["search-button-field", "sidebar-nav-bs"]  # All other pages with search button in sidebar
-}
+# html_sidebars = {
+#     "index": ["sidebar-nav-bs"],  # Homepage without search button in sidebar
+#     "**": ["search-button-field", "sidebar-nav-bs"]  # All other pages with search button in sidebar
+# }
+
+# html_sidebars = {
+#     "index": ["sidebar-nav-bs"],  # Homepage: no search in sidebar (will be in navbar)
+#     "**": ["sidebar-nav-bs", "search-button-field"]  # Other pages: search in sidebar
+# }
 
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
@@ -118,7 +123,7 @@ html_theme_options = {
         "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
-    "show_navbar_search": False,  # Disable search in navbar globally
+    # "navbar_persistent": [],  # Enable search in navbar
 }
 
 
@@ -126,4 +131,4 @@ def setup(app):
     app.add_css_file('my_theme.css')
     
     # Add custom JavaScript to handle conditional search button display
-    app.add_js_file('conditional-search.js')
+    # app.add_js_file('conditional-search.js')

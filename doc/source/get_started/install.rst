@@ -37,28 +37,35 @@ pip or conda for installation.
 
             conda install -c conda-forge ir-sim
 
+    .. tab:: uv
+
+        `uv`_ is an extremely fast Python package and project manager.
+
+        Install IR-SIM using `uv`_:
+        
+        ::
+
+            uv pip install ir-sim
+        
+        or use uv's project management:
+
+        ::
+
+            uv add ir-sim
+
+
     .. tab:: Install from source
 
-        We strongly recommend using a fresh virtual environment (virtualenv, conda, or uv) when installing IR-SIM from source.
+        We strongly recommend using a fresh virtual environment (uv or conda) when installing IR-SIM from source.
 
-        IR-SIM has the following dependencies:
-
-        * Python >= 3.9
-        * `Matplotlib`_ >= 3.0
-        * `Shapely`_ >= 2.0.3
-        * `NumPy`_ >= 1.20
-        * `PyYAML`_ >= 5.0
-        * `ImageIO`_ >= 2.0
-        * `Loguru`_ >= 0.5
-        * `SciPy`_ >= 1.7
-
-        All required packages are installed automatically alongside IR-SIM.
+        The dependencies of IR-SIM are listed in the `pyproject.toml`_ file. All required packages are installed automatically alongside IR-SIM.
 
         Perform the following steps to install IR-SIM from source:
 
         1. Clone the official `IR-SIM git repository`_, or a newly minted fork of the IR-SIM repository.
         2. Navigate to the top-level of the cloned directory.
         3. If you want to use IR-SIM with editable source code, run
+
         ::
 
             pip install -e .
@@ -70,10 +77,10 @@ pip or conda for installation.
             pip install .
 
 Install with Additional Features
--------------------------------
+---------------------------------
 
-.. info:: Keyboard Control
-    :collapsible: open
+.. dropdown:: Keyboard Control
+    :open:
 
     IR-SIM supports keyboard control for interactive robot simulation.
     Install the keyboard control dependencies:
@@ -83,11 +90,11 @@ Install with Additional Features
         pip install ir-sim[keyboard]
 
     This installs:
+    
     * `pynput`_ - For keyboard and mouse input handling
     * `tabulate`_ - For formatted table output
 
-.. info:: Testing
-    :collapsible:
+.. dropdown:: Testing
 
     IR-SIM comes with a comprehensive test suite.
     Install the testing dependencies:
@@ -97,11 +104,11 @@ Install with Additional Features
         pip install ir-sim[test]
 
     This installs:
+    
     * `pytest`_ - Testing framework
     * `pytest-cov`_ - Coverage reporting
 
-.. info:: All Features
-    :collapsible:
+.. dropdown:: All Features
 
     To install all optional dependencies and features:
 
@@ -110,12 +117,13 @@ Install with Additional Features
         pip install ir-sim[all]
 
     This includes:
+    
     * Keyboard control features (`pynput`, `tabulate`)
     * Testing framework (`pytest`, `pytest-cov`)
     * Enhanced video support (`imageio[ffmpeg]`)
 
 Running the test suite
-----------------------
+-----------------------
 IR-SIM comes with a comprehensive test suite, which can be run after installing `pytest`_.
 If installed from source, navigate to the root of the repository and run
 
@@ -123,7 +131,7 @@ If installed from source, navigate to the root of the repository and run
 
     pytest
 
-
+.. _uv: https://docs.astral.sh/uv/
 .. _conda: https://docs.conda.io/en/latest/
 .. _Matplotlib: https://matplotlib.org/
 .. _Shapely: https://shapely.readthedocs.io/
@@ -137,6 +145,8 @@ If installed from source, navigate to the root of the repository and run
 .. _tabulate: https://pypi.org/project/tabulate/
 .. _IR-SIM git repository: https://github.com/hanruihua/ir-sim
 .. _pip: https://pip.pypa.io/
+.. _pyproject.toml: https://github.com/hanruihua/ir-sim/blob/main/pyproject.toml
+.. _pytest-cov: https://pytest-cov.readthedocs.io/
 
 
 
