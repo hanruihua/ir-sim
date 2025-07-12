@@ -1,10 +1,5 @@
 [
     {
-        "name": "latest",
-        "version": "latest",
-        "url": "https://ir-sim.readthedocs.io/en/latest/"
-    },
-    {
         "name": "2.5.5 (stable)",
         "version": "2.5.5",
         "url": "https://ir-sim.readthedocs.io/en/v2.5.5/"
