@@ -103,7 +103,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
+        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/main/doc/source/_static/switcher.json',
         "version_match": release,
     },
 }
