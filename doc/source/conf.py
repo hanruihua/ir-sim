@@ -88,10 +88,20 @@ source_suffix = {
 }
 
 html_theme_options = {
+    "icon_links": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/hanruihua/ir-sim",
+        "icon": "fa-brands fa-github",
+      },
+      {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/ir-sim/",
+            "icon": "fa-custom fa-pypi",
+    },
+    ],
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
-    "navbar_center": ["version-switcher", "navbar-nav"],
-    
     "switcher": {
         "json_url": 'https://github.com/hanruihua/ir-sim/blob/main/doc/source/_static/switcher.json',
         "version_match": release,
