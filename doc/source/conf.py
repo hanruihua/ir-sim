@@ -80,6 +80,10 @@ html_static_path = ['_static']
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
 
+html_js_files = [
+    ("custom-icons.js", {"defer": "defer"}),
+]
+
 autodoc_member_order = 'bysource'
 
 source_suffix = {
@@ -98,11 +102,11 @@ html_theme_options = {
         "name": "PyPI",
         "url": "https://pypi.org/project/ir-sim/",
         "icon": "fa-custom fa-pypi",
-    },
+    }
     ],
-    "logo": {
-        "text": "IR-SIM",
-    },
+    # "logo": {
+    #     "text": "IR-SIM",
+    # },
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
