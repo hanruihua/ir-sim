@@ -5,25 +5,25 @@ document.addEventListener('DOMContentLoaded', function() {
                       window.location.pathname.endsWith('/index.html') ||
                       window.location.pathname.includes('/index');
     
-    // Find the search button in the navbar
-    const navbarSearch = document.querySelector('.navbar-search');
-    const sidebarSearch = document.querySelector('.sidebar-search');
-    
     if (isHomepage) {
-        // On homepage: show search in navbar, hide in sidebar
+        // On homepage: enable navbar search and hide sidebar search
+        const navbarSearch = document.querySelector('.navbar-search');
+        const sidebarSearch = document.querySelector('.sidebar-search');
+        
         if (navbarSearch) {
             navbarSearch.style.display = 'block';
         }
         if (sidebarSearch) {
             sidebarSearch.style.display = 'none';
         }
+        
+        // Enable navbar search functionality for homepage
+        document.body.classList.add('homepage-search');
     } else {
-        // On other pages: hide search in navbar, show in sidebar
+        // On other pages: completely remove navbar search, keep only sidebar search
+        const navbarSearch = document.querySelector('.navbar-search');
         if (navbarSearch) {
-            navbarSearch.style.display = 'none';
-        }
-        if (sidebarSearch) {
-            sidebarSearch.style.display = 'block';
+            navbarSearch.remove(); // Completely remove the navbar search element
         }
     }
 }); 
