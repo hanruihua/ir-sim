@@ -39,22 +39,6 @@ author = 'Ruihua Han'
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("ir-sim")
 
-# print(os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath("../.."))
-# sys.path.insert(0, os.path.abspath("./"))
-# sys.path.insert(0, os.path.join(os.path.dirname((os.path.abspath('.')), 'irsim')))
-
-# root_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-# sys.path.insert(0, os.path.dirname(__file__))
-
-# sys.path.insert(0, os.path.abspath("../.."))
-# print(os.path.abspath('./'))
-# sys.path.insert(0, os.path.abspath('./'))
-# sys.path.insert(0, os.path.abspath('../src'))
-# sys.path.append(os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath(".."))
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -103,30 +87,16 @@ source_suffix = {
     '.md': 'markdown',
 }
 
-# myst_enable_extensions = [
-#     "amsmath",
-#     "attrs_inline",
-#     "colon_fence",
-#     "deflist",
-#     "dollarmath",
-#     "fieldlist",
-#     "html_admonition",
-#     "html_image",
-#     "replacements",
-#     "smartquotes",
-#     "strikethrough",
-#     "substitution",
-#     "tasklist",
-# ]
-
-# json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
-
-# html_theme_options = {
-#     "switcher": {
-#         "json_url": json_url,
-#         "version_match": release,
-#     },
-# }
+html_theme_options = {
+    "navbar_start": ["navbar-logo"],
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+    "navbar_center": ["version-switcher", "navbar-nav"],
+    
+    "switcher": {
+        "json_url": 'https://github.com/hanruihua/ir-sim/blob/main/doc/source/_static/switcher.json',
+        "version_match": release,
+    },
+}
 
 
 def setup(app):
