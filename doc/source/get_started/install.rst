@@ -6,68 +6,72 @@ Install
 IR-SIM supports Python 3.9+ on Linux, macOS, and Windows. You can use
 pip or conda for installation.
 
-.. card:: Instructions
+Installation Methods
+-------------------
 
-    .. tab:: pip
+**pip Installation**
+~~~~~~~~~~~~~~~~~~~~
 
-        Install IR-SIM using `pip`_:
+Install IR-SIM using `pip`_:
 
-        ::
+::
 
-            pip install ir-sim
+    pip install ir-sim
 
-        This will install the package and core dependencies for the base environment.
+This will install the package and core dependencies for the base environment.
 
-    .. tab:: conda
+**conda Installation**
+~~~~~~~~~~~~~~~~~~~~~~
 
-        `conda`_ is a system for package and environment management.
+`conda`_ is a system for package and environment management.
 
-        1. Install `conda`_.
+1. Install `conda`_.
 
-        2. Create a new conda environment,
-        ::
+2. Create a new conda environment,
+::
 
-            conda create --name irsim_env
-            conda activate irsim_env
+    conda create --name irsim_env
+    conda activate irsim_env
 
-        or activate an existing one
+or activate an existing one
 
-        3. Install ``ir-sim`` from `conda-forge <https://conda-forge.org/>`_
-        ::
+3. Install ``ir-sim`` from `conda-forge <https://conda-forge.org/>`_
+::
 
-            conda install -c conda-forge ir-sim
+    conda install -c conda-forge ir-sim
 
-    .. tab:: Install from source
+**Install from Source**
+~~~~~~~~~~~~~~~~~~~~~~~
 
-        We strongly recommend using a fresh virtual environment (virtualenv, conda, or uv) when installing IR-SIM from source.
+We strongly recommend using a fresh virtual environment (virtualenv, conda, or uv) when installing IR-SIM from source.
 
-        IR-SIM has the following dependencies:
+IR-SIM has the following dependencies:
 
-        * Python >= 3.9
-        * `Matplotlib`_ >= 3.0
-        * `Shapely`_ >= 2.0.3
-        * `NumPy`_ >= 1.20
-        * `PyYAML`_ >= 5.0
-        * `ImageIO`_ >= 2.0
-        * `Loguru`_ >= 0.5
-        * `SciPy`_ >= 1.7
+* Python >= 3.9
+* `Matplotlib`_ >= 3.0
+* `Shapely`_ >= 2.0.3
+* `NumPy`_ >= 1.20
+* `PyYAML`_ >= 5.0
+* `ImageIO`_ >= 2.0
+* `Loguru`_ >= 0.5
+* `SciPy`_ >= 1.7
 
-        All required packages are installed automatically alongside IR-SIM.
+All required packages are installed automatically alongside IR-SIM.
 
-        Perform the following steps to install IR-SIM from source:
+Perform the following steps to install IR-SIM from source:
 
-        1. Clone the official `IR-SIM git repository`_, or a newly minted fork of the IR-SIM repository.
-        2. Navigate to the top-level of the cloned directory.
-        3. If you want to use IR-SIM with editable source code, run
-        ::
+1. Clone the official `IR-SIM git repository`_, or a newly minted fork of the IR-SIM repository.
+2. Navigate to the top-level of the cloned directory.
+3. If you want to use IR-SIM with editable source code, run
+::
 
-            pip install -e .
+    pip install -e .
 
-        otherwise, run
-        
-        ::
+otherwise, run
 
-            pip install .
+::
+
+    pip install .
 
 Install with Additional Features
 -------------------------------
