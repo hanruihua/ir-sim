@@ -118,7 +118,6 @@ html_theme_options = {
         "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
-    "navbar_persistent": ["search-button"],
 }
 
 
