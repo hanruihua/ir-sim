@@ -55,7 +55,7 @@ The simple demonstrations of the simulator are shown below:
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Documentation:
+   :caption: API Reference:
 
    api/modules
 

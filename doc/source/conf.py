@@ -80,6 +80,11 @@ html_static_path = ['_static']
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
 
+html_sidebars = {
+    "index": ["search-button-field"],
+    "**": ["search-button-field", "sidebar-nav-bs"]
+}
+
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
 ]
@@ -113,6 +118,7 @@ html_theme_options = {
         "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
+    "navbar_persistent": ["search-button"],
 }
 
 
