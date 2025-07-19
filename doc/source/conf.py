@@ -87,7 +87,11 @@ html_theme = "pydata_sphinx_theme"
 
 html_sidebars = {
     "index": ["sidebar-nav-bs", "search-button-field"],  # Homepage: no search in sidebar (will be in navbar)
-    "**": ["sidebar-nav-bs", "search-button-field"]  # Other pages: search in sidebar
+    "**": ["sidebar-nav-bs", "search-button-field"],  # Other pages: search in sidebar
+    "community/index": [
+        "sidebar-nav-bs",
+        "custom-template",
+    ],  # This ensures we test for custom sidebars
 }
 
 html_sidebars = {
@@ -128,7 +132,7 @@ html_theme_options = {
         "version_match": release,
     },
     # Primary sidebar navigation configuration
-    "show_nav_level": 2,  # Show top-level pages and their immediate children by default
+    "show_nav_level": 3,  # Show top-level pages and their immediate children by default
     "navigation_depth": 4,  # Maximum levels shown in sidebar (default: 4)
     "collapse_navigation": False,  # Keep expandable navigation enabled
     # Secondary sidebar configuration

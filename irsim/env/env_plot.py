@@ -114,7 +114,7 @@ class EnvPlot:
         self.ax.set_ylabel("y [m]")
 
         # self.draw_components("all", objects)
-        self.init_objects_plot(objects, **kwargs)
+        self.init_objects_plot(objects)
         self.draw_grid_map(grid_map)
 
         if no_axis:

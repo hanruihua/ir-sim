@@ -21,7 +21,7 @@ class World:
         sample_time (float): Time interval between samples.
         offset (list): Offset for the world's position.
         control_mode (str): Control mode ('auto' or 'keyboard').
-        collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+        collision_mode (str): Collision mode ('stop',  , 'unobstructed').
         obstacle_map: Image file for the obstacle map.
         mdownsample (int): Downsampling factor for the obstacle map.
         status: Status of the world and objects.
@@ -55,7 +55,7 @@ class World:
             sample_time (float): Time interval between samples.
             offset (list): Offset for the world's position.
             control_mode (str): Control mode ('auto' or 'keyboard').
-            collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+            collision_mode (str): Collision mode ('stop',  , 'unobstructed').
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.

@@ -403,7 +403,7 @@ class ObjectBase:
         Check the current status of the object, including arrival and collision detection.
 
         This method evaluates collision detection and sets stop flags based on the collision mode.
-        It also handles different collision modes like 'stop', 'reactive', 'unobstructed', etc.
+        It also handles different collision modes like 'stop',  , 'unobstructed', etc.
         """
         self.check_arrive_status()
         self.check_collision_status()

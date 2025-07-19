@@ -1,5 +1,5 @@
 Make Environment
-=======
+==================
 
 ## Python script and YAML configuration file
 
@@ -23,7 +23,7 @@ world:
   sample_time: 0.1  # rendering frequency (seconds) - 10Hz
   offset: [0, 0] # the offset of the world origin [x, y]
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
-  collision_mode: 'stop' # collision behavior: 'stop', 'reactive', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop' # collision behavior: 'stop',  , 'unobstructed', 'unobstructed_obstacles'
   obstacle_map: null # path to obstacle map file (optional)
 ```
 
@@ -41,7 +41,6 @@ world:
   - `'keyboard'`: Manual keyboard control
 - **`collision_mode`**: Defines collision detection behavior
   - `'stop'`: Stop simulation when collision occurs (default)
-  - `'reactive'`: Apply collision avoidance behavior (to be implemented)
   - `'unobstructed'`: Ignore all collisions
   - `'unobstructed_obstacles'`: Ignore only obstacle collisions
 - **`obstacle_map`**: Optional path to a pre-defined obstacle map file

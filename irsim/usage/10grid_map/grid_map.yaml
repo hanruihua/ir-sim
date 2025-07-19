@@ -4,7 +4,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  collision_mode: 'stop'  # 'stop', 'unobstructed',  
   control_mode: 'keyboard'  # 'keyboard', 'auto'
   obstacle_map: 'cave.png'
   mdownsample: 2

@@ -4,7 +4,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'unobstructed_obstacles'  # 'stop', 'unobstructed', 'reactive', 'unobstructed_obstacles'
+  collision_mode: 'unobstructed_obstacles'  # 'stop', 'unobstructed',  , 'unobstructed_obstacles'
   control_mode: 'auto'  # 'keyboard', 'auto'
 
 robot:
