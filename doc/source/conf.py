@@ -85,10 +85,10 @@ html_theme = "pydata_sphinx_theme"
 #     "**": ["search-button-field", "sidebar-nav-bs"]  # All other pages with search button in sidebar
 # }
 
-# html_sidebars = {
-#     "index": ["sidebar-nav-bs"],  # Homepage: no search in sidebar (will be in navbar)
-#     "**": ["sidebar-nav-bs", "search-button-field"]  # Other pages: search in sidebar
-# }
+html_sidebars = {
+    "index": ["sidebar-nav-bs", "search-button-field"],  # Homepage: no search in sidebar (will be in navbar)
+    "**": ["sidebar-nav-bs", "search-button-field"]  # Other pages: search in sidebar
+}
 
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
@@ -123,7 +123,7 @@ html_theme_options = {
         "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
-    # "navbar_persistent": [],  # Enable search in navbar
+    "navbar_persistent": [],  # Enable search in navbar
 }
 
 
