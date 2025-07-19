@@ -6,140 +6,33 @@ The configuration file is a YAML file to initialize the environment. It contains
 
 ## Parameter Quick Reference
 
-::::{grid} 1 1 1 1
-:gutter: 2
-
-:::{grid-item-card} **Parameter Navigator**
-:shadow: lg
-:class-card: sd-border-primary
-
 Use this navigation to quickly jump to specific parameter sections:
 
 ::::{dropdown} **World Parameters**
 :color: primary
 :icon: globe
+:open:
 
-- [World Configuration](#world-configuration)
-- [World Parameters Table](#world-parameters-table)
-- [Dimensions & Timing](#dimensions-timing)
-- [Control & Collision Systems](#control-collision-systems)
-- [Environment Mapping](#environment-mapping)
-- [Visualization Options](#visualization-options)
-
-**Key Parameters:**
-- `height`, `width`, `step_time`, `sample_time`
-- `control_mode`, `collision_mode`, `status`
-- `obstacle_map`, `mdownsample`
-- `plot`, `show_title`, `figure_pixels`
+- [world properties](#world-properties)
+- [world map](#world-map)
+- [world visualization](#world-visualization)
+- [world mode](#world-mode)
 ::::
 
 ::::{dropdown} **Object Parameters**
 :color: info
 :icon: server
+:open:
 
-- [Object Configuration](#object-configuration)
-- [Object Parameters Overview](#object-parameters-overview)
-- [Basic Object Properties](#basic-object-properties)
-- [Kinematics Models](#kinematics-models)
-- [Shape Configurations](#shape-configurations)
-- [Behavior Systems](#behavior-systems)
-- [Velocity & Acceleration Limits](#velocity-acceleration-limits)
-- [Sensor Configurations](#sensor-configurations)
-- [Visualization & Plotting](#visualization-plotting)
-
-**Key Parameters:**
-- `number`, `distribution`, `state`, `goal`
-- `kinematics`, `shape`, `behavior`
-- `sensors`, `fov`, `fov_radius`
-- `plot`, `color`, `static`
-::::
-
-::::{dropdown} **Kinematics Models**
-:color: success
-:icon: gear
-
-- [Kinematics Models](#kinematics-models)
-
-**Supported Models:**
-- `diff`: Differential drive (`[v, omega]`)
-- `omni`: Omnidirectional (`[vx, vy]`)
-- `acker`: Ackermann steering (`[v, phi]`)
-
-**Parameters:**
-- `noise`, `alpha`, `mode`, `wheelbase`
-::::
-
-::::{dropdown} **Shape Configurations**
-:color: warning
-:icon: circle
-
-- [Shape Configurations](#shape-configurations)
-
-**Supported Shapes:**
-- `circle`: `radius`, `center`, `random_shape`
-- `rectangle`: `length`, `width`, `wheelbase`
-- `polygon`: `vertices`, `random_shape`, `is_convex`
-- `linestring`: `vertices`, `random_shape`
-::::
-
-::::{dropdown} **Behavior Systems**
-:color: secondary
-:icon: tools
-
-- [Behavior Systems](#behavior-systems)
-
-**Supported Behaviors:**
-- `dash`: Direct goal movement
-  - `wander`, `target_roles`, `angle_tolerance`
-- `rvo`: Collision avoidance
-  - `vxmax`, `vymax`, `acce`, `factor`, `mode`
-
-**Parameters:**
-- `role`, `color`, `static`
-::::
-
-::::{dropdown} **Velocity & Limits**
-:color: danger
-:icon: zap
-
-- [Velocity & Acceleration Limits](#velocity-acceleration-limits)
-
-**Parameters:**
-- `vel_min`, `vel_max`: Velocity bounds
-- `acce`: Acceleration limits
-- `angle_range`: Orientation limits
-- `goal_threshold`: Arrival threshold
-::::
-
-::::{dropdown} **Sensors**
-:color: primary
-:icon: broadcast
-
-- [Sensor Configurations](#sensor-configurations)
-
-**Supported Sensors:**
-- `lidar2d`: 2D LiDAR sensor
-
-**Parameters:**
-- `range_min`, `range_max`, `angle_range`
-- `number`, `noise`, `std`, `offset`
-- `arrive_mode`, `description`, `unobstructed`
-::::
-
-::::{dropdown} **Visualization**
-:color: info
-:icon: paintbrush
-
-- [Visualization & Plotting](#visualization-plotting)
-
-**Plot Categories:**
-- **Object**: `obj_color`, `obj_alpha`, `obj_linestyle`
-- **Goal**: `show_goal`, `goal_color`, `goal_alpha`
-- **Text**: `show_text`, `text_color`, `text_size`
-- **Arrow**: `show_arrow`, `arrow_color`, `arrow_length`
-- **Trajectory**: `show_trajectory`, `traj_color`, `traj_style`
-- **Trail**: `show_trail`, `trail_freq`, `trail_type`
-- **Sensor**: `show_sensor`, `show_fov`, `fov_color`
+- [object properties](#object-properties)
+  - `number`, `distribution`, `state`, `goal`, `velocity`
+  - `role`, `color`, `static`, `arrive_mode`
+  - `vel_min`, `vel_max`, `acce`, `angle_range`
+- [object kinematics](#object-kinematics)
+- [object shape](#object-shape)
+- [object behavior](#object-behavior)
+- [object sensors](#object-sensor)
+- [object visualization](#object-visualization)
 ::::
 
 :::
@@ -235,52 +128,6 @@ robot:
 
 ---
 
-(world-configuration)=
-## World Configuration
-
-The `world` section contains the configuration of the simulation environment. Configure your simulation world with these parameters:
-
-::::{grid} 1 1 1 1
-:gutter: 3
-
-:::{grid-item-card} **Dimensions & Physics**
-:shadow: lg
-
-**Core Parameters:**
-- `height` & `width`: World dimensions (meters)
-- `step_time`: Simulation step interval (seconds)
-- `sample_time`: Rendering/data sampling interval (seconds)
-- `offset`: World position offset [x, y]
-:::
-
-:::{grid-item-card} **Control & Collision**
-:shadow: lg
-
-**Behavior Settings:**
-- `control_mode`: `"auto"` or `"keyboard"`
-- `collision_mode`: Collision handling strategy
-- `status`: Initial simulation status
-:::
-
-:::{grid-item-card} **Environment Maps**
-:shadow: lg
-
-**Map Integration:**
-- `obstacle_map`: Path to obstacle map image
-- `mdownsample`: Map downsampling factor
-- Support for HM3D, Gibson, MatterPort3D
-:::
-
-:::{grid-item-card} **Visualization**
-:shadow: lg
-
-**Display Options:**
-- `plot`: Plotting configuration
-- `show_title`: Display plot title
-- `figure_pixels`: Output resolution
-:::
-::::
-
 (world-parameters-table)=
 ### World Parameters Table
 
@@ -294,16 +141,15 @@ The `world` section contains the configuration of the simulation environment. Co
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                 |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                      |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"reactive"`, `"unobstructed"`, `"unobstructed_obstacles"`) |
+| `status`         | `str`             | `None` | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`)                          |
 | `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                    |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.          |
-| `status`         | `str`             | `None` | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`)                          |
 | `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                |
 
 ### Detailed Parameter Descriptions
 
-(dimensions-timing)=
-::::{dropdown} **Dimensions & Timing**
-:open:
+(world-properties)=
+::::{dropdown} **world properties**
 
 **`name`**:  
   Defines the name of the world used in the simulation. This can be useful for identifying different simulation environments.
@@ -324,8 +170,8 @@ The `world` section contains the configuration of the simulation environment. Co
   Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement.
 ::::
 
-(control-collision-systems)=
-::::{dropdown} **Control & Collision Systems**
+(world-mode)=
+::::{dropdown} **world mode**
 
 **`control_mode`**:  
 Configures how the objects in the simulation are controlled:
@@ -347,8 +193,8 @@ Configures how the objects in the simulation are controlled:
   The status can be dynamically changed during simulation using keyboard controls (space key) or programmatically.
 ::::
 
-(environment-mapping)=
-::::{dropdown} **Environment Mapping**
+(world-map)=
+::::{dropdown} **world map**
 
 **`obstacle_map`**:  
   Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle. 
@@ -364,8 +210,8 @@ Configures how the objects in the simulation are controlled:
   Sets the downsampling factor for the obstacle map image. A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
 ::::
 
-(visualization-options)=
-::::{dropdown} **Visualization Options**
+(world-visualization)=
+::::{dropdown} **world visualization**
 
 **`plot`**:  
   Specifies the plotting options for initializing the plot of the world.
@@ -482,9 +328,13 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ### Detailed Parameter Descriptions
 
-(basic-object-properties)=
-::::{dropdown} **Basic Object Properties**
-:open:
+(object-properties)=
+::::{dropdown} **object properties**
+
+**Object Properties:**
+- `number`, `distribution`, `state`, `goal`, `velocity`
+- `role`, `color`, `static`, `arrive_mode`
+- `vel_min`, `vel_max`, `acce`, `angle_range`
 
 **`number`**:
   Specifies the number of objects to create using the given configuration. 
@@ -560,8 +410,13 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```
 ::::
 
-(kinematics-models)=
-::::{dropdown} **Kinematics Models**
+(object-kinematics)=
+::::{dropdown} **object kinematics**
+
+**Kinematics Models:**
+- `diff`: Differential drive (`[v, omega]`)
+- `omni`: Omnidirectional (`[vx, vy]`)
+- `acker`: Ackermann steering (`[v, phi]`)
 
 **`kinematics`**:
   Sets the kinematic model governing the object's movement. Supported models:
@@ -600,8 +455,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ````
 ::::
 
-(shape-configurations)=
-::::{dropdown} **Shape Configurations**
+(object-shape)=
+::::{dropdown} **object shape**
+
+**Shape Types:**
+- `circle`: `radius`, `center`, `random_shape`
+- `rectangle`: `length`, `width`, `wheelbase`
+- `polygon`: `vertices`, `is_convex`
+- `linestring`: `vertices`
 
 **`shape`**:
   Determines the geometric shape used for collision detection and visualization in the original state. Supported shapes and required parameters:
@@ -677,8 +538,12 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```
 ::::
 
-(behavior-systems)=
-::::{dropdown} **Behavior Systems**
+(object-behavior)=
+::::{dropdown} **object behavior**
+
+**Behavior Systems:**
+- `dash`: Direct movement - `wander`, `angle_tolerance`
+- `rvo`: Collision avoidance - `vxmax`, `vymax`, `acce`, `factor`
 
 **`behavior`**:
   Configures the movement behavior of the object. Behaviors can be simple or complex and may include additional parameters. Supported behavior names:
@@ -761,8 +626,11 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```
 ::::
 
-(sensor-configurations)=
-::::{dropdown} **Sensor Configurations**
+(object-sensor)=
+::::{dropdown} **object sensors**
+
+**Sensors:**
+- `lidar2d`: `range_min`, `range_max`, `angle_range`, `number`, `noise`
 
 **`sensors`**:
   Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Currently supported sensor `name` (or `type`) include:
@@ -842,8 +710,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```
 ::::
 
-(visualization-plotting)=
-::::{dropdown} **Visualization & Plotting**
+(object-visualization)=
+::::{dropdown} **object visualization**
+
+**Visualization:**
+- Object: `obj_color`, `obj_alpha`, `obj_linestyle`
+- Goal: `show_goal`, `goal_color`, `goal_alpha`
+- Trail: `show_trail`, `trail_freq`, `trail_type`
+- Sensor: `show_sensor`, `show_fov`, `fov_color`
 
 **`plot`**:
   Contains plotting options controlling the visual representation of the object. All plot elements are initially created at the origin and positioned using transforms and data updates during animation.

@@ -1,32 +1,12 @@
 [
     {
-        "name": "2.5.5 (stable)",
+        "name": "2.6.0 (stable)",
+        "version": "2.6.0",
+        "url": "https://ir-sim.readthedocs.io/en/v2.6.0/"
+    },
+    {
+        "name": "2.5.5",
         "version": "2.5.5",
         "url": "https://ir-sim.readthedocs.io/en/v2.5.5/"
-    },
-    {
-        "name": "2.5.4",
-        "version": "2.5.4",
-        "url": "https://ir-sim.readthedocs.io/en/v2.5.4/"
-    },
-    {
-        "name": "2.5.3",
-        "version": "2.5.3",
-        "url": "https://ir-sim.readthedocs.io/en/v2.5.3/"
-    },
-    {
-        "name": "2.5.2",
-        "version": "2.5.2",
-        "url": "https://ir-sim.readthedocs.io/en/v2.5.2/"
-    },
-    {
-        "name": "2.5.1",
-        "version": "2.5.1",
-        "url": "https://ir-sim.readthedocs.io/en/v2.5.1/"
-    },
-    {
-        "name": "2.5.0",
-        "version": "2.5.0",
-        "url": "https://ir-sim.readthedocs.io/en/v2.5.0/"
     }
 ]

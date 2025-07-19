@@ -90,6 +90,10 @@ html_theme = "pydata_sphinx_theme"
 #     "**": ["sidebar-nav-bs", "search-button-field"]  # Other pages: search in sidebar
 # }
 
+html_sidebars = {
+    "**": ["sidebar-nav-bs"]  # Use default navigation for all pages
+}
+
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
 ]
@@ -123,6 +127,14 @@ html_theme_options = {
         "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
+    # Primary sidebar navigation configuration
+    "show_nav_level": 2,  # Show top-level pages and their immediate children by default
+    "navigation_depth": 4,  # Maximum levels shown in sidebar (default: 4)
+    "collapse_navigation": False,  # Keep expandable navigation enabled
+    # Secondary sidebar configuration
+    "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
+    # Show more levels in the table of contents by default
+    "show_toc_level": 3,  # Shows headings up to level 2 by default
     # "navbar_persistent": [],  # Enable search in navbar
 }
 
