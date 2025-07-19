@@ -1,6 +1,6 @@
 # YAML Configuration Syntax
 
-The configuration file is a YAML file to initialize the environment. It contains the configuration parameters of the world, obstacle, and robot. You can customize the simulation environment and define the behavior of the objects by modifying the parameters.
+The configuration file is a YAML file to initialize the environment. It contains the configuration parameters to simulate and visualize the world, obstacle, and robot. You can customize the scenario and define the behavior of the objects simply by using the parameters.
 
 ---
 
