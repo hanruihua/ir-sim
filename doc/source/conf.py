@@ -10,11 +10,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 import os
 import sys
+# Add the project root to Python path
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('.'))
 from unittest.mock import MagicMock
 import importlib.metadata
 
@@ -101,7 +101,40 @@ nitpick_ignore = [
 
 # AutoAPI configuration - Automatic API documentation generation
 autoapi_type = 'python'
-autoapi_dirs = ['../../irsim']  # Path to your source code
+
+# Try to find the irsim package - use multiple potential paths
+_current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
+_potential_paths = [
+    '../../irsim',  # Local development
+    os.path.join(_current_dir, '../../irsim'),  # Relative to this file
+    os.path.abspath(os.path.join(_current_dir, '../../irsim')),  # Absolute path
+]
+
+# First try to use the installed package if available
+autoapi_dirs = None
+try:
+    import irsim
+    irsim_path = os.path.dirname(irsim.__file__)
+    if os.path.exists(irsim_path) and os.listdir(irsim_path):
+        autoapi_dirs = [irsim_path]
+        print(f"Using installed package at: {irsim_path}")
+except ImportError as e:
+    print(f"Could not import irsim package: {e}")
+
+# Fallback to local paths if package import fails
+if autoapi_dirs is None:
+    for path in _potential_paths:
+        abs_path = os.path.abspath(path)
+        if os.path.exists(abs_path):
+            autoapi_dirs = [abs_path]
+            print(f"Using local path: {abs_path}")
+            break
+
+# Last resort: use relative path
+if autoapi_dirs is None:
+    autoapi_dirs = ['../../irsim']
+    print("Using fallback relative path")
+
 autoapi_root = 'api'  # Directory where API docs will be generated
 autoapi_keep_files = True  # Keep generated files for inspection
 autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
@@ -112,9 +145,24 @@ autoapi_ignore = [
     '**/test_*',
     '**/tests/*',
     '**/*test*',
-    # Ignore usage scripts that create standalone modules
-    '**/usage/**',
-    '**/map/**',
+    # Ignore specific usage scripts that create standalone modules
+    '**/usage/01empty_world/**',
+    '**/usage/02robot_world/**',
+    '**/usage/03obstacle_world/**',
+    '**/usage/04collision_world/**',
+    '**/usage/05lidar_world/**',
+    '**/usage/06multi_objects_world/**',
+    '**/usage/07render_world/**',
+    '**/usage/08random_obstacle/**',
+    '**/usage/09keyboard_control/**',
+    '**/usage/10grid_map/**',
+    '**/usage/11collision_avoidance/**',
+    '**/usage/12dynamic_obstacle/**',
+    '**/usage/13custom_behavior/**',
+    '**/usage/14world_3d_plot/**',
+    '**/usage/15fov_world/**',
+    '**/usage/16noise_world/**',
+    '**/usage/17gui_world/**',
     # Ignore version module
     '**/version.py',
 ]
@@ -128,6 +176,47 @@ autoapi_options = [
 
 # Configure AutoAPI to be more tolerant of import errors
 autoapi_python_use_implicit_namespaces = True
+
+# Debug: Print the path being used for AutoAPI
+print(f"AutoAPI using directory: {autoapi_dirs}")
+if autoapi_dirs:
+    for directory in autoapi_dirs:
+        print(f"  Checking directory: {directory}")
+        if os.path.exists(directory):
+            print(f"    Directory exists: {directory}")
+            try:
+                files = os.listdir(directory)
+                print(f"    Files found: {len(files)}")
+                py_files = [f for f in files if f.endswith('.py')]
+                print(f"    Python files: {len(py_files)}")
+                if py_files:
+                    print(f"    Sample Python files: {py_files[:5]}")
+            except Exception as e:
+                print(f"    Error listing directory: {e}")
+        else:
+            print(f"    Directory does not exist: {directory}")
+
+# Configure AutoAPI to handle import errors gracefully
+autoapi_ignore_import_errors = True
+
+# Add error handling for AutoAPI
+def autoapi_skip_member(app, what, name, obj, skip, options):
+    """Skip problematic members that cause import issues."""
+    try:
+        # Skip private members that start with underscore
+        if name.startswith('_') and not name.startswith('__'):
+            return True
+        # Skip test functions and classes
+        if 'test' in name.lower():
+            return True
+        return skip
+    except Exception as e:
+        print(f"Error in autoapi_skip_member for {name}: {e}")
+        return True  # Skip if there's any error
+
+def setup(app):
+    """Setup function for Sphinx."""
+    app.connect('autoapi-skip-member', autoapi_skip_member)
 
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
