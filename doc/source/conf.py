@@ -101,23 +101,7 @@ nitpick_ignore = [
 
 # AutoAPI configuration - Automatic API documentation generation
 autoapi_type = 'python'
-
-# Try to find the irsim package - handle both local and ReadTheDocs environments
-_current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
-
-autoapi_dirs = ["../../irsim"]
-
-# If source directory not found, try installed package
-if autoapi_dirs is None:
-    try:
-        import irsim
-        irsim_path = os.path.dirname(irsim.__file__)
-        if os.path.exists(irsim_path) and os.listdir(irsim_path):
-            autoapi_dirs = [irsim_path]
-            print(f"Using installed package at: {irsim_path}")
-    except ImportError as e:
-        print(f"Could not import irsim package: {e}")
-
+autoapi_dirs = ['../../irsim']  # Path to your source code
 autoapi_root = 'api'  # Directory where API docs will be generated
 autoapi_keep_files = True  # Keep generated files for inspection
 autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
