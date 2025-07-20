@@ -6,7 +6,9 @@ The dynamic, random, and clutter environment is useful to test the navigation an
 
 ## Random Obstacles Configuration Parameters
 
-Python script:
+::::{tab-set}
+
+:::{tab-item} Python Script
 
 ```python
 import irsim
@@ -24,7 +26,9 @@ for i in range(1000):
 env.end()
 ```
 
-YAML File:
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -61,6 +65,10 @@ obstacle:
       - {name: 'circle', radius: 1.0, random_shape: True}  
       - {name: 'polygon', random_shape: true, avg_radius_range: [0.5, 2.0], irregularity_range: [0, 0.4], spikeyness_range: [0, 0.4], num_vertices_range: [4, 6]}
 ```
+
+:::
+
+::::
 
 The demonstration is shown in the following figure:
 

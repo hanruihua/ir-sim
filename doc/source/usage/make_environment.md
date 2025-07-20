@@ -5,15 +5,22 @@ Make Environment
 
 To start the simulation, you need to create an environment. The environment is a container for all the objects in the simulation. It is also responsible for updating the state of the simulation at each time step.
 
-Follow the steps below to create an environment:
+::::{tab-set}
+:::{tab-item} Python Script
+
+Create your environment with a simple Python script:
 
 ```python
 import irsim
 
 env = irsim.make('empty_world.yaml')
 ```
+The `make` function creates an environment from a configuration file. Supported parameters can be found in [EnvBase](#irsim.env.env_base.EnvBase) class.
+:::
 
-The `make` function creates an environment from a configuration file. Support parameters can be found in [EnvBase](#irsim.env.env_base.EnvBase) class. The configuration file is a YAML file that specifies the properties of the environment. The `empty_world.yaml` file is a simple configuration file that creates an empty environment. This file is listed below:
+:::{tab-item} YAML Configuration
+
+Define your world properties in a YAML file (`empty_world.yaml`):
 
 ```yaml
 world:
@@ -26,6 +33,10 @@ world:
   collision_mode: 'stop' # collision behavior: 'stop',  , 'unobstructed', 'unobstructed_obstacles'
   obstacle_map: null # path to obstacle map file (optional)
 ```
+
+The configuration file is a YAML file that specifies the properties of the environment. The `empty_world.yaml` file is a simple configuration file that creates an empty environment.
+:::
+::::
 
 ## Important Parameters Explanation 
 

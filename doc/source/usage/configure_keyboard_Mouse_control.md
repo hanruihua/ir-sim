@@ -13,6 +13,10 @@ pip install ir-sim[keyboard]
 
 To start with the keyboard control, you can simply to specify the `control_mode` parameter in the `world` section as `keyboard`. The example of the keyboard control is shown below:
 
+::::{tab-set}
+
+:::{tab-item} Python Script
+
 ```python
 import irsim
 
@@ -28,6 +32,10 @@ for i in range(1000):
 
 env.end()
 ```
+
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -57,6 +65,10 @@ robot:
         number: 100
         alpha: 0.4
 ```
+
+:::
+
+::::
 
 The demonstration controlled by the keyboard is shown below:
 

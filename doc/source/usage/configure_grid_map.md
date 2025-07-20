@@ -8,6 +8,10 @@ The grid map environment is a 2D grid-based environment that can be used to simu
 
 The python script and YAML configuration file for the grid map environment are shown below:
 
+::::{tab-set}
+
+:::{tab-item} Python Script
+
 ```python
 
 import irsim
@@ -24,6 +28,10 @@ for i in range(1000):
 
 env.end()
 ```
+
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -60,6 +68,10 @@ obstacle:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]} 
 
 ```
+
+:::
+
+::::
 
 The demonstration is shown below:
 

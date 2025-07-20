@@ -7,8 +7,11 @@ To effectively simulate robots within your environment, you need to define and c
 
 Each robot in the simulation is defined by a set of parameters in a YAML configuration file. Below is a simple example of a robot configuration:
 
-The python script:
+The python script and YAML configuration file:
 
+::::{tab-set}
+
+:::{tab-item} Python Script
 ```python
 import irsim
 
@@ -24,8 +27,9 @@ for i in range(1000):
 
 env.end()
 ```
+:::
 
-
+:::{tab-item} YAML Configuration
 ```yaml
 world:
   height: 10 
@@ -41,6 +45,9 @@ robot:
     show_trajectory: True
     show_goal: True
 ```
+:::
+
+::::
 
 ### Important Parameters Explained
 
