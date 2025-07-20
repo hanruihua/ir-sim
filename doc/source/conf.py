@@ -125,9 +125,7 @@ autoapi_generate_api_docs = True  # Generate API documentation
 autoapi_python_class_content = 'both'  # Include both class and __init__ docstrings
 autoapi_ignore = [
     # Ignore problematic modules that cause import issues
-    '**/test_*',
     '**/tests/*',
-    '**/*test*',
     # Ignore specific usage scripts that create standalone modules
     '**/usage/**',
     # Ignore binary map generator (has external dependencies)
