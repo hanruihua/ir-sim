@@ -1,4 +1,4 @@
-from irsim.world import ObjectBase
+from irsim.world.object_base import ObjectBase
 
 class ObstacleDiff(ObjectBase):
     def __init__(self, color="k", state_dim=3, **kwargs):

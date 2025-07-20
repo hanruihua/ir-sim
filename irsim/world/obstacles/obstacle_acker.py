@@ -1,4 +1,4 @@
-from irsim.world import ObjectBase
+from irsim.world.object_base import ObjectBase
 
 
 class ObstacleAcker(ObjectBase):

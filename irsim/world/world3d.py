@@ -1,4 +1,4 @@
-from irsim.world import World
+from irsim.world.world import World
 
 
 class World3D(World):
