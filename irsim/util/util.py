@@ -5,7 +5,7 @@ import numpy as np
 from shapely import ops
 import time
 from typing import Any
-from irsim.global_param import env_param 
+from irsim.config import env_param 
 import math
 from shapely.affinity import affine_transform
 

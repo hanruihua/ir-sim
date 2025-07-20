@@ -7,7 +7,7 @@ from irsim.util.util import (
     transform_point_with_state,
     get_transform,
 )
-from irsim.global_param import env_param
+from irsim.config import env_param
 from matplotlib.collections import LineCollection
 from shapely.strtree import STRtree
 from shapely.ops import unary_union

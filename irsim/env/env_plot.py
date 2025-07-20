@@ -6,8 +6,8 @@ Author: Ruihua Han
 
 import matplotlib.pyplot as plt
 import logging
-from irsim.global_param.path_param import path_manager as pm
-from irsim.global_param import world_param, env_param
+from irsim.config.path_param import path_manager as pm
+from irsim.config import world_param, env_param
 import os
 import imageio.v3 as imageio
 import shutil

@@ -13,10 +13,10 @@ from math import inf, pi, atan2, cos, sin
 from typing import Optional, Union
 from collections import deque
 from irsim.lib import Behavior, KinematicsFactory, GeometryFactory
-from irsim.global_param import world_param, env_param
+from irsim.config import world_param, env_param
 from irsim.world.sensors.sensor_factory import SensorFactory
 from irsim.env.env_plot import linewidth_from_data_units
-from irsim.global_param.path_param import path_manager
+from irsim.config.path_param import path_manager
 from shapely.strtree import STRtree
 from shapely.geometry import MultiLineString
 

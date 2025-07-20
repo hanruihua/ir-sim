@@ -2,7 +2,7 @@ from irsim.env import EnvBase
 from .env_plot3d import EnvPlot3D
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.world3d import World3D
-from irsim.global_param import world_param, env_param
+from irsim.config import world_param, env_param
 from irsim.world.object_base import ObjectBase
 import itertools
 

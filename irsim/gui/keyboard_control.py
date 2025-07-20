@@ -2,7 +2,7 @@ from pynput import keyboard
 import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
-from irsim.global_param import env_param
+from irsim.config import env_param
 
 class KeyboardControl:
 

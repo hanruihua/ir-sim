@@ -12,4 +12,4 @@ Welcome to the IR-SIM API Reference. This section provides detailed documentatio
    irsim/lib/index
    irsim/gui/index
    irsim/util/index
-   irsim/global_param/index
+   irsim/config/index

@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.image as mpimg
 
 from irsim.util.util import file_check
-from irsim.global_param import world_param
-from irsim.global_param.path_param import path_manager as pm
+from irsim.config import world_param
+from irsim.config.path_param import path_manager as pm
 from irsim.world.map import Map
 
 class World:
