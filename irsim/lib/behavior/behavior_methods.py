@@ -3,7 +3,7 @@ from irsim.lib import reciprocal_vel_obs
 from irsim.util.util import relative_position, WrapToPi, omni_to_diff
 import numpy as np
 from math import cos, sin
-from irsim.global_param import env_param, world_param
+from irsim.config import env_param, world_param
 
 """
 Behavior Methods Module

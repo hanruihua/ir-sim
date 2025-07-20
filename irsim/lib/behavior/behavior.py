@@ -1,5 +1,5 @@
 import numpy as np
-from irsim.global_param import env_param, world_param
+from irsim.config import env_param, world_param
 import importlib
 from typing import Tuple, Any
 from irsim.lib.behavior.behavior_registry import behaviors_map

@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from shapely import Polygon
 from shapely.strtree import STRtree
 
-from irsim.global_param import env_param, world_param
+from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
 from irsim.world import World, ObjectBase
 from .env_plot import EnvPlot
