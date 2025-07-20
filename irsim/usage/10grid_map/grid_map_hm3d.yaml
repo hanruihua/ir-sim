@@ -4,7 +4,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  collision_mode: 'stop'  # 'stop', 'unobstructed',  
   control_mode: 'keyboard'  # 'keyboard', 'auto'
   obstacle_map: 'hm3d_2.png' # hm3d_1.png, hm3d_2.png, hm3d_3.png, hm3d_4.png, hm3d_5.png, hm3d_6.png, hm3d_7.png, hm3d_8.png, hm3d_9.png
   mdownsample: 2

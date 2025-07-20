@@ -1,4 +1,5 @@
 import numpy as np
+from .obstacle_map import ObstacleMap
 
 class Map:
     def __init__(self, width: int = 10, height: int = 10, resolution: float = 0.1, obstacle_list: list = [], grid: np.ndarray = None):
@@ -20,6 +21,8 @@ class Map:
         self.obstacle_list = obstacle_list
         self.grid = grid
 
+
+__all__ = ['Map', 'ObstacleMap']
 
 
 

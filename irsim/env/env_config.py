@@ -7,7 +7,6 @@ class EnvConfig:
     """
     The base class of environment parameters read from yaml file.
         basic categories: world, plot, robot, obstacle
-        See for detail
     """
 
     def __init__(self, world_name) -> None:

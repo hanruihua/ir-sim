@@ -10,6 +10,20 @@ import random
 import numpy as np
 from typing import List
 
+def clip(value, lower, upper):
+    """
+    Clip a value to a specified range.
+
+    Args:
+        value (float): Value to be clipped.
+        lower (float): Lower bound of the range.
+        upper (float): Upper bound of the range.
+
+    Returns:
+        float: Clipped value.
+    """
+    return min(upper, max(value, lower))
+
 def random_generate_polygon(
     number=1,
     center_range=[0, 0, 0, 0],
@@ -129,16 +143,4 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
     return angles
 
 
-def clip(value, lower, upper):
-    """
-    Clip a value to a specified range.
 
-    Args:
-        value (float): Value to be clipped.
-        lower (float): Lower bound of the range.
-        upper (float): Upper bound of the range.
-
-    Returns:
-        float: Clipped value.
-    """
-    return min(upper, max(value, lower))

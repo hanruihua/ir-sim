@@ -2,7 +2,7 @@ import numpy as np
 from irsim.global_param import env_param, world_param
 import importlib
 from typing import Tuple, Any
-from .behavior_registry import behaviors_map
+from irsim.lib.behavior.behavior_registry import behaviors_map
 
 
 
@@ -15,9 +15,10 @@ class Behavior:
         behavior_dict (dict): Dictionary containing behavior parameters for different behaviors.
             Name Options include: 'dash', 'rvo'.
             target_roles:
-                'all': all objects in the environment will be considered within this behavior.
-                'obstacle': only obstacles will be considered within this behavior.
-                'robot': only robots will be considered within this behavior.
+            
+            - 'all': all objects in the environment will be considered within this behavior.
+            - 'obstacle': only obstacles will be considered within this behavior.
+            - 'robot': only robots will be considered within this behavior.
     """
 
     def __init__(self, object_info=None, behavior_dict=None) -> None:
@@ -92,15 +93,39 @@ class Behavior:
 
     def invoke_behavior(self, kinematics: str, action: str, **kwargs: Any) -> Any:
         """
-        Invoke a behavior method.
+        Invoke a specific behavior method based on kinematics model and action type.
+
+        This method looks up and executes the appropriate behavior function from the
+        behavior registry based on the combination of kinematics model and action name.
 
         Args:
-            kinematics (str): Name of the behavior method. only support: 'diff', 'omni', 'acker'.
-            action: Name of the action method. example: 'dash', 'rvo'.
-            **kwargs: Arbitrary keyword arguments.
+            kinematics (str): Kinematics model identifier. Supported values:
+                
+                - 'diff': Differential drive kinematics
+                - 'omni': Omnidirectional kinematics  
+                - 'acker': Ackermann steering kinematics
+                
+            action (str): Behavior action name. Examples:
+                
+                - 'dash': Direct movement toward goal
+                - 'rvo': Reciprocal Velocity Obstacles for collision avoidance
+                
+            **kwargs: Additional keyword arguments passed to the behavior function.
+                Common parameters include ego_object, external_objects, goal, etc.
 
         Returns:
-            np.array: Velocity (2x1).
+            np.ndarray: Generated velocity vector (2x1) in the format appropriate
+            for the specified kinematics model.
+
+        Raises:
+            ValueError: If no behavior method is found for the given kinematics
+                and action combination.
+
+        Example:
+            >>> # Invoke differential drive dash behavior
+            >>> vel = behavior.invoke_behavior('diff', 'dash', 
+            ...                               ego_object=robot, 
+            ...                               external_objects=obstacles)
         """
         key: Tuple[str, str] = (kinematics, action)
         func = behaviors_map.get(key)

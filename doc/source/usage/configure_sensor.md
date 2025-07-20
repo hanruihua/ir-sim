@@ -5,7 +5,9 @@ Configure Sensors for the robot
 
 The YAML configuration file and Python Script below shows an example of a robot with a 2D LiDAR sensor:
 
-Python script:
+::::{tab-set}
+
+:::{tab-item} Python Script
 
 ```python
 import irsim
@@ -22,6 +24,10 @@ for i in range(1000):
 
 env.end()
 ```
+
+:::
+
+:::{tab-item} YAML Configuration
 
 YAML file (same name as the python script):
 
@@ -54,6 +60,10 @@ obstacle:
   - shape: {name: 'linestring', vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
     state: [0, 0, 0] 
 ```
+
+:::
+
+::::
 
 
 
@@ -123,7 +133,11 @@ Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` param
 
 The YAML configuration file and Python Script below shows an example of objects within the field of view (FOV). The FOV is defined by the `fov` (float) and `fov_radius` (float) parameters in the object configuration. Each object has a FOV that can detect the robot within the FOV by the function `fov_detect_object()`. 
 
-Python script:
+
+::::{tab-set} 
+
+
+:::{tab-item} Python Script
 
 ```python
 import irsim
@@ -143,7 +157,9 @@ for i in range(200):
 env.end()
 ```
 
-YAML file (same name as the python script):
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -184,6 +200,10 @@ obstacle:
       show_arrow: True
       arrow_length: 0.8
 ```
+
+:::
+
+::::
 
 The demonstration shows below:
 

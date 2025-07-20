@@ -21,7 +21,7 @@ class World:
         sample_time (float): Time interval between samples.
         offset (list): Offset for the world's position.
         control_mode (str): Control mode ('auto' or 'keyboard').
-        collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+        collision_mode (str): Collision mode ('stop',  , 'unobstructed').
         obstacle_map: Image file for the obstacle map.
         mdownsample (int): Downsampling factor for the obstacle map.
         status: Status of the world and objects.
@@ -55,13 +55,14 @@ class World:
             sample_time (float): Time interval between samples.
             offset (list): Offset for the world's position.
             control_mode (str): Control mode ('auto' or 'keyboard').
-            collision_mode (str): Collision mode ('stop', 'reactive', 'unobstructed').
+            collision_mode (str): Collision mode ('stop',  , 'unobstructed').
             obstacle_map: Image file for the obstacle map.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.
             status (str): Initial simulation status.
         """
 
+        # basic properties
         self.name = os.path.basename(name or "world").split(".")[0]
         self.height = height
         self.width = width
@@ -72,19 +73,22 @@ class World:
         self.count = 0
         self.sampling = True
 
+        world_param.step_time = step_time
+
         self.x_range = [self.offset[0], self.offset[0] + self.width]
         self.y_range = [self.offset[1], self.offset[1] + self.height]
 
+        # obstacle map
         self.grid_map, self.obstacle_index, self.obstacle_positions = self.gen_grid_map(
             obstacle_map, mdownsample
         )
 
+        # visualization
         self.plot_parse = plot
 
         self.status = status
 
-        # Set world parameters
-        world_param.step_time = step_time
+        # mode
         world_param.control_mode = control_mode
         world_param.collision_mode = collision_mode
 

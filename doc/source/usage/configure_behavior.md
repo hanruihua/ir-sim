@@ -7,7 +7,9 @@ Each object in the simulation can be assigned a behavior independently to simula
 
 Currently, there are two built-in behaviors: `dash` and `rvo`. By default, the moving objects' behavior is static, which means the object will not move. You can set the behavior of the object to `dash` or `rvo` in the YAML configuration file. The `dash` behavior is a simple behavior that moves the object from its initial position to the goal position directly. The `rvo` behavior is a dynamic collision avoidance algorithm for multiple agents. The example of this behavior is shown below:
 
-python script:
+::::{tab-set}
+
+:::{tab-item} Python Script
 
 ```python
 import irsim
@@ -25,7 +27,9 @@ for i in range(1000):
 env.end()
 ```
 
-YAML file:
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -51,6 +55,10 @@ robot:
       trail_alpha: 0.2
       show_trajectory: false
 ```
+
+:::
+
+::::
 
 The demonstration of the `rvo` behavior is shown in the following figure:
 

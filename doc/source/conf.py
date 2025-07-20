@@ -39,28 +39,21 @@ author = 'Ruihua Han'
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("ir-sim")
 
-# print(os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath("../.."))
-# sys.path.insert(0, os.path.abspath("./"))
-# sys.path.insert(0, os.path.join(os.path.dirname((os.path.abspath('.')), 'irsim')))
-
-# root_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-# sys.path.insert(0, os.path.dirname(__file__))
-
-# sys.path.insert(0, os.path.abspath("../.."))
-# print(os.path.abspath('./'))
-# sys.path.insert(0, os.path.abspath('./'))
-# sys.path.insert(0, os.path.abspath('../src'))
-# sys.path.append(os.path.abspath('../../'))
-# sys.path.insert(0, os.path.abspath(".."))
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion', 'sphinx_copybutton'
+extensions = [
+    'sphinx.ext.autodoc', 
+    'autoapi.extension',  # Add AutoAPI for automatic API documentation
+    'sphinx.ext.viewcode', 
+    'sphinx.ext.napoleon', 
+    'myst_parser', 
+    'sphinx_multiversion', 
+    'sphinx_copybutton', 
+    'sphinx_design', 
+    'sphinx_inline_tabs',
 ]
 
 myst_enable_extensions = [
@@ -80,6 +73,62 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Suppress specific warnings - using regex patterns to catch duplicate warnings
+suppress_warnings = [
+    'ref.python',  # Suppress python reference warnings including duplicates
+    'autosummary',  # Suppress autosummary warnings  
+    'autodoc.import_object',  # Suppress autodoc import warnings
+    'autoapi.python_import_resolution',  # Suppress AutoAPI import resolution warnings
+    'autodoc.duplicate_object',  # Suppress duplicate object description warnings
+    'app.add_directive',  # Suppress app directive warnings
+    # Add pattern to suppress all duplicate warnings
+    'sphinx.domains.python',  # Suppress Python domain warnings including duplicates
+    'toc.not_readable',  # Suppress toctree warnings
+]
+
+# Ignore nitpicky warnings for duplicates
+nitpicky = False
+nitpick_ignore = [
+    ('py:obj', 'irsim.world.object_base.ObjectBase.state_shape'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.vel_shape'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.state'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.wheelbase'),
+    # Add GUI duplicates
+    ('py:obj', 'irsim.gui.MouseControl.mouse_pos'),
+    ('py:obj', 'irsim.gui.MouseControl.left_click_pos'),
+    ('py:obj', 'irsim.gui.MouseControl.right_click_pos'),
+]
+
+# AutoAPI configuration - Automatic API documentation generation
+autoapi_type = 'python'
+autoapi_dirs = ['../../irsim']  # Path to your source code
+autoapi_root = 'api'  # Directory where API docs will be generated
+autoapi_keep_files = True  # Keep generated files for inspection
+autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
+autoapi_generate_api_docs = True  # Generate API documentation
+autoapi_python_class_content = 'both'  # Include both class and __init__ docstrings
+autoapi_ignore = [
+    # Ignore problematic modules that cause import issues
+    '**/test_*',
+    '**/tests/*',
+    '**/*test*',
+    # Ignore usage scripts that create standalone modules
+    '**/usage/**',
+    '**/map/**',
+    # Ignore version module
+    '**/version.py',
+]
+autoapi_options = [
+    'members',
+    'undoc-members', 
+    'show-inheritance',
+    'show-module-summary',
+    'imported-members',
+]
+
+# Configure AutoAPI to be more tolerant of import errors
+autoapi_python_use_implicit_namespaces = True
+
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
 
@@ -96,6 +145,28 @@ html_static_path = ['_static']
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
 
+# html_sidebars = {
+#     "index": ["sidebar-nav-bs"],  # Homepage without search button in sidebar
+#     "**": ["search-button-field", "sidebar-nav-bs"]  # All other pages with search button in sidebar
+# }
+
+html_sidebars = {
+    "index": ["sidebar-nav-bs", "search-button-field"],  # Homepage: no search in sidebar (will be in navbar)
+    "**": ["sidebar-nav-bs", "search-button-field"],  # Other pages: search in sidebar
+    "community/index": [
+        "sidebar-nav-bs",
+        "custom-template",
+    ],  # This ensures we test for custom sidebars
+}
+
+html_sidebars = {
+    "**": ["sidebar-nav-bs"]  # Use default navigation for all pages
+}
+
+html_js_files = [
+    ("custom-icons.js", {"defer": "defer"}),
+]
+
 autodoc_member_order = 'bysource'
 
 source_suffix = {
@@ -103,31 +174,56 @@ source_suffix = {
     '.md': 'markdown',
 }
 
-# myst_enable_extensions = [
-#     "amsmath",
-#     "attrs_inline",
-#     "colon_fence",
-#     "deflist",
-#     "dollarmath",
-#     "fieldlist",
-#     "html_admonition",
-#     "html_image",
-#     "replacements",
-#     "smartquotes",
-#     "strikethrough",
-#     "substitution",
-#     "tasklist",
-# ]
-
-# json_url = "https://ir-sim.readthedocs.io/en/dev/_static/switcher.json"
-
-# html_theme_options = {
-#     "switcher": {
-#         "json_url": json_url,
-#         "version_match": release,
-#     },
-# }
+html_theme_options = {
+    "icon_links": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/hanruihua/ir-sim",
+        "icon": "fa-brands fa-github",
+      },
+      {
+        "name": "PyPI",
+        "url": "https://pypi.org/project/ir-sim/",
+        "icon": "fa-custom fa-pypi",
+    }
+    ],
+    # "logo": {
+    #     "text": "IR-SIM",
+    # },
+    "navbar_start": ["navbar-logo"],
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+    "switcher": {
+        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
+        "version_match": release,
+    },
+    # Primary sidebar navigation configuration
+    "show_nav_level": 3,  # Show top-level pages and their immediate children by default
+    "navigation_depth": 4,  # Maximum levels shown in sidebar (default: 4)
+    "collapse_navigation": False,  # Keep expandable navigation enabled
+    # Secondary sidebar configuration
+    "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
+    # Show more levels in the table of contents by default
+    "show_toc_level": 3,  # Shows headings up to level 2 by default
+    # "navbar_persistent": [],  # Enable search in navbar
+}
 
 
 def setup(app):
     app.add_css_file('my_theme.css')
+    
+    # Filter out duplicate object warnings using logging
+    import logging
+    class DuplicateWarningFilter(logging.Filter):
+        def filter(self, record):
+            # Suppress duplicate object description warnings
+            if hasattr(record, 'msg') and 'duplicate object description' in str(record.msg):
+                return False
+            if hasattr(record, 'message') and 'duplicate object description' in str(record.message):
+                return False
+            return True
+    
+    # Apply filter to sphinx logger
+    logging.getLogger('sphinx').addFilter(DuplicateWarningFilter())
+    
+    # Add custom JavaScript to handle conditional search button display
+    # app.add_js_file('conditional-search.js')

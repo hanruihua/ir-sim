@@ -8,7 +8,6 @@ class EnvLogger:
         Initialize the EnvLogger.
 
         Args:
-        ----
             log_file (str, optional): Path to the log file. Default is 'irsim_error.log'.
             log_level (str, optional): Logging level. Default is 'WARNING'.
         """
