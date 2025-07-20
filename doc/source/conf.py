@@ -105,8 +105,7 @@ autoapi_type = 'python'
 # Try to find the irsim package - handle both local and ReadTheDocs environments
 _current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
 
-
-autoapi_dirs = None
+autoapi_dirs = ["../../irsim"]
 
 # If source directory not found, try installed package
 if autoapi_dirs is None:
