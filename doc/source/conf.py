@@ -10,11 +10,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 import os
 import sys
+# Add the project root to Python path
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('.'))
 from unittest.mock import MagicMock
 import importlib.metadata
 
@@ -101,7 +101,23 @@ nitpick_ignore = [
 
 # AutoAPI configuration - Automatic API documentation generation
 autoapi_type = 'python'
-autoapi_dirs = ['../../irsim']  # Path to your source code
+
+# Try to find the irsim package - handle both local and ReadTheDocs environments
+_current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
+
+autoapi_dirs = ["../../irsim"]
+
+# If source directory not found, try installed package
+if autoapi_dirs is None:
+    try:
+        import irsim
+        irsim_path = os.path.dirname(irsim.__file__)
+        if os.path.exists(irsim_path) and os.listdir(irsim_path):
+            autoapi_dirs = [irsim_path]
+            print(f"Using installed package at: {irsim_path}")
+    except ImportError as e:
+        print(f"Could not import irsim package: {e}")
+
 autoapi_root = 'api'  # Directory where API docs will be generated
 autoapi_keep_files = True  # Keep generated files for inspection
 autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
@@ -109,12 +125,11 @@ autoapi_generate_api_docs = True  # Generate API documentation
 autoapi_python_class_content = 'both'  # Include both class and __init__ docstrings
 autoapi_ignore = [
     # Ignore problematic modules that cause import issues
-    '**/test_*',
     '**/tests/*',
-    '**/*test*',
-    # Ignore usage scripts that create standalone modules
+    # Ignore specific usage scripts that create standalone modules
     '**/usage/**',
-    '**/map/**',
+    # Ignore binary map generator (has external dependencies)
+    '**/binary_map_generator_hm3d/**',
     # Ignore version module
     '**/version.py',
 ]
@@ -128,6 +143,28 @@ autoapi_options = [
 
 # Configure AutoAPI to be more tolerant of import errors
 autoapi_python_use_implicit_namespaces = True
+
+# Configure AutoAPI to handle import errors gracefully
+autoapi_ignore_import_errors = True
+
+# Add error handling for AutoAPI
+def autoapi_skip_member(app, what, name, obj, skip, options):
+    """Skip problematic members that cause import issues."""
+    try:
+        # Skip private members that start with underscore
+        if name.startswith('_') and not name.startswith('__'):
+            return True
+        # Skip test functions and classes
+        if 'test' in name.lower():
+            return True
+        return skip
+    except Exception as e:
+        print(f"Error in autoapi_skip_member for {name}: {e}")
+        return True  # Skip if there's any error
+
+def setup(app):
+    """Setup function for Sphinx."""
+    app.connect('autoapi-skip-member', autoapi_skip_member)
 
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
