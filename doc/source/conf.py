@@ -147,6 +147,8 @@ autoapi_ignore = [
     '**/usage/15fov_world/**',
     '**/usage/16noise_world/**',
     '**/usage/17gui_world/**',
+    # Ignore binary map generator (has external dependencies)
+    '**/binary_map_generator_hm3d/**',
     # Ignore version module
     '**/version.py',
 ]
@@ -247,7 +249,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": 'doc/source/_static/switcher.json',
+        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
         "version_match": release,
     },
     # Primary sidebar navigation configuration
