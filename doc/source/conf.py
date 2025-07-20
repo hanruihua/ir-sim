@@ -156,7 +156,7 @@ if autoapi_dirs is None:
 
 # Last resort: use relative path and hope for the best
 if autoapi_dirs is None:
-    autoapi_dirs = ['../../irsim']
+    autoapi_dirs = ['/irsim']
     print("Using fallback relative path")
 
 autoapi_root = 'api'  # Directory where API docs will be generated
