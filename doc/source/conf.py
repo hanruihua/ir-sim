@@ -106,7 +106,7 @@ autoapi_type = 'python'
 _current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
 
 
-autoapi_dirs = None
+autoapi_dirs = ['irsim']
 
 # If source directory not found, try installed package
 if autoapi_dirs is None:
@@ -247,7 +247,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
+        "json_url": 'doc/source/_static/switcher.json',
         "version_match": release,
     },
     # Primary sidebar navigation configuration
