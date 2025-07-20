@@ -105,43 +105,8 @@ autoapi_type = 'python'
 # Try to find the irsim package - handle both local and ReadTheDocs environments
 _current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
 
-# Define potential paths for different environments
-_potential_paths = [
-    # ReadTheDocs paths
-    '/home/docs/checkouts/readthedocs.org/user_builds/ir-sim/checkouts/latest/irsim',
-    
-    # Local development paths
-    '../../irsim',  
-    os.path.join(_current_dir, '../../irsim'),
-    os.path.abspath(os.path.join(_current_dir, '../../irsim')),
-    
-    # Alternative local paths
-    os.path.join(os.path.dirname(_current_dir), '../irsim'),
-    os.path.abspath(os.path.join(os.path.dirname(_current_dir), '../irsim')),
-]
 
 autoapi_dirs = None
-
-# First, try to find the source directory by checking all potential paths
-for path in _potential_paths:
-    try:
-        abs_path = os.path.abspath(path)
-        if os.path.exists(abs_path) and os.path.isdir(abs_path):
-            # Check if it has Python files
-            py_files = []
-            for root, dirs, files in os.walk(abs_path):
-                py_files.extend([f for f in files if f.endswith('.py')])
-                if len(py_files) > 5:  # Found enough Python files
-                    break
-            
-            if py_files:
-                autoapi_dirs = [abs_path]
-                print(f"Using source directory: {abs_path}")
-                print(f"  Found {len(py_files)} Python files")
-                break
-    except Exception as e:
-        print(f"Error checking path {path}: {e}")
-        continue
 
 # If source directory not found, try installed package
 if autoapi_dirs is None:
@@ -153,11 +118,6 @@ if autoapi_dirs is None:
             print(f"Using installed package at: {irsim_path}")
     except ImportError as e:
         print(f"Could not import irsim package: {e}")
-
-# Last resort: use relative path and hope for the best
-if autoapi_dirs is None:
-    autoapi_dirs = ['/irsim']
-    print("Using fallback relative path")
 
 autoapi_root = 'api'  # Directory where API docs will be generated
 autoapi_keep_files = True  # Keep generated files for inspection
@@ -200,69 +160,6 @@ autoapi_options = [
 
 # Configure AutoAPI to be more tolerant of import errors
 autoapi_python_use_implicit_namespaces = True
-
-# Debug: Print environment and path information
-print("=== AutoAPI Configuration Debug ===")
-print(f"Current working directory: {os.getcwd()}")
-print(f"Config file directory: {_current_dir}")
-print(f"Python path: {sys.path[:3]}...")
-
-# Detect environment
-is_readthedocs = os.environ.get('READTHEDOCS') == 'True'
-print(f"ReadTheDocs environment: {is_readthedocs}")
-
-# If in ReadTheDocs, explore the filesystem structure
-if is_readthedocs:
-    print("🔍 Exploring ReadTheDocs filesystem structure:")
-    base_paths = [
-        '/home/docs/checkouts/readthedocs.org/user_builds/ir-sim/checkouts/latest',
-        '/home/docs/checkouts/readthedocs.org/user_builds/ir-sim/checkouts',
-        '/home/docs/checkouts/readthedocs.org/user_builds/ir-sim',
-        os.getcwd(),
-        os.path.dirname(os.getcwd()),
-    ]
-    
-    for base_path in base_paths:
-        try:
-            if os.path.exists(base_path):
-                print(f"  📂 {base_path}:")
-                items = os.listdir(base_path)
-                for item in items[:10]:  # Show first 10 items
-                    item_path = os.path.join(base_path, item)
-                    if os.path.isdir(item_path):
-                        print(f"    📁 {item}/")
-                    else:
-                        print(f"    📄 {item}")
-                if len(items) > 10:
-                    print(f"    ... and {len(items) - 10} more items")
-            else:
-                print(f"  ❌ Path does not exist: {base_path}")
-        except Exception as e:
-            print(f"  ❌ Error exploring {base_path}: {e}")
-
-print(f"AutoAPI using directory: {autoapi_dirs}")
-if autoapi_dirs:
-    for directory in autoapi_dirs:
-        print(f"  Checking directory: {directory}")
-        if os.path.exists(directory):
-            print(f"    ✅ Directory exists: {directory}")
-            try:
-                files = os.listdir(directory)
-                print(f"    📁 Files found: {len(files)}")
-                py_files = [f for f in files if f.endswith('.py')]
-                print(f"    🐍 Python files: {len(py_files)}")
-                if py_files:
-                    print(f"    📄 Sample Python files: {py_files[:5]}")
-                
-                # Check for subdirectories
-                subdirs = [d for d in files if os.path.isdir(os.path.join(directory, d)) and not d.startswith('.')]
-                print(f"    📂 Subdirectories: {subdirs[:5] if len(subdirs) <= 5 else subdirs[:5] + ['...']}")
-            except Exception as e:
-                print(f"    ❌ Error listing directory: {e}")
-        else:
-            print(f"    ❌ Directory does not exist: {directory}")
-            
-print("=== End AutoAPI Debug ===\n")
 
 # Configure AutoAPI to handle import errors gracefully
 autoapi_ignore_import_errors = True
