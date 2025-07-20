@@ -2,10 +2,13 @@ API Reference
 ====================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    irsim
    irsim.env
    irsim.lib
    irsim.world
    irsim.util
+
+
+   

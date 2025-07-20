@@ -155,26 +155,6 @@ Welcome to IR-SIM's documentation!
 
 ----
 
-🎓 Projects using IR-SIM
-========================
-
-.. grid:: 1 1 1 1
-
-    .. grid-item-card:: Academic projects
-        :shadow: md
-
-        * `rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_
-        * `RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_
-        * `NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_
-
-    .. grid-item-card:: Deep Reinforcement Learning Projects
-        :shadow: md
-
-        * `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
-        * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_
-
-----
-
 🚀 Get Started
 ===============
 
@@ -217,3 +197,26 @@ Ready to start using IR-SIM? Choose your preferred installation method:
         ^^^
         
         Lightning-fast installation
+
+----
+
+🎓 Projects using IR-SIM
+========================
+
+.. grid:: 1 1 1 1
+
+    .. grid-item-card:: Academic projects
+        :shadow: md
+
+        * `rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_
+        * `RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_
+        * `NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_
+
+    .. grid-item-card:: Deep Reinforcement Learning Projects
+        :shadow: md
+
+        * `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
+        * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_
+
+----
+
