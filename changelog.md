@@ -1,3 +1,21 @@
+## ir-sim 2.6.0
+
+This version is a major update of the documentation website. The new website is more user-friendly and easier to navigate the parameters usage and the API.
+
+- Main Features
+  - Add version switcher to the documentation.
+  - Refine the documentation style.
+  - Refine the comments and code style.
+
+- Bug Fixes:
+  - Extract item from ndarray
+  - Fix goal orientation and traj keep length
+  - Fix gif generation bug
+
+- API Changes:
+  - Rename `global_param` folder to be `config`. All the call of the `global_param` should be replaced to `config`.
+  - Rename `keep_length` to `keep_traj_length` and `keep_trail_length`.
+
 ## ir-sim 2.5.5
 
 - New Features:
