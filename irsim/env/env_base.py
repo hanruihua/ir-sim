@@ -58,16 +58,49 @@ backend_set = _set_matplotlib_backend(backends)
 
 class EnvBase:
     """
-    The base class of environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
+    The base class for simulation environments in IR-SIM.
+    
+    This class serves as the foundation for creating and managing robotic simulation
+    environments. It reads YAML configuration files to create worlds, robots, obstacles,
+    and map objects, and provides the core simulation loop functionality.
 
     Args:
-        world_name (str): Path to the world yaml file.
-        display (bool): Flag to display the environment.
-        disable_all_plot (bool): Flag to disable all plots and figures.
-        save_ani (bool): Flag to save the animation.
-        full (bool): Flag to full screen the figure.
-        log_file (str): Name of the log file.
-        log_level (str): Level of the log output.
+        world_name (str, optional): Path to the world YAML configuration file.
+            If None, the environment will attempt to find a default configuration
+            or use a minimal setup.
+        display (bool): Whether to display the environment visualization.
+            Set to False for headless operation. Default is True.
+        disable_all_plot (bool): Whether to disable all plots and figures completely.
+            When True, no visualization will be created even if display is True.
+            Default is False.
+        save_ani (bool): Whether to save the simulation as an animation file.
+            Useful for creating videos of simulation runs. Default is False.
+        full (bool): Whether to display the visualization in full screen mode.
+            Only effective on supported platforms. Default is False.
+        log_file (str, optional): Path to the log file for saving simulation logs.
+            If None, logs will only be output to console.
+        log_level (str): Logging level for the environment. Options include
+            'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'. Default is 'INFO'.
+
+    Attributes:
+        display (bool): Display flag for the environment.
+        disable_all_plot (bool): Plot disable flag.
+        save_ani (bool): Animation saving flag.
+        objects (list): List of all objects in the environment.
+        world (World): The world object containing environment configuration.
+        robot_collection (list): List of robot objects.
+        obstacle_collection (list): List of obstacle objects.
+        map_collection (list): List of map objects.
+
+    Example:
+        >>> # Create a basic environment
+        >>> env = EnvBase("my_world.yaml")
+        >>> 
+        >>> # Create headless environment for training
+        >>> env = EnvBase("world.yaml", display=False, log_level="WARNING")
+        >>> 
+        >>> # Create environment with animation saving
+        >>> env = EnvBase("world.yaml", save_ani=True, full=True)
     """
 
     def __init__(
@@ -163,16 +196,41 @@ class EnvBase:
         self, action: Optional[Union[np.ndarray, list]] = None, action_id: Optional[Union[int, list]] = 0
     ):
         """
-        Perform a simulation step in the environment.
+        Perform a single simulation step in the environment.
+
+        This method advances the simulation by one time step, applying the given actions
+        to the specified robots and updating all objects in the environment.
 
         Args:
-            action (list or numpy array 2*1): Action to be performed in the environment.
+            action (Union[np.ndarray, list], optional): Action(s) to be performed in the environment.
+                Can be a single action or a list of actions. Action format depends on robot type:
+                
+                - **Differential robot**: [linear_velocity, angular_velocity]
+                - **Omnidirectional robot**: [velocity_x, velocity_y] 
+                - **Ackermann robot**: [linear_velocity, steering_angle]
+                
+                If None, robots will use their default behavior or keyboard control if enabled.
+                
+            action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
+                Can be a single robot ID or a list of IDs. Default is 0 (first robot).
+                If action is a list and action_id is a single int, all actions will be 
+                applied to robots sequentially starting from action_id.
 
-                - differential robot action:  linear velocity, angular velocity
-                - omnidirectional robot action: v_x -- velocity in x; v_y -- velocity in y
-                - Ackermann robot action: linear velocity, Steering angle
+        Note:
+            - If the environment is paused, this method returns without performing any updates.
+            - The method automatically handles collision detection, status updates, and plotting.
+            - In keyboard control mode, the action parameter is ignored and keyboard input is used.
 
-            action_id (int or list of int): Apply the action(s) to the robot(s) with the given id(s).
+        Example:
+            >>> # Move first robot with differential drive
+            >>> env.step([1.0, 0.5])  # 1.0 m/s forward, 0.5 rad/s turn
+            >>> 
+            >>> # Move specific robot by ID
+            >>> env.step([0.8, 0.0], action_id=2)  # Move robot with ID 2
+            >>> 
+            >>> # Move multiple robots
+            >>> actions = [[1.0, 0.0], [0.5, 0.3]]
+            >>> env.step(actions, action_id=[0, 1])  # Move robots 0 and 1
         """
 
         if self.pause_flag:
@@ -342,16 +400,31 @@ class EnvBase:
 
     def done(self, mode: str = "all"):
         """
-        Check if the simulation is done.
+        Check if the simulation should terminate based on robot completion status.
+
+        This method evaluates whether robots in the environment have reached their
+        goals or completed their tasks, using different criteria based on the mode.
 
         Args:
-            mode (str): Mode to check if all or any of the objects are done.
-
-                - all (str): Check if all objects are done.
-                - any (str): Check if any of the objects are done.
+            mode (str): Termination condition mode. Options are:
+                
+                - "all": Simulation is done when ALL robots have completed their tasks
+                - "any": Simulation is done when ANY robot has completed its task
+                
+                Default is "all".
 
         Returns:
-            bool: True if the simulation is done based on the specified mode, False otherwise.
+            bool: True if the termination condition is met based on the specified mode,
+            False otherwise. Returns False if no robots are present in the environment.
+
+        Example:
+            >>> # Check if all robots have reached their goals
+            >>> if env.done(mode="all"):
+            ...     print("All robots completed!")
+            >>> 
+            >>> # Check if any robot has completed
+            >>> if env.done(mode="any"):
+            ...     print("At least one robot completed!")
         """
 
         done_list = [obj.done() for obj in self.objects if obj.role == "robot"]
@@ -365,9 +438,17 @@ class EnvBase:
             return any(done_list)
 
     def step_status(self):
-        '''
-        Get the status of the environment.
-        '''
+        """
+        Update and log the current status of all robots in the environment.
+
+        This method checks the arrival status of all robots and logs information
+        about which robots have reached their goals. It's automatically called
+        during each simulation step.
+
+        Note:
+            This is an internal method primarily used for status tracking and logging.
+            The status information is automatically updated during simulation steps.
+        """
 
         arrive_list = [obj.arrive for obj in self.objects if obj.role == "robot"]
         collision_list = [obj.collision for obj in self.objects if obj.role == "robot"]
@@ -385,22 +466,53 @@ class EnvBase:
             self._world.status = "Running"
 
     def pause(self):
-        '''
-        Pause the environment.
-        '''
+        """
+        Pause the simulation execution.
+
+        When paused, calls to :py:meth:`step` will return immediately without
+        performing any simulation updates. The environment status is set to "Pause".
+
+        Example:
+            >>> env.pause()
+            >>> env.step([1.0, 0.0])  # This will have no effect while paused
+        """
         self._world.status = "Pause"
         self.pause_flag = True
 
     def resume(self):
-        '''
-        Resume the environment.
-        '''
+        """
+        Resume the simulation execution after being paused.
+
+        Re-enables simulation updates and sets the environment status back to "Running".
+        Subsequent calls to :py:meth:`step` will function normally.
+
+        Example:
+            >>> env.pause()
+            >>> # ... some time later ...
+            >>> env.resume()
+            >>> env.step([1.0, 0.0])  # This will now work again
+        """
         self._world.status = "Running"
         self.pause_flag = False
 
     def reset(self):
         """
-        Reset the environment.
+        Reset the environment to its initial state.
+
+        This method resets all objects, robots, obstacles, and the world to their
+        initial configurations. It also resets the visualization and sets the
+        environment status to "Reset".
+
+        The reset process includes:
+        - Resetting all objects to their initial positions and states
+        - Clearing accumulated trajectories and sensor data  
+        - Resetting the world timer and status
+        - Refreshing the visualization plot
+
+        Example:
+            >>> # Reset environment after simulation
+            >>> env.reset()
+            >>> # Environment is now ready for a new simulation run
         """
 
         self._reset_all()

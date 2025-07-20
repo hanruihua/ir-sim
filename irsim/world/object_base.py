@@ -134,9 +134,10 @@ class ObjectBase:
         fov (float): Field of view angles in radians for the object's sensors. Defaults to None. If set lidar, the default value is angle range of lidar.
         fov_radius (float): Field of view radius for the object's sensors. Defaults to None. If set lidar, the default value is range_max of lidar.
         **kwargs: Additional keyword arguments for extended functionality.
-            plot (dict): Plotting options for the object.
-                May include 'show_goal', 'show_text', 'show_arrow', 'show_uncertainty', 'show_trajectory',
-                'trail_freq', etc.
+        
+            - plot (dict): Plotting options for the object.
+              May include 'show_goal', 'show_text', 'show_arrow', 'show_uncertainty', 'show_trajectory',
+              'trail_freq', etc.
 
     Raises:
         ValueError: If dimension parameters do not match the provided shapes or if input parameters are invalid.
@@ -206,6 +207,21 @@ class ObjectBase:
 
         This method sets up a new ObjectBase object with the specified parameters, initializing its
         geometry, kinematics, behaviors, sensors, and other properties relevant to simulation.
+
+        The initialization process includes:
+        - Setting up geometry handlers and collision detection
+        - Configuring kinematics models for movement
+        - Initializing state vectors and goal management
+        - Setting up behaviors and sensor systems
+        - Configuring visualization and plotting options
+
+        Note:
+            All parameters are documented in the class docstring above. Refer to the 
+            :py:class:`ObjectBase` class documentation for detailed parameter descriptions.
+
+        Raises:
+            ValueError: If dimension parameters do not match the provided shapes or 
+                if input parameters are invalid.
         """
 
         self._id = next(ObjectBase.id_iter)
@@ -365,14 +381,31 @@ class ObjectBase:
 
     def step(self, velocity: Optional[np.ndarray] = None, **kwargs: any):
         """
-        Perform a simulation step, updating the object's state.
+        Perform a single simulation step, updating the object's state and sensors.
+
+        This method advances the object by one time step, integrating the given velocity
+        or behavior-generated velocity to update the object's position, orientation, and 
+        other state variables. It also updates sensors and checks for collisions.
 
         Args:
-            velocity (np.ndarray, optional): Desired velocity for the step.
-            **kwargs: Additional parameters.
+            velocity (np.ndarray, optional): Desired velocity for this step. 
+                If None, the object will use its behavior system to generate velocity.
+                The shape and meaning depend on the kinematics model:
+                
+                - Differential: [linear_velocity, angular_velocity]
+                - Omnidirectional: [velocity_x, velocity_y]
+                - Ackermann: [linear_velocity, steering_angle]
+                
+            **kwargs: Additional parameters passed to behavior generation and processing.
 
         Returns:
-            np.ndarray: The new state of the object.
+            np.ndarray: The updated state vector of the object after the step.
+            Returns the current state unchanged if the object is static or stopped.
+
+        Note:
+            - Static objects (static=True) will not move and return their current state
+            - Objects with stop_flag=True will halt and return their current state
+            - The method automatically handles sensor updates and trajectory recording
         """
 
         if self.static or self.stop_flag:
@@ -697,11 +730,33 @@ class ObjectBase:
 
     def set_state(self, state: Union[list, np.ndarray] = [0, 0, 0], init: bool = False):
         """
-        Set the state of the object.
+        Set the current state of the object.
+
+        This method updates the object's position, orientation, and other state variables.
+        It also updates the object's geometry representation to match the new state.
 
         Args:
-            state: The state of the object [x, y, theta].
-            init (bool): Whether to set the initial state (default False).
+            state (Union[list, np.ndarray]): The new state vector for the object.
+                The format depends on the object's state dimension:
+                
+                - 2D objects: [x, y, theta] where theta is orientation in radians
+                - 3D objects: [x, y, z, roll, pitch, yaw] or similar based on configuration
+                
+                Must match the object's state_dim dimension.
+                
+            init (bool): Whether to also set this as the initial state for reset purposes.
+                If True, the object will return to this state when reset() is called.
+                Default is False.
+
+        Raises:
+            AssertionError: If the state dimension doesn't match the expected state_dim.
+
+        Example:
+            >>> # Set robot position and orientation
+            >>> robot.set_state([5.0, 3.0, 1.57])  # x=5, y=3, facing pi/2 radians
+            >>> 
+            >>> # Set as initial state for resets
+            >>> robot.set_state([0, 0, 0], init=True)
         """
         if isinstance(state, list):
             assert (
@@ -824,11 +879,34 @@ class ObjectBase:
 
     def set_goal(self, goal: Union[list, np.ndarray] = [10, 10, 0], init: bool = False):
         """
-        Set the goal of the object.
+        Set the goal(s) for the object to navigate towards.
+
+        This method configures the target location(s) that the object's behavior system
+        will attempt to reach. Multiple goals can be provided for sequential navigation.
 
         Args:
-            goal: The goal of the object [x, y, theta] or [[x, y, theta], [x, y, theta], ...]
-            init (bool): Whether to set the initial goal (default False).
+            goal (Union[list, np.ndarray]): The goal specification. Can be:
+                
+                - Single goal: [x, y, theta] for one target location
+                - Multiple goals: [[x1, y1, theta1], [x2, y2, theta2], ...] for sequential targets
+                - None: Clear all goals
+                
+                The theta component specifies the desired final orientation in radians.
+                
+            init (bool): Whether to also set this as the initial goal for reset purposes.
+                If True, these goals will be restored when reset() is called.
+                Default is False.
+
+        Example:
+            >>> # Set single goal
+            >>> robot.set_goal([10.0, 5.0, 0.0])  # Move to (10,5) facing East
+            >>> 
+            >>> # Set multiple sequential goals
+            >>> waypoints = [[5, 0, 0], [10, 5, 1.57], [0, 10, 3.14]]
+            >>> robot.set_goal(waypoints)
+            >>> 
+            >>> # Clear goals
+            >>> robot.set_goal(None)
         """
 
         if goal is None:
@@ -1633,12 +1711,13 @@ class ObjectBase:
             state: State of the object (x, y, r_phi) to determine text position.
                    If None, uses the object's current state. Defaults to None.
             **kwargs: Additional plotting options.
-                text_color (str): Color of the text, default is 'k'.
-                text_size (int): Font size of the text, default is 10.
-                text_position (list): Position offset from object center [dx, dy],
-                                    default is [-radius-0.1, radius+0.1].
-                text_zorder (int): Zorder of the text. Defaults to 2.
-                text_alpha (float): Transparency of the text. Defaults to 1.
+            
+                - text_color (str): Color of the text, default is 'k'.
+                - text_size (int): Font size of the text, default is 10.
+                - text_position (list): Position offset from object center [dx, dy],
+                  default is [-radius-0.1, radius+0.1].
+                - text_zorder (int): Zorder of the text. Defaults to 2.
+                - text_alpha (float): Transparency of the text. Defaults to 1.
         """
 
         if state is None:

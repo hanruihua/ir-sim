@@ -44,7 +44,16 @@ release = importlib.metadata.version("ir-sim")
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon', 'myst_parser', 'sphinx_multiversion', 'sphinx_copybutton', 'sphinx_design', 'sphinx_inline_tabs',
+extensions = [
+    'sphinx.ext.autodoc', 
+    'autoapi.extension',  # Add AutoAPI for automatic API documentation
+    'sphinx.ext.viewcode', 
+    'sphinx.ext.napoleon', 
+    'myst_parser', 
+    'sphinx_multiversion', 
+    'sphinx_copybutton', 
+    'sphinx_design', 
+    'sphinx_inline_tabs',
 ]
 
 myst_enable_extensions = [
@@ -63,6 +72,62 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
+# Suppress specific warnings - using regex patterns to catch duplicate warnings
+suppress_warnings = [
+    'ref.python',  # Suppress python reference warnings including duplicates
+    'autosummary',  # Suppress autosummary warnings  
+    'autodoc.import_object',  # Suppress autodoc import warnings
+    'autoapi.python_import_resolution',  # Suppress AutoAPI import resolution warnings
+    'autodoc.duplicate_object',  # Suppress duplicate object description warnings
+    'app.add_directive',  # Suppress app directive warnings
+    # Add pattern to suppress all duplicate warnings
+    'sphinx.domains.python',  # Suppress Python domain warnings including duplicates
+    'toc.not_readable',  # Suppress toctree warnings
+]
+
+# Ignore nitpicky warnings for duplicates
+nitpicky = False
+nitpick_ignore = [
+    ('py:obj', 'irsim.world.object_base.ObjectBase.state_shape'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.vel_shape'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.state'),
+    ('py:obj', 'irsim.world.object_base.ObjectBase.wheelbase'),
+    # Add GUI duplicates
+    ('py:obj', 'irsim.gui.MouseControl.mouse_pos'),
+    ('py:obj', 'irsim.gui.MouseControl.left_click_pos'),
+    ('py:obj', 'irsim.gui.MouseControl.right_click_pos'),
+]
+
+# AutoAPI configuration - Automatic API documentation generation
+autoapi_type = 'python'
+autoapi_dirs = ['../../irsim']  # Path to your source code
+autoapi_root = 'api'  # Directory where API docs will be generated
+autoapi_keep_files = True  # Keep generated files for inspection
+autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
+autoapi_generate_api_docs = True  # Generate API documentation
+autoapi_python_class_content = 'both'  # Include both class and __init__ docstrings
+autoapi_ignore = [
+    # Ignore problematic modules that cause import issues
+    '**/test_*',
+    '**/tests/*',
+    '**/*test*',
+    # Ignore usage scripts that create standalone modules
+    '**/usage/**',
+    '**/map/**',
+    # Ignore version module
+    '**/version.py',
+]
+autoapi_options = [
+    'members',
+    'undoc-members', 
+    'show-inheritance',
+    'show-module-summary',
+    'imported-members',
+]
+
+# Configure AutoAPI to be more tolerant of import errors
+autoapi_python_use_implicit_namespaces = True
 
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
@@ -145,6 +210,20 @@ html_theme_options = {
 
 def setup(app):
     app.add_css_file('my_theme.css')
+    
+    # Filter out duplicate object warnings using logging
+    import logging
+    class DuplicateWarningFilter(logging.Filter):
+        def filter(self, record):
+            # Suppress duplicate object description warnings
+            if hasattr(record, 'msg') and 'duplicate object description' in str(record.msg):
+                return False
+            if hasattr(record, 'message') and 'duplicate object description' in str(record.message):
+                return False
+            return True
+    
+    # Apply filter to sphinx logger
+    logging.getLogger('sphinx').addFilter(DuplicateWarningFilter())
     
     # Add custom JavaScript to handle conditional search button display
     # app.add_js_file('conditional-search.js')

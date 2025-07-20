@@ -9,4 +9,5 @@ pydata-sphinx-theme
 pynput
 sphinx_design
 sphinx_inline_tabs
+sphinx-autoapi
 

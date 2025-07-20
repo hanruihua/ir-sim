@@ -37,7 +37,7 @@ Welcome to IR-SIM's documentation!
         YAML configuration syntax and examples
 
     .. grid-item-card:: 🔧 API Reference
-        :link: api/modules
+        :link: api/index
         :link-type: doc
         :text-align: center
         :shadow: lg
@@ -151,7 +151,7 @@ Welcome to IR-SIM's documentation!
    :caption: API Reference:
    :hidden:
 
-   api/modules
+   api/index
 
 ----
 
@@ -217,6 +217,3 @@ Ready to start using IR-SIM? Choose your preferred installation method:
 
         * `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
         * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_
-
-----
-

@@ -191,27 +191,36 @@ class ObjectFactory:
         position the objects according to specific patterns or randomness.
 
         Args:
-            state (Optional[List[float]]):
-                Base state vector [x, y, theta] to use as a template for generating states.
-                If None, default values will be used.
             number (int):
-                Number of state vectors to generate.
+                Number of state vectors to generate. Default is 1.
             distribution (Dict[str, Any]):
                 Configuration dictionary specifying the distribution method and its parameters.
-                - 'name' (str):
-                    Name of the distribution method. Supported values are:
-                    - 'manual': States are specified manually.
-                    - 'circle': States are arranged in a circular pattern.
-                    - 'random': States are placed at random positions.
+                Default is {"name": "manual"}.
+            state (List[float]):
+                Base state vector [x, y, theta] to use as a template for generating states.
+                Default is [1, 1, 0].
+            goal (List[float]):
+                Goal state vector [x, y, theta] for the generated objects.
+                Default is [1, 9, 0].
+                
+                - 'name' (str): Name of the distribution method. Supported values are:
+                  
+                  - 'manual': States are specified manually.
+                  - 'circle': States are arranged in a circular pattern.
+                  - 'random': States are placed at random positions.
+                  
                 - Additional parameters depend on the distribution method:
-                    - For 'manual':
-                        Manually specified states and goal.
-                    - For 'circle':
-                        - 'center' (List[float]): Center coordinates [x, y] of the circle.
-                        - 'radius' (float): Radius of the circle.
-                    - For 'random':
-                        - 'range_low' (List[float]): Lower bounds for random state values.
-                        - 'range_high' (List[float]): Upper bounds for random state values.
+                  
+                  - For 'manual': Manually specified states and goal.
+                  - For 'circle':
+                    
+                    - 'center' (List[float]): Center coordinates [x, y] of the circle.
+                    - 'radius' (float): Radius of the circle.
+                    
+                  - For 'random':
+                    
+                    - 'range_low' (List[float]): Lower bounds for random state values.
+                    - 'range_high' (List[float]): Upper bounds for random state values.
 
         Returns:
             List[List[float]]:

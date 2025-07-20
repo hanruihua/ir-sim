@@ -8,10 +8,10 @@ class PathManager:
 
     '''
     Module for managing the path of the project.
-        root_path: path of the irsim package
-        ani_buffer_path: path of the animation buffer
-        ani_path: path of the animation
-        fig_path: path of the saved figure
+        - root_path: path of the irsim package
+        - ani_buffer_path: path of the animation buffer
+        - ani_path: path of the animation
+        - fig_path: path of the saved figure
     '''
 
     root_path: str = os.path.dirname(irsim.__file__)
