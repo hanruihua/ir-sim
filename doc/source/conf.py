@@ -106,7 +106,7 @@ autoapi_type = 'python'
 _current_dir = os.path.dirname(__file__) if '__file__' in globals() else os.getcwd()
 
 
-autoapi_dirs = ['irsim']
+autoapi_dirs = None
 
 # If source directory not found, try installed package
 if autoapi_dirs is None:
