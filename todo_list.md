@@ -104,6 +104,8 @@
 - [x] Doc of status; title; keyboard space
 - [ ] Add tutorial with more examples.
 - [ ] Doc path manager and change the path
+- [ ] New style of documentation
+- [ ] Generate Logo
 
 ## 🔗 External Interfaces
 - [ ] Add the interface with gym

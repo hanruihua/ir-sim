@@ -32,10 +32,10 @@ pip or conda for installation.
 
         or activate an existing one
 
-        3. Install ``ir-sim`` from `conda-forge <https://conda-forge.org/>`_
+        3. Install ``ir-sim`` in the virtual environment
         ::
 
-            conda install -c conda-forge ir-sim
+            pip install ir-sim
 
     .. tab:: uv
 
@@ -53,17 +53,24 @@ pip or conda for installation.
 
             uv add ir-sim
 
-
     .. tab:: Install from source
 
         We strongly recommend using a fresh virtual environment (uv or conda) when installing IR-SIM from source.
 
-        The dependencies of IR-SIM are listed in the `pyproject.toml`_ file. All required packages are installed automatically alongside IR-SIM.
-
         Perform the following steps to install IR-SIM from source:
 
         1. Clone the official `IR-SIM git repository`_, or a newly minted fork of the IR-SIM repository.
+
+        ::
+
+            git clone https://github.com/hanruihua/ir-sim.git
+
         2. Navigate to the top-level of the cloned directory.
+
+        ::
+
+            cd ir-sim
+
         3. If you want to use IR-SIM with editable source code, run
 
         ::

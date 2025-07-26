@@ -47,7 +47,7 @@ Welcome to IR-SIM's documentation!
 ----
 
 
-✨Key Features
+Key Features
 =================
 
 - Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors
@@ -155,7 +155,7 @@ Welcome to IR-SIM's documentation!
 
 ----
 
-🚀 Get Started
+Get Started
 ===============
 
 Ready to start using IR-SIM? Choose your preferred installation method:
@@ -184,7 +184,7 @@ Ready to start using IR-SIM? Choose your preferred installation method:
         
         ^^^
         
-        Install via conda-forge
+        Installation in conda environment
 
     .. grid-item-card:: ⚡ uv
         :link: get_started/install
@@ -200,7 +200,7 @@ Ready to start using IR-SIM? Choose your preferred installation method:
 
 ----
 
-🎓 Projects using IR-SIM
+Projects using IR-SIM
 ========================
 
 .. grid:: 1 1 1 1
