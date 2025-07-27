@@ -80,6 +80,27 @@ def WrapToPi(rad, positive=False):
 
     return rad if not positive else abs(rad)
 
+def WrapTo2Pi(rad):
+    """The function `WrapTo2Pi` transforms an angle in radians to the range [0, 2pi].
+
+    Args:
+
+        rad (float): Angle in radians.
+            The `rad` parameter in the `WrapTo2Pi` function represents an angle in radians that you want to
+        transform to the range [0, 2pi]. The function ensures that the angle is within this range by wrapping
+        it around if it exceeds the bounds.
+
+    Returns:
+        The function `WrapTo2Pi(rad)` returns the angle `rad` wrapped to the range [0, 2pi].
+
+    """
+    while rad > 2 * pi:
+        rad = rad - 2 * pi
+    while rad < 0:
+        rad = rad + 2 * pi
+
+    return rad
+
 
 def WrapToRegion(rad, range):
     """

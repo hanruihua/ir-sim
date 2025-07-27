@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
 import mpl_toolkits.mplot3d.art3d as art3d
-from matplotlib.patches import Wedge
+from matplotlib.patches import Wedge, Circle
 from matplotlib import image
 from mpl_toolkits.mplot3d import Axes3D
 from dataclasses import dataclass
@@ -29,6 +29,7 @@ from irsim.util.util import (
     is_2d_list,
     file_check,
     vertices_transform,
+    WrapTo2Pi,
 )
 
 
@@ -332,10 +333,10 @@ class ObjectBase:
             self.sensors = []
 
         if fov is None:
-            self.fov = self.lidar.angle_range if self.lidar is not None else None
+            self.fov = WrapTo2Pi(self.lidar.angle_range) if self.lidar is not None else None
             self.fov_radius = self.lidar.range_max if self.lidar is not None else None
         else:
-            self.fov = fov
+            self.fov = WrapTo2Pi(fov)
             self.fov_radius = fov_radius
 
         # behavior
@@ -1378,7 +1379,7 @@ class ObjectBase:
 
                 elif attr == "fov_patch":
                     # Update FOV patch using set_element_property
-                    if isinstance(element, mpl.patches.Wedge):
+                    if isinstance(element, mpl.patches.Wedge) or isinstance(element, mpl.patches.Circle):
                         direction = r_phi if self.state_dim >= 3 else 0
                         fov_state = np.array([[x], [y], [direction]])
 
@@ -1923,6 +1924,8 @@ class ObjectBase:
         Plot the field of view of the object.
         Creates FOV wedge at origin, will be positioned using transforms in step_plot.
 
+        if fov is 2*pi, plot a circle, otherwise plot a wedge.
+
         Args:
             ax: Matplotlib axis.
             **kwargs: Additional plotting options.
@@ -1941,16 +1944,26 @@ class ObjectBase:
         start_degree = -180 * self.fov / (2 * pi)
         end_degree = 180 * self.fov / (2 * pi)
 
-        fov_wedge = Wedge(
-            (0, 0),  # Create at origin
-            self.fov_radius,
-            start_degree,
-            end_degree,
-            facecolor=fov_color,
-            alpha=fov_alpha,
-            edgecolor=fov_edge_color,
-            zorder=fov_zorder,
-        )
+        if abs(self.fov - 2 * pi) < 0.01:
+            fov_wedge = Circle(
+                (0, 0),
+                self.fov_radius,
+                facecolor=fov_color,
+                alpha=fov_alpha,
+                edgecolor=fov_edge_color,
+                zorder=fov_zorder,
+            )
+        else:
+            fov_wedge = Wedge(
+                (0, 0),  # Create at origin
+                self.fov_radius,
+                start_degree,
+                end_degree,
+                facecolor=fov_color,
+                alpha=fov_alpha,
+                edgecolor=fov_edge_color,
+                zorder=fov_zorder,
+            )
 
         if isinstance(ax, Axes3D):
             art3d.patch_2d_to_3d(fov_wedge, z=self.z)
