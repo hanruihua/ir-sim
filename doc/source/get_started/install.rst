@@ -83,9 +83,10 @@ pip or conda for installation.
 
             pip install .
 
-        or if for `uv`_ users, run
+        or for `uv`_ users, run
 
         ::
+
             uv sync
         
 Install with Additional Features
