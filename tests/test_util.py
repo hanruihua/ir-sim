@@ -12,6 +12,13 @@ def test_WrapToPi():
     assert util.WrapToPi(math.pi, positive=True) == math.pi
     assert util.WrapToPi(-math.pi, positive=True) == math.pi
 
+def test_WrapTo2Pi():
+    assert util.WrapTo2Pi(0) == 0
+    assert util.WrapTo2Pi(math.pi) == math.pi
+    assert util.WrapTo2Pi(-math.pi) == math.pi
+    assert util.WrapTo2Pi(3*math.pi) == math.pi 
+    assert util.WrapTo2Pi(-3*math.pi) == math.pi
+
 def test_WrapToRegion():
     region = [-math.pi, math.pi]
     assert util.WrapToRegion(3*math.pi, region) == math.pi

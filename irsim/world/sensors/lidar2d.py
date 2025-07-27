@@ -5,7 +5,7 @@ from shapely import MultiLineString, Point, is_valid, prepare
 from irsim.util.util import (
     geometry_transform,
     transform_point_with_state,
-    get_transform,
+    WrapTo2Pi,
 )
 from irsim.config import env_param
 from matplotlib.collections import LineCollection
@@ -40,7 +40,7 @@ class Lidar2D:
         - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d". 
         - range_min (float): Minimum detection range in meters. Default is 0.
         - range_max (float): Maximum detection range in meters. Default is 10.
-        - angle_range (float): Total angle range of the sensor in radians. Default is pi.
+        - angle_range (float): Total angle range of the sensor in radians. Default is pi. WrapTo2Pi is applied.
         - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
         - angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
         - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / number.
@@ -91,10 +91,10 @@ class Lidar2D:
         self.range_min = range_min
         self.range_max = range_max
 
-        self.angle_range = angle_range
-        self.angle_min = -angle_range / 2
-        self.angle_max = angle_range / 2
-        self.angle_inc = angle_range / number
+        self.angle_range = WrapTo2Pi(angle_range)
+        self.angle_min = -self.angle_range / 2
+        self.angle_max = self.angle_range / 2
+        self.angle_inc = self.angle_range / number
 
         self.number = number
         self.scan_time = scan_time
@@ -107,8 +107,9 @@ class Lidar2D:
         self.has_velocity = has_velocity
         self.velocity = np.zeros((2, number))
 
-        self.time_inc = (angle_range / (2 * pi)) * scan_time / number
+        self.time_inc = (self.angle_range / (2 * pi)) * scan_time / number
         self.range_data = range_max * np.ones(number)
+        
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
 
         self._state = state
