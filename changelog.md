@@ -1,3 +1,12 @@
+## ir-sim 2.6.1
+
+- Bug Fixes:
+  - Fix documentation error.
+
+- Features:
+  - Add WrapTo2Pi function.
+  - WrapTo2Pi for lidar and fov angle range.
+
 ## ir-sim 2.6.0
 
 This version is a major update of the documentation website. The new website is more user-friendly and easier to navigate the parameters usage and the API.
