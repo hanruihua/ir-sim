@@ -83,6 +83,11 @@ pip or conda for installation.
 
             pip install .
 
+        or if for `uv`_ users, run
+
+        ::
+            uv sync
+        
 Install with Additional Features
 ---------------------------------
 
@@ -115,6 +120,18 @@ Install with Additional Features
     * `pytest`_ - Testing framework
     * `pytest-cov`_ - Coverage reporting
 
+.. dropdown:: Linting
+
+    IR-SIM uses `black`_ for linting.
+
+    ::
+
+        pip install ir-sim[lint]
+
+    This installs:
+
+    * `black`_ - Linting tool
+
 .. dropdown:: All Features
 
     To install all optional dependencies and features:
@@ -128,6 +145,7 @@ Install with Additional Features
     * Keyboard control features (`pynput`, `tabulate`)
     * Testing framework (`pytest`, `pytest-cov`)
     * Enhanced video support (`imageio[ffmpeg]`)
+    * Linting (`black`)
 
 Running the test suite
 -----------------------

@@ -69,7 +69,15 @@ git clone https://github.com/hanruihua/ir-sim.git
 cd ir-sim   
 pip install -e .  
 ```
- 
+
+- If you are using `uv`
+
+```
+git clone https://github.com/hanruihua/ir-sim.git    
+cd ir-sim   
+uv sync
+```
+
 ## Usage
 
 ### Quick Start
