@@ -35,7 +35,8 @@ dependencies = [
 [project.optional-dependencies]
 keyboard = ['pynput', 'tabulate']
 test = ['pytest', 'pytest-cov']
-all = ['pynput', 'tabulate', 'pytest', 'pytest-cov', 'imageio[ffmpeg]']
+lint = ['black']
+all = ['pynput', 'tabulate', 'pytest', 'pytest-cov', 'imageio[ffmpeg]', 'black']
 
 
 [tool.setuptools.packages.find]
@@ -47,4 +48,4 @@ exclude = ["doc*", "tests*"]
 
 [project.urls]
 "Homepage" = "https://github.com/hanruihua/ir-sim"
-"Documentation" = "https://ir-sim.readthedocs.io/en/latest/"
+"Documentation" = "https://ir-sim.readthedocs.io/en/stable/"
