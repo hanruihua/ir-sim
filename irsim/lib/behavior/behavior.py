@@ -5,7 +5,6 @@ from typing import Tuple, Any
 from irsim.lib.behavior.behavior_registry import behaviors_map
 
 
-
 class Behavior:
     """
     Represents the behavior of an agent in the simulation.
@@ -15,7 +14,7 @@ class Behavior:
         behavior_dict (dict): Dictionary containing behavior parameters for different behaviors.
             Name Options include: 'dash', 'rvo'.
             target_roles:
-            
+
             - 'all': all objects in the environment will be considered within this behavior.
             - 'obstacle': only obstacles will be considered within this behavior.
             - 'robot': only robots will be considered within this behavior.
@@ -46,7 +45,7 @@ class Behavior:
         """
 
         if self.behavior_dict is None or not self.behavior_dict:
-            
+
             if world_param.control_mode == "auto":
                 if world_param.count == 1:
                     self.logger.warning(
@@ -54,7 +53,7 @@ class Behavior:
                             self.object_info.id,
                         )
                     )
-                    
+
             return np.zeros((2, 1))
 
         target_roles = self.behavior_dict.get("target_roles", "all")
@@ -100,16 +99,16 @@ class Behavior:
 
         Args:
             kinematics (str): Kinematics model identifier. Supported values:
-                
+
                 - 'diff': Differential drive kinematics
-                - 'omni': Omnidirectional kinematics  
+                - 'omni': Omnidirectional kinematics
                 - 'acker': Ackermann steering kinematics
-                
+
             action (str): Behavior action name. Examples:
-                
+
                 - 'dash': Direct movement toward goal
                 - 'rvo': Reciprocal Velocity Obstacles for collision avoidance
-                
+
             **kwargs: Additional keyword arguments passed to the behavior function.
                 Common parameters include ego_object, external_objects, goal, etc.
 
@@ -123,8 +122,8 @@ class Behavior:
 
         Example:
             >>> # Invoke differential drive dash behavior
-            >>> vel = behavior.invoke_behavior('diff', 'dash', 
-            ...                               ego_object=robot, 
+            >>> vel = behavior.invoke_behavior('diff', 'dash',
+            ...                               ego_object=robot,
             ...                               external_objects=obstacles)
         """
         key: Tuple[str, str] = (kinematics, action)
@@ -135,7 +134,7 @@ class Behavior:
             )
 
         return func(**kwargs)
-    
+
     @property
     def logger(self):
         return env_param.logger

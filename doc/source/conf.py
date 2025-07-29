@@ -12,29 +12,32 @@
 #
 import os
 import sys
+
 # Add the project root to Python path
-sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("."))
 from unittest.mock import MagicMock
 import importlib.metadata
+
 
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = ['pynput', 'loguru']
+
+MOCK_MODULES = ["pynput", "loguru"]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-os.environ['PYNPUT_BACKEND'] = 'dummy'
+os.environ["PYNPUT_BACKEND"] = "dummy"
 
 # Rest of your conf.py content
 
 # -- Project information -----------------------------------------------------
 
-project = 'IR-SIM'
-copyright = '2024, Ruihua Han'
-author = 'Ruihua Han'
+project = "IR-SIM"
+copyright = "2024, Ruihua Han"
+author = "Ruihua Han"
 
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("ir-sim")
@@ -45,15 +48,15 @@ release = importlib.metadata.version("ir-sim")
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 
-    'autoapi.extension',  # Add AutoAPI for automatic API documentation
-    'sphinx.ext.viewcode', 
-    'sphinx.ext.napoleon', 
-    'myst_parser', 
-    'sphinx_multiversion', 
-    'sphinx_copybutton', 
-    'sphinx_design', 
-    'sphinx_inline_tabs',
+    "sphinx.ext.autodoc",
+    "autoapi.extension",  # Add AutoAPI for automatic API documentation
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "myst_parser",
+    "sphinx_multiversion",
+    "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_inline_tabs",
 ]
 
 myst_enable_extensions = [
@@ -66,7 +69,7 @@ myst_enable_extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -75,54 +78,54 @@ exclude_patterns = []
 
 # Suppress specific warnings - using regex patterns to catch duplicate warnings
 suppress_warnings = [
-    'ref.python',  # Suppress python reference warnings including duplicates
-    'autosummary',  # Suppress autosummary warnings  
-    'autodoc.import_object',  # Suppress autodoc import warnings
-    'autoapi.python_import_resolution',  # Suppress AutoAPI import resolution warnings
-    'autodoc.duplicate_object',  # Suppress duplicate object description warnings
-    'app.add_directive',  # Suppress app directive warnings
+    "ref.python",  # Suppress python reference warnings including duplicates
+    "autosummary",  # Suppress autosummary warnings
+    "autodoc.import_object",  # Suppress autodoc import warnings
+    "autoapi.python_import_resolution",  # Suppress AutoAPI import resolution warnings
+    "autodoc.duplicate_object",  # Suppress duplicate object description warnings
+    "app.add_directive",  # Suppress app directive warnings
     # Add pattern to suppress all duplicate warnings
-    'sphinx.domains.python',  # Suppress Python domain warnings including duplicates
-    'toc.not_readable',  # Suppress toctree warnings
+    "sphinx.domains.python",  # Suppress Python domain warnings including duplicates
+    "toc.not_readable",  # Suppress toctree warnings
 ]
 
 # Ignore nitpicky warnings for duplicates
 nitpicky = False
 nitpick_ignore = [
-    ('py:obj', 'irsim.world.object_base.ObjectBase.state_shape'),
-    ('py:obj', 'irsim.world.object_base.ObjectBase.vel_shape'),
-    ('py:obj', 'irsim.world.object_base.ObjectBase.state'),
-    ('py:obj', 'irsim.world.object_base.ObjectBase.wheelbase'),
+    ("py:obj", "irsim.world.object_base.ObjectBase.state_shape"),
+    ("py:obj", "irsim.world.object_base.ObjectBase.vel_shape"),
+    ("py:obj", "irsim.world.object_base.ObjectBase.state"),
+    ("py:obj", "irsim.world.object_base.ObjectBase.wheelbase"),
     # Add GUI duplicates
-    ('py:obj', 'irsim.gui.MouseControl.mouse_pos'),
-    ('py:obj', 'irsim.gui.MouseControl.left_click_pos'),
-    ('py:obj', 'irsim.gui.MouseControl.right_click_pos'),
+    ("py:obj", "irsim.gui.MouseControl.mouse_pos"),
+    ("py:obj", "irsim.gui.MouseControl.left_click_pos"),
+    ("py:obj", "irsim.gui.MouseControl.right_click_pos"),
 ]
 
 # AutoAPI configuration - Automatic API documentation generation
-autoapi_type = 'python'
-autoapi_dirs = ['../../irsim']  # Path to your source code
-autoapi_root = 'api'  # Directory where API docs will be generated
+autoapi_type = "python"
+autoapi_dirs = ["../../irsim"]  # Path to your source code
+autoapi_root = "api"  # Directory where API docs will be generated
 autoapi_keep_files = True  # Keep generated files for inspection
 autoapi_add_toctree_entry = False  # Don't automatically add to main toctree
 autoapi_generate_api_docs = True  # Generate API documentation
-autoapi_python_class_content = 'both'  # Include both class and __init__ docstrings
+autoapi_python_class_content = "both"  # Include both class and __init__ docstrings
 autoapi_ignore = [
     # Ignore problematic modules that cause import issues
-    '**/tests/*',
+    "**/tests/*",
     # Ignore specific usage scripts that create standalone modules
-    '**/usage/**',
+    "**/usage/**",
     # Ignore binary map generator (has external dependencies)
-    '**/binary_map_generator_hm3d/**',
+    "**/binary_map_generator_hm3d/**",
     # Ignore version module
-    '**/version.py',
+    "**/version.py",
 ]
 autoapi_options = [
-    'members',
-    'undoc-members', 
-    'show-inheritance',
-    'show-module-summary',
-    'imported-members',
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "imported-members",
 ]
 
 # Configure AutoAPI to be more tolerant of import errors
@@ -131,24 +134,27 @@ autoapi_python_use_implicit_namespaces = True
 # Configure AutoAPI to handle import errors gracefully
 autoapi_ignore_import_errors = True
 
+
 # Add error handling for AutoAPI
 def autoapi_skip_member(app, what, name, obj, skip, options):
     """Skip problematic members that cause import issues."""
     try:
         # Skip private members that start with underscore
-        if name.startswith('_') and not name.startswith('__'):
+        if name.startswith("_") and not name.startswith("__"):
             return True
         # Skip test functions and classes
-        if 'test' in name.lower():
+        if "test" in name.lower():
             return True
         return skip
     except Exception as e:
         print(f"Error in autoapi_skip_member for {name}: {e}")
         return True  # Skip if there's any error
 
+
 def setup(app):
     """Setup function for Sphinx."""
-    app.connect('autoapi-skip-member', autoapi_skip_member)
+    app.connect("autoapi-skip-member", autoapi_skip_member)
+
 
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
@@ -161,7 +167,7 @@ def setup(app):
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
@@ -172,7 +178,10 @@ html_theme = "pydata_sphinx_theme"
 # }
 
 html_sidebars = {
-    "index": ["sidebar-nav-bs", "search-button-field"],  # Homepage: no search in sidebar (will be in navbar)
+    "index": [
+        "sidebar-nav-bs",
+        "search-button-field",
+    ],  # Homepage: no search in sidebar (will be in navbar)
     "**": ["sidebar-nav-bs", "search-button-field"],  # Other pages: search in sidebar
     "community/index": [
         "sidebar-nav-bs",
@@ -180,33 +189,31 @@ html_sidebars = {
     ],  # This ensures we test for custom sidebars
 }
 
-html_sidebars = {
-    "**": ["sidebar-nav-bs"]  # Use default navigation for all pages
-}
+html_sidebars = {"**": ["sidebar-nav-bs"]}  # Use default navigation for all pages
 
 html_js_files = [
     ("custom-icons.js", {"defer": "defer"}),
 ]
 
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 html_theme_options = {
     "icon_links": [
-      {
-        "name": "GitHub",
-        "url": "https://github.com/hanruihua/ir-sim",
-        "icon": "fa-brands fa-github",
-      },
-      {
-        "name": "PyPI",
-        "url": "https://pypi.org/project/ir-sim/",
-        "icon": "fa-custom fa-pypi",
-    }
+        {
+            "name": "GitHub",
+            "url": "https://github.com/hanruihua/ir-sim",
+            "icon": "fa-brands fa-github",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/ir-sim/",
+            "icon": "fa-custom fa-pypi",
+        },
     ],
     # "logo": {
     #     "text": "IR-SIM",
@@ -214,7 +221,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": 'https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json',
+        "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/feature/doc/doc/source/_static/switcher.json",
         "version_match": release,
     },
     # Primary sidebar navigation configuration
@@ -230,21 +237,26 @@ html_theme_options = {
 
 
 def setup(app):
-    app.add_css_file('my_theme.css')
-    
+    app.add_css_file("my_theme.css")
+
     # Filter out duplicate object warnings using logging
     import logging
+
     class DuplicateWarningFilter(logging.Filter):
         def filter(self, record):
             # Suppress duplicate object description warnings
-            if hasattr(record, 'msg') and 'duplicate object description' in str(record.msg):
+            if hasattr(record, "msg") and "duplicate object description" in str(
+                record.msg
+            ):
                 return False
-            if hasattr(record, 'message') and 'duplicate object description' in str(record.message):
+            if hasattr(record, "message") and "duplicate object description" in str(
+                record.message
+            ):
                 return False
             return True
-    
+
     # Apply filter to sphinx logger
-    logging.getLogger('sphinx').addFilter(DuplicateWarningFilter())
-    
+    logging.getLogger("sphinx").addFilter(DuplicateWarningFilter())
+
     # Add custom JavaScript to handle conditional search button display
     # app.add_js_file('conditional-search.js')

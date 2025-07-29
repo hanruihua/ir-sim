@@ -9,4 +9,4 @@ This package contains factory classes for:
 from .kinematics_handler import KinematicsFactory
 from .geometry_handler import GeometryFactory
 
-__all__ = ['KinematicsFactory', 'GeometryFactory'] 
+__all__ = ["KinematicsFactory", "GeometryFactory"]

@@ -1,14 +1,14 @@
-
-'''
+"""
 This file is the implementation of the generation of random polygons.
 
 Author: Ruihua Han
-'''
+"""
 
 import math
 import random
 import numpy as np
 from typing import List
+
 
 def clip(value, lower, upper):
     """
@@ -23,6 +23,7 @@ def clip(value, lower, upper):
         float: Clipped value.
     """
     return min(upper, max(value, lower))
+
 
 def random_generate_polygon(
     number=1,
@@ -141,6 +142,3 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
     for i in range(steps):
         angles[i] /= cumsum
     return angles
-
-
-

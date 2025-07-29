@@ -17,7 +17,9 @@ class EnvPlot3D(EnvPlot):
         show_title: bool = True,
         **kwargs,
     ):
-        super().__init__(world, objects, saved_figure, figure_pixels, show_title, **kwargs)
+        super().__init__(
+            world, objects, saved_figure, figure_pixels, show_title, **kwargs
+        )
 
         self.ax = self.fig.add_subplot(projection="3d")
         self.z_range = world.z_range
@@ -63,7 +65,6 @@ class EnvPlot3D(EnvPlot):
         if refresh:
             self.dyna_point_list.append(points)
 
-
     def draw_quiver(self, point, refresh=False, **kwargs):
         """
         Draw a quiver plot on the plot.
@@ -76,12 +77,25 @@ class EnvPlot3D(EnvPlot):
         if point is None:
             return
 
-        ax_point = self.ax.scatter(point[0], point[1], point[2], color=kwargs.get('point_color', 'blue'), label='Points')
+        ax_point = self.ax.scatter(
+            point[0],
+            point[1],
+            point[2],
+            color=kwargs.get("point_color", "blue"),
+            label="Points",
+        )
 
         ax_quiver = self.ax.quiver(
-            point[0], point[1], point[2],  # starting positions
-            point[3], point[4], point[5],  # vector components (direction)
-            length=0.2, normalize=True, color=kwargs.get('quiver_color', 'red'), label='Direction'
+            point[0],
+            point[1],
+            point[2],  # starting positions
+            point[3],
+            point[4],
+            point[5],  # vector components (direction)
+            length=0.2,
+            normalize=True,
+            color=kwargs.get("quiver_color", "red"),
+            label="Direction",
         )
 
         if refresh:

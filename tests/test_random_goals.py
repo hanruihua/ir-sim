@@ -7,15 +7,13 @@ from irsim.util.util import time_it
 import irsim
 import matplotlib.pyplot as plt
 
+
 def check_goal(goal, obstacle_list, goal_check_radius):
     shape = {"name": "circle", "radius": goal_check_radius}
     gf = GeometryFactory.create_geometry(**shape)
     geometry = gf.step(np.c_[goal])
     covered_goal = any(
-        [
-            shapely.intersects(geometry, obj._geometry)
-            for obj in obstacle_list
-        ]
+        [shapely.intersects(geometry, obj._geometry) for obj in obstacle_list]
     )
 
     return covered_goal
@@ -24,7 +22,7 @@ def check_goal(goal, obstacle_list, goal_check_radius):
 @time_it("test_all_objects")
 def test_random_goals():
     goal_check_radius = 0.4
-    env = irsim.make('test_collision_world.yaml', save_ani=False, display=False)
+    env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
     env.robot.set_goal([5, 10, 0], init=True)
 
     env_objects = env.obstacle_list
@@ -44,10 +42,14 @@ def test_random_goals():
         covered_goal = check_goal(goal, env_objects, goal_check_radius)
         assert covered_goal == False
 
-    env.robot.set_goal([[5, 10, 0],[5, 9, 0],[5, 8, 0]], init=True)
+    env.robot.set_goal([[5, 10, 0], [5, 9, 0], [5, 8, 0]], init=True)
 
     for _ in range(100):
-        env.robot.set_random_goal(env_objects, goal_check_radius=goal_check_radius, range_limits=[[3, 3, -3.141592653589793], [7, 7, 3.141592653589793]])
+        env.robot.set_random_goal(
+            env_objects,
+            goal_check_radius=goal_check_radius,
+            range_limits=[[3, 3, -3.141592653589793], [7, 7, 3.141592653589793]],
+        )
         goals = env.robot._goal
         for goal in goals:
             covered_goal = check_goal(goal, env_objects, goal_check_radius)

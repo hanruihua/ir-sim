@@ -6,7 +6,7 @@ for i in range(1000):
 
     env.step()
     env.render()
-    
+
     if env.done():
         break
 

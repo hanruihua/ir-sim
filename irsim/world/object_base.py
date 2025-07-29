@@ -131,7 +131,7 @@ class ObjectBase:
         fov (float): Field of view angles in radians for the object's sensors. Defaults to None. If set lidar, the default value is angle range of lidar.
         fov_radius (float): Field of view radius for the object's sensors. Defaults to None. If set lidar, the default value is range_max of lidar.
         **kwargs: Additional keyword arguments for extended functionality.
-        
+
             - plot (dict): Plotting options for the object.
               May include 'show_goal', 'show_text', 'show_arrow', 'show_uncertainty', 'show_trajectory',
               'trail_freq', etc.
@@ -213,11 +213,11 @@ class ObjectBase:
         - Configuring visualization and plotting options
 
         Note:
-            All parameters are documented in the class docstring above. Refer to the 
+            All parameters are documented in the class docstring above. Refer to the
             :py:class:`ObjectBase` class documentation for detailed parameter descriptions.
 
         Raises:
-            ValueError: If dimension parameters do not match the provided shapes or 
+            ValueError: If dimension parameters do not match the provided shapes or
                 if input parameters are invalid.
         """
 
@@ -333,7 +333,9 @@ class ObjectBase:
             self.sensors = []
 
         if fov is None:
-            self.fov = WrapTo2Pi(self.lidar.angle_range) if self.lidar is not None else None
+            self.fov = (
+                WrapTo2Pi(self.lidar.angle_range) if self.lidar is not None else None
+            )
             self.fov_radius = self.lidar.range_max if self.lidar is not None else None
         else:
             self.fov = WrapTo2Pi(fov)
@@ -381,18 +383,18 @@ class ObjectBase:
         Perform a single simulation step, updating the object's state and sensors.
 
         This method advances the object by one time step, integrating the given velocity
-        or behavior-generated velocity to update the object's position, orientation, and 
+        or behavior-generated velocity to update the object's position, orientation, and
         other state variables. It also updates sensors and checks for collisions.
 
         Args:
-            velocity (np.ndarray, optional): Desired velocity for this step. 
+            velocity (np.ndarray, optional): Desired velocity for this step.
                 If None, the object will use its behavior system to generate velocity.
                 The shape and meaning depend on the kinematics model:
-                
+
                 - Differential: [linear_velocity, angular_velocity]
                 - Omnidirectional: [velocity_x, velocity_y]
                 - Ackermann: [linear_velocity, steering_angle]
-                
+
             **kwargs: Additional parameters passed to behavior generation and processing.
 
         Returns:
@@ -593,7 +595,7 @@ class ObjectBase:
             self.logger.warning(
                 f"Input velocity {np.round(behavior_vel.flatten(), 2)} below min {np.round(min_vel.flatten(), 2)}. Clipped due to acceleration limit."
             )
-                
+
         elif (behavior_vel > (max_vel + 0.01)).any():
             self.logger.warning(
                 f"Input velocity {np.round(behavior_vel.flatten(), 2)} exceeds max {np.round(max_vel.flatten(), 2)}. Clipped due to acceleration limit."
@@ -735,12 +737,12 @@ class ObjectBase:
         Args:
             state (Union[list, np.ndarray]): The new state vector for the object.
                 The format depends on the object's state dimension:
-                
+
                 - 2D objects: [x, y, theta] where theta is orientation in radians
                 - 3D objects: [x, y, z, roll, pitch, yaw] or similar based on configuration
-                
+
                 Must match the object's state_dim dimension.
-                
+
             init (bool): Whether to also set this as the initial state for reset purposes.
                 If True, the object will return to this state when reset() is called.
                 Default is False.
@@ -751,7 +753,7 @@ class ObjectBase:
         Example:
             >>> # Set robot position and orientation
             >>> robot.set_state([5.0, 3.0, 1.57])  # x=5, y=3, facing pi/2 radians
-            >>> 
+            >>>
             >>> # Set as initial state for resets
             >>> robot.set_state([0, 0, 0], init=True)
         """
@@ -883,13 +885,13 @@ class ObjectBase:
 
         Args:
             goal (Union[list, np.ndarray]): The goal specification. Can be:
-                
+
                 - Single goal: [x, y, theta] for one target location
                 - Multiple goals: [[x1, y1, theta1], [x2, y2, theta2], ...] for sequential targets
                 - None: Clear all goals
-                
+
                 The theta component specifies the desired final orientation in radians.
-                
+
             init (bool): Whether to also set this as the initial goal for reset purposes.
                 If True, these goals will be restored when reset() is called.
                 Default is False.
@@ -897,11 +899,11 @@ class ObjectBase:
         Example:
             >>> # Set single goal
             >>> robot.set_goal([10.0, 5.0, 0.0])  # Move to (10,5) facing East
-            >>> 
+            >>>
             >>> # Set multiple sequential goals
             >>> waypoints = [[5, 0, 0], [10, 5, 1.57], [0, 10, 3.14]]
             >>> robot.set_goal(waypoints)
-            >>> 
+            >>>
             >>> # Clear goals
             >>> robot.set_goal(None)
         """
@@ -1308,7 +1310,7 @@ class ObjectBase:
                         element.set_visible(False)
                         continue
                     elif not element.get_visible():
-                        element.set_visible(True) 
+                        element.set_visible(True)
 
                     if self.goal.shape[0] > 2:
                         goal_state = self.goal
@@ -1347,8 +1349,12 @@ class ObjectBase:
                     # Update trajectory line using set_data (works for both 2D and 3D)
                     if isinstance(element, list) and len(element) > 0:
                         line = element[0]
-                        x_list = [t[0, 0] for t in self.trajectory[-self.keep_traj_length:]]
-                        y_list = [t[1, 0] for t in self.trajectory[-self.keep_traj_length:]]
+                        x_list = [
+                            t[0, 0] for t in self.trajectory[-self.keep_traj_length :]
+                        ]
+                        y_list = [
+                            t[1, 0] for t in self.trajectory[-self.keep_traj_length :]
+                        ]
 
                         if isinstance(self.ax, Axes3D):
                             # For 3D, add z-coordinate (set to 0)
@@ -1379,7 +1385,9 @@ class ObjectBase:
 
                 elif attr == "fov_patch":
                     # Update FOV patch using set_element_property
-                    if isinstance(element, mpl.patches.Wedge) or isinstance(element, mpl.patches.Circle):
+                    if isinstance(element, mpl.patches.Wedge) or isinstance(
+                        element, mpl.patches.Circle
+                    ):
                         direction = r_phi if self.state_dim >= 3 else 0
                         fov_state = np.array([[x], [y], [direction]])
 
@@ -1628,8 +1636,8 @@ class ObjectBase:
         traj_alpha = kwargs.get("traj_alpha", 0.5)
         traj_zorder = kwargs.get("traj_zorder", 0)
 
-        x_list = [t[0, 0] for t in trajectory[-self.keep_traj_length:]]
-        y_list = [t[1, 0] for t in trajectory[-self.keep_traj_length:]]
+        x_list = [t[0, 0] for t in trajectory[-self.keep_traj_length :]]
+        y_list = [t[1, 0] for t in trajectory[-self.keep_traj_length :]]
 
         linewidth = linewidth_from_data_units(traj_width, ax, "y")
 
@@ -1708,7 +1716,7 @@ class ObjectBase:
             state: State of the object (x, y, r_phi) to determine text position.
                    If None, uses the object's current state. Defaults to None.
             **kwargs: Additional plotting options.
-            
+
                 - text_color (str): Color of the text, default is 'k'.
                 - text_size (int): Font size of the text, default is 10.
                 - text_position (list): Position offset from object center [dx, dy],

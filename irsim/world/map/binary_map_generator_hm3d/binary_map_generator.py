@@ -1,8 +1,8 @@
 """
 Generate navigable 2D binary maps from 3D scene datasets.
 
-Extract and processes navigation mesh vertices from 3D scene datasets 
-(like Habitat-Matterport 3D) to create 2D occupancy binary maps. 
+Extract and processes navigation mesh vertices from 3D scene datasets
+(like Habitat-Matterport 3D) to create 2D occupancy binary maps.
 
 Author: Guoliang Li
 """
@@ -18,10 +18,7 @@ from shapely.ops import unary_union
 from PIL import Image
 
 
-def extract_navmesh_vertices(
-    scene_path: str,
-    scene_name: str
-) -> np.ndarray:
+def extract_navmesh_vertices(scene_path: str, scene_name: str) -> np.ndarray:
     """
     Extract navigation mesh vertices from a 3D scene and save as 2D coordinates.
 
@@ -42,11 +39,13 @@ def extract_navmesh_vertices(
 
     # Configure simulator settings
     sim_settings = default_sim_settings.copy()
-    sim_settings.update({
-        "scene": scene_path,
-        "enable_physics": False,  # Physics not required for NavMesh generation
-        "default_agent_navmesh": False
-    })
+    sim_settings.update(
+        {
+            "scene": scene_path,
+            "enable_physics": False,  # Physics not required for NavMesh generation
+            "default_agent_navmesh": False,
+        }
+    )
 
     try:
         # Initialize simulator
@@ -73,13 +72,11 @@ def extract_navmesh_vertices(
             return vertices_2d
 
     except Exception as e:
-        raise RuntimeError(
-            f"NavMesh extraction failed for {scene_name}"
-        ) from e
+        raise RuntimeError(f"NavMesh extraction failed for {scene_name}") from e
 
 
 def create_regions(
-    vertices: np.ndarray
+    vertices: np.ndarray,
 ) -> Tuple[ShapelyPolygon, float, float, float, float]:
     """
     Process navigation mesh vertices to identify navigable regions and boundaries.
@@ -93,7 +90,7 @@ def create_regions(
         - Bounding box coordinates (min_x, min_y, max_x, max_y)
     """
     # Create triangles from vertex triplets
-    triangles = [vertices[idx:idx + 3] for idx in range(0, len(vertices), 3)]
+    triangles = [vertices[idx : idx + 3] for idx in range(0, len(vertices), 3)]
 
     # Combine navigable areas into a single polygon
     reachable_region = unary_union([ShapelyPolygon(tri) for tri in triangles]).buffer(0)
@@ -109,8 +106,7 @@ def create_regions(
 
 
 def draw_binary_map(
-    unreachable_region: ShapelyPolygon,
-    bounds: Tuple[float, float, float, float]
+    unreachable_region: ShapelyPolygon, bounds: Tuple[float, float, float, float]
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
     Generate matplotlib visualization of the binary map with hatched obstacles.
@@ -131,15 +127,13 @@ def draw_binary_map(
             "facecolor": "none",
             "edgecolor": "black",
             "hatch": "/",  # Diagonal line pattern
-            "linewidth": 2
+            "linewidth": 2,
         }
 
         def add_hatched_polygon(polygon: ShapelyPolygon) -> None:
             """Add a hatched polygon representation to the plot."""
             patch = plt.Polygon(
-                np.array(polygon.exterior.coords),
-                closed=True,
-                **hatch_style
+                np.array(polygon.exterior.coords), closed=True, **hatch_style
             )
             ax.add_patch(patch)
 
@@ -174,7 +168,7 @@ def save_binary_map(fig: plt.Figure, output_file: str) -> None:
         dpi=100,
         bbox_inches="tight",
         transparent=False,
-        pad_inches=0
+        pad_inches=0,
     )
     plt.show()
     plt.close()
@@ -192,10 +186,7 @@ if __name__ == "__main__":
 
     try:
         # Extracts navigation mesh vertices from 3D scenes
-        navmesh_vertices = extract_navmesh_vertices(
-            scene_path,
-            scene_name
-        )
+        navmesh_vertices = extract_navmesh_vertices(scene_path, scene_name)
 
         # Process extracted navigation mesh vertices
         obstacles, *bounds = create_regions(navmesh_vertices)
