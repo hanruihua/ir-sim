@@ -5,12 +5,9 @@ name: Test with python versions
 
 on:
   push:
-    branches: [ "dev"]
+    branches: [ "main"]
   pull_request:
-    branches: [ "dev" ]
-  release:
-    types: [published]
-
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -37,7 +34,7 @@ jobs:
       run: uv venv
 
     - name: install package
-      run: uv pip install ir-sim[all]
+      run: uv pip install .[all]
 
     - name: Test with pytest
       run: |
