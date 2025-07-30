@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 from irsim.config import env_param
 
+
 class KeyboardControl:
 
     def __init__(self, env_ref=None, **keyboard_kwargs):
-
         """
         Initialize keyboard control for the environment.
 
@@ -43,7 +43,7 @@ class KeyboardControl:
 
         # Store environment reference for reset functionality
         self.env_ref = env_ref
-        
+
         vel_max = keyboard_kwargs.get("vel_max", [3.0, 1.0])
         self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
         self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
@@ -87,7 +87,6 @@ class KeyboardControl:
         )
         self.listener.start()
 
-
     def _on_press(self, key):
         """
         Handle key press events for keyboard control.
@@ -114,14 +113,14 @@ class KeyboardControl:
                 self.key_ang = self.key_ang_max
             if key.char == "d":
                 self.key_ang = -self.key_ang_max
-            
+
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
             try:
                 if "alt" in key.name:
                     self.alt_flag = True
-                
+
             except AttributeError:
 
                 if key.char.isdigit() and self.alt_flag:
@@ -132,7 +131,6 @@ class KeyboardControl:
                     else:
                         print("current control id: ", int(key.char))
                         self.key_id = int(key.char)
-
 
     def _on_release(self, key):
         """
@@ -171,7 +169,7 @@ class KeyboardControl:
                     self.env_ref.reset()
                 else:
                     self.logger.warning("Environment reference not set. Cannot reset.")
-                
+
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
@@ -185,7 +183,6 @@ class KeyboardControl:
                 else:
                     self.logger.info("resume the environment")
                     self.env_ref.resume()
-
 
     @property
     def logger(self):

@@ -9,6 +9,7 @@ from irsim.config import world_param
 from irsim.config.path_param import path_manager as pm
 from irsim.world.map import Map
 
+
 class World:
     """
     Represents the main simulation environment, managing objects and maps.
@@ -113,7 +114,9 @@ class World:
         Returns:
             tuple: Grid map, obstacle indices, and positions.
         """
-        abs_obstacle_map = file_check(obstacle_map, root_path=pm.root_path + "/world/map")
+        abs_obstacle_map = file_check(
+            obstacle_map, root_path=pm.root_path + "/world/map"
+        )
 
         if abs_obstacle_map is not None:
             grid_map = mpimg.imread(abs_obstacle_map)
@@ -141,13 +144,11 @@ class World:
 
         return grid_map, obstacle_index, obstacle_positions
 
-
     def get_map(self, resolution: float = 0.1, obstacle_list: list = []):
         """
         Get the map of the world with the given resolution.
         """
         return Map(self.width, self.height, resolution, obstacle_list, self.grid_map)
-
 
     def reset(self):
         """

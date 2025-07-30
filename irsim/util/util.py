@@ -5,7 +5,7 @@ import numpy as np
 from shapely import ops
 import time
 from typing import Any
-from irsim.config import env_param 
+from irsim.config import env_param
 import math
 from shapely.affinity import affine_transform
 
@@ -57,6 +57,7 @@ def find_file(root_path, target_filename):
             return os.path.join(dirpath, target_filename)
     return target_filename
 
+
 def WrapToPi(rad, positive=False):
     """The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
 
@@ -79,6 +80,7 @@ def WrapToPi(rad, positive=False):
         rad = rad + 2 * pi
 
     return rad if not positive else abs(rad)
+
 
 def WrapTo2Pi(rad):
     """The function `WrapTo2Pi` transforms an angle in radians to the range [0, 2pi].
@@ -230,7 +232,9 @@ def relative_position(position1, position2, topi=True):
         tuple: Distance and angle (radians).
     """
     diff = position2[0:2] - position1[0:2]
-    distance = dist_hypot(position1[0, 0], position1[1, 0], position2[0, 0], position2[1, 0])
+    distance = dist_hypot(
+        position1[0, 0], position1[1, 0], position2[0, 0], position2[1, 0]
+    )
     radian = atan2(diff[1, 0], diff[0, 0])
     if topi:
         radian = WrapToPi(radian)
@@ -275,7 +279,9 @@ def transform_point_with_state(point, state):
     trans, rot = get_transform(state)
     new_position = rot @ point[0:2] + trans
     new_theta = WrapToPi(point[2, 0] + state[2, 0])
-    new_point = np.array([new_position[0, 0], new_position[1, 0], new_theta]).reshape((3, 1))
+    new_point = np.array([new_position[0, 0], new_position[1, 0], new_theta]).reshape(
+        (3, 1)
+    )
 
     return new_point
 
@@ -311,7 +317,7 @@ def geometry_transform(geometry, state):
     Returns:
         Transformed geometry.
 
-    
+
     shapely expects [a, b, d, e, xoff, yoff] for:
     x' = a*x + b*y + xoff
     y' = d*x + e*y + yoff
@@ -319,14 +325,14 @@ def geometry_transform(geometry, state):
 
     xoff, yoff = state[:2]
     theta = state[2] if len(state) >= 3 else 0
-    
+
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)
 
-    a =  cos_t
+    a = cos_t
     b = -sin_t
-    d =  sin_t
-    e =  cos_t
+    d = sin_t
+    e = cos_t
 
     return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
@@ -350,8 +356,6 @@ def vertices_transform(vertices, state):
     vertices = rot @ vertices + trans
 
     return vertices
-
-
 
 
 def omni_to_diff(
@@ -591,9 +595,9 @@ def distance(point1, point2):
 def dist_hypot(x1, y1, x2, y2):
     return math.hypot(x2 - x1, y2 - y1)
 
-def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
-    '''
+def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
+    """
     Generate a random point within a range.
 
     Args:
@@ -602,7 +606,7 @@ def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
 
     Returns:
         np.array: Random point within the range.
-    '''
+    """
 
     if isinstance(range_low, list):
         range_low = np.c_[range_low]
@@ -628,8 +632,5 @@ def is_2d_list(data: list) -> bool:
         first_element = data[0]
         if isinstance(first_element, (list, tuple)):
             return True
-            
+
     return False
-
-
-

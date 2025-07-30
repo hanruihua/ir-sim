@@ -2,9 +2,7 @@ from irsim.world.object_base import ObjectBase
 
 
 class RobotDiff(ObjectBase):
-    def __init__(
-        self, color="g", state_dim=3, **kwargs
-    ):
+    def __init__(self, color="g", state_dim=3, **kwargs):
         super(RobotDiff, self).__init__(
             role="robot",
             color=color,
@@ -15,7 +13,6 @@ class RobotDiff(ObjectBase):
         assert (
             state_dim >= 3
         ), "for differential robot, the state dimension should be greater than 3"
-
 
     def _init_plot(self, ax, **kwargs):
 

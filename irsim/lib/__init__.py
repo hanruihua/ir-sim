@@ -18,4 +18,3 @@ from irsim.lib.algorithm.rvo import reciprocal_vel_obs
 
 from irsim.lib.handler.kinematics_handler import KinematicsFactory
 from irsim.lib.handler.geometry_handler import GeometryFactory
-

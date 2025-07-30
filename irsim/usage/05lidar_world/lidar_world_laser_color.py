@@ -9,7 +9,7 @@ for i in range(300):
     env.render(0.05)
 
     indices = np.arange(0, i)
-    env.robot.set_laser_color(indices, 'cyan', 0.0)
+    env.robot.set_laser_color(indices, "cyan", 0.0)
 
     if env.done():
         break

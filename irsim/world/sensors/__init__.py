@@ -9,4 +9,4 @@ This package contains:
 from .lidar2d import Lidar2D
 from .sensor_factory import SensorFactory
 
-__all__ = ['Lidar2D', 'SensorFactory'] 
+__all__ = ["Lidar2D", "SensorFactory"]

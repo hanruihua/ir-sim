@@ -10,4 +10,4 @@ This package contains:
 from .behavior import Behavior
 from .behavior_registry import register_behavior
 
-__all__ = ['Behavior', 'register_behavior'] 
+__all__ = ["Behavior", "register_behavior"]

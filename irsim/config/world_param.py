@@ -2,7 +2,7 @@ import os
 import irsim
 
 
-'''
+"""
 world parameters:
     time: time elapse of the simulation
     control_mode:
@@ -18,11 +18,11 @@ world parameters:
     step_time: time of the simulation step, default is 0.1
     count: count of the simulation, time = count * step_time
 
-'''
+"""
 
 time = 0
 control_mode = "auto"
-collision_mode = "stop"  
+collision_mode = "stop"
 
 step_time = 0.1
 count = 0

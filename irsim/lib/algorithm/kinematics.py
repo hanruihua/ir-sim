@@ -1,13 +1,13 @@
-
-'''
+"""
 This file is the implementation of the kinematics for different robots.
 
 reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
-'''
+"""
 
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
+
 
 def differential_kinematics(
     state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]
@@ -145,4 +145,3 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     new_position = state[0:2] + real_velocity * step_time
 
     return new_position
-

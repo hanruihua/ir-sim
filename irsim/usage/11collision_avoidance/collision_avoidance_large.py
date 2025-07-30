@@ -1,12 +1,13 @@
 import irsim
-import time 
+import time
+
 env = irsim.make(save_ani=False, full=False)
 
 for i in range(1000):
 
     env.step()
     env.render(0.01)
-    
+
     if env.done():
         break
 

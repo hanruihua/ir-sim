@@ -13,6 +13,7 @@ from irsim.world.obstacles.obstacle_diff import ObstacleDiff
 from irsim.world.obstacles.obstacle_omni import ObstacleOmni
 from irsim.world.obstacles.obstacle_static import ObjectStatic
 from irsim.world.map.obstacle_map import ObstacleMap
+
 # from irsim.world.robots.robot_rigid3d import RobotRigid3D
 
 
@@ -200,23 +201,23 @@ class ObjectFactory:
             goal (List[float]):
                 Goal state vector [x, y, theta] for the generated objects.
                 Default is [1, 9, 0].
-                
+
                 - 'name' (str): Name of the distribution method. Supported values are:
-                  
+
                   - 'manual': States are specified manually.
                   - 'circle': States are arranged in a circular pattern.
                   - 'random': States are placed at random positions.
-                  
+
                 - Additional parameters depend on the distribution method:
-                  
+
                   - For 'manual': Manually specified states and goal.
                   - For 'circle':
-                    
+
                     - 'center' (List[float]): Center coordinates [x, y] of the circle.
                     - 'radius' (float): Radius of the circle.
-                    
+
                   - For 'random':
-                    
+
                     - 'range_low' (List[float]): Lower bounds for random state values.
                     - 'range_high' (List[float]): Upper bounds for random state values.
 

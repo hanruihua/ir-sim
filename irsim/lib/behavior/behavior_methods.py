@@ -54,7 +54,9 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
+            env_param.logger.warning(
+                "Goal is currently None. This rvo behavior is waiting for goal configuration"
+            )
         return np.zeros((2, 1))
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
@@ -65,7 +67,9 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 10.0)
-    behavior_vel = DiffRVO(rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold)
+    behavior_vel = DiffRVO(
+        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
+    )
 
     return behavior_vel
 
@@ -93,7 +97,9 @@ def beh_diff_dash(ego_object, external_objects, **kwargs):
 
     if goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is currently None. This dash behavior is waiting for goal configuration")
+            env_param.logger.warning(
+                "Goal is currently None. This dash behavior is waiting for goal configuration"
+            )
 
         return np.zeros((2, 1))
 
@@ -118,7 +124,9 @@ def beh_omni_dash(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is currently None. This dash behavior is waiting for goal configuration")
+            env_param.logger.warning(
+                "Goal is currently None. This dash behavior is waiting for goal configuration"
+            )
         return np.zeros((2, 1))
 
     state = ego_object.state
@@ -152,7 +160,9 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
+            env_param.logger.warning(
+                "Goal is currently None. This rvo behavior is waiting for goal configuration"
+            )
         return np.zeros((2, 1))
 
     rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
@@ -163,7 +173,9 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
-    behavior_vel = OmniRVO(rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold)
+    behavior_vel = OmniRVO(
+        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
+    )
 
     return behavior_vel
 
@@ -185,7 +197,9 @@ def beh_acker_dash(ego_object, external_objects, **kwargs):
 
     if ego_object.goal is None:
         if world_param.count % 10 == 0:
-            env_param.logger.warning("Goal is currently None. This rvo behavior is waiting for goal configuration")
+            env_param.logger.warning(
+                "Goal is currently None. This rvo behavior is waiting for goal configuration"
+            )
         return np.zeros((2, 1))
 
     state = ego_object.state
@@ -225,13 +239,17 @@ def OmniRVO(
     Returns:
         np.array: Velocity [vx, vy] (2x1).
     """
-    
+
     if neighbor_list is None:
         neighbor_list = []
-    
+
     x, y = state_tuple[0], state_tuple[1]
 
-    filtered_neighbor_list = [neighbor for neighbor in neighbor_list if (x - neighbor[0])**2 + (y - neighbor[1])**2 < neighbor_threshold**2]
+    filtered_neighbor_list = [
+        neighbor
+        for neighbor in neighbor_list
+        if (x - neighbor[0]) ** 2 + (y - neighbor[1]) ** 2 < neighbor_threshold**2
+    ]
 
     rvo_behavior = reciprocal_vel_obs(
         state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
@@ -272,7 +290,11 @@ def DiffRVO(
 
     x, y = state_tuple[0], state_tuple[1]
 
-    filtered_neighbor_list = [neighbor for neighbor in neighbor_list if (x - neighbor[0])**2 + (y - neighbor[1])**2 < neighbor_threshold**2]
+    filtered_neighbor_list = [
+        neighbor
+        for neighbor in neighbor_list
+        if (x - neighbor[0]) ** 2 + (y - neighbor[1]) ** 2 < neighbor_threshold**2
+    ]
 
     rvo_behavior = reciprocal_vel_obs(
         state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor

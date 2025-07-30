@@ -26,6 +26,7 @@ from irsim.gui.mouse_control import MouseControl
 
 try:
     from irsim.gui.keyboard_control import KeyboardControl
+
     keyboard_module = True
 except ImportError:
     keyboard_module = False
@@ -46,8 +47,10 @@ def _set_matplotlib_backend(backend_list):
             return True
         except Exception as e:
             print(f"Failed to use '{backend}' backend: {e}")
-    
-    print("All backends failed. Falling back to 'Agg' backend. The environment will not be displayed.")
+
+    print(
+        "All backends failed. Falling back to 'Agg' backend. The environment will not be displayed."
+    )
     matplotlib.use("Agg")
     return False
 
@@ -56,10 +59,11 @@ def _set_matplotlib_backend(backend_list):
 backends = BACKEND_PREFERENCES.get(env_param.platform_name, ["Agg"])
 backend_set = _set_matplotlib_backend(backends)
 
+
 class EnvBase:
     """
     The base class for simulation environments in IR-SIM.
-    
+
     This class serves as the foundation for creating and managing robotic simulation
     environments. It reads YAML configuration files to create worlds, robots, obstacles,
     and map objects, and provides the core simulation loop functionality.
@@ -95,10 +99,10 @@ class EnvBase:
     Example:
         >>> # Create a basic environment
         >>> env = EnvBase("my_world.yaml")
-        >>> 
+        >>>
         >>> # Create headless environment for training
         >>> env = EnvBase("world.yaml", display=False, log_level="WARNING")
-        >>> 
+        >>>
         >>> # Create environment with animation saving
         >>> env = EnvBase("world.yaml", save_ani=True, full=True)
     """
@@ -148,23 +152,21 @@ class EnvBase:
         self.build_tree()
 
         # env parameters
-        self._env_plot = EnvPlot(
-            self._world,
-            self.objects,
-            **self._world.plot_parse
-        )
+        self._env_plot = EnvPlot(self._world, self.objects, **self._world.plot_parse)
 
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-            
+
             if not keyboard_module:
                 self.logger.error(
-                        "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
-                    )
+                    "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
+                )
                 world_param.control_mode = "auto"
             else:
-                self.keyboard = KeyboardControl(env_ref=self, **self.env_config.parse["keyboard"])
+                self.keyboard = KeyboardControl(
+                    env_ref=self, **self.env_config.parse["keyboard"]
+                )
 
         self.mouse = MouseControl(self._env_plot.ax)
 
@@ -184,7 +186,9 @@ class EnvBase:
                     mng.full_screen_toggle()
 
         # Log simulation start
-        self.logger.info(f"Simulation environment '{self._world.name}' has been initialized and started.")
+        self.logger.info(
+            f"Simulation environment '{self._world.name}' has been initialized and started."
+        )
 
     def __del__(self):
         pass
@@ -193,7 +197,9 @@ class EnvBase:
         return f"Environment: {self._world.name}"
 
     def step(
-        self, action: Optional[Union[np.ndarray, list]] = None, action_id: Optional[Union[int, list]] = 0
+        self,
+        action: Optional[Union[np.ndarray, list]] = None,
+        action_id: Optional[Union[int, list]] = 0,
     ):
         """
         Perform a single simulation step in the environment.
@@ -204,16 +210,16 @@ class EnvBase:
         Args:
             action (Union[np.ndarray, list], optional): Action(s) to be performed in the environment.
                 Can be a single action or a list of actions. Action format depends on robot type:
-                
+
                 - **Differential robot**: [linear_velocity, angular_velocity]
-                - **Omnidirectional robot**: [velocity_x, velocity_y] 
+                - **Omnidirectional robot**: [velocity_x, velocity_y]
                 - **Ackermann robot**: [linear_velocity, steering_angle]
-                
+
                 If None, robots will use their default behavior or keyboard control if enabled.
-                
+
             action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
                 Can be a single robot ID or a list of IDs. Default is 0 (first robot).
-                If action is a list and action_id is a single int, all actions will be 
+                If action is a list and action_id is a single int, all actions will be
                 applied to robots sequentially starting from action_id.
 
         Note:
@@ -224,10 +230,10 @@ class EnvBase:
         Example:
             >>> # Move first robot with differential drive
             >>> env.step([1.0, 0.5])  # 1.0 m/s forward, 0.5 rad/s turn
-            >>> 
+            >>>
             >>> # Move specific robot by ID
             >>> env.step([0.8, 0.0], action_id=2)  # Move robot with ID 2
-            >>> 
+            >>>
             >>> # Move multiple robots
             >>> actions = [[1.0, 0.0], [0.5, 0.3]]
             >>> env.step(actions, action_id=[0, 1])  # Move robots 0 and 1
@@ -396,7 +402,9 @@ class EnvBase:
         if world_param.control_mode == "keyboard":
             self.keyboard.listener.stop()
 
-        self.logger.info(f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds.")
+        self.logger.info(
+            f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds."
+        )
 
     def done(self, mode: str = "all"):
         """
@@ -407,10 +415,10 @@ class EnvBase:
 
         Args:
             mode (str): Termination condition mode. Options are:
-                
+
                 - "all": Simulation is done when ALL robots have completed their tasks
                 - "any": Simulation is done when ANY robot has completed its task
-                
+
                 Default is "all".
 
         Returns:
@@ -421,7 +429,7 @@ class EnvBase:
             >>> # Check if all robots have reached their goals
             >>> if env.done(mode="all"):
             ...     print("All robots completed!")
-            >>> 
+            >>>
             >>> # Check if any robot has completed
             >>> if env.done(mode="any"):
             ...     print("At least one robot completed!")
@@ -505,7 +513,7 @@ class EnvBase:
 
         The reset process includes:
         - Resetting all objects to their initial positions and states
-        - Clearing accumulated trajectories and sensor data  
+        - Clearing accumulated trajectories and sensor data
         - Resetting the world timer and status
         - Refreshing the visualization plot
 
@@ -974,11 +982,11 @@ class EnvBase:
     @property
     def mouse_pos(self):
         return self.mouse.mouse_pos
-    
+
     @property
     def mouse_left_pos(self):
         return self.mouse.left_click_pos
-    
+
     @property
     def mouse_right_pos(self):
         return self.mouse.right_click_pos

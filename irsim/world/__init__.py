@@ -19,4 +19,3 @@ from irsim.world.obstacles.obstacle_static import ObjectStatic
 
 
 from irsim.world.object_factory import ObjectFactory
-

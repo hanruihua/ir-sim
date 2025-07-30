@@ -1,7 +1,7 @@
 import irsim
 
 # env = irsim.make('car_world.yaml', projection='3d')
-env = irsim.make('robot_world_3d.yaml', projection='3d')
+env = irsim.make("robot_world_3d.yaml", projection="3d")
 
 for i in range(1000):
 

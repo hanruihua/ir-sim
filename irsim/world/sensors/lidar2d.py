@@ -15,6 +15,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from typing import Optional
 
+
 class Lidar2D:
     """
     Simulates a 2D Lidar sensor for detecting obstacles in the environment.
@@ -37,7 +38,7 @@ class Lidar2D:
             color (str): Color of the sensor.
 
     Attr:
-        - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d". 
+        - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d".
         - range_min (float): Minimum detection range in meters. Default is 0.
         - range_max (float): Maximum detection range in meters. Default is 10.
         - angle_range (float): Total angle range of the sensor in radians. Default is pi. WrapTo2Pi is applied.
@@ -84,7 +85,7 @@ class Lidar2D:
         """
         Initialize the Lidar2D sensor.
 
-        
+
         """
         self.sensor_type = "lidar2d"
 
@@ -109,7 +110,7 @@ class Lidar2D:
 
         self.time_inc = (self.angle_range / (2 * pi)) * scan_time / number
         self.range_data = range_max * np.ones(number)
-        
+
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
 
         self._state = state
@@ -148,10 +149,10 @@ class Lidar2D:
         geometry = MultiLineString(segment_point_list)
         self._original_geometry = geometry_transform(geometry, self.origin_state)
         self.lidar_origin = transform_point_with_state(self.offset, state)
-        
+
         self._geometry = geometry_transform(self._original_geometry, state)
         self._init_geometry = self._geometry
-        
+
     def step(self, state):
         """
         Update the Lidar's state and process intersections with environment objects.
@@ -179,17 +180,16 @@ class Lidar2D:
             self.calculate_range_vel(intersect_indices)
 
     def laser_geometry_process(self, lidar_geometry):
-
-        '''
+        """
         Find the intersected objects and return the intersected indices with the lidar geometry
-        
+
         Args:
             lidar_geometry (shapely.geometry.MultiLineString): The geometry of the lidar.
 
         Returns:
             list: The indices of the intersected objects.
-        '''
-        
+        """
+
         object_tree = env_param.GeometryTree
         objects = env_param.objects
         geometries = [obj._geometry for obj in objects]
@@ -203,10 +203,14 @@ class Lidar2D:
             geo = geometries[geom_index]
             obj = objects[geom_index]
 
-            if obj._id == self.obj_id or not is_valid(obj._geometry) or obj.unobstructed:
+            if (
+                obj._id == self.obj_id
+                or not is_valid(obj._geometry)
+                or obj.unobstructed
+            ):
                 continue
 
-            if obj.shape == 'map':
+            if obj.shape == "map":
                 potential_intersections = obj.geometry_tree.query(lidar_geometry)
                 filtered_lines = [obj.linestrings[i] for i in potential_intersections]
                 filtered_multi_lines = MultiLineString(filtered_lines)
@@ -341,7 +345,9 @@ class Lidar2D:
                 # Calculate lidar position based on object state and sensor offset
                 lidar_x = self.lidar_origin[0, 0]
                 lidar_y = self.lidar_origin[1, 0]
-                lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+                lidar_theta = (
+                    self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+                )
             else:
                 lidar_x, lidar_y, lidar_theta = 0, 0, 0
 
@@ -349,11 +355,15 @@ class Lidar2D:
             for i in range(self.number):
                 x_local = self.range_data[i] * cos(self.angle_list[i])
                 y_local = self.range_data[i] * sin(self.angle_list[i])
-                
+
                 # Transform to world coordinates
-                x_world = lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
-                y_world = lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
-                
+                x_world = (
+                    lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
+                )
+                y_world = (
+                    lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
+                )
+
                 start_point = np.array([lidar_x, lidar_y, 0])
                 end_point = np.array([x_world, y_world, 0])
                 segment = [start_point, end_point]
@@ -381,24 +391,27 @@ class Lidar2D:
 
                 lidar_x = self.lidar_origin[0, 0]
                 lidar_y = self.lidar_origin[1, 0]
-                lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+                lidar_theta = (
+                    self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+                )
 
                 # Create transform: rotate by lidar orientation, then translate to lidar position
                 trans = (
-                    mtransforms.Affine2D().rotate(lidar_theta).translate(lidar_x, lidar_y)
+                    mtransforms.Affine2D()
+                    .rotate(lidar_theta)
+                    .translate(lidar_x, lidar_y)
                     + ax.transData
                 )
                 self.laser_LineCollection.set_transform(trans)
 
         self.plot_patch_list.append(self.laser_LineCollection)
-    
 
     def _step_plot(self):
         """
         Update the lidar visualization using matplotlib transforms based on current state.
         Creates line segments in local coordinates and applies transform to position them.
         """
-        if not hasattr(self, 'laser_LineCollection'):
+        if not hasattr(self, "laser_LineCollection"):
             return
 
         ax = self.laser_LineCollection.axes
@@ -408,17 +421,23 @@ class Lidar2D:
             # For 3D plotting, calculate actual world coordinates
             lidar_x = self.lidar_origin[0, 0]
             lidar_y = self.lidar_origin[1, 0]
-            lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+            lidar_theta = (
+                self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+            )
 
             # Create line segments in world coordinates for 3D
             for i in range(self.number):
                 x_local = self.range_data[i] * cos(self.angle_list[i])
                 y_local = self.range_data[i] * sin(self.angle_list[i])
-                
+
                 # Transform to world coordinates
-                x_world = lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
-                y_world = lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
-                
+                x_world = (
+                    lidar_x + x_local * cos(lidar_theta) - y_local * sin(lidar_theta)
+                )
+                y_world = (
+                    lidar_y + x_local * sin(lidar_theta) + y_local * cos(lidar_theta)
+                )
+
                 start_point = np.array([lidar_x, lidar_y, 0])
                 end_point = np.array([x_world, y_world, 0])
                 segment = [start_point, end_point]
@@ -438,7 +457,9 @@ class Lidar2D:
         if not isinstance(ax, Axes3D):  # 2D case
             lidar_x = self.lidar_origin[0, 0]
             lidar_y = self.lidar_origin[1, 0]
-            lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+            lidar_theta = (
+                self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+            )
 
             # Create transform: rotate by lidar orientation, then translate to lidar position
             trans = (
@@ -453,8 +474,9 @@ class Lidar2D:
         """
         self._step_plot()
 
-    def set_laser_color(self, laser_indices, laser_color: str = 'blue', alpha: float = 0.3):
-
+    def set_laser_color(
+        self, laser_indices, laser_color: str = "blue", alpha: float = 0.3
+    ):
         """
         Set a specific color of the selected lasers.
 
@@ -513,4 +535,3 @@ class Lidar2D:
         point_array = np.hstack(point_cloud)
 
         return point_array
-    
