@@ -173,6 +173,7 @@ If installed from source, navigate to the root of the repository and run
 .. _pip: https://pip.pypa.io/
 .. _pyproject.toml: https://github.com/hanruihua/ir-sim/blob/main/pyproject.toml
 .. _pytest-cov: https://pytest-cov.readthedocs.io/
+.. _black: https://black.readthedocs.io/
 
 
 
