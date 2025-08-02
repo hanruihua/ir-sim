@@ -26,7 +26,6 @@ for i in range(1000):
 
 env.end()
 ```
-
 :::
 
 :::{tab-item} YAML Configuration
@@ -55,18 +54,17 @@ robot:
       trail_alpha: 0.2
       show_trajectory: false
 ```
-
 :::
 
-::::
-
-The demonstration of the `rvo` behavior is shown in the following figure:
+:::{tab-item} Demonstration
 
 ```{image} gif/rvo.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
 
 ### Important Behavior Parameters Explained
 
@@ -131,8 +129,11 @@ You must use the `@register_behavior` decorator to register the custom behavior.
 
 ### Register Behavior
 
-The python script to run the simulation with the custom behavior is shown below:
+The python script and YAML to run the simulation with the custom behavior is shown below:
 
+::::{tab-set}
+
+:::{tab-item} Python Script
 ```python
 import irsim
 
@@ -156,7 +157,7 @@ env.end(5)
 Please place the script with the name `custom_behavior_methods` in the same directory as the main python script.
 :::
 
-### Run Custom Behavior in the simulation
+:::{tab-item} YAML Configuration
 
 Now, you can use the custom behavior `dash_custom` in the YAML configuration file as shown below.
 
@@ -184,11 +185,14 @@ robot:
       trail_alpha: 0.2
       show_trajectory: false
 ```
+:::
 
-You will see the custom behavior in the simulation. 
+:::{tab-item} Demonstration
 
 ```{image} gif/custom_behavior.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::

@@ -87,6 +87,30 @@ You can add Gaussian noise on the kinematics of the robot and obstacle by settin
 
 The parameters of obstacles in the simulation are similar to those of robots. Below is an example of adding various obstacles to the yaml configuration file, and run the same python script as above.
 
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+
+import irsim
+
+env = irsim.make('robot_world.yaml')
+
+for i in range(1000):
+
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end()
+```
+:::
+
+:::{tab-item} YAML Configuration
+
 ```yaml
 world:
   height: 10 
@@ -121,14 +145,18 @@ obstacle:
         - [5.5, 5.5]
         - [4.5, 5.5]
 ```
+:::
 
-The demonstration of the robots and obstacles in the simulation are shown below:
+:::{tab-item} Demonstration
 
 ```{image} gif/robot_obstacle.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
+
 
 ### Important Parameters Explained
 
@@ -147,6 +175,30 @@ Please make sure that the obstacles are not placed in the initial position of th
 ## Advanced Configurations for Multiple Robots and Obstacles
 
 To simulate multiple robots and obstacles within the same environment, simply add the `number` and `distribution` of robots and obstacles to the configuration file. Below is an example of a configuration file with multiple robots and obstacles: 
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+
+import irsim
+
+env = irsim.make('robot_world.yaml')
+
+for i in range(1000):
+
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end()
+```
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -188,17 +240,20 @@ obstacle:
     color: 'k'
 ```
 
-The demonstration of the multiple robots and obstacles in the simulation are shown below:
+:::{note}
+- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../yaml_config/configuration/)
+:::
+
+:::{tab-item} Demonstration
 
 ```{image} gif/multi_objects.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
-
-:::{note}
-- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../yaml_config/configuration/)
 :::
+::::
+
 
 
 

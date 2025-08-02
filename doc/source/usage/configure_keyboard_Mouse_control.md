@@ -68,15 +68,15 @@ robot:
 
 :::
 
-::::
-
-The demonstration controlled by the keyboard is shown below:
+:::{tab-item} Demonstration
 
 ```{image} gif/keyboard.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
 
 ## Keyboard Control Key Mapping
 
@@ -107,7 +107,7 @@ You can access the current environment status through the `env.status` attribute
 ```python
 import irsim
 
-env = irsim.make('your_config.yaml', control_mode='keyboard')
+env = irsim.make()
 
 for i in range(1000):
     env.step()
@@ -124,18 +124,16 @@ env.end()
 
 ## Mouse Control
 
-IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use mouse left click to set the goal of the robot, as shown in the following figure.
+IR-SIM supports the mouse control to zoom in and out the environment and track the mouse position. The mouse control is enabled by default. For example, you can use mouse left click to set the goal of the robot.
 
-```{image} gif/mouse.gif
-:alt: Select Parameters
-:width: 400px
-:align: center
-```
+::::{tab-set}
 
-Python script:
+:::{tab-item} Python Script
 
 ```python
-env = irsim.make(save_ani=False, full=False)
+import irsim
+
+env = irsim.make()
 
 for i in range(10000):
     env.step()
@@ -147,10 +145,12 @@ for i in range(10000):
     if env.done():
         break
 
-env.end(3)
+env.end()
 ```
 
-YAML file:
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -196,6 +196,17 @@ obstacle:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]} 
 ```
 
+:::
+
+:::{tab-item} Demonstration
+
+```{image} gif/mouse.gif
+:alt: Select Parameters
+:width: 400px
+:align: center
+```
+:::
+::::
 
 ### Mouse Control Key Mapping
 

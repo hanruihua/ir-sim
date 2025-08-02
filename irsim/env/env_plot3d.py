@@ -168,3 +168,23 @@ class EnvPlot3D(EnvPlot):
 
         if refresh:
             self.dyna_line_list.append(line)
+
+    def update_title(self):
+        """
+        Override the parent's update_title method to handle 3D plots properly.
+
+        In 3D plots, we need to be more careful with title positioning to avoid
+        duplication or overlap issues.
+        """
+        if not self.show_title:
+            return
+
+        if self.title is not None:
+            # Use figure title instead of axes title for 3D plots to avoid positioning issues
+            self.fig.suptitle(self.title, fontsize=12)
+        else:
+            # Use figure title for the default status display as well
+            self.fig.suptitle(
+                f"Simulation Time: {self.world.time:.2f}s, Status: {self.world.status}",
+                fontsize=12,
+            )

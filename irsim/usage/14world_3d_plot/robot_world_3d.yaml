@@ -4,6 +4,8 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
+  plot:
+    show_title: False
 
 robot:
   kinematics: {name: 'diff'}  # omni, diff, acker
@@ -30,11 +32,3 @@ robot:
         angle_std: 0.2
         alpha: 0.3
     
-  
-    
-    
-
-
-
-  
-

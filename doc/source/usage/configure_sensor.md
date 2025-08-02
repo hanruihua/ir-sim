@@ -63,17 +63,15 @@ obstacle:
 
 :::
 
-::::
-
-
-
-The demonstration shows below:
+:::{tab-item} Demonstration
 
 ```{image} gif/lidar2d.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
 
 ### Important Parameters Explained
 
@@ -90,7 +88,31 @@ A full list of parameters can be found in the [YAML Configuration](#../yaml_conf
 
 ### Advanced Lidar Configuration with noise
 
-To add noise to the LiDAR sensor, you can set the `noise` parameter to `True`. The YAML configuration file:
+To add noise to the LiDAR sensor, you can set the `noise` parameter to `True`.
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make()   
+
+for i in range(1000):
+
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end()
+```
+
+:::
+
+:::{tab-item} YAML Configuration
 
 ```yaml
 world:
@@ -125,6 +147,9 @@ obstacle:
     state: [0, 0, 0] 
 
 ```
+
+:::
+::::
 
 Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` parameters. The `std` parameter is the standard deviation of the range noise, and the `angle_std` parameter is the standard deviation of the angle noise. 
 
@@ -203,13 +228,13 @@ obstacle:
 
 :::
 
-::::
-
-The demonstration shows below:
+:::{tab-item} Demonstration
 
 ```{image} gif/fov.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
 

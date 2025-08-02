@@ -4,8 +4,10 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
-  collision_mode: 'stop'  # 'stop', 'unobstructed',  , 'unobstructed_obstacles'
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles'
   control_mode: 'auto'  # 'keyboard', 'auto'
+  plot:
+    show_title: False
 
 plot:
   no_axis: False
@@ -38,12 +40,3 @@ obstacle:
       - {name: 'circle', radius: 1.0}  # radius
       
     state: [[20, 34], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
-
-
-
-
-
-
-
-  # - shape: {name: 'circle', radius: 0.4}  # radius
-  #   state: [1, 1, 0] 

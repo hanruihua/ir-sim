@@ -15,7 +15,15 @@ import irsim
 
 env = irsim.make('empty_world.yaml')
 ```
-The `make` function creates an environment from a configuration file. Supported parameters can be found in [EnvBase](#irsim.env.env_base.EnvBase) class.
+The `make` function creates an environment from a configuration file. Supported parameters include:
+
+- **`world_name`** (str, optional): Path to the world YAML configuration file
+- **`projection`** (str, optional): Projection type ("3d" for 3D environment, None for 2D)
+- **`display`** (bool): Whether to display the environment visualization (default: True)
+- **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
+- **`log_level`** (str): Logging level for the environment (default: "INFO")
+
+For more details, see the [EnvBase](#irsim.env.env_base.EnvBase) class documentation.
 :::
 
 :::{tab-item} YAML Configuration
@@ -30,7 +38,7 @@ world:
   sample_time: 0.1  # rendering frequency (seconds) - 10Hz
   offset: [0, 0] # the offset of the world origin [x, y]
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
-  collision_mode: 'stop' # collision behavior: 'stop',  , 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
   obstacle_map: null # path to obstacle map file (optional)
 ```
 
@@ -89,7 +97,7 @@ env = irsim.make('config.yaml')
 # Main simulation loop
 for i in range(1000):
     env.step()        # Update simulation state
-    env.render(0.05)  # Render with 20Hz
+    env.render(0.05)  # Render with 0.05 second interval (20Hz)
     
     if env.done():    # Check if simulation should end
         break
@@ -100,7 +108,7 @@ env.end()  # Clean up resources
 ### Core Methods Explained
 
 - **`env.step()`**: Advances the simulation by one time step
-- **`env.render(frame_rate)`**: Updates the visualization with specified frame rate
+- **`env.render(interval)`**: Updates the visualization with specified time interval between frames
 - **`env.done()`**: Returns `True` if simulation completion conditions are met
 - **`env.end()`**: Properly closes the environment and releases resources
 
@@ -152,19 +160,8 @@ env.end()
 
 By default, the simulation time and status are shown in the environment title. You can customize this behavior by setting the `show_title` and customizing the title by `env.set_title()`.
 
-### Enable/Disable Title Display
-
-```yaml
-world:
-  height: 20
-  width: 20
-  control_mode: 'auto'
-  plot:
-    show_title: true    # Show title with time and status
-    show_axis: true     # Optional: show axis labels
-```
-
-### Custom Title Configuration
+::::{tab-set}
+:::{tab-item} Custom Title Configuration
 
 ```python
 import irsim
@@ -186,3 +183,19 @@ for i in range(100):
 
 env.end()
 ```
+:::
+
+:::{tab-item} Enable/Disable Title Display
+
+```yaml
+world:
+  height: 20
+  width: 20
+  control_mode: 'auto'
+  plot:
+    show_title: true    # Show title with time and status
+    show_axis: true     # Optional: show axis labels
+```
+:::
+::::
+

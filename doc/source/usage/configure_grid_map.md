@@ -71,15 +71,15 @@ obstacle:
 
 :::
 
-::::
-
-The demonstration is shown below:
+:::{tab-item} Demonstration
 
 ```{image} gif/grid_map.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
 ```
+:::
+::::
 
 ### Important Parameters Explained
 

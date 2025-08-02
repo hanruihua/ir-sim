@@ -68,15 +68,15 @@ obstacle:
 
 :::
 
-::::
-
-The demonstration is shown in the following figure:
+:::{tab-item} Demonstration
 
 ```{image} gif/random_obstacles.gif
 :alt: random_obstacles
 :width: 400px
 :align: center
 ```
+:::
+::::
 
 ## Important Parameters Explanation 
 
