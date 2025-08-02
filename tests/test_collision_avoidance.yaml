@@ -8,6 +8,7 @@ world:
   control_mode: 'auto'  # 'keyboard', 'auto'
   plot:
     no_axis: true
+    show_title: false
 
 robot:
   - number: 2
