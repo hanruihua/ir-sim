@@ -44,11 +44,11 @@ class ObjectFactory:
             object_list = [
                 obj
                 for group_index, sp in enumerate(parse)
-                for obj in self.create_object(obj_type, group=group_index, **sp)
+                for obj in self.create_objects(obj_type, group=group_index, **sp)
             ]
 
         elif isinstance(parse, dict):
-            object_list = list(self.create_object(obj_type, **parse))
+            object_list = [obj for obj in self.create_objects(obj_type, **parse)]
 
         return object_list
 
@@ -71,7 +71,7 @@ class ObjectFactory:
             )
         ]
 
-    def create_object(
+    def create_objects(
         self,
         obj_type: str = "robot",
         number: int = 1,
