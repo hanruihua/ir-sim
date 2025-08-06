@@ -9,6 +9,7 @@ adapted by: Reinis Cimurs
 """
 
 import math
+from typing import List, Tuple, Optional, Any
 
 from irsim.lib.path_planners.rrt import RRT
 
@@ -23,7 +24,7 @@ class RRTStar(RRT):
         RRT Node
         """
 
-        def __init__(self, x, y):
+        def __init__(self, x: float, y: float) -> None:
             """
             Initialize Node
 
@@ -36,15 +37,15 @@ class RRTStar(RRT):
 
     def __init__(
         self,
-        env_map,
-        robot_radius,
-        expand_dis=1.5,
-        path_resolution=0.25,
-        goal_sample_rate=5,
-        max_iter=500,
-        connect_circle_dist=0.5,
-        search_until_max_iter=False,
-    ):
+        env_map: Any,
+        robot_radius: float,
+        expand_dis: float = 1.5,
+        path_resolution: float = 0.25,
+        goal_sample_rate: int = 5,
+        max_iter: int = 500,
+        connect_circle_dist: float = 0.5,
+        search_until_max_iter: bool = False,
+    ) -> None:
         """
         Initialize RRT planner
 
@@ -70,7 +71,12 @@ class RRTStar(RRT):
         self.search_until_max_iter = search_until_max_iter
         self.node_list = []
 
-    def planning(self, start_pose, goal_pose, show_animation=True):
+    def planning(
+        self,
+        start_pose: List[float],
+        goal_pose: List[float],
+        show_animation: bool = True,
+    ) -> Optional[Tuple[List[float], List[float]]]:
         """
         rrt star path planning
 
@@ -122,7 +128,7 @@ class RRTStar(RRT):
 
         return None
 
-    def choose_parent(self, new_node, near_inds):
+    def choose_parent(self, new_node: "Node", near_inds: List[int]) -> "Node":
         """
         Computes the cheapest point to new_node contained in the list
         near_inds and set such a node as the parent of new_node.
@@ -158,7 +164,7 @@ class RRTStar(RRT):
 
         return new_node
 
-    def search_best_goal_node(self):
+    def search_best_goal_node(self) -> Optional[int]:
         """
         Search for the best goal node in the current RRT* tree.
 
@@ -194,7 +200,7 @@ class RRTStar(RRT):
 
         return None
 
-    def find_near_nodes(self, new_node):
+    def find_near_nodes(self, new_node: "Node") -> List[int]:
         """
         1) defines a ball centered on new_node
         2) Returns all nodes of the three that are inside this ball
@@ -217,7 +223,7 @@ class RRTStar(RRT):
         near_inds = [dist_list.index(i) for i in dist_list if i <= r**2]
         return near_inds
 
-    def rewire(self, new_node, near_inds):
+    def rewire(self, new_node: "Node", near_inds: List[int]) -> None:
         """
         Rewire the tree to improve path cost by checking nearby nodes.
 
@@ -250,7 +256,7 @@ class RRTStar(RRT):
                 self.node_list[i] = edge_node
                 self.propagate_cost_to_leaves(self.node_list[i])
 
-    def calc_new_cost(self, from_node, to_node):
+    def calc_new_cost(self, from_node: "Node", to_node: "Node") -> float:
         """
         Calculate the cost of reaching to_node from from_node.
 
@@ -264,7 +270,7 @@ class RRTStar(RRT):
         d, _ = self.calc_distance_and_angle(from_node, to_node)
         return from_node.cost + d
 
-    def propagate_cost_to_leaves(self, parent_node):
+    def propagate_cost_to_leaves(self, parent_node: "Node") -> None:
         """
         Recursively update the cost of all descendant nodes.
 

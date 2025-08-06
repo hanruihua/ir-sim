@@ -7,11 +7,16 @@ reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Plann
 import numpy as np
 from math import cos, sin, tan
 from irsim.util.util import WrapToPi
+from typing import List
 
 
 def differential_kinematics(
-    state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]
-):
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: List[float] = None,
+) -> np.ndarray:
     """
     Calculate the next state for a differential wheel robot.
 
@@ -25,6 +30,9 @@ def differential_kinematics(
     Returns:
         next_state: A 3x1 vector [x, y, theta] representing the next state.
     """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
+
     assert state.shape[0] >= 3 and velocity.shape[0] >= 2
 
     if noise:
@@ -50,14 +58,14 @@ def differential_kinematics(
 
 
 def ackermann_kinematics(
-    state,
-    velocity,
-    step_time,
-    noise=False,
-    alpha=[0.03, 0, 0, 0.03],
-    mode="steer",
-    wheelbase=1,
-):
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: List[float] = None,
+    mode: str = "steer",
+    wheelbase: float = 1,
+) -> np.ndarray:
     """
     Calculate the next state for an Ackermann steering vehicle.
 
@@ -76,6 +84,9 @@ def ackermann_kinematics(
     Returns:
         new_state: A 4x1 vector representing the next state.
     """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
+
     assert state.shape[0] >= 4 and velocity.shape[0] >= 2
 
     phi = state[2, 0]
@@ -115,7 +126,13 @@ def ackermann_kinematics(
     return new_state
 
 
-def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]):
+def omni_kinematics(
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: List[float] = None,
+) -> np.ndarray:
     """
     Calculate the next position for an omnidirectional robot.
 
@@ -129,6 +146,8 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     Returns:
         new_position: A 2x1 vector [x, y] representing the next position.
     """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
 
     assert velocity.shape[0] >= 2 and state.shape[0] >= 2
 

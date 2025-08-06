@@ -8,7 +8,7 @@ import matplotlib
 import platform
 import importlib
 import numpy as np
-from typing import Optional, Union
+from typing import Optional, Union, List, Dict, Any
 from operator import attrgetter
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import pyplot as plt
@@ -39,7 +39,7 @@ BACKEND_PREFERENCES = {
 }
 
 
-def _set_matplotlib_backend(backend_list):
+def _set_matplotlib_backend(backend_list: List[str]) -> bool:
     """Attempt to set matplotlib backend from preference list."""
     for backend in backend_list:
         try:

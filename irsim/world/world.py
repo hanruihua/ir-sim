@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List, Any, Union, Dict
 
 import numpy as np
 import matplotlib.image as mpimg
@@ -36,14 +36,14 @@ class World:
         width: float = 10,
         step_time: float = 0.1,
         sample_time: float = 0.1,
-        offset: list = [0, 0],
+        offset: Optional[List[float]] = None,
         control_mode: str = "auto",
         collision_mode: str = "stop",
-        obstacle_map=None,
+        obstacle_map: Optional[Any] = None,
         mdownsample: int = 1,
-        plot: dict = dict(),
+        plot: Optional[Dict[str, Any]] = None,
         status: str = "None",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the world object.
@@ -64,6 +64,11 @@ class World:
         """
 
         # basic properties
+        if offset is None:
+            offset = [0, 0]
+        if plot is None:
+            plot = {}
+
         self.name = os.path.basename(name or "world").split(".")[0]
         self.height = height
         self.width = width
@@ -93,7 +98,7 @@ class World:
         world_param.control_mode = control_mode
         world_param.collision_mode = collision_mode
 
-    def step(self):
+    def step(self) -> None:
         """
         Advance the simulation by one step.
         """
@@ -103,7 +108,7 @@ class World:
         world_param.time = self.time
         world_param.count = self.count
 
-    def gen_grid_map(self, obstacle_map, mdownsample=1):
+    def gen_grid_map(self, obstacle_map: Optional[str], mdownsample: int = 1) -> tuple:
         """
         Generate a grid map for obstacles.
 
@@ -144,13 +149,15 @@ class World:
 
         return grid_map, obstacle_index, obstacle_positions
 
-    def get_map(self, resolution: float = 0.1, obstacle_list: list = []):
+    def get_map(
+        self, resolution: float = 0.1, obstacle_list: Optional[List[Any]] = None
+    ) -> "Map":
         """
         Get the map of the world with the given resolution.
         """
         return Map(self.width, self.height, resolution, obstacle_list, self.grid_map)
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset the world simulation.
         """
@@ -159,7 +166,7 @@ class World:
         self.count = 0
 
     @property
-    def time(self):
+    def time(self) -> float:
         """
         Get the current simulation time.
 
@@ -169,7 +176,7 @@ class World:
         return round(self.count * self.step_time, 2)
 
     @property
-    def buffer_reso(self):
+    def buffer_reso(self) -> float:
         """
         Get the maximum resolution of the world.
 
@@ -178,5 +185,5 @@ class World:
         """
         return np.max(self.reso)
 
-    def rgb2gray(self, rgb):
+    def rgb2gray(self, rgb: np.ndarray) -> np.ndarray:
         return np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])

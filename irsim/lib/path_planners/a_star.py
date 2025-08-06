@@ -12,6 +12,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 """
 
 import math
+from typing import List, Tuple, Optional, Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +22,7 @@ from irsim.lib.handler.geometry_handler import GeometryFactory
 
 class AStarPlanner:
 
-    def __init__(self, env_map, resolution):
+    def __init__(self, env_map: Any, resolution: float) -> None:
         """
         Initialize A* planner
 
@@ -44,7 +45,7 @@ class AStarPlanner:
     class Node:
         """Node class"""
 
-        def __init__(self, x, y, cost, parent_index):
+        def __init__(self, x: int, y: int, cost: float, parent_index: int) -> None:
             """
             Initialize Node
 
@@ -60,7 +61,7 @@ class AStarPlanner:
             self.cost = cost
             self.parent_index = parent_index
 
-        def __str__(self):
+        def __str__(self) -> str:
             """str function for Node class"""
             return (
                 str(self.x)
@@ -72,7 +73,12 @@ class AStarPlanner:
                 + str(self.parent_index)
             )
 
-    def planning(self, start_pose, goal_pose, show_animation=True):
+    def planning(
+        self,
+        start_pose: List[float],
+        goal_pose: List[float],
+        show_animation: bool = True,
+    ) -> Tuple[List[float], List[float]]:
         """
         A star path search
 
@@ -167,7 +173,9 @@ class AStarPlanner:
 
         return np.array([rx, ry])
 
-    def calc_final_path(self, goal_node, closed_set):
+    def calc_final_path(
+        self, goal_node: "Node", closed_set: dict
+    ) -> Tuple[List[float], List[float]]:
         """Generate the final path
 
         Args:
@@ -191,12 +199,12 @@ class AStarPlanner:
         return rx, ry
 
     @staticmethod
-    def calc_heuristic(n1, n2):
+    def calc_heuristic(n1: "Node", n2: "Node") -> float:
         w = 1.0  # weight of heuristic
         d = w * math.hypot(n1.x - n2.x, n1.y - n2.y)
         return d
 
-    def calc_grid_position(self, index, min_position):
+    def calc_grid_position(self, index: int, min_position: float) -> float:
         """
         calc grid position
 
@@ -210,7 +218,7 @@ class AStarPlanner:
         pos = index * self.resolution + min_position
         return pos
 
-    def calc_xy_index(self, position, min_pos):
+    def calc_xy_index(self, position: float, min_pos: float) -> int:
         """
         calc xy index of node
 
@@ -223,7 +231,7 @@ class AStarPlanner:
         """
         return round((position - min_pos) / self.resolution)
 
-    def calc_grid_index(self, node):
+    def calc_grid_index(self, node: "Node") -> int:
         """
         calc grid index of node
 
@@ -235,7 +243,7 @@ class AStarPlanner:
         """
         return (node.y - self.min_y) * self.x_width + (node.x - self.min_x)
 
-    def verify_node(self, node):
+    def verify_node(self, node: "Node") -> bool:
         """
         Check if node is acceptable - within limits of search space and free of collisions
 
@@ -263,7 +271,7 @@ class AStarPlanner:
 
         return True
 
-    def check_node(self, x, y):
+    def check_node(self, x: int, y: int) -> bool:
         """
         Check positon for a collision
 
@@ -288,7 +296,7 @@ class AStarPlanner:
         return covered_node
 
     @staticmethod
-    def get_motion_model():
+    def get_motion_model() -> List[List[float]]:
         # dx, dy, cost
         motion = [
             [1, 0, 1],

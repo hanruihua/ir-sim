@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 from irsim.config import env_param
+from typing import Optional, Any, List, Dict
 
 
 class KeyboardControl:
 
-    def __init__(self, env_ref=None, **keyboard_kwargs):
+    def __init__(self, env_ref: Optional[Any] = None, **keyboard_kwargs: Any) -> None:
         """
         Initialize keyboard control for the environment.
 
@@ -87,7 +88,7 @@ class KeyboardControl:
         )
         self.listener.start()
 
-    def _on_press(self, key):
+    def _on_press(self, key: keyboard.Key) -> None:
         """
         Handle key press events for keyboard control.
 
@@ -132,7 +133,7 @@ class KeyboardControl:
                         print("current control id: ", int(key.char))
                         self.key_id = int(key.char)
 
-    def _on_release(self, key):
+    def _on_release(self, key: keyboard.Key) -> None:
         """
         Handle key release events for keyboard control.
 
@@ -185,7 +186,7 @@ class KeyboardControl:
                     self.env_ref.resume()
 
     @property
-    def logger(self):
+    def logger(self) -> Any:
         """
         Get the environment logger.
 

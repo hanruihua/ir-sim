@@ -7,10 +7,10 @@ Author: Ruihua Han
 import math
 import random
 import numpy as np
-from typing import List
+from typing import List, Union, Any
 
 
-def clip(value, lower, upper):
+def clip(value: float, lower: float, upper: float) -> float:
     """
     Clip a value to a specified range.
 
@@ -26,14 +26,14 @@ def clip(value, lower, upper):
 
 
 def random_generate_polygon(
-    number=1,
-    center_range=[0, 0, 0, 0],
-    avg_radius_range=[0.1, 1],
-    irregularity_range=[0, 1],
-    spikeyness_range=[0, 1],
-    num_vertices_range=[4, 10],
-    **kwargs,
-):
+    number: int = 1,
+    center_range: List[float] = None,
+    avg_radius_range: List[float] = None,
+    irregularity_range: List[float] = None,
+    spikeyness_range: List[float] = None,
+    num_vertices_range: List[int] = None,
+    **kwargs: Any,
+) -> Union[np.ndarray, List[np.ndarray]]:
     """
     reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -50,6 +50,17 @@ def random_generate_polygon(
     Returns:
         List of vertices for each polygon or a single polygon's vertices if number=1.
     """
+    if center_range is None:
+        center_range = [0, 0, 0, 0]
+    if avg_radius_range is None:
+        avg_radius_range = [0.1, 1]
+    if irregularity_range is None:
+        irregularity_range = [0, 1]
+    if spikeyness_range is None:
+        spikeyness_range = [0, 1]
+    if num_vertices_range is None:
+        num_vertices_range = [4, 10]
+
     center = np.random.uniform(
         low=center_range[0:2], high=center_range[2:], size=(number, 2)
     )
@@ -79,7 +90,13 @@ def random_generate_polygon(
     return vertices_list
 
 
-def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices):
+def generate_polygon(
+    center: List[float],
+    avg_radius: float,
+    irregularity: float,
+    spikeyness: float,
+    num_vertices: int,
+) -> np.ndarray:
     """
     Generate a random polygon around a center point.
 

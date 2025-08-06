@@ -20,9 +20,9 @@ world parameters:
 
 """
 
-time = 0
-control_mode = "auto"
-collision_mode = "stop"
+time: float = 0
+control_mode: str = "auto"
+collision_mode: str = "stop"
 
-step_time = 0.1
-count = 0
+step_time: float = 0.1
+count: int = 0

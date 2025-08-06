@@ -1,4 +1,5 @@
 import numpy as np
+from typing import List, Dict, Any, Union, Optional
 
 from irsim.util.util import (
     convert_list_length,
@@ -22,7 +23,11 @@ class ObjectFactory:
     Factory class for creating various objects in the simulation.
     """
 
-    def create_from_parse(self, parse, obj_type="robot"):
+    def create_from_parse(
+        self,
+        parse: Union[List[Dict[str, Any]], Dict[str, Any]],
+        obj_type: str = "robot",
+    ) -> List[Any]:
         """
         Create objects from a parsed configuration.
 
@@ -47,7 +52,7 @@ class ObjectFactory:
 
         return object_list
 
-    def create_from_map(self, points, reso=0.1):
+    def create_from_map(self, points: np.ndarray, reso: float = 0.1) -> List[Any]:
         """
         Create map objects from points.
 
@@ -71,11 +76,11 @@ class ObjectFactory:
         self,
         obj_type: str = "robot",
         number: int = 1,
-        distribution: dict = {"name": "manual"},
-        state: list = [1, 1, 0],
-        goal: list = None,
-        **kwargs,
-    ):
+        distribution: Optional[Dict[str, Any]] = None,
+        state: Optional[List[float]] = None,
+        goal: Optional[List[float]] = None,
+        **kwargs: Any,
+    ) -> List[Any]:
         """
         Create multiple objects based on the parameters.
 
@@ -90,6 +95,10 @@ class ObjectFactory:
         Returns:
             list: List of created objects.
         """
+        if distribution is None:
+            distribution = {"name": "manual"}
+        if state is None:
+            state = [1, 1, 0]
 
         if not distribution.get("3d", False):
             state_list, goal_list = self.generate_state_list(
@@ -121,7 +130,9 @@ class ObjectFactory:
 
         return object_list
 
-    def create_robot(self, kinematics=dict(), **kwargs):
+    def create_robot(
+        self, kinematics: Optional[Dict[str, Any]] = None, **kwargs: Any
+    ) -> Any:
         """
         Create a robot based on kinematics.
 
@@ -132,6 +143,8 @@ class ObjectFactory:
         Returns:
             Robot: An instance of a robot.
         """
+        if kinematics is None:
+            kinematics = {}
         kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
@@ -149,7 +162,9 @@ class ObjectFactory:
                 f"Robot kinematics {kinematics_name} not implemented"
             )
 
-    def create_obstacle(self, kinematics=dict(), **kwargs):
+    def create_obstacle(
+        self, kinematics: Optional[Dict[str, Any]] = None, **kwargs: Any
+    ) -> Any:
         """
         Create a obstacle based on kinematics.
 
@@ -160,6 +175,8 @@ class ObjectFactory:
         Returns:
             Obstacle: An instance of an obstacle.
         """
+        if kinematics is None:
+            kinematics = {}
         kinematics_name = kinematics.get("name", None)
 
         if kinematics_name == "diff":
@@ -177,11 +194,11 @@ class ObjectFactory:
 
     def generate_state_list(
         self,
-        number=1,
-        distribution={"name": "manual"},
-        state=[1, 1, 0],
-        goal=[1, 9, 0],
-    ):
+        number: int = 1,
+        distribution: Optional[Dict[str, Any]] = None,
+        state: Optional[List[float]] = None,
+        goal: Optional[List[float]] = None,
+    ) -> tuple:
         """
         Generate a list of state vectors for multiple objects based on the specified distribution method.
 
@@ -230,6 +247,13 @@ class ObjectFactory:
                 If the distribution method specified in 'name' is not supported or if required
                 parameters for a distribution method are missing.
         """
+        if distribution is None:
+            distribution = {"name": "manual"}
+        if state is None:
+            state = [1, 1, 0]
+        if goal is None:
+            goal = [1, 9, 0]
+
         if distribution["name"] == "manual":
             state_list = convert_list_length(state, number)
             goal_list = convert_list_length(goal, number)

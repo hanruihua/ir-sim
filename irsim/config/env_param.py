@@ -5,8 +5,9 @@ Platform: The operating system platform
 """
 
 import platform
+from typing import List, Optional, Any
 
-objects = []
-logger = None
-GeometryTree = None
-platform_name = platform.system()
+objects: List[Any] = []
+logger: Optional[Any] = None
+GeometryTree: Optional[Any] = None
+platform_name: str = platform.system()

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import shapely
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from scipy.spatial import KDTree
+from typing import List, Tuple, Optional, Any, Dict
 
 
 class Node:
@@ -21,7 +22,7 @@ class Node:
     Node class for dijkstra search
     """
 
-    def __init__(self, x, y, cost, parent_index):
+    def __init__(self, x: float, y: float, cost: float, parent_index: int) -> None:
         """
         Initialize Node
 
@@ -36,7 +37,7 @@ class Node:
         self.cost = cost
         self.parent_index = parent_index
 
-    def __str__(self):
+    def __str__(self) -> str:
         """str function for Node class"""
         return (
             str(self.x)
@@ -51,8 +52,13 @@ class Node:
 
 class PRMPlanner:
     def __init__(
-        self, env_map, robot_radius, n_sample=500, n_knn=10, max_edge_len=30.0
-    ):
+        self,
+        env_map: Any,
+        robot_radius: float,
+        n_sample: int = 500,
+        n_knn: int = 10,
+        max_edge_len: float = 30.0,
+    ) -> None:
         """
         Initialize PRM planner
 
@@ -75,7 +81,13 @@ class PRMPlanner:
         self.n_knn = n_knn
         self.max_edge_len = max_edge_len
 
-    def planning(self, start_pose, goal_pose, rng=None, show_animation=True):
+    def planning(
+        self,
+        start_pose: List[float],
+        goal_pose: List[float],
+        rng: Optional[Any] = None,
+        show_animation: bool = True,
+    ) -> Optional[Tuple[List[float], List[float]]]:
         """
         A star path search
 
@@ -113,7 +125,7 @@ class PRMPlanner:
 
         return np.array([rx, ry])
 
-    def check_node(self, x, y, rr):
+    def check_node(self, x: float, y: float, rr: float) -> bool:
         """
         Check positon for a collision
 
@@ -133,7 +145,7 @@ class PRMPlanner:
         )
         return covered_node
 
-    def is_collision(self, sx, sy, gx, gy):
+    def is_collision(self, sx: float, sy: float, gx: float, gy: float) -> bool:
         """
         Check if line between points is acceptable - within edge limits and free of collisions
 
@@ -171,7 +183,9 @@ class PRMPlanner:
 
         return False  # OK
 
-    def generate_road_map(self, sample_x, sample_y):
+    def generate_road_map(
+        self, sample_x: List[float], sample_y: List[float]
+    ) -> List[List[int]]:
         """
         Road map generation
 
@@ -209,7 +223,16 @@ class PRMPlanner:
         return road_map
 
     @staticmethod
-    def dijkstra_planning(sx, sy, gx, gy, road_map, sample_x, sample_y, show_animation):
+    def dijkstra_planning(
+        sx: float,
+        sy: float,
+        gx: float,
+        gy: float,
+        road_map: List[List[int]],
+        sample_x: List[float],
+        sample_y: List[float],
+        show_animation: bool,
+    ) -> Optional[Tuple[List[float], List[float]]]:
         """
         Args:
             sx (float): start x position [m]
@@ -295,7 +318,9 @@ class PRMPlanner:
         return rx, ry
 
     @staticmethod
-    def plot_road_map(road_map, sample_x, sample_y):  # pragma: no cover
+    def plot_road_map(
+        road_map: List[List[int]], sample_x: List[float], sample_y: List[float]
+    ) -> None:  # pragma: no cover
         for i, _ in enumerate(road_map):
             for ii in range(len(road_map[i])):
                 ind = road_map[i][ii]
@@ -304,7 +329,9 @@ class PRMPlanner:
                     [sample_x[i], sample_x[ind]], [sample_y[i], sample_y[ind]], "-k"
                 )
 
-    def sample_points(self, sx, sy, gx, gy, rng):
+    def sample_points(
+        self, sx: float, sy: float, gx: float, gy: float, rng: Optional[Any]
+    ) -> Tuple[List[float], List[float]]:
         """
         Generate sample points
 

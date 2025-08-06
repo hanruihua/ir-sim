@@ -1,10 +1,12 @@
 from matplotlib.backend_bases import MouseButton
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Optional, Tuple, Any
+from matplotlib.axes import Axes
 
 
 class MouseControl:
-    def __init__(self, ax, zoom_factor=1.1):
+    def __init__(self, ax: Axes, zoom_factor: float = 1.1) -> None:
         """
         Initialize MouseControl with comprehensive mouse interaction functionality.
 
@@ -40,7 +42,7 @@ class MouseControl:
         plt.connect("button_release_event", self.on_release)
         plt.connect("scroll_event", self.on_scroll)
 
-    def on_move(self, event):
+    def on_move(self, event: Any) -> None:
         """Handle mouse movement events."""
         if event.inaxes:
             self.mouse_pos = (event.xdata, event.ydata)
@@ -50,7 +52,7 @@ class MouseControl:
             self.mouse_pos = None
             self.current_axes = None
 
-    def on_click(self, event):
+    def on_click(self, event: Any) -> None:
         """Handle mouse click events."""
         if event.button is MouseButton.LEFT:
             self.left_click_pos = (
@@ -70,7 +72,7 @@ class MouseControl:
             # Middle mouse button (wheel click) resets zoom
             self.reset_zoom(event.inaxes)
 
-    def on_release(self, event):
+    def on_release(self, event: Any) -> None:
         """Handle mouse release events."""
         if event.button is MouseButton.LEFT:
             self.left_click_pos = None
@@ -78,7 +80,7 @@ class MouseControl:
         elif event.button is MouseButton.RIGHT:
             self.right_click_pos = None
 
-    def on_scroll(self, event):
+    def on_scroll(self, event: Any) -> None:
         """
         Handle mouse scroll events for zooming.
 
@@ -125,7 +127,7 @@ class MouseControl:
         # Redraw the plot
         ax.figure.canvas.draw()
 
-    def reset_zoom(self, ax=None):
+    def reset_zoom(self, ax: Optional[Axes] = None) -> None:
         """
         Reset zoom to original view.
 
@@ -140,7 +142,7 @@ class MouseControl:
             ax.set_ylim(self.init_ylim)
             ax.figure.canvas.draw()
 
-    def set_zoom_factor(self, factor):
+    def set_zoom_factor(self, factor: float) -> None:
         """
         Set the zoom factor.
 

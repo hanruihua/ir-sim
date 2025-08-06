@@ -1,8 +1,15 @@
 from irsim.world.object_base import ObjectBase
+from typing import Any
 
 
 class RobotAcker(ObjectBase):
-    def __init__(self, color="y", state_dim=4, description="car_green.png", **kwargs):
+    def __init__(
+        self,
+        color: str = "y",
+        state_dim: int = 4,
+        description: str = "car_green.png",
+        **kwargs: Any,
+    ) -> None:
         super(RobotAcker, self).__init__(
             role="robot",
             color=color,

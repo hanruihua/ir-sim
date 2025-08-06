@@ -1,8 +1,9 @@
 from irsim.world.object_base import ObjectBase
+from typing import Any
 
 
 class RobotOmni(ObjectBase):
-    def __init__(self, color="g", state_dim=3, **kwargs):
+    def __init__(self, color: str = "g", state_dim: int = 3, **kwargs: Any) -> None:
         super(RobotOmni, self).__init__(
             role="robot",
             color=color,
@@ -14,7 +15,7 @@ class RobotOmni(ObjectBase):
             state_dim >= 2
         ), "for omni robot, the state dimension should be greater than 2"
 
-    def _init_plot(self, ax, **kwargs):
+    def _init_plot(self, ax: Any, **kwargs: Any) -> None:
 
         show_goal = self.plot_kwargs.get("show_goal", True)
 

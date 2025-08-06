@@ -4,13 +4,15 @@ from math import pi, atan2, sin, cos, sqrt
 import numpy as np
 from shapely import ops
 import time
-from typing import Any
+from typing import Any, Optional, Union, List, Tuple
 from irsim.config import env_param
 import math
 from shapely.affinity import affine_transform
 
 
-def file_check(file_name, root_path=None):
+def file_check(
+    file_name: Optional[str], root_path: Optional[str] = None
+) -> Optional[str]:
     """
     Check whether a file exists and return its absolute path.
 
@@ -51,20 +53,20 @@ def file_check(file_name, root_path=None):
     return abs_file_name
 
 
-def find_file(root_path, target_filename):
+def find_file(root_path: str, target_filename: str) -> str:
     for dirpath, dirnames, filenames in os.walk(root_path):
         if target_filename in filenames:
             return os.path.join(dirpath, target_filename)
     return target_filename
 
 
-def WrapToPi(rad, positive=False):
+def WrapToPi(rad: float, positive: bool = False) -> float:
     """The function `WrapToPi` transforms an angle in radians to the range [-pi, pi].
 
     Args:
 
         rad (float): Angle in radians. The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to transform to the range `[-π, π]`. The function ensures that the angle is within this range by wrapping it around if it exceeds the bounds.
-        
+
         positive (bool): Whether to return the positive value of the angle. Useful for angles difference.
 
     Returns:
@@ -79,7 +81,7 @@ def WrapToPi(rad, positive=False):
     return rad if not positive else abs(rad)
 
 
-def WrapTo2Pi(rad):
+def WrapTo2Pi(rad: float) -> float:
     """The function `WrapTo2Pi` transforms an angle in radians to the range [0, 2pi].
 
     Args:
@@ -99,7 +101,7 @@ def WrapTo2Pi(rad):
     return rad
 
 
-def WrapToRegion(rad, range):
+def WrapToRegion(rad: float, range: List[float]) -> float:
     """
     Transform an angle to a defined range, with length of 2*pi.
 
@@ -118,7 +120,7 @@ def WrapToRegion(rad, range):
     return rad
 
 
-def convert_list_length(input_data, number=0):
+def convert_list_length(input_data: List[Any], number: int = 0) -> List[Any]:
     """
     Convert input to a list with a specific length.
 
@@ -140,7 +142,7 @@ def convert_list_length(input_data, number=0):
     return input_data
 
 
-def convert_list_length_dict(input_data, number=0):
+def convert_list_length_dict(input_data: List[Any], number: int = 0) -> List[Any]:
     """
     Convert input to a list with a specific length for dictionaries.
 
@@ -162,7 +164,7 @@ def convert_list_length_dict(input_data, number=0):
     return input_data
 
 
-def is_list_of_dicts(lst):
+def is_list_of_dicts(lst: Any) -> bool:
     """
     Check if a list contains only dictionaries.
 
@@ -175,7 +177,7 @@ def is_list_of_dicts(lst):
     return isinstance(lst, list) and all(isinstance(sub, dict) for sub in lst)
 
 
-def is_list_of_numbers(lst):
+def is_list_of_numbers(lst: Any) -> bool:
     """
     Check if a list contains only numbers.
 
@@ -188,7 +190,7 @@ def is_list_of_numbers(lst):
     return isinstance(lst, list) and all(isinstance(sub, (int, float)) for sub in lst)
 
 
-def is_list_of_lists(lst):
+def is_list_of_lists(lst: Any) -> bool:
     """
     Check if a list contains lists.
 
@@ -201,7 +203,7 @@ def is_list_of_lists(lst):
     return isinstance(lst, list) and any(isinstance(sub, list) for sub in lst)
 
 
-def is_list_not_list_of_lists(lst):
+def is_list_not_list_of_lists(lst: Any) -> bool:
     """
     Check if a list does not contain lists.
 
@@ -214,7 +216,9 @@ def is_list_not_list_of_lists(lst):
     return isinstance(lst, list) and all(not isinstance(sub, list) for sub in lst)
 
 
-def relative_position(position1, position2, topi=True):
+def relative_position(
+    position1: np.ndarray, position2: np.ndarray, topi: bool = True
+) -> Tuple[float, float]:
     """
     Calculate the relative position and angle between two points.
 
@@ -236,7 +240,7 @@ def relative_position(position1, position2, topi=True):
     return distance, radian
 
 
-def get_transform(state):
+def get_transform(state: np.ndarray) -> np.ndarray:
     """
     Get rotation and translation matrices from state.
 
@@ -260,7 +264,7 @@ def get_transform(state):
     return trans, rot
 
 
-def transform_point_with_state(point, state):
+def transform_point_with_state(point: np.ndarray, state: np.ndarray) -> np.ndarray:
     """
     Transform a point using a state.
 
@@ -281,7 +285,7 @@ def transform_point_with_state(point, state):
     return new_point
 
 
-def get_affine_transform(state):
+def get_affine_transform(state: np.ndarray) -> List[float]:
     """
     Get affine transform parameters from state.
 
@@ -301,7 +305,7 @@ def get_affine_transform(state):
     ]
 
 
-def geometry_transform(geometry, state):
+def geometry_transform(geometry: Any, state: np.ndarray) -> Any:
     """
     Transform geometry using a state.
 
@@ -332,7 +336,7 @@ def geometry_transform(geometry, state):
     return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
 
-def vertices_transform(vertices, state):
+def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray:
     """
     Transform vertices using a state.
 
@@ -354,8 +358,13 @@ def vertices_transform(vertices, state):
 
 
 def omni_to_diff(
-    state_ori, vel_omni, w_max=1.5, guarantee_time=0.2, tolerance=0.1, mini_speed=0.02
-):
+    state_ori: float,
+    vel_omni: np.ndarray,
+    w_max: float = 1.5,
+    guarantee_time: float = 0.2,
+    tolerance: float = 0.1,
+    mini_speed: float = 0.02,
+) -> np.ndarray:
     """
     Convert omnidirectional velocity to differential velocity.
 
@@ -400,7 +409,7 @@ def omni_to_diff(
     return np.array([[v], [w]])
 
 
-def diff_to_omni(state_ori, vel_diff):
+def diff_to_omni(state_ori: float, vel_diff: np.ndarray) -> np.ndarray:
     """
     Convert differential velocity to omnidirectional velocity.
 
@@ -422,7 +431,7 @@ def diff_to_omni(state_ori, vel_diff):
     return np.array([[vx], [vy]])
 
 
-def time_it(name="Function"):
+def time_it(name: str = "Function") -> Any:
     """
     Decorator to measure function execution time.
 
@@ -451,7 +460,7 @@ def time_it(name="Function"):
     return decorator
 
 
-def time_it2(name="Function"):
+def time_it2(name: str = "Function") -> Any:
     """
     Decorator to measure function execution time with instance attribute check.
 
@@ -480,7 +489,7 @@ def time_it2(name="Function"):
     return decorator
 
 
-def cross_product(o, a, b):
+def cross_product(o: List[float], a: List[float], b: List[float]) -> float:
     """
     Compute the cross product of vectors OA and OB.
 
@@ -493,7 +502,7 @@ def cross_product(o, a, b):
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 
-def is_convex_and_ordered(points):
+def is_convex_and_ordered(points: List[List[float]]) -> bool:
     """
     Determine if the polygon is convex and return the order (CW or CCW).
 
@@ -573,7 +582,9 @@ def gen_inequal_from_vertex(vertex: np.ndarray):
     return G, h
 
 
-def distance(point1, point2):
+def distance(
+    point1: Union[List[float], np.ndarray], point2: Union[List[float], np.ndarray]
+) -> float:
     """
     Compute the distance between two points.
 
@@ -587,11 +598,13 @@ def distance(point1, point2):
     return dist_hypot(point1[0, 0], point1[1, 0], point2[0, 0], point2[1, 0])
 
 
-def dist_hypot(x1, y1, x2, y2):
+def dist_hypot(x1: float, y1: float, x2: float, y2: float) -> float:
     return math.hypot(x2 - x1, y2 - y1)
 
 
-def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
+def random_point_range(
+    range_low: Optional[List[float]] = None, range_high: Optional[List[float]] = None
+) -> List[float]:
     """
     Generate a random point within a range.
 
@@ -602,6 +615,10 @@ def random_point_range(range_low=[0, 0, -pi], range_high=[10, 10, pi]):
     Returns:
         np.array: Random point within the range.
     """
+    if range_low is None:
+        range_low = [0, 0, -pi]
+    if range_high is None:
+        range_high = [10, 10, pi]
 
     if isinstance(range_low, list):
         range_low = np.c_[range_low]

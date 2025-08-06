@@ -3,8 +3,9 @@ from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     omni_kinematics,
 )
+from typing import Dict, Callable, Any
 
-kinematics_factory = {
+kinematics_factory: Dict[str, Callable[..., Any]] = {
     "diff": differential_kinematics,
     "acker": ackermann_kinematics,
     "omni": omni_kinematics,

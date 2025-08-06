@@ -2,9 +2,12 @@ from .version import __version__
 from irsim.env import EnvBase, EnvBase3D
 import os
 import sys
+from typing import Optional, Union, Any
 
 
-def make(world_name=None, projection=None, **kwargs) -> EnvBase:
+def make(
+    world_name: Optional[str] = None, projection: Optional[str] = None, **kwargs: Any
+) -> Union[EnvBase, EnvBase3D]:
     """
     Create an environment by the given world file and projection.
 
