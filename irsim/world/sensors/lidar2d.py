@@ -1,19 +1,20 @@
-from math import pi, cos, sin
-import numpy as np
+from math import cos, pi, sin
+from typing import Optional
+
 import matplotlib.transforms as mtransforms
-from shapely import MultiLineString, Point, is_valid, prepare
-from irsim.util.util import (
-    geometry_transform,
-    transform_point_with_state,
-    WrapTo2Pi,
-)
-from irsim.config import env_param
+import numpy as np
 from matplotlib.collections import LineCollection
-from shapely.strtree import STRtree
-from shapely.ops import unary_union
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from typing import Optional
+from shapely import MultiLineString, Point, is_valid, prepare
+from shapely.ops import unary_union
+
+from irsim.config import env_param
+from irsim.util.util import (
+    WrapTo2Pi,
+    geometry_transform,
+    transform_point_with_state,
+)
 
 
 class Lidar2D:
@@ -77,7 +78,7 @@ class Lidar2D:
         noise: bool = False,
         std: float = 0.2,
         angle_std: float = 0.02,
-        offset: list[float] = [0, 0, 0],
+        offset: Optional[list[float]] = None,
         alpha: float = 0.3,
         has_velocity: bool = False,
         **kwargs,
@@ -87,6 +88,8 @@ class Lidar2D:
 
 
         """
+        if offset is None:
+            offset = [0, 0, 0]
         self.sensor_type = "lidar2d"
 
         self.range_min = range_min
@@ -134,7 +137,6 @@ class Lidar2D:
         segment_point_list = []
 
         for i in range(self.number):
-
             x = self.range_data[i] * cos(self.angle_list[i])
             y = self.range_data[i] * sin(self.angle_list[i])
 
@@ -235,12 +237,12 @@ class Lidar2D:
         """
         Calculate the range data from the current geometry.
         """
-        for index, l in enumerate(self._geometry.geoms):
+        for index, line in enumerate(self._geometry.geoms):
             # self.range_data[index] = l.length
             if self.noise:
-                self.range_data[index] = l.length + np.random.normal(0, self.std)
+                self.range_data[index] = line.length + np.random.normal(0, self.std)
             else:
-                self.range_data[index] = l.length
+                self.range_data[index] = line.length
 
     def calculate_range_vel(self, intersect_index):
         """
@@ -249,19 +251,20 @@ class Lidar2D:
         Args:
             intersect_index (list): List of intersected object indices.
         """
-        for index, l in enumerate(self._geometry.geoms):
+        for index, line in enumerate(self._geometry.geoms):
             # self.range_data[index] = l.length
             self.range_data[index] = (
-                l.length + np.random.normal(0, self.std) if self.noise else l.length
+                line.length + np.random.normal(0, self.std)
+                if self.noise
+                else line.length
             )
 
-            if self.has_velocity:
-                if l.length < self.range_max - 0.02:
-                    for index_obj in intersect_index:
-                        obj = env_param.objects[index_obj]
-                        if obj.geometry.distance(l) < 0.1:
-                            self.velocity[:, index : index + 1] = obj.velocity_xy
-                            break
+            if self.has_velocity and line.length < self.range_max - 0.02:
+                for index_obj in intersect_index:
+                    obj = env_param.objects[index_obj]
+                    if obj.geometry.distance(line) < 0.1:
+                        self.velocity[:, index : index + 1] = obj.velocity_xy
+                        break
 
     def get_scan(self):
         """
@@ -388,7 +391,6 @@ class Lidar2D:
 
             # Apply transform for 2D case - use provided state for positioning
             if state is not None and len(state) > 0:
-
                 lidar_x = self.lidar_origin[0, 0]
                 lidar_y = self.lidar_origin[1, 0]
                 lidar_theta = (
@@ -532,6 +534,4 @@ class Lidar2D:
         if len(point_cloud) == 0:
             return None
 
-        point_array = np.hstack(point_cloud)
-
-        return point_array
+        return np.hstack(point_cloud)

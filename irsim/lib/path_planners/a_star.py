@@ -12,16 +12,16 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 """
 
 import math
-from typing import List, Tuple, Optional, Any, Union
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
+
 from irsim.lib.handler.geometry_handler import GeometryFactory
 
 
 class AStarPlanner:
-
     def __init__(self, env_map: Any, resolution: float) -> None:
         """
         Initialize A* planner
@@ -75,10 +75,10 @@ class AStarPlanner:
 
     def planning(
         self,
-        start_pose: List[float],
-        goal_pose: List[float],
+        start_pose: list[float],
+        goal_pose: list[float],
         show_animation: bool = True,
-    ) -> Tuple[List[float], List[float]]:
+    ) -> tuple[list[float], list[float]]:
         """
         A star path search
 
@@ -103,7 +103,7 @@ class AStarPlanner:
             -1,
         )
 
-        open_set, closed_set = dict(), dict()
+        open_set, closed_set = {}, {}
         open_set[self.calc_grid_index(start_node)] = start_node
 
         while True:
@@ -175,7 +175,7 @@ class AStarPlanner:
 
     def calc_final_path(
         self, goal_node: "Node", closed_set: dict
-    ) -> Tuple[List[float], List[float]]:
+    ) -> tuple[list[float], list[float]]:
         """Generate the final path
 
         Args:
@@ -186,9 +186,10 @@ class AStarPlanner:
             rx (list): list of x positions of final path
             ry (list): list of y positions of final path
         """
-        rx, ry = [self.calc_grid_position(goal_node.x, self.min_x)], [
-            self.calc_grid_position(goal_node.y, self.min_y)
-        ]
+        rx, ry = (
+            [self.calc_grid_position(goal_node.x, self.min_x)],
+            [self.calc_grid_position(goal_node.y, self.min_y)],
+        )
         parent_index = goal_node.parent_index
         while parent_index != -1:
             n = closed_set[parent_index]
@@ -201,8 +202,7 @@ class AStarPlanner:
     @staticmethod
     def calc_heuristic(n1: "Node", n2: "Node") -> float:
         w = 1.0  # weight of heuristic
-        d = w * math.hypot(n1.x - n2.x, n1.y - n2.y)
-        return d
+        return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
     def calc_grid_position(self, index: int, min_position: float) -> float:
         """
@@ -215,8 +215,7 @@ class AStarPlanner:
         Returns:
             (float): position of coordinates along the given axis
         """
-        pos = index * self.resolution + min_position
-        return pos
+        return index * self.resolution + min_position
 
     def calc_xy_index(self, position: float, min_pos: float) -> int:
         """
@@ -256,20 +255,11 @@ class AStarPlanner:
         px = self.calc_grid_position(node.x, self.min_x)
         py = self.calc_grid_position(node.y, self.min_y)
 
-        if px < self.min_x:
-            return False
-        elif py < self.min_y:
-            return False
-        elif px >= self.max_x:
-            return False
-        elif py >= self.max_y:
+        if px < self.min_x or py < self.min_y or px >= self.max_x or py >= self.max_y:
             return False
 
         # collision check
-        if self.check_node(px, py):
-            return False
-
-        return True
+        return not self.check_node(px, py)
 
     def check_node(self, x: int, y: int) -> bool:
         """
@@ -290,15 +280,14 @@ class AStarPlanner:
         }
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        covered_node = any(
-            [shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list]
+        return any(
+            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
         )
-        return covered_node
 
     @staticmethod
-    def get_motion_model() -> List[List[float]]:
+    def get_motion_model() -> list[list[float]]:
         # dx, dy, cost
-        motion = [
+        return [
             [1, 0, 1],
             [0, 1, 1],
             [-1, 0, 1],
@@ -308,5 +297,3 @@ class AStarPlanner:
             [1, -1, math.sqrt(2)],
             [1, 1, math.sqrt(2)],
         ]
-
-        return motion

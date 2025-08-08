@@ -1,11 +1,15 @@
+from typing import Any, Optional
+
 from irsim.world.world import World
-from typing import List, Any
 
 
 class World3D(World):
-
     def __init__(
-        self, name: str, depth: float = 10.0, offset: List[float] = None, **kwargs: Any
+        self,
+        name: str,
+        depth: float = 10.0,
+        offset: Optional[list[float]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(name=name, **kwargs)
 

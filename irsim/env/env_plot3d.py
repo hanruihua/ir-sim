@@ -1,20 +1,17 @@
-from .env_plot import EnvPlot
-import mpl_toolkits.mplot3d.art3d as art3d
-from mpl_toolkits.mplot3d import Axes3D
+from typing import Any, Optional, Union
+
 import numpy as np
-import matplotlib.pyplot as plt
-from math import cos, sin
-from typing import List, Union, Optional, Any, Dict
+
+from .env_plot import EnvPlot
 
 
 class EnvPlot3D(EnvPlot):
-
     def __init__(
         self,
         world: Any,
-        objects: Optional[List[Any]] = None,
-        saved_figure: Optional[Dict[str, Any]] = None,
-        figure_pixels: Optional[List[int]] = None,
+        objects: Optional[list[Any]] = None,
+        saved_figure: Optional[dict[str, Any]] = None,
+        figure_pixels: Optional[list[int]] = None,
         show_title: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -37,7 +34,7 @@ class EnvPlot3D(EnvPlot):
 
     def draw_points(
         self,
-        points: Optional[Union[List, np.ndarray]],
+        points: Optional[Union[list, np.ndarray]],
         s: int = 10,
         c: str = "m",
         refresh: bool = True,
@@ -63,7 +60,6 @@ class EnvPlot3D(EnvPlot):
             z_coordinates = [point[2] for point in points]
 
         elif isinstance(points, np.ndarray):
-
             if points.shape[1] > 1:
                 x_coordinates = [point[0] for point in points.T]
                 y_coordinates = [point[1] for point in points.T]
@@ -120,7 +116,7 @@ class EnvPlot3D(EnvPlot):
             self.dyna_point_list.append(ax_point)
 
     def draw_quivers(
-        self, points: Union[List, np.ndarray], refresh: bool = False, **kwargs: Any
+        self, points: Union[list, np.ndarray], refresh: bool = False, **kwargs: Any
     ) -> None:
         """
         Draw a series of quiver plot on the plot.
@@ -135,7 +131,7 @@ class EnvPlot3D(EnvPlot):
 
     def draw_trajectory(
         self,
-        traj: Union[List, np.ndarray],
+        traj: Union[list, np.ndarray],
         traj_type: str = "g-",
         label: str = "trajectory",
         show_direction: bool = False,

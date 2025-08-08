@@ -1,13 +1,14 @@
+import math
 import os
 import sys
-from math import pi, atan2, sin, cos, sqrt
-import numpy as np
-from shapely import ops
 import time
-from typing import Any, Optional, Union, List, Tuple
-from irsim.config import env_param
-import math
+from math import atan2, cos, pi, sin
+from typing import Any, Optional, Union
+
+import numpy as np
 from shapely.affinity import affine_transform
+
+from irsim.config import env_param
 
 
 def file_check(
@@ -40,21 +41,20 @@ def file_check(
             # raise FileNotFoundError("File not found: " + file_name)
             env_param.logger.warning(f"{file_name} not found")
             return None
+        # root_file_name = root_path + "/" + file_name
+        root_file_name = find_file(root_path, file_name)
+        if os.path.exists(root_file_name):
+            abs_file_name = root_file_name
         else:
-            # root_file_name = root_path + "/" + file_name
-            root_file_name = find_file(root_path, file_name)
-            if os.path.exists(root_file_name):
-                abs_file_name = root_file_name
-            else:
-                # raise FileNotFoundError("File not found: " + root_file_name)
-                env_param.logger.warning(f"{root_file_name} not found")
-                return None
+            # raise FileNotFoundError("File not found: " + root_file_name)
+            env_param.logger.warning(f"{root_file_name} not found")
+            return None
 
     return abs_file_name
 
 
 def find_file(root_path: str, target_filename: str) -> str:
-    for dirpath, dirnames, filenames in os.walk(root_path):
+    for dirpath, _dirnames, filenames in os.walk(root_path):
         if target_filename in filenames:
             return os.path.join(dirpath, target_filename)
     return target_filename
@@ -101,7 +101,7 @@ def WrapTo2Pi(rad: float) -> float:
     return rad
 
 
-def WrapToRegion(rad: float, range: List[float]) -> float:
+def WrapToRegion(rad: float, range: list[float]) -> float:
     """
     Transform an angle to a defined range, with length of 2*pi.
 
@@ -112,7 +112,8 @@ def WrapToRegion(rad: float, range: List[float]) -> float:
     Returns:
         float: Wrapped angle.
     """
-    assert len(range) >= 2 and range[1] - range[0] == 2 * pi
+    assert len(range) >= 2
+    assert range[1] - range[0] == 2 * pi
     while rad > range[1]:
         rad = rad - 2 * pi
     while rad < range[0]:
@@ -120,7 +121,7 @@ def WrapToRegion(rad: float, range: List[float]) -> float:
     return rad
 
 
-def convert_list_length(input_data: List[Any], number: int = 0) -> List[Any]:
+def convert_list_length(input_data: list[Any], number: int = 0) -> list[Any]:
     """
     Convert input to a list with a specific length.
 
@@ -142,7 +143,7 @@ def convert_list_length(input_data: List[Any], number: int = 0) -> List[Any]:
     return input_data
 
 
-def convert_list_length_dict(input_data: List[Any], number: int = 0) -> List[Any]:
+def convert_list_length_dict(input_data: list[Any], number: int = 0) -> list[Any]:
     """
     Convert input to a list with a specific length for dictionaries.
 
@@ -218,7 +219,7 @@ def is_list_not_list_of_lists(lst: Any) -> bool:
 
 def relative_position(
     position1: np.ndarray, position2: np.ndarray, topi: bool = True
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Calculate the relative position and angle between two points.
 
@@ -278,14 +279,10 @@ def transform_point_with_state(point: np.ndarray, state: np.ndarray) -> np.ndarr
     trans, rot = get_transform(state)
     new_position = rot @ point[0:2] + trans
     new_theta = WrapToPi(point[2, 0] + state[2, 0])
-    new_point = np.array([new_position[0, 0], new_position[1, 0], new_theta]).reshape(
-        (3, 1)
-    )
-
-    return new_point
+    return np.array([new_position[0, 0], new_position[1, 0], new_theta]).reshape((3, 1))
 
 
-def get_affine_transform(state: np.ndarray) -> List[float]:
+def get_affine_transform(state: np.ndarray) -> list[float]:
     """
     Get affine transform parameters from state.
 
@@ -352,9 +349,7 @@ def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray:
         return None
 
     trans, rot = get_transform(state)
-    vertices = rot @ vertices + trans
-
-    return vertices
+    return rot @ vertices + trans
 
 
 def omni_to_diff(
@@ -489,7 +484,7 @@ def time_it2(name: str = "Function") -> Any:
     return decorator
 
 
-def cross_product(o: List[float], a: List[float], b: List[float]) -> float:
+def cross_product(o: list[float], a: list[float], b: list[float]) -> float:
     """
     Compute the cross product of vectors OA and OB.
 
@@ -502,7 +497,7 @@ def cross_product(o: List[float], a: List[float], b: List[float]) -> float:
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 
-def is_convex_and_ordered(points: List[List[float]]) -> bool:
+def is_convex_and_ordered(points: list[list[float]]) -> bool:
     """
     Determine if the polygon is convex and return the order (CW or CCW).
 
@@ -583,7 +578,7 @@ def gen_inequal_from_vertex(vertex: np.ndarray):
 
 
 def distance(
-    point1: Union[List[float], np.ndarray], point2: Union[List[float], np.ndarray]
+    point1: Union[list[float], np.ndarray], point2: Union[list[float], np.ndarray]
 ) -> float:
     """
     Compute the distance between two points.
@@ -603,8 +598,8 @@ def dist_hypot(x1: float, y1: float, x2: float, y2: float) -> float:
 
 
 def random_point_range(
-    range_low: Optional[List[float]] = None, range_high: Optional[List[float]] = None
-) -> List[float]:
+    range_low: Optional[list[float]] = None, range_high: Optional[list[float]] = None
+) -> list[float]:
     """
     Generate a random point within a range.
 

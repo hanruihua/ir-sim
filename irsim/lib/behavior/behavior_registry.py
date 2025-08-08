@@ -1,6 +1,6 @@
-from typing import Callable, Dict, Tuple, Any
+from typing import Any, Callable
 
-behaviors_map: Dict[Tuple[str, str], Callable[..., Any]] = {}
+behaviors_map: dict[tuple[str, str], Callable[..., Any]] = {}
 
 
 def register_behavior(kinematics: str, action: str):

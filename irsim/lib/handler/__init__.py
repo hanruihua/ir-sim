@@ -6,7 +6,7 @@ This package contains factory classes for:
 - geometry_handler: Geometry factory
 """
 
-from .kinematics_handler import KinematicsFactory
 from .geometry_handler import GeometryFactory
+from .kinematics_handler import KinematicsFactory
 
-__all__ = ["KinematicsFactory", "GeometryFactory"]
+__all__ = ["GeometryFactory", "KinematicsFactory"]

@@ -1,19 +1,19 @@
+from typing import Any, Optional, Union
+
 import numpy as np
-from typing import List, Dict, Any, Union, Optional
 
 from irsim.util.util import (
     convert_list_length,
     convert_list_length_dict,
 )
-
-from irsim.world.robots.robot_acker import RobotAcker
-from irsim.world.robots.robot_diff import RobotDiff
-from irsim.world.robots.robot_omni import RobotOmni
+from irsim.world.map.obstacle_map import ObstacleMap
 from irsim.world.obstacles.obstacle_acker import ObstacleAcker
 from irsim.world.obstacles.obstacle_diff import ObstacleDiff
 from irsim.world.obstacles.obstacle_omni import ObstacleOmni
 from irsim.world.obstacles.obstacle_static import ObjectStatic
-from irsim.world.map.obstacle_map import ObstacleMap
+from irsim.world.robots.robot_acker import RobotAcker
+from irsim.world.robots.robot_diff import RobotDiff
+from irsim.world.robots.robot_omni import RobotOmni
 
 # from irsim.world.robots.robot_rigid3d import RobotRigid3D
 
@@ -25,9 +25,9 @@ class ObjectFactory:
 
     def create_from_parse(
         self,
-        parse: Union[List[Dict[str, Any]], Dict[str, Any]],
+        parse: Union[list[dict[str, Any]], dict[str, Any]],
         obj_type: str = "robot",
-    ) -> List[Any]:
+    ) -> list[Any]:
         """
         Create objects from a parsed configuration.
 
@@ -38,7 +38,7 @@ class ObjectFactory:
         Returns:
             list: List of created objects.
         """
-        object_list = list()
+        object_list = []
 
         if isinstance(parse, list):
             object_list = [
@@ -48,11 +48,11 @@ class ObjectFactory:
             ]
 
         elif isinstance(parse, dict):
-            object_list = [obj for obj in self.create_object(obj_type, **parse)]
+            object_list = list(self.create_object(obj_type, **parse))
 
         return object_list
 
-    def create_from_map(self, points: np.ndarray, reso: float = 0.1) -> List[Any]:
+    def create_from_map(self, points: np.ndarray, reso: float = 0.1) -> list[Any]:
         """
         Create map objects from points.
 
@@ -65,22 +65,21 @@ class ObjectFactory:
         """
         if points is None:
             return []
-        else:
-            return [
-                ObstacleMap(
-                    shape={"name": "map", "points": points, "reso": reso}, color="k"
-                )
-            ]
+        return [
+            ObstacleMap(
+                shape={"name": "map", "points": points, "reso": reso}, color="k"
+            )
+        ]
 
     def create_object(
         self,
         obj_type: str = "robot",
         number: int = 1,
-        distribution: Optional[Dict[str, Any]] = None,
-        state: Optional[List[float]] = None,
-        goal: Optional[List[float]] = None,
+        distribution: Optional[dict[str, Any]] = None,
+        state: Optional[list[float]] = None,
+        goal: Optional[list[float]] = None,
         **kwargs: Any,
-    ) -> List[Any]:
+    ) -> list[Any]:
         """
         Create multiple objects based on the parameters.
 
@@ -109,7 +108,7 @@ class ObjectFactory:
                 number, distribution, state, goal
             )
 
-        object_list = list()
+        object_list = []
 
         for i in range(number):
             obj_dict = {
@@ -120,7 +119,7 @@ class ObjectFactory:
             obj_dict["state"] = state_list[i]
             obj_dict["goal"] = goal_list[i]
             obj_dict["sensors"] = convert_list_length_dict(
-                kwargs.get("sensors", None), number
+                kwargs.get("sensors"), number
             )[i]
 
             if obj_type == "robot":
@@ -131,7 +130,7 @@ class ObjectFactory:
         return object_list
 
     def create_robot(
-        self, kinematics: Optional[Dict[str, Any]] = None, **kwargs: Any
+        self, kinematics: Optional[dict[str, Any]] = None, **kwargs: Any
     ) -> Any:
         """
         Create a robot based on kinematics.
@@ -145,25 +144,22 @@ class ObjectFactory:
         """
         if kinematics is None:
             kinematics = {}
-        kinematics_name = kinematics.get("name", None)
+        kinematics_name = kinematics.get("name")
 
         if kinematics_name == "diff":
             return RobotDiff(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "acker":
+        if kinematics_name == "acker":
             return RobotAcker(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "omni":
+        if kinematics_name == "omni":
             return RobotOmni(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static" or kinematics_name is None:
             return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
         # elif kinematics_name == "rigid3d":
         #     return RobotRigid3D(kinematics=kinematics, **kwargs)
-        else:
-            raise NotImplementedError(
-                f"Robot kinematics {kinematics_name} not implemented"
-            )
+        raise NotImplementedError(f"Robot kinematics {kinematics_name} not implemented")
 
     def create_obstacle(
-        self, kinematics: Optional[Dict[str, Any]] = None, **kwargs: Any
+        self, kinematics: Optional[dict[str, Any]] = None, **kwargs: Any
     ) -> Any:
         """
         Create a obstacle based on kinematics.
@@ -177,27 +173,24 @@ class ObjectFactory:
         """
         if kinematics is None:
             kinematics = {}
-        kinematics_name = kinematics.get("name", None)
+        kinematics_name = kinematics.get("name")
 
         if kinematics_name == "diff":
             return ObstacleDiff(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "acker":
+        if kinematics_name == "acker":
             return ObstacleAcker(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "omni":
+        if kinematics_name == "omni":
             return ObstacleOmni(kinematics=kinematics, **kwargs)
-        elif kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static" or kinematics_name is None:
             return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
-        else:
-            raise NotImplementedError(
-                f"Robot kinematics {kinematics_name} not implemented"
-            )
+        raise NotImplementedError(f"Robot kinematics {kinematics_name} not implemented")
 
     def generate_state_list(
         self,
         number: int = 1,
-        distribution: Optional[Dict[str, Any]] = None,
-        state: Optional[List[float]] = None,
-        goal: Optional[List[float]] = None,
+        distribution: Optional[dict[str, Any]] = None,
+        state: Optional[list[float]] = None,
+        goal: Optional[list[float]] = None,
     ) -> tuple:
         """
         Generate a list of state vectors for multiple objects based on the specified distribution method.

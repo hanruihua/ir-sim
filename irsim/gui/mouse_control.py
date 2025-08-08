@@ -1,8 +1,9 @@
-from matplotlib.backend_bases import MouseButton
+from typing import Any, Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Optional, Tuple, Any
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import MouseButton
 
 
 class MouseControl:
@@ -37,7 +38,7 @@ class MouseControl:
         self.init_ylim = ax.get_ylim()
 
         # Connect event handlers
-        binding_id = plt.connect("motion_notify_event", self.on_move)
+        plt.connect("motion_notify_event", self.on_move)
         plt.connect("button_press_event", self.on_click)
         plt.connect("button_release_event", self.on_release)
         plt.connect("scroll_event", self.on_scroll)
@@ -99,12 +100,7 @@ class MouseControl:
         xdata, ydata = event.xdata, event.ydata
 
         # Calculate zoom direction (scroll up = zoom in, scroll down = zoom out)
-        if event.step > 0:
-            # Zoom in
-            scale_factor = 1 / self.zoom_factor
-        else:
-            # Zoom out
-            scale_factor = self.zoom_factor
+        scale_factor = 1 / self.zoom_factor if event.step > 0 else self.zoom_factor
 
         # Calculate new limits centered on mouse position
         x_range = xlim[1] - xlim[0]

@@ -2,8 +2,7 @@ import irsim
 
 env = irsim.make("multi_objects_world.yaml")
 
-for i in range(300):
-
+for _i in range(300):
     env.step()
     env.render(0.05)
 

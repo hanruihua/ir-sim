@@ -1,12 +1,12 @@
 import os
-from typing import Optional, List, Any, Union, Dict
+from typing import Any, Optional
 
-import numpy as np
 import matplotlib.image as mpimg
+import numpy as np
 
-from irsim.util.util import file_check
 from irsim.config import world_param
 from irsim.config.path_param import path_manager as pm
+from irsim.util.util import file_check
 from irsim.world.map import Map
 
 
@@ -36,12 +36,12 @@ class World:
         width: float = 10,
         step_time: float = 0.1,
         sample_time: float = 0.1,
-        offset: Optional[List[float]] = None,
+        offset: Optional[list[float]] = None,
         control_mode: str = "auto",
         collision_mode: str = "stop",
         obstacle_map: Optional[Any] = None,
         mdownsample: int = 1,
-        plot: Optional[Dict[str, Any]] = None,
+        plot: Optional[dict[str, Any]] = None,
         status: str = "None",
         **kwargs: Any,
     ) -> None:
@@ -150,7 +150,7 @@ class World:
         return grid_map, obstacle_index, obstacle_positions
 
     def get_map(
-        self, resolution: float = 0.1, obstacle_list: Optional[List[Any]] = None
+        self, resolution: float = 0.1, obstacle_list: Optional[list[Any]] = None
     ) -> "Map":
         """
         Get the map of the world with the given resolution.

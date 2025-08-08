@@ -1,5 +1,4 @@
 import irsim
-import numpy as np
 
 """
 Interactive Robot Simulation GUI Controls
@@ -37,13 +36,13 @@ Mouse Controls:
 
 Mouse Position Attributes:
 - env.mouse_left_pos: Position of last left click
-- env.mouse_right_pos: Position of last right click  
+- env.mouse_right_pos: Position of last right click
 - env.mouse_pos: Current mouse position
 """
 
 env = irsim.make(save_ani=False, full=False)
 
-for i in range(10000):
+for _i in range(10000):
     env.step()
     env.render(0.05, show_goal=False)
 

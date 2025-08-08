@@ -4,18 +4,19 @@ This file is the implementation of the environment plot to visualize the environ
 Author: Ruihua Han
 """
 
-import matplotlib.pyplot as plt
-import logging
-from irsim.config.path_param import path_manager as pm
-from irsim.config import world_param, env_param
-import os
-import imageio.v3 as imageio
-import shutil
 import glob
-from math import sin, cos
+import os
+import shutil
+from math import cos, sin
+from typing import Optional
+
+import imageio.v3 as imageio
+import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from typing import Optional
+
+from irsim.config import env_param, world_param
+from irsim.config.path_param import path_manager as pm
 
 
 class EnvPlot:
@@ -36,9 +37,9 @@ class EnvPlot:
     def __init__(
         self,
         world,
-        objects=[],
-        saved_figure=dict(),
-        figure_pixels: list = [1000, 800],
+        objects=None,
+        saved_figure=None,
+        figure_pixels: Optional[list] = None,
         show_title: bool = True,
         **kwargs,
     ) -> None:
@@ -49,6 +50,12 @@ class EnvPlot:
         and initializes the plot with world data and objects.
         """
         # Store world and basic properties
+        if saved_figure is None:
+            saved_figure = {}
+        if figure_pixels is None:
+            figure_pixels = [1000, 800]
+        if objects is None:
+            objects = []
         self.world = world
         self.x_range = world.x_range
         self.y_range = world.y_range
@@ -78,7 +85,7 @@ class EnvPlot:
             "landmark": "b",
             "target": "pink",
         }
-        self.color_map.update(kwargs.get("color_map", dict()))
+        self.color_map.update(kwargs.get("color_map", {}))
 
         # Configure save options
         self.saved_ani_kwargs = {}
@@ -122,8 +129,9 @@ class EnvPlot:
         if tight:
             self.fig.tight_layout()
 
-    def step(self, mode="dynamic", objects=[], **kwargs):
-
+    def step(self, mode="dynamic", objects=None, **kwargs):
+        if objects is None:
+            objects = []
         if self.show_title:
             self.update_title()
 
@@ -135,17 +143,18 @@ class EnvPlot:
             self.step_objects_plot(mode, objects, **kwargs)
 
     def init_objects_plot(self, objects, **kwargs):
-
         if self.show_title:
             self.update_title()
 
         [obj._init_plot(self.ax, **kwargs) for obj in objects]
         self.step_objects_plot("all", objects, **kwargs)
 
-    def step_objects_plot(self, mode="dynamic", objects=[], **kwargs):
+    def step_objects_plot(self, mode="dynamic", objects=None, **kwargs):
         """
         Update the plot for the objects.
         """
+        if objects is None:
+            objects = []
         if mode == "dynamic":
             [obj._step_plot(**kwargs) for obj in objects if not obj.static]
         elif mode == "static":
@@ -155,7 +164,7 @@ class EnvPlot:
         else:
             self.logger.error("Error: Invalid draw mode")
 
-    def draw_components(self, mode="all", objects=[], **kwargs):
+    def draw_components(self, mode="all", objects=None, **kwargs):
         """
         Draw the components in the environment.
 
@@ -164,6 +173,8 @@ class EnvPlot:
             objects (list): List of objects to draw.
             kwargs: Additional plotting options.
         """
+        if objects is None:
+            objects = []
         if mode == "static":
             [obj.plot(self.ax, **kwargs) for obj in objects if obj.static]
         elif mode == "dynamic":
@@ -173,7 +184,7 @@ class EnvPlot:
         else:
             self.logger.error("Error: Invalid draw mode")
 
-    def clear_components(self, mode="all", objects=[]):
+    def clear_components(self, mode="all", objects=None):
         """
         Clear the components in the environment.
 
@@ -181,6 +192,8 @@ class EnvPlot:
             mode (str): 'static', 'dynamic', or 'all' to specify which objects to clear.
             objects (list): List of objects to clear.
         """
+        if objects is None:
+            objects = []
         if mode == "dynamic":
             [obj.plot_clear() for obj in objects if not obj.static]
             [line.pop(0).remove() for line in self.dyna_line_list]
@@ -297,7 +310,6 @@ class EnvPlot:
             y_coordinates = [point[1] for point in points]
 
         elif isinstance(points, np.ndarray):
-
             if points.shape[1] > 1:
                 x_coordinates = [point[0] for point in points.T]
                 y_coordinates = [point[1] for point in points.T]
@@ -391,10 +403,7 @@ class EnvPlot:
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
 
-        if save_gif:
-            fp = pm.ani_buffer_path
-        else:
-            fp = pm.fig_path
+        fp = pm.ani_buffer_path if save_gif else pm.fig_path
 
         if not os.path.exists(fp):
             os.makedirs(fp)

@@ -7,15 +7,15 @@ This package contains:
 - generation: Polygon generation utilities
 """
 
-from .kinematics import differential_kinematics, ackermann_kinematics, omni_kinematics
+from .generation import generate_polygon, random_generate_polygon
+from .kinematics import ackermann_kinematics, differential_kinematics, omni_kinematics
 from .rvo import reciprocal_vel_obs
-from .generation import random_generate_polygon, generate_polygon
 
 __all__ = [
-    "differential_kinematics",
     "ackermann_kinematics",
-    "omni_kinematics",
-    "reciprocal_vel_obs",
-    "random_generate_polygon",
+    "differential_kinematics",
     "generate_polygon",
+    "omni_kinematics",
+    "random_generate_polygon",
+    "reciprocal_vel_obs",
 ]

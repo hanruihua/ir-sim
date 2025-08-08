@@ -2,8 +2,7 @@ import irsim
 
 env = irsim.make()
 
-for i in range(200):
-
+for _i in range(200):
     env.step()
 
     for obs in env.obstacle_list:

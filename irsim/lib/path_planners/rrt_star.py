@@ -9,7 +9,7 @@ adapted by: Reinis Cimurs
 """
 
 import math
-from typing import List, Tuple, Optional, Any
+from typing import Any, Optional
 
 from irsim.lib.path_planners.rrt import RRT
 
@@ -73,10 +73,10 @@ class RRTStar(RRT):
 
     def planning(
         self,
-        start_pose: List[float],
-        goal_pose: List[float],
+        start_pose: list[float],
+        goal_pose: list[float],
         show_animation: bool = True,
-    ) -> Optional[Tuple[List[float], List[float]]]:
+    ) -> Optional[tuple[list[float], list[float]]]:
         """
         rrt star path planning
 
@@ -128,7 +128,7 @@ class RRTStar(RRT):
 
         return None
 
-    def choose_parent(self, new_node: "Node", near_inds: List[int]) -> "Node":
+    def choose_parent(self, new_node: "Node", near_inds: list[int]) -> "Node":
         """
         Computes the cheapest point to new_node contained in the list
         near_inds and set such a node as the parent of new_node.
@@ -200,7 +200,7 @@ class RRTStar(RRT):
 
         return None
 
-    def find_near_nodes(self, new_node: "Node") -> List[int]:
+    def find_near_nodes(self, new_node: "Node") -> list[int]:
         """
         1) defines a ball centered on new_node
         2) Returns all nodes of the three that are inside this ball
@@ -220,10 +220,9 @@ class RRTStar(RRT):
             (node.x - new_node.x) ** 2 + (node.y - new_node.y) ** 2
             for node in self.node_list
         ]
-        near_inds = [dist_list.index(i) for i in dist_list if i <= r**2]
-        return near_inds
+        return [dist_list.index(i) for i in dist_list if i <= r**2]
 
-    def rewire(self, new_node: "Node", near_inds: List[int]) -> None:
+    def rewire(self, new_node: "Node", near_inds: list[int]) -> None:
         """
         Rewire the tree to improve path cost by checking nearby nodes.
 

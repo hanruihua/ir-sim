@@ -1,7 +1,9 @@
-import numpy as np
-from irsim.config import env_param, world_param
 import importlib
-from typing import Tuple, Any
+from typing import Any
+
+import numpy as np
+
+from irsim.config import env_param, world_param
 from irsim.lib.behavior.behavior_registry import behaviors_map
 
 
@@ -29,10 +31,10 @@ class Behavior:
             behavior_dict (dict): Behavior parameters.
         """
         self.object_info = object_info
-        self.behavior_dict = dict() if behavior_dict is None else behavior_dict
+        self.behavior_dict = {} if behavior_dict is None else behavior_dict
         self.load_behavior()
 
-    def gen_vel(self, ego_object, external_objects=[]):
+    def gen_vel(self, ego_object, external_objects=None):
         """
         Generate velocity for the agent based on the behavior dictionary.
 
@@ -44,15 +46,13 @@ class Behavior:
             np.array (2, 1): Generated velocity for the agent.
         """
 
+        if external_objects is None:
+            external_objects = []
         if self.behavior_dict is None or not self.behavior_dict:
-
-            if world_param.control_mode == "auto":
-                if world_param.count == 1:
-                    self.logger.warning(
-                        "Behavior not defined for Object {}. This object will be static. Available behaviors: rvo, dash".format(
-                            self.object_info.id,
-                        )
-                    )
+            if world_param.control_mode == "auto" and world_param.count == 1:
+                self.logger.warning(
+                    f"Behavior not defined for Object {self.object_info.id}. This object will be static. Available behaviors: rvo, dash"
+                )
 
             return np.zeros((2, 1))
 
@@ -67,15 +67,13 @@ class Behavior:
         elif target_roles == "robot":
             external_objects = [obj for obj in external_objects if obj.role == "robot"]
 
-        behavior_vel = self.invoke_behavior(
+        return self.invoke_behavior(
             self.object_info.kinematics,
             self.behavior_dict["name"],
             ego_object=ego_object,
             external_objects=external_objects,
             **self.behavior_dict,
         )
-
-        return behavior_vel
 
     def load_behavior(self, behaviors: str = ".behavior_methods"):
         """
@@ -126,7 +124,7 @@ class Behavior:
             ...                               ego_object=robot,
             ...                               external_objects=obstacles)
         """
-        key: Tuple[str, str] = (kinematics, action)
+        key: tuple[str, str] = (kinematics, action)
         func = behaviors_map.get(key)
         if not func:
             raise ValueError(

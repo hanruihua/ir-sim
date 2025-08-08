@@ -10,11 +10,12 @@ adapted by: Reinis Cimurs
 
 import math
 import random
-from typing import List, Tuple, Optional, Any, Union
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
+
 from irsim.lib.handler.geometry_handler import GeometryFactory
 
 
@@ -97,10 +98,10 @@ class RRT:
 
     def planning(
         self,
-        start_pose: List[float],
-        goal_pose: List[float],
+        start_pose: list[float],
+        goal_pose: list[float],
         show_animation: bool = True,
-    ) -> Optional[Tuple[List[float], List[float]]]:
+    ) -> Optional[tuple[list[float], list[float]]]:
         """
         rrt path planning
 
@@ -116,7 +117,7 @@ class RRT:
         self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
 
         self.node_list = [self.start]
-        for i in range(self.max_iter):
+        for _i in range(self.max_iter):
             rnd_node = self.get_random_node()
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd_node)
             nearest_node = self.node_list[nearest_ind]
@@ -126,7 +127,6 @@ class RRT:
             if self.check_if_outside_play_area(
                 new_node, self.play_area
             ) and self.check_collision(new_node, self.robot_radius):
-
                 self.node_list.append(new_node)
 
                 if show_animation:
@@ -193,7 +193,7 @@ class RRT:
 
         return new_node
 
-    def generate_final_course(self, goal_ind: int) -> Tuple[List[float], List[float]]:
+    def generate_final_course(self, goal_ind: int) -> tuple[list[float], list[float]]:
         """
         Generate the final path
 
@@ -294,30 +294,24 @@ class RRT:
         plt.plot(xl, yl, color)
 
     @staticmethod
-    def get_nearest_node_index(node_list: List["Node"], rnd_node: "Node") -> int:
+    def get_nearest_node_index(node_list: list["Node"], rnd_node: "Node") -> int:
         dlist = [
             (node.x - rnd_node.x) ** 2 + (node.y - rnd_node.y) ** 2
             for node in node_list
         ]
-        minind = dlist.index(min(dlist))
-
-        return minind
+        return dlist.index(min(dlist))
 
     @staticmethod
     def check_if_outside_play_area(node: "Node", play_area: "AreaBounds") -> bool:
-
         if play_area is None:
             return True  # no play_area was defined, every pos should be ok
 
-        if (
+        return not (
             node.x < play_area.xmin
             or node.x > play_area.xmax
             or node.y < play_area.ymin
             or node.y > play_area.ymax
-        ):
-            return False  # outside - bad
-        else:
-            return True  # inside - ok
+        )
 
     def check_collision(self, node: "Node", robot_radius: float) -> bool:
         """
@@ -356,15 +350,14 @@ class RRT:
         shape = {"name": "circle", "radius": rr}
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        covered_node = any(
-            [shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list]
+        return any(
+            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
         )
-        return covered_node
 
     @staticmethod
     def calc_distance_and_angle(
         from_node: "Node", to_node: "Node"
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         dx = to_node.x - from_node.x
         dy = to_node.y - from_node.y
         d = math.hypot(dx, dy)

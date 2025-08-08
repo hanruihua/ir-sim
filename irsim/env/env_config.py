@@ -1,6 +1,7 @@
 import yaml
-from irsim.util.util import file_check
+
 from irsim.config import env_param
+from irsim.util.util import file_check
 
 
 class EnvConfig:
@@ -10,24 +11,22 @@ class EnvConfig:
     """
 
     def __init__(self, world_name) -> None:
-
         world_file_path = file_check(world_name)
 
         self._kwargs_parse = {
-            "world": dict(),
-            "plot": dict(),
-            "keyboard": dict(),
+            "world": {},
+            "plot": {},
+            "keyboard": {},
             "robot": None,
             "obstacle": None,
         }
 
-        if world_file_path != None:
-
+        if world_file_path is not None:
             with open(world_file_path) as file:
                 com_list = yaml.load(file, Loader=yaml.FullLoader)
 
-                for key in com_list.keys():
-                    if key in self._kwargs_parse.keys():
+                for key in com_list:
+                    if key in self._kwargs_parse:
                         self._kwargs_parse[key] = com_list[key]
                     else:
                         self.logger.error(

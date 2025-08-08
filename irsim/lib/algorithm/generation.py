@@ -6,8 +6,9 @@ Author: Ruihua Han
 
 import math
 import random
+from typing import Any, Optional, Union
+
 import numpy as np
-from typing import List, Union, Any
 
 
 def clip(value: float, lower: float, upper: float) -> float:
@@ -27,13 +28,13 @@ def clip(value: float, lower: float, upper: float) -> float:
 
 def random_generate_polygon(
     number: int = 1,
-    center_range: List[float] = None,
-    avg_radius_range: List[float] = None,
-    irregularity_range: List[float] = None,
-    spikeyness_range: List[float] = None,
-    num_vertices_range: List[int] = None,
+    center_range: Optional[list[float]] = None,
+    avg_radius_range: Optional[list[float]] = None,
+    irregularity_range: Optional[list[float]] = None,
+    spikeyness_range: Optional[list[float]] = None,
+    num_vertices_range: Optional[list[int]] = None,
     **kwargs: Any,
-) -> Union[np.ndarray, List[np.ndarray]]:
+) -> Union[np.ndarray, list[np.ndarray]]:
     """
     reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -91,7 +92,7 @@ def random_generate_polygon(
 
 
 def generate_polygon(
-    center: List[float],
+    center: list[float],
     avg_radius: float,
     irregularity: float,
     spikeyness: float,
@@ -130,12 +131,10 @@ def generate_polygon(
         points.append(point)
         angle += angle_steps[i]
 
-    vertices = np.array(points)
-
-    return vertices
+    return np.array(points)
 
 
-def random_angle_steps(steps: int, irregularity: float) -> List[float]:
+def random_angle_steps(steps: int, irregularity: float) -> list[float]:
     """
     Generate random angle steps for polygon vertices.
 
@@ -150,7 +149,7 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
     lower = (2 * math.pi / steps) - irregularity
     upper = (2 * math.pi / steps) + irregularity
     cumsum = 0
-    for i in range(steps):
+    for _ in range(steps):
         angle = np.random.uniform(lower, upper)
         angles.append(angle)
         cumsum += angle

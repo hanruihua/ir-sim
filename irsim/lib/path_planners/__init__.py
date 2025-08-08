@@ -9,8 +9,8 @@ This package contains:
 """
 
 from irsim.lib.path_planners.a_star import AStarPlanner
+from irsim.lib.path_planners.probabilistic_road_map import PRMPlanner
 from irsim.lib.path_planners.rrt import RRT
 from irsim.lib.path_planners.rrt_star import RRTStar
-from irsim.lib.path_planners.probabilistic_road_map import PRMPlanner
 
-__all__ = ["AStarPlanner", "RRT", "RRTStar", "PRMPlanner"]
+__all__ = ["RRT", "AStarPlanner", "PRMPlanner", "RRTStar"]

@@ -1,5 +1,6 @@
-from irsim.world.object_base import ObjectBase
 from typing import Any
+
+from irsim.world.object_base import ObjectBase
 
 
 class RobotAcker(ObjectBase):
@@ -10,7 +11,7 @@ class RobotAcker(ObjectBase):
         description: str = "car_green.png",
         **kwargs: Any,
     ) -> None:
-        super(RobotAcker, self).__init__(
+        super().__init__(
             role="robot",
             color=color,
             state_dim=state_dim,
@@ -18,6 +19,6 @@ class RobotAcker(ObjectBase):
             **kwargs,
         )
 
-        assert (
-            state_dim >= 4
-        ), "for ackermann robot, the state dimension should be greater than 4"
+        assert state_dim >= 4, (
+            "for ackermann robot, the state dimension should be greater than 4"
+        )

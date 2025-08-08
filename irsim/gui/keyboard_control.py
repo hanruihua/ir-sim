@@ -1,13 +1,14 @@
-from pynput import keyboard
-import numpy as np
+from typing import Any, Optional
+
 import matplotlib.pyplot as plt
+import numpy as np
+from pynput import keyboard
 from tabulate import tabulate
+
 from irsim.config import env_param
-from typing import Optional, Any, List, Dict
 
 
 class KeyboardControl:
-
     def __init__(self, env_ref: Optional[Any] = None, **keyboard_kwargs: Any) -> None:
         """
         Initialize keyboard control for the environment.
@@ -98,7 +99,6 @@ class KeyboardControl:
 
         try:
             if key.char.isdigit() and self.alt_flag:
-
                 if self.env_ref and int(key.char) >= self.env_ref.robot_number:
                     print("out of number of robots")
                     self.key_id = int(key.char)
@@ -123,9 +123,7 @@ class KeyboardControl:
                     self.alt_flag = True
 
             except AttributeError:
-
                 if key.char.isdigit() and self.alt_flag:
-
                     if self.env_ref and int(key.char) >= self.env_ref.robot_number:
                         print("out of number of robots")
                         self.key_id = int(key.char)

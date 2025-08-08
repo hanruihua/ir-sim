@@ -4,25 +4,26 @@ Class EnvBase is the base class of the environment. This class will read the yam
 Author: Ruihua Han
 """
 
-import matplotlib
-import platform
 import importlib
-import numpy as np
-from typing import Optional, Union, List, Dict, Any
+import platform
 from operator import attrgetter
-from mpl_toolkits.mplot3d import Axes3D
+from typing import Optional, Union
+
+import matplotlib
+import numpy as np
 from matplotlib import pyplot as plt
 from shapely import Polygon
 from shapely.strtree import STRtree
 
 from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
-from irsim.world import World, ObjectBase
-from .env_plot import EnvPlot
-from irsim.world.object_factory import ObjectFactory
-from .env_logger import EnvLogger
-from irsim.lib import random_generate_polygon
 from irsim.gui.mouse_control import MouseControl
+from irsim.lib import random_generate_polygon
+from irsim.world import ObjectBase, World
+from irsim.world.object_factory import ObjectFactory
+
+from .env_logger import EnvLogger
+from .env_plot import EnvPlot
 
 try:
     from irsim.gui.keyboard_control import KeyboardControl
@@ -39,7 +40,7 @@ BACKEND_PREFERENCES = {
 }
 
 
-def _set_matplotlib_backend(backend_list: List[str]) -> bool:
+def _set_matplotlib_backend(backend_list: list[str]) -> bool:
     """Attempt to set matplotlib backend from preference list."""
     for backend in backend_list:
         try:
@@ -117,7 +118,6 @@ class EnvBase:
         log_file: Optional[str] = None,
         log_level: str = "INFO",
     ) -> None:
-
         # init env setting
         self.display = display
 
@@ -157,7 +157,6 @@ class EnvBase:
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-
             if not keyboard_module:
                 self.logger.error(
                     "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
@@ -175,12 +174,7 @@ class EnvBase:
 
         if full:
             system_platform = platform.system()
-            if system_platform == "Linux":
-                mng = plt.get_current_fig_manager()
-                if mng is not None:
-                    mng.full_screen_toggle()
-
-            elif system_platform == "Windows":
+            if system_platform == "Linux" or system_platform == "Windows":
                 mng = plt.get_current_fig_manager()
                 if mng is not None:
                     mng.full_screen_toggle()
@@ -267,7 +261,6 @@ class EnvBase:
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
     def _object_step(self, action: np.ndarray, obj_id: int = 0):
-
         if len(self.objects) == 0:
             return
 
@@ -281,7 +274,7 @@ class EnvBase:
     def render(
         self,
         interval: float = 0.02,
-        figure_kwargs=dict(),
+        figure_kwargs=None,
         mode: str = "dynamic",
         **kwargs,
     ):
@@ -295,16 +288,16 @@ class EnvBase:
             kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
         """
 
-        if not self.disable_all_plot:
-            if self._world.sampling:
+        if figure_kwargs is None:
+            figure_kwargs = {}
+        if not self.disable_all_plot and self._world.sampling:
+            if self.display:
+                plt.pause(interval)
 
-                if self.display:
-                    plt.pause(interval)
+            if self.save_ani:
+                self.save_figure(save_gif=True, **figure_kwargs)
 
-                if self.save_ani:
-                    self.save_figure(save_gif=True, **figure_kwargs)
-
-                self._env_plot.step(mode, self.objects, **kwargs)
+            self._env_plot.step(mode, self.objects, **kwargs)
 
     def show(self):
         """
@@ -442,8 +435,9 @@ class EnvBase:
 
         if mode == "all":
             return all(done_list)
-        elif mode == "any":
+        if mode == "any":
             return any(done_list)
+        return None
 
     def step_status(self):
         """
@@ -543,8 +537,8 @@ class EnvBase:
     # region: environment change
     def random_obstacle_position(
         self,
-        range_low: list = [0, 0, -3.14],
-        range_high: list = [10, 10, 3.14],
+        range_low: Optional[list] = None,
+        range_high: Optional[list] = None,
         ids: Optional[list] = None,
         non_overlapping: bool = False,
     ):
@@ -557,6 +551,10 @@ class EnvBase:
             ids (list): A list of IDs of objects for which to set random positions. Default is None.
             non_overlapping (bool): If set, the obstacles that will be reset to random obstacles will not overlap with other obstacles. Default is False.
         """
+        if range_high is None:
+            range_high = [10, 10, 3.14]
+        if range_low is None:
+            range_low = [0, 0, -3.14]
         if ids is None:
             ids = [obs.id for obs in self.obstacle_list]
         if isinstance(range_low, list):
@@ -569,7 +567,6 @@ class EnvBase:
         existing_obj = [obj for obj in self.objects if obj.id not in ids]
 
         for obj in selected_obs:
-
             if not non_overlapping:
                 obj.set_state(
                     np.random.uniform(range_low, range_high, (3, 1)), init=True
@@ -582,7 +579,7 @@ class EnvBase:
                         np.random.uniform(range_low, range_high, (3, 1)), init=True
                     )
 
-                    if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
+                    if any(obj.check_collision(exi_obj) for exi_obj in existing_obj):
                         counter += 1
                     else:
                         existing_obj.append(obj)
@@ -593,11 +590,11 @@ class EnvBase:
 
     def random_polygon_shape(
         self,
-        center_range: list = [0, 0, 10, 10],
-        avg_radius_range: list = [0.1, 1],
-        irregularity_range: list = [0, 1],
-        spikeyness_range: list = [0, 1],
-        num_vertices_range: list = [4, 10],
+        center_range: Optional[list] = None,
+        avg_radius_range: Optional[list] = None,
+        irregularity_range: Optional[list] = None,
+        spikeyness_range: Optional[list] = None,
+        num_vertices_range: Optional[list] = None,
     ):
         """
         Random polygon shapes for the obstacles in the environment.
@@ -626,6 +623,16 @@ class EnvBase:
                 the number of vertices of the polygon.
         """
 
+        if num_vertices_range is None:
+            num_vertices_range = [4, 10]
+        if spikeyness_range is None:
+            spikeyness_range = [0, 1]
+        if irregularity_range is None:
+            irregularity_range = [0, 1]
+        if avg_radius_range is None:
+            avg_radius_range = [0.1, 1]
+        if center_range is None:
+            center_range = [0, 0, 10, 10]
         vertices_list = random_generate_polygon(
             self.obstacle_number,
             center_range,
@@ -636,7 +643,6 @@ class EnvBase:
         )
 
         for i, obj in enumerate(self.obstacle_list):
-
             if obj.shape == "polygon":
                 geom = Polygon(vertices_list[i])
                 obj.set_original_geometry(geom)

@@ -1,8 +1,9 @@
-import pytest
 import numpy as np
+import pytest
+
 from irsim.lib.algorithm.kinematics import (
-    differential_kinematics,
     ackermann_kinematics,
+    differential_kinematics,
     omni_kinematics,
 )
 
@@ -76,21 +77,21 @@ def test_omni_kinematics():
 def test_kinematics_error_handling():
     """Test error handling in kinematics functions"""
     # Test invalid state dimensions
+    state = np.array([[0], [0]])  # Too few dimensions
+    velocity = np.array([[1], [0]])
     with pytest.raises(AssertionError):
-        state = np.array([[0], [0]])  # Too few dimensions
-        velocity = np.array([[1], [0]])
         differential_kinematics(state, velocity, 1.0)
 
     # Test invalid velocity dimensions
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1]])  # Too few dimensions
     with pytest.raises(AssertionError):
-        state = np.array([[0], [0], [0]])
-        velocity = np.array([[1]])  # Too few dimensions
         differential_kinematics(state, velocity, 1.0)
 
     # Test invalid noise parameters
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0]])
     with pytest.raises(AssertionError):
-        state = np.array([[0], [0], [0]])
-        velocity = np.array([[1], [0]])
         differential_kinematics(
             state, velocity, 1.0, noise=True, alpha=[0.03]
         )  # Too few parameters

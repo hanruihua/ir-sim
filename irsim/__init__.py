@@ -1,8 +1,10 @@
-from .version import __version__
-from irsim.env import EnvBase, EnvBase3D
 import os
 import sys
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
+
+from irsim.env import EnvBase, EnvBase3D
+
+from .version import __version__
 
 
 def make(
@@ -47,5 +49,4 @@ def make(
 
     if projection == "3d":
         return EnvBase3D(world_name, **kwargs)
-    else:
-        return EnvBase(world_name, **kwargs)
+    return EnvBase(world_name, **kwargs)

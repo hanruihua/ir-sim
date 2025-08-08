@@ -1,6 +1,6 @@
+import contextlib
+
 from .mouse_control import MouseControl
 
-try:
+with contextlib.suppress(ImportError):
     from .keyboard_control import KeyboardControl
-except ImportError:
-    pass

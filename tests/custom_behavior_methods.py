@@ -1,11 +1,13 @@
-from irsim.lib import register_behavior
-from irsim.util.util import relative_position, WrapToPi
 import numpy as np
+
+from irsim.lib import register_behavior
+from irsim.util.util import WrapToPi, relative_position
 
 
 @register_behavior("diff", "dash_custom")
-def beh_diff_dash(ego_object, external_objects=[], **kwargs):
-
+def beh_diff_dash(ego_object, external_objects=None, **kwargs):
+    if external_objects is None:
+        external_objects = []
     print("This is a custom behavior example for differential drive with dash2")
 
     state = ego_object.state
@@ -14,9 +16,7 @@ def beh_diff_dash(ego_object, external_objects=[], **kwargs):
     _, max_vel = ego_object.get_vel_range()
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
-    behavior_vel = DiffDash2(state, goal, max_vel, goal_threshold, angle_tolerance)
-
-    return behavior_vel
+    return DiffDash2(state, goal, max_vel, goal_threshold, angle_tolerance)
 
 
 def DiffDash2(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):

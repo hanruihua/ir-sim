@@ -1,4 +1,7 @@
+from typing import Optional
+
 import numpy as np
+
 from .obstacle_map import ObstacleMap
 
 
@@ -8,7 +11,7 @@ class Map:
         width: int = 10,
         height: int = 10,
         resolution: float = 0.1,
-        obstacle_list: list = [],
+        obstacle_list: Optional[list] = None,
         grid: np.ndarray = None,
     ):
         """
@@ -22,6 +25,8 @@ class Map:
             grid (np.ndarray): grid map data for collision detection.
         """
 
+        if obstacle_list is None:
+            obstacle_list = []
         self.width = width
         self.height = height
         self.resolution = resolution

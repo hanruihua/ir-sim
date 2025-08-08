@@ -7,8 +7,6 @@ This package contains configuration parameters for:
 - path_param: Path parameters
 """
 
-from . import env_param
-from . import world_param
-from . import path_param
+from . import env_param, path_param, world_param
 
-__all__ = ["env_param", "world_param", "path_param"]
+__all__ = ["env_param", "path_param", "world_param"]

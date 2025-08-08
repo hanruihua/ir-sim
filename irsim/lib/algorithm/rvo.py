@@ -6,8 +6,10 @@ Author: Ruihua Han
 reference: https://github.com/MengGuo/RVO_Py_MAS
 """
 
+from math import asin, atan2, cos, pi, sin
+
 import numpy as np
-from math import sin, cos, atan2, asin, pi
+
 from irsim.util.util import dist_hypot
 
 
@@ -27,13 +29,14 @@ class reciprocal_vel_obs:
     def __init__(
         self,
         state: list,
-        obs_state_list=[],
+        obs_state_list=None,
         vxmax=1.5,
         vymax=1.5,
         acce=0.5,
         factor=1.0,
     ):
-
+        if obs_state_list is None:
+            obs_state_list = []
         self.state = state
         self.obs_state_list = obs_state_list
         self.vxmax = vxmax
@@ -42,7 +45,6 @@ class reciprocal_vel_obs:
         self.factor = factor
 
     def update(self, state, obs_state_list):
-
         self.state = state
         self.obs_state_list = obs_state_list
 
@@ -68,12 +70,9 @@ class reciprocal_vel_obs:
             print("wrong method mode, pleas input vo, rvo or hrvo")
 
         vo_outside, vo_inside = self.vel_candidate(rvo_list)
-        rvo_vel = self.vel_select(vo_outside, vo_inside)
-
-        return rvo_vel
+        return self.vel_select(vo_outside, vo_inside)
 
     def config_rvo(self):
-
         rvo_list = []
 
         for obstacle in self.obs_state_list:
@@ -83,20 +82,15 @@ class reciprocal_vel_obs:
         return rvo_list
 
     def config_rvo_mode(self, obstacle):
-
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
 
-        if vx == 0 and vy == 0:
-            mode = "sta_circular"
-        else:
-            mode = "moving"
+        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
 
         if mode == "moving":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = obstacle[2]
@@ -106,7 +100,6 @@ class reciprocal_vel_obs:
             rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
 
         elif mode == "sta_circular":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = 0
@@ -143,7 +136,6 @@ class reciprocal_vel_obs:
         return [rvo_apex, line_left_vector, line_right_vector]
 
     def config_hrvo(self):
-
         hrvo_list = []
 
         for obstacle in self.obs_state_list:
@@ -154,20 +146,15 @@ class reciprocal_vel_obs:
         return hrvo_list
 
     def config_hrvo_mode(self, obstacle):
-
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
 
-        if vx == 0 and vy == 0:
-            mode = "sta_circular"
-        else:
-            mode = "moving"
+        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
 
         if mode == "moving":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = obstacle[2]
@@ -175,7 +162,6 @@ class reciprocal_vel_obs:
             mr = obstacle[4]
 
         elif mode == "sta_circular":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = 0
@@ -204,7 +190,6 @@ class reciprocal_vel_obs:
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
 
         if mode == "moving":
-
             cl_vector = [mx - x, my - y]
 
             cur_v = [vx - rvo_apex[0], vy - rvo_apex[1]]
@@ -234,36 +219,29 @@ class reciprocal_vel_obs:
 
             return [hrvo_apex, line_left_vector, line_right_vector]
 
-        elif mode == "sta_circular":
-
+        if mode == "sta_circular":
             return [vo_apex, line_left_vector, line_right_vector]
+        return None
 
     def config_vo(self):
-
         vo_list = []
 
         for obstacle in self.obs_state_list:
-
             vo = self.config_vo_mode(obstacle)
             vo_list.append(vo)
 
         return vo_list
 
     def config_vo_mode(self, obstacle):
-
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
         vy = self.state[3]
         r = self.state[4]
 
-        if vx == 0 and vy == 0:
-            mode = "sta_circular"
-        else:
-            mode = "moving"
+        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
 
         if mode == "moving":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = obstacle[2]
@@ -271,7 +249,6 @@ class reciprocal_vel_obs:
             mr = obstacle[4]
 
         elif mode == "sta_circular":
-
             mx = obstacle[0]
             my = obstacle[1]
             mvx = 0
@@ -305,7 +282,6 @@ class reciprocal_vel_obs:
         return [vo_apex, line_left_vector, line_right_vector]
 
     def vel_candidate(self, rvo_list):
-
         vo_outside = []
         vo_inside = []
 
@@ -320,7 +296,6 @@ class reciprocal_vel_obs:
 
         for new_vx in np.arange(cur_vx_min, cur_vx_max, 0.05):
             for new_vy in np.arange(cur_vy_min, cur_vy_max, 0.05):
-
                 if self.vo_out(new_vx, new_vy, rvo_list):
                     vo_outside.append([new_vx, new_vy])
 
@@ -330,7 +305,6 @@ class reciprocal_vel_obs:
         return vo_outside, vo_inside
 
     def vo_out(self, vx, vy, rvo_list):
-
         for rvo in rvo_list:
             rel_vx = vx - rvo[0][0]
             rel_vy = vy - rvo[0][1]
@@ -344,7 +318,6 @@ class reciprocal_vel_obs:
         return True
 
     def vel_select(self, vo_outside, vo_inside):
-
         vel_des = [self.state[5], self.state[6]]
 
         if len(vo_outside) != 0:
@@ -352,15 +325,12 @@ class reciprocal_vel_obs:
                 vo_outside, key=lambda v: dist_hypot(v[0], v[1], vel_des[0], vel_des[1])
             )
 
-        else:
-            return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
+        return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
 
     def penalty(self, vel, vel_des, factor):
-
         tc_list = []
 
         for moving in self.obs_state_list:
-
             distance = dist_hypot(moving[0], moving[1], self.state[0], self.state[1])
             diff = distance**2 - (self.state[4] + moving[4]) ** 2
 
@@ -383,23 +353,17 @@ class reciprocal_vel_obs:
         if tc_min == 0:
             tc_min = 0.0001
 
-        penalty_vel = factor * (1 / tc_min) + dist_hypot(
+        return factor * (1 / tc_min) + dist_hypot(
             vel_des[0], vel_des[1], vel[0], vel[1]
         )
-
-        return penalty_vel
 
     # judge the direction by vector
     @staticmethod
     def between_vector(line_left_vector, line_right_vector, line_vector):
-
-        if (
+        return bool(
             reciprocal_vel_obs.cross_product(line_left_vector, line_vector) <= 0
             and reciprocal_vel_obs.cross_product(line_right_vector, line_vector) >= 0
-        ):
-            return True
-        else:
-            return False
+        )
 
     @staticmethod
     def cross_product(vector1, vector2):

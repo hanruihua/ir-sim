@@ -13,6 +13,8 @@ authors = [
 description = "IR-SIM is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple and user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements."
 readme = "README.md"
 requires-python = ">=3.9"
+license = { file = "LICENSE" }
+keywords = ["robotics", "simulation", "navigation", "control", "learning"]
 classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -46,6 +48,40 @@ exclude = ["doc*", "tests*"]
 [tool.setuptools.package-data]
 "*" = ["*.png", "*.yaml"]
 
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+# Optional: keep docs/examples out of lint (adjust as you like)
+extend-exclude = ["doc/source/conf.py"]
+
+[tool.ruff.lint]
+# Baseline: correctness + PEP8 + imports + modernize + common bugs + sensible cleanups
+select = [
+  "F",    # pyflakes: undefined/unused/etc.
+  "E", "W",  # pycodestyle: basic style
+  "I",    # isort: import sorting
+  "UP",   # pyupgrade: modernize for py39+
+  "B",    # flake8-bugbear: common pitfalls
+  "RUF",  # Ruff-specific rules
+  "C4",   # comprehensions
+  "SIM",  # simplify
+  "ISC",  # implicit string concat
+  "RET",  # return statements
+  "PT"    # pytest-style (tests/)
+]
+
+# If you use Black or Ruff's formatter, don't fail on long lines.
+ignore = ["E501"]
+
+# Typical import sorting tweak: treat "irsim" as first-party.
+[tool.ruff.lint.isort]
+known-first-party = ["irsim"]
+
+# Common, intentional re-exports in package __init__.py
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
 [project.urls]
-"Homepage" = "https://github.com/hanruihua/ir-sim"
 "Documentation" = "https://ir-sim.readthedocs.io/en/stable/"
+"Repository" = "https://github.com/hanruihua/ir-sim"
+"Issues" = "https://github.com/hanruihua/ir-sim/issues"

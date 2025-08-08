@@ -7,8 +7,8 @@ This package contains different robot types:
 - robot_acker: Ackermann steering robot
 """
 
+from .robot_acker import RobotAcker
 from .robot_diff import RobotDiff
 from .robot_omni import RobotOmni
-from .robot_acker import RobotAcker
 
-__all__ = ["RobotDiff", "RobotOmni", "RobotAcker"]
+__all__ = ["RobotAcker", "RobotDiff", "RobotOmni"]
