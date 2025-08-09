@@ -12,17 +12,17 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 """
 
 import math
-from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.world.map import Map
 
 
 class AStarPlanner:
-    def __init__(self, env_map: Any, resolution: float) -> None:
+    def __init__(self, env_map: Map, resolution: float) -> None:
         """
         Initialize A* planner
 
@@ -91,14 +91,14 @@ class AStarPlanner:
             (np.array): xy position array of the final path
         """
         start_node = self.Node(
-            self.calc_xy_index(float(start_pose[0]), self.min_x),
-            self.calc_xy_index(float(start_pose[1]), self.min_y),
+            self.calc_xy_index(start_pose[0].item(), self.min_x),
+            self.calc_xy_index(start_pose[1].item(), self.min_y),
             0.0,
             -1,
         )
         goal_node = self.Node(
-            self.calc_xy_index(float(goal_pose[0]), self.min_x),
-            self.calc_xy_index(float(goal_pose[1]), self.min_y),
+            self.calc_xy_index(goal_pose[0].item(), self.min_x),
+            self.calc_xy_index(goal_pose[1].item(), self.min_y),
             0.0,
             -1,
         )

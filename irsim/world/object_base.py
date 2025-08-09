@@ -240,9 +240,13 @@ class ObjectBase:
         self._id = next(ObjectBase.id_iter)
 
         # handlers
-        self.gf = (
-            GeometryFactory.create_geometry(**shape) if shape is not None else None
-        )
+        if shape is None:
+            self.logger.warning(
+                f"No shape provided for object {self._id}, using default circle"
+            )
+            shape = {"name": "circle", "radius": 1, "center": [0, 0]}
+
+        self.gf = GeometryFactory.create_geometry(**shape)
         self.kf = (
             KinematicsFactory.create_kinematics(
                 wheelbase=self.wheelbase, role=role, **kinematics
@@ -290,7 +294,7 @@ class ObjectBase:
             self._goal_vertices.copy() if self._goal_vertices is not None else None
         )
 
-        self._geometry = self.gf.step(self.state)
+        self._geometry = self.gf.step(self.state) if self.gf is not None else None
         self.group = group
 
         # flag

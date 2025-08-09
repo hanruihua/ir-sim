@@ -17,6 +17,7 @@ import shapely
 from scipy.spatial import KDTree
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.world.map import Map
 
 
 class Node:
@@ -55,7 +56,7 @@ class Node:
 class PRMPlanner:
     def __init__(
         self,
-        env_map: Any,
+        env_map: Map,
         robot_radius: float,
         n_sample: int = 500,
         n_knn: int = 10,
@@ -103,10 +104,10 @@ class PRMPlanner:
             (np.array): xy position array of the final path
         """
         start_x, start_y, goal_x, goal_y = (
-            float(start_pose[0]),
-            float(start_pose[1]),
-            float(goal_pose[0]),
-            float(goal_pose[1]),
+            start_pose[0].item(),
+            start_pose[1].item(),
+            goal_pose[0].item(),
+            goal_pose[1].item(),
         )
         sample_x, sample_y = self.sample_points(start_x, start_y, goal_x, goal_y, rng)
         if show_animation:

@@ -10,13 +10,14 @@ adapted by: Reinis Cimurs
 
 import math
 import random
-from typing import Any, Optional
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.world.map import Map
 
 
 class RRT:
@@ -48,7 +49,7 @@ class RRT:
         Area Bounds
         """
 
-        def __init__(self, env_map: Any) -> None:
+        def __init__(self, env_map: Map) -> None:
             """
             Initialize AreaBounds
 
@@ -63,7 +64,7 @@ class RRT:
 
     def __init__(
         self,
-        env_map: Any,
+        env_map: Map,
         robot_radius: float,
         expand_dis: float = 1.0,
         path_resolution: float = 0.25,
@@ -113,8 +114,8 @@ class RRT:
         Returns:
             (np.array): xy position array of the final path
         """
-        self.start = self.Node(float(start_pose[0]), float(start_pose[1]))
-        self.end = self.Node(float(goal_pose[0]), float(goal_pose[1]))
+        self.start = self.Node(start_pose[0].item(), start_pose[1].item())
+        self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
 
         self.node_list = [self.start]
         for _i in range(self.max_iter):

@@ -9,9 +9,10 @@ adapted by: Reinis Cimurs
 """
 
 import math
-from typing import Any, Optional
+from typing import Optional
 
 from irsim.lib.path_planners.rrt import RRT
+from irsim.world.map import Map
 
 
 class RRTStar(RRT):
@@ -37,7 +38,7 @@ class RRTStar(RRT):
 
     def __init__(
         self,
-        env_map: Any,
+        env_map: Map,
         robot_radius: float,
         expand_dis: float = 1.5,
         path_resolution: float = 0.25,
