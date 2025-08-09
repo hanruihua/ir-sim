@@ -27,11 +27,11 @@ Thank you for your interest in improving IR-SIM! Whether you’re fixing a typo,
 
 ## Code Style
 
-We use **Black** to format and lint Python code. Before opening a PR, run:
+We use **[Ruff](https://docs.astral.sh/ruff/)** to format and lint Python code. Before opening a PR, run:
 
 ```bash
-pip install black
-black --check .
+pip install ruff
+ruff check
 ```
 
 To enable automatic checks on each commit, install the pre-commit hook:

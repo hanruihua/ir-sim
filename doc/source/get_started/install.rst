@@ -107,31 +107,67 @@ Install with Additional Features
     * `pynput`_ - For keyboard and mouse input handling
     * `tabulate`_ - For formatted table output
 
-.. dropdown:: Testing
-
-    IR-SIM comes with a comprehensive test suite.
-    Install the testing dependencies:
-
-    ::
-
-        pip install ir-sim[test]
-
-    This installs:
-    
-    * `pytest`_ - Testing framework
-    * `pytest-cov`_ - Coverage reporting
 
 .. dropdown:: Linting
 
-    IR-SIM uses `black`_ for linting.
+    IR-SIM uses `Ruff`_ for linting. To install the dependency-groups for linting locally, run
 
     ::
 
-        pip install ir-sim[lint]
+        uv sync --group lint
 
-    This installs:
+    This includes:
 
-    * `black`_ - Linting tool
+    * `Ruff`_ - Linting tool
+    * `ty`_ - Type hinting tool
+    * `black`_ - Code formatter
+    
+.. dropdown:: Testing
+    :open:
+
+    Install test dependencies using the test group (from ``pyproject.toml``):
+
+    ::
+
+        uv sync --group test
+
+    Run the tests:
+
+    ::
+
+        uv run pytest
+
+    Generate coverage:
+
+    ::
+
+        uv run pytest --cov . --cov-report=xml --cov-report=html
+
+    Type-check the codebase:
+
+    ::
+
+        uvx ty check
+
+
+.. dropdown:: Documentation
+    :open:
+
+    Install documentation dependencies using the doc group (from ``pyproject.toml``):
+
+    ::
+
+        uv sync --group doc
+
+    Build the docs locally (HTML):
+
+    ::
+
+        cd doc
+        make html
+
+    The output will be available under ``doc/build/html`` (or ``doc/_build/html`` depending on your environment setup).
+
 
 .. dropdown:: All Features
 
@@ -144,18 +180,20 @@ Install with Additional Features
     This includes:
     
     * Keyboard control features (`pynput`, `tabulate`)
-    * Testing framework (`pytest`, `pytest-cov`)
     * Enhanced video support (`imageio[ffmpeg]`)
-    * Linting (`black`)
 
-Running the test suite
------------------------
-IR-SIM comes with a comprehensive test suite, which can be run after installing `pytest`_.
-If installed from source, navigate to the root of the repository and run
+    To install dependency-groups:
 
-::
+    ::
 
-    pytest
+        uv sync --all-groups
+    
+    This includes:
+
+    * lint group
+    * test group
+    * doc group
+
 
 .. _uv: https://docs.astral.sh/uv/
 .. _conda: https://docs.conda.io/en/latest/
@@ -173,8 +211,9 @@ If installed from source, navigate to the root of the repository and run
 .. _pip: https://pip.pypa.io/
 .. _pyproject.toml: https://github.com/hanruihua/ir-sim/blob/main/pyproject.toml
 .. _pytest-cov: https://pytest-cov.readthedocs.io/
+.. _Ruff: https://docs.astral.sh/ruff/
 .. _black: https://black.readthedocs.io/
-
+.. _ty: https://docs.astral.sh/ty/
 
 
 
