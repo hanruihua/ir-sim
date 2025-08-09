@@ -16,6 +16,9 @@ requires-python = ">=3.9"
 license = { file = "LICENSE" }
 keywords = ["robotics", "simulation", "navigation", "control", "learning"]
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -36,9 +39,38 @@ dependencies = [
 
 [project.optional-dependencies]
 keyboard = ['pynput', 'tabulate']
-test = ['pytest', 'pytest-cov']
-lint = ['black']
-all = ['pynput', 'tabulate', 'pytest', 'pytest-cov', 'imageio[ffmpeg]', 'black']
+all = ['pynput', 'tabulate', 'imageio[ffmpeg]']
+
+[dependency-groups]
+doc = [
+    "importlib-metadata>=8.7.0",
+    "myst-parser>=3.0.1",
+    "pydata-sphinx-theme>=0.16.1",
+    "pynput>=1.8.1",
+    "sphinx>=7.4.7",
+    "sphinx-autoapi>=3.6.0",
+    "sphinx-autodoc-typehints>=2.3.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-design>=0.6.1",
+    "sphinx-inline-tabs>=2023.4.21",
+    "sphinx-multiversion>=0.2.4",
+    "sphinx-rtd-theme>=3.0.2",
+]
+lint = [
+    "black>=25.1.0",
+    "mypy>=1.17.1",
+    "ruff>=0.12.8",
+]
+test = [
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+]
+
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    "pre-commit==4.2.0",
+]
 
 
 [tool.setuptools.packages.find]
@@ -82,6 +114,7 @@ known-first-party = ["irsim"]
 "__init__.py" = ["F401"]
 
 [project.urls]
+"Homepage" = "https://ir-sim.readthedocs.io/en/stable/"
 "Documentation" = "https://ir-sim.readthedocs.io/en/stable/"
 "Repository" = "https://github.com/hanruihua/ir-sim"
 "Issues" = "https://github.com/hanruihua/ir-sim/issues"
