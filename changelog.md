@@ -1,3 +1,24 @@
+## ir-sim 2.7.0
+
+This version improves the CI pipeline, GitHub Actions workflows, linting, and formatting to ensure consistent style and faster checks, with no API changes.
+
+- Workflow improvements:
+  - Adopted `uv` to manage the project and dependencies; pyproject.toml is now uv-managed.
+  - Using `uv.lock` to lock the dependencies.
+  - Using `Ruff` for linting and formatting (replacing `Black`).
+  - Added type hint and Using `ty` for type checking.
+  - Added `pre-commit` configuration (.pre-commit-config.yaml) to run linting and formatting before commits.
+  - Reorganized GitHub Actions workflows to test the API and enforce code style.
+  - Added issue templates; dependabot.yml; Contributing;
+
+- Bug fixes:
+  - Fixed documentation errors.
+  - Fixed 3D plot title.
+
+- Folder structure:
+  - Renamed `doc/` to `docs/`.
+  - Moved `irsim/usage/` to `usage/` at the repository root.
+
 ## ir-sim 2.6.1
 
 - Bug Fixes:
