@@ -70,6 +70,7 @@ dev = [
     {include-group = "lint"},
     {include-group = "test"},
     "pre-commit==4.2.0",
+    "ty>=0.0.1a17",
 ]
 
 
@@ -103,7 +104,7 @@ select = [
 ]
 
 # If you use Black or Ruff's formatter, don't fail on long lines.
-ignore = ["E501"]
+ignore = ["E501", "UP045", "UP007"]
 
 # Typical import sorting tweak: treat "irsim" as first-party.
 [tool.ruff.lint.isort]
@@ -112,6 +113,19 @@ known-first-party = ["irsim"]
 # Common, intentional re-exports in package __init__.py
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.ty.src]
+include = ["irsim"]
+exclude = ["doc", "tests"]
+
+[tool.ty.rules]
+unused-ignore-comment = "warn"
+possibly-unbound-import = "error"
+invalid-argument-type = "ignore"
+unresolved-import = "ignore"
+redundant-cast = "ignore"
+unresolved-attribute = "ignore"
+possibly-unbound-attribute = "ignore"
 
 [project.urls]
 "Homepage" = "https://ir-sim.readthedocs.io/en/stable/"

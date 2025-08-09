@@ -103,10 +103,10 @@ class PRMPlanner:
             (np.array): xy position array of the final path
         """
         start_x, start_y, goal_x, goal_y = (
-            start_pose[0].item(),
-            start_pose[1].item(),
-            goal_pose[0].item(),
-            goal_pose[1].item(),
+            float(start_pose[0]),
+            float(start_pose[1]),
+            float(goal_pose[0]),
+            float(goal_pose[1]),
         )
         sample_x, sample_y = self.sample_points(start_x, start_y, goal_x, goal_y, rng)
         if show_animation:

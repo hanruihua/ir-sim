@@ -91,14 +91,14 @@ class AStarPlanner:
             (np.array): xy position array of the final path
         """
         start_node = self.Node(
-            self.calc_xy_index(start_pose[0].item(), self.min_x),
-            self.calc_xy_index(start_pose[1].item(), self.min_y),
+            self.calc_xy_index(float(start_pose[0]), self.min_x),
+            self.calc_xy_index(float(start_pose[1]), self.min_y),
             0.0,
             -1,
         )
         goal_node = self.Node(
-            self.calc_xy_index(goal_pose[0].item(), self.min_x),
-            self.calc_xy_index(goal_pose[1].item(), self.min_y),
+            self.calc_xy_index(float(goal_pose[0]), self.min_x),
+            self.calc_xy_index(float(goal_pose[1]), self.min_y),
             0.0,
             -1,
         )

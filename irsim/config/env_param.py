@@ -7,7 +7,9 @@ Platform: The operating system platform
 import platform
 from typing import Any, Optional
 
-objects: list[Any] = []
+from irsim.world.object_base import ObjectBase
+
+objects: list[ObjectBase] = []
 logger: Optional[Any] = None
 GeometryTree: Optional[Any] = None
 platform_name: str = platform.system()

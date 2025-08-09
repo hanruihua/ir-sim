@@ -128,7 +128,7 @@ class KinematicsFactory:
         if name == "diff":
             return DifferentialKinematics(name, noise, alpha)
         if name == "acker":
-            return AckermannKinematics(name, noise, alpha, mode, wheelbase)
+            return AckermannKinematics(name, noise, alpha, mode, wheelbase or 1.0)
         # elif name == 'rigid3d':
         #     return Rigid3DKinematics(name, noise, alpha)
         if role == "robot":
@@ -136,4 +136,5 @@ class KinematicsFactory:
         else:
             pass
 
-        return None
+        # Fallback to a stationary kinematics handler (differential with zero wheelbase)
+        return DifferentialKinematics(name or "diff", noise, alpha)

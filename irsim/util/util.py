@@ -2,6 +2,7 @@ import math
 import os
 import sys
 import time
+from collections import deque
 from math import atan2, cos, pi, sin
 from typing import Any, Optional, Union
 
@@ -39,7 +40,9 @@ def file_check(
     else:
         if root_path is None:
             # raise FileNotFoundError("File not found: " + file_name)
-            env_param.logger.warning(f"{file_name} not found")
+            logger = getattr(env_param, "logger", None)
+            if logger is not None:
+                logger.warning(f"{file_name} not found")
             return None
         # root_file_name = root_path + "/" + file_name
         root_file_name = find_file(root_path, file_name)
@@ -47,7 +50,9 @@ def file_check(
             abs_file_name = root_file_name
         else:
             # raise FileNotFoundError("File not found: " + root_file_name)
-            env_param.logger.warning(f"{root_file_name} not found")
+            logger = getattr(env_param, "logger", None)
+            if logger is not None:
+                logger.warning(f"{root_file_name} not found")
             return None
 
     return abs_file_name
@@ -241,7 +246,7 @@ def relative_position(
     return distance, radian
 
 
-def get_transform(state: np.ndarray) -> np.ndarray:
+def get_transform(state: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     Get rotation and translation matrices from state.
 
@@ -333,7 +338,7 @@ def geometry_transform(geometry: Any, state: np.ndarray) -> Any:
     return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
 
-def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray:
+def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> Optional[np.ndarray]:
     """
     Transform vertices using a state.
 
@@ -497,7 +502,7 @@ def cross_product(o: list[float], a: list[float], b: list[float]) -> float:
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 
-def is_convex_and_ordered(points: list[list[float]]) -> bool:
+def is_convex_and_ordered(points: np.ndarray) -> tuple[bool, Optional[str]]:
     """
     Determine if the polygon is convex and return the order (CW or CCW).
 
@@ -624,7 +629,7 @@ def random_point_range(
     return np.random.uniform(range_low, range_high)
 
 
-def is_2d_list(data: list) -> bool:
+def is_2d_list(data: Union[list, deque]) -> bool:
     """
     Returns True if 'data' is a non-empty list of lists (or tuples), indicating a 2D structure.
     Returns False if 'data' is a single list

@@ -113,8 +113,8 @@ class RRT:
         Returns:
             (np.array): xy position array of the final path
         """
-        self.start = self.Node(start_pose[0].item(), start_pose[1].item())
-        self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
+        self.start = self.Node(float(start_pose[0]), float(start_pose[1]))
+        self.end = self.Node(float(goal_pose[0]), float(goal_pose[1]))
 
         self.node_list = [self.start]
         for _i in range(self.max_iter):

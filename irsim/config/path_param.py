@@ -1,6 +1,7 @@
 import os
 import sys
 from dataclasses import dataclass
+from typing import cast
 
 import irsim
 
@@ -15,7 +16,7 @@ class PathManager:
         - fig_path: path of the saved figure
     """
 
-    root_path: str = os.path.dirname(irsim.__file__)
+    root_path: str = os.path.dirname(cast(str, irsim.__file__))
     ani_buffer_path: str = sys.path[0] + "/animation_buffer"
     ani_path: str = sys.path[0] + "/animation"
     fig_path: str = sys.path[0] + "/figure"

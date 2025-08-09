@@ -68,7 +68,7 @@ class Lidar2D:
 
     def __init__(
         self,
-        state: np.ndarray = None,
+        state: Optional[np.ndarray] = None,
         obj_id: int = 0,
         range_min: float = 0,
         range_max: float = 10,
@@ -195,6 +195,10 @@ class Lidar2D:
         object_tree = env_param.GeometryTree
         objects = env_param.objects
         geometries = [obj._geometry for obj in objects]
+
+        # Guard against missing geometry index
+        if object_tree is None:
+            return lidar_geometry, []
 
         potential_geometries_index = object_tree.query(lidar_geometry)
 

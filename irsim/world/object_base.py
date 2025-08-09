@@ -3,7 +3,7 @@ import math
 from collections import deque
 from dataclasses import dataclass
 from math import atan2, cos, inf, pi, sin
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
@@ -11,9 +11,12 @@ import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
 import shapely
 from matplotlib import image
-from matplotlib.patches import Circle, Wedge
+from matplotlib.lines import Line2D
+from matplotlib.patches import Arrow, Circle, Rectangle, Wedge
+from matplotlib.patches import Polygon as MplPolygon
 from mpl_toolkits.mplot3d import Axes3D
 from shapely.geometry import MultiLineString
+from shapely.geometry.base import BaseGeometry
 from shapely.strtree import STRtree
 
 from irsim.config import env_param, world_param
@@ -342,7 +345,8 @@ class ObjectBase:
             ]
 
             self.lidar = next(
-                sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"
+                (sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"),
+                None,
             )
         else:
             self.sensors = []
@@ -363,9 +367,7 @@ class ObjectBase:
         self.wander = self.beh_config.get("wander", False)
 
         if self.wander:
-            self._goal = deque(
-                [random_point_range(self.rl, self.rh).flatten().tolist()]
-            )
+            self._goal = deque([random_point_range(self.rl, self.rh)])
 
         # plot
         self.plot_kwargs = kwargs.get("plot", {})
@@ -391,7 +393,7 @@ class ObjectBase:
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
-    def step(self, velocity: Optional[np.ndarray] = None, **kwargs: any):
+    def step(self, velocity: Optional[np.ndarray] = None, **kwargs: Any):
         """
         Perform a single simulation step, updating the object's state and sensors.
 
@@ -579,9 +581,7 @@ class ObjectBase:
                 return np.zeros_like(self._velocity)
 
             if self.wander and self.arrive_flag:
-                self._goal = deque(
-                    [random_point_range(self.rl, self.rh).flatten().tolist()]
-                )
+                self._goal = deque([random_point_range(self.rl, self.rh)])
                 self.arrive_flag = False
 
             behavior_vel = self.obj_behavior.gen_vel(
@@ -640,7 +640,9 @@ class ObjectBase:
             np.ndarray: Processed state.
         """
         if state.shape[0] > 2:
-            state[2, 0] = WrapToRegion(state[2, 0], self.info.angle_range)
+            state[2, 0] = WrapToRegion(
+                float(state[2, 0]), self.info.angle_range.flatten().tolist()
+            )
 
         if state.shape[0] < self.state_dim:
             pad_value = (
@@ -732,7 +734,9 @@ class ObjectBase:
             fov_diff <= self.fov / 2 and distance_do - radius_do <= self.fov_radius
         )
 
-    def set_state(self, state: Union[list, np.ndarray] = None, init: bool = False):
+    def set_state(
+        self, state: Optional[Union[list, np.ndarray]] = None, init: bool = False
+    ):
         """
         Set the current state of the object.
 
@@ -783,8 +787,8 @@ class ObjectBase:
         self._geometry = self.gf.step(self.state)
 
     def set_velocity(
-        self, velocity: Union[list, np.ndarray] = None, init: bool = False
-    ):
+        self, velocity: Optional[Union[list, np.ndarray]] = None, init: bool = False
+    ) -> None:
         """
         Set the velocity of the object.
 
@@ -812,7 +816,7 @@ class ObjectBase:
 
         self._velocity = temp_velocity.copy()
 
-    def set_original_geometry(self, geometry: shapely.geometry.base.BaseGeometry):
+    def set_original_geometry(self, geometry: BaseGeometry):
         """
         Set the original geometry of the object.
         """
@@ -848,11 +852,7 @@ class ObjectBase:
                 covered_goal = True
                 counter = 0
                 while covered_goal and counter < max_attempts:
-                    goal = (
-                        random_point_range(range_limits[0], range_limits[1])
-                        .flatten()
-                        .tolist()
-                    )
+                    goal = random_point_range(range_limits[0], range_limits[1])
                     shape = {"name": "circle", "radius": goal_check_radius}
                     gf = GeometryFactory.create_geometry(**shape)
                     geometry = gf.step(np.c_[goal])
@@ -866,16 +866,14 @@ class ObjectBase:
                         f"Could not place the goal in a position free of obstacles in {max_attempts} tries"
                     )
             else:
-                goal = (
-                    random_point_range(range_limits[0], range_limits[1])
-                    .flatten()
-                    .tolist()
-                )
+                goal = random_point_range(range_limits[0], range_limits[1])
             deque_goals.append(goal)
 
         self.set_goal(deque_goals, init=init)
 
-    def set_goal(self, goal: Union[list, np.ndarray] = None, init: bool = False):
+    def set_goal(
+        self, goal: Optional[Union[list, np.ndarray]] = None, init: bool = False
+    ):
         """
         Set the goal(s) for the object to navigate towards.
 
@@ -908,13 +906,23 @@ class ObjectBase:
         """
 
         if goal is None:
-            goal = [10, 10, 0]
-        if goal is None:
             self._goal = None
+
+            if init:
+                self._init_goal = None
+
             return
 
-        if is_2d_list(goal):
+        if isinstance(goal, list) and is_2d_list(goal):
             self._goal = deque(goal)
+
+            if init:
+                self._init_goal = self._goal.copy()
+
+            return
+
+        if isinstance(goal, deque):
+            self._goal = goal
 
             if init:
                 self._init_goal = self._goal.copy()
@@ -1314,7 +1322,7 @@ class ObjectBase:
 
                 elif attr == "arrow_patch":
                     # Update arrow patch using set_element_property
-                    if isinstance(element, mpl.patches.Arrow):
+                    if isinstance(element, Arrow):
                         # Calculate orientation for arrow direction
                         theta = (
                             atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
@@ -1376,7 +1384,7 @@ class ObjectBase:
 
                 elif attr == "fov_patch":
                     # Update FOV patch using set_element_property
-                    if isinstance(element, (mpl.patches.Wedge, mpl.patches.Circle)):
+                    if isinstance(element, (Wedge, Circle)):
                         direction = r_phi if self.state_dim >= 3 else 0
                         fov_state = np.array([[x], [y], [direction]])
 
@@ -1482,8 +1490,8 @@ class ObjectBase:
         if self.description is None or isinstance(ax, Axes3D):
             try:
                 if self.shape == "circle":
-                    object_patch = mpl.patches.Circle(
-                        xy=(state[0, 0], state[1, 0]),
+                    object_patch = Circle(
+                        xy=(float(state[0, 0]), float(state[1, 0])),
                         radius=self.radius,
                         color=self.color,
                         linestyle=obj_linestyle,
@@ -1498,7 +1506,7 @@ class ObjectBase:
                     self.object_patch = object_patch
 
                 elif self.shape in ["polygon", "rectangle"]:
-                    object_patch = mpl.patches.Polygon(
+                    object_patch = MplPolygon(
                         xy=vertices.T, color=self.color, linestyle=obj_linestyle
                     )
 
@@ -1520,7 +1528,7 @@ class ObjectBase:
                             color=self.color,
                         )
                     else:
-                        object_line = mpl.lines.Line2D(
+                        object_line = Line2D(
                             vertices[0, :],
                             vertices[1, :],
                             color=self.color,
@@ -1567,21 +1575,29 @@ class ObjectBase:
             The image file is searched in the world/description/ directory relative to the project root.
             The image is rotated and positioned according to the object's state and vertices.
         """
-        start_x = vertices[0, 0]
-        start_y = vertices[1, 0]
-        r_phi = state[2, 0]
-        r_phi_ang = 180 * r_phi / pi
-        obj_zorder = kwargs.get("obj_zorder", 2)
-
+        if vertices is None or state is None:
+            return
         robot_image_path = file_check(
             description, root_path=path_manager.root_path + "/world/description/"
         )
+        if robot_image_path is None:
+            return
+        start_x = float(vertices[0, 0])
+        start_y = float(vertices[1, 0])
+        r_phi = float(state[2, 0])
+        r_phi_ang = 180 * r_phi / pi
+        obj_zorder = kwargs.get("obj_zorder", 2)
 
         robot_img_read = image.imread(robot_image_path)
 
         robot_img = ax.imshow(
             robot_img_read,
-            extent=[start_x, start_x + self.length, start_y, start_y + self.width],
+            extent=[
+                float(start_x),
+                float(start_x + self.length),
+                float(start_y),
+                float(start_y + self.width),
+            ],
             zorder=obj_zorder,
         )
         trans_data = (
@@ -1676,20 +1692,25 @@ class ObjectBase:
         if goal_color is None:
             goal_color = self.color
 
+        if goal_state is None:
+            return
+
         if self.shape == "circle":
-            goal_patch = mpl.patches.Circle(
-                xy=(goal_state[0, 0], goal_state[1, 0]),
+            goal_patch = Circle(
+                xy=(float(goal_state[0, 0]), float(goal_state[1, 0])),
                 radius=self.radius,
                 color=goal_color,
                 alpha=goal_alpha,
             )
         else:
-            goal_patch = mpl.patches.Polygon(xy=vertices.T, color=goal_color)
+            if vertices is None:
+                return
+            goal_patch = MplPolygon(xy=vertices.T, color=goal_color)
 
         if isinstance(ax, Axes3D):
             art3d.patch_2d_to_3d(goal_patch, z=self.z)
 
-        goal_patch.set_zorder(goal_zorder)
+        goal_patch.set_zorder(int(goal_zorder) if goal_zorder is not None else 1)
         ax.add_patch(goal_patch)
 
         self.plot_patch_list.append(goal_patch)
@@ -1793,11 +1814,11 @@ class ObjectBase:
             else state[2, 0]
         )
 
-        arrow = mpl.patches.Arrow(
-            x,
-            y,
-            arrow_length * cos(theta),
-            arrow_length * sin(theta),
+        arrow = Arrow(
+            float(x),
+            float(y),
+            float(arrow_length * cos(theta)),
+            float(arrow_length * sin(theta)),
             width=arrow_width,
             color=arrow_color,
         )
@@ -1858,8 +1879,8 @@ class ObjectBase:
             start_x = vertices[0, 0]
             start_y = vertices[1, 0]
 
-            trail = mpl.patches.Rectangle(
-                xy=(start_x, start_y),
+            trail = Rectangle(
+                xy=(float(start_x), float(start_y)),
                 width=self.length,
                 height=self.width,
                 angle=r_phi_ang,
@@ -1877,7 +1898,7 @@ class ObjectBase:
             ax.add_patch(trail)
 
         elif trail_type == "polygon":
-            trail = mpl.patches.Polygon(
+            trail = MplPolygon(
                 vertices.T,
                 edgecolor=trail_color,
                 alpha=trail_alpha,
@@ -1893,8 +1914,8 @@ class ObjectBase:
 
         elif trail_type == "circle":
             # For circle, use the state position as center
-            trail = mpl.patches.Circle(
-                xy=(state[0, 0], state[1, 0]),
+            trail = Circle(
+                xy=(float(state[0, 0]), float(state[1, 0])),
                 radius=self.radius,
                 edgecolor=trail_edgecolor,
                 fill=trail_fill,
@@ -2132,7 +2153,7 @@ class ObjectBase:
         return self.state[2, 0] if self.state_dim >= 6 else 0
 
     @property
-    def kinematics(self) -> str:
+    def kinematics(self) -> Optional[str]:
         """
         Get the kinematics name of the object.
 
@@ -2143,7 +2164,7 @@ class ObjectBase:
         return self.kf.name if self.kf is not None else None
 
     @property
-    def geometry(self) -> shapely.geometry.base.BaseGeometry:
+    def geometry(self) -> BaseGeometry:
         """
         Get the geometry Instance of the object.
 
@@ -2209,7 +2230,7 @@ class ObjectBase:
         return self._velocity
 
     @property
-    def goal(self) -> np.ndarray:
+    def goal(self) -> Optional[np.ndarray]:
         """
         Get the goal of the object.
 
@@ -2342,7 +2363,7 @@ class ObjectBase:
         return self.gf.original_vertices
 
     @property
-    def original_geometry(self) -> shapely.geometry.base.BaseGeometry:
+    def original_geometry(self) -> BaseGeometry:
         """
         Get the original geometry of the object.
 
@@ -2401,6 +2422,9 @@ class ObjectBase:
         """
         tree = env_param.GeometryTree
         possible = []
+
+        if tree is None:
+            return possible
 
         candidates_index = tree.query(self.geometry)
 

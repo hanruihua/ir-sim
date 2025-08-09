@@ -128,7 +128,7 @@ class RRTStar(RRT):
 
         return None
 
-    def choose_parent(self, new_node: "Node", near_inds: list[int]) -> "Node":
+    def choose_parent(self, new_node: "Node", near_inds: list[int]) -> Optional["Node"]:
         """
         Computes the cheapest point to new_node contained in the list
         near_inds and set such a node as the parent of new_node.

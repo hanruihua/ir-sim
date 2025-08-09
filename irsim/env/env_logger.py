@@ -6,8 +6,8 @@ from loguru import logger
 
 class EnvLogger:
     def __init__(
-        self, log_file: Optional["str"] = "irsim_error.log", log_level="WARNING"
-    ):
+        self, log_file: Optional[str] = "irsim_error.log", log_level: str = "WARNING"
+    ) -> None:
         """
         Initialize the EnvLogger.
 
@@ -27,7 +27,7 @@ class EnvLogger:
         if log_file is not None:
             logger.add(log_file, level=log_level)
 
-    def info(self, msg):
+    def info(self, msg: str) -> None:
         """
         Log an info message.
 
@@ -36,7 +36,7 @@ class EnvLogger:
         """
         logger.info(msg)
 
-    def error(self, msg):
+    def error(self, msg: str) -> None:
         """
         Log an error message.
 
@@ -45,7 +45,7 @@ class EnvLogger:
         """
         logger.error(msg)
 
-    def debug(self, msg):
+    def debug(self, msg: str) -> None:
         """
         Log a debug message.
 
@@ -54,7 +54,7 @@ class EnvLogger:
         """
         logger.debug(msg)
 
-    def warning(self, msg):
+    def warning(self, msg: str) -> None:
         """
         Log a warning message.
 

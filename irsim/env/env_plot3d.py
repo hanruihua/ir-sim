@@ -126,7 +126,7 @@ class EnvPlot3D(EnvPlot):
 
         """
 
-        for point in points.T:
+        for point in points.T if isinstance(points, np.ndarray) else points:
             self.draw_quiver(point, refresh, **kwargs)
 
     def draw_trajectory(

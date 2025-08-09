@@ -119,6 +119,8 @@ class geometry_handler(ABC):
         """
 
         if self.name == "polygon" or self.name == "rectangle":
+            if vertices is None:
+                return None, None, None, False
             convex_flag, _ = is_convex_and_ordered(vertices)
 
             if convex_flag:
@@ -178,7 +180,7 @@ class geometry_handler(ABC):
         assert "this property is renamed to be original_vertices"
 
     @property
-    def original_vertices(self) -> np.ndarray:
+    def original_vertices(self) -> Optional[np.ndarray]:
         """
         Get the original vertices of the geometry.
         """

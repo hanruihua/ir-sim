@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import itertools
+from typing import Any, Optional
 
 from irsim.config import env_param
 from irsim.env import EnvBase
@@ -14,7 +17,7 @@ class EnvBase3D(EnvBase):
     This class is the 3D version of the environment class. It inherits from the :py:class:`.EnvBase` class to provide the 3D plot environment.
     """
 
-    def __init__(self, world_name, **kwargs):
+    def __init__(self, world_name: Optional[str], **kwargs: Any):
         super().__init__(world_name, **kwargs)
 
         object_factory = ObjectFactory()

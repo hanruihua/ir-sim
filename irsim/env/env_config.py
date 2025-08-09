@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any, Optional
+
 import yaml
 
 from irsim.config import env_param
@@ -10,10 +14,10 @@ class EnvConfig:
         basic categories: world, plot, robot, obstacle
     """
 
-    def __init__(self, world_name) -> None:
+    def __init__(self, world_name: Optional[str]) -> None:
         world_file_path = file_check(world_name)
 
-        self._kwargs_parse = {
+        self._kwargs_parse: dict[str, Any] = {
             "world": {},
             "plot": {},
             "keyboard": {},
@@ -40,7 +44,7 @@ class EnvConfig:
             )
 
     @property
-    def parse(self):
+    def parse(self) -> dict[str, Any]:
         """
         The parsed kwargs from the yaml file.
         """

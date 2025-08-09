@@ -12,7 +12,7 @@ class Map:
         height: int = 10,
         resolution: float = 0.1,
         obstacle_list: Optional[list] = None,
-        grid: np.ndarray = None,
+        grid: Optional[np.ndarray] = None,
     ):
         """
         Map class for storing map data and navigation information

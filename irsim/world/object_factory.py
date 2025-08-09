@@ -118,9 +118,8 @@ class ObjectFactory:
             }
             obj_dict["state"] = state_list[i]
             obj_dict["goal"] = goal_list[i]
-            obj_dict["sensors"] = convert_list_length_dict(
-                kwargs.get("sensors"), number
-            )[i]
+            sensors: list[Any] = kwargs.get("sensors") or []
+            obj_dict["sensors"] = convert_list_length_dict(sensors, number)[i]
 
             if obj_type == "robot":
                 object_list.append(self.create_robot(**obj_dict))
