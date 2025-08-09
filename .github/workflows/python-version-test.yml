@@ -36,7 +36,7 @@ jobs:
 
     - name: install package
       run: uv pip install .[all]
-
+      
     - name: Test with pytest (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |

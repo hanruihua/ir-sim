@@ -175,5 +175,27 @@ def test_3d_projection():
     assert True  # Add 3D related assertions
 
 
+def test_error_projection():
+    """Test error projection"""
+    with pytest.raises(ValueError, match="Unknown projection '3d2'"):
+        irsim.make(
+            "test_multi_objects_world.yaml",
+            save_ani=False,
+            display=False,
+            projection="3d2",
+        )
+    assert True
+
+
+def test_register_env():
+    """Test register env"""
+    irsim._env_factory.register("3d2", irsim.EnvBase3D)
+    env = irsim.make(
+        "test_multi_objects_world.yaml", save_ani=False, display=False, projection="3d2"
+    )
+    env.end()
+    assert True
+
+
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])

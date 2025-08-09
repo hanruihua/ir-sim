@@ -1,15 +1,64 @@
 import os
 import sys
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional
 
 from irsim.env import EnvBase, EnvBase3D
 
 from .version import __version__
 
 
+class _EnvFactory:
+    """
+    Internal object-oriented factory that creates IR-SIM environments.
+
+    Create an environment by the given world file and projection.
+
+    Env candidates:
+        - EnvBase (2D default)
+        - EnvBase3D (3D)
+    """
+
+    def __init__(
+        self, default_projection: Optional[str] = None, **default_kwargs: Any
+    ) -> None:
+        self.default_projection = default_projection
+        self.default_kwargs = default_kwargs
+
+        self._registry: dict[str, Callable[..., EnvBase]] = {
+            "2d": EnvBase,
+            "3d": EnvBase3D,
+        }
+
+    def _resolve_world_name(self, world_name: Optional[str]) -> str:
+        return world_name or os.path.basename(sys.argv[0]).split(".")[0] + ".yaml"
+
+    def register(self, key: str, ctor: Callable[..., EnvBase]) -> None:
+        self._registry[key.strip().lower()] = ctor
+
+    def create(
+        self,
+        world_name: Optional[str] = None,
+        projection: Optional[str] = None,
+        **kwargs: Any,
+    ) -> EnvBase:
+        resolved_world = self._resolve_world_name(world_name)
+        options: dict[str, Any] = {**self.default_kwargs, **kwargs}
+        key = (projection or self.default_projection or "2d").strip().lower()
+        try:
+            ctor = self._registry[key]
+        except KeyError as e:
+            raise ValueError(
+                f"Unknown projection {projection!r}. Allowed: {', '.join(self._registry)}"
+            ) from e
+        return ctor(resolved_world, **options)
+
+
+_env_factory = _EnvFactory()
+
+
 def make(
     world_name: Optional[str] = None, projection: Optional[str] = None, **kwargs: Any
-) -> Union[EnvBase, EnvBase3D]:
+) -> EnvBase:
     """
     Create an environment by the given world file and projection.
 
@@ -44,9 +93,4 @@ def make(
         >>> # Create environment with additional options
         >>> env = make("world.yaml", display=True, save_ani=False)
     """
-
-    world_name = world_name or os.path.basename(sys.argv[0]).split(".")[0] + ".yaml"
-
-    if projection == "3d":
-        return EnvBase3D(world_name, **kwargs)
-    return EnvBase(world_name, **kwargs)
+    return _env_factory.create(world_name=world_name, projection=projection, **kwargs)
