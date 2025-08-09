@@ -42,7 +42,7 @@ keyboard = ['pynput', 'tabulate']
 all = ['pynput', 'tabulate', 'imageio[ffmpeg]']
 
 [dependency-groups]
-doc = [
+docs = [
     "importlib-metadata>=8.7.0",
     "myst-parser>=3.0.1",
     "pydata-sphinx-theme>=0.16.1",
@@ -76,7 +76,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["irsim*"]
-exclude = ["doc*", "tests*"]
+exclude = ["docs*", "tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.png", "*.yaml"]
@@ -85,7 +85,7 @@ exclude = ["doc*", "tests*"]
 line-length = 88
 target-version = "py39"
 # Optional: keep docs/examples out of lint (adjust as you like)
-extend-exclude = ["doc/source/conf.py"]
+extend-exclude = ["docs/source/conf.py"]
 
 [tool.ruff.lint]
 # Baseline: correctness + PEP8 + imports + modernize + common bugs + sensible cleanups
@@ -116,7 +116,7 @@ known-first-party = ["irsim"]
 
 [tool.ty.src]
 include = ["irsim"]
-exclude = ["doc", "tests"]
+exclude = ["docs", "tests"]
 
 [tool.ty.rules]
 unused-ignore-comment = "warn"
