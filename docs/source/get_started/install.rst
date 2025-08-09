@@ -123,7 +123,6 @@ Install with Additional Features
     * `black`_ - Code formatter
     
 .. dropdown:: Testing
-    :open:
 
     Install test dependencies using the test group (from ``pyproject.toml``):
 
@@ -151,7 +150,6 @@ Install with Additional Features
 
 
 .. dropdown:: Documentation
-    :open:
 
     Install documentation dependencies using the docs group (from ``pyproject.toml``):
 
