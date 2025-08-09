@@ -40,7 +40,7 @@ jobs:
     - name: Test with pytest (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        sudo apt-get install python-tk
+        sudo apt-get install python3-tk
         uv run pytest --cov . --cov-report=xml --cov-report=html
 
     - name: Test with pytest (macOS)
