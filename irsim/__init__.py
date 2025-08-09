@@ -1,10 +1,15 @@
-from .version import __version__
-from irsim.env import EnvBase, EnvBase3D
 import os
 import sys
+from typing import Any, Optional, Union
+
+from irsim.env import EnvBase, EnvBase3D
+
+from .version import __version__
 
 
-def make(world_name=None, projection=None, **kwargs) -> EnvBase:
+def make(
+    world_name: Optional[str] = None, projection: Optional[str] = None, **kwargs: Any
+) -> Union[EnvBase, EnvBase3D]:
     """
     Create an environment by the given world file and projection.
 
@@ -44,5 +49,4 @@ def make(world_name=None, projection=None, **kwargs) -> EnvBase:
 
     if projection == "3d":
         return EnvBase3D(world_name, **kwargs)
-    else:
-        return EnvBase(world_name, **kwargs)
+    return EnvBase(world_name, **kwargs)

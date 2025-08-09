@@ -1,7 +1,8 @@
-import pytest
-import numpy as np
-from irsim.util import util
 import math
+
+import numpy as np
+
+from irsim.util import util
 
 
 def test_WrapToPi():

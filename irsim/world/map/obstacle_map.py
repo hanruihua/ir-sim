@@ -1,17 +1,19 @@
-from irsim.world.object_base import ObjectBase
 from shapely.strtree import STRtree
+
+from irsim.world.object_base import ObjectBase
 
 
 class ObstacleMap(ObjectBase):
-
     def __init__(
         self,
-        shape={"name": "map", "reso": "0.1", "points": None},
+        shape=None,
         color="k",
         static=True,
         **kwargs,
     ):
-        super(ObstacleMap, self).__init__(
+        if shape is None:
+            shape = {"name": "map", "reso": "0.1", "points": None}
+        super().__init__(
             shape=shape,
             role="obstacle",
             color=color,
@@ -19,5 +21,5 @@ class ObstacleMap(ObjectBase):
             **kwargs,
         )
 
-        self.linestrings = [line for line in self.geometry.geoms]
+        self.linestrings = list(self.geometry.geoms)
         self.geometry_tree = STRtree(self.linestrings)

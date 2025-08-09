@@ -1,10 +1,10 @@
-import irsim
 import numpy as np
+
+import irsim
 
 env = irsim.make()
 
 for i in range(300):
-
     env.step()
     env.render(0.05)
 

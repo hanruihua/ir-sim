@@ -1,10 +1,13 @@
-from matplotlib.backend_bases import MouseButton
+from typing import Any, Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.backend_bases import MouseButton
 
 
 class MouseControl:
-    def __init__(self, ax, zoom_factor=1.1):
+    def __init__(self, ax: Axes, zoom_factor: float = 1.1) -> None:
         """
         Initialize MouseControl with comprehensive mouse interaction functionality.
 
@@ -35,12 +38,12 @@ class MouseControl:
         self.init_ylim = ax.get_ylim()
 
         # Connect event handlers
-        binding_id = plt.connect("motion_notify_event", self.on_move)
+        plt.connect("motion_notify_event", self.on_move)
         plt.connect("button_press_event", self.on_click)
         plt.connect("button_release_event", self.on_release)
         plt.connect("scroll_event", self.on_scroll)
 
-    def on_move(self, event):
+    def on_move(self, event: Any) -> None:
         """Handle mouse movement events."""
         if event.inaxes:
             self.mouse_pos = (event.xdata, event.ydata)
@@ -50,7 +53,7 @@ class MouseControl:
             self.mouse_pos = None
             self.current_axes = None
 
-    def on_click(self, event):
+    def on_click(self, event: Any) -> None:
         """Handle mouse click events."""
         if event.button is MouseButton.LEFT:
             self.left_click_pos = (
@@ -70,7 +73,7 @@ class MouseControl:
             # Middle mouse button (wheel click) resets zoom
             self.reset_zoom(event.inaxes)
 
-    def on_release(self, event):
+    def on_release(self, event: Any) -> None:
         """Handle mouse release events."""
         if event.button is MouseButton.LEFT:
             self.left_click_pos = None
@@ -78,7 +81,7 @@ class MouseControl:
         elif event.button is MouseButton.RIGHT:
             self.right_click_pos = None
 
-    def on_scroll(self, event):
+    def on_scroll(self, event: Any) -> None:
         """
         Handle mouse scroll events for zooming.
 
@@ -97,12 +100,7 @@ class MouseControl:
         xdata, ydata = event.xdata, event.ydata
 
         # Calculate zoom direction (scroll up = zoom in, scroll down = zoom out)
-        if event.step > 0:
-            # Zoom in
-            scale_factor = 1 / self.zoom_factor
-        else:
-            # Zoom out
-            scale_factor = self.zoom_factor
+        scale_factor = 1 / self.zoom_factor if event.step > 0 else self.zoom_factor
 
         # Calculate new limits centered on mouse position
         x_range = xlim[1] - xlim[0]
@@ -125,7 +123,7 @@ class MouseControl:
         # Redraw the plot
         ax.figure.canvas.draw()
 
-    def reset_zoom(self, ax=None):
+    def reset_zoom(self, ax: Optional[Axes] = None) -> None:
         """
         Reset zoom to original view.
 
@@ -140,7 +138,7 @@ class MouseControl:
             ax.set_ylim(self.init_ylim)
             ax.figure.canvas.draw()
 
-    def set_zoom_factor(self, factor):
+    def set_zoom_factor(self, factor: float) -> None:
         """
         Set the zoom factor.
 

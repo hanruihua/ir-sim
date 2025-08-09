@@ -4,14 +4,21 @@ This file is the implementation of the kinematics for different robots.
 reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Planning, and Control. 1st ed. Cambridge, MA: Cambridge University Press, 2017.
 """
 
-import numpy as np
 from math import cos, sin, tan
+from typing import Optional
+
+import numpy as np
+
 from irsim.util.util import WrapToPi
 
 
 def differential_kinematics(
-    state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]
-):
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: Optional[list[float]] = None,
+) -> np.ndarray:
     """
     Calculate the next state for a differential wheel robot.
 
@@ -25,7 +32,11 @@ def differential_kinematics(
     Returns:
         next_state: A 3x1 vector [x, y, theta] representing the next state.
     """
-    assert state.shape[0] >= 3 and velocity.shape[0] >= 2
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
+
+    assert state.shape[0] >= 3
+    assert velocity.shape[0] >= 2
 
     if noise:
         assert len(alpha) >= 4
@@ -50,14 +61,14 @@ def differential_kinematics(
 
 
 def ackermann_kinematics(
-    state,
-    velocity,
-    step_time,
-    noise=False,
-    alpha=[0.03, 0, 0, 0.03],
-    mode="steer",
-    wheelbase=1,
-):
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: Optional[list[float]] = None,
+    mode: str = "steer",
+    wheelbase: float = 1,
+) -> np.ndarray:
     """
     Calculate the next state for an Ackermann steering vehicle.
 
@@ -76,7 +87,11 @@ def ackermann_kinematics(
     Returns:
         new_state: A 4x1 vector representing the next state.
     """
-    assert state.shape[0] >= 4 and velocity.shape[0] >= 2
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
+
+    assert state.shape[0] >= 4
+    assert velocity.shape[0] >= 2
 
     phi = state[2, 0]
     psi = state[3, 0]
@@ -95,11 +110,7 @@ def ackermann_kinematics(
     else:
         real_velocity = velocity
 
-    if mode == "steer":
-        co_matrix = np.array(
-            [[cos(phi), 0], [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1]]
-        )
-    elif mode == "angular":
+    if mode == "steer" or mode == "angular":
         co_matrix = np.array(
             [[cos(phi), 0], [sin(phi), 0], [tan(psi) / wheelbase, 0], [0, 1]]
         )
@@ -115,7 +126,13 @@ def ackermann_kinematics(
     return new_state
 
 
-def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 0.03]):
+def omni_kinematics(
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: Optional[list[float]] = None,
+) -> np.ndarray:
     """
     Calculate the next position for an omnidirectional robot.
 
@@ -129,8 +146,11 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     Returns:
         new_position: A 2x1 vector [x, y] representing the next position.
     """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03]
 
-    assert velocity.shape[0] >= 2 and state.shape[0] >= 2
+    assert velocity.shape[0] >= 2
+    assert state.shape[0] >= 2
 
     if noise:
         assert len(alpha) >= 2
@@ -142,6 +162,4 @@ def omni_kinematics(state, velocity, step_time, noise=False, alpha=[0.03, 0, 0, 
     else:
         real_velocity = velocity
 
-    new_position = state[0:2] + real_velocity * step_time
-
-    return new_position
+    return state[0:2] + real_velocity * step_time

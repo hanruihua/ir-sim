@@ -4,25 +4,28 @@ Class EnvBase is the base class of the environment. This class will read the yam
 Author: Ruihua Han
 """
 
-import matplotlib
-import platform
+from __future__ import annotations
+
 import importlib
-import numpy as np
-from typing import Optional, Union
+import platform
 from operator import attrgetter
-from mpl_toolkits.mplot3d import Axes3D
+from typing import Any, Optional, Union
+
+import matplotlib
+import numpy as np
 from matplotlib import pyplot as plt
 from shapely import Polygon
 from shapely.strtree import STRtree
 
 from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
-from irsim.world import World, ObjectBase
-from .env_plot import EnvPlot
-from irsim.world.object_factory import ObjectFactory
-from .env_logger import EnvLogger
-from irsim.lib import random_generate_polygon
 from irsim.gui.mouse_control import MouseControl
+from irsim.lib import random_generate_polygon
+from irsim.world import ObjectBase, World
+from irsim.world.object_factory import ObjectFactory
+
+from .env_logger import EnvLogger
+from .env_plot import EnvPlot
 
 try:
     from irsim.gui.keyboard_control import KeyboardControl
@@ -39,7 +42,7 @@ BACKEND_PREFERENCES = {
 }
 
 
-def _set_matplotlib_backend(backend_list):
+def _set_matplotlib_backend(backend_list: list[str]) -> bool:
     """Attempt to set matplotlib backend from preference list."""
     for backend in backend_list:
         try:
@@ -117,7 +120,6 @@ class EnvBase:
         log_file: Optional[str] = None,
         log_level: str = "INFO",
     ) -> None:
-
         # init env setting
         self.display = display
 
@@ -157,7 +159,6 @@ class EnvBase:
         env_param.objects = self.objects
 
         if world_param.control_mode == "keyboard":
-
             if not keyboard_module:
                 self.logger.error(
                     "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
@@ -175,12 +176,7 @@ class EnvBase:
 
         if full:
             system_platform = platform.system()
-            if system_platform == "Linux":
-                mng = plt.get_current_fig_manager()
-                if mng is not None:
-                    mng.full_screen_toggle()
-
-            elif system_platform == "Windows":
+            if system_platform == "Linux" or system_platform == "Windows":
                 mng = plt.get_current_fig_manager()
                 if mng is not None:
                     mng.full_screen_toggle()
@@ -198,9 +194,9 @@ class EnvBase:
 
     def step(
         self,
-        action: Optional[Union[np.ndarray, list]] = None,
-        action_id: Optional[Union[int, list]] = 0,
-    ):
+        action: Optional[Union[np.ndarray, list[Any]]] = None,
+        action_id: Optional[Union[int, list[int]]] = 0,
+    ) -> None:
         """
         Perform a single simulation step in the environment.
 
@@ -262,29 +258,30 @@ class EnvBase:
         self._world.step()
         self.step_status()
 
-    def _objects_step(self, action: Optional[list] = None):
+    def _objects_step(self, action: list[Any]) -> None:
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
-    def _object_step(self, action: np.ndarray, obj_id: int = 0):
-
+    def _object_step(
+        self, action: np.ndarray | list[Any] | None, obj_id: int = 0
+    ) -> None:
         if len(self.objects) == 0:
             return
 
         self.objects[obj_id].step(action)
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
-    def _objects_check_status(self):
+    def _objects_check_status(self) -> None:
         [obj.check_status() for obj in self.objects]
 
     # render
     def render(
         self,
         interval: float = 0.02,
-        figure_kwargs=dict(),
+        figure_kwargs: Optional[dict[str, Any]] = None,
         mode: str = "dynamic",
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Render the environment.
 
@@ -295,18 +292,18 @@ class EnvBase:
             kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
         """
 
-        if not self.disable_all_plot:
-            if self._world.sampling:
+        if figure_kwargs is None:
+            figure_kwargs = {}
+        if not self.disable_all_plot and self._world.sampling:
+            if self.display:
+                plt.pause(interval)
 
-                if self.display:
-                    plt.pause(interval)
+            if self.save_ani:
+                self.save_figure(save_gif=True, **figure_kwargs)
 
-                if self.save_ani:
-                    self.save_figure(save_gif=True, **figure_kwargs)
+            self._env_plot.step(mode, self.objects, **kwargs)
 
-                self._env_plot.step(mode, self.objects, **kwargs)
-
-    def show(self):
+    def show(self) -> None:
         """
         Show the environment figure.
         """
@@ -314,7 +311,9 @@ class EnvBase:
         self._env_plot.show()
 
     # draw various components
-    def draw_trajectory(self, traj: list, traj_type: str = "g-", **kwargs):
+    def draw_trajectory(
+        self, traj: list[Any], traj_type: str = "g-", **kwargs: Any
+    ) -> None:
         """
         Draw the trajectory on the environment figure.
 
@@ -327,8 +326,13 @@ class EnvBase:
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
 
     def draw_points(
-        self, points: list, s: int = 30, c: str = "b", refresh: bool = True, **kwargs
-    ):
+        self,
+        points: list[Any],
+        s: int = 30,
+        c: str = "b",
+        refresh: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw points on the environment figure.
 
@@ -343,7 +347,9 @@ class EnvBase:
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
-    def draw_box(self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"):
+    def draw_box(
+        self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"
+    ) -> None:
         """
         Draw a box by the vertices.
 
@@ -354,7 +360,7 @@ class EnvBase:
         """
         self._env_plot.draw_box(vertex, refresh, color)
 
-    def draw_quiver(self, point, refresh=False, **kwargs):
+    def draw_quiver(self, point: Any, refresh: bool = False, **kwargs: Any) -> None:
         """
         Draw a single quiver (arrow) on the environment figure.
 
@@ -365,7 +371,7 @@ class EnvBase:
         """
         self._env_plot.draw_quiver(point, refresh, **kwargs)
 
-    def draw_quivers(self, points, refresh=False, **kwargs):
+    def draw_quivers(self, points: Any, refresh: bool = False, **kwargs: Any) -> None:
         """
         Draw multiple quivers (arrows) on the environment figure.
 
@@ -376,7 +382,7 @@ class EnvBase:
         """
         self._env_plot.draw_quivers(points, refresh, **kwargs)
 
-    def end(self, ending_time: float = 3.0, **kwargs):
+    def end(self, ending_time: float = 3.0, **kwargs: Any) -> None:
         """
         End the simulation, save the animation, and close the environment.
 
@@ -406,7 +412,7 @@ class EnvBase:
             f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds."
         )
 
-    def done(self, mode: str = "all"):
+    def done(self, mode: str = "all") -> Optional[bool]:
         """
         Check if the simulation should terminate based on robot completion status.
 
@@ -442,10 +448,11 @@ class EnvBase:
 
         if mode == "all":
             return all(done_list)
-        elif mode == "any":
+        if mode == "any":
             return any(done_list)
+        return None
 
-    def step_status(self):
+    def step_status(self) -> None:
         """
         Update and log the current status of all robots in the environment.
 
@@ -473,7 +480,7 @@ class EnvBase:
         else:
             self._world.status = "Running"
 
-    def pause(self):
+    def pause(self) -> None:
         """
         Pause the simulation execution.
 
@@ -487,7 +494,7 @@ class EnvBase:
         self._world.status = "Pause"
         self.pause_flag = True
 
-    def resume(self):
+    def resume(self) -> None:
         """
         Resume the simulation execution after being paused.
 
@@ -503,7 +510,7 @@ class EnvBase:
         self._world.status = "Running"
         self.pause_flag = False
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset the environment to its initial state.
 
@@ -529,10 +536,10 @@ class EnvBase:
         self.reset_plot()
         self._world.status = "Reset"
 
-    def _reset_all(self):
+    def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
 
-    def reset_plot(self):
+    def reset_plot(self) -> None:
         """
         Reset the environment figure.
         """
@@ -543,11 +550,11 @@ class EnvBase:
     # region: environment change
     def random_obstacle_position(
         self,
-        range_low: list = [0, 0, -3.14],
-        range_high: list = [10, 10, 3.14],
-        ids: Optional[list] = None,
+        range_low: Optional[list[float]] = None,
+        range_high: Optional[list[float]] = None,
+        ids: Optional[list[int]] = None,
         non_overlapping: bool = False,
-    ):
+    ) -> None:
         """
         Random obstacle positions in the environment.
 
@@ -557,6 +564,10 @@ class EnvBase:
             ids (list): A list of IDs of objects for which to set random positions. Default is None.
             non_overlapping (bool): If set, the obstacles that will be reset to random obstacles will not overlap with other obstacles. Default is False.
         """
+        if range_high is None:
+            range_high = [10, 10, 3.14]
+        if range_low is None:
+            range_low = [0, 0, -3.14]
         if ids is None:
             ids = [obs.id for obs in self.obstacle_list]
         if isinstance(range_low, list):
@@ -569,7 +580,6 @@ class EnvBase:
         existing_obj = [obj for obj in self.objects if obj.id not in ids]
 
         for obj in selected_obs:
-
             if not non_overlapping:
                 obj.set_state(
                     np.random.uniform(range_low, range_high, (3, 1)), init=True
@@ -582,7 +592,7 @@ class EnvBase:
                         np.random.uniform(range_low, range_high, (3, 1)), init=True
                     )
 
-                    if any([obj.check_collision(exi_obj) for exi_obj in existing_obj]):
+                    if any(obj.check_collision(exi_obj) for exi_obj in existing_obj):
                         counter += 1
                     else:
                         existing_obj.append(obj)
@@ -593,12 +603,12 @@ class EnvBase:
 
     def random_polygon_shape(
         self,
-        center_range: list = [0, 0, 10, 10],
-        avg_radius_range: list = [0.1, 1],
-        irregularity_range: list = [0, 1],
-        spikeyness_range: list = [0, 1],
-        num_vertices_range: list = [4, 10],
-    ):
+        center_range: Optional[list[float]] = None,
+        avg_radius_range: Optional[list[float]] = None,
+        irregularity_range: Optional[list[float]] = None,
+        spikeyness_range: Optional[list[float]] = None,
+        num_vertices_range: Optional[list[int]] = None,
+    ) -> None:
         """
         Random polygon shapes for the obstacles in the environment.
 
@@ -626,6 +636,16 @@ class EnvBase:
                 the number of vertices of the polygon.
         """
 
+        if num_vertices_range is None:
+            num_vertices_range = [4, 10]
+        if spikeyness_range is None:
+            spikeyness_range = [0, 1]
+        if irregularity_range is None:
+            irregularity_range = [0, 1]
+        if avg_radius_range is None:
+            avg_radius_range = [0.1, 1]
+        if center_range is None:
+            center_range = [0, 0, 10, 10]
         vertices_list = random_generate_polygon(
             self.obstacle_number,
             center_range,
@@ -636,7 +656,6 @@ class EnvBase:
         )
 
         for i, obj in enumerate(self.obstacle_list):
-
             if obj.shape == "polygon":
                 geom = Polygon(vertices_list[i])
                 obj.set_original_geometry(geom)
@@ -648,7 +667,7 @@ class EnvBase:
 
     # region: object operation
 
-    def create_obstacle(self, **kwargs):
+    def create_obstacle(self, **kwargs: Any):
         """
         Create an obstacle in the environment.
 
@@ -662,7 +681,7 @@ class EnvBase:
 
         return self.object_factory.create_obstacle(**kwargs)
 
-    def add_object(self, obj: ObjectBase):
+    def add_object(self, obj: ObjectBase) -> None:
         """
         Add the object to the environment.
 
@@ -672,7 +691,7 @@ class EnvBase:
         self._objects.append(obj)
         self.build_tree()
 
-    def add_objects(self, objs: list):
+    def add_objects(self, objs: list[ObjectBase]) -> None:
         """
         Add the objects to the environment.
 
@@ -682,7 +701,7 @@ class EnvBase:
         self._objects.extend(objs)
         self.build_tree()
 
-    def delete_object(self, target_id: int):
+    def delete_object(self, target_id: int) -> None:
         """
         Delete the object with the given id.
 
@@ -698,7 +717,7 @@ class EnvBase:
 
         self.build_tree()
 
-    def delete_objects(self, target_ids: list):
+    def delete_objects(self, target_ids: list[int]) -> None:
         """
         Delete the objects with the given ids.
 
@@ -714,7 +733,7 @@ class EnvBase:
 
         self.build_tree()
 
-    def build_tree(self):
+    def build_tree(self) -> None:
         """
         Build the geometry tree for the objects in the environment to detect the possible collision objects.
         """
@@ -725,7 +744,7 @@ class EnvBase:
 
     # region: get information
 
-    def get_robot_state(self):
+    def get_robot_state(self) -> np.ndarray:
         """
         Get the current state of the robot.
 
@@ -736,7 +755,7 @@ class EnvBase:
 
         return self.robot._state
 
-    def get_lidar_scan(self, id: int = 0):
+    def get_lidar_scan(self, id: int = 0) -> dict[str, Any]:
         """
         Get the lidar scan of the robot with the given id.
 
@@ -749,7 +768,7 @@ class EnvBase:
 
         return self.robot_list[id].get_lidar_scan()
 
-    def get_lidar_offset(self, id: int = 0):
+    def get_lidar_offset(self, id: int = 0) -> list[float]:
         """
         Get the lidar offset of the robot with the given id.
 
@@ -763,7 +782,7 @@ class EnvBase:
 
         return self.robot_list[id].get_lidar_offset()
 
-    def get_obstacle_info_list(self):
+    def get_obstacle_info_list(self) -> list[dict[str, Any]]:
         """
         Get the information of the obstacles in the environment.
 
@@ -773,7 +792,7 @@ class EnvBase:
 
         return [obj.get_obstacle_info() for obj in self.obstacle_list]
 
-    def get_robot_info(self, id: int = 0):
+    def get_robot_info(self, id: int = 0) -> Any:
         """
         Get the information of the robot with the given id.
 
@@ -786,7 +805,7 @@ class EnvBase:
 
         return self.robot_list[id].get_info()
 
-    def get_robot_info_list(self):
+    def get_robot_info_list(self) -> list[dict[str, Any]]:
         """
         Get the information of the robots in the environment.
 
@@ -796,7 +815,7 @@ class EnvBase:
 
         return [obj.get_info() for obj in self.robot_list]
 
-    def get_map(self, resolution: float = 0.1):
+    def get_map(self, resolution: float = 0.1) -> Any:
         """
         Get the map of the environment with the given resolution.
 
@@ -810,7 +829,7 @@ class EnvBase:
 
     # endregion: get information
 
-    def set_title(self, title: str):
+    def set_title(self, title: str) -> None:
         """
         Set the title of the plot.
         """
@@ -822,8 +841,8 @@ class EnvBase:
         save_name: Optional[str] = None,
         include_index: bool = False,
         save_gif: bool = False,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """
         Save the current figure.
 
@@ -841,7 +860,7 @@ class EnvBase:
             file_name, file_format, include_index, save_gif, **kwargs
         )
 
-    def load_behavior(self, behaviors: str = "behavior_methods"):
+    def load_behavior(self, behaviors: str = "behavior_methods") -> None:
         """
         Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details.
         Please make sure the python file is placed in the same folder with the implemented script.
@@ -857,7 +876,7 @@ class EnvBase:
 
     # region: property
     @property
-    def robot_list(self):
+    def robot_list(self) -> list[ObjectBase]:
         """
         Get the list of robots in the environment.
 
@@ -868,7 +887,7 @@ class EnvBase:
         return [obj for obj in self.objects if obj.role == "robot"]
 
     @property
-    def obstacle_list(self):
+    def obstacle_list(self) -> list[ObjectBase]:
         """
         Get the list of obstacles in the environment.
 
@@ -878,7 +897,7 @@ class EnvBase:
         return [obj for obj in self.objects if obj.role == "obstacle"]
 
     @property
-    def objects(self):
+    def objects(self) -> list[ObjectBase]:
         """
         Get all objects in the environment.
 
@@ -888,7 +907,7 @@ class EnvBase:
         return self._objects
 
     @property
-    def static_objects(self):
+    def static_objects(self) -> list[ObjectBase]:
         """
         Get all static objects in the environment.
 
@@ -898,7 +917,7 @@ class EnvBase:
         return [obj for obj in self.objects if obj.static]
 
     @property
-    def dynamic_objects(self):
+    def dynamic_objects(self) -> list[ObjectBase]:
         """
         Get all dynamic objects in the environment.
 
@@ -908,7 +927,7 @@ class EnvBase:
         return [obj for obj in self.objects if not obj.static]
 
     @property
-    def step_time(self):
+    def step_time(self) -> float:
         """
         Get the step time of the simulation.
 
@@ -918,21 +937,21 @@ class EnvBase:
         return self._world.step_time
 
     @property
-    def time(self):
+    def time(self) -> float:
         """
         Get the time of the simulation.
         """
         return self._world.time
 
     @property
-    def status(self):
+    def status(self) -> str:
         """
         Get the status of the environment.
         """
         return self._world.status
 
     @property
-    def robot(self):
+    def robot(self) -> ObjectBase:
         """
         Get the first robot in the environment.
 
@@ -942,7 +961,7 @@ class EnvBase:
         return self.robot_list[0]
 
     @property
-    def obstacle_number(self):
+    def obstacle_number(self) -> int:
         """
         Get the number of obstacles in the environment.
 
@@ -952,7 +971,7 @@ class EnvBase:
         return len(self.obstacle_list)
 
     @property
-    def robot_number(self):
+    def robot_number(self) -> int:
         """
         Get the number of robots in the environment.
 
@@ -962,33 +981,33 @@ class EnvBase:
         return len(self.robot_list)
 
     @property
-    def logger(self):
+    def logger(self) -> EnvLogger:
         """
         Get the environment logger.
 
         Returns:
             EnvLogger: The logger instance for the environment.
         """
-        return env_param.logger
+        return env_param.logger  # type: ignore[return-value]
 
     @property
-    def key_vel(self):
+    def key_vel(self) -> Any:
         return self.keyboard.key_vel
 
     @property
-    def key_id(self):
+    def key_id(self) -> int:
         return self.keyboard.key_id
 
     @property
-    def mouse_pos(self):
+    def mouse_pos(self) -> Any:
         return self.mouse.mouse_pos
 
     @property
-    def mouse_left_pos(self):
+    def mouse_left_pos(self) -> Any:
         return self.mouse.left_click_pos
 
     @property
-    def mouse_right_pos(self):
+    def mouse_right_pos(self) -> Any:
         return self.mouse.right_click_pos
 
     # endregion: property

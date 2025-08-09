@@ -16,12 +16,13 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
+
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.world.map import Map
 
 
 class AStarPlanner:
-
-    def __init__(self, env_map, resolution):
+    def __init__(self, env_map: Map, resolution: float) -> None:
         """
         Initialize A* planner
 
@@ -44,7 +45,7 @@ class AStarPlanner:
     class Node:
         """Node class"""
 
-        def __init__(self, x, y, cost, parent_index):
+        def __init__(self, x: int, y: int, cost: float, parent_index: int) -> None:
             """
             Initialize Node
 
@@ -60,7 +61,7 @@ class AStarPlanner:
             self.cost = cost
             self.parent_index = parent_index
 
-        def __str__(self):
+        def __str__(self) -> str:
             """str function for Node class"""
             return (
                 str(self.x)
@@ -72,7 +73,12 @@ class AStarPlanner:
                 + str(self.parent_index)
             )
 
-    def planning(self, start_pose, goal_pose, show_animation=True):
+    def planning(
+        self,
+        start_pose: list[float],
+        goal_pose: list[float],
+        show_animation: bool = True,
+    ) -> tuple[list[float], list[float]]:
         """
         A star path search
 
@@ -97,7 +103,7 @@ class AStarPlanner:
             -1,
         )
 
-        open_set, closed_set = dict(), dict()
+        open_set, closed_set = {}, {}
         open_set[self.calc_grid_index(start_node)] = start_node
 
         while True:
@@ -167,7 +173,9 @@ class AStarPlanner:
 
         return np.array([rx, ry])
 
-    def calc_final_path(self, goal_node, closed_set):
+    def calc_final_path(
+        self, goal_node: "Node", closed_set: dict
+    ) -> tuple[list[float], list[float]]:
         """Generate the final path
 
         Args:
@@ -178,9 +186,10 @@ class AStarPlanner:
             rx (list): list of x positions of final path
             ry (list): list of y positions of final path
         """
-        rx, ry = [self.calc_grid_position(goal_node.x, self.min_x)], [
-            self.calc_grid_position(goal_node.y, self.min_y)
-        ]
+        rx, ry = (
+            [self.calc_grid_position(goal_node.x, self.min_x)],
+            [self.calc_grid_position(goal_node.y, self.min_y)],
+        )
         parent_index = goal_node.parent_index
         while parent_index != -1:
             n = closed_set[parent_index]
@@ -191,12 +200,11 @@ class AStarPlanner:
         return rx, ry
 
     @staticmethod
-    def calc_heuristic(n1, n2):
+    def calc_heuristic(n1: "Node", n2: "Node") -> float:
         w = 1.0  # weight of heuristic
-        d = w * math.hypot(n1.x - n2.x, n1.y - n2.y)
-        return d
+        return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
-    def calc_grid_position(self, index, min_position):
+    def calc_grid_position(self, index: int, min_position: float) -> float:
         """
         calc grid position
 
@@ -207,10 +215,9 @@ class AStarPlanner:
         Returns:
             (float): position of coordinates along the given axis
         """
-        pos = index * self.resolution + min_position
-        return pos
+        return index * self.resolution + min_position
 
-    def calc_xy_index(self, position, min_pos):
+    def calc_xy_index(self, position: float, min_pos: float) -> int:
         """
         calc xy index of node
 
@@ -223,7 +230,7 @@ class AStarPlanner:
         """
         return round((position - min_pos) / self.resolution)
 
-    def calc_grid_index(self, node):
+    def calc_grid_index(self, node: "Node") -> int:
         """
         calc grid index of node
 
@@ -235,7 +242,7 @@ class AStarPlanner:
         """
         return (node.y - self.min_y) * self.x_width + (node.x - self.min_x)
 
-    def verify_node(self, node):
+    def verify_node(self, node: "Node") -> bool:
         """
         Check if node is acceptable - within limits of search space and free of collisions
 
@@ -248,22 +255,13 @@ class AStarPlanner:
         px = self.calc_grid_position(node.x, self.min_x)
         py = self.calc_grid_position(node.y, self.min_y)
 
-        if px < self.min_x:
-            return False
-        elif py < self.min_y:
-            return False
-        elif px >= self.max_x:
-            return False
-        elif py >= self.max_y:
+        if px < self.min_x or py < self.min_y or px >= self.max_x or py >= self.max_y:
             return False
 
         # collision check
-        if self.check_node(px, py):
-            return False
+        return not self.check_node(px, py)
 
-        return True
-
-    def check_node(self, x, y):
+    def check_node(self, x: int, y: int) -> bool:
         """
         Check positon for a collision
 
@@ -282,15 +280,14 @@ class AStarPlanner:
         }
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        covered_node = any(
-            [shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list]
+        return any(
+            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
         )
-        return covered_node
 
     @staticmethod
-    def get_motion_model():
+    def get_motion_model() -> list[list[float]]:
         # dx, dy, cost
-        motion = [
+        return [
             [1, 0, 1],
             [0, 1, 1],
             [-1, 0, 1],
@@ -300,5 +297,3 @@ class AStarPlanner:
             [1, -1, math.sqrt(2)],
             [1, 1, math.sqrt(2)],
         ]
-
-        return motion

@@ -8,7 +8,7 @@ from irsim.lib.path_planners.rrt_star import RRTStar
 
 
 @pytest.mark.parametrize(
-    "planner, resolution",
+    ("planner", "resolution"),
     [
         (AStarPlanner, 0.3),
         (RRTStar, 0.3),

@@ -6,11 +6,12 @@ Author: Ruihua Han
 
 import math
 import random
+from typing import Any, Optional, Union
+
 import numpy as np
-from typing import List
 
 
-def clip(value, lower, upper):
+def clip(value: float, lower: float, upper: float) -> float:
     """
     Clip a value to a specified range.
 
@@ -26,14 +27,14 @@ def clip(value, lower, upper):
 
 
 def random_generate_polygon(
-    number=1,
-    center_range=[0, 0, 0, 0],
-    avg_radius_range=[0.1, 1],
-    irregularity_range=[0, 1],
-    spikeyness_range=[0, 1],
-    num_vertices_range=[4, 10],
-    **kwargs,
-):
+    number: int = 1,
+    center_range: Optional[list[float]] = None,
+    avg_radius_range: Optional[list[float]] = None,
+    irregularity_range: Optional[list[float]] = None,
+    spikeyness_range: Optional[list[float]] = None,
+    num_vertices_range: Optional[list[int]] = None,
+    **kwargs: Any,
+) -> Union[np.ndarray, list[np.ndarray]]:
     """
     reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 
@@ -50,6 +51,17 @@ def random_generate_polygon(
     Returns:
         List of vertices for each polygon or a single polygon's vertices if number=1.
     """
+    if center_range is None:
+        center_range = [0, 0, 0, 0]
+    if avg_radius_range is None:
+        avg_radius_range = [0.1, 1]
+    if irregularity_range is None:
+        irregularity_range = [0, 1]
+    if spikeyness_range is None:
+        spikeyness_range = [0, 1]
+    if num_vertices_range is None:
+        num_vertices_range = [4, 10]
+
     center = np.random.uniform(
         low=center_range[0:2], high=center_range[2:], size=(number, 2)
     )
@@ -79,7 +91,13 @@ def random_generate_polygon(
     return vertices_list
 
 
-def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices):
+def generate_polygon(
+    center: list[float],
+    avg_radius: float,
+    irregularity: float,
+    spikeyness: float,
+    num_vertices: int,
+) -> np.ndarray:
     """
     Generate a random polygon around a center point.
 
@@ -113,12 +131,10 @@ def generate_polygon(center, avg_radius, irregularity, spikeyness, num_vertices)
         points.append(point)
         angle += angle_steps[i]
 
-    vertices = np.array(points)
-
-    return vertices
+    return np.array(points)
 
 
-def random_angle_steps(steps: int, irregularity: float) -> List[float]:
+def random_angle_steps(steps: int, irregularity: float) -> list[float]:
     """
     Generate random angle steps for polygon vertices.
 
@@ -133,7 +149,7 @@ def random_angle_steps(steps: int, irregularity: float) -> List[float]:
     lower = (2 * math.pi / steps) - irregularity
     upper = (2 * math.pi / steps) + irregularity
     cumsum = 0
-    for i in range(steps):
+    for _ in range(steps):
         angle = np.random.uniform(lower, upper)
         angles.append(angle)
         cumsum += angle

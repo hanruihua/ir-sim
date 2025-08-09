@@ -1,9 +1,10 @@
-import irsim
 import time
+
+import irsim
 
 env = irsim.make(save_ani=False, full=False)
 
-for i in range(100):
+for _i in range(100):
     start_time = time.time()
     env.step()
     env.render(0.01)

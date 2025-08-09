@@ -2,8 +2,7 @@ import irsim
 
 env = irsim.make("random_obstacle.yaml", save_ani=False, full=False)
 
-for i in range(300):
-
+for _i in range(300):
     env.step()
     env.render(0.05)
 

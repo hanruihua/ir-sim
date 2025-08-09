@@ -1,8 +1,11 @@
-import numpy as np
 from abc import ABC, abstractmethod
+from typing import Optional
+
+import numpy as np
+
 from irsim.lib.algorithm.kinematics import (
-    differential_kinematics,
     ackermann_kinematics,
+    differential_kinematics,
     omni_kinematics,
 )
 
@@ -12,7 +15,7 @@ class KinematicsHandler(ABC):
     Abstract base class for handling robot kinematics.
     """
 
-    def __init__(self, name, noise: bool = False, alpha: list = None):
+    def __init__(self, name, noise: bool = False, alpha: Optional[list] = None):
         """
         Initialize the KinematicsHandler class.
 
@@ -44,7 +47,6 @@ class KinematicsHandler(ABC):
 
 
 class OmniKinematics(KinematicsHandler):
-
     def __init__(self, name, noise, alpha):
         super().__init__(name, noise, alpha)
 
@@ -54,31 +56,27 @@ class OmniKinematics(KinematicsHandler):
         next_position = omni_kinematics(
             state[0:2], velocity, step_time, self.noise, self.alpha
         )
-        next_state = np.concatenate((next_position, state[2:]))
-        return next_state
+        return np.concatenate((next_position, state[2:]))
 
 
 class DifferentialKinematics(KinematicsHandler):
-
     def __init__(self, name, noise, alpha):
-        super(DifferentialKinematics, self).__init__(name, noise, alpha)
+        super().__init__(name, noise, alpha)
 
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
     ) -> np.ndarray:
-        next_state = differential_kinematics(
+        return differential_kinematics(
             state, velocity, step_time, self.noise, self.alpha
         )
-        return next_state
 
 
 class AckermannKinematics(KinematicsHandler):
-
     def __init__(
         self,
         name,
         noise: bool = False,
-        alpha: list = None,
+        alpha: Optional[list] = None,
         mode: str = "steer",
         wheelbase: float = 1.0,
     ):
@@ -89,7 +87,7 @@ class AckermannKinematics(KinematicsHandler):
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
     ) -> np.ndarray:
-        next_state = ackermann_kinematics(
+        return ackermann_kinematics(
             state,
             velocity,
             step_time,
@@ -98,7 +96,6 @@ class AckermannKinematics(KinematicsHandler):
             self.mode,
             self.wheelbase,
         )
-        return next_state
 
 
 # class Rigid3DKinematics(KinematicsHandler):
@@ -118,26 +115,26 @@ class KinematicsFactory:
 
     @staticmethod
     def create_kinematics(
-        name: str = None,
+        name: Optional[str] = None,
         noise: bool = False,
-        alpha: list = None,
+        alpha: Optional[list] = None,
         mode: str = "steer",
-        wheelbase: float = None,
+        wheelbase: Optional[float] = None,
         role: str = "robot",
     ) -> KinematicsHandler:
         name = name.lower() if name else None
         if name == "omni":
             return OmniKinematics(name, noise, alpha)
-        elif name == "diff":
+        if name == "diff":
             return DifferentialKinematics(name, noise, alpha)
-        elif name == "acker":
-            return AckermannKinematics(name, noise, alpha, mode, wheelbase)
+        if name == "acker":
+            return AckermannKinematics(name, noise, alpha, mode, wheelbase or 1.0)
         # elif name == 'rigid3d':
         #     return Rigid3DKinematics(name, noise, alpha)
+        if role == "robot":
+            print(f"Unknown kinematics type: {name}, the robot will be stationary.")
         else:
-            if role == "robot":
-                print(f"Unknown kinematics type: {name}, the robot will be stationary.")
-            else:
-                pass
+            pass
 
-            return None
+        # Fallback to a stationary kinematics handler (differential with zero wheelbase)
+        return DifferentialKinematics(name or "diff", noise, alpha)

@@ -8,9 +8,9 @@ This package contains different obstacle types:
 - obstacle_static: Static obstacle
 """
 
+from .obstacle_acker import ObstacleAcker
 from .obstacle_diff import ObstacleDiff
 from .obstacle_omni import ObstacleOmni
-from .obstacle_acker import ObstacleAcker
 from .obstacle_static import ObjectStatic
 
-__all__ = ["ObstacleDiff", "ObstacleOmni", "ObstacleAcker", "ObjectStatic"]
+__all__ = ["ObjectStatic", "ObstacleAcker", "ObstacleDiff", "ObstacleOmni"]

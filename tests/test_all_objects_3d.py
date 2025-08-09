@@ -1,10 +1,10 @@
-import pytest
-import irsim
-from irsim.util.util import time_it
-from unittest.mock import Mock, patch
-from pynput import keyboard
+from unittest.mock import Mock
+
 import matplotlib.pyplot as plt
-import time
+import pytest
+from pynput import keyboard
+
+import irsim
 
 
 @pytest.fixture(autouse=True)
@@ -25,7 +25,7 @@ def test_collision_avoidance_3d():
         projection="3d",
     )
 
-    for i in range(50):
+    for _i in range(50):
         env.step()
         env.render(0.01)
         env.draw_trajectory(env.robot.trajectory, show_direction=True)
@@ -46,14 +46,14 @@ def test_polygon_and_lidar_3d():
 
     scan = env.robot.get_lidar_scan()
     offset = env.robot.get_lidar_offset()
-    gh_init = env.robot.get_init_Gh()
-    gh = env.robot.get_Gh()
+    env.robot.get_init_Gh()
+    env.robot.get_Gh()
 
     env.get_obstacle_info_list()
     env.get_robot_info_list()
     env.delete_objects([1, 2])
 
-    for i in range(10):
+    for _i in range(10):
         env.step()
         env.render(0.01)
     env.end()
@@ -67,7 +67,7 @@ def test_animation_saving_3d():
     """Test animation saving functionality in 3D projection"""
     env = irsim.make("test_render.yaml", save_ani=True, display=False, projection="3d")
 
-    for i in range(3):
+    for _i in range(3):
         env.step()
         env.render(0.01)
     env.end(ani_name="test_animation")
@@ -80,7 +80,7 @@ def test_collision_world_3d():
         "test_collision_world.yaml", save_ani=False, display=False, projection="3d"
     )
 
-    for i in range(4):
+    for _i in range(4):
         env.step()
         env.render(0.01)
     env.end()
@@ -95,7 +95,7 @@ def test_multi_objects_3d():
     env.robot.set_goal([5, 10, 0])
     env.random_obstacle_position()
 
-    for i in range(5):
+    for _i in range(5):
         env.step()
         env.render(0.01)
     env.end()
@@ -108,7 +108,7 @@ def test_grid_map_3d():
         "test_grid_map.yaml", save_ani=False, display=False, projection="3d"
     )
 
-    for i in range(6):
+    for _i in range(6):
         env.step()
         env.render(0.01)
 
@@ -125,7 +125,7 @@ def test_keyboard_control_3d():
     key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r"]
     mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
 
-    for i in range(3):
+    for _i in range(3):
         for mock_key in mock_keys:
             env.keyboard._on_press(mock_key)
             env.keyboard._on_release(mock_key)
@@ -140,7 +140,7 @@ def test_custom_behavior_3d():
     env = irsim.make("custom_behavior.yaml", display=False, projection="3d")
     env.load_behavior("custom_behavior_methods")
 
-    for i in range(10):
+    for _i in range(10):
         env.step()
         env.render(0.01)
     env.end()
@@ -153,7 +153,7 @@ def test_fov_detection_3d():
         "test_fov_world.yaml", save_ani=False, display=False, projection="3d"
     )
 
-    for i in range(10):
+    for _i in range(10):
         detected = [obs.fov_detect_object(env.robot) for obs in env.obstacle_list]
         env.step()
         env.render(0.01)
@@ -168,7 +168,7 @@ def test_3d_projection():
     )
     env.random_obstacle_position(ids=[3, 4, 5, 6, 7], non_overlapping=True)
 
-    for i in range(5):
+    for _i in range(5):
         env.step()
         env.render(0.01)
     env.end()

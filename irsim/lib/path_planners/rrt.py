@@ -10,11 +10,14 @@ adapted by: Reinis Cimurs
 
 import math
 import random
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
+
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.world.map import Map
 
 
 class RRT:
@@ -27,7 +30,7 @@ class RRT:
         RRT Node
         """
 
-        def __init__(self, x, y):
+        def __init__(self, x: float, y: float) -> None:
             """
             Initialize Node
 
@@ -46,7 +49,7 @@ class RRT:
         Area Bounds
         """
 
-        def __init__(self, env_map):
+        def __init__(self, env_map: Map) -> None:
             """
             Initialize AreaBounds
 
@@ -61,13 +64,13 @@ class RRT:
 
     def __init__(
         self,
-        env_map,
-        robot_radius,
-        expand_dis=1.0,
-        path_resolution=0.25,
-        goal_sample_rate=5,
-        max_iter=500,
-    ):
+        env_map: Map,
+        robot_radius: float,
+        expand_dis: float = 1.0,
+        path_resolution: float = 0.25,
+        goal_sample_rate: int = 5,
+        max_iter: int = 500,
+    ) -> None:
         """
         Initialize RRT planner
 
@@ -94,7 +97,12 @@ class RRT:
         self.node_list = []
         self.robot_radius = robot_radius
 
-    def planning(self, start_pose, goal_pose, show_animation=True):
+    def planning(
+        self,
+        start_pose: list[float],
+        goal_pose: list[float],
+        show_animation: bool = True,
+    ) -> Optional[tuple[list[float], list[float]]]:
         """
         rrt path planning
 
@@ -110,7 +118,7 @@ class RRT:
         self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
 
         self.node_list = [self.start]
-        for i in range(self.max_iter):
+        for _i in range(self.max_iter):
             rnd_node = self.get_random_node()
             nearest_ind = self.get_nearest_node_index(self.node_list, rnd_node)
             nearest_node = self.node_list[nearest_ind]
@@ -120,7 +128,6 @@ class RRT:
             if self.check_if_outside_play_area(
                 new_node, self.play_area
             ) and self.check_collision(new_node, self.robot_radius):
-
                 self.node_list.append(new_node)
 
                 if show_animation:
@@ -136,7 +143,9 @@ class RRT:
 
         return None  # cannot find path
 
-    def steer(self, from_node, to_node, extend_length=float("inf")):
+    def steer(
+        self, from_node: "Node", to_node: "Node", extend_length: float = float("inf")
+    ) -> "Node":
         """
         Generate a new node by steering from `from_node` towards `to_node`.
 
@@ -185,7 +194,7 @@ class RRT:
 
         return new_node
 
-    def generate_final_course(self, goal_ind):
+    def generate_final_course(self, goal_ind: int) -> tuple[list[float], list[float]]:
         """
         Generate the final path
 
@@ -205,7 +214,7 @@ class RRT:
         ry = [node[1] for node in path]
         return np.array([rx, ry])
 
-    def calc_dist_to_goal(self, x, y):
+    def calc_dist_to_goal(self, x: float, y: float) -> float:
         """
         Calculate distance to goal
 
@@ -220,7 +229,7 @@ class RRT:
         dy = y - self.end.y
         return math.hypot(dx, dy)
 
-    def get_random_node(self):
+    def get_random_node(self) -> "Node":
         """
         Create random node
 
@@ -236,7 +245,7 @@ class RRT:
             rnd = self.Node(self.end.x, self.end.y)
         return rnd
 
-    def draw_graph(self, rnd=None):
+    def draw_graph(self, rnd: Optional["Node"] = None) -> None:
         plt.gcf().canvas.mpl_connect(
             "key_release_event",
             lambda event: [exit(0) if event.key == "escape" else None],
@@ -276,7 +285,9 @@ class RRT:
         plt.pause(0.01)
 
     @staticmethod
-    def plot_circle(x, y, size, color="-b"):  # pragma: no cover
+    def plot_circle(
+        x: float, y: float, size: float, color: str = "-b"
+    ) -> None:  # pragma: no cover
         deg = list(range(0, 360, 5))
         deg.append(0)
         xl = [x + size * math.cos(np.deg2rad(d)) for d in deg]
@@ -284,32 +295,26 @@ class RRT:
         plt.plot(xl, yl, color)
 
     @staticmethod
-    def get_nearest_node_index(node_list, rnd_node):
+    def get_nearest_node_index(node_list: list["Node"], rnd_node: "Node") -> int:
         dlist = [
             (node.x - rnd_node.x) ** 2 + (node.y - rnd_node.y) ** 2
             for node in node_list
         ]
-        minind = dlist.index(min(dlist))
-
-        return minind
+        return dlist.index(min(dlist))
 
     @staticmethod
-    def check_if_outside_play_area(node, play_area):
-
+    def check_if_outside_play_area(node: "Node", play_area: "AreaBounds") -> bool:
         if play_area is None:
             return True  # no play_area was defined, every pos should be ok
 
-        if (
+        return not (
             node.x < play_area.xmin
             or node.x > play_area.xmax
             or node.y < play_area.ymin
             or node.y > play_area.ymax
-        ):
-            return False  # outside - bad
-        else:
-            return True  # inside - ok
+        )
 
-    def check_collision(self, node, robot_radius):
+    def check_collision(self, node: "Node", robot_radius: float) -> bool:
         """
         Check if node is acceptable - free of collisions
 
@@ -330,7 +335,7 @@ class RRT:
                 return False  # collision
         return ~self.check_node(node.x, node.y, robot_radius)  # return True if safe
 
-    def check_node(self, x, y, rr):
+    def check_node(self, x: float, y: float, rr: float) -> bool:
         """
         Check positon for a collision
 
@@ -346,13 +351,14 @@ class RRT:
         shape = {"name": "circle", "radius": rr}
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        covered_node = any(
-            [shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list]
+        return any(
+            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
         )
-        return covered_node
 
     @staticmethod
-    def calc_distance_and_angle(from_node, to_node):
+    def calc_distance_and_angle(
+        from_node: "Node", to_node: "Node"
+    ) -> tuple[float, float]:
         dx = to_node.x - from_node.x
         dy = to_node.y - from_node.y
         d = math.hypot(dx, dy)

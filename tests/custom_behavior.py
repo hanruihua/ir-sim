@@ -9,8 +9,7 @@ import irsim
 env = irsim.make()
 env.load_behavior("custom_behavior_methods")
 
-for i in range(1000):
-
+for _i in range(1000):
     env.step()
     env.render(0.01)
 

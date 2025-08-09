@@ -1,9 +1,11 @@
-from irsim.lib import register_behavior
-from irsim.lib import reciprocal_vel_obs
-from irsim.util.util import relative_position, WrapToPi, omni_to_diff
-import numpy as np
 from math import cos, sin
+from typing import Any, Optional
+
+import numpy as np
+
 from irsim.config import env_param, world_param
+from irsim.lib import reciprocal_vel_obs, register_behavior
+from irsim.util.util import WrapToPi, omni_to_diff, relative_position
 
 """
 Behavior Methods Module
@@ -33,7 +35,9 @@ goal-reaching behaviors (dash).
 
 
 @register_behavior("diff", "rvo")
-def beh_diff_rvo(ego_object, external_objects, **kwargs):
+def beh_diff_rvo(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
     """
     Behavior function for differential drive robot using RVO (Reciprocal Velocity Obstacles).
 
@@ -67,15 +71,15 @@ def beh_diff_rvo(ego_object, external_objects, **kwargs):
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 10.0)
-    behavior_vel = DiffRVO(
+    return DiffRVO(
         rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
     )
 
-    return behavior_vel
-
 
 @register_behavior("diff", "dash")
-def beh_diff_dash(ego_object, external_objects, **kwargs):
+def beh_diff_dash(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
     """
     Behavior function for differential drive robot using dash-to-goal behavior.
 
@@ -103,13 +107,13 @@ def beh_diff_dash(ego_object, external_objects, **kwargs):
 
         return np.zeros((2, 1))
 
-    behavior_vel = DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance)
-
-    return behavior_vel
+    return DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance)
 
 
 @register_behavior("omni", "dash")
-def beh_omni_dash(ego_object, external_objects, **kwargs):
+def beh_omni_dash(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
     """
     Behavior function for omnidirectional robot using dash-to-goal behavior.
 
@@ -133,13 +137,13 @@ def beh_omni_dash(ego_object, external_objects, **kwargs):
     goal = ego_object.goal
     goal_threshold = ego_object.goal_threshold
     _, max_vel = ego_object.get_vel_range()
-    behavior_vel = OmniDash(state, goal, max_vel, goal_threshold)
-
-    return behavior_vel
+    return OmniDash(state, goal, max_vel, goal_threshold)
 
 
 @register_behavior("omni", "rvo")
-def beh_omni_rvo(ego_object, external_objects, **kwargs):
+def beh_omni_rvo(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
     """
     Behavior function for omnidirectional robot using RVO (Reciprocal Velocity Obstacles).
 
@@ -173,15 +177,15 @@ def beh_omni_rvo(ego_object, external_objects, **kwargs):
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
-    behavior_vel = OmniRVO(
+    return OmniRVO(
         rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
     )
 
-    return behavior_vel
-
 
 @register_behavior("acker", "dash")
-def beh_acker_dash(ego_object, external_objects, **kwargs):
+def beh_acker_dash(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
     """
     Behavior function for Ackermann steering robot using dash-to-goal behavior.
 
@@ -208,21 +212,19 @@ def beh_acker_dash(ego_object, external_objects, **kwargs):
     _, max_vel = ego_object.get_vel_range()
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
-    behavior_vel = AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
-
-    return behavior_vel
+    return AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
 
 
 def OmniRVO(
-    state_tuple,
-    neighbor_list=None,
-    vxmax=1.5,
-    vymax=1.5,
-    acce=1,
-    factor=1.0,
-    mode="rvo",
-    neighbor_threshold=3.0,
-):
+    state_tuple: Any,
+    neighbor_list: Optional[list[Any]] = None,
+    vxmax: float = 1.5,
+    vymax: float = 1.5,
+    acce: float = 1,
+    factor: float = 1.0,
+    mode: str = "rvo",
+    neighbor_threshold: float = 3.0,
+) -> np.ndarray:
     """
     Calculate the omnidirectional velocity using RVO.
 
@@ -260,15 +262,15 @@ def OmniRVO(
 
 
 def DiffRVO(
-    state_tuple,
-    neighbor_list=None,
-    vxmax=1.5,
-    vymax=1.5,
-    acce=1,
-    factor=1.0,
-    mode="rvo",
-    neighbor_threshold=3.0,
-):
+    state_tuple: Any,
+    neighbor_list: Optional[list[Any]] = None,
+    vxmax: float = 1.5,
+    vymax: float = 1.5,
+    acce: float = 1,
+    factor: float = 1.0,
+    mode: str = "rvo",
+    neighbor_threshold: float = 3.0,
+) -> np.ndarray:
     """
     Calculate the differential drive velocity using RVO.
 
@@ -300,12 +302,15 @@ def DiffRVO(
         state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
-    rvo_vel_diff = omni_to_diff(state_tuple[-1], rvo_vel)
-
-    return rvo_vel_diff
+    return omni_to_diff(state_tuple[-1], rvo_vel)
 
 
-def OmniDash(state, goal, max_vel, goal_threshold=0.1):
+def OmniDash(
+    state: np.ndarray,
+    goal: np.ndarray,
+    max_vel: np.ndarray,
+    goal_threshold: float = 0.1,
+) -> np.ndarray:
     """
     Calculate the omnidirectional velocity to reach a goal.
 
@@ -330,7 +335,13 @@ def OmniDash(state, goal, max_vel, goal_threshold=0.1):
     return np.array([[vx], [vy]])
 
 
-def DiffDash(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
+def DiffDash(
+    state: np.ndarray,
+    goal: np.ndarray,
+    max_vel: np.ndarray,
+    goal_threshold: float = 0.1,
+    angle_tolerance: float = 0.2,
+) -> np.ndarray:
     """
     Calculate the differential drive velocity to reach a goal.
 
@@ -360,7 +371,13 @@ def DiffDash(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
     return np.array([[linear], [angular]])
 
 
-def AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance):
+def AckerDash(
+    state: np.ndarray,
+    goal: np.ndarray,
+    max_vel: np.ndarray,
+    goal_threshold: float,
+    angle_tolerance: float,
+) -> np.ndarray:
     """
     Calculate the Ackermann steering velocity to reach a goal.
 

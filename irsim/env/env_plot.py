@@ -4,18 +4,22 @@ This file is the implementation of the environment plot to visualize the environ
 Author: Ruihua Han
 """
 
-import matplotlib.pyplot as plt
-import logging
-from irsim.config.path_param import path_manager as pm
-from irsim.config import world_param, env_param
-import os
-import imageio.v3 as imageio
-import shutil
+from __future__ import annotations
+
 import glob
-from math import sin, cos
+import os
+import shutil
+from collections.abc import Iterable, Sequence
+from math import cos, sin
+from typing import Any, Optional
+
+import imageio.v3 as imageio
+import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from typing import Optional
+
+from irsim.config import env_param, world_param
+from irsim.config.path_param import path_manager as pm
 
 
 class EnvPlot:
@@ -35,12 +39,12 @@ class EnvPlot:
 
     def __init__(
         self,
-        world,
-        objects=[],
-        saved_figure=dict(),
-        figure_pixels: list = [1000, 800],
+        world: Any,
+        objects: Optional[list[Any]] = None,
+        saved_figure: Optional[dict[str, Any]] = None,
+        figure_pixels: Optional[Sequence[int]] = None,
         show_title: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the EnvPlot instance.
@@ -49,6 +53,12 @@ class EnvPlot:
         and initializes the plot with world data and objects.
         """
         # Store world and basic properties
+        if saved_figure is None:
+            saved_figure = {}
+        if figure_pixels is None:
+            figure_pixels = [1000, 800]
+        if objects is None:
+            objects = []
         self.world = world
         self.x_range = world.x_range
         self.y_range = world.y_range
@@ -56,7 +66,7 @@ class EnvPlot:
         self.title = None
 
         # Configure figure saving options
-        self.saved_figure_kwargs = {
+        self.saved_figure_kwargs: dict[str, Any] = {
             "dpi": 100,
             "bbox_inches": "tight",
         }
@@ -72,26 +82,33 @@ class EnvPlot:
         )
 
         # Initialize plot settings and appearance
-        self.color_map = {
+        self.color_map: dict[str, str] = {
             "robot": "g",
             "obstacle": "k",
             "landmark": "b",
             "target": "pink",
         }
-        self.color_map.update(kwargs.get("color_map", dict()))
+        self.color_map.update(kwargs.get("color_map", {}))
 
         # Configure save options
-        self.saved_ani_kwargs = {}
+        self.saved_ani_kwargs: dict[str, Any] = {}
 
         # Initialize dynamic plotting lists
-        self.dyna_line_list = []
-        self.dyna_point_list = []
-        self.dyna_quiver_list = []
+        self.dyna_line_list: list[Any] = []
+        self.dyna_point_list: list[Any] = []
+        self.dyna_quiver_list: list[Any] = []
 
         # Initialize the plot with world data
         self.init_plot(world.grid_map, objects, **kwargs)
 
-    def init_plot(self, grid_map, objects, no_axis=False, tight=True, **kwargs):
+    def init_plot(
+        self,
+        grid_map: Optional[Any],
+        objects: list[Any],
+        no_axis: bool = False,
+        tight: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize the plot with the given grid map and objects.
 
@@ -122,8 +139,11 @@ class EnvPlot:
         if tight:
             self.fig.tight_layout()
 
-    def step(self, mode="dynamic", objects=[], **kwargs):
-
+    def step(
+        self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
+    ) -> None:
+        if objects is None:
+            objects = []
         if self.show_title:
             self.update_title()
 
@@ -134,18 +154,21 @@ class EnvPlot:
             self.clear_components(mode)
             self.step_objects_plot(mode, objects, **kwargs)
 
-    def init_objects_plot(self, objects, **kwargs):
-
+    def init_objects_plot(self, objects: list[Any], **kwargs: Any) -> None:
         if self.show_title:
             self.update_title()
 
         [obj._init_plot(self.ax, **kwargs) for obj in objects]
         self.step_objects_plot("all", objects, **kwargs)
 
-    def step_objects_plot(self, mode="dynamic", objects=[], **kwargs):
+    def step_objects_plot(
+        self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
+    ) -> None:
         """
         Update the plot for the objects.
         """
+        if objects is None:
+            objects = []
         if mode == "dynamic":
             [obj._step_plot(**kwargs) for obj in objects if not obj.static]
         elif mode == "static":
@@ -155,7 +178,9 @@ class EnvPlot:
         else:
             self.logger.error("Error: Invalid draw mode")
 
-    def draw_components(self, mode="all", objects=[], **kwargs):
+    def draw_components(
+        self, mode: str = "all", objects: Optional[list[Any]] = None, **kwargs: Any
+    ) -> None:
         """
         Draw the components in the environment.
 
@@ -164,6 +189,8 @@ class EnvPlot:
             objects (list): List of objects to draw.
             kwargs: Additional plotting options.
         """
+        if objects is None:
+            objects = []
         if mode == "static":
             [obj.plot(self.ax, **kwargs) for obj in objects if obj.static]
         elif mode == "dynamic":
@@ -173,7 +200,9 @@ class EnvPlot:
         else:
             self.logger.error("Error: Invalid draw mode")
 
-    def clear_components(self, mode="all", objects=[]):
+    def clear_components(
+        self, mode: str = "all", objects: Optional[list[Any]] = None
+    ) -> None:
         """
         Clear the components in the environment.
 
@@ -181,6 +210,8 @@ class EnvPlot:
             mode (str): 'static', 'dynamic', or 'all' to specify which objects to clear.
             objects (list): List of objects to clear.
         """
+        if objects is None:
+            objects = []
         if mode == "dynamic":
             [obj.plot_clear() for obj in objects if not obj.static]
             [line.pop(0).remove() for line in self.dyna_line_list]
@@ -205,7 +236,7 @@ class EnvPlot:
             self.dyna_point_list = []
             self.dyna_quiver_list = []
 
-    def draw_grid_map(self, grid_map=None, **kwargs):
+    def draw_grid_map(self, grid_map: Optional[Any] = None, **kwargs: Any) -> None:
         """
         Draw the grid map on the plot.
 
@@ -226,13 +257,13 @@ class EnvPlot:
 
     def draw_trajectory(
         self,
-        traj,
-        traj_type="g-",
-        label="trajectory",
-        show_direction=False,
-        refresh=False,
-        **kwargs,
-    ):
+        traj: list[Any] | np.ndarray,
+        traj_type: str = "g-",
+        label: str = "trajectory",
+        show_direction: bool = False,
+        refresh: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw a trajectory on the plot.
 
@@ -276,7 +307,14 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(line)
 
-    def draw_points(self, points, s=10, c="m", refresh=True, **kwargs):
+    def draw_points(
+        self,
+        points: Optional[list[Any] | np.ndarray],
+        s: int = 10,
+        c: str = "m",
+        refresh: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw points on the plot.
 
@@ -297,7 +335,6 @@ class EnvPlot:
             y_coordinates = [point[1] for point in points]
 
         elif isinstance(points, np.ndarray):
-
             if points.shape[1] > 1:
                 x_coordinates = [point[0] for point in points.T]
                 y_coordinates = [point[1] for point in points.T]
@@ -310,7 +347,13 @@ class EnvPlot:
         if refresh:
             self.dyna_point_list.append(points_plot)
 
-    def draw_quiver(self, point, refresh=False, color="black", **kwargs):
+    def draw_quiver(
+        self,
+        point: Optional[np.ndarray],
+        refresh: bool = False,
+        color: str = "black",
+        **kwargs: Any,
+    ) -> None:
         """
         Draw a quiver plot on the plot.
 
@@ -337,7 +380,13 @@ class EnvPlot:
             self.dyna_quiver_list.append(ax_quiver)
             self.dyna_point_list.append(ax_point)
 
-    def draw_quivers(self, points, refresh=False, color="black", **kwargs):
+    def draw_quivers(
+        self,
+        points: Iterable[np.ndarray],
+        refresh: bool = False,
+        color: str = "black",
+        **kwargs: Any,
+    ) -> None:
         """
         Draw a series of quiver plot on the plot.
 
@@ -349,7 +398,9 @@ class EnvPlot:
         for point in points:
             self.draw_quiver(point, refresh, color=color, **kwargs)
 
-    def draw_box(self, vertices, refresh=False, color="b-"):
+    def draw_box(
+        self, vertices: np.ndarray, refresh: bool = False, color: str = "b-"
+    ) -> None:
         """
         Draw a box by the vertices.
 
@@ -364,7 +415,7 @@ class EnvPlot:
         if refresh:
             self.dyna_line_list.append(box_line)
 
-    def update_title(self):
+    def update_title(self) -> None:
         if self.title is not None:
             self.ax.set_title(self.title, pad=3)
         else:
@@ -375,12 +426,12 @@ class EnvPlot:
 
     def save_figure(
         self,
-        file_name="",
-        file_format="png",
-        include_index=False,
-        save_gif=False,
-        **kwargs,
-    ):
+        file_name: str = "",
+        file_format: str = "png",
+        include_index: bool = False,
+        save_gif: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Save the current figure.
 
@@ -391,10 +442,7 @@ class EnvPlot:
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html for details.
         """
 
-        if save_gif:
-            fp = pm.ani_buffer_path
-        else:
-            fp = pm.fig_path
+        fp = pm.ani_buffer_path if save_gif else pm.fig_path
 
         if not os.path.exists(fp):
             os.makedirs(fp)
@@ -411,12 +459,12 @@ class EnvPlot:
 
     def save_animate(
         self,
-        ani_name="animation",
-        suffix=".gif",
-        last_frame_duration=1,
-        rm_fig_path=True,
-        **kwargs,
-    ):
+        ani_name: str = "animation",
+        suffix: str = ".gif",
+        last_frame_duration: int = 1,
+        rm_fig_path: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Save the animation.
 
@@ -458,13 +506,13 @@ class EnvPlot:
         if rm_fig_path:
             shutil.rmtree(fp)
 
-    def show(self):
+    def show(self) -> None:
         """
         Display the plot.
         """
         plt.show()
 
-    def close(self):
+    def close(self) -> None:
         """
         Close the plot.
         """
@@ -475,7 +523,9 @@ class EnvPlot:
         return env_param.logger
 
 
-def linewidth_from_data_units(linewidth, axis, reference="y"):
+def linewidth_from_data_units(
+    linewidth: float, axis: Any, reference: str = "y"
+) -> float:
     """
     Convert a linewidth in data units to linewidth in points.
 

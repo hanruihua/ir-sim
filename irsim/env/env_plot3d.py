@@ -1,22 +1,27 @@
-from .env_plot import EnvPlot
-import mpl_toolkits.mplot3d.art3d as art3d
-from mpl_toolkits.mplot3d import Axes3D
+from typing import Any, Optional, Union
+
 import numpy as np
-import matplotlib.pyplot as plt
-from math import cos, sin
+
+from .env_plot import EnvPlot
 
 
 class EnvPlot3D(EnvPlot):
-
     def __init__(
         self,
-        world,
-        objects=[],
-        saved_figure=dict(),
-        figure_pixels: list = [1180, 1080],
+        world: Any,
+        objects: Optional[list[Any]] = None,
+        saved_figure: Optional[dict[str, Any]] = None,
+        figure_pixels: Optional[list[int]] = None,
         show_title: bool = True,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
+        if objects is None:
+            objects = []
+        if saved_figure is None:
+            saved_figure = {}
+        if figure_pixels is None:
+            figure_pixels = [1180, 1080]
+
         super().__init__(
             world, objects, saved_figure, figure_pixels, show_title, **kwargs
         )
@@ -27,7 +32,14 @@ class EnvPlot3D(EnvPlot):
         self.init_plot(world.grid_map, objects, **kwargs)
         self.ax.set_zlim(self.z_range)
 
-    def draw_points(self, points, s=10, c="m", refresh=True, **kwargs):
+    def draw_points(
+        self,
+        points: Optional[Union[list, np.ndarray]],
+        s: int = 10,
+        c: str = "m",
+        refresh: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw points on the plot.
 
@@ -48,7 +60,6 @@ class EnvPlot3D(EnvPlot):
             z_coordinates = [point[2] for point in points]
 
         elif isinstance(points, np.ndarray):
-
             if points.shape[1] > 1:
                 x_coordinates = [point[0] for point in points.T]
                 y_coordinates = [point[1] for point in points.T]
@@ -65,7 +76,9 @@ class EnvPlot3D(EnvPlot):
         if refresh:
             self.dyna_point_list.append(points)
 
-    def draw_quiver(self, point, refresh=False, **kwargs):
+    def draw_quiver(
+        self, point: Optional[np.ndarray], refresh: bool = False, **kwargs: Any
+    ) -> None:
         """
         Draw a quiver plot on the plot.
 
@@ -102,7 +115,9 @@ class EnvPlot3D(EnvPlot):
             self.dyna_quiver_list.append(ax_quiver)
             self.dyna_point_list.append(ax_point)
 
-    def draw_quivers(self, points, refresh=False, **kwargs):
+    def draw_quivers(
+        self, points: Union[list, np.ndarray], refresh: bool = False, **kwargs: Any
+    ) -> None:
         """
         Draw a series of quiver plot on the plot.
 
@@ -111,18 +126,18 @@ class EnvPlot3D(EnvPlot):
 
         """
 
-        for point in points.T:
+        for point in points.T if isinstance(points, np.ndarray) else points:
             self.draw_quiver(point, refresh, **kwargs)
 
     def draw_trajectory(
         self,
-        traj,
-        traj_type="g-",
-        label="trajectory",
-        show_direction=False,
-        refresh=False,
-        **kwargs,
-    ):
+        traj: Union[list, np.ndarray],
+        traj_type: str = "g-",
+        label: str = "trajectory",
+        show_direction: bool = False,
+        refresh: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Draw a trajectory on the plot.
 
@@ -169,7 +184,7 @@ class EnvPlot3D(EnvPlot):
         if refresh:
             self.dyna_line_list.append(line)
 
-    def update_title(self):
+    def update_title(self) -> None:
         """
         Override the parent's update_title method to handle 3D plots properly.
         """

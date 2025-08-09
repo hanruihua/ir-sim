@@ -1,28 +1,29 @@
-import pytest
-import irsim
-from irsim.util.util import (
-    time_it2,
-    file_check,
-    WrapToRegion,
-    convert_list_length_dict,
-    is_list_not_list_of_lists,
-    is_list_of_lists,
-    get_transform,
-    get_affine_transform,
-    distance,
-)
+import contextlib
+import time
+from math import pi
 from unittest.mock import Mock
+
 import matplotlib.pyplot as plt
 import numpy as np
-from math import pi
-import time
-from irsim.gui.mouse_control import MouseControl
+import pytest
 from matplotlib.backend_bases import MouseButton
 
-try:
+import irsim
+from irsim.gui.mouse_control import MouseControl
+from irsim.util.util import (
+    WrapToRegion,
+    convert_list_length_dict,
+    distance,
+    file_check,
+    get_affine_transform,
+    get_transform,
+    is_list_not_list_of_lists,
+    is_list_of_lists,
+    time_it2,
+)
+
+with contextlib.suppress(ImportError):
     from pynput import keyboard
-except ImportError:
-    pass
 
 
 @pytest.fixture(autouse=True)
@@ -84,7 +85,7 @@ def test_collision_avoidance():
     env.draw_quivers(points)
     env.draw_quivers(points, refresh=True)
 
-    env.set_title("Simulation time: {:.2f}s".format(env.time))
+    env.set_title(f"Simulation time: {env.time:.2f}s")
 
     file_check("123.yaml")
     file_check("123.yaml", root_path=".")
@@ -157,14 +158,13 @@ def test_polygon_and_lidar():
 
     scan = env.robot.get_lidar_scan()
     offset = env.robot.get_lidar_offset()
-    gh_init = env.robot.get_init_Gh()
-    gh = env.robot.get_Gh()
+    env.robot.get_init_Gh()
+    env.robot.get_Gh()
 
     env.get_obstacle_info_list()
     env.get_robot_info_list()
 
     for i in range(10):
-
         if i < 5:
             env.robot.set_goal(None)
             env.robot_list[1].set_goal(None)
@@ -189,7 +189,7 @@ def test_animation_saving():
     """Test animation saving functionality"""
     env = irsim.make("test_render.yaml", save_ani=True, display=False)
 
-    for i in range(20):
+    for _i in range(20):
         env.step()
         env.render(0.01)
     env.end(ani_name="test_animation")
@@ -200,7 +200,7 @@ def test_collision_world():
     """Test collision world"""
     env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
 
-    for i in range(4):
+    for _i in range(4):
         env.step()
         env.render(0.01)
     env.end()
@@ -213,7 +213,7 @@ def test_multi_objects():
     env.robot.set_goal([5, 10, 0])
     env.random_obstacle_position()
 
-    for i in range(5):
+    for _i in range(5):
         env.step()
         env.render(0.01)
 
@@ -232,7 +232,7 @@ def test_grid_map():
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], laser_color="blue", alpha=0.2
     )
 
-    for i in range(6):
+    for _i in range(6):
         env.step()
         env.render(0.01)
 
@@ -247,7 +247,7 @@ def test_keyboard_control():
     key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r"]
     mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
 
-    for i in range(3):
+    for _ in range(3):
         for mock_key in mock_keys:
             env.keyboard._on_press(mock_key)
             env.keyboard._on_release(mock_key)
@@ -263,29 +263,27 @@ def test_keyboard_control():
 
     # Press Alt key
     env.keyboard._on_press(alt_key)
-    assert (
-        env.keyboard.alt_flag == True
-    ), "After pressing Alt key, alt_flag should be True"
+    assert env.keyboard.alt_flag, "After pressing Alt key, alt_flag should be True"
 
     # Test number keys with Alt pressed
     for i, num_key in enumerate(num_keys):
         env.keyboard._on_press(num_key)
         if i < env.robot_number:
-            assert (
-                env.keyboard.key_id == i
-            ), f"After pressing Alt+{i}, control ID should change to {i}"
+            assert env.keyboard.key_id == i, (
+                f"After pressing Alt+{i}, control ID should change to {i}"
+            )
         else:
             # If robot number is less than the pressed number, it should print "out of number of robots"
             # but we can't easily test the print output, so we just check that key_id is set
-            assert (
-                env.keyboard.key_id == i
-            ), f"After pressing Alt+{i}, control ID should be set to {i}"
+            assert env.keyboard.key_id == i, (
+                f"After pressing Alt+{i}, control ID should be set to {i}"
+            )
 
     # Release Alt key
     env.keyboard._on_release(alt_key)
-    assert (
-        env.keyboard.alt_flag == False
-    ), "After releasing Alt key, alt_flag should be False"
+    assert not env.keyboard.alt_flag, (
+        "After releasing Alt key, alt_flag should be False"
+    )
 
     # Test space key functionality - toggle pause/resume on release
     # Method 3: Create a simple class that equals keyboard.Key.space
@@ -299,15 +297,15 @@ def test_keyboard_control():
 
     # First release should pause the environment
     env.keyboard._on_release(space_key)
-    assert (
-        env.status == "Pause"
-    ), "After first space key release, status should be Pause"
+    assert env.status == "Pause", (
+        "After first space key release, status should be Pause"
+    )
 
     # Second release should resume the environment
     env.keyboard._on_release(space_key)
-    assert (
-        env.status == "Running"
-    ), "After second space key release, status should be Running"
+    assert env.status == "Running", (
+        "After second space key release, status should be Running"
+    )
 
     env.end()
     assert True  # Add keyboard control related assertions
@@ -344,11 +342,9 @@ def test_mouse_control():
     mock_left_click.xdata = 3.0
     mock_left_click.ydata = 3.0
     mouse_control.on_click(mock_left_click)
-    assert (
-        mouse_control.left_click_pos is not None
-        and mouse_control.left_click_pos[0] == 3.0
-        and mouse_control.left_click_pos[1] == 3.0
-    )
+    assert mouse_control.left_click_pos is not None
+    assert mouse_control.left_click_pos[0] == 3.0
+    assert mouse_control.left_click_pos[1] == 3.0
 
     # Test right click
     mock_right_click = Mock()
@@ -357,11 +353,9 @@ def test_mouse_control():
     mock_right_click.xdata = 7.0
     mock_right_click.ydata = 7.0
     mouse_control.on_click(mock_right_click)
-    assert (
-        mouse_control.right_click_pos is not None
-        and mouse_control.right_click_pos[0] == 7.0
-        and mouse_control.right_click_pos[1] == 7.0
-    )
+    assert mouse_control.right_click_pos is not None
+    assert mouse_control.right_click_pos[0] == 7.0
+    assert mouse_control.right_click_pos[1] == 7.0
 
     # Test middle click (zoom reset)
     initial_xlim = ax.get_xlim()
@@ -423,7 +417,7 @@ def test_custom_behavior():
     env = irsim.make("custom_behavior.yaml", display=False)
     env.load_behavior("custom_behavior_methods")
 
-    for i in range(10):
+    for _i in range(10):
         env.step()
         env.render(0.01)
     env.end()
@@ -435,7 +429,7 @@ def test_fov_detection():
     env = irsim.make("test_fov_world.yaml", save_ani=False, display=False)
     env.obstacle_list[0].get_fov_detected_objects()
 
-    for i in range(30):
+    for _i in range(30):
         detected = [obs.fov_detect_object(env.robot) for obs in env.obstacle_list]
         env.step()
         env.render(
@@ -452,7 +446,7 @@ def test_3d_projection():
     )
     env.random_obstacle_position(ids=[3, 4, 5, 6, 7], non_overlapping=True)
 
-    for i in range(5):
+    for _i in range(5):
         env.step()
         env.render(0.01)
     env.end()
@@ -472,7 +466,7 @@ def test_time_it2_decorator():
             return "success"
 
     # Test when time_print is True
-    test_obj = TestClass(time_print=True)
+    TestClass(time_print=True)
 
 
 if __name__ == "__main__":

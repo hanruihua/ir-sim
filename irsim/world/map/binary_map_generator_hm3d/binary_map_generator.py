@@ -8,14 +8,15 @@ Author: Guoliang Li
 """
 
 import os
-import numpy as np
+
 import habitat_sim
 import matplotlib.pyplot as plt
-from typing import Tuple
+import numpy as np
 from habitat_sim.utils.settings import default_sim_settings, make_cfg
-from shapely.geometry import Polygon as ShapelyPolygon, box
-from shapely.ops import unary_union
 from PIL import Image
+from shapely.geometry import Polygon as ShapelyPolygon
+from shapely.geometry import box
+from shapely.ops import unary_union
 
 
 def extract_navmesh_vertices(scene_path: str, scene_name: str) -> np.ndarray:
@@ -67,9 +68,7 @@ def extract_navmesh_vertices(scene_path: str, scene_name: str) -> np.ndarray:
 
             # Extract and transform vertices
             vertices_3d = sim.pathfinder.build_navmesh_vertices()
-            vertices_2d = np.array([[v[0], -v[2]] for v in vertices_3d])
-
-            return vertices_2d
+            return np.array([[v[0], -v[2]] for v in vertices_3d])
 
     except Exception as e:
         raise RuntimeError(f"NavMesh extraction failed for {scene_name}") from e
@@ -77,7 +76,7 @@ def extract_navmesh_vertices(scene_path: str, scene_name: str) -> np.ndarray:
 
 def create_regions(
     vertices: np.ndarray,
-) -> Tuple[ShapelyPolygon, float, float, float, float]:
+) -> tuple[ShapelyPolygon, float, float, float, float]:
     """
     Process navigation mesh vertices to identify navigable regions and boundaries.
 
@@ -106,8 +105,8 @@ def create_regions(
 
 
 def draw_binary_map(
-    unreachable_region: ShapelyPolygon, bounds: Tuple[float, float, float, float]
-) -> Tuple[plt.Figure, plt.Axes]:
+    unreachable_region: ShapelyPolygon, bounds: tuple[float, float, float, float]
+) -> tuple[plt.Figure, plt.Axes]:
     """
     Generate matplotlib visualization of the binary map with hatched obstacles.
 
@@ -196,5 +195,5 @@ if __name__ == "__main__":
         save_binary_map(map_fig, f"{current_dir}/hm3d_2.png")
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error: {e!s}")
         exit(1)

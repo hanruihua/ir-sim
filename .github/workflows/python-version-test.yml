@@ -12,11 +12,12 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -36,6 +37,23 @@ jobs:
     - name: install package
       run: uv pip install .[all]
 
-    - name: Test with pytest
+    - name: Test with pytest (Ubuntu)
+      if: startsWith(matrix.os, 'ubuntu')
       run: |
-        xvfb-run -s "-screen 0 1024x768x24" uv run pytest
+        xvfb-run -s "-screen 0 1024x768x24" uv run pytest --cov . --cov-report=xml --cov-report=html
+
+    - name: Test with pytest (macOS)
+      if: startsWith(matrix.os, 'macos')
+      env:
+        MPLBACKEND: Agg
+      run: |
+        uv run pytest --cov . --cov-report=xml --cov-report=html
+    
+    - name: Upload coverage information
+      uses: codecov/codecov-action@v5
+      with:
+        fail_ci_if_error: true # optional (default = false)
+        name: codecov-umbrella # optional
+        files: ./coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        verbose: true # optional (default = false)
