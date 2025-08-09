@@ -153,20 +153,20 @@ Install with Additional Features
 .. dropdown:: Documentation
     :open:
 
-    Install documentation dependencies using the doc group (from ``pyproject.toml``):
+    Install documentation dependencies using the docs group (from ``pyproject.toml``):
 
     ::
 
-        uv sync --group doc
+        uv sync --group docs
 
     Build the docs locally (HTML):
 
     ::
 
-        cd doc
+        cd docs
         make html
 
-    The output will be available under ``doc/build/html`` (or ``doc/_build/html`` depending on your environment setup).
+    The output will be available under ``docs/build/html`` (or ``docs/_build/html`` depending on your environment setup).
 
 
 .. dropdown:: All Features
@@ -192,7 +192,7 @@ Install with Additional Features
 
     * lint group
     * test group
-    * doc group
+    * docs group
 
 
 .. _uv: https://docs.astral.sh/uv/

@@ -13,10 +13,10 @@ Thank you for your interest in improving IR-SIM! Whether you’re fixing a typo,
 - **Documentation**  
   - Fix typos, clarify API descriptions  
   - Add new tutorials or usage guides  
-  - Improve examples under [`doc/`](https://ir-sim.readthedocs.io/en/stable/)  
+  - Improve examples under [`docs/`](https://ir-sim.readthedocs.io/en/stable/)  
 
 - **Usage Examples & Tests**  
-  - Extend or polish the [`irsim/usage/`](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage) directory  
+  - Extend or polish the [`usage/`](https://github.com/hanruihua/ir-sim/tree/main/usage) directory  
   - Add unit tests for new features
 
 - **Discussion & Design**  
@@ -45,14 +45,14 @@ pre-commit install
 
 ## Documentation
 
-IR-SIM’s documentation lives in the `doc/` directory and uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). To build the docs locally:
+IR-SIM’s documentation lives in the `docs/` directory and uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). To build the docs locally:
 
 ```bash
-cd doc
+cd docs
 make html
 ```
 
-- New tutorials or guides belong in `doc/` or under `irsim/usage/`  
+- New tutorials or guides belong in `docs/` or under `usage/`  
 - The API reference is auto-generated from docstrings  
 
 ---

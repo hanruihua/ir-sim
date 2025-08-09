@@ -1,5 +1,5 @@
 <!-- <div align="center">
-<img src="doc/image/ir-sim_logos/logo1_nobg.png" width = "200" >
+<img src="docs/image/ir-sim_logos/logo1_nobg.png" width = "200" >
 </div>  -->
 
 
@@ -30,11 +30,11 @@
 
 |                                                      Scenarios                                                        |                                                                    Description                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b" alt="drawing" width="280"/> | In scenarios involving multiple circular differential robots, each robot employs Reciprocal Velocity Obstacle (RVO) behavior to avoid collisions. See [Usage - collision avoidance](https://github.com/hanruihua/ir-sim/blob/main/irsim/usage/11collision_avoidance/collision_avoidance.py) |
-| <img src="https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06" alt="drawing" width="280"/> |                   A car-like robot controlled via keyboard navigates a binary map using a 2D LiDAR sensor to detect obstacles.  See [Usage - grid map](https://github.com/hanruihua/ir-sim/blob/main/irsim/usage/10grid_map/grid_map.py)    |
-| <img src="https://github.com/user-attachments/assets/0fac81e7-60c0-46b2-91f0-efe4762bb758" alt="drawing" width="280"/> |  A car-like robot controlled via keyboard navigates a grid map generated from 3D habitat spaces datasets like [HM3D](https://aihabitat.org/datasets/hm3d/), [MatterPort3D](https://niessner.github.io/Matterport/), [Gibson](http://gibsonenv.stanford.edu/database/), etc. See [Usage - grid map hm3d](https://github.com/hanruihua/ir-sim/blob/main/irsim/usage/10grid_map/grid_map_hm3d.py)|
-| <img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" alt="drawing" width="280"/> |                 Each robot employing RVO behavior is equipped with a field of view (FOV) to detect other robots within this area.  See [Usage - fov](https://github.com/hanruihua/ir-sim/blob/main/irsim/usage/15fov_world/fov_world.py)               |
-| <img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" alt="drawing" width="280"/> |                                  A car-like robot navigates through the randomly generated and moving obstacles. See [Usage - dynamic random obstacles](https://github.com/hanruihua/ir-sim/blob/main/irsim/usage/08random_obstacle/dynamic_random.py)                                  |
+| <img src="https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b" alt="drawing" width="280"/> | In scenarios involving multiple circular differential robots, each robot employs Reciprocal Velocity Obstacle (RVO) behavior to avoid collisions. See [Usage - collision avoidance](https://github.com/hanruihua/ir-sim/blob/main/usage/11collision_avoidance/collision_avoidance.py) |
+| <img src="https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06" alt="drawing" width="280"/> |                   A car-like robot controlled via keyboard navigates a binary map using a 2D LiDAR sensor to detect obstacles.  See [Usage - grid map](https://github.com/hanruihua/ir-sim/blob/main/usage/10grid_map/grid_map.py)    |
+| <img src="https://github.com/user-attachments/assets/0fac81e7-60c0-46b2-91f0-efe4762bb758" alt="drawing" width="280"/> |  A car-like robot controlled via keyboard navigates a grid map generated from 3D habitat spaces datasets like [HM3D](https://aihabitat.org/datasets/hm3d/), [MatterPort3D](https://niessner.github.io/Matterport/), [Gibson](http://gibsonenv.stanford.edu/database/), etc. See [Usage - grid map hm3d](https://github.com/hanruihua/ir-sim/blob/main/usage/10grid_map/grid_map_hm3d.py)|
+| <img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" alt="drawing" width="280"/> |                 Each robot employing RVO behavior is equipped with a field of view (FOV) to detect other robots within this area.  See [Usage - fov](https://github.com/hanruihua/ir-sim/blob/main/usage/15fov_world/fov_world.py)               |
+| <img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" alt="drawing" width="280"/> |                                  A car-like robot navigates through the randomly generated and moving obstacles. See [Usage - dynamic random obstacles](https://github.com/hanruihua/ir-sim/blob/main/usage/08random_obstacle/dynamic_random.py)                                  |
 
 
 ## Prerequisite
@@ -120,7 +120,7 @@ robot:
 
 ### Advanced Usage
 
-The advanced usages are listed in the [irsim/usage](https://github.com/hanruihua/ir-sim/tree/main/irsim/usage)
+The advanced usages are listed in the [usage](https://github.com/hanruihua/ir-sim/tree/main/usage)
 
 
 ## Support

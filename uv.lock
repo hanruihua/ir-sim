@@ -824,7 +824,7 @@ dev = [
     { name = "ruff" },
     { name = "ty" },
 ]
-doc = [
+docs = [
     { name = "importlib-metadata" },
     { name = "myst-parser", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "myst-parser", version = "4.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
@@ -879,7 +879,7 @@ dev = [
     { name = "ruff", specifier = ">=0.12.8" },
     { name = "ty", specifier = ">=0.0.1a17" },
 ]
-doc = [
+docs = [
     { name = "importlib-metadata", specifier = ">=8.7.0" },
     { name = "myst-parser", specifier = ">=3.0.1" },
     { name = "pydata-sphinx-theme", specifier = ">=0.16.1" },

@@ -1,0 +1,64 @@
+irsim.config.world_param
+========================
+
+.. py:module:: irsim.config.world_param
+
+.. autoapi-nested-parse::
+
+   world parameters:
+       time: time elapse of the simulation
+       control_mode:
+           - auto: robot will be controlled automatically
+           - keyboard: robot will be controlled by keyboard
+
+       collision_mode:
+           - stop (default): All Objects stop when collision,
+           - unobstructed: No collision check
+           - reactive: robot will have reaction when collision with others
+           - unobstructed_obstacles: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
+
+       step_time: time of the simulation step, default is 0.1
+       count: count of the simulation, time = count * step_time
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   irsim.config.world_param.time
+   irsim.config.world_param.control_mode
+   irsim.config.world_param.collision_mode
+   irsim.config.world_param.step_time
+   irsim.config.world_param.count
+
+
+Module Contents
+---------------
+
+.. py:data:: time
+   :type:  float
+   :value: 0
+
+
+.. py:data:: control_mode
+   :type:  str
+   :value: 'auto'
+
+
+.. py:data:: collision_mode
+   :type:  str
+   :value: 'stop'
+
+
+.. py:data:: step_time
+   :type:  float
+   :value: 0.1
+
+
+.. py:data:: count
+   :type:  int
+   :value: 0
+
+
