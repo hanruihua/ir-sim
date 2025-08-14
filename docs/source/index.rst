@@ -26,7 +26,7 @@ Welcome to IR-SIM's documentation!
         :text-align: center
         :shadow: lg
 
-        Learn how to use IR-SIM effectively and see examples
+        Learn how to use IR-SIM effectively
 
     .. grid-item-card:: ⚙️ Configuration
         :link: yaml_config/index
