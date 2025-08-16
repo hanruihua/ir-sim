@@ -48,7 +48,7 @@ class ObjectFactory:
             ]
 
         elif isinstance(parse, dict):
-            object_list = [obj for obj in self.create_objects(obj_type, **parse)]
+            object_list = list(self.create_objects(obj_type, **parse))
 
         return object_list
 
