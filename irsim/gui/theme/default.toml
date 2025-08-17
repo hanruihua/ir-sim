@@ -1,0 +1,112 @@
+# IR-Sim default theme (colors and styles)
+#
+# Usage: load keys from this file and pass them as **kwargs to drawing/update methods:
+#   - ObjectBase.plot / _init_plot / _step_plot / plot_* family
+#   - EnvPlot.__init__/step via **kwargs
+#
+# The keys align with argument names used in object_base.py (e.g., obj_color, traj_style, fov_color, etc.).
+
+version = "1.0"
+
+[theme]
+name = "default"
+mode = "light"  # options: "light" | "dark"
+
+# Canvas and global settings
+[env_plot]
+figure_pixels = [1000, 800]
+show_title = true
+no_axis = false
+tight = true
+
+[env_plot.color_map]
+# Mapping for roles to colors used by EnvPlot.color_map; pass via EnvPlot(**{"color_map": {...}})
+robot = "g"
+obstacle = "k"
+landmark = "b"
+target = "pink"
+
+[grid_map]
+# Visual style for draw_grid_map (convert to function args when applying)
+cmap = "Greys"
+zorder = 0
+
+# Common object drawing kwargs (forward directly to ObjectBase.plot/_init_plot/_step_plot)
+[object]
+# Object appearance
+obj_linestyle = "-"
+obj_zorder = 2            # robot: 2, obstacle: 1
+obj_color = "k"
+obj_alpha = 1.0
+
+# Goal visualization
+show_goal = false
+goal_color = ""          # empty means use object color
+goal_zorder = 1
+goal_alpha = 0.5
+
+# Text label
+show_text = false
+text_color = "k"
+text_size = 10
+text_zorder = 2
+text_alpha = 1.0
+
+# Velocity arrow
+show_arrow = false
+arrow_color = "gold"
+arrow_length = 0.4
+arrow_width = 0.6
+arrow_zorder = 4
+arrow_alpha = 1.0
+
+# Trajectory line
+show_trajectory = false
+traj_color = ""          # empty means use object color
+traj_style = "-"
+traj_width = 0.4          # data unit, will be converted to point unit internally
+traj_alpha = 0.5
+traj_zorder = 0
+keep_traj_length = 0      # 0 means full trajectory; consumed by outer logic
+
+# Trail (outline)
+show_trail = false
+trail_freq = 2
+trail_type = ""          # empty means use object shape (circle/polygon/rectangle)
+trail_edgecolor = ""
+trail_linewidth = 0.8
+trail_alpha = 0.7
+trail_fill = false
+trail_color = ""
+trail_zorder = 0
+keep_trail_length = 0
+
+# Sensors and field of view
+show_sensor = true
+
+show_fov = false
+fov_color = "lightblue"
+fov_edge_color = "blue"
+fov_zorder = 0
+fov_alpha = 0.5
+
+# Role-specific overrides: merge these on top of [object] when applying
+[roles.robot]
+obj_color = "#2E7D32"     # robot main color (green)
+traj_color = "#2E7D32"
+trail_edgecolor = "#2E7D32"
+
+[roles.obstacle]
+obj_color = "#212121"     # obstacle main color (dark gray / near black)
+traj_color = "#757575"
+trail_edgecolor = "#424242"
+
+[roles.landmark]
+obj_color = "#1565C0"     # landmark main color (blue)
+traj_color = "#1565C0"
+
+[roles.target]
+obj_color = "#EC407A"     # target main color (pink)
+traj_color = "#EC407A"
+
+
