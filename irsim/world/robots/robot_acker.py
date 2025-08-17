@@ -11,6 +11,14 @@ class RobotAcker(ObjectBase):
         description: str = "car_green.png",
         **kwargs: Any,
     ) -> None:
+        """Create an Ackermann-steered robot.
+
+        Args:
+            color (str): Display color. Default "y".
+            state_dim (int): State vector dimension (>=4 for [x,y,theta,steer]).
+            description (str): Asset or description filename.
+            **kwargs: Forwarded to ``ObjectBase``.
+        """
         super().__init__(
             role="robot",
             color=color,

@@ -170,7 +170,7 @@ class RRTStar(RRT):
         Search for the best goal node in the current RRT* tree.
 
         Returns:
-            (int or None): Index of the best goal node in the node list if found, otherwise None.
+            Optional[int]: Index of the best goal node if found; otherwise ``None``.
         """
         dist_to_goal_list = [self.calc_dist_to_goal(n.x, n.y) for n in self.node_list]
         goal_inds = [
@@ -209,7 +209,7 @@ class RRTStar(RRT):
                 new_node (Node): new randomly generated node, without collisions between it and its nearest node
 
             Returns:
-                (List): List with the indices of the nodes inside the ball radius
+                list[int]: Indices of nodes inside the ball radius.
         """
         nnode = len(self.node_list) + 1
         r = self.connect_circle_dist * math.sqrt(math.log(nnode) / nnode)
@@ -265,7 +265,7 @@ class RRTStar(RRT):
             to_node (Node): The target node.
 
         Returns:
-            (float): The total cost to reach to_node via from_node.
+            float: The total cost to reach to_node via from_node.
         """
         d, _ = self.calc_distance_and_angle(from_node, to_node)
         return from_node.cost + d

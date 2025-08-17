@@ -18,6 +18,12 @@ class EnvBase3D(EnvBase):
     """
 
     def __init__(self, world_name: Optional[str], **kwargs: Any):
+        """Initialize a 3D environment with world and objects parsed from YAML.
+
+        Args:
+            world_name (str | None): Path to the world configuration YAML.
+            **kwargs: Additional environment options forwarded to ``EnvBase``.
+        """
         super().__init__(world_name, **kwargs)
 
         object_factory = ObjectFactory()

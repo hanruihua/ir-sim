@@ -142,6 +142,13 @@ class EnvPlot:
     def step(
         self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
     ) -> None:
+        """Advance the plot by one step for the given objects.
+
+        Args:
+            mode (str): Which objects to update: "dynamic", "static", or "all".
+            objects (list | None): The objects to update/draw. Defaults to empty list.
+            **kwargs: Extra drawing options passed through to objects' plot methods.
+        """
         if objects is None:
             objects = []
         if self.show_title:
@@ -155,6 +162,12 @@ class EnvPlot:
             self.step_objects_plot(mode, objects, **kwargs)
 
     def init_objects_plot(self, objects: list[Any], **kwargs: Any) -> None:
+        """Initialize plot state for provided objects, then render once.
+
+        Args:
+            objects (list): Objects to be initialized on the axes.
+            **kwargs: Extra drawing options passed to initialization/plot.
+        """
         if self.show_title:
             self.update_title()
 
@@ -416,6 +429,7 @@ class EnvPlot:
             self.dyna_line_list.append(box_line)
 
     def update_title(self) -> None:
+        """Update the figure title with current time/status or a custom title."""
         if self.title is not None:
             self.ax.set_title(self.title, pad=3)
         else:

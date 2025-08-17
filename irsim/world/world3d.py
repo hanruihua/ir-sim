@@ -11,6 +11,15 @@ class World3D(World):
         offset: Optional[list[float]] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize a 3D world extending the 2D world with depth.
+
+        Args:
+            name (str): World name or YAML file path.
+            depth (float): Z-depth of the world (range in z). Default 10.0.
+            offset (list[float] | None): [x, y, z] world offset. If a 2D
+                [x, y] is provided, z defaults to 0.
+            **kwargs: Forwarded to the base ``World`` constructor.
+        """
         super().__init__(name=name, **kwargs)
 
         self.depth = depth

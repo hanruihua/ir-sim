@@ -823,6 +823,10 @@ class ObjectBase:
     def set_original_geometry(self, geometry: BaseGeometry):
         """
         Set the original geometry of the object.
+
+        Args:
+            geometry (BaseGeometry): Shapely geometry to use as the new original geometry.
+                Subsequent geometry updates will be transformed from this base.
         """
         self.gf._original_geometry = geometry
 

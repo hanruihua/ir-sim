@@ -190,7 +190,7 @@ class ObjectFactory:
         distribution: Optional[dict[str, Any]] = None,
         state: Optional[list[float]] = None,
         goal: Optional[list[float]] = None,
-    ) -> tuple:
+    ) -> tuple[list[list[float]], list[list[float]]]:
         """
         Generate a list of state vectors for multiple objects based on the specified distribution method.
 
@@ -231,8 +231,9 @@ class ObjectFactory:
                     - 'range_high' (List[float]): Upper bounds for random state values.
 
         Returns:
-            List[List[float]]:
-                A list containing generated state vectors and goal vectors for objects.
+            tuple[list[list[float]], list[list[float]]]:
+                A pair ``(state_list, goal_list)`` where each element is a list of
+                3-element state vectors ``[x, y, theta]`` for every generated object.
 
         Raises:
             ValueError:
