@@ -44,7 +44,11 @@ class MouseControl:
         plt.connect("scroll_event", self.on_scroll)
 
     def on_move(self, event: Any) -> None:
-        """Handle mouse movement events."""
+        """Handle mouse movement events.
+
+        Args:
+            event: Matplotlib mouse motion event.
+        """
         if event.inaxes:
             self.mouse_pos = (event.xdata, event.ydata)
             # self.current_axes = event.inaxes
@@ -54,7 +58,11 @@ class MouseControl:
             self.current_axes = None
 
     def on_click(self, event: Any) -> None:
-        """Handle mouse click events."""
+        """Handle mouse click events.
+
+        Args:
+            event: Matplotlib mouse button event.
+        """
         if event.button is MouseButton.LEFT:
             self.left_click_pos = (
                 np.round((event.xdata, event.ydata), 2)
@@ -74,7 +82,11 @@ class MouseControl:
             self.reset_zoom(event.inaxes)
 
     def on_release(self, event: Any) -> None:
-        """Handle mouse release events."""
+        """Handle mouse release events.
+
+        Args:
+            event: Matplotlib mouse button release event.
+        """
         if event.button is MouseButton.LEFT:
             self.left_click_pos = None
 

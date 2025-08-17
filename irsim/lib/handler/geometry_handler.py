@@ -56,7 +56,7 @@ class geometry_handler(ABC):
             state (np.ndarray): State vector [x, y, theta].
 
         Returns:
-            Transformed geometry.
+            shapely.geometry.base.BaseGeometry: Transformed geometry.
         """
 
         self.geometry = geometry_transform(self._original_geometry, state)
@@ -68,10 +68,11 @@ class geometry_handler(ABC):
         Generate initial G and h for convex object.
 
         Returns:
-                G matrix: (N, 2)
-                h vector: (N, 1)
-                cone_type (str): "norm2" for circle or "Rpositive" for polygon
-                convex_flag (bool):  for convex or not
+            tuple[np.ndarray, np.ndarray, str | None, bool | None]:
+                - G matrix: (N, 2)
+                - h vector: (N, 1)
+                - cone_type (str): "norm2" for circle or "Rpositive" for polygon
+                - convex_flag (bool): whether convex constraints are valid
         """
 
         if self.name == "circle":
@@ -112,10 +113,11 @@ class geometry_handler(ABC):
             vertices: (2, N), N: Edge number of the object
 
         Returns:
-                G matrix: (N, 2)
-                h vector: (N, 1)
-                cone_type (str): "norm2" for circle or "Rpositive" for polygon
-                convex_flag (bool):  for convex or not
+            tuple[np.ndarray | None, np.ndarray | None, str | None, bool]:
+                - G matrix: (N, 2)
+                - h vector: (N, 1)
+                - cone_type (str): "Rpositive" for polygon
+                - convex_flag (bool): whether convex constraints are valid
         """
 
         if self.name == "polygon" or self.name == "rectangle":
@@ -142,10 +144,11 @@ class geometry_handler(ABC):
             radius: float of radius
 
         Returns:
-            G matrix: (3, 2)
-            h vector: (3, 1)
-            cone_type (str): "norm2"
-            convex_flag (bool): True
+            tuple[np.ndarray, np.ndarray, str, bool]:
+                - G matrix: (3, 2)
+                - h vector: (3, 1)
+                - cone_type (str): "norm2"
+                - convex_flag (bool): True
         """
 
         assert self.name == "circle"

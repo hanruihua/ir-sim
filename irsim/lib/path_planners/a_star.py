@@ -24,11 +24,11 @@ from irsim.world.map import Map
 class AStarPlanner:
     def __init__(self, env_map: Map, resolution: float) -> None:
         """
-        Initialize A* planner
+        Initialize A* planner.
 
         Args:
-            env_map (Env): environment map where the planning will take place
-            resolution (float): grid resolution [m]
+            env_map (Map): Environment map where planning takes place.
+            resolution (float): Grid resolution in meters.
         """
 
         self.resolution = resolution
@@ -75,8 +75,8 @@ class AStarPlanner:
 
     def planning(
         self,
-        start_pose: list[float],
-        goal_pose: list[float],
+        start_pose: np.ndarray,
+        goal_pose: np.ndarray,
         show_animation: bool = True,
     ) -> tuple[list[float], list[float]]:
         """

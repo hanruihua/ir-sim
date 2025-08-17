@@ -24,6 +24,7 @@ class reciprocal_vel_obs:
         vxmax (float): Maximum velocity in the x direction.
         vymax (float): Maximum velocity in the y direction.
         acce (float): Acceleration limit.
+        factor (float): Penalty weighting factor for velocity selection.
     """
 
     def __init__(
@@ -57,6 +58,9 @@ class reciprocal_vel_obs:
                 - rvo: Reciprocal Velocity Obstacle (RVO) algorithm, for multi-robot collision avoidance.
                 - hrvo: Hybrid Reciprocal Velocity Obstacle (HRVO) algorithm, for multi-robot collision avoidance.
                 - vo: Velocity Obstacle (VO) algorithm, for obstacle-robot collision avoidance.
+
+        Returns:
+            list[float]: Selected velocity [vx, vy].
         """
 
         if mode == "rvo":

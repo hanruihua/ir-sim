@@ -246,6 +246,11 @@ class RRT:
         return rnd
 
     def draw_graph(self, rnd: Optional["Node"] = None) -> None:
+        """Render the RRT tree and optional sampled node for visualization.
+
+        Args:
+            rnd (Node | None): Optional random node to highlight on the plot.
+        """
         plt.gcf().canvas.mpl_connect(
             "key_release_event",
             lambda event: [exit(0) if event.key == "escape" else None],
@@ -288,6 +293,14 @@ class RRT:
     def plot_circle(
         x: float, y: float, size: float, color: str = "-b"
     ) -> None:  # pragma: no cover
+        """Plot a circle at a given position.
+
+        Args:
+            x (float): Center x coordinate.
+            y (float): Center y coordinate.
+            size (float): Circle radius.
+            color (str): Matplotlib color/style string.
+        """
         deg = list(range(0, 360, 5))
         deg.append(0)
         xl = [x + size * math.cos(np.deg2rad(d)) for d in deg]
@@ -296,6 +309,15 @@ class RRT:
 
     @staticmethod
     def get_nearest_node_index(node_list: list["Node"], rnd_node: "Node") -> int:
+        """Return the index of the nearest node in the list to a target node.
+
+        Args:
+            node_list (list[Node]): List of existing nodes.
+            rnd_node (Node): Target node to compare distances against.
+
+        Returns:
+            int: Index of the nearest node.
+        """
         dlist = [
             (node.x - rnd_node.x) ** 2 + (node.y - rnd_node.y) ** 2
             for node in node_list
@@ -304,6 +326,15 @@ class RRT:
 
     @staticmethod
     def check_if_outside_play_area(node: "Node", play_area: "AreaBounds") -> bool:
+        """Check whether the node is inside the defined play area bounds.
+
+        Args:
+            node (Node): Node to check.
+            play_area (AreaBounds): World bounds.
+
+        Returns:
+            bool: True if inside bounds (or no bounds defined); False otherwise.
+        """
         if play_area is None:
             return True  # no play_area was defined, every pos should be ok
 
@@ -359,6 +390,15 @@ class RRT:
     def calc_distance_and_angle(
         from_node: "Node", to_node: "Node"
     ) -> tuple[float, float]:
+        """Compute Euclidean distance and heading from one node to another.
+
+        Args:
+            from_node (Node): Start node.
+            to_node (Node): Target node.
+
+        Returns:
+            tuple[float, float]: Distance and angle (radians) toward the target.
+        """
         dx = to_node.x - from_node.x
         dy = to_node.y - from_node.y
         d = math.hypot(dx, dy)

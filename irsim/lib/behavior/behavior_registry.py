@@ -10,6 +10,10 @@ def register_behavior(kinematics: str, action: str):
     Args:
         kinematics: only support diff, omni, or acker
         action: defined action for the kinematics
+
+    Returns:
+        Callable: A decorator that registers the target function under the
+        (kinematics, action) key and returns the function unchanged.
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:

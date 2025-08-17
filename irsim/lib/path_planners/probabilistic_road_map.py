@@ -63,14 +63,14 @@ class PRMPlanner:
         max_edge_len: float = 30.0,
     ) -> None:
         """
-        Initialize PRM planner
+        Initialize the PRM planner.
 
         Args:
-            env_map (Env): environment map where the planning will take place
-            robot_radius (float): robot body modeled as circle with given radius
-            n_sample (int): number of samples
-            n_knn (int): number of edges
-            max_edge_len (float): max edge length
+            env_map (Map): Environment map where planning takes place.
+            robot_radius (float): Robot radius modeled as a circle.
+            n_sample (int): Number of sampled points.
+            n_knn (int): Number of nearest neighbors per node.
+            max_edge_len (float): Maximum allowed edge length.
         """
 
         self.rr = robot_radius
@@ -86,13 +86,13 @@ class PRMPlanner:
 
     def planning(
         self,
-        start_pose: list[float],
-        goal_pose: list[float],
+        start_pose: np.ndarray,
+        goal_pose: np.ndarray,
         rng: Optional[Any] = None,
         show_animation: bool = True,
     ) -> Optional[tuple[list[float], list[float]]]:
         """
-        A star path search
+        Plan a path from start to goal using the PRM method.
 
         Args:
             start_pose (np.array): start pose [x,y]

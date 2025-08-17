@@ -23,27 +23,27 @@ class Behavior:
     """
 
     def __init__(self, object_info=None, behavior_dict=None) -> None:
-        """
-        Initializes the Behavior class with object information and behavior parameters.
+        """Initialize the behavior with object info and parameters.
 
         Args:
-            object_info (object): Information about the agent.
-            behavior_dict (dict): Behavior parameters.
+            object_info: Information about the agent (from ObjectBase.ObjectInfo).
+            behavior_dict (dict | None): Behavior parameters; if ``None``,
+                defaults to an empty dict.
         """
         self.object_info = object_info
         self.behavior_dict = {} if behavior_dict is None else behavior_dict
         self.load_behavior()
 
     def gen_vel(self, ego_object, external_objects=None):
-        """
-        Generate velocity for the agent based on the behavior dictionary.
+        """Generate a velocity for the agent based on configured behavior.
 
         Args:
-            ego_object: the object itself
-            external_objects: all the other objects in the environment
+            ego_object: The agent itself (object with needed attributes).
+            external_objects (list | None): Other objects in the environment.
 
         Returns:
-            np.array (2, 1): Generated velocity for the agent.
+            numpy.ndarray: A 2x1 velocity vector appropriate for the agent
+            kinematics.
         """
 
         if external_objects is None:

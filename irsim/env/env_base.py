@@ -187,9 +187,19 @@ class EnvBase:
         )
 
     def __del__(self):
+        """Clean up resources when the environment is garbage-collected.
+
+        Note:
+            Main resource cleanup is performed in :py:meth:`end`.
+        """
         pass
 
     def __str__(self):
+        """Return a human-readable summary of the environment.
+
+        Returns:
+            str: Summary string including the world name.
+        """
         return f"Environment: {self._world.name}"
 
     def step(
@@ -259,12 +269,25 @@ class EnvBase:
         self.step_status()
 
     def _objects_step(self, action: list[Any]) -> None:
+        """Advance all objects by one step with corresponding actions.
+
+        Args:
+            action (list[Any]): A list of actions aligned with ``self.objects``.
+                If the list is shorter than the number of objects, it is padded
+                with ``None`` for the remaining objects.
+        """
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action) for obj, action in zip(self.objects, action)]
 
     def _object_step(
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0
     ) -> None:
+        """Advance a single object by one step and tick others.
+
+        Args:
+            action (np.ndarray | list | None): Action applied to the target object.
+            obj_id (int): Target object index (or id-aligned index). Default is ``0``.
+        """
         if len(self.objects) == 0:
             return
 
@@ -272,6 +295,7 @@ class EnvBase:
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
     def _objects_check_status(self) -> None:
+        """Refresh per-object status flags (e.g., arrival, collision)."""
         [obj.check_status() for obj in self.objects]
 
     # render
@@ -992,22 +1016,47 @@ class EnvBase:
 
     @property
     def key_vel(self) -> Any:
+        """Get current keyboard velocity command.
+
+        Returns:
+            Any: A 2x1 vector ``[[linear], [angular]]`` from keyboard input.
+        """
         return self.keyboard.key_vel
 
     @property
     def key_id(self) -> int:
+        """Get current keyboard-controlled robot id.
+
+        Returns:
+            int: The robot id currently controlled by keyboard.
+        """
         return self.keyboard.key_id
 
     @property
     def mouse_pos(self) -> Any:
+        """Get current mouse position on the canvas.
+
+        Returns:
+            Any: Mouse coordinates ``(x, y)`` or ``None`` if outside axes.
+        """
         return self.mouse.mouse_pos
 
     @property
     def mouse_left_pos(self) -> Any:
+        """Get last left-click position.
+
+        Returns:
+            Any: Position array or ``None`` if not set.
+        """
         return self.mouse.left_click_pos
 
     @property
     def mouse_right_pos(self) -> Any:
+        """Get last right-click position.
+
+        Returns:
+            Any: Position array or ``None`` if not set.
+        """
         return self.mouse.right_click_pos
 
     # endregion: property

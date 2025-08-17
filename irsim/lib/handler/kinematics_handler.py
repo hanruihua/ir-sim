@@ -20,6 +20,7 @@ class KinematicsHandler(ABC):
         Initialize the KinematicsHandler class.
 
         Args:
+            name (str): Kinematics model name.
             noise (bool): Boolean indicating whether to add noise to the velocity (default False).
             alpha (list): List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03]).
         """
@@ -53,6 +54,16 @@ class OmniKinematics(KinematicsHandler):
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
     ) -> np.ndarray:
+        """Advance omnidirectional state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta, ...].
+            velocity (np.ndarray): Velocity [vx, vy].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: New state (x, y updated; rest preserved).
+        """
         next_position = omni_kinematics(
             state[0:2], velocity, step_time, self.noise, self.alpha
         )
@@ -66,6 +77,16 @@ class DifferentialKinematics(KinematicsHandler):
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
     ) -> np.ndarray:
+        """Advance differential-drive state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta].
+            velocity (np.ndarray): [linear, angular].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: Next state.
+        """
         return differential_kinematics(
             state, velocity, step_time, self.noise, self.alpha
         )
@@ -87,6 +108,16 @@ class AckermannKinematics(KinematicsHandler):
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
     ) -> np.ndarray:
+        """Advance Ackermann-steered state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta, steer].
+            velocity (np.ndarray): Depending on mode: [linear, steer] or [linear, angular].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: Next state.
+        """
         return ackermann_kinematics(
             state,
             velocity,

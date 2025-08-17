@@ -15,6 +15,16 @@ class EnvPlot3D(EnvPlot):
         show_title: bool = True,
         **kwargs: Any,
     ) -> None:
+        """Create a 3D plot for the environment.
+
+        Args:
+            world: World-like object that provides ranges and grid map.
+            objects (list | None): Objects to initialize on the plot.
+            saved_figure (dict | None): Savefig keyword arguments.
+            figure_pixels (list[int] | None): Figure size in pixels [w, h].
+            show_title (bool): Whether to show the title.
+            **kwargs: Additional drawing options passed downstream.
+        """
         if objects is None:
             objects = []
         if saved_figure is None:
