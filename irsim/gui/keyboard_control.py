@@ -46,7 +46,7 @@ class KeyboardControl:
         # Store environment reference for reset functionality
         self.env_ref = env_ref
 
-        vel_max = keyboard_kwargs.get("vel_max", [3.0, 1.0])
+        vel_max = keyboard_kwargs.get("vel_max", [1.0, 1.0])
         self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
         self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
         self.key_lv = keyboard_kwargs.get("key_lv", 0.0)
