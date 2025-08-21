@@ -223,6 +223,11 @@ class EnvBase:
 
                 If None, robots will use their default behavior or keyboard control if enabled.
 
+                Note - Priority Order:
+                    1. perform the keyboard control for a specific action_id if enabled.
+                    2. perform the action argument as a list of numpy array, and the action_id argument as a list of int.
+                    3. perform the default behavior for the rest of the objects if the action is None.
+
             action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
                 Can be a single robot ID or a list of IDs. Default is 0 (first robot).
                 If action is a list and action_id is a single int, all actions will be
@@ -248,20 +253,28 @@ class EnvBase:
         if self.pause_flag:
             return
 
-        if isinstance(action, list):
-            if isinstance(action_id, list):
-                for a, ai in zip(action, action_id):
-                    self._object_step(a, ai)
-            else:
-                self._objects_step(action)
-        else:
-            if world_param.control_mode == "keyboard":
-                self._object_step(self.key_vel, self.key_id)
-            else:
+        actions = [None] * len(self.objects)
+
+        if action is not None:
+
+            if isinstance(action, list):
                 if isinstance(action_id, list):
-                    self._object_step(action, action_id[0])
+                    for a, ai in zip(action, action_id):
+                        actions[ai] = a
                 else:
-                    self._object_step(action, action_id)
+                    actions[action_id:action_id+len(action)] = action[:]
+
+            elif isinstance(action, np.ndarray):
+                if isinstance(action_id, list):
+                    for ai in action_id:
+                        actions[ai] = action
+                else:
+                    actions[int(action_id)] = action
+
+            if world_param.control_mode == "keyboard":
+                actions[self.key_id] = self.key_vel
+
+        self._objects_step(actions)
 
         self.build_tree()
         self._objects_check_status()
@@ -283,6 +296,7 @@ class EnvBase:
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0
     ) -> None:
         """Advance a single object by one step and tick others.
+        No use this function. It will be deprecated in the future.
 
         Args:
             action (np.ndarray | list | None): Action applied to the target object.
@@ -301,7 +315,7 @@ class EnvBase:
     # render
     def render(
         self,
-        interval: float = 0.02,
+        interval: float = 0.01,
         figure_kwargs: Optional[dict[str, Any]] = None,
         mode: str = "dynamic",
         **kwargs: Any,
