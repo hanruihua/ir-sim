@@ -201,6 +201,7 @@ class ObjectBase:
         unobstructed: bool = False,
         fov: Optional[float] = None,
         fov_radius: Optional[float] = None,
+        name: Optional[str] = None,
         **kwargs,
     ) -> None:
         """
@@ -275,6 +276,8 @@ class ObjectBase:
 
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
+
+        self._name = name
 
         # Set goal points
         self._goal = (
@@ -2125,7 +2128,7 @@ class ObjectBase:
             str: The name of the object.
         """
 
-        return self.role + "_" + str(self.id)
+        return self._name if self._name is not None else self.role + "_" + str(self.id)
 
     @property
     def abbr(self) -> str:
