@@ -304,6 +304,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`velocity`** — Initial speed (`[v, ω]`, `[vx, vy]`, `[v, φ]`)
 - **`state_dim`** — State vector size (auto: 3 or 4)
 - **`vel_dim`** — Velocity vector size (auto: 2)
+- **`name`** — Unique identifier for the object.
 ```
 
 **`number`** (`int`, default: `1`)
