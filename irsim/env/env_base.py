@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib
 import platform
+from collections import Counter
 from operator import attrgetter
 from typing import Any, Optional, Union
 
@@ -157,6 +158,9 @@ class EnvBase:
         self._env_plot = EnvPlot(self._world, self.objects, **self._world.plot_parse)
 
         env_param.objects = self.objects
+
+        # Ensure unique names for all objects early
+        self.validate_unique_names()
 
         if world_param.control_mode == "keyboard":
             if not keyboard_module:
@@ -721,21 +725,32 @@ class EnvBase:
 
     def add_object(self, obj: ObjectBase) -> None:
         """
-        Add the object to the environment.
+        Add the object to the environment, enforcing unique names.
 
         Args:
             obj (ObjectBase): The object to be added to the environment.
         """
+        if any(existing.name == obj.name for existing in self.objects):
+            raise ValueError(f"Object name '{obj.name}' already exists.")
         self._objects.append(obj)
         self.build_tree()
 
     def add_objects(self, objs: list[ObjectBase]) -> None:
         """
-        Add the objects to the environment.
+        Add the objects to the environment, enforcing unique names (both within
+        the new list and against existing objects).
 
         Args:
             objs (list): List of objects to be added to the environment.
         """
+        new_names = [o.name for o in objs]
+        dupes_in_new = [n for n, c in Counter(new_names).items() if c > 1]
+        if dupes_in_new:
+            raise ValueError(f"Duplicate names within new objects: {dupes_in_new}")
+        existing_names = {o.name for o in self.objects}
+        conflicts = [n for n in new_names if n in existing_names]
+        if conflicts:
+            raise ValueError(f"Object names already exist: {conflicts}")
         self._objects.extend(objs)
         self.build_tree()
 
@@ -777,6 +792,17 @@ class EnvBase:
         """
 
         env_param.GeometryTree = STRtree([obj.geometry for obj in self.objects])
+
+    def validate_unique_names(self) -> None:
+        """Validate that all object names are unique.
+
+        Raises:
+            ValueError: If duplicates exist.
+        """
+        names = [obj.name for obj in self.objects]
+        duplicates = [n for n, c in Counter(names).items() if c > 1]
+        if duplicates:
+            raise ValueError(f"Duplicate object names: {duplicates}")
 
     # endregion: object operation
 
@@ -864,6 +890,18 @@ class EnvBase:
             The map of the environment with the specified resolution.
         """
         return self._world.get_map(resolution, self.obstacle_list)
+
+    def get_object_by_name(self, name: str) -> Optional[ObjectBase]:
+        """
+        Get the object with the given name.
+        """
+        return next((obj for obj in self.objects if obj.name == name), None)
+
+    def get_object_by_id(self, target_id: int) -> Optional[ObjectBase]:
+        """
+        Get the object with the given id.
+        """
+        return next((obj for obj in self.objects if obj.id == target_id), None)
 
     # endregion: get information
 
