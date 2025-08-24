@@ -59,6 +59,8 @@ def test_collision_avoidance():
     print(env.static_objects)
     print(env.robot.goal_vertices)
     print(env.robot.original_vertices)
+    print(env.robot.name)
+    print(env.names)
 
     env.robot.set_velocity([1, 1])
     env.robot.set_velocity([1, 1], init=True)
@@ -70,14 +72,15 @@ def test_collision_avoidance():
         shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
     )
     env.add_object(obs)
-    env.add_objects([obs])
     env.delete_object(obs.id)
-
+    env.add_objects([obs])
     env.get_robot_state()
     env.get_lidar_scan()
     env.get_lidar_offset()
     env.get_robot_info()
     env.get_map()
+    env.get_object_by_name("testtest")
+    env.get_object_by_id(env.robot.id)
 
     env.draw_quiver(np.array([1, 2, 2, 3]))
     env.draw_quiver(np.array([1, 2, 2, 3]), refresh=True)
@@ -467,6 +470,20 @@ def test_time_it2_decorator():
 
     # Test when time_print is True
     TestClass(time_print=True)
+
+
+def test_validate_unique_names_pass():
+    """Environment should initialize when object names are unique"""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    # names are unique across all objects
+    assert len(env.names) == len(set(env.names))
+    env.end()
+
+
+def test_validate_unique_names_duplicate_raises():
+    """Environment should raise on duplicate object names"""
+    with pytest.raises(ValueError, match="Duplicate object names"):
+        irsim.make("test_duplicate_names.yaml", display=False)
 
 
 if __name__ == "__main__":

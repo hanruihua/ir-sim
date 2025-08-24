@@ -23,6 +23,8 @@ robot:
         number: 100
         noise: False
         has_velocity: True
+    
+    name: ['testtest']
       
   - kinematics: {name: 'diff', noise: True}  # omni, diff, ackers
     shape: {name: 'circle', radius: 0.2}  # radius
@@ -38,6 +40,7 @@ robot:
         number: 100
         noise: False
         has_velocity: True
+    name: ['testtest2']
   
   - kinematics: {name: 'acker'}  # omni, diff, acker
     shape: {name: 'circle', radius: 0.2, wheelbase: 0.2}  # radius
@@ -48,6 +51,7 @@ robot:
     behavior: {name: 'dash'} # move toward to the goal directly 
     plot:
       show_goal: True
+    
   
 obstacle:
   - kinematics: {name: 'omni'}

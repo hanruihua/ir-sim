@@ -29,7 +29,7 @@ Use this navigation to quickly jump to specific parameter sections:
 :open:
 - [Parameters Table](#object-parameters-table)
 - [object properties](#object-properties)
-  - `number`, `distribution`, `state`, `goal`, `velocity`, `state_dim`, `vel_dim`, `group`
+  - `number`, `distribution`, `state`, `goal`, `velocity`, `state_dim`, `vel_dim`, `group`, `name`
 - [object kinematics](#object-kinematics)
   - `kinematics`, `vel_min`, `vel_max`, `acce`, `angle_range`, `goal_threshold`
 - [object shape](#object-shape)
@@ -105,6 +105,7 @@ obstacle:
 - Parameters such as distribution, shape, behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
 - When dealing with multiple objects (i.e., when the number is greater than 1), utilize the `distribution` parameter to define how these objects are distributed.
 - By default, all objects within the same group share identical configurations. To customize individual objects within a group, add sub-parameters using `-`. Any additional objects not explicitly configured will inherit the settings of the last specified object in the group.
+- Object-level `name` is optional and identifies each object. If omitted, it defaults to `"<role>_<id>"` (e.g., `robot_0`, `obstacle_3`). Names must be unique across all objects; duplicates raise an error during environment initialization. Do not confuse object-level `name` with the `name` keys used inside dictionaries like `shape`, `kinematics`, or `behavior` (which indicate component types).
 ````
 
 ---
@@ -261,6 +262,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 | Parameter        | Type                                             | Default          | Description                                                                              |
 | ---------------- | ------------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------- |
+| `name`           | `str` or `list` of `str`                         | `None`           | Unique identifier for the object. If omitted, auto-assigned as `"<role>_<id>"`. Supports a list when `number > 1`. |
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                             |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
 | `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
@@ -412,6 +414,35 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```yaml
   # Example usage
   group: 1
+  ```
+
+**`name`** (`str` or `list` of `str`, default: `None`)
+: Sets a unique identifier for the object. If not provided, the name defaults to "<role>_<id>" (e.g., `robot_0`, `obstacle_3`). Names must be unique across all objects in the environment; duplicates will raise a `ValueError` during initialization.
+
+  - When creating multiple objects (`number > 1`), you can provide a list of names. If the provided list is shorter than the number of objects, the last name is repeated for remaining objects; ensure uniqueness to avoid errors.
+
+  ```yaml
+  # Example usage - single object
+  robot:
+    - name: "r1"
+      kinematics: {name: 'diff'}
+      shape: {name: 'circle', radius: 0.2}
+      state: [1, 1, 0]
+      goal: [9, 9, 0]
+  ```
+
+  ```yaml
+  # Example usage - multiple objects with explicit names
+  robot:
+    - number: 3
+      name: ["r1", "r2", "r3"]
+      distribution: {name: 'circle', center: [5, 5, 0], radius: 4.0}
+      kinematics: {name: 'diff'}
+      shape: {name: 'circle', radius: 0.2}
+  ```
+
+  ```{note}
+  Do not confuse the object-level `name` with the `name` keys inside dictionaries like `shape`, `kinematics`, or `behavior`. The latter specify the type of that component, not the object's identifier.
   ```
 ::::
 
