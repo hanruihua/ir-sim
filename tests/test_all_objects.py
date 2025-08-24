@@ -25,6 +25,8 @@ from irsim.util.util import (
 with contextlib.suppress(ImportError):
     from pynput import keyboard
 
+import re
+
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
@@ -223,6 +225,14 @@ def test_multi_objects():
     action_list = [[1, 0], [2, 0]]
     action_id_list = [2, 3]
     env.step(action_list, action_id_list)
+
+    action_list = [[1, 0], [2, 0]]
+    action_id = 1
+    env.step(action_list, action_id)
+
+    action = np.array([1, 0]).reshape(2, 1)
+    action_id_list = [2, 3]
+    env.step(action, action_id_list)
 
     env.end()
     assert True  # Add multi-object related assertions
@@ -484,6 +494,32 @@ def test_validate_unique_names_duplicate_raises():
     """Environment should raise on duplicate object names"""
     with pytest.raises(ValueError, match="Duplicate object names"):
         irsim.make("test_duplicate_names.yaml", display=False)
+
+
+def test_add_object_duplicate_raises():
+    env = irsim.make("test_all_objects.yaml", display=False)
+
+    obs = env.create_obstacle(
+        shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
+    )
+
+    env.add_object(obs)
+    with pytest.raises(ValueError, match=f"Object name '{obs.name}' already exists."):
+        env.add_object(obs)
+
+
+def test_add_objects_duplicate_raises():
+    env = irsim.make("test_all_objects.yaml", display=False)
+
+    obs = env.create_obstacle(
+        shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
+    )
+    env.add_object(obs)
+
+    with pytest.raises(
+        ValueError, match=re.escape(f"Object names already exist: {[obs.name]}")
+    ):
+        env.add_objects([obs])
 
 
 if __name__ == "__main__":
