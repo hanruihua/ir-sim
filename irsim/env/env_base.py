@@ -260,13 +260,12 @@ class EnvBase:
         actions = [None] * len(self.objects)
 
         if action is not None:
-
             if isinstance(action, list):
                 if isinstance(action_id, list):
                     for a, ai in zip(action, action_id):
                         actions[ai] = a
                 else:
-                    actions[action_id:action_id+len(action)] = action[:]
+                    actions[int(action_id) : int(action_id) + len(action)] = action[:]
 
             elif isinstance(action, np.ndarray):
                 if isinstance(action_id, list):
@@ -1113,8 +1112,7 @@ class EnvBase:
 
     @property
     def names(self) -> list[str]:
-        """Get the names of all objects in the environment.
-        """
+        """Get the names of all objects in the environment."""
         return [obj.name for obj in self.objects]
 
     # endregion: property
