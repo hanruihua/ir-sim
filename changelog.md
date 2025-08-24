@@ -1,3 +1,13 @@
+## 2.7.1
+
+- Features:
+  - Add `name` attribute for the object. It can be configured in the yaml file. The duplicate name check is added to ensure there are no duplicate names.
+  - Clearify the `env.step` action order: 1st. keyboard control; 2nd. input action; 3rd. behavior control.
+  - Add `env.get_object_by_name` and `env.get_object_by_id` function to get the object by name and id.
+
+- Bug Fixes:
+  - Fix error in documentation and function comments.
+
 ## ir-sim 2.7.0
 
 This version improves the CI pipeline, GitHub Actions workflows, linting, and formatting to ensure consistent style and faster checks, with no API changes.
