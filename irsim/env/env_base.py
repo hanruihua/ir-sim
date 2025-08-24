@@ -1111,4 +1111,10 @@ class EnvBase:
         """
         return self.mouse.right_click_pos
 
+    @property
+    def names(self) -> list[str]:
+        """Get the names of all objects in the environment.
+        """
+        return [obj.name for obj in self.objects]
+
     # endregion: property
