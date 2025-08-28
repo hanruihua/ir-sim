@@ -11,7 +11,9 @@ robot:
   - number: 2
     kinematics: {name: 'acker'}  # omni, diff, acker
     shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
-    state: [5, 5, 0, 0]
+    state: 
+      - [5, 5, 0, 0]
+      - [10, 10, 0, 0]
     goal: [40, 40, 0]
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly

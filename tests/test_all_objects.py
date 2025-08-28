@@ -335,8 +335,8 @@ def test_keyboard_control_mpl_backend():
             self.key = key
 
     # alt+1 selects robot id 1 (pressed together)
-    env.keyboard._on_mpl_press(E("alt+1"))
-    assert env.keyboard.key_id == 1
+    env.keyboard._on_mpl_press(E("alt+0"))
+    assert env.keyboard.key_id == 0
 
     # Press 'w' then step → linear velocity should be positive
     env.keyboard._on_mpl_press(E("w"))
@@ -349,6 +349,82 @@ def test_keyboard_control_mpl_backend():
     env.step()
     v = env.robot.velocity.reshape(-1)
     assert abs(v[0]) <= 1e-9
+
+    # Press 's' (backward) then release
+    env.keyboard._on_mpl_press(E("s"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert v[0] < 0
+    env.keyboard._on_mpl_release(E("s"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert abs(v[0]) <= 1e-9
+
+    # Turn left 'a' (positive angular), then release
+    env.keyboard._on_mpl_press(E("a"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert v[1] > 0
+    env.keyboard._on_mpl_release(E("a"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert abs(v[1]) <= 1e-9
+
+    # Turn right 'd' (negative angular), then release
+    env.keyboard._on_mpl_press(E("d"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert v[1] < 0
+    env.keyboard._on_mpl_release(E("d"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert abs(v[1]) <= 1e-9
+
+    # Increase linear max with 'e', press 'w' should reflect new max
+    prev_lv_max = env.keyboard.key_lv_max
+    env.keyboard._on_mpl_release(E("e"))
+    assert env.keyboard.key_lv_max > prev_lv_max
+    env.keyboard._on_mpl_press(E("w"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert pytest.approx(v[0], rel=1e-9, abs=1e-9) == env.keyboard.key_lv_max
+    env.keyboard._on_mpl_release(E("w"))
+    env.step()
+
+    # Decrease linear max with 'q', press 'w' should reflect decreased max
+    prev_lv_max = env.keyboard.key_lv_max
+    env.keyboard._on_mpl_release(E("q"))
+    assert env.keyboard.key_lv_max < prev_lv_max
+    env.keyboard._on_mpl_press(E("w"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert pytest.approx(v[0], rel=1e-9, abs=1e-9) == env.keyboard.key_lv_max
+    env.keyboard._on_mpl_release(E("w"))
+    env.step()
+
+    # Increase angular max with 'c', press 'a' should match new max
+    prev_ang_max = env.keyboard.key_ang_max
+    env.keyboard._on_mpl_release(E("c"))
+    assert env.keyboard.key_ang_max > prev_ang_max
+    env.keyboard._on_mpl_press(E("a"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    env.keyboard._on_mpl_release(E("a"))
+    env.step()
+
+    # Decrease angular max with 'z', press 'a' should match decreased max
+    prev_ang_max = env.keyboard.key_ang_max
+    env.keyboard._on_mpl_release(E("z"))
+    assert env.keyboard.key_ang_max < prev_ang_max
+    env.keyboard._on_mpl_press(E("a"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    env.keyboard._on_mpl_release(E("a"))
+    env.step()
+
+    # Alt + number beyond robot count should still set key_id
+    env.keyboard._on_mpl_press(E("alt+9"))
+    assert env.keyboard.key_id == 9
 
     # Space toggles pause/resume
     # Ensure Running before first toggle (some configs start as None)
