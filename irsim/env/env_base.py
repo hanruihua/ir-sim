@@ -165,9 +165,8 @@ class EnvBase:
         if world_param.control_mode == "keyboard":
             # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
             try:
-                self.keyboard = KeyboardControl(
-                    env_ref=self, **self.env_config.parse["keyboard"]
-                )
+                keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
+                self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
             except Exception as _:
                 self.logger.error(
                     "Keyboard control unavailable. Auto control applied. "
