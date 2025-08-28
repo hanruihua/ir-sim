@@ -8,9 +8,12 @@ world:
   control_mode: 'keyboard'  # 'keyboard', 'auto'
 
 robot:
-  - kinematics: {name: 'acker'}  # omni, diff, acker
+  - number: 2
+    kinematics: {name: 'acker'}  # omni, diff, acker
     shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
-    state: [5, 5, 0, 0]
+    state: 
+      - [5, 5, 0, 0]
+      - [10, 10, 0, 0]
     goal: [40, 40, 0]
     vel_max: [4, 1]
     behavior: {name: 'dash'} # move toward to the goal directly
@@ -38,6 +41,3 @@ obstacle:
     shape:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
 
-gui:
-  keyboard:
-    backend: 'pynput'

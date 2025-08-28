@@ -30,10 +30,13 @@ robot:
         offset: [0, 0, 0]
         alpha: 0.4
 
-
 obstacle:
   - number: 10
     distribution: {name: 'manual'}
     shape:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
 
+gui:
+  keyboard:
+    key_lv_max: 3.0
+    key_ang_max: 1.0

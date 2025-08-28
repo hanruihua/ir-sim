@@ -38,8 +38,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-keyboard = ['pynput', 'tabulate']
-all = ['pynput', 'tabulate', 'imageio[ffmpeg]']
+keyboard = ['pynput']
+all = ['pynput', 'imageio[ffmpeg]']
 
 [dependency-groups]
 docs = [

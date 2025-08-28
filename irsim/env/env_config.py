@@ -19,8 +19,7 @@ class EnvConfig:
 
         self._kwargs_parse: dict[str, Any] = {
             "world": {},
-            "plot": {},
-            "keyboard": {},
+            "gui": {},
             "robot": None,
             "obstacle": None,
         }

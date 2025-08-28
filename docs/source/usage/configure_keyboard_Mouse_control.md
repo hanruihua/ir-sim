@@ -1,14 +1,14 @@
 Configure keyboard/Mouse control
 ==========================
 
-IR-SIM support reading the keyboard and mouse input to control the robot manually.  
+IR-SIM supports reading the keyboard and mouse input to control the robot manually.  
 
 ## Keyboard Control Configuration Parameters
 
-In the keyboard control mode, the behavior of the robot is controlled by the user and the settings in the YAML file will be ignored. Please make sure the dependencies are installed before running the simulation with keyboard. The dependencies can be installed using the following command:
+In the keyboard control mode, the behavior of the robot is controlled by the user and the settings in the YAML file will be ignored. By default IR-SIM uses Matplotlib figure key events (no extra dependency). If you prefer a global keyboard hook, you can use the optional `pynput` backend:
 
 ```bash
-pip install ir-sim[keyboard]
+pip install pynput
 ```
 
 To start with the keyboard control, you can simply to specify the `control_mode` parameter in the `world` section as `keyboard`. The example of the keyboard control is shown below:
@@ -83,7 +83,7 @@ robot:
 | Key      | Function                        |
 |----------|---------------------------------|
 | `w`      | Forward                         |
-| `s`      | Back Forward                    |
+| `s`      | Backward                        |
 | `a`      | Turn Left                       |
 | `d`      | Turn Right                      |
 | `q`      | Decrease Linear Velocity        |
@@ -96,11 +96,7 @@ robot:
 
 ### Environment Status Control
 
-The space key provides toggle functionality for controlling the simulation state:
-
-- **First press**: Pauses the environment (status changes to "Pause")
-- **Second press**: Resumes the environment (status changes to "Running")
-- **Subsequent presses**: Continue toggling between pause and resume states
+The space key toggles between "Pause" and "Running" based on the current state. If the environment hasn't entered Running yet, the first press may set it to "Running".
 
 You can access the current environment status through the `env.status` attribute:
 
@@ -120,6 +116,25 @@ for i in range(1000):
         break
 
 env.end()
+```
+
+### Select Keyboard Backend (Matplotlib vs pynput)
+
+- Default backend: `mpl` (Matplotlib figure key events). No extra package required.
+- Optional backend: `pynput` (global keyboard hook). Requires `pynput` to be installed. If `pynput` is unavailable, IR-SIM automatically falls back to `mpl`.
+
+Add a `keyboard` section at the root of the YAML to configure the backend and key parameters:
+
+```yaml
+world:
+  control_mode: 'keyboard'
+
+gui:
+  keyboard:
+    backend: 'mpl'         # 'mpl' (default) or 'pynput'
+    vel_max: [3.0, 3.0]    # [linear, angular] speed limits for keyboard control
+    key_id: 0              # initial robot control id
+    # key_lv_max, key_ang_max, key_lv, key_ang are also supported
 ```
 
 ## Mouse Control

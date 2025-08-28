@@ -47,6 +47,14 @@ Use this navigation to quickly jump to specific parameter sections:
 :::
 ::::
 
+::::{dropdown} **GUI Parameters**
+:color: warning
+:icon: computer
+:open:
+- [Parameters Table](#gui-parameters-table)
+- [gui properties](#gui-properties)
+::::
+
 ---
 
 **Quick Start Example**
@@ -906,6 +914,55 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     fov_zorder: 1
   ```
 ::::
+
+---
+
+## GUI Configuration
+
+(gui-parameters-table)=
+### GUI Parameters Table
+
+| Parameter   | Type  | Default | Description |
+| ----------- | ----- | ------- | ----------- |
+| `keyboard`  | `dict` | `{}`    | Keyboard control options (effective when `world.control_mode: keyboard`). |
+
+(gui-properties)=
+:::::{dropdown} **gui properties**
+
+**`keyboard`** (`dict`, default: `{}`)
+:: Configure keyboard control. Options are read by `KeyboardControl`. The default backend is Matplotlib figure key events, no extra dependency required.
+
+  - `backend` (`str`): Keyboard backend.
+    - `"mpl"` (default): Matplotlib figure key events.
+    - `"pynput"`: Global keyboard hook (requires `pynput`). If unavailable, IR-SIM falls back to `mpl` automatically.
+  - `vel_max` (`list[float]`): Maximum velocities `[linear, angular]`. Default is `[3.0, 3.0]`.
+  - `key_lv_max` (`float`): Maximum linear velocity. Default is `vel_max[0]`.
+  - `key_ang_max` (`float`): Maximum angular velocity. Default is `vel_max[1]`.
+  - `key_lv` (`float`): Initial linear velocity. Default is `0.0`.
+  - `key_ang` (`float`): Initial angular velocity. Default is `0.0`.
+  - `key_id` (`int`): Initial robot control id. Default is `0`.
+
+  ```yaml
+  # Example: enable keyboard control with GUI settings
+  world:
+    control_mode: 'keyboard'
+
+  gui:
+    keyboard:
+      backend: 'mpl'       # or 'pynput'
+      vel_max: [3.0, 3.0]
+      key_id: 0
+      # key_lv_max: 3.0
+      # key_ang_max: 3.0
+      # key_lv: 0.0
+      # key_ang: 0.0
+  ```
+
+  ````{note}
+  - In keyboard mode, behavior planners are ignored; robot motion follows key inputs.
+  - Key mappings: w/s (forward/backward), a/d (turn left/right), q/e (linear −/+), z/c (angular −/+), alt+num (select robot), r (reset), space (pause/resume).
+  ````
+:::::
 
 ---
 
