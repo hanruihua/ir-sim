@@ -40,6 +40,3 @@ gui:
   keyboard:
     key_lv_max: 3.0
     key_ang_max: 1.0
-
-plot:
-  no_axis: False

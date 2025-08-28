@@ -47,9 +47,7 @@ world:
   control_mode: 'auto'  # 'keyboard', 'auto'
   plot:
     show_title: False
-
-plot:
-  no_axis: False
+    no_axis: False
 
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker

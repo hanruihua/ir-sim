@@ -324,6 +324,49 @@ def test_keyboard_control():
     assert True  # Add keyboard control related assertions
 
 
+def test_keyboard_control_mpl_backend():
+    """Test keyboard control via Matplotlib backend key events."""
+    # Ensure world is set to keyboard mode via YAML; KeyboardControl defaults to mpl backend
+    env = irsim.make("test_keyboard_control2.yaml", save_ani=False, display=False)
+
+    # Helper event mock
+    class E:
+        def __init__(self, key: str):
+            self.key = key
+
+    # alt+1 selects robot id 1 (pressed together)
+    env.keyboard._on_mpl_press(E("alt+1"))
+    assert env.keyboard.key_id == 1
+
+    # Press 'w' then step → linear velocity should be positive
+    env.keyboard._on_mpl_press(E("w"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert v[0] > 0
+
+    # Release 'w' then step → linear velocity should go to zero
+    env.keyboard._on_mpl_release(E("w"))
+    env.step()
+    v = env.robot.velocity.reshape(-1)
+    assert abs(v[0]) <= 1e-9
+
+    # Space toggles pause/resume
+    # Ensure Running before first toggle (some configs start as None)
+    if env.status != "Running":
+        env.resume()
+    env.keyboard._on_mpl_release(E("space"))
+    assert env.status == "Pause"
+    env.keyboard._on_mpl_release(E("space"))
+    assert env.status == "Running"
+
+    # 'r' resets the environment
+    env.keyboard._on_mpl_release(E("r"))
+    assert env.status == "Reset"
+
+    env.end()
+    assert True
+
+
 def test_mouse_control():
     """Test mouse control functionality"""
     env = irsim.make("test_multi_objects_world.yaml", save_ani=False, display=False)
