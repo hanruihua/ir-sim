@@ -105,7 +105,6 @@ Install with Additional Features
     This installs:
     
     * `pynput`_ - For keyboard and mouse input handling
-    * `tabulate`_ - For formatted table output
 
 
 .. dropdown:: Linting
@@ -177,7 +176,7 @@ Install with Additional Features
 
     This includes:
     
-    * Keyboard control features (`pynput`, `tabulate`)
+    * Keyboard control features (`pynput`)
     * Enhanced video support (`imageio[ffmpeg]`)
 
     To install dependency-groups:
@@ -204,7 +203,6 @@ Install with Additional Features
 .. _SciPy: https://www.scipy.org/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pynput: https://pypi.org/project/pynput/
-.. _tabulate: https://pypi.org/project/tabulate/
 .. _IR-SIM git repository: https://github.com/hanruihua/ir-sim
 .. _pip: https://pip.pypa.io/
 .. _pyproject.toml: https://github.com/hanruihua/ir-sim/blob/main/pyproject.toml
