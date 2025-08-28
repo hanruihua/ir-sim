@@ -163,15 +163,17 @@ class EnvBase:
         self.validate_unique_names()
 
         if world_param.control_mode == "keyboard":
-            if not keyboard_module:
-                self.logger.error(
-                    "Keyboard module is not installed. Auto control applied. Please install the dependency by 'pip install ir-sim[keyboard]'."
-                )
-                world_param.control_mode = "auto"
-            else:
+            # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
+            try:
                 self.keyboard = KeyboardControl(
                     env_ref=self, **self.env_config.parse["keyboard"]
                 )
+            except Exception as _:
+                self.logger.error(
+                    "Keyboard control unavailable. Auto control applied. "
+                    "Install 'pynput' or set backend='mpl' in YAML keyboard config."
+                )
+                world_param.control_mode = "auto"
 
         self.mouse = MouseControl(self._env_plot.ax)
 
@@ -274,8 +276,8 @@ class EnvBase:
                 else:
                     actions[int(action_id)] = action
 
-            if world_param.control_mode == "keyboard":
-                actions[self.key_id] = self.key_vel
+        if world_param.control_mode == "keyboard":
+            actions[self.key_id] = self.key_vel
 
         self._objects_step(actions)
 
@@ -446,8 +448,22 @@ class EnvBase:
         env_param.objects = []
         ObjectBase.reset_id_iter()
 
-        if world_param.control_mode == "keyboard":
-            self.keyboard.listener.stop()
+        if world_param.control_mode == "keyboard" and hasattr(self, "keyboard"):
+            # Stop pynput listener if present; otherwise disconnect MPL callbacks
+            try:
+                if (
+                    hasattr(self.keyboard, "listener")
+                    and self.keyboard.listener is not None
+                ):
+                    self.keyboard.listener.stop()
+                else:
+                    fig = plt.gcf()
+                    if hasattr(self.keyboard, "_mpl_press_cid"):
+                        fig.canvas.mpl_disconnect(self.keyboard._mpl_press_cid)
+                    if hasattr(self.keyboard, "_mpl_release_cid"):
+                        fig.canvas.mpl_disconnect(self.keyboard._mpl_release_cid)
+            except Exception:
+                pass
 
         self.logger.info(
             f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds."
