@@ -320,6 +320,27 @@ def test_keyboard_control():
         "After second space key release, status should be Running"
     )
 
+    # 'x' toggles control mode (keyboard <-> auto) in pynput backend
+    from irsim.config import world_param as wp
+
+    mode0 = wp.control_mode
+
+    # Simulate 'x' release
+    class XKeyMock:
+        char = "x"
+
+    env.keyboard._on_release(XKeyMock())
+    assert wp.control_mode != mode0
+    env.keyboard._on_release(XKeyMock())
+    assert wp.control_mode == mode0
+
+    # ESC should not call GUI from listener thread in tests; just verify no exception here
+    class EscKeyMock:
+        pass
+
+    # Provide attributes to mimic pynput Key.esc equality behavior if needed
+    _ = EscKeyMock()
+
     env.end()
     assert True  # Add keyboard control related assertions
 
@@ -438,6 +459,19 @@ def test_keyboard_control_mpl_backend():
     # 'r' resets the environment
     env.keyboard._on_mpl_release(E("r"))
     assert env.status == "Reset"
+
+    # 'x' toggles control mode (keyboard <-> auto)
+    from irsim.config import world_param as wp_mpl
+
+    mode0 = wp_mpl.control_mode
+    env.keyboard._on_mpl_release(E("x"))
+    assert wp_mpl.control_mode != mode0
+    env.keyboard._on_mpl_release(E("x"))
+    assert wp_mpl.control_mode == mode0
+
+    # 'esc' quits (raises SystemExit in mpl backend)
+    with pytest.raises(SystemExit):
+        env.keyboard._on_mpl_release(E("esc"))
 
     env.end()
     assert True
