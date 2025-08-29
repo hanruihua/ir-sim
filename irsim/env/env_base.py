@@ -162,17 +162,16 @@ class EnvBase:
         # Ensure unique names for all objects early
         self.validate_unique_names()
 
-        if world_param.control_mode == "keyboard":
-            # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
-            try:
-                keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
-                self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
-            except Exception as _:
-                self.logger.error(
-                    "Keyboard control unavailable. Auto control applied. "
-                    "Install 'pynput' or set backend='mpl' in YAML keyboard config."
-                )
-                world_param.control_mode = "auto"
+        # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
+        try:
+            keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
+            self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
+        except Exception as _:
+            self.logger.error(
+                "Keyboard control unavailable. Auto control applied. "
+                "Install 'pynput' or set backend='mpl' in YAML keyboard config."
+            )
+            world_param.control_mode = "auto"
 
         self.mouse = MouseControl(self._env_plot.ax)
 
@@ -447,7 +446,7 @@ class EnvBase:
         env_param.objects = []
         ObjectBase.reset_id_iter()
 
-        if world_param.control_mode == "keyboard" and hasattr(self, "keyboard"):
+        if hasattr(self, "keyboard"):
             # Stop pynput listener if present; otherwise disconnect MPL callbacks
             try:
                 if (
@@ -534,7 +533,10 @@ class EnvBase:
         elif any(collision_list):
             self._world.status = "Collision"
         else:
-            self._world.status = "Running"
+            if world_param.control_mode == "keyboard":
+                self._world.status = "Running (keyboard)"
+            else:
+                self._world.status = "Running"
 
     def pause(self) -> None:
         """

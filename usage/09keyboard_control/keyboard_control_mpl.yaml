@@ -5,7 +5,7 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed',  
-  control_mode: 'keyboard'  # 'keyboard', 'auto'
+  control_mode: 'auto'  # 'keyboard', 'auto'
 
 robot:
   - kinematics: {name: 'acker'}  # omni, diff, acker
@@ -31,7 +31,12 @@ robot:
         alpha: 0.4
 
 obstacle:
-  - number: 10
+  - number: 1
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
+    
+  - number: 1
     distribution: {name: 'manual'}
     shape:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2]}  # radius
@@ -40,3 +45,4 @@ gui:
   keyboard:
     key_lv_max: 3.0
     key_ang_max: 1.0
+    backend: 'mpl'
