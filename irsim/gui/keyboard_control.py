@@ -7,7 +7,7 @@ from irsim.config import env_param, world_param
 
 # Optional pynput import (allows fallback to Matplotlib key events)
 # Predeclare for type checkers
-keyboard: Any | None = None
+keyboard: Optional[Any] = None
 try:  # pragma: no cover - availability depends on environment
     from pynput import keyboard as _pynput_keyboard
 
