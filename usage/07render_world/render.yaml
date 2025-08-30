@@ -9,9 +9,6 @@ world:
   plot:
     show_title: False
 
-plot:
-  no_axis: False
-
 robot:
   - kinematics: {name: 'diff'}  # omni, diff, acker
     shape: {name: 'circle', radius: 0.2}  # radius
