@@ -49,7 +49,7 @@ Use this navigation to quickly jump to specific parameter sections:
 
 ::::{dropdown} **GUI Parameters**
 :color: warning
-:icon: computer
+:icon: key
 :open:
 - [Parameters Table](#gui-parameters-table)
 - [keyboard properties](#keyboard-properties)
