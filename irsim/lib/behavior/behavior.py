@@ -49,9 +49,9 @@ class Behavior:
         if external_objects is None:
             external_objects = []
         if self.behavior_dict is None or not self.behavior_dict:
-            if world_param.control_mode == "auto" and world_param.count == 1:
+            if world_param.control_mode == "auto" and world_param.count % 20 == 0:
                 self.logger.warning(
-                    f"Behavior not defined for Object {self.object_info.id}. This object will be static. Available behaviors: rvo, dash"
+                    f"Behavior not defined for {self.object_info.name}. auto control will be static. Available behaviors: rvo, dash"
                 )
 
             return np.zeros((2, 1))

@@ -132,9 +132,11 @@ world:
 gui:
   keyboard:
     backend: 'mpl'         # 'mpl' (default) or 'pynput'
-    vel_max: [3.0, 3.0]    # [linear, angular] speed limits for keyboard control
     key_id: 0              # initial robot control id
-    # key_lv_max, key_ang_max, key_lv, key_ang are also supported
+    # key_lv_max: 3.0      # maximum linear velocity
+    # key_ang_max: 1.0     # maximum angular velocity
+    # key_lv: 0.0          # initial linear velocity
+    # key_ang: 0.0         # initial angular velocity
 ```
 
 ## Mouse Control

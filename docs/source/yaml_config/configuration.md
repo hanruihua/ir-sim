@@ -52,7 +52,10 @@ Use this navigation to quickly jump to specific parameter sections:
 :icon: computer
 :open:
 - [Parameters Table](#gui-parameters-table)
-- [gui properties](#gui-properties)
+- [keyboard properties](#keyboard-properties)
+  - `backend`, `key_lv_max`, `key_ang_max`, `key_lv`, `key_ang`, `key_id`
+- [mouse properties](#mouse-properties)
+  - `zoom_factor`
 ::::
 
 ---
@@ -125,20 +128,20 @@ This section outlines the configuration parameters available for the `world` sec
 (world-parameters-table)=
 ### World Parameters Table
 
-| **Parameter**    | **Type**          | **Default** | **Description**                                                                                         |
-| ---------------- | ----------------- | ----------- | ------------------------------------------------------------------------------------------------------- |
-| `name`           | `str`             | `"world"`   | Name of the world                                                                                       |
-| `height`         | `float`           | `10`        | Height of the world (meter)                                                                             |
-| `width`          | `float`           | `10`        | Width of the world (meter)                                                                              |
-| `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                                     |
-| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                            |
-| `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                 |
-| `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                      |
-| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`) |
-| `status`         | `str`             | `"None"` | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`)                          |
-| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                    |
-| `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.          |
-| `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                |
+| **Parameter**    | **Type**          | **Default** | **Description**                                                                                            |
+| ---------------- | ----------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| `name`           | `str`             | `"world"`   | Name of the world                                                                                          |
+| `height`         | `float`           | `10`        | Height of the world (meter)                                                                                |
+| `width`          | `float`           | `10`        | Width of the world (meter)                                                                                 |
+| `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                                        |
+| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                               |
+| `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
+| `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
+| `status`         | `str`             | `"None"`    | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`) |
+| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                       |
+| `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
+| `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                   |
 
 ### Detailed Parameter Descriptions
 
@@ -268,35 +271,35 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 (object-parameters-table)=
 ### Object Parameters Table
 
-| Parameter        | Type                                             | Default          | Description                                                                              |
-| ---------------- | ------------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------- |
+| Parameter        | Type                                             | Default          | Description                                                                                                        |
+| ---------------- | ------------------------------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `name`           | `str` or `list` of `str`                         | `None`           | Unique identifier for the object. If omitted, auto-assigned as `"<role>_<id>"`. Supports a list when `number > 1`. |
-| `number`         | `int`                                            | `1`              | Number of objects to create.                                                             |
-| `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle` |
-| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                     |
-| `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`     |
-| `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                      |
-| `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                 |
-| `goal`           | `list` of `float` or `list` of `list` of `float` | `None`           | Goal state(s) vector.                                                                    |
-| `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`            |
-| `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                    |
-| `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                     |
-| `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                       |
-| `vel_min`        | `list` of `float`                                | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                      |
-| `vel_max`        | `list` of `float`                                | `[1, 1]`         | Maximum velocity limits for each control dimension.                                      |
-| `acce`           | `list` of `float`                                | `[inf, inf]`     | Acceleration limits.                                                                     |
-| `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                  |
-| `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                            |
-| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`            |
-| `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                              |
-| `description`    | `str`                                            | `None`           | Image description or label for the object.                                               |
-| `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.             |
-| `unobstructed`   | `bool`                                           | `False`          | Indicates if the object ignores collisions.                                              |
-| `plot`           | `dict`                                           | `{}`             | Plotting options for object visualization.                                               |
-| `state_dim`      | `int`                                            | `None`           | Dimension of the state vector.                                                           |
-| `vel_dim`        | `int`                                            | `None`           | Dimension of the velocity vector.                                                        |
-| `fov`            | `float`                                          | `None`           | Field of view angles in radians for the object's sensors.                                |
-| `fov_radius`     | `float`                                          | `None`           | Field of view radius for the object's sensors.                                           |
+| `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
+| `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
+| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                                               |
+| `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`                               |
+| `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                                                |
+| `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                                           |
+| `goal`           | `list` of `float` or `list` of `list` of `float` | `None`           | Goal state(s) vector.                                                                                              |
+| `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`                                      |
+| `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                                              |
+| `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                                               |
+| `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                                                 |
+| `vel_min`        | `list` of `float`                                | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                                                |
+| `vel_max`        | `list` of `float`                                | `[1, 1]`         | Maximum velocity limits for each control dimension.                                                                |
+| `acce`           | `list` of `float`                                | `[inf, inf]`     | Acceleration limits.                                                                                               |
+| `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                                            |
+| `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                                                      |
+| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`                                      |
+| `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                                                        |
+| `description`    | `str`                                            | `None`           | Image description or label for the object.                                                                         |
+| `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.                                      |
+| `unobstructed`   | `bool`                                           | `False`          | Indicates if the object ignores collisions.                                                                        |
+| `plot`           | `dict`                                           | `{}`             | Plotting options for object visualization.                                                                         |
+| `state_dim`      | `int`                                            | `None`           | Dimension of the state vector.                                                                                     |
+| `vel_dim`        | `int`                                            | `None`           | Dimension of the velocity vector.                                                                                  |
+| `fov`            | `float`                                          | `None`           | Field of view angles in radians for the object's sensors.                                                          |
+| `fov_radius`     | `float`                                          | `None`           | Field of view radius for the object's sensors.                                                                     |
 
 ### Detailed Parameter Descriptions
 
@@ -922,22 +925,22 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 (gui-parameters-table)=
 ### GUI Parameters Table
 
-| Parameter   | Type  | Default | Description |
-| ----------- | ----- | ------- | ----------- |
-| `keyboard`  | `dict` | `{}`    | Keyboard control options (effective when `world.control_mode: keyboard`). |
+| Parameter  | Type   | Default | Description                                                               |
+| ---------- | ------ | ------- | ------------------------------------------------------------------------- |
+| `keyboard` | `dict` | `{}`    | Keyboard control options (effective when `world.control_mode: keyboard`). |
+| `mouse`    | `dict` | `{}`    | Mouse control options.                                                    |
 
-(gui-properties)=
-:::::{dropdown} **gui properties**
+(keyboard-properties)=
+:::::{dropdown} **keyboard properties**
 
 **`keyboard`** (`dict`, default: `{}`)
-:: Configure keyboard control. Options are read by `KeyboardControl`. The default backend is Matplotlib figure key events, no extra dependency required.
+Configure keyboard control. Options are read by `KeyboardControl`. The default backend is Matplotlib figure key events, no extra dependency required.
 
   - `backend` (`str`): Keyboard backend.
     - `"mpl"` (default): Matplotlib figure key events.
     - `"pynput"`: Global keyboard hook (requires `pynput`). If unavailable, IR-SIM falls back to `mpl` automatically.
-  - `vel_max` (`list[float]`): Maximum velocities `[linear, angular]`. Default is `[3.0, 3.0]`.
-  - `key_lv_max` (`float`): Maximum linear velocity. Default is `vel_max[0]`.
-  - `key_ang_max` (`float`): Maximum angular velocity. Default is `vel_max[1]`.
+  - `key_lv_max` (`float`): Maximum linear velocity. Default is 3.0.
+  - `key_ang_max` (`float`): Maximum angular velocity. Default is 1.0.
   - `key_lv` (`float`): Initial linear velocity. Default is `0.0`.
   - `key_ang` (`float`): Initial angular velocity. Default is `0.0`.
   - `key_id` (`int`): Initial robot control id. Default is `0`.
@@ -950,17 +953,58 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   gui:
     keyboard:
       backend: 'mpl'       # or 'pynput'
-      vel_max: [3.0, 3.0]
       key_id: 0
-      # key_lv_max: 3.0
-      # key_ang_max: 3.0
-      # key_lv: 0.0
-      # key_ang: 0.0
+      key_lv_max: 3.0
+      key_ang_max: 1.0
   ```
 
   ````{note}
-  - In keyboard mode, behavior planners are ignored; robot motion follows key inputs.
-  - Key mappings: w/s (forward/backward), a/d (turn left/right), q/e (linear −/+), z/c (angular −/+), alt+num (select robot), r (reset), space (pause/resume).
+  | Key       | Function                        |
+  | --------- | ------------------------------- |
+  | `w`       | Forward                         |
+  | `s`       | Backward                        |
+  | `a`       | Turn Left                       |
+  | `d`       | Turn Right                      |
+  | `q`       | Decrease Linear Velocity        |
+  | `e`       | Increase Linear Velocity        |
+  | `z`       | Decrease Angular Velocity       |
+  | `c`       | Increase Angular Velocity       |
+  | `alt+num` | Change Current Control Robot ID |
+  | `r`       | Reset the Environment           |
+  | `space`   | Toggle Pause/Resume Environment |
+  | `esc`     | Quit the Environment            |
+  | `x`       | Switch Keyboard/Auto Control    |
+  ````
+
+:::::
+
+(mouse-properties)=
+:::::{dropdown} **mouse properties**
+
+**`mouse`** (`dict`, default: `{}`)
+:: Configure mouse control. Options are read by `MouseControl`.
+
+  - `zoom_factor` (`float`): Zoom factor. Default is `1.1`.
+
+
+  ```yaml
+  gui:
+    mouse:
+      zoom_factor: 1.1
+  ``` 
+
+  ````{note}
+  | Mouse Action   | Function                                            |
+  | -------------- | --------------------------------------------------- |
+  | Mouse Movement | Track mouse position and update display coordinates |
+  | Middle Click   | Reset zoom to default view                          |
+  | Scroll Up      | Zoom in (centered on mouse position)                |
+  | Scroll Down    | Zoom out (centered on mouse position)               |
+
+  **Mouse Position Attributes:**
+  - `mouse_left_pos` (`tuple`): Position of left click (x, y).
+  - `mouse_right_pos` (`tuple`): Position of right click (x, y).
+  - `mouse_pos` (`tuple`): Current mouse position (x, y).
   ````
 :::::
 
