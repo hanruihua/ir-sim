@@ -93,6 +93,8 @@ robot:
 | `alt+num`| Change Current Control Robot ID |
 | `r`      | Reset the Environment           |
 | `space`  | Toggle Pause/Resume Environment |
+| `esc`    | Quit the Environment            |
+| `x`      | Switch Keyboard/Auto Control    |
 
 ### Environment Status Control
 
