@@ -57,9 +57,8 @@ class KeyboardControl:
             env_ref: Reference to the environment instance. Used for pause/resume and reset.
             keyboard_kwargs (dict): Optional settings for keyboard control.
 
-                - vel_max (list[float]): Maximum velocities [linear, angular]. Default is [3.0, 3.0].
-                - key_lv_max (float): Maximum linear velocity. Default is ``vel_max[0]``.
-                - key_ang_max (float): Maximum angular velocity. Default is ``vel_max[1]``.
+                - key_lv_max (float): Maximum linear velocity. Default is 3.0.
+                - key_ang_max (float): Maximum angular velocity. Default is 1.0.
                 - key_lv (float): Initial linear velocity. Default is 0.0.
                 - key_ang (float): Initial angular velocity. Default is 0.0.
                 - key_id (int): Initial robot control ID. Default is 0.
@@ -84,9 +83,8 @@ class KeyboardControl:
         # Store environment reference for reset functionality
         self.env_ref = env_ref
 
-        vel_max = keyboard_kwargs.get("vel_max", [3.0, 3.0])
-        self.key_lv_max = keyboard_kwargs.get("key_lv_max", vel_max[0])
-        self.key_ang_max = keyboard_kwargs.get("key_ang_max", vel_max[1])
+        self.key_lv_max = keyboard_kwargs.get("key_lv_max", 3.0)
+        self.key_ang_max = keyboard_kwargs.get("key_ang_max", 1.0)
         self.key_lv = keyboard_kwargs.get("key_lv", 0.0)
         self.key_ang = keyboard_kwargs.get("key_ang", 0.0)
         self.key_id = keyboard_kwargs.get("key_id", 0)

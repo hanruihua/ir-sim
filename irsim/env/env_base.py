@@ -173,7 +173,8 @@ class EnvBase:
             )
             world_param.control_mode = "auto"
 
-        self.mouse = MouseControl(self._env_plot.ax)
+        mouse_config = self.env_config.parse["gui"].get("mouse", {})
+        self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
 
         # flag
         self.pause_flag = False

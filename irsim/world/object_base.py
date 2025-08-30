@@ -56,6 +56,7 @@ class ObjectInfo:
     h: np.ndarray
     cone_type: str
     convex_flag: bool
+    name: str
 
     def add_property(self, key, value):
         setattr(self, key, value)
@@ -330,6 +331,7 @@ class ObjectBase:
             self.h,
             self.cone_type,
             self.convex_flag,
+            self.name,
         )
 
         self.obstacle_info = None
