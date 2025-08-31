@@ -974,6 +974,7 @@ Configure keyboard control. Options are read by `KeyboardControl`. The default b
   | `space`   | Toggle Pause/Resume Environment |
   | `esc`     | Quit the Environment            |
   | `x`       | Switch Keyboard/Auto Control    |
+  | `l`       | Reload the Environment          |
   ````
 
 :::::

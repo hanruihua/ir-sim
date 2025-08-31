@@ -95,6 +95,7 @@ robot:
 | `space`  | Toggle Pause/Resume Environment |
 | `esc`    | Quit the Environment            |
 | `x`      | Switch Keyboard/Auto Control    |
+| `l`      | Reload the Environment          |
 
 ### Environment Status Control
 
