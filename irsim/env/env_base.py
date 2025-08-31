@@ -580,6 +580,7 @@ class EnvBase:
         self._world.reset()
         self.reset_plot()
         self._world.status = "Reset"
+        self.pause_flag = False
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
