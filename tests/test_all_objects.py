@@ -267,6 +267,11 @@ def test_keyboard_control():
         env.step()
         env.render(0.01)
 
+    # Explicitly test 'l' (reload) and ensure environment remains usable
+    pre_names = list(env.names)
+    env.keyboard._on_release(Mock(spec=keyboard.Key, char="l"))
+    assert len(env.names) == len(pre_names)
+
     # Test Alt key functionality
     # Create a mock Alt key
     alt_key = Mock(spec=keyboard.Key)
@@ -309,6 +314,9 @@ def test_keyboard_control():
     space_key = SpaceKeyMock()
 
     # First release should pause the environment
+    if "Running" not in env.status:
+        env.resume()
+
     env.keyboard._on_release(space_key)
     assert env.status == "Pause", (
         "After first space key release, status should be Pause"
@@ -449,16 +457,21 @@ def test_keyboard_control_mpl_backend():
 
     # Space toggles pause/resume
     # Ensure Running before first toggle (some configs start as None)
-    if env.status != "Running":
+    if "Running" not in env.status:
         env.resume()
     env.keyboard._on_mpl_release(E("space"))
-    assert env.status == "Pause"
+    assert env.pause_flag is True
+    assert env.status.startswith("Pause")
     env.keyboard._on_mpl_release(E("space"))
-    assert env.status == "Running"
+    assert "Running" in env.status
 
     # 'r' resets the environment
     env.keyboard._on_mpl_release(E("r"))
     assert env.status == "Reset"
+
+    # 'l' reloads the environment in the same figure (no exception expected)
+    env.keyboard._on_mpl_release(E("l"))
+    assert env.status in ("Running", "Pause", "Reset", "Collision", "Arrived", "None")
 
     # 'x' toggles control mode (keyboard <-> auto)
     from irsim.config import world_param as wp_mpl

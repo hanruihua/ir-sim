@@ -102,6 +102,12 @@ class KeyboardControl:
         if "q" in plt.rcParams["keymap.quit"]:
             plt.rcParams["keymap.quit"].remove("q")
 
+        if "l" in plt.rcParams["keymap.yscale"]:
+            plt.rcParams["keymap.yscale"].remove("l")
+
+        if "L" in plt.rcParams["keymap.xscale"]:
+            plt.rcParams["keymap.xscale"].remove("L")
+
         self.key_vel = np.zeros((2, 1))
 
         if world_param.control_mode == "keyboard":
@@ -244,6 +250,10 @@ class KeyboardControl:
                     world_param.control_mode = "keyboard"
                     self.logger.info("switch to keyboard control")
 
+            if key.char == "l":
+                self.env_ref.reload()
+                self.logger.info("reload the environment")
+
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
@@ -355,6 +365,10 @@ class KeyboardControl:
             else:
                 world_param.control_mode = "keyboard"
                 self.logger.info("switch to keyboard control")
+
+        if base == "l":
+            self.env_ref.reload()
+            self.logger.info("reload the environment")
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):

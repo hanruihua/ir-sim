@@ -25,6 +25,7 @@ class _DummyWorld2D:
         self.y_range = (0, 10)
         self.time = 0.0
         self.status = "ok"
+        self.plot_parse = {}
 
 
 class _DummyWorld3D(_DummyWorld2D):
@@ -54,7 +55,7 @@ def test_env_plot_basic_branches():
         w, objects=[], saved_figure={}, figure_pixels=[200, 150], show_title=True
     )
     # init_plot branches
-    plot.init_plot(w.grid_map, [], no_axis=True, tight=True)
+    plot._init_plot(w, [], no_axis=True, tight=True)
 
     # draw_trajectory with list and show_direction True
     traj_list = [np.array([[1.0], [2.0], [0.0]]), np.array([[2.0], [3.0], [0.5]])]
