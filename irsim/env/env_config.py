@@ -120,10 +120,6 @@ class EnvConfig:
             Tuple: ``(world, objects, env_plot, robot_collection, obstacle_collection, map_collection)``
         """
 
-        # If no prior plot exists, do a fresh init
-        if not hasattr(self, "_env_plot"):
-            return self.initialize_objects()
-
         world = World(self.world_name, **self.parse["world"])
 
         robot_collection = self.object_factory.create_from_parse(
