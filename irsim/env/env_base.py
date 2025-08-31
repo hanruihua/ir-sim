@@ -1,5 +1,10 @@
 """
-Class EnvBase is the base class of the environment. This class will read the yaml file and create the world, robot, obstacle, and map objects.
+Class EnvBase is the base class of the environment.
+
+It loads YAML configuration via ``EnvConfig`` to construct the world,
+robots, obstacles, and maps, and provides the core simulation loop.
+The environment can be reconfigured in-place (same figure) by reloading
+the YAML at runtime.
 
 Author: Ruihua Han
 """
@@ -7,9 +12,7 @@ Author: Ruihua Han
 from __future__ import annotations
 
 import importlib
-import platform
 from collections import Counter
-from operator import attrgetter
 from typing import Any, Optional, Union
 
 import matplotlib
@@ -22,11 +25,9 @@ from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
-from irsim.world import ObjectBase, World
-from irsim.world.object_factory import ObjectFactory
+from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
-from .env_plot import EnvPlot
 
 try:
     from irsim.gui.keyboard_control import KeyboardControl
@@ -69,8 +70,10 @@ class EnvBase:
     The base class for simulation environments in IR-SIM.
 
     This class serves as the foundation for creating and managing robotic simulation
-    environments. It reads YAML configuration files to create worlds, robots, obstacles,
-    and map objects, and provides the core simulation loop functionality.
+    environments. It reads YAML configuration files (through ``EnvConfig``) to create
+    worlds, robots, obstacles, and map objects, and provides the core simulation loop
+    functionality. The environment supports in-place reload of YAML configuration to
+    update the scene in the existing figure without opening a new window.
 
     Args:
         world_name (str, optional): Path to the world YAML configuration file.
@@ -129,46 +132,31 @@ class EnvBase:
 
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
+
         env_param.logger = EnvLogger(log_file, log_level)
 
         self.env_config = EnvConfig(world_name)
-        self.object_factory = ObjectFactory()
-        # init objects (world, obstacle, robot)
 
-        self._world = World(world_name, **self.env_config.parse["world"])
+        (
+            self._world,
+            self._objects,
+            self._env_plot,
+            self._robot_collection,
+            self._obstacle_collection,
+            self._map_collection,
+        ) = self.env_config.initialize_objects()
 
-        self._robot_collection = self.object_factory.create_from_parse(
-            self.env_config.parse["robot"], "robot"
-        )
-        self._obstacle_collection = self.object_factory.create_from_parse(
-            self.env_config.parse["obstacle"], "obstacle"
-        )
-        self._map_collection = self.object_factory.create_from_map(
-            self._world.obstacle_positions, self._world.buffer_reso
-        )
-
-        self._objects = (
-            self._robot_collection + self._obstacle_collection + self._map_collection
-        )
-
-        self._objects.sort(key=attrgetter("id"))
         self.build_tree()
-
-        # env parameters
-        self._env_plot = EnvPlot(self._world, self.objects, **self._world.plot_parse)
-
-        env_param.objects = self.objects
-
-        # Ensure unique names for all objects early
+        env_param.objects = self._objects
         self.validate_unique_names()
 
         # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
         try:
             keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
             self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
-        except Exception as _:
+        except Exception as e:
             self.logger.error(
-                "Keyboard control unavailable. Auto control applied. "
+                f"Keyboard control unavailable error: {e}. Auto control applied. "
                 "Install 'pynput' or set backend='mpl' in YAML keyboard config."
             )
             world_param.control_mode = "auto"
@@ -180,11 +168,9 @@ class EnvBase:
         self.pause_flag = False
 
         if full:
-            system_platform = platform.system()
-            if system_platform == "Linux" or system_platform == "Windows":
-                mng = plt.get_current_fig_manager()
-                if mng is not None:
-                    mng.full_screen_toggle()
+            mng = plt.get_current_fig_manager()
+            if mng is not None:
+                mng.full_screen_toggle()
 
         # Log simulation start
         self.logger.info(
@@ -600,11 +586,14 @@ class EnvBase:
 
     def reset_plot(self) -> None:
         """
-        Reset the environment figure.
+        Reset the environment figure in-place.
+
+        Re-initializes drawing on the current figure/axes using the existing
+        ``EnvPlot`` instance; does not create a new figure window.
         """
 
         self._env_plot.clear_components("all", self.objects)
-        self._env_plot.init_plot(self._world.grid_map, self.objects)
+        self._env_plot._init_plot(self._world, self.objects)
 
     # region: environment change
     def random_obstacle_position(
@@ -721,6 +710,33 @@ class EnvBase:
 
         self._env_plot.clear_components("all", self.obstacle_list)
         self._env_plot.draw_components("all", self.obstacle_list)
+
+    def reload(self, world_name: Optional[str] = None) -> None:
+        """
+        Reload the environment from YAML and update the current figure.
+
+        This re-parses the YAML and re-creates world/objects, then refreshes
+        drawing on the existing figure/axes (no new window is created).
+
+        Args:
+            world_name (str): Optional name/path of the world YAML to reload.
+                If ``None``, the previous YAML file is used.
+        """
+
+        ObjectBase.reset_id_iter()
+        self.reset()
+        self._env_plot.clear_components("all", self.objects)
+        (
+            self._world,
+            self._objects,
+            self._env_plot,
+            self._robot_collection,
+            self._obstacle_collection,
+            self._map_collection,
+        ) = self.env_config.reload_yaml_objects(world_name)
+        self.build_tree()
+        self.validate_unique_names()
+        env_param.objects = self._objects
 
     # endregion: environment change
 
@@ -1132,5 +1148,10 @@ class EnvBase:
     def names(self) -> list[str]:
         """Get the names of all objects in the environment."""
         return [obj.name for obj in self.objects]
+
+    @property
+    def object_factory(self) -> ObjectFactory:
+        """Get the object factory of the environment."""
+        return self.env_config.object_factory
 
     # endregion: property

@@ -41,9 +41,6 @@ robot:
 
     plot:
       goal_color: 'purple'
-    plot:
-      show_text: True
-
 
 obstacle:
   - number: 10
