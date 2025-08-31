@@ -43,6 +43,7 @@ class KeyboardControl:
         - space: Toggle pause/resume
         - esc: Quit the environment immediately (closes figure and raises ``SystemExit(0)``)
         - x: Switch between keyboard and auto control modes
+        - l: Reload the environment
 
     Notes:
         - The "mpl" backend requires the Matplotlib figure window to have focus to receive key events.
@@ -78,6 +79,7 @@ class KeyboardControl:
             - space: Pause/Resume the environment
             - esc: Quit the environment
             - x: Switch between keyboard and auto control modes
+            - l: Reload the environment
         """
 
         # Store environment reference for reset functionality
@@ -125,19 +127,21 @@ class KeyboardControl:
                 ["alt+num", "change current control robot id"],
                 ["r", "reset the environment"],
                 ["space", "pause/resume the environment"],
-                ["esc", "quit the environment"],
+                ["esc", "Quit the environment"],
                 ["x", "switch keyboard control and auto control"],
-            ]
-        else:
-            commands = [
-                ["r", "reset the environment"],
-                ["space", "pause/resume the environment"],
-                ["esc", "quit the environment"],
-                ["x", "switch keyboard control and auto control"],
+                ["l", "reload the environment"],
             ]
 
-        headers = ["Key", "Function"]
-        print(self._format_grid_table(headers, commands))
+            headers = ["Key", "Function"]
+            print(self._format_grid_table(headers, commands))
+        # else:
+        #     commands = [
+        #         ["r", "reset the environment"],
+        #         ["space", "pause/resume the environment"],
+        #         ["esc", "quit the environment"],
+        #         ["x", "switch keyboard control and auto control"],
+        #         ["l", "reload the environment"],
+        #     ]
 
         if self.backend == "pynput" and not _PYNPUT_AVAILABLE:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
@@ -350,7 +354,7 @@ class KeyboardControl:
                 self.logger.warning("Environment reference not set. Cannot reset.")
 
         if base in ("space", " "):
-            if "Running" in self.env_ref.status:
+            if "Pause" not in self.env_ref.status:
                 self.logger.info("pause the environment")
                 self.env_ref.pause()
             else:

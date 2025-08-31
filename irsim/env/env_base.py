@@ -146,24 +146,6 @@ class EnvBase:
             self._map_collection,
         ) = self.env_config.initialize_objects()
 
-        # self._world = World(world_name, **self.env_config.parse["world"])
-
-        # self._robot_collection = self.object_factory.create_from_parse(
-        #     self.env_config.parse["robot"], "robot"
-        # )
-        # self._obstacle_collection = self.object_factory.create_from_parse(
-        #     self.env_config.parse["obstacle"], "obstacle"
-        # )
-        # self._map_collection = self.object_factory.create_from_map(
-        #     self._world.obstacle_positions, self._world.buffer_reso
-        # )
-
-        # self._objects = (
-        #     self._robot_collection + self._obstacle_collection + self._map_collection
-        # )
-
-        # self._objects.sort(key=attrgetter("id"))
-
         self.build_tree()
         env_param.objects = self._objects
         self.validate_unique_names()
@@ -172,9 +154,9 @@ class EnvBase:
         try:
             keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
             self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
-        except Exception as _:
+        except Exception as e:
             self.logger.error(
-                "Keyboard control unavailable. Auto control applied. "
+                f"Keyboard control unavailable error: {e}. Auto control applied. "
                 "Install 'pynput' or set backend='mpl' in YAML keyboard config."
             )
             world_param.control_mode = "auto"
