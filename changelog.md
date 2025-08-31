@@ -1,3 +1,21 @@
+## 2.7.2
+
+- Features:
+  - Add a new gui section to the YAML configuration for keyboard and mouse controls. see [gui configuration](https://ir-sim.readthedocs.io/en/latest/yaml_config/configuration.html#gui-configuration) 
+  
+  - Change the default keyboard backend to Matplotlib (`mpl`), which uses figure window key events. The `mpl` backend is active when the Matplotlib figure window is focused. The `pynput` backend, which provides a global keyboard hook, remains supported and can be selected in YAML.
+  
+  - Add `env.reload()` to reload the environment on the fly, enabling YAML changes to be applied without closing the Matplotlib figure window.
+  
+  - Add hotkeys to configure and update environment settings, available in both `auto` and `keyboard` control modes:
+    - `r`: Reset the environment
+    - `space`: Pause/Resume the environment
+    - `esc`: Quit the environment
+    - `x`: Switch between keyboard and auto control modes
+    - `l`: Reload the environment and apply the updated YAML without closing the Matplotlib figure window
+  
+  - update corresponding documentation and usage.
+
 ## 2.7.1
 
 - Features:
