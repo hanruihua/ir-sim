@@ -1718,7 +1718,7 @@ class ObjectBase:
         else:
             if vertices is None:
                 return
-            goal_patch = MplPolygon(xy=vertices.T, color=goal_color)
+            goal_patch = MplPolygon(xy=vertices.T, color=goal_color, alpha=goal_alpha)
 
         if isinstance(ax, Axes3D):
             art3d.patch_2d_to_3d(goal_patch, z=self.z)
