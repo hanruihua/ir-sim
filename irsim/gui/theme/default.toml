@@ -1,11 +1,4 @@
 # IR-Sim default theme (colors and styles)
-#
-# Usage: load keys from this file and pass them as **kwargs to drawing/update methods:
-#   - ObjectBase.plot / _init_plot / _step_plot / plot_* family
-#   - EnvPlot.__init__/step via **kwargs
-#
-# The keys align with argument names used in object_base.py (e.g., obj_color, traj_style, fov_color, etc.).
-
 version = "1.0"
 
 [theme]
@@ -32,7 +25,7 @@ cmap = "Greys"
 zorder = 0
 
 # Common object drawing kwargs (forward directly to ObjectBase.plot/_init_plot/_step_plot)
-[object]
+[robot]
 # Object appearance
 obj_linestyle = "-"
 obj_zorder = 2            # robot: 2, obstacle: 1
@@ -90,23 +83,7 @@ fov_edge_color = "blue"
 fov_zorder = 0
 fov_alpha = 0.5
 
-# Role-specific overrides: merge these on top of [object] when applying
-[roles.robot]
-obj_color = "#2E7D32"     # robot main color (green)
-traj_color = "#2E7D32"
-trail_edgecolor = "#2E7D32"
-
-[roles.obstacle]
+[obstacle]
 obj_color = "#212121"     # obstacle main color (dark gray / near black)
 traj_color = "#757575"
 trail_edgecolor = "#424242"
-
-[roles.landmark]
-obj_color = "#1565C0"     # landmark main color (blue)
-traj_color = "#1565C0"
-
-[roles.target]
-obj_color = "#EC407A"     # target main color (pink)
-traj_color = "#EC407A"
-
-
