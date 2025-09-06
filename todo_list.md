@@ -14,6 +14,7 @@
 - [ ] 3D space
 - [ ] Add transformation (like ROS tf)
 - [ ] Plugin system 
+- [ ] template for custom robots, sensor..
 
 ## 🤖 Robot & Movement
 - [x] Omni directional robots
@@ -26,13 +27,13 @@
 - [ ] Robotics arm, UAV support
 - [ ] Real robot description
 
-
 ## 📡 Sensors & Data
 - [x] Sensor lidar
 - [x] Add sensor: gps, odometry
 - [x] Add noise (diff)
 - [ ] Develop Tools for tackling Data. Add the data monitor for performance analysis (jerks, acceleration, etc.).
 - [ ] Record and replay path
+- [ ] GPS sensor support (state with noise)
 
 ## 🗺️ Environment & Obstacles
 - [x] Line obstacle
@@ -44,7 +45,6 @@
 - [x] Develop a lib for configuration of the shape, refer to rviz marker
 - [ ] Add functions to access obstacles with different types (refinement needed)
 - [ ] Use scipy convex hull to generate G and h
-
 
 ## 🎨 Visualization & Plotting
 - [x] GIF generation
@@ -71,25 +71,28 @@
 - [x] Private and public methods and parameters in class
 - [x] Add the env logger
 - [x] Make the dependency of the package optional
-- [ ] Using decorator to update
-- [ ] Add synchronization and asynchronization mode
-- [ ] Multiprocess for large scale simulation
-- [ ] Make multiple env instances
-
-## 🎮 Control & Interaction
-- [x] Env res
+- [x] Env reset function
 - [x] Collision check with discrete samples
-- [x] Add more key functions for keyboard control
+- [x] Add more key functions for keyboard control (esc, space, r, l, x)
 - [x] Assign robot goals by mouse click
+- [x] Add reload function for the environment
+- [ ] Using decorator for function input checking
+- [ ] Add synchronization and asynchronization mode
+- [ ] Multi-process for large scale simulation
+- [ ] Make multiple env instances
+- [ ] accelerate the simulation (collision check, kinematics, etc.) by numba/c++
+- [ ] vectorize the loop
 - [ ] Complete the reactive collision mode
+- [ ] YAML schema validation with clear error messages and defaults.
+- [ ] moving view of robots.
 
 ## 🧪 Testing & Quality
 - [x] Pytest
 - [x] Organize the test cases
 - [x] Improve coverage of the code over 90%
 - [x] reduce the dependency of the package
+- [x] using uv to manage and format the dependency and project
 - [ ] Improve coverage of the code over 99%
-
 
 ## 📚 Documentation & Examples
 - [x] Documentation
@@ -102,24 +105,24 @@
 - [x] Doc Noise world
 - [x] Refine documentation and the comment of the code function. 
 - [x] Doc of status; title; keyboard space
+- [x] New style of documentation
 - [ ] Add tutorial with more examples.
 - [ ] Doc path manager and change the path
-- [ ] New style of documentation
 - [ ] Generate Logo
 
 ## 🔗 External Interfaces
 - [ ] Add the interface with gym
 - [ ] Add the interface with ROS
-- [ ] Add the interface with Pybullet or Gazebo
+- [ ] Add the interface with Pybullet, Gazebo, Carla
 - [ ] Add the interface with opendrive
 - [ ] Add the interface with URDF file
-
 
 ## 🧠 Advanced Features
 - [ ] Add wrapper for ORCA algorithm
 - [ ] Add various navigation algorithms implemented on the ir-sim
 - [ ] Modular yaml import so that ir-sim can read the yaml file separately
-- [ ] Add more behaviors for the objects
+- [ ] Add more behaviors for the objects (orca, pure pursuit, etc.)
+- [ ] Benchmark suites with standardized metrics and scoring scripts.
 
 ## 🚗 Scenarios & Applications
 - [ ] Make_scenarios to generate some common scenarios to test, such as car_racing, maze, traffic (Maze generator)
