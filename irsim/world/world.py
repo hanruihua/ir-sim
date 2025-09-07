@@ -35,7 +35,7 @@ class World:
         height: float = 10,
         width: float = 10,
         step_time: float = 0.1,
-        sample_time: float = 0.1,
+        sample_time: Optional[float] = None,
         offset: Optional[list[float]] = None,
         control_mode: str = "auto",
         collision_mode: str = "stop",
@@ -73,7 +73,7 @@ class World:
         self.height = height
         self.width = width
         self.step_time = step_time
-        self.sample_time = sample_time
+        self.sample_time = sample_time if sample_time is not None else step_time
         self.offset = offset
 
         self.count = 0
