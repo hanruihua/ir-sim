@@ -460,7 +460,7 @@ class EnvPlot:
         self.saved_figure_kwargs.update(kwargs)
 
         if include_index or save_gif:
-            order = str(world_param.count).zfill(3)
+            order = str(world_param.count).zfill(4)
             full_name = fp + "/" + file_name + "_" + order + "." + file_format
         else:
             full_name = fp + "/" + file_name + "." + file_format
