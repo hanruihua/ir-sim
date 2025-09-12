@@ -201,7 +201,7 @@ class PRMPlanner:
         sample_kd_tree = KDTree(np.vstack((sample_x, sample_y)).T)
 
         for _i, ix, iy in zip(range(n_sample), sample_x, sample_y):
-            dists, indexes = sample_kd_tree.query([ix, iy], k=n_sample)
+            _, indexes = sample_kd_tree.query([ix, iy], k=n_sample)
             edge_id = []
 
             for ii in range(1, len(indexes)):
