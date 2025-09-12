@@ -501,6 +501,27 @@ class EnvPlot:
         if rm_fig_path:
             shutil.rmtree(fp)
 
+
+    @staticmethod
+    def draw_patch(ax: Any, shape: str, state: np.ndarray, **kwargs: Any) -> None:
+        """
+        Draw a patch on the plot.
+        """
+        if shape == "circle":
+            patch = ax.add_patch(Circle(state[0, 0], state[1, 0], state[2, 0], **kwargs))
+        elif shape == "rectangle":
+            patch = ax.add_patch(Rectangle(state[0, 0], state[1, 0], state[2, 0], **kwargs))
+        elif shape == "polygon":
+            patch = ax.add_patch(Polygon(state[0, 0], state[1, 0], state[2, 0], **kwargs))
+        elif shape == "ellipse":
+            patch = ax.add_patch(Ellipse(state[0, 0], state[1, 0], state[2, 0], **kwargs))
+        elif shape == "line":
+            pass
+
+        return patch
+
+    
+
     def show(self) -> None:
         """
         Display the plot.
@@ -559,3 +580,4 @@ def linewidth_from_data_units(
     length *= 72
     # Scale linewidth to value range
     return linewidth * (length / value_range)
+
