@@ -17,6 +17,7 @@ import imageio.v3 as imageio
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.patches import Circle, Rectangle, Polygon, Ellipse
 
 from irsim.config import env_param, world_param
 from irsim.config.path_param import path_manager as pm
@@ -519,6 +520,10 @@ class EnvPlot:
             pass
 
         return patch
+
+    @staticmethod
+    def set_patch_property(patch: Any, **kwargs: Any) -> None:
+        pass
 
     
 
