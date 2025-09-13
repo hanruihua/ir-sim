@@ -1022,7 +1022,12 @@ class ObjectBase:
         self._plot(ax, state, vertices, **kwargs)
 
     def _init_plot(self, ax, **kwargs):
-        """Initialize plotting elements using zero state and initial vertices."""
+        """
+        Initialize plotting elements using zero state and initial vertices.
+
+        Returns:
+            list: Names of plot attributes created (e.g., 'object_patch', 'goal_patch').
+        """
         return self._plot(
             ax, self.original_state, self.original_vertices, initial=True, **kwargs
         )
@@ -1040,7 +1045,7 @@ class ObjectBase:
 
             Object visualization properties:
                 - obj_linestyle (str): Line style for object outline (e.g., '-', '--', ':', '-.').
-                - obj_zorder (int): Z-order (drawing layer) for object elements.
+                - obj_zorder (int): Z-order (drawing layer) for object elements; defaults to 3 for robots, 1 for obstacles.
                 - obj_color (str): Color of the object.
                 - obj_alpha (float): Transparency of the object (0.0 to 1.0).
 
@@ -1151,8 +1156,9 @@ class ObjectBase:
 
     def _step_plot(self, **kwargs):
         """
-        Update the positions and properties of all plot elements created in _init_plot for 2D plotting. In the 3D case, the patches are updated using draw_component and clear_component method.
-        Elements are updated using transforms for patches and set_data for lines, based on the object's current state.
+        Update the positions and properties of all plot elements created in _init_plot.
+        Elements are updated using transforms for patches and set_data/set_data_3d for lines,
+        based on the object's current state, in both 2D and 3D.
 
         Update methods by element type:
         - Patches (object_patch, goal_patch, arrow_patch, fov_patch): Updated using matplotlib transforms
@@ -1223,18 +1229,13 @@ class ObjectBase:
                 if attr == "object_patch":
                     # For patches created at origin in _init_plot, use transform to position them
                     obj_kwargs = {
-                        "color": kwargs.get("obj_color"),
+                        "color": kwargs.get("obj_color", self.color),
                         "alpha": kwargs.get("obj_alpha"),
                         "zorder": kwargs.get("obj_zorder"),
+                        "linestyle": kwargs.get("obj_linestyle"),
                     }
-                    # Filter out None values
-                    obj_kwargs = {k: v for k, v in obj_kwargs.items() if v is not None}
 
                     set_patch_property(element, self.ax, state=self.state, **obj_kwargs)
-
-                    # Update object patch properties that are not handled by set_element_property
-                    if "obj_linestyle" in kwargs:
-                        element.set_linestyle(kwargs["obj_linestyle"])
 
                 elif attr == "object_line":
                     # For lines, use set_data to update coordinates (works for both 2D and 3D)
@@ -1296,10 +1297,6 @@ class ObjectBase:
                         "zorder": kwargs.get("goal_zorder"),
                     }
 
-                    goal_kwargs = {
-                        k: v for k, v in goal_kwargs.items() if v is not None
-                    }
-
                     if self.goal is None:
                         element.set_visible(False)
                         continue
@@ -1333,10 +1330,6 @@ class ObjectBase:
                             "color": kwargs.get("arrow_color"),
                             "alpha": kwargs.get("arrow_alpha"),
                             "zorder": kwargs.get("arrow_zorder"),
-                        }
-                        # Filter out None values
-                        arrow_kwargs = {
-                            k: v for k, v in arrow_kwargs.items() if v is not None
                         }
 
                         set_patch_property(
@@ -1391,26 +1384,20 @@ class ObjectBase:
                             "alpha": kwargs.get("fov_alpha"),
                             "zorder": kwargs.get("fov_zorder"),
                         }
-                        # Filter out None values
-                        fov_kwargs = {
-                            k: v for k, v in fov_kwargs.items() if v is not None
-                        }
 
                         set_patch_property(
                             element, self.ax, state=fov_state, **fov_kwargs
                         )
 
-                        # Update special FOV properties that are not handled by set_element_property
-                        if "fov_color" in kwargs:
-                            element.set_facecolor(kwargs["fov_color"])
-
-                        if "fov_edge_color" in kwargs:
-                            element.set_edgecolor(kwargs["fov_edge_color"])
-
         # Update text position using set_position (works for both 2D and 3D)
         if hasattr(self, "abbr_text"):
             text = self.abbr_text
-            text_position = [-self.radius - 0.1, self.radius + 0.1]
+            # Prefer runtime kwargs, then initial plot kwargs, fallback to default
+            default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
+            text_position = kwargs.get(
+                "text_position",
+                self.plot_kwargs.get("text_position", default_text_pos),
+            )
 
             text.set_position((x + text_position[0], y + text_position[1]))
 
@@ -1461,10 +1448,10 @@ class ObjectBase:
             None
 
         Raises:
-            ValueError: When object shape is not supported
+            Exception: If the underlying patch creation fails (e.g., unsupported shape or backend issues).
         """
         obj_linestyle = kwargs.get("obj_linestyle", "-")
-        obj_zorder = kwargs.get("obj_zorder", 2) if self.role == "robot" else 1
+        obj_zorder = kwargs.get("obj_zorder", 3) if self.role == "robot" else 1
 
         state = self.state if state is None else state
         vertices = self.vertices if vertices is None else vertices
@@ -1477,6 +1464,7 @@ class ObjectBase:
                         ax,
                         shape=self.shape,
                         state=state,
+                        radius=self.radius,
                         vertices=vertices,
                         color=self.color,
                         linestyle=obj_linestyle,
@@ -1591,7 +1579,7 @@ class ObjectBase:
 
         solid_capstyle = "round" if self.shape == "circle" else "butt"
 
-        traj_line = ax.plot(
+        self.trajectory_line = ax.plot(
             x_list,
             y_list,
             color=traj_color,
@@ -1603,8 +1591,7 @@ class ObjectBase:
             zorder=traj_zorder,
         )
 
-        self.plot_line_list.append(traj_line)
-        self.trajectory_line = traj_line
+        self.plot_line_list.append(self.trajectory_line)
 
     def plot_goal(
         self,
@@ -1622,7 +1609,7 @@ class ObjectBase:
         Args:
             ax: Matplotlib axis.
             goal_state: State of the goal (x, y, r_phi) defining goal position and orientation.
-                       If None, uses [0, 0, 0]. Defaults to None.
+                       If None, nothing is plotted. Defaults to None.
             vertices: Vertices for polygon/rectangle goal shapes.
                      If None, uses original_vertices. Defaults to None.
             goal_color (str): Color of the goal marker. Defaults to be the color of the object.
@@ -1630,36 +1617,23 @@ class ObjectBase:
             goal_alpha (float): Transparency of the goal marker. Defaults to 0.5.
         """
 
-        if goal_color is None:
-            goal_color = self.color
+        goal_color = self.color if goal_color is None else goal_color
 
         if goal_state is None:
             return
 
-        if self.shape == "circle":
-            goal_patch = draw_patch(
-                ax,
-                shape="circle",
-                state=goal_state,
-                radius=self.radius,
-                color=goal_color,
-                alpha=goal_alpha,
-                zorder=int(goal_zorder) if goal_zorder is not None else 1,
-            )
-        else:
-            if vertices is None:
-                return
-            goal_patch = draw_patch(
-                ax,
-                shape="polygon" if self.shape == "polygon" else "rectangle",
-                vertices=vertices,
-                color=goal_color,
-                alpha=goal_alpha,
-                zorder=int(goal_zorder) if goal_zorder is not None else 1,
-            )
+        self.goal_patch = draw_patch(
+            ax,
+            shape=self.shape,
+            state=goal_state,
+            radius=self.radius,
+            vertices=vertices,
+            color=goal_color,
+            alpha=goal_alpha,
+            zorder=goal_zorder,
+        )
 
-        self.plot_patch_list.append(goal_patch)
-        self.goal_patch = goal_patch
+        self.plot_patch_list.append(self.goal_patch)
 
     def plot_text(self, ax, state: Optional[np.ndarray] = None, **kwargs):
         """
@@ -1677,6 +1651,9 @@ class ObjectBase:
                   default is [-radius-0.1, radius+0.1].
                 - text_zorder (int): Zorder of the text. Defaults to 2.
                 - text_alpha (float): Transparency of the text. Defaults to 1.
+
+        Note:
+            Subsequent updates via _step_plot honor the configured text_position if provided.
         """
 
         if state is None:
@@ -1693,7 +1670,7 @@ class ObjectBase:
         x, y = state[0, 0], state[1, 0]
 
         if isinstance(ax, Axes3D):
-            text = ax.text(
+            self.abbr_text = ax.text(
                 x + text_position[0],
                 y + text_position[1],
                 self.z,
@@ -1704,7 +1681,7 @@ class ObjectBase:
                 alpha=text_alpha,
             )
         else:
-            text = ax.text(
+            self.abbr_text = ax.text(
                 x + text_position[0],
                 y + text_position[1],
                 self.abbr,
@@ -1714,8 +1691,7 @@ class ObjectBase:
                 alpha=text_alpha,
             )
 
-        self.plot_text_list.append(text)
-        self.abbr_text = text
+        self.plot_text_list.append(self.abbr_text)
 
     def plot_arrow(
         self,
@@ -1750,27 +1726,24 @@ class ObjectBase:
         if arrow_color is None:
             arrow_color = "gold"
 
-        x = state[0, 0]
-        y = state[1, 0]
-
         theta = (
             atan2(velocity[1, 0], velocity[0, 0])
             if self.kinematics == "omni" and velocity is not None
             else state[2, 0]
         )
 
-        arrow_patch = draw_patch(
+        self.arrow_patch = draw_patch(
             ax,
             shape="arrow",
-            state=np.array([[x], [y], [theta]]),
+            state=state,
             color=arrow_color,
             zorder=arrow_zorder,
             arrow_length=arrow_length,
             arrow_width=arrow_width,
+            theta=theta,
         )
 
-        self.plot_patch_list.append(arrow_patch)
-        self.arrow_patch = arrow_patch
+        self.plot_patch_list.append(self.arrow_patch)
 
     def plot_trail(
         self,
@@ -1800,8 +1773,6 @@ class ObjectBase:
                 trail_zorder (int): Z-order of the trail.
         """
 
-        if state is None:
-            state = self.state
         if vertices is None:
             vertices = self.vertices
 
@@ -1815,52 +1786,21 @@ class ObjectBase:
 
         # angle in degrees, no longer needed due to generic draw_patch usage
 
-        if trail_type == "rectangle":
-            trail = draw_patch(
-                ax,
-                shape="rectangle",
-                state=np.array(
-                    [[float(vertices[0, 0])], [float(vertices[1, 0])], [state[2, 0]]]
-                ),
-                width=self.length,
-                height=self.width,
-                edgecolor=trail_edgecolor,
-                facecolor=trail_color,
-                fill=False,
-                alpha=trail_alpha,
-                linewidth=trail_linewidth,
-                zorder=trail_zorder,
-            )
-
-        elif trail_type == "polygon":
-            trail = draw_patch(
-                ax,
-                shape="polygon",
-                vertices=vertices,
-                edgecolor=trail_edgecolor,
-                facecolor=trail_color,
-                fill=False,
-                alpha=trail_alpha,
-                linewidth=trail_linewidth,
-                zorder=trail_zorder,
-            )
-
-        elif trail_type == "circle":
-            trail = draw_patch(
-                ax,
-                shape="circle",
-                state=state,
-                radius=self.radius,
-                edgecolor=trail_edgecolor,
-                facecolor=trail_color,
-                fill=trail_fill,
-                alpha=trail_alpha,
-                linewidth=trail_linewidth,
-                zorder=trail_zorder,
-            )
-
-        else:
-            raise ValueError(f"Invalid trail type: {trail_type}")
+        trail = draw_patch(
+            ax,
+            shape=trail_type,
+            state=None,
+            vertices=vertices,
+            radius=self.radius,
+            width=self.length,
+            height=self.width,
+            edgecolor=trail_edgecolor,
+            facecolor=trail_color,
+            fill=trail_fill,
+            alpha=trail_alpha,
+            linewidth=trail_linewidth,
+            zorder=trail_zorder,
+        )
 
         self.plot_trail_list.append(trail)
 
@@ -1881,44 +1821,41 @@ class ObjectBase:
                 fov_edge_color (str): Edge color of the field of view. Default is 'blue'.
                 fov_zorder (int): Z-order of the field of view. Default is 1.
                 fov_alpha (float): Transparency of the field of view. Default is 0.5.
+
+        Note:
+            No-op when FOV is not configured (fov or fov_radius is None).
         """
+
+        if self.fov is None or self.fov_radius is None:
+            return
 
         fov_color = kwargs.get("fov_color", "lightblue")
         fov_edge_color = kwargs.get("fov_edge_color", "blue")
-        fov_zorder = kwargs.get("fov_zorder", 0)
+        fov_zorder = kwargs.get("fov_zorder", 1)
         fov_alpha = kwargs.get("fov_alpha", 0.5)
 
         # Create FOV wedge at origin with no rotation (-fov/2 to +fov/2 around 0 degrees)
         start_degree = -180 * self.fov / (2 * pi)
         end_degree = 180 * self.fov / (2 * pi)
 
-        if abs(self.fov - 2 * pi) < 0.01:
-            fov_patch = draw_patch(
-                ax,
-                shape="circle",
-                state=np.array([[0.0], [0.0], [0.0]]),
-                radius=self.fov_radius,
-                facecolor=fov_color,
-                edgecolor=fov_edge_color,
-                alpha=fov_alpha,
-                zorder=fov_zorder,
-            )
-        else:
-            fov_patch = draw_patch(
-                ax,
-                shape="wedge",
-                state=np.array([[0.0], [0.0], [0.0]]),
-                radius=self.fov_radius,
-                theta1=start_degree,
-                theta2=end_degree,
-                facecolor=fov_color,
-                edgecolor=fov_edge_color,
-                alpha=fov_alpha,
-                zorder=fov_zorder,
-            )
+        state = np.array([[0.0], [0.0], [0.0]])
 
-        self.plot_patch_list.append(fov_patch)
-        self.fov_patch = fov_patch
+        shape = "circle" if abs(self.fov - 2 * pi) < 0.01 else "wedge"
+
+        self.fov_patch = draw_patch(
+            ax,
+            shape=shape,
+            state=state,
+            radius=self.fov_radius,
+            theta1=start_degree,
+            theta2=end_degree,
+            facecolor=fov_color,
+            edgecolor=fov_edge_color,
+            alpha=fov_alpha,
+            zorder=fov_zorder,
+        )
+
+        self.plot_patch_list.append(self.fov_patch)
 
     def plot_uncertainty(self, ax, **kwargs):
         """
