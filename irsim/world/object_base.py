@@ -5,15 +5,11 @@ from dataclasses import dataclass
 from math import atan2, cos, inf, pi, sin
 from typing import Any, Optional, Union
 
-import matplotlib as mpl
 import matplotlib.transforms as mtransforms
-import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
 import shapely
 from matplotlib import image
-from matplotlib.lines import Line2D
-from matplotlib.patches import Arrow, Circle, Rectangle, Wedge
-from matplotlib.patches import Polygon as MplPolygon
+from matplotlib.patches import Arrow, Circle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 from shapely.geometry import MultiLineString
 from shapely.geometry.base import BaseGeometry
@@ -21,7 +17,7 @@ from shapely.strtree import STRtree
 
 from irsim.config import env_param, world_param
 from irsim.config.path_param import path_manager
-from irsim.env.env_plot import linewidth_from_data_units
+from irsim.env.env_plot import draw_patch, linewidth_from_data_units, set_patch_property
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
 from irsim.util.util import (
     WrapTo2Pi,
@@ -1234,7 +1230,7 @@ class ObjectBase:
                     # Filter out None values
                     obj_kwargs = {k: v for k, v in obj_kwargs.items() if v is not None}
 
-                    self.set_element_property(element, self.state, **obj_kwargs)
+                    set_patch_property(element, self.ax, state=self.state, **obj_kwargs)
 
                     # Update object patch properties that are not handled by set_element_property
                     if "obj_linestyle" in kwargs:
@@ -1317,7 +1313,9 @@ class ObjectBase:
                             self.goal, (0, 1), "constant", constant_values=0
                         )
 
-                    self.set_element_property(element, goal_state, **goal_kwargs)
+                    set_patch_property(
+                        element, self.ax, state=goal_state, **goal_kwargs
+                    )
 
                 elif attr == "arrow_patch":
                     # Update arrow patch using set_element_property
@@ -1341,7 +1339,9 @@ class ObjectBase:
                             k: v for k, v in arrow_kwargs.items() if v is not None
                         }
 
-                        self.set_element_property(element, arrow_state, **arrow_kwargs)
+                        set_patch_property(
+                            element, self.ax, state=arrow_state, **arrow_kwargs
+                        )
 
                 elif attr == "trajectory_line":
                     # Update trajectory line using set_data (works for both 2D and 3D)
@@ -1396,7 +1396,9 @@ class ObjectBase:
                             k: v for k, v in fov_kwargs.items() if v is not None
                         }
 
-                        self.set_element_property(element, fov_state, **fov_kwargs)
+                        set_patch_property(
+                            element, self.ax, state=fov_state, **fov_kwargs
+                        )
 
                         # Update special FOV properties that are not handled by set_element_property
                         if "fov_color" in kwargs:
@@ -1432,24 +1434,6 @@ class ObjectBase:
         # Update sensors
         if self.show_sensor:
             [sensor.step_plot() for sensor in self.sensors]
-
-    def set_element_property(self, element, state, **kwargs):
-        x = state[0, 0]
-        y = state[1, 0]
-        theta = state[2, 0]
-
-        trans = (
-            mpl.transforms.Affine2D().rotate(theta).translate(x, y) + self.ax.transData
-        )
-
-        element.set_transform(trans)
-
-        if "color" in kwargs:
-            element.set_color(kwargs["color"])
-        if "alpha" in kwargs:
-            element.set_alpha(kwargs["alpha"])
-        if "zorder" in kwargs:
-            element.set_zorder(kwargs["zorder"])
 
     def plot_object(
         self,
@@ -1488,60 +1472,18 @@ class ObjectBase:
         # Handle 3D plot or no description case
         if self.description is None or isinstance(ax, Axes3D):
             try:
-                if self.shape == "circle":
-                    object_patch = Circle(
-                        xy=(float(state[0, 0]), float(state[1, 0])),
-                        radius=self.radius,
+                if self.shape != "map":
+                    self.object_patch = draw_patch(
+                        ax,
+                        shape=self.shape,
+                        state=state,
+                        vertices=vertices,
                         color=self.color,
                         linestyle=obj_linestyle,
-                    )
-                    object_patch.set_zorder(obj_zorder)
-
-                    if isinstance(ax, Axes3D):
-                        art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
-
-                    ax.add_patch(object_patch)
-                    self.plot_patch_list.append(object_patch)
-                    self.object_patch = object_patch
-
-                elif self.shape in ["polygon", "rectangle"]:
-                    object_patch = MplPolygon(
-                        xy=vertices.T, color=self.color, linestyle=obj_linestyle
+                        zorder=obj_zorder,
                     )
 
-                    object_patch.set_zorder(obj_zorder)
-
-                    if isinstance(ax, Axes3D):
-                        art3d.patch_2d_to_3d(object_patch, z=self.z, zdir="z")
-
-                    ax.add_patch(object_patch)
-                    self.plot_patch_list.append(object_patch)
-                    self.object_patch = object_patch
-
-                elif self.shape == "linestring":
-                    if isinstance(ax, Axes3D):
-                        object_line = art3d.Line3D(
-                            vertices[0, :],
-                            vertices[1, :],
-                            zs=self.z * np.ones((3,)),
-                            color=self.color,
-                        )
-                    else:
-                        object_line = Line2D(
-                            vertices[0, :],
-                            vertices[1, :],
-                            color=self.color,
-                            linestyle=obj_linestyle,
-                        )
-                    object_line.set_zorder(obj_zorder)
-                    ax.add_line(object_line)
-                    self.plot_patch_list.append(object_line)
-                    self.object_line = object_line
-
-                elif self.shape == "map":
-                    return
-                else:
-                    raise ValueError(f"Unsupported shape type: {self.shape}")
+                    self.plot_patch_list.append(self.object_patch)
 
             except Exception as e:
                 self.logger.error(f"Error occurred while plotting object: {e!s}")
@@ -1695,22 +1637,26 @@ class ObjectBase:
             return
 
         if self.shape == "circle":
-            goal_patch = Circle(
-                xy=(float(goal_state[0, 0]), float(goal_state[1, 0])),
+            goal_patch = draw_patch(
+                ax,
+                shape="circle",
+                state=goal_state,
                 radius=self.radius,
                 color=goal_color,
                 alpha=goal_alpha,
+                zorder=int(goal_zorder) if goal_zorder is not None else 1,
             )
         else:
             if vertices is None:
                 return
-            goal_patch = MplPolygon(xy=vertices.T, color=goal_color, alpha=goal_alpha)
-
-        if isinstance(ax, Axes3D):
-            art3d.patch_2d_to_3d(goal_patch, z=self.z)
-
-        goal_patch.set_zorder(int(goal_zorder) if goal_zorder is not None else 1)
-        ax.add_patch(goal_patch)
+            goal_patch = draw_patch(
+                ax,
+                shape="polygon" if self.shape == "polygon" else "rectangle",
+                vertices=vertices,
+                color=goal_color,
+                alpha=goal_alpha,
+                zorder=int(goal_zorder) if goal_zorder is not None else 1,
+            )
 
         self.plot_patch_list.append(goal_patch)
         self.goal_patch = goal_patch
@@ -1813,23 +1759,18 @@ class ObjectBase:
             else state[2, 0]
         )
 
-        arrow = Arrow(
-            float(x),
-            float(y),
-            float(arrow_length * cos(theta)),
-            float(arrow_length * sin(theta)),
-            width=arrow_width,
+        arrow_patch = draw_patch(
+            ax,
+            shape="arrow",
+            state=np.array([[x], [y], [theta]]),
             color=arrow_color,
+            zorder=arrow_zorder,
+            arrow_length=arrow_length,
+            arrow_width=arrow_width,
         )
 
-        if isinstance(ax, Axes3D):
-            art3d.patch_2d_to_3d(arrow, z=self.z)
-
-        arrow.set_zorder(arrow_zorder)
-        ax.add_patch(arrow)
-
-        self.plot_patch_list.append(arrow)
-        self.arrow_patch = arrow
+        self.plot_patch_list.append(arrow_patch)
+        self.arrow_patch = arrow_patch
 
     def plot_trail(
         self,
@@ -1872,60 +1813,51 @@ class ObjectBase:
         trail_color = kwargs.get("trail_color", self.color)
         trail_zorder = kwargs.get("trail_zorder", 0)
 
-        r_phi_ang = 180 * state[2, 0] / pi
+        # angle in degrees, no longer needed due to generic draw_patch usage
 
         if trail_type == "rectangle":
-            start_x = vertices[0, 0]
-            start_y = vertices[1, 0]
-
-            trail = Rectangle(
-                xy=(float(start_x), float(start_y)),
+            trail = draw_patch(
+                ax,
+                shape="rectangle",
+                state=np.array(
+                    [[float(vertices[0, 0])], [float(vertices[1, 0])], [state[2, 0]]]
+                ),
                 width=self.length,
                 height=self.width,
-                angle=r_phi_ang,
                 edgecolor=trail_edgecolor,
+                facecolor=trail_color,
                 fill=False,
                 alpha=trail_alpha,
                 linewidth=trail_linewidth,
-                facecolor=trail_color,
                 zorder=trail_zorder,
             )
 
-            if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(trail, z=self.z)
-
-            ax.add_patch(trail)
-
         elif trail_type == "polygon":
-            trail = MplPolygon(
-                vertices.T,
-                edgecolor=trail_color,
+            trail = draw_patch(
+                ax,
+                shape="polygon",
+                vertices=vertices,
+                edgecolor=trail_edgecolor,
+                facecolor=trail_color,
+                fill=False,
                 alpha=trail_alpha,
                 linewidth=trail_linewidth,
-                fill=False,
-                facecolor=trail_color,
+                zorder=trail_zorder,
             )
-
-            if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(trail, z=self.z)
-
-            ax.add_patch(trail)
 
         elif trail_type == "circle":
-            # For circle, use the state position as center
-            trail = Circle(
-                xy=(float(state[0, 0]), float(state[1, 0])),
+            trail = draw_patch(
+                ax,
+                shape="circle",
+                state=state,
                 radius=self.radius,
                 edgecolor=trail_edgecolor,
+                facecolor=trail_color,
                 fill=trail_fill,
                 alpha=trail_alpha,
-                facecolor=trail_color,
+                linewidth=trail_linewidth,
+                zorder=trail_zorder,
             )
-
-            if isinstance(ax, Axes3D):
-                art3d.patch_2d_to_3d(trail, z=self.z)
-
-            ax.add_patch(trail)
 
         else:
             raise ValueError(f"Invalid trail type: {trail_type}")
@@ -1961,33 +1893,32 @@ class ObjectBase:
         end_degree = 180 * self.fov / (2 * pi)
 
         if abs(self.fov - 2 * pi) < 0.01:
-            fov_wedge = Circle(
-                (0, 0),
-                self.fov_radius,
+            fov_patch = draw_patch(
+                ax,
+                shape="circle",
+                state=np.array([[0.0], [0.0], [0.0]]),
+                radius=self.fov_radius,
                 facecolor=fov_color,
-                alpha=fov_alpha,
                 edgecolor=fov_edge_color,
+                alpha=fov_alpha,
                 zorder=fov_zorder,
             )
         else:
-            fov_wedge = Wedge(
-                (0, 0),  # Create at origin
-                self.fov_radius,
-                start_degree,
-                end_degree,
+            fov_patch = draw_patch(
+                ax,
+                shape="wedge",
+                state=np.array([[0.0], [0.0], [0.0]]),
+                radius=self.fov_radius,
+                theta1=start_degree,
+                theta2=end_degree,
                 facecolor=fov_color,
-                alpha=fov_alpha,
                 edgecolor=fov_edge_color,
+                alpha=fov_alpha,
                 zorder=fov_zorder,
             )
 
-        if isinstance(ax, Axes3D):
-            art3d.patch_2d_to_3d(fov_wedge, z=self.z)
-
-        ax.add_patch(fov_wedge)
-
-        self.plot_patch_list.append(fov_wedge)
-        self.fov_patch = fov_wedge
+        self.plot_patch_list.append(fov_patch)
+        self.fov_patch = fov_patch
 
     def plot_uncertainty(self, ax, **kwargs):
         """
