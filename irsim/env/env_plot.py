@@ -126,7 +126,6 @@ class EnvPlot:
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
 
-        # self.draw_components("all", objects)
         self.init_objects_plot(objects)
         self.draw_grid_map(world.grid_map)
 
@@ -174,7 +173,7 @@ class EnvPlot:
         self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
     ) -> None:
         """
-        Update the plot for the objects.
+        Update the plot for the objects by transform based on the object's original geometry.
         """
         if objects is None:
             objects = []
@@ -191,7 +190,7 @@ class EnvPlot:
         self, mode: str = "all", objects: Optional[list[Any]] = None, **kwargs: Any
     ) -> None:
         """
-        Draw the components in the environment.
+        Draw the components in the environment with global axis.
 
         Args:
             mode (str): 'static', 'dynamic', or 'all' to specify which objects to draw.

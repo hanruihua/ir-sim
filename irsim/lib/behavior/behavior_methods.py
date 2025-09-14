@@ -70,7 +70,7 @@ def beh_diff_rvo(
     acce = kwargs.get("acce", 1.0)
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
-    neighbor_threshold = kwargs.get("neighbor_threshold", 10.0)
+    neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
     return DiffRVO(
         rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
     )
