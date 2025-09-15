@@ -1416,7 +1416,9 @@ class ObjectBase:
 
         # Handle trail plotting (creates new elements each time)
         if self.show_trail and world_param.count % self.trail_freq == 0:
-            self.plot_trail(self.ax, self.state, self.vertices, **self.plot_kwargs)
+            self.plot_trail(
+                self.ax, self.state, self.original_vertices, **self.plot_kwargs
+            )
 
         # Update sensors
         if self.show_sensor:
@@ -1760,7 +1762,7 @@ class ObjectBase:
             ax: Matplotlib axis.
             state: State of the object (x, y, r_phi) to determine trail position and orientation.
                    If None, uses the object's current state. Defaults to None.
-            vertices: Vertices of the object for polygon and rectangle trail shapes.
+            vertices: Original vertices of the object for polygon and rectangle trail shapes.
                      If None, uses the object's current vertices. Defaults to None.
             keep_trail_length (int): Number of steps to keep from the recent trajectory of trail.
             **kwargs: Additional plotting options:
@@ -1774,7 +1776,7 @@ class ObjectBase:
         """
 
         if vertices is None:
-            vertices = self.vertices
+            vertices = self.original_vertices
 
         trail_type = kwargs.get("trail_type", self.shape)
         trail_edgecolor = kwargs.get("trail_edgecolor", self.color)
@@ -1789,7 +1791,7 @@ class ObjectBase:
         trail = draw_patch(
             ax,
             shape=trail_type,
-            state=None,
+            state=state,
             vertices=vertices,
             radius=self.radius,
             width=self.length,
