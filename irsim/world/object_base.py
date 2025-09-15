@@ -402,7 +402,7 @@ class ObjectBase:
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
-    def step(self, velocity: Optional[np.ndarray] = None, **kwargs: Any):
+    def step(self, velocity: Optional[np.ndarray] = None, sensor_step: bool = True, **kwargs: Any):
         """
         Perform a single simulation step, updating the object's state and sensors.
 
@@ -442,7 +442,10 @@ class ObjectBase:
         self._state = next_state
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
-        self.sensor_step()
+
+        if sensor_step:
+            self.sensor_step()
+
         self.post_process()
         self.trajectory.append(self.state.copy())
         return next_state

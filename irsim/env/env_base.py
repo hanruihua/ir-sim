@@ -264,14 +264,12 @@ class EnvBase:
         if world_param.control_mode == "keyboard":
             actions[self.key_id] = self.key_vel
 
-        self._objects_step(actions)
-
-        self.build_tree()
-        self._objects_check_status()
+        self._objects_step(actions, sensor_step=False)
+        self._objects_sensor_step()
         self._world.step()
-        self.step_status()
+        self._status_step()
 
-    def _objects_step(self, action: list[Any]) -> None:
+    def _objects_step(self, action: list[Any], sensor_step: bool = True) -> None:
         """Advance all objects by one step with corresponding actions.
 
         Args:
@@ -280,7 +278,14 @@ class EnvBase:
                 with ``None`` for the remaining objects.
         """
         action = action + [None] * (len(self.objects) - len(action))
-        [obj.step(action) for obj, action in zip(self.objects, action)]
+        [obj.step(action, sensor_step) for obj, action in zip(self.objects, action)]
+
+        self.build_tree()
+
+    def _objects_sensor_step(self) -> None:
+        """step the sensors of all objects with updated states
+        """
+        [obj.sensor_step() for obj in self.objects]
 
     def _object_step(
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0
@@ -494,7 +499,7 @@ class EnvBase:
             return any(done_list)
         return None
 
-    def step_status(self) -> None:
+    def _status_step(self) -> None:
         """
         Update and log the current status of all robots in the environment.
 
@@ -506,6 +511,9 @@ class EnvBase:
             This is an internal method primarily used for status tracking and logging.
             The status information is automatically updated during simulation steps.
         """
+
+        # object status step
+        [obj.check_status() for obj in self.objects]
 
         arrive_list = [obj.arrive for obj in self.objects if obj.role == "robot"]
         collision_list = [obj.collision for obj in self.objects if obj.role == "robot"]
