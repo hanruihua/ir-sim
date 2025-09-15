@@ -34,6 +34,7 @@ robot:
         offset: [0, 0, 0]
         alpha: 0.4
 
-keyboard:
-  vel_max: [6, 1]
+gui:
+  keyboard:
+    vel_max: [6, 1]
 
