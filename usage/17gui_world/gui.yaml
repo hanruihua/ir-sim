@@ -51,9 +51,10 @@ obstacle:
 
 gui:
   keyboard:
-    backend: 'mpl'       # or 'pynput'
+    backend: 'pynput'       # or 'pynput'
     key_lv_max: 3.0
     key_ang_max: 1.0
     key_id: 1
+    active_only: True
   mouse:
     zoom_factor: 1.1

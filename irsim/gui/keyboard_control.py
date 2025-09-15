@@ -94,9 +94,13 @@ class KeyboardControl:
 
         # backend: 'pynput' or 'mpl' (matplotlib figure key events)
         # Default to MPL backend
-        self.backend = keyboard_kwargs.get("backend", "mpl").strip().lower()
+        self.backend = keyboard_kwargs.get("backend", "pynput").strip().lower()
         if self.backend not in ("pynput", "mpl"):
             self.backend = "mpl"
+
+        # Only honor global hook when MPL window is active/focused
+        self._active_only = not bool(keyboard_kwargs.get("global_hook", False))
+        self._is_active = False
 
         if "s" in plt.rcParams["keymap.save"]:
             plt.rcParams["keymap.save"].remove("s")
@@ -147,6 +151,21 @@ class KeyboardControl:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
             self.backend = "mpl"
 
+        # Track Matplotlib window focus/enter/leave to gate pynput callbacks
+        try:
+            fig = plt.gcf()
+            self._mpl_enter_cid = fig.canvas.mpl_connect(
+                "figure_enter_event", self._on_mpl_focus_in
+            )
+            self._mpl_leave_cid = fig.canvas.mpl_connect(
+                "figure_leave_event", self._on_mpl_focus_out
+            )
+            self._mpl_close_cid = fig.canvas.mpl_connect(
+                "close_event", self._on_mpl_close
+            )
+        except Exception:
+            pass
+
         if self.backend == "pynput" and _PYNPUT_AVAILABLE:
             # Use pynput global keyboard listener
             self.listener = keyboard.Listener(
@@ -171,6 +190,10 @@ class KeyboardControl:
         Args:
             key: pynput.keyboard.Key instance.
         """
+
+        # Gate by window activity if requested
+        if self._active_only and not self._is_active:
+            return
 
         try:
             if world_param.control_mode == "keyboard":
@@ -214,6 +237,10 @@ class KeyboardControl:
         Args:
             key: pynput.keyboard.Key instance.
         """
+
+        # Gate by window activity if requested
+        if self._active_only and not self._is_active:
+            return
 
         try:
             if key.char == "w":
@@ -434,3 +461,13 @@ class KeyboardControl:
             EnvLogger: The logger instance for the environment.
         """
         return env_param.logger
+
+    # Window focus helpers (used to gate pynput when active_only=True)
+    def _on_mpl_focus_in(self, event: Any) -> None:
+        self._is_active = True
+
+    def _on_mpl_focus_out(self, event: Any) -> None:
+        self._is_active = False
+
+    def _on_mpl_close(self, event: Any) -> None:
+        self._is_active = False
