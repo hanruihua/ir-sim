@@ -66,10 +66,10 @@ obstacle:
       - {name: 'circle', radius: 0.6}  # radius
 
     behavior:
-      - {name: 'rvo', range_low: [2, 2.5, -3.14], range_high: [13, 11, 3.14], wander: True, vxmax: 0.5, vymax: 0.5}
+      - {name: 'rvo', range_low: [2, 2.5, -3.14], range_high: [13, 11, 3.14], wander: True, vxmax: 1.5, vymax: 1.5}
 
-    vel_min: [-1.0, -3.14]
-    vel_max: [1.0, 3.14]
+    vel_min: [-1.5, -3.14]
+    vel_max: [1.5, 3.14]
     arrive_mode: position
     goal_threshold: 0.3
     color: 'grey'
