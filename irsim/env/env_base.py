@@ -647,8 +647,7 @@ class EnvBase:
                         existing_obj.append(obj)
                         break
 
-        self._env_plot.clear_components("all", self.obstacle_list)
-        self._env_plot.draw_components("all", self.obstacle_list)
+        self._env_plot.step("all", self.obstacle_list)
 
     def random_polygon_shape(
         self,
@@ -709,8 +708,7 @@ class EnvBase:
                 geom = Polygon(vertices_list[i])
                 obj.set_original_geometry(geom)
 
-        self._env_plot.clear_components("all", self.obstacle_list)
-        self._env_plot.draw_components("all", self.obstacle_list)
+        self._env_plot.step("all", self.obstacle_list)
 
     def reload(self, world_name: Optional[str] = None) -> None:
         """

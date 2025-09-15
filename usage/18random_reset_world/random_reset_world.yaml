@@ -1,0 +1,78 @@
+world:
+  height: 15
+  width: 15
+  step_time: 0.1
+  sample_time: 0.1
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+  offset: [-0.5, -0.5]
+
+robot:
+  - kinematics: {name: 'acker'}
+    shape: {name: 'rectangle', length: 1, width: 0.62, wheelbase: 0.68}
+    state: [1, 1, 0, 0]
+    goal: [10, 1, 0, 0]
+    vel_min: [-2, -0.523]
+    vel_max: [2, 0.523]
+    acce: [5, 3.1416]
+    goal_threshold: 0.5
+    behavior: {name: 'dash'}
+    plot:
+      show_trail: False
+      show_goal: True
+      show_trajectory: False
+
+
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 8
+        angle_range: 6.2483
+        number: 180
+        noise: False
+        offset: [0.3, 0, 0]
+
+
+
+obstacle:
+  - number: 4
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'rectangle', length: 14.5, width: 0.5}
+      - {name: 'rectangle', length: 14.5, width: 0.5}
+      - {name: 'rectangle', length: 14.5, width: 0.5}
+      - {name: 'rectangle', length: 14.5, width: 0.5}
+
+    state:
+      - [7, 14.25, 0]
+      - [7, -0.25, 0]
+      - [-0.25, 7, 1.5708]
+      - [14.25, 7, 1.5708]
+
+
+
+
+  - number: 8
+    distribution: {name: 'random', range_low: [1, 2, -3.14], range_high: [13, 11, 3.14], non_overlapping: True}
+    kinematics: {name: 'diff'}
+    shape:
+      - {name: 'circle', radius: 0.4}  # radius
+      - {name: 'circle', radius: 0.4}  # radius
+      - {name: 'circle', radius: 0.5}  # radius
+      - {name: 'circle', radius: 0.5}  # radius
+      - {name: 'circle', radius: 0.5}  # radius
+      - {name: 'circle', radius: 0.6}  # radius
+      - {name: 'circle', radius: 0.6}  # radius
+      - {name: 'circle', radius: 0.6}  # radius
+
+    behavior:
+      - {name: 'rvo', range_low: [2, 2.5, -3.14], range_high: [13, 11, 3.14], wander: True, vxmax: 0.5, vymax: 0.5}
+
+    vel_min: [-1.0, -3.14]
+    vel_max: [1.0, 3.14]
+    arrive_mode: position
+    goal_threshold: 0.3
+    color: 'grey'
+    plot:
+      show_goal: True
+      show_arrow: True
