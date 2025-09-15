@@ -105,6 +105,7 @@ def test_collision_avoidance():
 
     for i in range(20):
         env.step()
+        env._objects_step()
 
         # Test different _step_plot arguments to verify element property updates
         if i % 4 == 0:
