@@ -1,3 +1,10 @@
+## 2.7.3
+
+- Fix keyboard bug in Macos
+- Change the default keyboard backend to Matplotlib (`pynput`)
+
+
+
 ## 2.7.2
 
 - Features:

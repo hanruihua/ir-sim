@@ -51,7 +51,7 @@ obstacle:
 
 gui:
   keyboard:
-    backend: 'pynput'       # or 'pynput'
+    backend: 'mpl'       # or 'pynput'
     key_lv_max: 3.0
     key_ang_max: 1.0
     key_id: 1

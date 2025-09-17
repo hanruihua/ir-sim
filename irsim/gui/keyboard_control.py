@@ -96,6 +96,7 @@ class KeyboardControl:
         # Default to MPL backend
         self.backend = keyboard_kwargs.get("backend", "pynput").strip().lower()
         if self.backend not in ("pynput", "mpl"):
+            self.logger.warning(f"Invalid backend: {self.backend}. Using matplotlib backend by default.")
             self.backend = "mpl"
 
         # Only honor global hook when MPL window is active/focused
@@ -292,7 +293,7 @@ class KeyboardControl:
                 self.alt_flag = False
 
             if keyboard is not None and key == keyboard.Key.space:
-                if "Running" in self.env_ref.status:
+                if "Pause" not in self.env_ref.status:
                     self.logger.info("pause the environment")
                     self.env_ref.pause()
                 else:
