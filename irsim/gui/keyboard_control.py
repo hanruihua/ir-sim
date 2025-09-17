@@ -406,7 +406,7 @@ class KeyboardControl:
         if base in ("escape", "esc"):
             self.logger.info("quit the environment (ESC)")
             if self.env_ref is not None:
-                self.env_ref.end(ending_time=0.0)
+                self.env_ref.end(ending_time=1.0)
                 raise SystemExit(0)
 
         self.key_vel = np.array([[self.key_lv], [self.key_ang]])
