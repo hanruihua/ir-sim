@@ -196,6 +196,15 @@ class KeyboardControl:
         if self._active_only and not self._is_active:
             return
 
+        # Check for Alt key first (special key)
+        try:
+            if hasattr(key, 'name') and "alt" in key.name:
+                self.alt_flag = True
+                return
+        except AttributeError:
+            pass
+
+        # Handle character keys
         try:
             if world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
@@ -218,18 +227,8 @@ class KeyboardControl:
                 self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
-            try:
-                if "alt" in key.name:
-                    self.alt_flag = True
-
-            except AttributeError:
-                if key.char.isdigit() and self.alt_flag:
-                    if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        print("out of number of robots")
-                        self.key_id = int(key.char)
-                    else:
-                        print("current control id: ", int(key.char))
-                        self.key_id = int(key.char)
+            # Handle other special keys that don't have char attribute
+            pass
 
     def _on_pynput_release(self, key: Any) -> None:
         """

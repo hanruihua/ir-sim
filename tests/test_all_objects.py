@@ -263,14 +263,14 @@ def test_keyboard_control():
 
     for _ in range(3):
         for mock_key in mock_keys:
-            env.keyboard._on_press(mock_key)
-            env.keyboard._on_release(mock_key)
+            env.keyboard._on_pynput_press(mock_key)
+            env.keyboard._on_pynput_release(mock_key)
         env.step()
         env.render(0.01)
 
     # Explicitly test 'l' (reload) and ensure environment remains usable
     pre_names = list(env.names)
-    env.keyboard._on_release(Mock(spec=keyboard.Key, char="l"))
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="l"))
     assert len(env.names) == len(pre_names)
 
     # Test Alt key functionality
@@ -281,12 +281,14 @@ def test_keyboard_control():
     num_keys = [Mock(spec=keyboard.Key, char=str(i)) for i in range(5)]
 
     # Press Alt key
-    env.keyboard._on_press(alt_key)
+    env.keyboard.is_active = True
+    env.keyboard._active_only = False
+    env.keyboard._on_pynput_press(alt_key)
     assert env.keyboard.alt_flag, "After pressing Alt key, alt_flag should be True"
 
     # Test number keys with Alt pressed
     for i, num_key in enumerate(num_keys):
-        env.keyboard._on_press(num_key)
+        env.keyboard._on_pynput_press(num_key)
         if i < env.robot_number:
             assert env.keyboard.key_id == i, (
                 f"After pressing Alt+{i}, control ID should change to {i}"
@@ -299,7 +301,7 @@ def test_keyboard_control():
             )
 
     # Release Alt key
-    env.keyboard._on_release(alt_key)
+    env.keyboard._on_pynput_release(alt_key)
     assert not env.keyboard.alt_flag, (
         "After releasing Alt key, alt_flag should be False"
     )
@@ -318,13 +320,13 @@ def test_keyboard_control():
     if "Running" not in env.status:
         env.resume()
 
-    env.keyboard._on_release(space_key)
+    env.keyboard._on_pynput_release(space_key)
     assert env.status == "Pause", (
         "After first space key release, status should be Pause"
     )
 
     # Second release should resume the environment
-    env.keyboard._on_release(space_key)
+    env.keyboard._on_pynput_release(space_key)
     assert env.status == "Running", (
         "After second space key release, status should be Running"
     )
@@ -338,9 +340,9 @@ def test_keyboard_control():
     class XKeyMock:
         char = "x"
 
-    env.keyboard._on_release(XKeyMock())
+    env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode != mode0
-    env.keyboard._on_release(XKeyMock())
+    env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
     # ESC should not call GUI from listener thread in tests; just verify no exception here
@@ -484,8 +486,8 @@ def test_keyboard_control_mpl_backend():
     assert wp_mpl.control_mode == mode0
 
     # 'esc' quits (raises SystemExit in mpl backend)
-    with pytest.raises(SystemExit):
-        env.keyboard._on_mpl_release(E("esc"))
+    env.keyboard._on_mpl_release(E("esc"))
+    assert env.quit_flag is True
 
     env.end()
     assert True
