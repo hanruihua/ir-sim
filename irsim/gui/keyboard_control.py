@@ -302,12 +302,7 @@ class KeyboardControl:
 
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
-                self.logger.warning(
-                    "quit the environment (ESC)"
-                )
-                plt.close('all')
-                # self.env_ref.end(ending_time=1.0)
-                # raise SystemExit(0)
+                self.env_ref.quit_flag = True
 
     # Matplotlib key event handlers (backend = 'mpl')
     def _on_mpl_press(self, event: Any) -> None:
@@ -407,10 +402,7 @@ class KeyboardControl:
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):
-            self.logger.info("quit the environment (ESC)")
-            if self.env_ref is not None:
-                self.env_ref.end(ending_time=1.0)
-                raise SystemExit(0)
+            self.env_ref.quit_flag = True
 
         self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
