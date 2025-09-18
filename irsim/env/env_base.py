@@ -166,6 +166,7 @@ class EnvBase:
 
         # flag
         self.pause_flag = False
+        self.quit_flag = False
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -241,6 +242,9 @@ class EnvBase:
             >>> env.step(actions, action_id=[0, 1])  # Move robots 0 and 1
         """
 
+        if self.quit_flag:
+            self.quit()
+
         if self.pause_flag:
             return
 
@@ -283,8 +287,7 @@ class EnvBase:
         self.build_tree()
 
     def _objects_sensor_step(self) -> None:
-        """step the sensors of all objects with updated states
-        """
+        """step the sensors of all objects with updated states"""
         [obj.sensor_step() for obj in self.objects]
 
     def _object_step(
@@ -458,6 +461,15 @@ class EnvBase:
         self.logger.info(
             f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds."
         )
+
+    def quit(self) -> None:
+        """
+        Quit the environment.
+        """
+        self.quit_flag = True
+        self.logger.info("Quit the environment.")
+        self.end(ending_time=1.0)
+        raise SystemExit(0)
 
     def done(self, mode: str = "all") -> Optional[bool]:
         """
@@ -729,7 +741,6 @@ class EnvBase:
             world_name (str): Optional name/path of the world YAML to reload.
                 If ``None``, the previous YAML file is used.
         """
-
         ObjectBase.reset_id_iter()
         self.reset()
         self._env_plot.clear_components("all", self.objects)

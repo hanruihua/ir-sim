@@ -94,9 +94,16 @@ class KeyboardControl:
 
         # backend: 'pynput' or 'mpl' (matplotlib figure key events)
         # Default to MPL backend
-        self.backend = keyboard_kwargs.get("backend", "mpl").strip().lower()
+        self.backend = keyboard_kwargs.get("backend", "pynput").strip().lower()
         if self.backend not in ("pynput", "mpl"):
+            self.logger.warning(
+                f"Invalid backend: {self.backend}. Using matplotlib backend by default."
+            )
             self.backend = "mpl"
+
+        # Only honor global hook when MPL window is active/focused
+        self._active_only = not bool(keyboard_kwargs.get("global_hook", False))
+        self._is_active = False
 
         if "s" in plt.rcParams["keymap.save"]:
             plt.rcParams["keymap.save"].remove("s")
@@ -147,10 +154,25 @@ class KeyboardControl:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
             self.backend = "mpl"
 
+        # Track Matplotlib window focus/enter/leave to gate pynput callbacks
+        try:
+            fig = plt.gcf()
+            self._mpl_enter_cid = fig.canvas.mpl_connect(
+                "figure_enter_event", self._on_mpl_focus_in
+            )
+            self._mpl_leave_cid = fig.canvas.mpl_connect(
+                "figure_leave_event", self._on_mpl_focus_out
+            )
+            self._mpl_close_cid = fig.canvas.mpl_connect(
+                "close_event", self._on_mpl_close
+            )
+        except Exception:
+            pass
+
         if self.backend == "pynput" and _PYNPUT_AVAILABLE:
             # Use pynput global keyboard listener
             self.listener = keyboard.Listener(
-                on_press=self._on_press, on_release=self._on_release
+                on_press=self._on_pynput_press, on_release=self._on_pynput_release
             )
             self.listener.start()
 
@@ -164,7 +186,7 @@ class KeyboardControl:
                 "key_release_event", self._on_mpl_release
             )
 
-    def _on_press(self, key: Any) -> None:
+    def _on_pynput_press(self, key: Any) -> None:
         """
         Handle key press events (pynput backend).
 
@@ -172,6 +194,19 @@ class KeyboardControl:
             key: pynput.keyboard.Key instance.
         """
 
+        # Gate by window activity if requested
+        if self._active_only and not self._is_active:
+            return
+
+        # Check for Alt key first (special key)
+        try:
+            if hasattr(key, "name") and "alt" in key.name:
+                self.alt_flag = True
+                return
+        except AttributeError:
+            pass
+
+        # Handle character keys
         try:
             if world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
@@ -194,26 +229,20 @@ class KeyboardControl:
                 self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
-            try:
-                if "alt" in key.name:
-                    self.alt_flag = True
+            # Handle other special keys that don't have char attribute
+            pass
 
-            except AttributeError:
-                if key.char.isdigit() and self.alt_flag:
-                    if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        print("out of number of robots")
-                        self.key_id = int(key.char)
-                    else:
-                        print("current control id: ", int(key.char))
-                        self.key_id = int(key.char)
-
-    def _on_release(self, key: Any) -> None:
+    def _on_pynput_release(self, key: Any) -> None:
         """
         Handle key release events (pynput backend).
 
         Args:
             key: pynput.keyboard.Key instance.
         """
+
+        # Gate by window activity if requested
+        if self._active_only and not self._is_active:
+            return
 
         try:
             if key.char == "w":
@@ -255,7 +284,9 @@ class KeyboardControl:
                     self.logger.info("switch to keyboard control")
 
             if key.char == "l":
+                self.env_ref.display = False
                 self.env_ref.reload()
+                self.env_ref.display = True
                 self.logger.info("reload the environment")
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
@@ -265,7 +296,7 @@ class KeyboardControl:
                 self.alt_flag = False
 
             if keyboard is not None and key == keyboard.Key.space:
-                if "Running" in self.env_ref.status:
+                if "Pause" not in self.env_ref.status:
                     self.logger.info("pause the environment")
                     self.env_ref.pause()
                 else:
@@ -274,9 +305,7 @@ class KeyboardControl:
 
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
-                self.logger.warning(
-                    "quit the environment (ESC) is not working under the pynput backend"
-                )
+                self.env_ref.quit_flag = True
 
     # Matplotlib key event handlers (backend = 'mpl')
     def _on_mpl_press(self, event: Any) -> None:
@@ -376,10 +405,7 @@ class KeyboardControl:
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):
-            self.logger.info("quit the environment (ESC)")
-            if self.env_ref is not None:
-                self.env_ref.end(ending_time=0.0)
-                raise SystemExit(0)
+            self.env_ref.quit_flag = True
 
         self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
@@ -434,3 +460,13 @@ class KeyboardControl:
             EnvLogger: The logger instance for the environment.
         """
         return env_param.logger
+
+    # Window focus helpers (used to gate pynput when active_only=True)
+    def _on_mpl_focus_in(self, event: Any) -> None:
+        self._is_active = True
+
+    def _on_mpl_focus_out(self, event: Any) -> None:
+        self._is_active = False
+
+    def _on_mpl_close(self, event: Any) -> None:
+        self._is_active = False

@@ -263,14 +263,14 @@ def test_keyboard_control():
 
     for _ in range(3):
         for mock_key in mock_keys:
-            env.keyboard._on_press(mock_key)
-            env.keyboard._on_release(mock_key)
+            env.keyboard._on_pynput_press(mock_key)
+            env.keyboard._on_pynput_release(mock_key)
         env.step()
         env.render(0.01)
 
     # Explicitly test 'l' (reload) and ensure environment remains usable
     pre_names = list(env.names)
-    env.keyboard._on_release(Mock(spec=keyboard.Key, char="l"))
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="l"))
     assert len(env.names) == len(pre_names)
 
     # Test Alt key functionality
@@ -281,12 +281,14 @@ def test_keyboard_control():
     num_keys = [Mock(spec=keyboard.Key, char=str(i)) for i in range(5)]
 
     # Press Alt key
-    env.keyboard._on_press(alt_key)
+    env.keyboard.is_active = True
+    env.keyboard._active_only = False
+    env.keyboard._on_pynput_press(alt_key)
     assert env.keyboard.alt_flag, "After pressing Alt key, alt_flag should be True"
 
     # Test number keys with Alt pressed
     for i, num_key in enumerate(num_keys):
-        env.keyboard._on_press(num_key)
+        env.keyboard._on_pynput_press(num_key)
         if i < env.robot_number:
             assert env.keyboard.key_id == i, (
                 f"After pressing Alt+{i}, control ID should change to {i}"
@@ -299,7 +301,7 @@ def test_keyboard_control():
             )
 
     # Release Alt key
-    env.keyboard._on_release(alt_key)
+    env.keyboard._on_pynput_release(alt_key)
     assert not env.keyboard.alt_flag, (
         "After releasing Alt key, alt_flag should be False"
     )
@@ -318,13 +320,13 @@ def test_keyboard_control():
     if "Running" not in env.status:
         env.resume()
 
-    env.keyboard._on_release(space_key)
+    env.keyboard._on_pynput_release(space_key)
     assert env.status == "Pause", (
         "After first space key release, status should be Pause"
     )
 
     # Second release should resume the environment
-    env.keyboard._on_release(space_key)
+    env.keyboard._on_pynput_release(space_key)
     assert env.status == "Running", (
         "After second space key release, status should be Running"
     )
@@ -338,9 +340,9 @@ def test_keyboard_control():
     class XKeyMock:
         char = "x"
 
-    env.keyboard._on_release(XKeyMock())
+    env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode != mode0
-    env.keyboard._on_release(XKeyMock())
+    env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
     # ESC should not call GUI from listener thread in tests; just verify no exception here
@@ -349,6 +351,123 @@ def test_keyboard_control():
 
     # Provide attributes to mimic pynput Key.esc equality behavior if needed
     _ = EscKeyMock()
+
+    # Test edge cases and untested lines in keyboard control
+
+    # Test 1: Invalid backend handling (lines 99-100)
+    from unittest.mock import patch
+
+    with patch("irsim.gui.keyboard_control.env_param") as mock_env_param:
+        mock_env_param.logger.warning = Mock()
+        # Create a new keyboard control with invalid backend
+        invalid_kb = irsim.gui.keyboard_control.KeyboardControl(
+            env, backend="invalid_backend"
+        )
+        assert invalid_kb.backend == "mpl"
+        mock_env_param.logger.warning.assert_called_once()
+
+    # Test 2: Alt key AttributeError handling (lines 204-205)
+    env.keyboard._active_only = False  # Disable gating for testing
+
+    # Create a mock key that will raise AttributeError
+    class BadKey:
+        def __getattr__(self, name):
+            if name == "name":
+                raise AttributeError("Mock attribute error")
+            return
+
+    bad_key = BadKey()
+    # This should not raise an exception
+    env.keyboard._on_pynput_press(bad_key)
+    assert env.keyboard.alt_flag == 0  # Should remain unchanged
+
+    # Test 3: Alt key release handling (line 273)
+    alt_key = Mock(spec=keyboard.Key)
+    alt_key.name = "alt"
+
+    env.keyboard.alt_flag = True  # Set alt flag first
+    env.keyboard._on_pynput_release(alt_key)
+    assert not env.keyboard.alt_flag
+
+    # Test 4: ESC key setting quit_flag (line 304)
+    # Reset quit_flag first
+    env.quit_flag = False
+    # Test 5: Focus event handlers (lines 462, 465, 468)
+    env.keyboard._on_mpl_focus_in(None)
+    assert env.keyboard._is_active
+
+    env.keyboard._on_mpl_focus_out(None)
+    assert not env.keyboard._is_active
+
+    env.keyboard._on_mpl_close(None)
+    assert not env.keyboard._is_active
+
+    # Test 6: pynput fallback when unavailable (lines 152-153)
+    with (
+        patch("irsim.gui.keyboard_control._PYNPUT_AVAILABLE", False),
+        patch("irsim.gui.keyboard_control.env_param") as mock_env_param,
+    ):
+        mock_env_param.logger.warning = Mock()
+        fallback_kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="pynput")
+        assert fallback_kb.backend == "mpl"
+        mock_env_param.logger.warning.assert_called_once()
+
+    # Test 7: matplotlib connection exception handling (lines 167-168)
+    with patch("matplotlib.pyplot.gcf") as mock_gcf:
+        mock_fig = Mock()
+        mock_fig.canvas.mpl_connect.side_effect = Exception("Connection failed")
+        mock_gcf.return_value = mock_fig
+
+        # This should not raise an exception
+        exception_kb = irsim.gui.keyboard_control.KeyboardControl(env)
+        assert exception_kb.backend == "pynput"  # Should fall back to pynput
+
+    # Test 8: Alt key detection logic (lines 201-208)
+    env.keyboard._active_only = False  # Disable gating for testing
+
+    # Test Alt key detection
+    alt_key = Mock(spec=keyboard.Key)
+    alt_key.name = "alt"
+
+    assert env.keyboard.alt_flag == 0
+    env.keyboard._on_pynput_press(alt_key)
+    assert env.keyboard.alt_flag
+
+    # Test that Alt key press returns early (doesn't process other logic)
+    # We can verify this by checking that key_vel is still zeros
+    assert env.keyboard.key_vel[0, 0] == 0.0
+    assert env.keyboard.key_vel[1, 0] == 0.0
+
+    # Test 9: Alt key handling in matplotlib backend
+    mpl_kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="mpl")
+
+    # Test Alt key detection in matplotlib backend
+    class MockEvent:
+        def __init__(self, key):
+            self.key = key
+
+    # Test alt+1 combination
+    event = MockEvent("alt+1")
+    mpl_kb._on_mpl_press(event)
+    assert mpl_kb.alt_flag
+    assert mpl_kb.key_id == 1
+
+    # Test standalone alt key
+    event = MockEvent("alt")
+    mpl_kb._on_mpl_press(event)
+    assert mpl_kb.alt_flag
+
+    # Test 10: ESC key handling in matplotlib backend
+    # Test escape key
+    event = MockEvent("escape")
+    mpl_kb._on_mpl_release(event)
+    assert env.quit_flag
+
+    # Test esc key
+    env.quit_flag = False
+    event = MockEvent("esc")
+    mpl_kb._on_mpl_release(event)
+    assert env.quit_flag
 
     env.end()
     assert True  # Add keyboard control related assertions
@@ -484,8 +603,8 @@ def test_keyboard_control_mpl_backend():
     assert wp_mpl.control_mode == mode0
 
     # 'esc' quits (raises SystemExit in mpl backend)
-    with pytest.raises(SystemExit):
-        env.keyboard._on_mpl_release(E("esc"))
+    env.keyboard._on_mpl_release(E("esc"))
+    assert env.quit_flag is True
 
     env.end()
     assert True
@@ -588,7 +707,9 @@ def test_mouse_control():
     mouse_control.on_move(mock_move_outside)
     assert mouse_control.mouse_pos is None
 
-    env.end()
+    with pytest.raises(SystemExit):
+        env.quit()
+
     assert True  # All tests passed if we reach here
 
 
