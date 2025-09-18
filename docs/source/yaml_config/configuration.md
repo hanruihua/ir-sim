@@ -53,7 +53,7 @@ Use this navigation to quickly jump to specific parameter sections:
 :open:
 - [Parameters Table](#gui-parameters-table)
 - [keyboard properties](#keyboard-properties)
-  - `backend`, `key_lv_max`, `key_ang_max`, `key_lv`, `key_ang`, `key_id`
+  - `backend`, `global_hook`, `key_lv_max`, `key_ang_max`, `key_lv`, `key_ang`, `key_id`
 - [mouse properties](#mouse-properties)
   - `zoom_factor`
 ::::
@@ -934,48 +934,50 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 :::::{dropdown} **keyboard properties**
 
 **`keyboard`** (`dict`, default: `{}`)
-Configure keyboard control. Options are read by `KeyboardControl`. The default backend is Matplotlib figure key events, no extra dependency required.
+Configure keyboard control. Options are read by `KeyboardControl`. The default backend is `pynput`. If `pynput` is unavailable, IR‑SIM automatically falls back to the Matplotlib backend.
 
   - `backend` (`str`): Keyboard backend.
-    - `"mpl"` (default): Matplotlib figure key events.
-    - `"pynput"`: Global keyboard hook (requires `pynput`). If unavailable, IR-SIM falls back to `mpl` automatically.
+    - `"pynput"` (default): Global keyboard hook, but works when the Matplotlib window is focused (requires the `pynput` package).
+    - `"mpl"`: Matplotlib figure key events works when the figure window is focused. (no extra dependency, but may be delayed when there are lots of objects).
+  - `global_hook` (`bool`): With `backend: 'pynput'`, capture keys even if the Matplotlib window is not focused. Default is `False` (only active when the window is focused).
   - `key_lv_max` (`float`): Maximum linear velocity. Default is 3.0.
   - `key_ang_max` (`float`): Maximum angular velocity. Default is 1.0.
   - `key_lv` (`float`): Initial linear velocity. Default is `0.0`.
   - `key_ang` (`float`): Initial angular velocity. Default is `0.0`.
   - `key_id` (`int`): Initial robot control id. Default is `0`.
 
-  ```yaml
-  # Example: enable keyboard control with GUI settings
-  world:
-    control_mode: 'keyboard'
+```yaml
+# Example: enable keyboard control with GUI settings
+world:
+  control_mode: 'keyboard'
 
-  gui:
-    keyboard:
-      backend: 'mpl'       # or 'pynput'
-      key_id: 0
-      key_lv_max: 3.0
-      key_ang_max: 1.0
-  ```
+gui:
+  keyboard:
+    backend: 'pynput'     # or 'mpl'
+    global_hook: true     # if your want to capture keys globally. Default is False.
+    key_id: 0
+    key_lv_max: 3.0
+    key_ang_max: 1.0
+```
 
-  ````{note}
-  | Key       | Function                        |
-  | --------- | ------------------------------- |
-  | `w`       | Forward                         |
-  | `s`       | Backward                        |
-  | `a`       | Turn Left                       |
-  | `d`       | Turn Right                      |
-  | `q`       | Decrease Linear Velocity        |
-  | `e`       | Increase Linear Velocity        |
-  | `z`       | Decrease Angular Velocity       |
-  | `c`       | Increase Angular Velocity       |
-  | `alt+num` | Change Current Control Robot ID |
-  | `r`       | Reset the Environment           |
-  | `space`   | Toggle Pause/Resume Environment |
-  | `esc`     | Quit the Environment            |
-  | `x`       | Switch Keyboard/Auto Control    |
-  | `l`       | Reload the Environment          |
-  ````
+````{note}
+| Key       | Function                               |
+| --------- | -------------------------------------- |
+| `w`       | Forward                                |
+| `s`       | Backward                               |
+| `a`       | Turn Left                              |
+| `d`       | Turn Right                             |
+| `q`       | Decrease Linear Velocity               |
+| `e`       | Increase Linear Velocity               |
+| `z`       | Decrease Angular Velocity              |
+| `c`       | Increase Angular Velocity              |
+| `alt+num` | Change Current Control Robot ID        |
+| `r`       | Reset the Environment                  |
+| `space`   | Toggle Pause/Resume Environment        |
+| `esc`     | Quit the Environment (sets quit flag)  |
+| `x`       | Switch Keyboard/Auto Control           |
+| `l`       | Reload the Environment                 |
+````
 
 :::::
 

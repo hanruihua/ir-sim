@@ -5,7 +5,7 @@ IR-SIM supports reading the keyboard and mouse input to control the robot manual
 
 ## Keyboard Control Configuration Parameters
 
-In the keyboard control mode, the behavior of the robot is controlled by the user and the settings in the YAML file will be ignored. By default IR-SIM uses Matplotlib figure key events (no extra dependency). If you prefer a global keyboard hook, you can use the optional `pynput` backend:
+In the keyboard control mode, the behavior of the robot is controlled by the user and the settings in the YAML file will be ignored. By default IR-SIM uses the `pynput` global keyboard hook. If `pynput` is unavailable, IR-SIM automatically falls back to the Matplotlib figure key events backend. You can install `pynput` with:
 
 ```bash
 pip install pynput
@@ -93,7 +93,7 @@ robot:
 | `alt+num`| Change Current Control Robot ID |
 | `r`      | Reset the Environment           |
 | `space`  | Toggle Pause/Resume Environment |
-| `esc`    | Quit the Environment            |
+| `esc`    | Quit the Environment (sets quit flag) |
 | `x`      | Switch Keyboard/Auto Control    |
 | `l`      | Reload the Environment          |
 
@@ -121,10 +121,10 @@ for i in range(1000):
 env.end()
 ```
 
-### Select Keyboard Backend (Matplotlib vs pynput)
+### Select Keyboard Backend (pynput vs Matplotlib)
 
-- Default backend: `mpl` (Matplotlib figure key events). No extra package required.
-- Optional backend: `pynput` (global keyboard hook). Requires `pynput` to be installed. If `pynput` is unavailable, IR-SIM automatically falls back to `mpl`.
+- Default backend: `pynput` (global keyboard hook, but works when the Matplotlib window is focused). If not installed, IR-SIM automatically falls back to `mpl`.
+- Alternative backend: `mpl` (Matplotlib figure key events). Works when the figure window is focused; no extra package required.
 
 Add a `keyboard` section at the root of the YAML to configure the backend and key parameters:
 
@@ -134,7 +134,8 @@ world:
 
 gui:
   keyboard:
-    backend: 'mpl'         # 'mpl' (default) or 'pynput'
+    backend: 'pynput'      # 'pynput' (default) or 'mpl'
+    global_hook: true      # capture keys globally (may require OS permissions)
     key_id: 0              # initial robot control id
     # key_lv_max: 3.0      # maximum linear velocity
     # key_ang_max: 1.0     # maximum angular velocity
