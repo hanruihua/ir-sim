@@ -112,6 +112,12 @@ env.end()  # Clean up resources
 - **`env.done()`**: Returns `True` if simulation completion conditions are met
 - **`env.end()`**: Properly closes the environment and releases resources
 
+::::{tip}
+Update order
+
+The environment advances all objects first, then updates all sensors. This two-phase update ensures sensors read the latest world state consistently. If you step objects manually, either pass `sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` after updating states.
+::::
+
 ## Environment Control and Status
 
 ### Status Management
