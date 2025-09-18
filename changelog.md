@@ -3,6 +3,8 @@
 - Fix keyboard bug in macOS
 - Change the default keyboard backend to `pynput` (global keyboard hook). Falls back to Matplotlib (`mpl`) when `pynput` is unavailable.
 
+- Docs:
+  - Clarify sensor update order (objects step first, then sensors) and how to manually step sensors when controlling objects directly.
 
 
 ## 2.7.2

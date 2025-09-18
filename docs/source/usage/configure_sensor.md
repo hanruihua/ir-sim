@@ -73,6 +73,14 @@ obstacle:
 :::
 ::::
 
+:::::
+
+```{tip}
+Update order
+
+The environment updates sensors after all objects have moved in a step. This avoids temporal skew in readings. If you control objects manually, either pass `sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` after updating object states.
+```
+
 ### Important Parameters Explained
 
 To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined in the `sensors` section of the robot. Key parameters of the LiDAR sensor are explained below:
