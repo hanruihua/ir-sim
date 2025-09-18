@@ -287,8 +287,7 @@ class EnvBase:
         self.build_tree()
 
     def _objects_sensor_step(self) -> None:
-        """step the sensors of all objects with updated states
-        """
+        """step the sensors of all objects with updated states"""
         [obj.sensor_step() for obj in self.objects]
 
     def _object_step(
@@ -742,7 +741,6 @@ class EnvBase:
             world_name (str): Optional name/path of the world YAML to reload.
                 If ``None``, the previous YAML file is used.
         """
-
         ObjectBase.reset_id_iter()
         self.reset()
         self._env_plot.clear_components("all", self.objects)

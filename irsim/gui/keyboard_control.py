@@ -96,7 +96,9 @@ class KeyboardControl:
         # Default to MPL backend
         self.backend = keyboard_kwargs.get("backend", "pynput").strip().lower()
         if self.backend not in ("pynput", "mpl"):
-            self.logger.warning(f"Invalid backend: {self.backend}. Using matplotlib backend by default.")
+            self.logger.warning(
+                f"Invalid backend: {self.backend}. Using matplotlib backend by default."
+            )
             self.backend = "mpl"
 
         # Only honor global hook when MPL window is active/focused
@@ -198,7 +200,7 @@ class KeyboardControl:
 
         # Check for Alt key first (special key)
         try:
-            if hasattr(key, 'name') and "alt" in key.name:
+            if hasattr(key, "name") and "alt" in key.name:
                 self.alt_flag = True
                 return
         except AttributeError:
@@ -282,7 +284,9 @@ class KeyboardControl:
                     self.logger.info("switch to keyboard control")
 
             if key.char == "l":
+                self.env_ref.display = False
                 self.env_ref.reload()
+                self.env_ref.display = True
                 self.logger.info("reload the environment")
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
