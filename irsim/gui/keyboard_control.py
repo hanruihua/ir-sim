@@ -170,7 +170,7 @@ class KeyboardControl:
         if self.backend == "pynput" and _PYNPUT_AVAILABLE:
             # Use pynput global keyboard listener
             self.listener = keyboard.Listener(
-                on_press=self._on_press, on_release=self._on_release
+                on_press=self._on_pynput_press, on_release=self._on_pynput_release
             )
             self.listener.start()
 
@@ -184,7 +184,7 @@ class KeyboardControl:
                 "key_release_event", self._on_mpl_release
             )
 
-    def _on_press(self, key: Any) -> None:
+    def _on_pynput_press(self, key: Any) -> None:
         """
         Handle key press events (pynput backend).
 
@@ -231,7 +231,7 @@ class KeyboardControl:
                         print("current control id: ", int(key.char))
                         self.key_id = int(key.char)
 
-    def _on_release(self, key: Any) -> None:
+    def _on_pynput_release(self, key: Any) -> None:
         """
         Handle key release events (pynput backend).
 
@@ -303,8 +303,11 @@ class KeyboardControl:
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
                 self.logger.warning(
-                    "quit the environment (ESC) is not working under the pynput backend"
+                    "quit the environment (ESC)"
                 )
+                plt.close('all')
+                # self.env_ref.end(ending_time=1.0)
+                # raise SystemExit(0)
 
     # Matplotlib key event handlers (backend = 'mpl')
     def _on_mpl_press(self, event: Any) -> None:
