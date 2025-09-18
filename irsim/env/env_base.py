@@ -247,7 +247,7 @@ class EnvBase:
 
         if self.pause_flag:
             return
-            
+
         actions = [None] * len(self.objects)
 
         if action is not None:
