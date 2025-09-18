@@ -706,9 +706,10 @@ def test_mouse_control():
     mock_move_outside.inaxes = None
     mouse_control.on_move(mock_move_outside)
     assert mouse_control.mouse_pos is None
-    env.quit_flag = True
-    env.logger.info("Quit the environment.")
-    env.end(ending_time=1.0)
+
+    with pytest.raises(SystemExit):
+        env.quit()
+
     assert True  # All tests passed if we reach here
 
 

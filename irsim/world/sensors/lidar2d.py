@@ -423,9 +423,6 @@ class Lidar2D:
         ax = self.laser_LineCollection.axes
         lines = []
 
-        if ax is None:
-            return
-
         if isinstance(ax, Axes3D):
             # For 3D plotting, calculate actual world coordinates
             lidar_x = self.lidar_origin[0, 0]
