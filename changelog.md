@@ -1,11 +1,25 @@
 ## 2.7.3
 
-- Fix keyboard bug in macOS
-- Change the default keyboard backend to `pynput` (global keyboard hook). Falls back to Matplotlib (`mpl`) when `pynput` is unavailable.
+- Features:
+  - Switch the default keyboard backend to `pynput` (global keyboard hook), with automatic fallback to Matplotlib (`mpl`) when `pynput` is unavailable. Note: `mpl` can introduce delays when plotting many objects.
+  - Parity for the `pynput` keyboard backend with `mpl`:
+    1) Keyboard input is handled only when the figure window is focused.
+    2) Add a `global_hook` option in the keyboard config to allow input when the figure window is unfocused.
+    3) Implement `reload` and `quit` for the `pynput` backend.
+  - Add an environment-level `quit` function.
+  - Rename keyboard handlers in `keyboard_control.py`: `_on_release` → `_on_pynput_release`, `_on_press` → `_on_pynput_press`.
+
+- Bug fixes:
+  - Correct goal plot alpha handling.
+  - Set default sample time to match step time.
+  - Fix random obstacle plotting.
+  - Fix GUI YAML example in the usage docs.
+  - Resolve LiDAR step timing for dynamic objects (LiDAR updates after all object poses are updated).
+  - Fix keyboard issue on macOS.
 
 - Docs:
-  - Clarify sensor update order (objects step first, then sensors) and how to manually step sensors when controlling objects directly.
-
+  - Clarify sensor update order.
+  - Document keyboard control using the `pynput` backend.
 
 ## 2.7.2
 
