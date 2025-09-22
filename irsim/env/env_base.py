@@ -25,6 +25,7 @@ from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.util.util import normalize_actions
 from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
@@ -194,6 +195,7 @@ class EnvBase:
         """
         return f"Environment: {self._world.name}"
 
+    @normalize_actions
     def step(
         self,
         action: Optional[Union[np.ndarray, list[Any]]] = None,
@@ -248,22 +250,7 @@ class EnvBase:
         if self.pause_flag:
             return
 
-        actions = [None] * len(self.objects)
-
-        if action is not None:
-            if isinstance(action, list):
-                if isinstance(action_id, list):
-                    for a, ai in zip(action, action_id):
-                        actions[ai] = a
-                else:
-                    actions[int(action_id) : int(action_id) + len(action)] = action[:]
-
-            elif isinstance(action, np.ndarray):
-                if isinstance(action_id, list):
-                    for ai in action_id:
-                        actions[ai] = action
-                else:
-                    actions[int(action_id)] = action
+        actions = action  # normalized by decorator to a list aligned with self.objects
 
         if world_param.control_mode == "keyboard":
             actions[self.key_id] = self.key_vel

@@ -430,65 +430,6 @@ def diff_to_omni(state_ori: float, vel_diff: np.ndarray) -> np.ndarray:
 
     return np.array([[vx], [vy]])
 
-
-def time_it(name: str = "Function") -> Any:
-    """
-    Decorator to measure function execution time.
-
-    Args:
-        name (str): Function name for logging (default "Function").
-        print (bool): Whether to print execution time (default True).
-
-    Returns:
-        function: Wrapped function with timing.
-    """
-
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            wrapper.count += 1
-            start = time.time()
-            result = func(*args, **kwargs)
-            end = time.time()
-            wrapper.func_count += 1
-            print(f"{name} execute time {(end - start):.6f} seconds")
-            return result
-
-        wrapper.count = 0
-        wrapper.func_count = 0
-        return wrapper
-
-    return decorator
-
-
-def time_it2(name: str = "Function") -> Any:
-    """
-    Decorator to measure function execution time with instance attribute check.
-
-    Args:
-        name (str): Function name for logging (default "Function").
-
-    Returns:
-        function: Wrapped function with timing.
-    """
-
-    def decorator(func):
-        def wrapper(self, *args, **kwargs):
-            wrapper.count += 1
-            start = time.time()
-            result = func(self, *args, **kwargs)
-            end = time.time()
-            wrapper.func_count += 1
-            if self.time_print:
-                print(f"{name} execute time {(end - start):.6f} seconds")
-            return result
-
-        wrapper.count = 0
-        wrapper.func_count = 0
-        return wrapper
-
-    return decorator
-
-
 def cross_product(o: list[float], a: list[float], b: list[float]) -> float:
     """
     Compute the cross product of vectors OA and OB.
@@ -646,3 +587,106 @@ def is_2d_list(data: Union[list, deque]) -> bool:
             return True
 
     return False
+
+
+# decorator
+
+def time_it(name: str = "Function") -> Any:
+    """
+    Decorator to measure function execution time.
+
+    Args:
+        name (str): Function name for logging (default "Function").
+        print (bool): Whether to print execution time (default True).
+
+    Returns:
+        function: Wrapped function with timing.
+    """
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            wrapper.count += 1
+            start = time.time()
+            result = func(*args, **kwargs)
+            end = time.time()
+            wrapper.func_count += 1
+            print(f"{name} execute time {(end - start):.6f} seconds")
+            return result
+
+        wrapper.count = 0
+        wrapper.func_count = 0
+        return wrapper
+
+    return decorator
+
+
+def normalize_actions(func):
+    """
+    Decorator to normalize (action, action_id) into an aligned actions list.
+
+    The wrapped method must belong to a class that has a ``objects`` attribute.
+    It will receive an extra keyword argument ``aligned_actions`` (length == len(self.objects)).
+    """
+
+    def wrapper(self, action=None, action_id=0, *args, **kwargs):
+        num_objects = len(getattr(self, "objects", []))
+        actions = [None] * num_objects
+
+        if action is not None:
+            if isinstance(action, list):
+                if isinstance(action_id, list):
+                    for a, ai in zip(action, action_id):
+                        actions[int(ai)] = a
+                else:
+                    start = int(action_id)
+                    actions[start : start + len(action)] = action[:]
+            elif isinstance(action, np.ndarray):
+                if isinstance(action_id, list):
+                    for ai in action_id:
+                        actions[int(ai)] = action
+                else:
+                    actions[int(action_id)] = action
+
+        # Call the original function with normalized actions and a neutral action_id
+        return func(self, actions, 0, *args, **kwargs)
+
+    return wrapper
+
+
+
+def time_it2(name: str = "Function") -> Any:
+    """
+    Decorator to measure function execution time with instance attribute check.
+
+    Args:
+        name (str): Function name for logging (default "Function").
+
+    Returns:
+        function: Wrapped function with timing.
+    """
+
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            wrapper.count += 1
+            start = time.time()
+            result = func(self, *args, **kwargs)
+            end = time.time()
+            wrapper.func_count += 1
+            if self.time_print:
+                print(f"{name} execute time {(end - start):.6f} seconds")
+            return result
+
+        wrapper.count = 0
+        wrapper.func_count = 0
+        return wrapper
+
+    return decorator
+
+
+def dimension_check(func):
+    """
+    Decorator to check the dimension of the input and output.
+    """
+    def wrapper(self, *args, **kwargs):
+        return func(self, *args, **kwargs)
+    return wrapper
