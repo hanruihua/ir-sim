@@ -30,7 +30,6 @@ from irsim.util.util import (
     diff_to_omni,
     file_check,
     is_2d_list,
-    normalize_state,
     random_point_range,
     relative_position,
     vertices_transform,
@@ -96,8 +95,7 @@ class ObjectBase:
             Defaults to None.
         state (list of float): Initial state vector [x, y, theta, ...].
             The state can have more dimensions depending on `state_dim`. Excess dimensions are truncated,
-            and missing dimensions are filled with zeros. Defaults to a zero vector with
-            ``state_dim`` elements.
+            and missing dimensions are filled with zeros. Defaults to [0, 0, 0].
         velocity (list of float): Initial velocity vector [vx, vy] or according to the kinematics model.
             Defaults to [0, 0].
         goal (list of float or list of list of float): Goal state vector [x, y, theta, ...] or [[x, y, theta], [x, y, theta], ...] for multiple goals
@@ -273,16 +271,9 @@ class ObjectBase:
 
         self.role = role
 
-        normalized_state = normalize_state(
-            state,
-            self.state_dim,
-            allow_resize=True,
-            logger=self.logger,
-            role=self.role,
-            abbr=self.abbr,
-        )
-        self._state = normalized_state.copy()
-        self._init_state = normalized_state.copy()
+        state = self.input_state_check(state, self.state_dim)
+        self._state = np.c_[state]
+        self._init_state = np.c_[state]
 
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
@@ -787,18 +778,24 @@ class ObjectBase:
             >>> # Set as initial state for resets
             >>> robot.set_state([0, 0, 0], init=True)
         """
-        normalized_state = normalize_state(
-            state,
-            self.state_dim,
-            allow_resize=False,
-            logger=self.logger,
-            role=self.role,
-            abbr=self.abbr,
-        )
-        if init:
-            self._init_state = normalized_state.copy()
+        if state is None:
+            state = [0, 0, 0]
+        if isinstance(state, list):
+            assert len(state) == self.state_dim, (
+                f"The state dimension is not correct. Your input state length is {len(state)} and the state dimension should be {self.state_dim}"
+            )
+            temp_state = np.c_[state]
 
-        self._state = normalized_state.copy()
+        elif isinstance(state, np.ndarray):
+            assert state.shape[0] == self.state_dim, (
+                f"The state dimension is not correct. Your input state dimension is {state.shape[0]} and the state dimension should be {self.state_dim}"
+            )
+            temp_state = state.reshape(self.state_dim, 1)
+
+        if init:
+            self._init_state = temp_state.copy()
+
+        self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
 
     def set_velocity(
@@ -994,6 +991,32 @@ class ObjectBase:
             self.lidar.set_laser_color(laser_indices, laser_color, alpha)
         else:
             self.logger.warning("No lidar sensor found for this object.")
+
+    def input_state_check(self, state: list, dim: int = 3):
+        """
+        Check and adjust the state to match the desired dimension.
+
+        Args:
+            state (list): State of the object.
+            dim (int): Desired dimension. Defaults to 3.
+
+        Returns:
+            list: Adjusted state.
+        """
+
+        if len(state) > dim:
+            if self.role == "robot":
+                self.logger.warning(
+                    f"The state dimension {len(state)} of {self.abbr} is larger than the desired dimension {dim}, the state dimension is truncated"
+                )
+            return state[:dim]
+        if len(state) < dim:
+            if self.role == "robot":
+                self.logger.warning(
+                    f"The state dimension {len(state)} of {self.abbr} is smaller than the desired dimension {dim}, zero padding is added"
+                )
+            return state + [0] * (dim - len(state))
+        return state
 
     def plot(
         self,

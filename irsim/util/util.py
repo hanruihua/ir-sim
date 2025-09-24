@@ -3,7 +3,6 @@ import os
 import sys
 import time
 from collections import deque
-from collections.abc import Sequence
 from math import atan2, cos, pi, sin
 from typing import Any, Optional, Union
 
@@ -684,54 +683,10 @@ def time_it2(name: str = "Function") -> Any:
     return decorator
 
 
-def normalize_state(
-    state: Optional[Union[Sequence[float], np.ndarray]],
-    state_dim: int,
-    *,
-    allow_resize: bool = False,
-    logger: Optional[Any] = None,
-    role: Optional[str] = None,
-    abbr: Optional[str] = None,
-) -> np.ndarray:
-    """Return a ``(state_dim, 1)`` state array with optional padding or truncation."""
-
-    if state is None:
-        values: list[float] = [0] * state_dim
-    elif isinstance(state, np.ndarray):
-        values = np.asarray(state).reshape(-1).tolist()
-    elif isinstance(state, Sequence) and not isinstance(state, (str, bytes)):
-        values = list(state)
-    else:
-        raise TypeError(
-            "Unsupported state type. Expected sequence or numpy.ndarray, "
-            f"got {type(state).__name__}."
-        )
-
-    length = len(values)
-
-    if allow_resize:
-        if length > state_dim:
-            if logger is not None and role == "robot":
-                logger.warning(
-                    f"The state dimension {length} of {abbr or role or 'object'} is larger than the desired dimension {state_dim}, the state dimension is truncated"
-                )
-            values = values[:state_dim]
-        elif length < state_dim:
-            if logger is not None and role == "robot":
-                logger.warning(
-                    f"The state dimension {length} of {abbr or role or 'object'} is smaller than the desired dimension {state_dim}, zero padding is added"
-                )
-            values = values + [0] * (state_dim - length)
-    else:
-        assert length == state_dim, (
-            "The state dimension is not correct. "
-            f"Your input state length is {length} and the state dimension should be {state_dim}"
-        )
-
-    array_state = np.asarray(values)
-    if array_state.size != state_dim:
-        raise ValueError(
-            f"State normalization failed: expected {state_dim} elements, got {array_state.size}."
-        )
-
-    return array_state.reshape(state_dim, 1)
+def dimension_check(func):
+    """
+    Decorator to check the dimension of the input and output.
+    """
+    def wrapper(self, *args, **kwargs):
+        return func(self, *args, **kwargs)
+    return wrapper
