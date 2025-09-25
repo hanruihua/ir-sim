@@ -684,17 +684,6 @@ def time_it2(name: str = "Function") -> Any:
     return decorator
 
 
-def dimension_check(func):
-    """
-    Decorator to check the dimension of the input and output.
-    """
-
-    def wrapper(self, *args, **kwargs):
-        return func(self, *args, **kwargs)
-
-    return wrapper
-
-
 def to_numpy(
     data: Any,
     default: Optional[np.ndarray] = None,
