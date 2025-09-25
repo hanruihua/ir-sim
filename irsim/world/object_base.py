@@ -599,7 +599,7 @@ class ObjectBase:
             behavior_vel = self.obj_behavior.gen_vel(
                 self.ego_object, self.external_objects
             )
-
+    
         else:
             if isinstance(velocity, list):
                 velocity = np.c_[velocity]

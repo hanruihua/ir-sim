@@ -690,3 +690,107 @@ def dimension_check(func):
     def wrapper(self, *args, **kwargs):
         return func(self, *args, **kwargs)
     return wrapper
+
+def to_numpy(
+    data: Any,
+    default: Optional[np.ndarray] = None,
+    expected_shape: Optional[tuple[int, ...]] = None,
+) -> Optional[np.ndarray]:
+    """
+    Convert input to numpy array and optionally reshape.
+
+    - If data is None: return default (reshaped if expected_shape provided).
+    - If data is a list: convert to ndarray. 1D lists become column vectors.
+    - If data is a 1D ndarray: convert to column vector.
+    - If expected_shape is provided: reshape the resulting array to it.
+    """
+
+    if data is None:
+        if default is None:
+            return None
+        return default if expected_shape is None else default.reshape(expected_shape)
+
+    arr = np.array(data) if isinstance(data, list) else data
+
+    if isinstance(arr, np.ndarray) and arr.ndim == 1:
+        arr = arr[:, np.newaxis]
+
+    if expected_shape is not None:
+        arr = np.asarray(arr).reshape(expected_shape)
+
+    return arr
+
+
+def traj_to_xy_list(traj: Any, three_d: bool = False) -> tuple[list[float], list[float]]:
+    """
+    Convert trajectory to a list of [x, y].
+
+    Args:
+        traj (list or np.ndarray): list of points or array of points [x, y, theta].
+
+    Returns:
+        tuple: A tuple of lists containing x and y coordinates of the trajectory
+            x_list (list): List of x coordinates.
+            y_list (list): List of y coordinates.
+    """
+    if isinstance(traj, list):
+        x_list = [p[0, 0] for p in traj]
+        y_list = [p[1, 0] for p in traj]
+        if three_d:
+            z_list = [p[2, 0] for p in traj]
+    elif isinstance(traj, np.ndarray):
+        if traj.shape[1] > 1:
+            x_list = [p[0] for p in traj.T]
+            y_list = [p[1] for p in traj.T]
+            if three_d:
+                z_list = [p[2] for p in traj.T]
+        else:
+            x_list = [traj[0]]
+            y_list = [traj[1]]
+            if three_d:
+                z_list = [traj[2]]
+    else:
+        raise ValueError(f"Invalid trajectory type: {type(traj)}")
+
+    if three_d:
+        return x_list, y_list, z_list
+    return x_list, y_list
+
+def points_to_xy_list(points: Any, three_d: bool = False) -> tuple[list[float], list[float]]:
+    """
+    Convert points to a list of [x, y].
+
+    Args:
+        points (list or np.ndarray): list of points or array of points [x, y].
+        three_d (bool): Whether the points are 3D.
+    Returns:
+        tuple: A tuple of lists containing x and y coordinates of the points
+            x_list (list): List of x coordinates.
+            y_list (list): List of y coordinates.
+    """
+
+    if points is None:
+        return [], []
+
+    if isinstance(points, list):
+        x_list = [point[0] for point in points]
+        y_list = [point[1] for point in points]
+        if three_d:
+            z_list = [point[2] for point in points]
+    elif isinstance(points, np.ndarray):
+        if points.shape[1] > 1:
+            x_list = [point[0] for point in points.T]
+            y_list = [point[1] for point in points.T]
+            if three_d:
+                z_list = [point[2] for point in points.T]
+        else:
+            x_list = [points[0]]
+            y_list = [points[1]]
+            if three_d:
+                z_list = [points[2]]
+    else:
+        raise ValueError(f"Invalid points type: {type(points)}")
+
+    if three_d:
+        return x_list, y_list, z_list
+    return x_list, y_list
