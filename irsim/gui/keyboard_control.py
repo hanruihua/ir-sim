@@ -44,6 +44,8 @@ class KeyboardControl:
         - esc: Quit the environment immediately (closes figure and raises ``SystemExit(0)``)
         - x: Switch between keyboard and auto control modes
         - l: Reload the environment
+        - F5: Debug the environment
+        - F6: Stop debugging the environment
 
     Notes:
         - The "mpl" backend requires the Matplotlib figure window to have focus to receive key events.
@@ -80,6 +82,8 @@ class KeyboardControl:
             - esc: Quit the environment
             - x: Switch between keyboard and auto control modes
             - l: Reload the environment
+            - F5: Debug the environment
+            - F6: Stop debugging the environment
         """
 
         # Store environment reference for reset functionality
@@ -134,9 +138,11 @@ class KeyboardControl:
                 ["alt+num", "change current control robot id"],
                 ["r", "reset the environment"],
                 ["space", "pause/resume the environment"],
-                ["esc", "Quit the environment"],
+                ["esc", "quit the environment"],
                 ["x", "switch keyboard control and auto control"],
                 ["l", "reload the environment"],
+                ["F5", "debug the environment"],
+                ["F6", "stop debugging the environment"],
             ]
 
             headers = ["Key", "Function"]
@@ -303,6 +309,18 @@ class KeyboardControl:
                     self.logger.info("resume the environment")
                     self.env_ref.resume()
 
+            # Single-step debug on F5
+            if keyboard is not None and key == keyboard.Key.f5:
+                if not self.env_ref.debug_flag:
+                    self.env_ref.debug_flag = True
+                    self.env_ref.debug_count = world_param.count
+                else:
+                    self.env_ref.debug_count += 1
+
+            if keyboard is not None and key == keyboard.Key.f6:
+                self.env_ref.debug_flag = False
+                self.env_ref.debug_count = 0
+
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
                 self.env_ref.quit_flag = True
@@ -402,6 +420,18 @@ class KeyboardControl:
         if base == "l":
             self.env_ref.reload()
             self.logger.info("reload the environment")
+
+        # Single-step debug on F5
+        if base == "f5":
+            if not self.env_ref.debug_flag:
+                self.env_ref.debug_flag = True
+                self.env_ref.debug_count = world_param.count
+            else:
+                self.env_ref.debug_count += 1
+
+        if base == "f6":
+            self.env_ref.debug_flag = False
+            self.env_ref.debug_count = 0
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):
