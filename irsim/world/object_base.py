@@ -32,6 +32,7 @@ from irsim.util.util import (
     is_2d_list,
     random_point_range,
     relative_position,
+    to_numpy,
     vertices_transform,
 )
 from irsim.world.sensors.sensor_factory import SensorFactory
@@ -402,7 +403,12 @@ class ObjectBase:
         """reset the id iterator"""
         cls.id_iter = itertools.count(start, step)
 
-    def step(self, velocity: Optional[np.ndarray] = None, sensor_step: bool = True, **kwargs: Any):
+    def step(
+        self,
+        velocity: Optional[np.ndarray] = None,
+        sensor_step: bool = True,
+        **kwargs: Any,
+    ):
         """
         Perform a single simulation step, updating the object's state and sensors.
 
@@ -599,14 +605,9 @@ class ObjectBase:
             behavior_vel = self.obj_behavior.gen_vel(
                 self.ego_object, self.external_objects
             )
-    
-        else:
-            if isinstance(velocity, list):
-                velocity = np.c_[velocity]
-            if velocity.ndim == 1:
-                velocity = velocity[:, np.newaxis]
 
-            assert velocity.shape == self.vel_shape
+        else:
+            velocity = to_numpy(velocity, expected_shape=self.vel_shape)
 
             behavior_vel = velocity
 
@@ -780,17 +781,8 @@ class ObjectBase:
         """
         if state is None:
             state = [0, 0, 0]
-        if isinstance(state, list):
-            assert len(state) == self.state_dim, (
-                f"The state dimension is not correct. Your input state length is {len(state)} and the state dimension should be {self.state_dim}"
-            )
-            temp_state = np.c_[state]
 
-        elif isinstance(state, np.ndarray):
-            assert state.shape[0] == self.state_dim, (
-                f"The state dimension is not correct. Your input state dimension is {state.shape[0]} and the state dimension should be {self.state_dim}"
-            )
-            temp_state = state.reshape(self.state_dim, 1)
+        temp_state = to_numpy(state, expected_shape=self.state_shape)
 
         if init:
             self._init_state = temp_state.copy()
@@ -809,19 +801,9 @@ class ObjectBase:
             init (bool): Whether to set the initial velocity (default False).
         """
 
-        if velocity is None:
-            velocity = [0, 0]
-        if isinstance(velocity, list):
-            assert len(velocity) == self.vel_dim, (
-                f"The velocity dimension is not correct. Your input velocity length is {len(velocity)} and the velocity dimension should be {self.vel_dim}"
-            )
-            temp_velocity = np.c_[velocity]
-
-        elif isinstance(velocity, np.ndarray):
-            assert velocity.shape[0] == self.vel_dim, (
-                f"The velocity dimension is not correct. Your input velocity dimension is {velocity.shape[0]} and the velocity dimension should be {self.vel_dim}"
-            )
-            temp_velocity = velocity.reshape(self.vel_dim, 1)
+        temp_velocity = to_numpy(
+            velocity, default=np.zeros(self.vel_shape), expected_shape=self.vel_shape
+        )
 
         if init:
             self._init_velocity = temp_velocity.copy()

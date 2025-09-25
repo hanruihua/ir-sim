@@ -55,7 +55,9 @@ class EnvPlot3D(EnvPlot):
         if points is None:
             return
 
-        x_coordinates, y_coordinates, z_coordinates = points_to_xy_list(points, three_d=True)
+        x_coordinates, y_coordinates, z_coordinates = points_to_xy_list(
+            points, three_d=True
+        )
 
         points = self.ax.scatter(
             x_coordinates, y_coordinates, z_coordinates, "z", s, c, **kwargs
@@ -138,7 +140,7 @@ class EnvPlot3D(EnvPlot):
             refresh (bool): Whether to refresh the plot.
             kwargs: Additional plotting options for ax.plot()
         """
-        
+
         path_x_list, path_y_list, path_z_list = traj_to_xy_list(traj, three_d=True)
 
         line = self.ax.plot(

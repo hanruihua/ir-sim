@@ -430,6 +430,7 @@ def diff_to_omni(state_ori: float, vel_diff: np.ndarray) -> np.ndarray:
 
     return np.array([[vx], [vy]])
 
+
 def cross_product(o: list[float], a: list[float], b: list[float]) -> float:
     """
     Compute the cross product of vectors OA and OB.
@@ -591,6 +592,7 @@ def is_2d_list(data: Union[list, deque]) -> bool:
 
 # decorator
 
+
 def time_it(name: str = "Function") -> Any:
     """
     Decorator to measure function execution time.
@@ -653,7 +655,6 @@ def normalize_actions(func):
     return wrapper
 
 
-
 def time_it2(name: str = "Function") -> Any:
     """
     Decorator to measure function execution time with instance attribute check.
@@ -687,9 +688,12 @@ def dimension_check(func):
     """
     Decorator to check the dimension of the input and output.
     """
+
     def wrapper(self, *args, **kwargs):
         return func(self, *args, **kwargs)
+
     return wrapper
+
 
 def to_numpy(
     data: Any,
@@ -721,7 +725,9 @@ def to_numpy(
     return arr
 
 
-def traj_to_xy_list(traj: Any, three_d: bool = False) -> tuple[list[float], list[float]]:
+def traj_to_xy_list(
+    traj: Any, three_d: bool = False
+) -> tuple[list[float], list[float]]:
     """
     Convert trajectory to a list of [x, y].
 
@@ -756,7 +762,10 @@ def traj_to_xy_list(traj: Any, three_d: bool = False) -> tuple[list[float], list
         return x_list, y_list, z_list
     return x_list, y_list
 
-def points_to_xy_list(points: Any, three_d: bool = False) -> tuple[list[float], list[float]]:
+
+def points_to_xy_list(
+    points: Any, three_d: bool = False
+) -> tuple[list[float], list[float]]:
     """
     Convert points to a list of [x, y].
 
