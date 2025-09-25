@@ -172,6 +172,8 @@ class EnvBase:
         # flag
         self.pause_flag = False
         self.quit_flag = False
+        self.debug_flag = False
+        self.debug_count = 0
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -252,6 +254,9 @@ class EnvBase:
             self.quit()
 
         if self.pause_flag:
+            return
+
+        if self.debug_flag and world_param.count > self.debug_count:
             return
 
         actions = action  # normalized by decorator to a list aligned with self.objects
@@ -529,14 +534,17 @@ class EnvBase:
             collision_list = [False]
 
         if all(arrive_list):
-            self._world.status = "Arrived"
+            self.set_status("Arrived")
         elif any(collision_list):
-            self._world.status = "Collision"
+            self.set_status("Collision")
         else:
             if world_param.control_mode == "keyboard":
-                self._world.status = "Running (keyboard)"
+                self.set_status("Running (keyboard)")
             else:
-                self._world.status = "Running"
+                self.set_status("Running")
+
+        if self.debug_flag:
+            self.set_status("Debugging")
 
     def pause(self) -> None:
         """
@@ -549,7 +557,7 @@ class EnvBase:
             >>> env.pause()
             >>> env.step([1.0, 0.0])  # This will have no effect while paused
         """
-        self._world.status = "Pause"
+        self.set_status("Pause")
         self.pause_flag = True
 
     def resume(self) -> None:
@@ -565,7 +573,7 @@ class EnvBase:
             >>> env.resume()
             >>> env.step([1.0, 0.0])  # This will now work again
         """
-        self._world.status = "Running"
+        self.set_status("Running")
         self.pause_flag = False
 
     def reset(self) -> None:
@@ -592,8 +600,10 @@ class EnvBase:
         self.step(action=np.zeros((2, 1)))
         self._world.reset()
         self.reset_plot()
-        self._world.status = "Reset"
+        self.set_status("Reset")
         self.pause_flag = False
+        self.debug_flag = False
+        self.debug_count = 0
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
@@ -950,6 +960,12 @@ class EnvBase:
         """
 
         self._env_plot.title = title
+
+    def set_status(self, status: str) -> None:
+        """
+        Set the status of the environment.
+        """
+        self._world.status = status
 
     def save_figure(
         self,
