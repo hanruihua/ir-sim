@@ -55,6 +55,5 @@ gui:
     key_lv_max: 3.0
     key_ang_max: 1.0
     key_id: 1
-    global_hook: True
   mouse:
     zoom_factor: 1.1

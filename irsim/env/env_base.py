@@ -25,6 +25,7 @@ from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.util.util import normalize_actions, to_numpy
 from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
@@ -194,6 +195,7 @@ class EnvBase:
         """
         return f"Environment: {self._world.name}"
 
+    @normalize_actions
     def step(
         self,
         action: Optional[Union[np.ndarray, list[Any]]] = None,
@@ -248,22 +250,7 @@ class EnvBase:
         if self.pause_flag:
             return
 
-        actions = [None] * len(self.objects)
-
-        if action is not None:
-            if isinstance(action, list):
-                if isinstance(action_id, list):
-                    for a, ai in zip(action, action_id):
-                        actions[ai] = a
-                else:
-                    actions[int(action_id) : int(action_id) + len(action)] = action[:]
-
-            elif isinstance(action, np.ndarray):
-                if isinstance(action_id, list):
-                    for ai in action_id:
-                        actions[ai] = action
-                else:
-                    actions[int(action_id)] = action
+        actions = action  # normalized by decorator to a list aligned with self.objects
 
         if world_param.control_mode == "keyboard":
             actions[self.key_id] = self.key_vel
@@ -633,17 +620,12 @@ class EnvBase:
             ids (list): A list of IDs of objects for which to set random positions. Default is None.
             non_overlapping (bool): If set, the obstacles that will be reset to random obstacles will not overlap with other obstacles. Default is False.
         """
-        if range_high is None:
-            range_high = [10, 10, 3.14]
-        if range_low is None:
-            range_low = [0, 0, -3.14]
+
+        range_low = to_numpy(range_low, np.array([0, 0, -3.14]), (3, 1))
+        range_high = to_numpy(range_high, np.array([10, 10, 3.14]), (3, 1))
+
         if ids is None:
             ids = [obs.id for obs in self.obstacle_list]
-        if isinstance(range_low, list):
-            range_low = np.c_[range_low]
-
-        if isinstance(range_high, list):
-            range_high = np.c_[range_high]
 
         selected_obs = [obs for obs in self.obstacle_list if obs.id in ids]
         existing_obj = [obj for obj in self.objects if obj.id not in ids]

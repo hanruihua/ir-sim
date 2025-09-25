@@ -2,6 +2,8 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
+from irsim.util.util import points_to_xy_list, traj_to_xy_list
+
 from .env_plot import EnvPlot
 
 
@@ -53,20 +55,9 @@ class EnvPlot3D(EnvPlot):
         if points is None:
             return
 
-        if isinstance(points, list):
-            x_coordinates = [point[0] for point in points]
-            y_coordinates = [point[1] for point in points]
-            z_coordinates = [point[2] for point in points]
-
-        elif isinstance(points, np.ndarray):
-            if points.shape[1] > 1:
-                x_coordinates = [point[0] for point in points.T]
-                y_coordinates = [point[1] for point in points.T]
-                z_coordinates = [point[2] for point in points.T]
-            else:
-                x_coordinates = points[0]
-                y_coordinates = points[1]
-                z_coordinates = points[2]
+        x_coordinates, y_coordinates, z_coordinates = points_to_xy_list(
+            points, three_d=True
+        )
 
         points = self.ax.scatter(
             x_coordinates, y_coordinates, z_coordinates, "z", s, c, **kwargs
@@ -149,14 +140,8 @@ class EnvPlot3D(EnvPlot):
             refresh (bool): Whether to refresh the plot.
             kwargs: Additional plotting options for ax.plot()
         """
-        if isinstance(traj, list):
-            path_x_list = [p[0, 0] for p in traj]
-            path_y_list = [p[1, 0] for p in traj]
-            path_z_list = [p[2, 0] for p in traj]
-        elif isinstance(traj, np.ndarray):
-            path_x_list = [p[0] for p in traj.T]
-            path_y_list = [p[1] for p in traj.T]
-            path_z_list = [p[2] for p in traj.T]
+
+        path_x_list, path_y_list, path_z_list = traj_to_xy_list(traj, three_d=True)
 
         line = self.ax.plot(
             path_x_list, path_y_list, path_z_list, traj_type, label=label, **kwargs
@@ -164,21 +149,6 @@ class EnvPlot3D(EnvPlot):
 
         if show_direction:
             print("Not support currently")
-            # if isinstance(traj, list):
-            #     u_list = [cos(p[2, 0]) for p in traj]
-            #     v_list = [sin(p[2, 0]) for p in traj]
-            # elif isinstance(traj, np.ndarray):
-            #     u_list = [cos(p[2]) for p in traj.T]
-            #     v_list = [sin(p[2]) for p in traj.T]
-
-            # if isinstance(self.ax, Axes3D):
-            #     path_z_list = [0] * len(path_x_list)
-            #     w_list = [0] * len(u_list)
-
-            #     self.ax.quiver(path_x_list, path_y_list, path_z_list, u_list, v_list, w_list)
-
-            # else:
-            #     self.ax.quiver(path_x_list, path_y_list, u_list, v_list)
 
         if refresh:
             self.dyna_line_list.append(line)

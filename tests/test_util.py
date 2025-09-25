@@ -1,4 +1,5 @@
 import math
+import time
 
 import numpy as np
 
@@ -85,6 +86,56 @@ def test_random_point_range():
     assert 0 <= pt[0] <= 1
     assert 0 <= pt[1] <= 1
     assert -math.pi <= pt[2] <= math.pi
+
+
+def test_time_it2_counts_no_print(capsys):
+    class Dummy:
+        def __init__(self):
+            self.time_print = False
+
+        @util.time_it2(name="NoPrintFn")
+        def fn(self):
+            return 42
+
+    d = Dummy()
+    assert Dummy.fn.count == 0
+    assert Dummy.fn.func_count == 0
+
+    assert d.fn() == 42
+    assert d.fn() == 42
+
+    # no output when time_print is False
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+    # counters increment
+    assert Dummy.fn.count == 2
+    assert Dummy.fn.func_count == 2
+
+
+def test_time_it2_counts_with_print(capsys):
+    class Dummy:
+        def __init__(self):
+            self.time_print = True
+
+        @util.time_it2(name="PrintFn")
+        def fn(self, delay=0.0):
+            if delay:
+                time.sleep(delay)
+            return "ok"
+
+    d = Dummy()
+    assert Dummy.fn.count == 0
+    assert Dummy.fn.func_count == 0
+
+    assert d.fn(0.0) == "ok"
+
+    captured = capsys.readouterr()
+    assert "PrintFn execute time" in captured.out
+    assert "seconds" in captured.out
+
+    assert Dummy.fn.count == 1
+    assert Dummy.fn.func_count == 1
 
 
 if __name__ == "__main__":

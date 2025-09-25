@@ -20,6 +20,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from irsim.config import env_param, world_param
 from irsim.config.path_param import path_manager as pm
+from irsim.util.util import points_to_xy_list, traj_to_xy_list
 
 
 class EnvPlot:
@@ -284,12 +285,7 @@ class EnvPlot:
             refresh (bool): Whether to refresh the plot.
             kwargs: Additional plotting options for ax.plot()
         """
-        if isinstance(traj, list):
-            path_x_list = [p[0, 0] for p in traj]
-            path_y_list = [p[1, 0] for p in traj]
-        elif isinstance(traj, np.ndarray):
-            path_x_list = [p[0] for p in traj.T]
-            path_y_list = [p[1] for p in traj.T]
+        path_x_list, path_y_list =traj_to_xy_list(traj)
 
         line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
@@ -338,17 +334,7 @@ class EnvPlot:
         if points is None:
             return
 
-        if isinstance(points, list):
-            x_coordinates = [point[0] for point in points]
-            y_coordinates = [point[1] for point in points]
-
-        elif isinstance(points, np.ndarray):
-            if points.shape[1] > 1:
-                x_coordinates = [point[0] for point in points.T]
-                y_coordinates = [point[1] for point in points.T]
-            else:
-                x_coordinates = points[0]
-                y_coordinates = points[1]
+        x_coordinates, y_coordinates = points_to_xy_list(points)
 
         points_plot = self.ax.scatter(x_coordinates, y_coordinates, s, c, **kwargs)
 
