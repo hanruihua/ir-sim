@@ -96,6 +96,8 @@ robot:
 | `esc`    | Quit the Environment (sets quit flag) |
 | `x`      | Switch Keyboard/Auto Control    |
 | `l`      | Reload the Environment          |
+| `F5`     | Debug the Environment (fn+f5 for mac)          |
+| `F6`     | Stop Debugging the Environment (fn+f6 for mac)  |
 
 ### Environment Status Control
 
