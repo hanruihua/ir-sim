@@ -273,7 +273,7 @@ class KeyboardControl:
             if key.char == "r":
                 print("reset the environment")
                 if self.env_ref is not None:
-                    self.env_ref.reset()
+                    self.env_ref.reset_flag = True
                 else:
                     self.logger.warning("Environment reference not set. Cannot reset.")
 
@@ -394,7 +394,7 @@ class KeyboardControl:
         if base == "r":
             print("reset the environment")
             if self.env_ref is not None:
-                self.env_ref.reset()
+                self.env_ref.reset_flag = True
             else:
                 self.logger.warning("Environment reference not set. Cannot reset.")
 
@@ -424,6 +424,7 @@ class KeyboardControl:
             if not self.env_ref.debug_flag:
                 self.env_ref.debug_flag = True
                 self.env_ref.debug_count = world_param.count
+                self.env_ref.pause_flag = False
             else:
                 self.env_ref.debug_count += 1
 

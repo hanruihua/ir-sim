@@ -170,6 +170,7 @@ class EnvBase:
         self.quit_flag = False
         self.debug_flag = False
         self.debug_count = 0
+        self.reset_flag = False
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -249,10 +250,9 @@ class EnvBase:
         if self.quit_flag:
             self.quit()
 
-        if self.pause_flag:
-            return
-
-        if self.debug_flag and world_param.count > self.debug_count:
+        if (
+            self.debug_flag and world_param.count > self.debug_count
+        ) or self.pause_flag:
             return
 
         actions = action  # normalized by decorator to a list aligned with self.objects
@@ -330,6 +330,9 @@ class EnvBase:
                 self.save_figure(save_gif=True, **figure_kwargs)
 
             self._env_plot.step(mode, self.objects, **kwargs)
+
+        if self.reset_flag:
+            self.reset()
 
     def show(self) -> None:
         """
@@ -603,6 +606,7 @@ class EnvBase:
         self.pause_flag = False
         self.debug_flag = False
         self.debug_count = 0
+        self.reset_flag = False
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
