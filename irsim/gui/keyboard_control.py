@@ -11,8 +11,11 @@ keyboard: Optional[Any] = None
 try:  # pragma: no cover - availability depends on environment
     from pynput import keyboard as _pynput_keyboard
 
-    keyboard = _pynput_keyboard
-    _PYNPUT_AVAILABLE = True
+    if getattr(_pynput_keyboard, "Listener", None) is not None:
+        keyboard = _pynput_keyboard
+        _PYNPUT_AVAILABLE = True
+    else:
+        _PYNPUT_AVAILABLE = False
 except Exception:  # pragma: no cover
     _PYNPUT_AVAILABLE = False
 
