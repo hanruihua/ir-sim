@@ -97,7 +97,6 @@ robot:
 | `x`      | Switch Keyboard/Auto Control    |
 | `l`      | Reload the Environment          |
 | `F5`     | Debug the Environment (fn+f5 for mac)          |
-| `F6`     | Stop Debugging the Environment (fn+f6 for mac)  |
 | `v`      | Save the current figure             |
 
 ### Environment Status Control

@@ -35,8 +35,6 @@ Keyboard Controls (control_mode: 'keyboard'):
 +---------+---------------------------------+
 | F5      | Debug the environment           |
 +---------+---------------------------------+
-| F6      | Stop debugging the environment  |
-+---------+---------------------------------+
 | v       | Save the current figure         |
 +---------+---------------------------------+
 
