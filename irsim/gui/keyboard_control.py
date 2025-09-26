@@ -289,6 +289,10 @@ class KeyboardControl:
                     world_param.control_mode = "keyboard"
                     self.logger.info("switch to keyboard control")
 
+            if key.char == "v":
+                print("save the figure")
+                self.env_ref.save_figure()
+
             if key.char == "l":
                 self.env_ref.display = False
                 self.env_ref.reload()
@@ -432,6 +436,10 @@ class KeyboardControl:
         if base == "f6":
             self.env_ref.debug_flag = False
             self.env_ref.debug_count = 0
+ 
+        if base == "v":
+            print("save the figure")
+            self.env_ref.save_figure()
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):

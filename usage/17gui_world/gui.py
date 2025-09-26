@@ -27,6 +27,18 @@ Keyboard Controls (control_mode: 'keyboard'):
 +---------+---------------------------------+
 | space   | Pause/Resume the environment    |
 +---------+---------------------------------+
+| esc     | Quit the environment            |
++---------+---------------------------------+
+| x       | Switch between keyboard and auto control |
++---------+---------------------------------+
+| l       | Reload the environment          |
++---------+---------------------------------+
+| F5      | Debug the environment           |
++---------+---------------------------------+
+| F6      | Stop debugging the environment  |
++---------+---------------------------------+
+| v       | Save the current figure         |
++---------+---------------------------------+
 
 Mouse Controls:
 - Mouse Movement: Track mouse position and update display coordinates

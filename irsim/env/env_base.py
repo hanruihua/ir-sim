@@ -983,7 +983,7 @@ class EnvBase:
             save_gif (bool): Flag to save as GIF format. Default is False.
             **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ function for detail.
         """
-        file_save_name = save_name or self._world.name + ".png"
+        file_save_name = save_name or self._world.name + str(world_param.count) + ".png"
 
         file_name, file_format = file_save_name.split(".")
 
