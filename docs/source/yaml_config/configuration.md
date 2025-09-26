@@ -988,7 +988,7 @@ Debug mode lets you step the simulation frame-by-frame for inspection:
 - Press `F6` to exit debug mode and resume normal execution.
 
 Notes:
-- On macOS laptops, you may need to hold the `fn` key (e.g., `fn+F5`, `fn+F6`).
+- On macOS laptops, you may need to hold the `fn` key (e.g., `fn+F5`, `fn+F6`). `alt` key is corresponding to `option` key in macOS. 
 ```
 
 :::::
