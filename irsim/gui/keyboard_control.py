@@ -45,7 +45,6 @@ class KeyboardControl:
         - x: Switch between keyboard and auto control modes
         - l: Reload the environment
         - F5: Debug the environment
-        - F6: Stop debugging the environment
 
     Notes:
         - The "mpl" backend requires the Matplotlib figure window to have focus to receive key events.
@@ -83,7 +82,6 @@ class KeyboardControl:
             - x: Switch between keyboard and auto control modes
             - l: Reload the environment
             - F5: Debug the environment
-            - F6: Stop debugging the environment
         """
 
         # Store environment reference for reset functionality
@@ -142,7 +140,6 @@ class KeyboardControl:
                 ["x", "switch keyboard control and auto control"],
                 ["l", "reload the environment"],
                 ["F5", "debug the environment"],
-                ["F6", "stop debugging the environment"],
             ]
 
             headers = ["Key", "Function"]
@@ -318,12 +315,9 @@ class KeyboardControl:
                 if not self.env_ref.debug_flag:
                     self.env_ref.debug_flag = True
                     self.env_ref.debug_count = world_param.count
+                    self.env_ref.pause_flag = False
                 else:
                     self.env_ref.debug_count += 1
-
-            if keyboard is not None and key == keyboard.Key.f6:
-                self.env_ref.debug_flag = False
-                self.env_ref.debug_count = 0
 
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
@@ -433,10 +427,6 @@ class KeyboardControl:
             else:
                 self.env_ref.debug_count += 1
 
-        if base == "f6":
-            self.env_ref.debug_flag = False
-            self.env_ref.debug_count = 0
- 
         if base == "v":
             print("save the figure")
             self.env_ref.save_figure()

@@ -978,7 +978,6 @@ gui:
 | `x`       | Switch Keyboard/Auto Control           |
 | `l`       | Reload the Environment                 |
 | `F5`      | Debug the Environment (fn+f5 for mac)                  |
-| `F6`      | Stop Debugging the Environment (fn+f6 for mac)         |
 | `v`       | Save the current figure                 |
 ````
 
@@ -986,10 +985,10 @@ gui:
 Debug mode lets you step the simulation frame-by-frame for inspection:
 
 - Press `F5` to enter debug mode at the current frame. While in debug mode, pressing `F5` again advances by one frame (single-step).
-- Press `F6` to exit debug mode and resume normal execution.
+- Press `space` to exit debug mode and resume normal execution.
 
 Notes:
-- On macOS laptops, you may need to hold the `fn` key (e.g., `fn+F5`, `fn+F6`). `alt` key is corresponding to `option` key in macOS. 
+- On macOS laptops, you may need to hold the `fn` key (e.g., `fn+F5`). `alt` key is corresponding to `option` key in macOS. 
 ```
 
 :::::

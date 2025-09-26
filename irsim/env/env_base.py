@@ -544,7 +544,7 @@ class EnvBase:
                 self.set_status("Running")
 
         if self.debug_flag:
-            self.set_status("Debugging")
+            self.set_status("Pause (Debugging)")
 
     def pause(self) -> None:
         """
@@ -574,7 +574,12 @@ class EnvBase:
             >>> env.step([1.0, 0.0])  # This will now work again
         """
         self.set_status("Running")
-        self.pause_flag = False
+        if self.pause_flag:
+            self.pause_flag = False
+
+        if self.debug_flag:
+            self.debug_flag = False
+            self.debug_count = 0
 
     def reset(self) -> None:
         """
