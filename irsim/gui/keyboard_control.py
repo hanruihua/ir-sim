@@ -295,9 +295,7 @@ class KeyboardControl:
                 self.env_ref.save_figure()
 
             if key.char == "l":
-                self.env_ref.display = False
-                self.env_ref.reload()
-                self.env_ref.display = True
+                self.env_ref.reload_flag = True
                 self.logger.info("reload the environment")
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
@@ -420,7 +418,7 @@ class KeyboardControl:
                 self.logger.info("switch to keyboard control")
 
         if base == "l":
-            self.env_ref.reload()
+            self.env_ref.reload_flag = True
             self.logger.info("reload the environment")
 
         # Single-step debug on F5

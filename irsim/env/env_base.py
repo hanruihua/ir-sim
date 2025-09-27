@@ -175,6 +175,7 @@ class EnvBase:
         self.debug_flag = False
         self.debug_count = 0
         self.reset_flag = False
+        self.reload_flag = False
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -337,6 +338,9 @@ class EnvBase:
 
         if self.reset_flag:
             self.reset()
+
+        if self.reload_flag:
+            self.reload()
 
     def show(self) -> None:
         """
@@ -762,6 +766,7 @@ class EnvBase:
         self.build_tree()
         self.validate_unique_names()
         env_param.objects = self._objects
+        self.reload_flag = False
 
     # endregion: environment change
 
