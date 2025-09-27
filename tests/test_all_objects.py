@@ -593,9 +593,10 @@ def test_keyboard_control_mpl_backend():
     env.keyboard._on_mpl_release(E("space"))
     assert "Running" in env.status
 
-    # 'r' resets the environment
+    # 'r' resets the environment (handled via flag; processed during render/step)
     env.keyboard._on_mpl_release(E("r"))
-    assert env.status == "Reset"
+    env.step()
+    assert "Reset" in env.status
 
     # 'l' reloads the environment in the same figure (no exception expected)
     env.keyboard._on_mpl_release(E("l"))

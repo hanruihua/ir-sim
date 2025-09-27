@@ -264,17 +264,17 @@ class KeyboardControl:
                 self.key_ang = 0
             if key.char == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                self.logger.info("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if key.char == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
 
             if key.char == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                self.logger.info("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
             if key.char == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                self.logger.info("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
 
             if key.char == "r":
                 self.logger.info("reset the environment")
@@ -294,7 +294,7 @@ class KeyboardControl:
 
             if key.char == "v":
                 self.logger.info("save the figure")
-                self.env_ref.save_figure()
+                self.env_ref.save_figure_flag = True
 
             if key.char == "l":
                 self.env_ref.reload_flag = True
@@ -386,16 +386,16 @@ class KeyboardControl:
                 self.key_ang = 0
             if base == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                self.logger.info("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if base == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if base == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                self.logger.info("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
             if base == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                self.logger.info("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
 
         if base == "r":
             self.logger.info("reset the environment")
@@ -436,7 +436,7 @@ class KeyboardControl:
 
         if base == "v":
             self.logger.info("save the figure")
-            self.env_ref.save_figure()
+            self.env_ref.save_figure_flag = True
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):

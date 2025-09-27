@@ -169,13 +169,14 @@ class EnvBase:
         mouse_config = self.env_config.parse["gui"].get("mouse", {})
         self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
 
-        # flag
+        # flag for keyboard control
         self.pause_flag = False
         self.quit_flag = False
         self.debug_flag = False
         self.debug_count = 0
         self.reset_flag = False
         self.reload_flag = False
+        self.save_figure_flag = False
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -335,6 +336,10 @@ class EnvBase:
                 self.save_figure(save_gif=True, **figure_kwargs)
 
             self._env_plot.step(mode, self.objects, **kwargs)
+
+        if self.save_figure_flag:
+            self.save_figure(save_gif=True, **figure_kwargs)
+            self.save_figure_flag = False
 
         if self.reset_flag:
             self.reset()
@@ -544,14 +549,21 @@ class EnvBase:
             self.set_status("Arrived")
         elif any(collision_list):
             self.set_status("Collision")
+        elif self.reset_flag:
+            self.set_status("Reset")
+        elif self.reload_flag:
+            self.set_status("Reload")
+        elif self.save_figure_flag:
+            self.set_status("Save Figure")
+        elif self.quit_flag:
+            self.set_status("Quit")
+        elif self.debug_flag:
+            self.set_status("Pause (Debugging)")
         else:
             if world_param.control_mode == "keyboard":
                 self.set_status("Running (keyboard)")
             else:
                 self.set_status("Running")
-
-        if self.debug_flag:
-            self.set_status("Pause (Debugging)")
 
     def pause(self) -> None:
         """
@@ -997,7 +1009,7 @@ class EnvBase:
             save_gif (bool): Flag to save as GIF format. Default is False.
             **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ function for detail.
         """
-        file_save_name = save_name or self._world.name + str(world_param.count) + ".png"
+        file_save_name = save_name or self._world.name + ".png"
 
         file_name, file_format = file_save_name.split(".")
 
