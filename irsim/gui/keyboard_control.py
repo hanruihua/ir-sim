@@ -218,10 +218,10 @@ class KeyboardControl:
             if world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
                     if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        print("out of number of robots")
+                        self.logger.warning(f"Out of number of robots: {int(key.char)}")
                         self.key_id = int(key.char)
                     else:
-                        print("current control id: ", int(key.char))
+                        self.logger.info(f"Current control id: {int(key.char)}")
                         self.key_id = int(key.char)
 
                 if key.char == "w":
@@ -262,20 +262,20 @@ class KeyboardControl:
                 self.key_ang = 0
             if key.char == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info("current linear velocity", self.key_lv_max)
             if key.char == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info("current linear velocity", self.key_lv_max)
 
             if key.char == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info("current angular velocity ", self.key_ang_max)
             if key.char == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info("current angular velocity ", self.key_ang_max)
 
             if key.char == "r":
-                print("reset the environment")
+                self.logger.info("reset the environment")
                 if self.env_ref is not None:
                     self.env_ref.reset_flag = True
                 else:
@@ -291,7 +291,7 @@ class KeyboardControl:
                     self.logger.info("switch to keyboard control")
 
             if key.char == "v":
-                print("save the figure")
+                self.logger.info("save the figure")
                 self.env_ref.save_figure()
 
             if key.char == "l":
@@ -344,10 +344,10 @@ class KeyboardControl:
         if world_param.control_mode == "keyboard":
             if base.isdigit() and self.alt_flag:
                 if self.env_ref and int(base) >= self.env_ref.robot_number:
-                    print("out of number of robots")
+                    self.logger.warning(f"Out of number of robots: {int(base)}")
                     self.key_id = int(base)
                 else:
-                    print("current control id: ", int(base))
+                    self.logger.info(f"Current control id: {int(base)}")
                     self.key_id = int(base)
 
             if base == "w":
@@ -382,19 +382,19 @@ class KeyboardControl:
                 self.key_ang = 0
             if base == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info("current linear velocity", self.key_lv_max)
             if base == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info("current linear velocity", self.key_lv_max)
             if base == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info("current angular velocity ", self.key_ang_max)
             if base == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info("current angular velocity ", self.key_ang_max)
 
         if base == "r":
-            print("reset the environment")
+            self.logger.info("reset the environment")
             if self.env_ref is not None:
                 self.env_ref.reset_flag = True
             else:
@@ -431,7 +431,7 @@ class KeyboardControl:
                 self.env_ref.debug_count += 1
 
         if base == "v":
-            print("save the figure")
+            self.logger.info("save the figure")
             self.env_ref.save_figure()
 
         # Quit environment on ESC/escape
