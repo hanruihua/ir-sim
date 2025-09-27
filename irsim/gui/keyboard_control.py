@@ -143,6 +143,7 @@ class KeyboardControl:
                 ["x", "switch keyboard control and auto control"],
                 ["l", "reload the environment"],
                 ["F5", "debug the environment"],
+                ["v", "save the current figure"],
             ]
 
             headers = ["Key", "Function"]
