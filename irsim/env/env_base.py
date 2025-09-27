@@ -262,7 +262,7 @@ class EnvBase:
 
         actions = action  # normalized by decorator to a list aligned with self.objects
 
-        if world_param.control_mode == "keyboard":
+        if world_param.control_mode == "keyboard" and self.key_id < len(actions):
             actions[self.key_id] = self.key_vel
 
         self._objects_step(actions, sensor_step=False)

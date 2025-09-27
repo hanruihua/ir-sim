@@ -218,7 +218,9 @@ class KeyboardControl:
             if world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
                     if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        self.logger.warning(f"Out of number of robots: {int(key.char)}")
+                        self.logger.warning(
+                            f"{int(key.char)} over the maximum id: {self.env_ref.robot_number - 1}"
+                        )
                         self.key_id = int(key.char)
                     else:
                         self.logger.info(f"Current control id: {int(key.char)}")
@@ -344,7 +346,9 @@ class KeyboardControl:
         if world_param.control_mode == "keyboard":
             if base.isdigit() and self.alt_flag:
                 if self.env_ref and int(base) >= self.env_ref.robot_number:
-                    self.logger.warning(f"Out of number of robots: {int(base)}")
+                    self.logger.warning(
+                        f"{int(base)} over the maximum id: {self.env_ref.robot_number - 1}"
+                    )
                     self.key_id = int(base)
                 else:
                     self.logger.info(f"Current control id: {int(base)}")
