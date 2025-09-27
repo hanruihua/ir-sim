@@ -516,6 +516,7 @@ class ObjectBase:
         if diff < self.goal_threshold:
             if len(self._goal) == 1:
                 self.arrive_flag = True
+
             else:
                 self._goal.popleft()
                 self.arrive_flag = False
