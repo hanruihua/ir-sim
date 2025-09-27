@@ -1,7 +1,7 @@
 import contextlib
 import time
 from math import pi
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -266,7 +266,7 @@ def test_grid_map():
 def test_keyboard_control():
     """Test keyboard control"""
     env = irsim.make("test_keyboard_control.yaml", save_ani=False, display=False)
-    key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r"]
+    key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r", "l", "v", "x"]
     mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
 
     for _ in range(3):
@@ -353,6 +353,32 @@ def test_keyboard_control():
     env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
+    # 'v' saves the figure via flag processed in render (pynput backend)
+    with patch.object(env, "save_figure") as mock_save:
+        env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="v"))
+        env.render(0.0)
+        mock_save.assert_called_once()
+
+    # 'f5' debug single-step (pynput backend)
+    class F5KeyMock:
+        name = "f5"
+
+        def __eq__(self, other):
+            return other == keyboard.Key.f5
+
+    f5_key = F5KeyMock()
+    t0 = env.time
+    env.keyboard._on_pynput_release(f5_key)
+    env.step()
+    t1 = env.time
+    assert t1 > t0
+    env.step()
+    assert env.time == t1  # blocked until next F5
+    assert "Pause (Debugging)" in env.status
+    env.keyboard._on_pynput_release(f5_key)
+    env.step()
+    assert env.time > t1
+
     # ESC should not call GUI from listener thread in tests; just verify no exception here
     class EscKeyMock:
         pass
@@ -363,7 +389,6 @@ def test_keyboard_control():
     # Test edge cases and untested lines in keyboard control
 
     # Test 1: Invalid backend handling (lines 99-100)
-    from unittest.mock import patch
 
     with patch("irsim.gui.keyboard_control.env_param") as mock_env_param:
         mock_env_param.logger.warning = Mock()
@@ -601,6 +626,27 @@ def test_keyboard_control_mpl_backend():
     # 'l' reloads the environment in the same figure (no exception expected)
     env.keyboard._on_mpl_release(E("l"))
     assert env.status in ("Running", "Pause", "Reset", "Collision", "Arrived", "None")
+
+    # 'v' saves the figure via flag processed in render
+    with patch.object(env, "save_figure") as mock_save:
+        env.keyboard._on_mpl_release(E("v"))
+        env.render(0.0)
+        mock_save.assert_called_once()
+
+    # 'f5' debug single-step: allows exactly one step per press
+    t0 = env.time
+    env.keyboard._on_mpl_release(E("f5"))
+    env.step()
+    t1 = env.time
+    assert t1 > t0
+    env.step()
+    assert env.time == t1  # blocked until next F5
+    # status should reflect debugging pause
+    assert "Pause (Debugging)" in env.status
+    # next F5 permits one more step
+    env.keyboard._on_mpl_release(E("f5"))
+    env.step()
+    assert env.time > t1
 
     # 'x' toggles control mode (keyboard <-> auto)
     from irsim.config import world_param as wp_mpl
