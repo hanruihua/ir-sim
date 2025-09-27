@@ -353,6 +353,32 @@ def test_keyboard_control():
     env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
+    # q/e adjust key_lv_max (pynput backend)
+    prev_lv_max = env.keyboard.key_lv_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="e"))
+    assert env.keyboard.key_lv_max > prev_lv_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="q"))
+    assert env.keyboard.key_lv_max < prev_lv_max + 0.2  # net change <= 0
+
+    # z/c adjust key_ang_max (pynput backend)
+    prev_ang_max = env.keyboard.key_ang_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="c"))
+    assert env.keyboard.key_ang_max > prev_ang_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="z"))
+    assert env.keyboard.key_ang_max < prev_ang_max + 0.2  # net change <= 0
+
+    # 'r' sets reset_flag; processed on render
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="r"))
+    assert env.reset_flag is True
+    env.render(0.0)
+    assert env.reset_flag is False
+
+    # 'l' sets reload_flag; processed on render
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="l"))
+    assert env.reload_flag is True
+    env.render(0.0)
+    assert env.reload_flag is False
+
     # 'v' saves the figure via flag processed in render (pynput backend)
     with patch.object(env, "save_figure") as mock_save:
         env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="v"))
