@@ -780,6 +780,35 @@ def test_custom_behavior():
     assert True  # Add behavior related assertions
 
 
+def test_env_flags_processing():
+    """Test processing of save, reset, reload, and quit flags"""
+    env = irsim.make("test_all_objects.yaml", save_ani=False, display=False)
+
+    # save_figure_flag triggers save_figure during render and clears flag
+    with patch.object(env, "save_figure") as mock_save:
+        env.save_figure_flag = True
+        env.render(0.0)
+        mock_save.assert_called_once()
+        assert env.save_figure_flag is False
+
+    # reset_flag triggers reset during render and clears flag
+    env.reset_flag = True
+    env.render(0.0)
+    assert env.reset_flag is False
+
+    # reload_flag triggers reload during render and clears flag
+    env.reload_flag = True
+    env.render(0.0)
+    assert env.reload_flag is False
+
+    # quit_flag causes step to raise SystemExit
+    env.quit_flag = True
+    with pytest.raises(SystemExit):
+        env.step()
+
+    # No further assertions; reaching here means flags processed as expected
+
+
 def test_fov_detection():
     """Test field of view detection"""
     env = irsim.make("test_fov_world.yaml", save_ani=False, display=False)
