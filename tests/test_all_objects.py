@@ -64,6 +64,14 @@ def test_collision_avoidance():
     print(env.robot.name)
     print(env.names)
 
+    env.logger.info("test")
+    env.logger.warning("test")
+    env.logger.error("test")
+    env.logger.critical("test")
+    env.logger.debug("test")
+    env.logger.success("test")
+    env.logger.trace("test")
+
     env.robot.set_velocity([1, 1])
     env.robot.set_velocity([1, 1], init=True)
     env.robot.set_velocity(np.array([1, 1]).reshape(2, 1), init=True)
