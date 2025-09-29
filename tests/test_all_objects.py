@@ -805,7 +805,7 @@ def test_add_object_duplicate_raises():
 
 
 def test_add_objects_duplicate_raises():
-    env = irsim.make("test_all_objects.yaml", display=False)
+    env = irsim.make("test_all_objects.yaml", display=True)
 
     obs = env.create_obstacle(
         shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
@@ -816,6 +816,8 @@ def test_add_objects_duplicate_raises():
         ValueError, match=re.escape(f"Object names already exist: {[obs.name]}")
     ):
         env.add_objects([obs])
+
+    env.end()
 
 
 def test_envbase_empty_yaml_path_logs(capsys):
