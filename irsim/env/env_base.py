@@ -136,7 +136,11 @@ class EnvBase:
 
         env_param.logger = EnvLogger(log_file, log_level)
 
-        self.env_config = EnvConfig(world_name)
+        try:
+            self.env_config = EnvConfig(world_name)
+        except Exception as e:
+            self.logger.critical(f"YAML Configuration load failed: {e}")
+            raise
 
         (
             self._world,
@@ -176,7 +180,7 @@ class EnvBase:
 
         # Log simulation start
         self.logger.info(
-            f"Simulation environment '{self._world.name}' has been initialized and started."
+            f"Simulation environment '{self._world.name}' started. Step time {self._world.step_time:.3f} s."
         )
 
     def __del__(self):
@@ -422,7 +426,9 @@ class EnvBase:
 
         if self.display:
             plt.pause(ending_time)
-            self.logger.info(f"Figure will be closed within {ending_time:.2f} seconds.")
+            self.logger.info(
+                f"Simulation Environment '{self._world.name}' closing in {ending_time:.2f} seconds."
+            )
 
         plt.close("all")
         env_param.objects = []
@@ -446,7 +452,7 @@ class EnvBase:
                 pass
 
         self.logger.info(
-            f"The simulated environment has ended. Total simulation time: {round(self._world.time, 2)} seconds."
+            f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."
         )
 
     def quit(self) -> None:

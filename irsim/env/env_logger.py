@@ -27,6 +27,15 @@ class EnvLogger:
         if log_file is not None:
             logger.add(log_file, level=log_level)
 
+    def trace(self, msg: str) -> None:
+        """
+        Log a trace message.
+
+        Args:
+            msg (str): The message to log.
+        """
+        logger.trace(msg)
+
     def info(self, msg: str) -> None:
         """
         Log an info message.
@@ -62,3 +71,21 @@ class EnvLogger:
             msg (str): The message to log.
         """
         logger.warning(msg)
+
+    def success(self, msg: str) -> None:
+        """
+        Log a success message.
+
+        Args:
+            msg (str): The message to log.
+        """
+        logger.success(msg)
+
+    def critical(self, msg: str) -> None:
+        """
+        Log a critical message.
+
+        Args:
+            msg (str): The message to log.
+        """
+        logger.critical(msg)

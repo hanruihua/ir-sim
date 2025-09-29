@@ -64,6 +64,14 @@ def test_collision_avoidance():
     print(env.robot.name)
     print(env.names)
 
+    env.logger.info("test")
+    env.logger.warning("test")
+    env.logger.error("test")
+    env.logger.critical("test")
+    env.logger.debug("test")
+    env.logger.success("test")
+    env.logger.trace("test")
+
     env.robot.set_velocity([1, 1])
     env.robot.set_velocity([1, 1], init=True)
     env.robot.set_velocity(np.array([1, 1]).reshape(2, 1), init=True)
@@ -797,7 +805,7 @@ def test_add_object_duplicate_raises():
 
 
 def test_add_objects_duplicate_raises():
-    env = irsim.make("test_all_objects.yaml", display=False)
+    env = irsim.make("test_all_objects.yaml", display=True)
 
     obs = env.create_obstacle(
         shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
@@ -809,6 +817,28 @@ def test_add_objects_duplicate_raises():
     ):
         env.add_objects([obs])
 
+    env.end()
+
+
+def test_envbase_empty_yaml_path_logs(capsys):
+    from irsim.env.env_base import EnvBase
+
+    # Creating EnvBase with empty YAML may raise or proceed with defaults;
+    # in both cases we expect an error/critical log message.
+    with contextlib.suppress(Exception):
+        EnvBase(
+            "",
+            display=False,
+            disable_all_plot=True,
+            log_file=None,
+            log_level="CRITICAL",
+        )
+
+    out = capsys.readouterr().out
+    assert (
+        "YAML Configuration load failed" in out
+        or "YAML File not found" in out
+    )
 
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])

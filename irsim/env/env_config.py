@@ -64,8 +64,8 @@ class EnvConfig:
                         raise KeyError
 
         else:
-            self.logger.warning(
-                f"{self.world_name} YAML File not found!, using default world config."
+            self.logger.error(
+                f"{self.world_name} YAML File not found!, using default world config as alternative."
             )
 
     def initialize_objects(self) -> Any:
