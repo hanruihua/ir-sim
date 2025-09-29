@@ -818,5 +818,25 @@ def test_add_objects_duplicate_raises():
         env.add_objects([obs])
 
 
+def test_envbase_empty_yaml_path_logs(capsys):
+    from irsim.env.env_base import EnvBase
+
+    # Creating EnvBase with empty YAML may raise or proceed with defaults;
+    # in both cases we expect an error/critical log message.
+    with contextlib.suppress(Exception):
+        EnvBase(
+            "",
+            display=False,
+            disable_all_plot=True,
+            log_file=None,
+            log_level="CRITICAL",
+        )
+
+    out = capsys.readouterr().out
+    assert (
+        "YAML Configuration load failed" in out
+        or "YAML File not found" in out
+    )
+
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])
