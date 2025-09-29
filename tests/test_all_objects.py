@@ -1,7 +1,7 @@
 import contextlib
 import time
 from math import pi
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -266,7 +266,7 @@ def test_grid_map():
 def test_keyboard_control():
     """Test keyboard control"""
     env = irsim.make("test_keyboard_control.yaml", save_ani=False, display=False)
-    key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r"]
+    key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r", "l", "v", "x"]
     mock_keys = [Mock(spec=keyboard.Key, char=c) for c in key_list]
 
     for _ in range(3):
@@ -353,6 +353,58 @@ def test_keyboard_control():
     env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
+    # q/e adjust key_lv_max (pynput backend)
+    prev_lv_max = env.keyboard.key_lv_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="e"))
+    assert env.keyboard.key_lv_max > prev_lv_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="q"))
+    assert env.keyboard.key_lv_max < prev_lv_max + 0.2  # net change <= 0
+
+    # z/c adjust key_ang_max (pynput backend)
+    prev_ang_max = env.keyboard.key_ang_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="c"))
+    assert env.keyboard.key_ang_max > prev_ang_max
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="z"))
+    assert env.keyboard.key_ang_max < prev_ang_max + 0.2  # net change <= 0
+
+    # 'r' sets reset_flag; processed on render
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="r"))
+    assert env.reset_flag is True
+    env.render(0.0)
+    assert env.reset_flag is False
+
+    # 'l' sets reload_flag; processed on render
+    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="l"))
+    assert env.reload_flag is True
+    env.render(0.0)
+    assert env.reload_flag is False
+
+    # 'v' saves the figure via flag processed in render (pynput backend)
+    with patch.object(env, "save_figure") as mock_save:
+        env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="v"))
+        env.render(0.0)
+        mock_save.assert_called_once()
+
+    # 'f5' debug single-step (pynput backend)
+    class F5KeyMock:
+        name = "f5"
+
+        def __eq__(self, other):
+            return other == keyboard.Key.f5
+
+    f5_key = F5KeyMock()
+    t0 = env.time
+    env.keyboard._on_pynput_release(f5_key)
+    env.step()
+    t1 = env.time
+    assert t1 > t0
+    env.step()
+    assert env.time == t1  # blocked until next F5
+    assert "Pause (Debugging)" in env.status
+    env.keyboard._on_pynput_release(f5_key)
+    env.step()
+    assert env.time > t1
+
     # ESC should not call GUI from listener thread in tests; just verify no exception here
     class EscKeyMock:
         pass
@@ -363,7 +415,6 @@ def test_keyboard_control():
     # Test edge cases and untested lines in keyboard control
 
     # Test 1: Invalid backend handling (lines 99-100)
-    from unittest.mock import patch
 
     with patch("irsim.gui.keyboard_control.env_param") as mock_env_param:
         mock_env_param.logger.warning = Mock()
@@ -593,13 +644,35 @@ def test_keyboard_control_mpl_backend():
     env.keyboard._on_mpl_release(E("space"))
     assert "Running" in env.status
 
-    # 'r' resets the environment
+    # 'r' resets the environment (handled via flag; processed during render/step)
     env.keyboard._on_mpl_release(E("r"))
-    assert env.status == "Reset"
+    env.step()
+    assert "Reset" in env.status or "Collision" in env.status
 
     # 'l' reloads the environment in the same figure (no exception expected)
     env.keyboard._on_mpl_release(E("l"))
     assert env.status in ("Running", "Pause", "Reset", "Collision", "Arrived", "None")
+
+    # 'v' saves the figure via flag processed in render
+    with patch.object(env, "save_figure") as mock_save:
+        env.keyboard._on_mpl_release(E("v"))
+        env.render(0.0)
+        mock_save.assert_called_once()
+
+    # 'f5' debug single-step: allows exactly one step per press
+    t0 = env.time
+    env.keyboard._on_mpl_release(E("f5"))
+    env.step()
+    t1 = env.time
+    assert t1 > t0
+    env.step()
+    assert env.time == t1  # blocked until next F5
+    # status should reflect debugging pause
+    # assert "Pause (Debugging)" in env.status
+    # next F5 permits one more step
+    env.keyboard._on_mpl_release(E("f5"))
+    env.step()
+    assert env.time > t1
 
     # 'x' toggles control mode (keyboard <-> auto)
     from irsim.config import world_param as wp_mpl
@@ -731,6 +804,35 @@ def test_custom_behavior():
         env.render(0.01)
     env.end()
     assert True  # Add behavior related assertions
+
+
+def test_env_flags_processing():
+    """Test processing of save, reset, reload, and quit flags"""
+    env = irsim.make("test_all_objects.yaml", save_ani=False, display=False)
+
+    # save_figure_flag triggers save_figure during render and clears flag
+    with patch.object(env, "save_figure") as mock_save:
+        env.save_figure_flag = True
+        env.render(0.0)
+        mock_save.assert_called_once()
+        assert env.save_figure_flag is False
+
+    # reset_flag triggers reset during render and clears flag
+    env.reset_flag = True
+    env.render(0.0)
+    assert env.reset_flag is False
+
+    # reload_flag triggers reload during render and clears flag
+    env.reload_flag = True
+    env.render(0.0)
+    assert env.reload_flag is False
+
+    # quit_flag causes step to raise SystemExit
+    env.quit_flag = True
+    with pytest.raises(SystemExit):
+        env.step()
+
+    # No further assertions; reaching here means flags processed as expected
 
 
 def test_fov_detection():

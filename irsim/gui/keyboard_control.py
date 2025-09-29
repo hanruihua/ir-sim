@@ -11,8 +11,11 @@ keyboard: Optional[Any] = None
 try:  # pragma: no cover - availability depends on environment
     from pynput import keyboard as _pynput_keyboard
 
-    keyboard = _pynput_keyboard
-    _PYNPUT_AVAILABLE = True
+    if getattr(_pynput_keyboard, "Listener", None) is not None:
+        keyboard = _pynput_keyboard
+        _PYNPUT_AVAILABLE = True
+    else:
+        _PYNPUT_AVAILABLE = False
 except Exception:  # pragma: no cover
     _PYNPUT_AVAILABLE = False
 
@@ -44,6 +47,7 @@ class KeyboardControl:
         - esc: Quit the environment immediately (closes figure and raises ``SystemExit(0)``)
         - x: Switch between keyboard and auto control modes
         - l: Reload the environment
+        - F5: Debug the environment
 
     Notes:
         - The "mpl" backend requires the Matplotlib figure window to have focus to receive key events.
@@ -80,6 +84,7 @@ class KeyboardControl:
             - esc: Quit the environment
             - x: Switch between keyboard and auto control modes
             - l: Reload the environment
+            - F5: Debug the environment
         """
 
         # Store environment reference for reset functionality
@@ -134,9 +139,11 @@ class KeyboardControl:
                 ["alt+num", "change current control robot id"],
                 ["r", "reset the environment"],
                 ["space", "pause/resume the environment"],
-                ["esc", "Quit the environment"],
+                ["esc", "quit the environment"],
                 ["x", "switch keyboard control and auto control"],
                 ["l", "reload the environment"],
+                ["F5", "debug the environment"],
+                ["v", "save the current figure"],
             ]
 
             headers = ["Key", "Function"]
@@ -211,10 +218,12 @@ class KeyboardControl:
             if world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
                     if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        print("out of number of robots")
+                        self.logger.warning(
+                            f"{int(key.char)} over the maximum id: {self.env_ref.robot_number - 1}"
+                        )
                         self.key_id = int(key.char)
                     else:
-                        print("current control id: ", int(key.char))
+                        self.logger.info(f"Current control id: {int(key.char)}")
                         self.key_id = int(key.char)
 
                 if key.char == "w":
@@ -255,22 +264,22 @@ class KeyboardControl:
                 self.key_ang = 0
             if key.char == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if key.char == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
 
             if key.char == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
             if key.char == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
 
             if key.char == "r":
-                print("reset the environment")
+                self.logger.info("reset the environment")
                 if self.env_ref is not None:
-                    self.env_ref.reset()
+                    self.env_ref.reset_flag = True
                 else:
                     self.logger.warning("Environment reference not set. Cannot reset.")
 
@@ -283,10 +292,12 @@ class KeyboardControl:
                     world_param.control_mode = "keyboard"
                     self.logger.info("switch to keyboard control")
 
+            if key.char == "v":
+                self.logger.info("save the figure")
+                self.env_ref.save_figure_flag = True
+
             if key.char == "l":
-                self.env_ref.display = False
-                self.env_ref.reload()
-                self.env_ref.display = True
+                self.env_ref.reload_flag = True
                 self.logger.info("reload the environment")
 
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
@@ -302,6 +313,15 @@ class KeyboardControl:
                 else:
                     self.logger.info("resume the environment")
                     self.env_ref.resume()
+
+            # Single-step debug on F5
+            if keyboard is not None and key == keyboard.Key.f5:
+                if not self.env_ref.debug_flag:
+                    self.env_ref.debug_flag = True
+                    self.env_ref.debug_count = world_param.count
+                    self.env_ref.pause_flag = False
+                else:
+                    self.env_ref.debug_count += 1
 
             # Quit environment on ESC
             if keyboard is not None and key == keyboard.Key.esc:
@@ -326,10 +346,12 @@ class KeyboardControl:
         if world_param.control_mode == "keyboard":
             if base.isdigit() and self.alt_flag:
                 if self.env_ref and int(base) >= self.env_ref.robot_number:
-                    print("out of number of robots")
+                    self.logger.warning(
+                        f"{int(base)} over the maximum id: {self.env_ref.robot_number - 1}"
+                    )
                     self.key_id = int(base)
                 else:
-                    print("current control id: ", int(base))
+                    self.logger.info(f"Current control id: {int(base)}")
                     self.key_id = int(base)
 
             if base == "w":
@@ -364,21 +386,21 @@ class KeyboardControl:
                 self.key_ang = 0
             if base == "q":
                 self.key_lv_max = self.key_lv_max - 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if base == "e":
                 self.key_lv_max = self.key_lv_max + 0.2
-                print("current linear velocity", self.key_lv_max)
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
             if base == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
             if base == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
-                print("current angular velocity ", self.key_ang_max)
+                self.logger.info(f"current angular velocity: {self.key_ang_max}")
 
         if base == "r":
-            print("reset the environment")
+            self.logger.info("reset the environment")
             if self.env_ref is not None:
-                self.env_ref.reset()
+                self.env_ref.reset_flag = True
             else:
                 self.logger.warning("Environment reference not set. Cannot reset.")
 
@@ -400,8 +422,21 @@ class KeyboardControl:
                 self.logger.info("switch to keyboard control")
 
         if base == "l":
-            self.env_ref.reload()
+            self.env_ref.reload_flag = True
             self.logger.info("reload the environment")
+
+        # Single-step debug on F5
+        if base == "f5":
+            if not self.env_ref.debug_flag:
+                self.env_ref.debug_flag = True
+                self.env_ref.debug_count = world_param.count
+                self.env_ref.pause_flag = False
+            else:
+                self.env_ref.debug_count += 1
+
+        if base == "v":
+            self.logger.info("save the figure")
+            self.env_ref.save_figure_flag = True
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):

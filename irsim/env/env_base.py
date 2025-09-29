@@ -169,9 +169,14 @@ class EnvBase:
         mouse_config = self.env_config.parse["gui"].get("mouse", {})
         self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
 
-        # flag
+        # flag for keyboard control
         self.pause_flag = False
         self.quit_flag = False
+        self.debug_flag = False
+        self.debug_count = 0
+        self.reset_flag = False
+        self.reload_flag = False
+        self.save_figure_flag = False
 
         if full:
             mng = plt.get_current_fig_manager()
@@ -251,12 +256,14 @@ class EnvBase:
         if self.quit_flag:
             self.quit()
 
-        if self.pause_flag:
+        if (
+            self.debug_flag and world_param.count > self.debug_count
+        ) or self.pause_flag:
             return
 
         actions = action  # normalized by decorator to a list aligned with self.objects
 
-        if world_param.control_mode == "keyboard":
+        if world_param.control_mode == "keyboard" and self.key_id < len(actions):
             actions[self.key_id] = self.key_vel
 
         self._objects_step(actions, sensor_step=False)
@@ -329,6 +336,16 @@ class EnvBase:
                 self.save_figure(save_gif=True, **figure_kwargs)
 
             self._env_plot.step(mode, self.objects, **kwargs)
+
+        if self.save_figure_flag:
+            self.save_figure(save_gif=True, **figure_kwargs)
+            self.save_figure_flag = False
+
+        if self.reset_flag:
+            self.reset()
+
+        if self.reload_flag:
+            self.reload()
 
     def show(self) -> None:
         """
@@ -529,14 +546,24 @@ class EnvBase:
             collision_list = [False]
 
         if all(arrive_list):
-            self._world.status = "Arrived"
+            self.set_status("Arrived")
         elif any(collision_list):
-            self._world.status = "Collision"
+            self.set_status("Collision")
+        elif self.reset_flag:
+            self.set_status("Reset")
+        elif self.reload_flag:
+            self.set_status("Reload")
+        elif self.save_figure_flag:
+            self.set_status("Save Figure")
+        elif self.quit_flag:
+            self.set_status("Quit")
+        elif self.debug_flag:
+            self.set_status("Pause (Debugging)")
         else:
             if world_param.control_mode == "keyboard":
-                self._world.status = "Running (keyboard)"
+                self.set_status("Running (keyboard)")
             else:
-                self._world.status = "Running"
+                self.set_status("Running")
 
     def pause(self) -> None:
         """
@@ -549,7 +576,7 @@ class EnvBase:
             >>> env.pause()
             >>> env.step([1.0, 0.0])  # This will have no effect while paused
         """
-        self._world.status = "Pause"
+        self.set_status("Pause")
         self.pause_flag = True
 
     def resume(self) -> None:
@@ -565,8 +592,13 @@ class EnvBase:
             >>> env.resume()
             >>> env.step([1.0, 0.0])  # This will now work again
         """
-        self._world.status = "Running"
-        self.pause_flag = False
+        self.set_status("Running")
+        if self.pause_flag:
+            self.pause_flag = False
+
+        if self.debug_flag:
+            self.debug_flag = False
+            self.debug_count = 0
 
     def reset(self) -> None:
         """
@@ -592,8 +624,11 @@ class EnvBase:
         self.step(action=np.zeros((2, 1)))
         self._world.reset()
         self.reset_plot()
-        self._world.status = "Reset"
+        self.set_status("Reset")
         self.pause_flag = False
+        self.debug_flag = False
+        self.debug_count = 0
+        self.reset_flag = False
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
@@ -743,6 +778,7 @@ class EnvBase:
         self.build_tree()
         self.validate_unique_names()
         env_param.objects = self._objects
+        self.reload_flag = False
 
     # endregion: environment change
 
@@ -950,6 +986,12 @@ class EnvBase:
         """
 
         self._env_plot.title = title
+
+    def set_status(self, status: str) -> None:
+        """
+        Set the status of the environment.
+        """
+        self._world.status = status
 
     def save_figure(
         self,
