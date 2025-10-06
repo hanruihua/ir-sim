@@ -10,7 +10,7 @@ import irsim
 matplotlib.use("Agg")
 
 from irsim.config import env_param
-from irsim.env.env_plot import EnvPlot
+from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
 from irsim.lib.behavior.behavior import Behavior
 from irsim.lib.handler.geometry_handler import GeometryFactory
@@ -95,6 +95,18 @@ def test_env_plot3d_branches():
     plot3d.draw_quiver(None)
     plot3d.draw_quiver(np.array([1.0, 2.0, 0.5, 0.1, 0.2, 0.3]), refresh=True)
     plot3d.draw_quivers([np.array([1.0, 2.0, 0.5, 0.1, 0.2, 0.3])], refresh=True)
+
+    # draw_patch on 3D axes: line branch creates Line3D
+    line_vertices = np.array([[0.0, 1.0], [0.0, 1.0]])
+    line3d = draw_patch(
+        plot3d.ax, "line", vertices=line_vertices, color="k", alpha=0.8, zorder=2
+    )
+    assert line3d is not None
+
+    # draw_patch on 3D axes: circle triggers patch_2d_to_3d conversion
+    state = np.array([[0.0], [0.0], [0.0]])
+    circ3d = draw_patch(plot3d.ax, "circle", state=state, radius=0.2, color="r")
+    assert circ3d is not None
 
 
 def test_geometry_factory_and_Gh_edges():
@@ -185,3 +197,87 @@ def test_rrt_star_edge_methods():
 def test_obstacle_acker_instantiation():
     # Covers its __init__ path
     _ = ObstacleAcker()
+
+
+def test_draw_patch_variants():
+    _install_dummy_logger()
+
+    # Set up a simple 2D plot axes
+    w = _DummyWorld2D()
+    plot = EnvPlot(
+        w, objects=[], saved_figure={}, figure_pixels=[200, 150], show_title=False
+    )
+    ax = plot.ax
+
+    # Base state at origin with zero angle
+    state = np.array([[0.0], [0.0], [0.0]])
+
+    # circle
+    circ = draw_patch(
+        ax, "circle", state=state, radius=1.0, color="k", alpha=0.5, zorder=1
+    )
+    assert circ is not None
+
+    # rectangle by vertices
+    rect_vertices = np.array([[0.0, 1.0, 1.0, 0.0], [0.0, 0.0, 0.5, 0.5]])
+    rect1 = draw_patch(ax, "rectangle", state=state, vertices=rect_vertices, color="r")
+    assert rect1 is not None
+
+    # rectangle by width/height (place at vertices[0] which is (0,0))
+    rect2 = draw_patch(
+        ax,
+        "rectangle",
+        state=state,
+        vertices=np.array([[0.0, 0.0]]).T,
+        width=1.0,
+        height=0.5,
+        color="g",
+    )
+    assert rect2 is not None
+
+    # rectangle width/height error branches (cover lines 647-655 path)
+    with pytest.raises(
+        ValueError, match="rectangle requires either vertices or width/height"
+    ):
+        draw_patch(ax, "rectangle", state=state)
+
+    with pytest.raises(TypeError):
+        draw_patch(ax, "rectangle", state=state, width=1.0, height=0.5)
+
+    # polygon
+    poly_vertices = np.array([[0.0, 0.5, 0.0], [0.0, 0.5, 0.5]])
+    poly = draw_patch(ax, "polygon", state=state, vertices=poly_vertices, color="b")
+    assert poly is not None
+
+    # ellipse
+    ell = draw_patch(ax, "ellipse", state=state, width=0.5, height=0.2, color="c")
+    assert ell is not None
+
+    # wedge via theta1/theta2
+    wedge1 = draw_patch(
+        ax, "wedge", state=state, radius=1.0, theta1=-45.0, theta2=45.0, color="m"
+    )
+    assert wedge1 is not None
+
+    # wedge via fov (radians)
+    wedge2 = draw_patch(ax, "wedge", state=state, radius=1.0, fov=np.pi / 2, color="y")
+    assert wedge2 is not None
+
+    # arrow (uses state orientation)
+    arr = draw_patch(
+        ax, "arrow", state=state, arrow_length=0.3, arrow_width=0.4, color="k"
+    )
+    assert arr is not None
+
+    # line (2D)
+    line_vertices = np.array([[0.0, 1.0], [0.0, 1.0]])
+    line = draw_patch(ax, "line", vertices=line_vertices, color="k")
+    assert line is not None
+
+    # linestring (alias)
+    ls = draw_patch(ax, "linestring", vertices=line_vertices, color="k")
+    assert ls is not None
+
+    # invalid shape
+    with pytest.raises(ValueError, match="Unsupported shape type"):
+        draw_patch(ax, "unknown-shape", state=state)
