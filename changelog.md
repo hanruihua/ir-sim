@@ -1,3 +1,19 @@
+## 2.7.4
+
+- Features:
+  - Add state normalization and an input-checking decorator function.
+  - Add new key `F5` to debug the environment. In debug mode, the environment pauses and waits for the next F5 to continue; press Space to exit debug mode.
+  - Add new key `v` to save the current figure.
+  - Add flags for reload, debug, and quit.
+
+- Bug fixes:
+  - Fix keyboard issues.
+  - Fix goal plot issues.
+
+- Style:
+  - Organize plot function for patch plot.
+  - Organize logger info.
+
 ## 2.7.3
 
 - Features:
