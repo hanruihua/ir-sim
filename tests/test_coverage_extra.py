@@ -223,6 +223,15 @@ def test_draw_patch_variants():
     )
     assert rect2 is not None
 
+    # rectangle width/height error branches (cover lines 647-655 path)
+    with pytest.raises(
+        ValueError, match="rectangle requires either vertices or width/height"
+    ):
+        draw_patch(ax, "rectangle", state=state)
+
+    with pytest.raises(TypeError):
+        draw_patch(ax, "rectangle", state=state, width=1.0, height=0.5)
+
     # polygon
     poly_vertices = np.array([[0.0, 0.5, 0.0], [0.0, 0.5, 0.5]])
     poly = draw_patch(ax, "polygon", state=state, vertices=poly_vertices, color="b")
