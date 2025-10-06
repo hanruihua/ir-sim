@@ -96,6 +96,18 @@ def test_env_plot3d_branches():
     plot3d.draw_quiver(np.array([1.0, 2.0, 0.5, 0.1, 0.2, 0.3]), refresh=True)
     plot3d.draw_quivers([np.array([1.0, 2.0, 0.5, 0.1, 0.2, 0.3])], refresh=True)
 
+    # draw_patch on 3D axes: line branch creates Line3D
+    line_vertices = np.array([[0.0, 1.0], [0.0, 1.0]])
+    line3d = draw_patch(
+        plot3d.ax, "line", vertices=line_vertices, color="k", alpha=0.8, zorder=2
+    )
+    assert line3d is not None
+
+    # draw_patch on 3D axes: circle triggers patch_2d_to_3d conversion
+    state = np.array([[0.0], [0.0], [0.0]])
+    circ3d = draw_patch(plot3d.ax, "circle", state=state, radius=0.2, color="r")
+    assert circ3d is not None
+
 
 def test_geometry_factory_and_Gh_edges():
     # Circle G/h
