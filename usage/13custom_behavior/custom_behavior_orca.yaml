@@ -9,23 +9,21 @@ world:
 
 
 robot:
-  - number: 3
+  - number: 10
     distribution: {name: 'random'}  
     kinematics: {name: 'omni'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
     behavior: {name: 'orca'}
-    vel_min: [-3, -3.0]
-    vel_max: [3, 3.0]
-    color: ['pink', 'brown'] 
+    vel_min: [-2, -3.0]
+    vel_max: [2, 3.0]
+    color: ['green'] 
     arrive_mode: position
     goal_threshold: 0.2
     plot:
-      show_trail: true
       show_goal: true
-      trail_fill: true
-      trail_alpha: 0.2
-      show_trajectory: false
+      show_trajectory: true
+      keep_traj_length: 15
 
     
     
