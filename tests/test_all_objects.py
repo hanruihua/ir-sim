@@ -95,7 +95,6 @@ def test_collision_avoidance():
     env.robot.get_desired_omni_vel(normalized=True)
     env.robot.set_goal(None)
     env.robot.get_desired_omni_vel()
-    env.robot.get_desired_omni_vel(goal_threshold=1000)
 
     env.draw_quiver(np.array([1, 2, 2, 3]))
     env.draw_quiver(np.array([1, 2, 2, 3]), refresh=True)
@@ -249,6 +248,8 @@ def test_multi_objects():
     action = np.array([1, 0]).reshape(2, 1)
     action_id_list = [2, 3]
     env.step(action, action_id_list)
+
+    env.robot.get_desired_omni_vel(goal_threshold=1000)
 
     env.end()
     assert True  # Add multi-object related assertions
