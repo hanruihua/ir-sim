@@ -95,6 +95,7 @@ def test_collision_avoidance():
     env.robot.get_desired_omni_vel(normalized=True)
     env.robot.set_goal(None)
     env.robot.get_desired_omni_vel()
+    env.robot.get_desired_omni_vel(goal_threshold=1000)
 
     env.draw_quiver(np.array([1, 2, 2, 3]))
     env.draw_quiver(np.array([1, 2, 2, 3]), refresh=True)
