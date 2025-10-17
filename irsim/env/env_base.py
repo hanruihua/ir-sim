@@ -117,6 +117,9 @@ class EnvBase:
         >>>
         >>> # Create environment with animation saving
         >>> env = EnvBase("world.yaml", save_ani=True, full=True)
+        >>>
+        >>> # Create environment with a fixed seed for reproducibility
+        >>> env = EnvBase("world.yaml", seed=42)
     """
 
     def __init__(
@@ -991,11 +994,14 @@ class EnvBase:
 
     def set_random_seed(self, seed: Optional[int] = None) -> None:
         """
-        Set the seed of the random number generator. A fix seed will make the simulation reproducible.
+        Set IR-SIM's random seed for reproducibility.
 
         Args:
-            seed (int): Seed of the random number generator. Default is None.
-                If None, the seed will be set to a random value, which will make the simulation non-reproducible.
+            seed (int, optional): Seed for IR-SIM's project RNG. If ``None``, a
+                new unseeded generator is created (non-reproducible). This
+                controls randomness that goes through IR-SIM's RNG. Custom code
+                using ``np.random.*`` or Python ``random`` must be seeded separately
+                or migrated to use IR-SIM's RNG.
         """
         set_seed(seed)
 

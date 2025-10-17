@@ -22,9 +22,11 @@ The `make` function creates an environment from a configuration file. Supported 
 - **`display`** (bool): Whether to display the environment visualization (default: True)
 - **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
 - **`log_level`** (str): Logging level for the environment (default: "INFO")
-- **`seed`** (int, optional): Seed for the random number generator. Default is None.
-    If None, the seed will be set to a random value, which will make the simulation non-reproducible.
-    If a fixed seed is provided, the random simulation scenario will be reproducible.
+- **`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided,
+  random elements produced by IR-SIM become reproducible. If omitted/``None``,
+  a new unseeded generator is used (non-reproducible). Custom extensions using
+  ``np.random`` or Python ``random`` should either switch to IR-SIM's RNG or be
+  seeded separately.
 
 For more details, see the [EnvBase](#irsim.env.env_base.EnvBase) class documentation.
 :::
