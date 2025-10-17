@@ -9,6 +9,7 @@ from typing import Optional
 
 import numpy as np
 
+from irsim.util.random import rng
 from irsim.util.util import WrapToPi
 
 
@@ -46,7 +47,7 @@ def differential_kinematics(
         std_angular = np.sqrt(
             alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2)
         )
-        real_velocity = velocity + np.random.normal(
+        real_velocity = velocity + rng.normal(
             [[0], [0]], scale=[[std_linear], [std_angular]]
         )
     else:
@@ -104,7 +105,7 @@ def ackermann_kinematics(
         std_angular = np.sqrt(
             alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2)
         )
-        real_velocity = velocity + np.random.normal(
+        real_velocity = velocity + rng.normal(
             [[0], [0]], scale=[[std_linear], [std_angular]]
         )
     else:
@@ -156,9 +157,7 @@ def omni_kinematics(
         assert len(alpha) >= 2
         std_vx = np.sqrt(alpha[0])
         std_vy = np.sqrt(alpha[-1])
-        real_velocity = velocity + np.random.normal(
-            [[0], [0]], scale=[[std_vx], [std_vy]]
-        )
+        real_velocity = velocity + rng.normal([[0], [0]], scale=[[std_vx], [std_vy]])
     else:
         real_velocity = velocity
 
