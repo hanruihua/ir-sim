@@ -2,7 +2,7 @@ world:
   height: 290 
   width: 290  
   step_time: 0.1
-  sample_time: 0.6
+  sample_time: 0.7
   offset: [-140, -140]
 
 robot:
