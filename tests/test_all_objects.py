@@ -91,6 +91,8 @@ def test_collision_avoidance():
     env.get_map()
     env.get_object_by_name("testtest")
     env.get_object_by_id(env.robot.id)
+    env.robot.get_desired_omni_vel()
+    env.robot.get_desired_omni_vel(normalized=True)
 
     env.draw_quiver(np.array([1, 2, 2, 3]))
     env.draw_quiver(np.array([1, 2, 2, 3]), refresh=True)
@@ -937,10 +939,8 @@ def test_envbase_empty_yaml_path_logs(capsys):
         )
 
     out = capsys.readouterr().out
-    assert (
-        "YAML Configuration load failed" in out
-        or "YAML File not found" in out
-    )
+    assert "YAML Configuration load failed" in out or "YAML File not found" in out
+
 
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])
