@@ -100,6 +100,8 @@ def test_collision_avoidance():
 
     env.set_title(f"Simulation time: {env.time:.2f}s")
 
+    env.set_random_seed(2)
+
     file_check("123.yaml")
     file_check("123.yaml", root_path=".")
     WrapToRegion(4, [-pi, pi])
@@ -937,10 +939,8 @@ def test_envbase_empty_yaml_path_logs(capsys):
         )
 
     out = capsys.readouterr().out
-    assert (
-        "YAML Configuration load failed" in out
-        or "YAML File not found" in out
-    )
+    assert "YAML Configuration load failed" in out or "YAML File not found" in out
+
 
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])
