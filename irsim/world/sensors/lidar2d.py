@@ -10,6 +10,7 @@ from shapely import MultiLineString, Point, is_valid, prepare
 from shapely.ops import unary_union
 
 from irsim.config import env_param
+from irsim.util.random import rng
 from irsim.util.util import (
     WrapTo2Pi,
     geometry_transform,
@@ -244,7 +245,7 @@ class Lidar2D:
         for index, line in enumerate(self._geometry.geoms):
             # self.range_data[index] = l.length
             if self.noise:
-                self.range_data[index] = line.length + np.random.normal(0, self.std)
+                self.range_data[index] = line.length + rng.normal(0, self.std)
             else:
                 self.range_data[index] = line.length
 
@@ -258,9 +259,7 @@ class Lidar2D:
         for index, line in enumerate(self._geometry.geoms):
             # self.range_data[index] = l.length
             self.range_data[index] = (
-                line.length + np.random.normal(0, self.std)
-                if self.noise
-                else line.length
+                line.length + rng.normal(0, self.std) if self.noise else line.length
             )
 
             if self.has_velocity and line.length < self.range_max - 0.02:

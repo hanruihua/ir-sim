@@ -78,6 +78,8 @@ def make(
             - display (bool): Whether to display the environment visualization
             - save_ani (bool): Whether to save animation
             - log_level (str): Logging level for the environment
+            - seed (int, optional): Seed for IR-SIM's random number generator
+              to make runs reproducible when using IR-SIM randomness.
 
     Returns:
         EnvBase: The created environment object. Returns :py:class:`.EnvBase3D`

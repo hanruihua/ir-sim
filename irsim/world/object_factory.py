@@ -2,6 +2,7 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
+from irsim.util.random import rng
 from irsim.util.util import (
     convert_list_length,
     convert_list_length_dict,
@@ -255,14 +256,10 @@ class ObjectFactory:
             range_low = distribution.get("range_low", [0, 0, -np.pi])
             range_high = distribution.get("range_high", [10, 10, np.pi])
 
-            state_array = np.random.uniform(
-                low=range_low, high=range_high, size=(number, 3)
-            )
+            state_array = rng.uniform(low=range_low, high=range_high, size=(number, 3))
             state_list = state_array.tolist()
 
-            goal_array = np.random.uniform(
-                low=range_low, high=range_high, size=(number, 3)
-            )
+            goal_array = rng.uniform(low=range_low, high=range_high, size=(number, 3))
             goal_list = goal_array.tolist()
 
         elif distribution["name"] == "uniform":

@@ -16,6 +16,7 @@ from shapely import (
 from shapely.ops import transform
 
 from irsim.lib import random_generate_polygon
+from irsim.util.random import rng
 from irsim.util.util import (
     gen_inequal_from_vertex,
     geometry_transform,
@@ -229,7 +230,7 @@ class CircleGeometry(geometry_handler):
         if center is None:
             center = [0, 0]
         if random_shape:
-            radius = np.random.uniform(*radius_range)
+            radius = rng.uniform(*radius_range)
 
         if wheelbase is None:
             return Point(center).buffer(radius)

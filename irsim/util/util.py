@@ -10,6 +10,7 @@ import numpy as np
 from shapely.affinity import affine_transform
 
 from irsim.config import env_param
+from irsim.util.random import rng
 
 
 def file_check(
@@ -568,7 +569,7 @@ def random_point_range(
     if isinstance(range_high, list):
         range_high = np.c_[range_high]
 
-    return np.random.uniform(range_low, range_high)
+    return rng.uniform(range_low, range_high)
 
 
 def is_2d_list(data: Union[list, deque]) -> bool:
