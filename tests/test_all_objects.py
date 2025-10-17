@@ -93,6 +93,8 @@ def test_collision_avoidance():
     env.get_object_by_id(env.robot.id)
     env.robot.get_desired_omni_vel()
     env.robot.get_desired_omni_vel(normalized=True)
+    env.robot.set_goal(None)
+    env.robot.get_desired_omni_vel()
 
     env.draw_quiver(np.array([1, 2, 2, 3]))
     env.draw_quiver(np.array([1, 2, 2, 3]), refresh=True)
@@ -116,6 +118,8 @@ def test_collision_avoidance():
     for i in range(20):
         env.step()
         env._objects_step([np.array([1, 0]).reshape(2, 1)])
+
+        env.robot.get_desired_omni_vel()
 
         # Test different _step_plot arguments to verify element property updates
         if i % 4 == 0:
