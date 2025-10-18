@@ -1977,6 +1977,36 @@ class ObjectBase:
             center=self.position, radius=self.radius, vertices=self.vertices
         )
 
+    def get_desired_omni_vel(self, goal_threshold=0.1, normalized=False) -> np.ndarray:
+        """
+        Get the desired omnidirectional velocity of the object.
+
+        Args:
+            goal_threshold (float): Threshold for goal proximity.
+            normalized (bool): Whether to normalize the velocity.
+        """
+
+        if self.goal is None:
+            return np.zeros((2, 1))
+
+        dis, radian = relative_position(self.state, self.goal)
+
+        if dis > goal_threshold:
+            vx = self.vel_max[0, 0] * cos(radian)
+            vy = self.vel_max[1, 0] * sin(radian)
+        else:
+            vx = 0
+            vy = 0
+
+        if normalized:
+            length = np.linalg.norm([vx, vy])
+
+            if length > 1:
+                vx = vx / length
+                vy = vy / length
+
+        return np.array([[vx], [vy]])
+
     @property
     def name(self) -> str:
         """

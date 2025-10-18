@@ -103,7 +103,7 @@ class World:
         Advance the simulation by one step.
         """
         self.count += 1
-        self.sampling = self.count % (self.sample_time / self.step_time) == 0
+        self.sampling = self.count % (int(self.sample_time / self.step_time)) == 0
 
         world_param.time = self.time
         world_param.count = self.count
