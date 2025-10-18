@@ -5,7 +5,7 @@ import irsim
 if __name__ == "__main__":
     orca = pyrvo.RVOSimulator()
 
-    env = irsim.make(save_ani=True, display=False)
+    env = irsim.make(save_ani=False, display=True)
 
     orca.set_time_step(env.step_time)
     orca.set_agent_defaults(15.0, 10, 20.0, 10.0, 1.5, 2.0)
