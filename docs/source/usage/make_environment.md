@@ -161,11 +161,18 @@ env.end()
 
 ### Available Status Values
 
-- **`"Running"`**: Simulation is actively running
+- **`"Running"`**: The environment is running in auto control mode
+- **`"Running (keyboard)"`**: The environment is running in keyboard control mode
 - **`"Pause"`**: Simulation is paused
 - **`"Done"`**: Simulation has completed
 - **`"Arrived"`**: All robots have arrived at their goals
 - **`"Collision"`**: A collision has occurred
+- **`"Pause (Debugging)"`**: Debugging mode (when `F5` key is pressed)
+- **`"Reset"`**: The environment is reset
+- **`"Reload"`**: The environment is reloaded
+- **`"Save Figure"`**: The figure is saved
+- **`"Quit"`**: The environment is quit
+
 
 ## Configure Environment Title
 
