@@ -72,6 +72,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/grid_map.gif
 :alt: Select Parameters

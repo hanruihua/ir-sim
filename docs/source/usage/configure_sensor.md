@@ -64,6 +64,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/lidar2d.gif
 :alt: Select Parameters
@@ -237,6 +238,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/fov.gif
 :alt: Select Parameters

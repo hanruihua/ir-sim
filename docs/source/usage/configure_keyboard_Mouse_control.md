@@ -69,6 +69,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/keyboard.gif
 :alt: Select Parameters
@@ -222,6 +223,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/mouse.gif
 :alt: Select Parameters

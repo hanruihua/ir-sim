@@ -57,6 +57,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/rvo.gif
 :alt: Select Parameters
@@ -188,6 +189,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/custom_behavior.gif
 :alt: Select Parameters

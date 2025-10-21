@@ -148,6 +148,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/robot_obstacle.gif
 :alt: Select Parameters
@@ -245,6 +246,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/multi_objects.gif
 :alt: Select Parameters
