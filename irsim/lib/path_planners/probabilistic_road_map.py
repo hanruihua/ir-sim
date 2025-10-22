@@ -17,6 +17,7 @@ import shapely
 from scipy.spatial import KDTree
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.util.random import rng as sim_rng
 from irsim.world.map import Map
 
 
@@ -346,7 +347,7 @@ class PRMPlanner:
         sample_x, sample_y = [], []
 
         if rng is None:
-            rng = np.random.default_rng()
+            rng = sim_rng
 
         while len(sample_x) <= self.n_sample:
             tx = (rng.random() * (self.max_x - self.min_x)) + self.min_x

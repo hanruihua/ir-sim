@@ -25,6 +25,7 @@ from irsim.config import env_param, world_param
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.util.random import rng, set_seed
 from irsim.util.util import normalize_actions, to_numpy
 from irsim.world import ObjectBase, ObjectFactory
 
@@ -93,6 +94,9 @@ class EnvBase:
             If None, logs will only be output to console.
         log_level (str): Logging level for the environment. Options include
             'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'. Default is 'INFO'.
+        seed (int, optional): Seed for the random number generator. Default is None.
+            If None, the seed will be set to a random value, which will make the simulation non-reproducible.
+            If a fixed seed is provided, the random simulation scenario will be reproducible.
 
     Attributes:
         display (bool): Display flag for the environment.
@@ -113,6 +117,9 @@ class EnvBase:
         >>>
         >>> # Create environment with animation saving
         >>> env = EnvBase("world.yaml", save_ani=True, full=True)
+        >>>
+        >>> # Create environment with a fixed seed for reproducibility
+        >>> env = EnvBase("world.yaml", seed=42)
     """
 
     def __init__(
@@ -124,9 +131,11 @@ class EnvBase:
         full: bool = False,
         log_file: Optional[str] = None,
         log_level: str = "INFO",
+        seed: Optional[int] = None,
     ) -> None:
         # init env setting
         self.display = display
+        set_seed(seed)
 
         if not self.display:
             matplotlib.use("Agg")
@@ -673,16 +682,12 @@ class EnvBase:
 
         for obj in selected_obs:
             if not non_overlapping:
-                obj.set_state(
-                    np.random.uniform(range_low, range_high, (3, 1)), init=True
-                )
+                obj.set_state(rng.uniform(range_low, range_high, (3, 1)), init=True)
             else:
                 counter = 0
 
                 while counter < 100:
-                    obj.set_state(
-                        np.random.uniform(range_low, range_high, (3, 1)), init=True
-                    )
+                    obj.set_state(rng.uniform(range_low, range_high, (3, 1)), init=True)
 
                     if any(obj.check_collision(exi_obj) for exi_obj in existing_obj):
                         counter += 1
@@ -986,6 +991,19 @@ class EnvBase:
         """
 
         self._env_plot.title = title
+
+    def set_random_seed(self, seed: Optional[int] = None) -> None:
+        """
+        Set IR-SIM's random seed for reproducibility.
+
+        Args:
+            seed (int, optional): Seed for IR-SIM's project RNG. If ``None``, a
+                new unseeded generator is created (non-reproducible). This
+                controls randomness that goes through IR-SIM's RNG. Custom code
+                using ``np.random.*`` or Python ``random`` must be seeded separately
+                or migrated to use IR-SIM's RNG.
+        """
+        set_seed(seed)
 
     def set_status(self, status: str) -> None:
         """

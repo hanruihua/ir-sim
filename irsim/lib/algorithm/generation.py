@@ -10,6 +10,8 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
+from irsim.util.random import rng
+
 
 def clip(value: float, lower: float, upper: float) -> float:
     """
@@ -62,19 +64,17 @@ def random_generate_polygon(
     if num_vertices_range is None:
         num_vertices_range = [4, 10]
 
-    center = np.random.uniform(
-        low=center_range[0:2], high=center_range[2:], size=(number, 2)
-    )
-    avg_radius = np.random.uniform(
+    center = rng.uniform(low=center_range[0:2], high=center_range[2:], size=(number, 2))
+    avg_radius = rng.uniform(
         low=avg_radius_range[0], high=avg_radius_range[1], size=(number,)
     )
-    irregularity = np.random.uniform(
+    irregularity = rng.uniform(
         low=irregularity_range[0], high=irregularity_range[1], size=(number,)
     )
-    spikeyness = np.random.uniform(
+    spikeyness = rng.uniform(
         low=spikeyness_range[0], high=spikeyness_range[1], size=(number,)
     )
-    num_vertices = np.random.randint(
+    num_vertices = rng.integers(
         low=num_vertices_range[0], high=num_vertices_range[1], size=(number,)
     )
 
@@ -121,7 +121,7 @@ def generate_polygon(
     angle_steps = random_angle_steps(num_vertices, irregularity)
 
     points = []
-    angle = np.random.uniform(0, 2 * math.pi)
+    angle = rng.uniform(0, 2 * math.pi)
     for i in range(num_vertices):
         radius = clip(random.gauss(avg_radius, spikeyness), 0, 2 * avg_radius)
         point = (
@@ -150,7 +150,7 @@ def random_angle_steps(steps: int, irregularity: float) -> list[float]:
     upper = (2 * math.pi / steps) + irregularity
     cumsum = 0
     for _ in range(steps):
-        angle = np.random.uniform(lower, upper)
+        angle = rng.uniform(lower, upper)
         angles.append(angle)
         cumsum += angle
 

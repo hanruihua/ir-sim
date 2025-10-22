@@ -1,0 +1,39 @@
+world:
+  height: 50  # the height of the world
+  width: 50   # the width of the world
+  step_time: 0.1  # 10Hz calculate each step
+  sample_time: 0.1  # 10 Hz for render and data extraction 
+  offset: [0, 0] # the offset of the world on x and y 
+  collision_mode: 'stop'  # 'stop', 'unobstructed',  
+  control_mode: 'auto'  # 'keyboard', 'auto'
+
+robot:
+  - kinematics: {name: 'acker'}  # omni, diff, acker
+    shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
+    state: [5, 5, 0, 0]
+    goal: [40, 40, 0]
+    vel_max: [4, 1]
+    behavior: {name: 'dash'} # move toward to the goal directly
+
+    sensors: 
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 20
+        angle_range: 3.14
+        number: 100
+        noise: False
+        std: 1   
+        angle_std: 0.2
+        offset: [0, 0, 0]
+        alpha: 0.4
+
+obstacle:
+  - number: 10
+    distribution: {name: 'manual'}
+    shape:
+      - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]}  # radius
+
+  - number: 10
+    distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
+    shape:
+      - {name: 'circle', radius: 0.4}  # radius

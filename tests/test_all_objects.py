@@ -104,6 +104,8 @@ def test_collision_avoidance():
 
     env.set_title(f"Simulation time: {env.time:.2f}s")
 
+    env.set_random_seed(2)
+
     file_check("123.yaml")
     file_check("123.yaml", root_path=".")
     WrapToRegion(4, [-pi, pi])
