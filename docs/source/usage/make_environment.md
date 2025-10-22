@@ -72,8 +72,12 @@ The configuration file is a YAML file that specifies the properties of the envir
 ### Performance Considerations
 
 - **Smaller `step_time`**: More accurate physics but slower simulation
-- **Larger `sample_time`**: Faster simulation but less smooth visualization
+- **Larger `sample_time`**: Faster simulation but less smooth visualization  
 - **World size**: Larger worlds require more computational resources
+
+```{tip}
+You can use `sample_time` to control the rendering frequency and accelerate the simulation speed. The default value of `sample_time` is the same as `step_time`.
+```
 
 For more detailed parameter information, see the [YAML Configuration](../yaml_config/index.rst) reference.
 

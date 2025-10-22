@@ -472,7 +472,7 @@ class ObjectBase:
             self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
 
         elif world_param.collision_mode == "reactive":
-            "to be implemented"
+            "currently same as unobstructed: to be further implemented"
             pass
 
         elif world_param.collision_mode == "unobstructed":

@@ -3,7 +3,7 @@ world:
   width: 15
   step_time: 0.1
   sample_time: 0.1
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'reactive'
+  collision_mode: 'stop'  # 'stop', 'unobstructed'
   control_mode: 'auto'  # 'keyboard', 'auto'
   offset: [-0.5, -0.5]
 

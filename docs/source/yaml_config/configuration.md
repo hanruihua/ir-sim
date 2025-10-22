@@ -44,9 +44,6 @@ Use this navigation to quickly jump to specific parameter sections:
   - `color`, `plot`, `description`
 ::::
 
-:::
-::::
-
 ::::{dropdown} **GUI Parameters**
 :color: warning
 :icon: key
@@ -134,7 +131,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `height`         | `float`           | `10`        | Height of the world (meter)                                                                                |
 | `width`          | `float`           | `10`        | Width of the world (meter)                                                                                 |
 | `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                                        |
-| `sample_time`    | `float`           | `0.1`       | Time interval between samples for rendering and data extraction (in seconds)                               |
+| `sample_time`    | `float`           | `step_time` | Time interval between samples for rendering and data extraction (in seconds). Defaults to `step_time` if not specified. |
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
@@ -162,8 +159,8 @@ This section outlines the configuration parameters available for the `world` sec
   
   **Performance Impact**: A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but needs longer time to run the simulation.
 
-**`sample_time`** (`float`, default: `0.1`)
-: Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur.
+**`sample_time`** (`float`, default: `step_time`)
+: Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur. If not specified, defaults to the value of `step_time`.
 
 **`offset`** (`list` of `float`, default: `[0, 0]`)
 : Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement.
