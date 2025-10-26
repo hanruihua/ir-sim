@@ -99,14 +99,22 @@ class EnvBase:
             If a fixed seed is provided, the random simulation scenario will be reproducible.
 
     Attributes:
-        display (bool): Display flag for the environment.
-        disable_all_plot (bool): Plot disable flag.
-        save_ani (bool): Animation saving flag.
-        objects (list): List of all objects in the environment.
-        world (World): The world object containing environment configuration.
-        robot_collection (list): List of robot objects.
-        obstacle_collection (list): List of obstacle objects.
-        map_collection (list): List of map objects.
+        display (bool): Whether to display the environment visualization.
+        disable_all_plot (bool): Whether all plotting is disabled.
+        save_ani (bool): Whether to save animation during simulation.
+
+        env_config (EnvConfig): Configuration loader managing YAML parsing and object creation.
+
+        keyboard (KeyboardControl): Keyboard input handler for manual control.
+        mouse (MouseControl): Mouse input handler for zoom and pan.
+
+        pause_flag (bool): Internal flag indicating if simulation is paused.
+        quit_flag (bool): Internal flag indicating if simulation should quit.
+        debug_flag (bool): Internal flag for debug mode (frame-by-frame stepping).
+        debug_count (int): Counter for debug mode frames.
+        reset_flag (bool): Internal flag for environment reset.
+        reload_flag (bool): Internal flag for YAML reload.
+        save_figure_flag (bool): Internal flag to save current figure.
 
     Example:
         >>> # Create a basic environment
@@ -235,10 +243,10 @@ class EnvBase:
 
                 If None, robots will use their default behavior or keyboard control if enabled.
 
-                Note - Priority Order:
-                    1. perform the keyboard control for a specific action_id if enabled.
-                    2. perform the action argument as a list of numpy array, and the action_id argument as a list of int.
-                    3. perform the default behavior for the rest of the objects if the action is None.
+        Note - Priority Order:
+                    1. Apply keyboard control for the specified ``action_id`` if enabled.
+                    2. Apply the provided ``action`` (list of numpy arrays) to robots by ``action_id`` (int or list of int).
+                    3. For remaining robots, fall back to their configured behaviors when ``action`` is ``None``.
 
             action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
                 Can be a single robot ID or a list of IDs. Default is 0 (first robot).
@@ -301,7 +309,11 @@ class EnvBase:
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0
     ) -> None:
         """Advance a single object by one step and tick others.
-        No use this function. It will be deprecated in the future.
+
+        Deprecated:
+            This method is slated for removal in a future release. Prefer
+            :py:meth:`step` (with ``action`` and ``action_id``) to control
+            specific robots.
 
         Args:
             action (np.ndarray | list | None): Action applied to the target object.
@@ -329,10 +341,13 @@ class EnvBase:
         Render the environment.
 
         Args:
-            interval(float) :  Time interval between frames in seconds.
-            figure_kwargs(dict) : Additional keyword arguments for saving figures, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for detail.
-            mode(str) : "dynamic", "static", "all" to specify which type of objects to draw and clear.
-            kwargs: Additional keyword arguments for drawing components. see :py:meth:`.ObjectBase.plot` function for detail.
+            interval (float): Time interval between frames in seconds.
+            figure_kwargs (dict): Additional keyword arguments for saving figures,
+                see `savefig <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for details.
+            mode (str): One of {"dynamic", "static", "all"} specifying which types of objects
+                to draw and clear each frame.
+            kwargs: Additional keyword arguments for drawing components. See
+                :py:meth:`.ObjectBase.plot` for details.
         """
 
         if figure_kwargs is None:
@@ -371,9 +386,11 @@ class EnvBase:
         Draw the trajectory on the environment figure.
 
         Args:
-            traj (list): List of trajectory points (2 * 1 vector).
-            traj_type: Type of the trajectory line, see matplotlib plot function for detail.
-            **kwargs: Additional keyword arguments for drawing the trajectory, see :py:meth:`.EnvPlot.draw_trajectory` for detail.
+            traj (list): List of trajectory points. Each point is a 2x1 vector
+                or an array of shape (2, N).
+            traj_type (str): Matplotlib line style (e.g., "g-", "r--").
+            **kwargs: Additional keyword arguments; forwarded to
+                :py:meth:`.EnvPlot.draw_trajectory`.
         """
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
@@ -390,12 +407,13 @@ class EnvBase:
         Draw points on the environment figure.
 
         Args:
-            points (list): List of points (2*1) to be drawn.
-                or (np.array): (2, Num) to be drawn.
-            s (int): Size of the points.
-            c (str): Color of the points.
-            refresh (bool): Flag to refresh the points in the figure.
-            **kwargs: Additional keyword arguments for drawing the points, see `ax.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_ function for detail.
+            points (list | np.ndarray): Either a list of 2x1 points or a numpy
+                array with shape (2, N).
+            s (int): Marker size.
+            c (str): Marker color.
+            refresh (bool): Whether to clear previous points before drawing.
+            **kwargs: Additional keyword arguments, forwarded to
+                `Axes.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html>`_.
         """
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
@@ -407,9 +425,9 @@ class EnvBase:
         Draw a box by the vertices.
 
         Args:
-            vertex (np.ndarray): matrix of vertices, point_dim*vertex_num
-            refresh (bool): whether to refresh the plot, default True
-            color (str): color of the box, default '-b'
+            vertex (np.ndarray): Vertices matrix with shape (point_dim, num_vertices).
+            refresh (bool): Whether to clear previous boxes before drawing. Default is False.
+            color (str): Line style/color for the box (e.g., "-b").
         """
         self._env_plot.draw_box(vertex, refresh, color)
 
@@ -418,9 +436,10 @@ class EnvBase:
         Draw a single quiver (arrow) on the environment figure.
 
         Args:
-            point: Point data for the quiver
-            refresh (bool): Flag to refresh the quiver in the figure, default False
-            **kwargs: Additional keyword arguments for drawing the quiver
+            point: A tuple ``(x, y, u, v)`` or compatible structure defining the
+                arrow's origin and vector.
+            refresh (bool): Whether to clear previous quiver before drawing. Default False.
+            **kwargs: Additional keyword arguments for drawing the quiver.
         """
         self._env_plot.draw_quiver(point, refresh, **kwargs)
 
@@ -429,9 +448,10 @@ class EnvBase:
         Draw multiple quivers (arrows) on the environment figure.
 
         Args:
-            points: Points data for the quivers
-            refresh (bool): Flag to refresh the quivers in the figure, default False
-            **kwargs: Additional keyword arguments for drawing the quivers
+            points: Iterable of tuples/lists/arrays compatible with
+                ``(x, y, u, v)`` per arrow.
+            refresh (bool): Whether to clear previous quivers before drawing. Default False.
+            **kwargs: Additional keyword arguments for drawing the quivers.
         """
         self._env_plot.draw_quivers(points, refresh, **kwargs)
 
@@ -901,7 +921,7 @@ class EnvBase:
 
     def get_lidar_scan(self, id: int = 0) -> dict[str, Any]:
         """
-        Get the lidar scan of the robot with the given id.
+        Get the LiDAR scan of the robot with the given id.
 
         Args:
             id (int): Id of the robot.
@@ -914,7 +934,7 @@ class EnvBase:
 
     def get_lidar_offset(self, id: int = 0) -> list[float]:
         """
-        Get the lidar offset of the robot with the given id.
+        Get the LiDAR offset of the robot with the given id.
 
 
         Args:

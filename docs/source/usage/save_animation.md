@@ -82,6 +82,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/save_ani.gif
 :alt: Select Parameters
@@ -196,6 +197,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/3d_plot.gif
 :alt: Select Parameters

@@ -8,7 +8,6 @@ world parameters:
     collision_mode:
         - stop (default): All Objects stop when collision,
         - unobstructed: No collision check
-        - reactive: robot will have reaction when collision with others
         - unobstructed_obstacles: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
 
     step_time: time of the simulation step, default is 0.1

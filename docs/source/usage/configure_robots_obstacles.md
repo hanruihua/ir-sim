@@ -55,6 +55,14 @@ robot:
   - `'omni'`: Omnidirectional wheels allowing movement in all directions.
   - `'diff'`: Differential drive allowing movement forward/backward and rotation.
   - `'acker'`: Ackermann steering, typical for car-like robots.
+
+**Kinematics Comparison:**
+
+| Kinematics | Control Input | Typical Use | Can Rotate in Place? |
+|------------|---------------|-------------|----------------------|
+| `omni`     | `[vx, vy]` - velocity in x,y | Holonomic robots, drones | ✓ Yes |
+| `diff`     | `[v, ω]` - linear & angular velocity | Two-wheeled robots | ✓ Yes |
+| `acker`    | `[v, φ]` - linear velocity & steering angle | Cars, car-like robots | ✗ No |
 - **`shape`:** Specifies the physical shape and size of the robot. Name options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`.
     - `circle`: A circular robot with a specified radius.
     - `rectangle`: A rectangular robot with specified length and width.
@@ -148,6 +156,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/robot_obstacle.gif
 :alt: Select Parameters
@@ -163,9 +172,19 @@ obstacle:
 - **unobstructed**: If `True`, there is no collision detection with the object. 
 
 :::{note}
-- The main difference between the robot and obstacle configurations is the default values. For example, default color of the obstacles is black. 
-- Because the `kinematics` of the obstacle is not defined, the obstacle will be stationary during the simulation.
-- Start with `-` to define a new obstacle.
+**Robot vs Obstacle - Key Differences:**
+
+| Parameter | Robot Default | Obstacle Default |
+|-----------|---------------|------------------|
+| `role` | `"robot"` | `"obstacle"` |
+| `color` | Varies | `"k"` (black) |
+| `kinematics` | User-defined | `None` (static) |
+| `behavior` | `{name: 'dash'}` if kinematics set | `None` (static) |
+
+**Configuration Tips:**
+- Without `kinematics`, obstacles remain stationary
+- Add `kinematics` + `behavior` to create moving obstacles
+- Use `-` to define each new robot/obstacle in the list
 :::
 
 :::{warning}
@@ -245,6 +264,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/multi_objects.gif
 :alt: Select Parameters

@@ -5,7 +5,9 @@ Each object in the simulation can be assigned a behavior independently to simula
 
 ## Behavior Configuration Parameters
 
-Currently, there are two built-in behaviors: `dash` and `rvo`. By default, the moving objects' behavior is static, which means the object will not move. You can set the behavior of the object to `dash` or `rvo` in the YAML configuration file. The `dash` behavior is a simple behavior that moves the object from its initial position to the goal position directly. The `rvo` behavior is a dynamic collision avoidance algorithm for multiple agents. The example of this behavior is shown below:
+Currently, there are two built-in behaviors: `dash` and `rvo`. By default, the moving objects' behavior is static. You can set the behavior of the object to `dash` or `rvo` in the YAML configuration file. The `dash` behavior is a simple behavior that moves the object from its initial position to the goal position directly. The `rvo` behavior is a dynamic collision avoidance algorithm for multiple agents.
+
+The example of RVO behavior is shown below:
 
 ::::{tab-set}
 
@@ -57,6 +59,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/rvo.gif
 :alt: Select Parameters
@@ -68,11 +71,20 @@ robot:
 
 ### Important Behavior Parameters Explained
 
-- **`name`:** The name of the behavior. The default behavior is `dash`. The `rvo` behavior is a local collision avoidance algorithm for multiple agents.
-- **`vxmax`:** The maximum velocity in the x direction.
-- **`vymax`:** The maximum velocity in the y direction.
-- **`acce`:** The acceleration of the object.
-- **`factor`:** The factor to adjust the collision penalty. 
+**Common Parameters:**
+- **`name`:** Behavior type (`'dash'`, `'rvo'`, or custom name)
+- **`wander`:** Random goal generation after reaching current goal (default: `False`)
+- **`target_roles`:** Filter objects for behavior (`'all'`, `'robot'`, `'obstacle'`)
+
+**RVO-specific Parameters:**
+- **`vxmax`/`vymax`:** Maximum velocities in x/y directions (default: `1.5`)
+- **`acce`:** Maximum acceleration (default: `1.0`)
+- **`factor`:** Collision penalty weight (default: `1.0`, higher = more conservative)
+- **`mode`:** Algorithm variant - `'rvo'` (default), `'hrvo'`, or `'vo'`
+- **`neighbor_threshold`:** Detection range for nearby objects (default: `3.0` meters)
+
+**Dash-specific Parameters:**
+- **`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker` (default: `0.1` radians)
 
 Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration/).
 
@@ -188,6 +200,7 @@ robot:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/custom_behavior.gif
 :alt: Select Parameters

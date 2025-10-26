@@ -72,8 +72,12 @@ The configuration file is a YAML file that specifies the properties of the envir
 ### Performance Considerations
 
 - **Smaller `step_time`**: More accurate physics but slower simulation
-- **Larger `sample_time`**: Faster simulation but less smooth visualization
+- **Larger `sample_time`**: Faster simulation but less smooth visualization  
 - **World size**: Larger worlds require more computational resources
+
+```{tip}
+You can use `sample_time` to control the rendering frequency and accelerate the simulation speed. The default value of `sample_time` is the same as `step_time`.
+```
 
 For more detailed parameter information, see the [YAML Configuration](../yaml_config/index.rst) reference.
 
@@ -161,11 +165,18 @@ env.end()
 
 ### Available Status Values
 
-- **`"Running"`**: Simulation is actively running
+- **`"Running"`**: The environment is running in auto control mode
+- **`"Running (keyboard)"`**: The environment is running in keyboard control mode
 - **`"Pause"`**: Simulation is paused
 - **`"Done"`**: Simulation has completed
 - **`"Arrived"`**: All robots have arrived at their goals
 - **`"Collision"`**: A collision has occurred
+- **`"Pause (Debugging)"`**: Debugging mode (when `F5` key is pressed)
+- **`"Reset"`**: The environment is reset
+- **`"Reload"`**: The environment is reloaded
+- **`"Save Figure"`**: The figure is saved
+- **`"Quit"`**: The environment is quit
+
 
 ## Configure Environment Title
 

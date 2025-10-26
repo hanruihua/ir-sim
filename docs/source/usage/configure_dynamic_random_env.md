@@ -69,6 +69,7 @@ obstacle:
 :::
 
 :::{tab-item} Demonstration
+:selected:
 
 ```{image} gif/random_obstacles.gif
 :alt: random_obstacles
