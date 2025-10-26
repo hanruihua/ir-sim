@@ -1,3 +1,13 @@
+## 2.7.5
+
+- Features:
+  - Add features to set the seed in random environment generation for reproducibility. Simply add the seed parameter to the make function (e.g., `env = irsim.make("random_obstacle.yaml", seed=2)`) or set the seed using the `env.set_random_seed` function followed by `env.reload()`. See usage `random_obstacle_seed` for details.
+  - Add ORCA example (behavior) in ir-sim, implemented by PyRVO, a Python binding of the classic ORCA algorithm (C++ version, high efficiency). See `usage orca world` for details.
+
+- Bug fixes:
+  - Fix issue where sampling time did not work.
+  - Fix documentation errors.
+ 
 ## 2.7.4
 
 - Features:
