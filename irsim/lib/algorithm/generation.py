@@ -5,7 +5,6 @@ Author: Ruihua Han
 """
 
 import math
-import random
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -123,7 +122,7 @@ def generate_polygon(
     points = []
     angle = rng.uniform(0, 2 * math.pi)
     for i in range(num_vertices):
-        radius = clip(random.gauss(avg_radius, spikeyness), 0, 2 * avg_radius)
+        radius = clip(rng.normal(avg_radius, spikeyness), 0, 2 * avg_radius)
         point = (
             center[0] + radius * math.cos(angle),
             center[1] + radius * math.sin(angle),
