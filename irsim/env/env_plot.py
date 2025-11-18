@@ -78,6 +78,8 @@ class EnvPlot:
             dpi=self.saved_figure_kwargs["dpi"],
         )
 
+        self.viewpoint = world.plot_parse.get("viewpoint", None)
+
         # Initialize dynamic plotting lists
         self.dyna_line_list: list[Any] = []
         self.dyna_point_list: list[Any] = []
@@ -85,15 +87,6 @@ class EnvPlot:
 
         # Initialize the plot with world data
         self._init_plot(world, objects, **kwargs)
-
-        # Initialize plot settings and appearance
-        # self.color_map: dict[str, str] = {
-        #     "robot": "g",
-        #     "obstacle": "k",
-        #     "landmark": "b",
-        #     "target": "pink",
-        # }
-        # self.color_map.update(kwargs.get("color_map", {}))
 
     def _init_plot(
         self,
@@ -125,8 +118,8 @@ class EnvPlot:
         else:
             self.ax.set_aspect("equal")
 
-        self.ax.set_xlim(world.x_range)
-        self.ax.set_ylim(world.y_range)
+        self.ax.set_xlim(self.world.x_range)
+        self.ax.set_ylim(self.world.y_range)
 
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
@@ -151,8 +144,11 @@ class EnvPlot:
         """
         if objects is None:
             objects = []
+
         if self.show_title:
             self.update_title()
+
+        self.set_ax_viewpoint(objects)
 
         if isinstance(self.ax, Axes3D):
             self.clear_components(mode, objects)
@@ -289,7 +285,7 @@ class EnvPlot:
             refresh (bool): Whether to refresh the plot.
             kwargs: Additional plotting options for ax.plot()
         """
-        path_x_list, path_y_list =traj_to_xy_list(traj)
+        path_x_list, path_y_list = traj_to_xy_list(traj)
 
         line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
@@ -504,6 +500,55 @@ class EnvPlot:
 
         if rm_fig_path:
             shutil.rmtree(fp)
+
+    def set_ax_viewpoint(self, objects: Optional[list[Any]] = None) -> None:
+        """
+        Set the viewpoint of the plot windows by the viewpoint parameter.
+
+        Args:
+            objects (list): List of objects to search for the viewpoint.
+        """
+
+        # Ensure objects list present for name lookup
+        if objects is None:
+            objects = getattr(env_param, "objects", [])  # type: ignore[attr-defined]
+
+        if self.viewpoint is None:
+            point = None
+        elif isinstance(self.viewpoint, str):
+            target = next(
+                (
+                    obj
+                    for obj in objects
+                    if getattr(obj, "name", None) == self.viewpoint
+                ),
+                None,
+            )
+
+            point = target.state[0:2].flatten().tolist() if target is not None else None
+
+        elif isinstance(self.viewpoint, list):
+            point = self.viewpoint
+        else:
+            point = None
+
+        if point is None:
+            pass
+        else:
+            # Preserve current zoom span if available; otherwise use world size
+            cur_xlim = self.ax.get_xlim()
+            cur_ylim = self.ax.get_ylim()
+
+            cur_width = cur_xlim[1] - cur_xlim[0]
+            cur_height = cur_ylim[1] - cur_ylim[0]
+
+            view_point_x1 = point[0] - cur_width / 2.0
+            view_point_x2 = point[0] + cur_width / 2.0
+            view_point_y1 = point[1] - cur_height / 2.0
+            view_point_y2 = point[1] + cur_height / 2.0
+
+            self.ax.set_xlim([view_point_x1, view_point_x2])
+            self.ax.set_ylim([view_point_y1, view_point_y2])
 
     def show(self) -> None:
         """

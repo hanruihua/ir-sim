@@ -3,8 +3,9 @@ world:
   width: 10   # the width of the world
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
-  offset: [0, 0] # the offset of the world on x and y 
+  offset: [0, 0] # the offset of the world on x and y
   plot:
+    viewpoint: 'robot_0'
     no_axis: true
     saved_figure:
       dpi: 200
