@@ -228,6 +228,19 @@ This section outlines the configuration parameters available for the `world` sec
   - `title`: Custom title for the plot. If not specified, shows simulation time and status.
   - `no_axis`: Whether to show the axis. Default is `False`.
   - `tight`: Whether to use tight layout. Default is `True`.
+  - `viewpoint`: Controls the center of the camera/viewport. Default is `null`.
+    - `null`: Use the initial world bounds (no automatic panning).
+    - `[x, y]`: Keep the viewport centered at the fixed point `[x, y]`.
+    - `"<object_name>"`: Follow the object with that name (dynamic panning), e.g., `"robot_0"`.
+
+  ```yaml
+  # Examples
+  plot:
+    viewpoint: [3, 3]        # fixed center at (3, 3)
+  # or
+  plot:
+    viewpoint: "robot_0"     # follow the object named robot_0
+  ```
 ::::
 
 ### Complete World Configuration Example
@@ -248,7 +261,8 @@ world:
   plot:                               # Plotting configuration
     show_title: true                  # Show plot title
     title: "Custom Simulation Title"  # Custom title (optional)
-    figure_pixels: [1200, 800]       # Figure size in pixels
+    figure_pixels: [1200, 800]        # Figure size in pixels
+    viewpoint: "robot_0"              # Camera center: fixed [x, y], object name, or null
     saved_figure:                     # Figure saving options
       dpi: 150                        # Resolution for saved figures
       format: "png"                   # File format
