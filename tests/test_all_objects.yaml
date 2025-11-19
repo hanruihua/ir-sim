@@ -5,6 +5,8 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
   collision_mode: 'stop'  # 'stop', 'unobstructed',  
+  plot:
+    viewpoint: [3, 3]
 
 robot:
   - kinematics: {name: 'diff', noise: True}  # omni, diff, ackers
