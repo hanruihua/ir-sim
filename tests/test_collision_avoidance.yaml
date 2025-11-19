@@ -9,6 +9,7 @@ world:
   plot:
     no_axis: true
     show_title: false
+    viewpoint: 'robot_0'
 
 robot:
   - number: 2
