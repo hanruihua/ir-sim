@@ -508,11 +508,6 @@ class EnvPlot:
         Args:
             objects (list): List of objects to search for the viewpoint.
         """
-
-        # Ensure objects list present for name lookup
-        if objects is None:
-            objects = getattr(env_param, "objects", [])  # type: ignore[attr-defined]
-
         if self.viewpoint is None:
             point = None
         elif isinstance(self.viewpoint, str):
