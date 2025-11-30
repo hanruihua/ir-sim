@@ -166,6 +166,7 @@ class EnvBase:
             self._robot_collection,
             self._obstacle_collection,
             self._map_collection,
+            self._object_groups,
         ) = self.env_config.initialize_objects()
 
         self.build_tree()
@@ -296,6 +297,7 @@ class EnvBase:
                 If the list is shorter than the number of objects, it is padded
                 with ``None`` for the remaining objects.
         """
+
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action, sensor_step) for obj, action in zip(self.objects, action)]
 

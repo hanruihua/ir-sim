@@ -28,6 +28,7 @@ class ObjectFactory:
         self,
         parse: Union[list[dict[str, Any]], dict[str, Any]],
         obj_type: str = "robot",
+        group_start_index: int = 0,
     ) -> list[Any]:
         """
         Create objects from a parsed configuration.
@@ -35,6 +36,7 @@ class ObjectFactory:
         Args:
             parse (list or dict): Parsed configuration data.
             obj_type (str): Type of object to create, 'robot' or 'obstacle'.
+            group_start_index (int): Starting index for the group.
 
         Returns:
             list: List of created objects.
@@ -45,7 +47,9 @@ class ObjectFactory:
             object_list = [
                 obj
                 for group_index, sp in enumerate(parse)
-                for obj in self.create_object(obj_type, group=group_index, **sp)
+                for obj in self.create_object(
+                    obj_type, group=group_start_index + group_index, **sp
+                )
             ]
 
         elif isinstance(parse, dict):
