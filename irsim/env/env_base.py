@@ -291,6 +291,36 @@ class EnvBase:
         self._world.step()
         self._status_step()
 
+    def states(self) -> np.ndarray:
+        """
+        Get stacked states for all objects as an array of shape (N, D).
+
+        Returns
+        -------
+        np.ndarray
+            Array of shape (N, D) where N is the number of objects and D is the state dimension.
+            A new array is allocated on each call.
+        """
+        if not self.objects:
+            return np.zeros((0, 0))
+        rows = [obj.state.flatten() for obj in self.objects]
+        return np.stack(rows, axis=0)
+
+    def velocities(self) -> np.ndarray:
+        """
+        Get stacked velocities for all objects as an array of shape (N, V).
+
+        Returns
+        -------
+        np.ndarray
+            Array of shape (N, V) where N is the number of objects and V is the velocity dimension.
+            A new array is allocated on each call.
+        """
+        if not self.objects:
+            return np.zeros((0, 0))
+        rows = [obj.velocity.flatten() for obj in self.objects]
+        return np.stack(rows, axis=0)
+
     def _objects_step(self, action: list[Any], sensor_step: bool = True) -> None:
         """Advance all objects by one step with corresponding actions.
 
