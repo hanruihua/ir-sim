@@ -284,6 +284,16 @@ class EnvBase:
         if world_param.control_mode == "keyboard" and self.key_id < len(actions):
             actions[self.key_id] = self.key_vel
 
+        group_actions = []
+        for group in self._object_groups:
+            group_actions += group.gen_group_behavior_vel()
+
+        # Fill missing actions with corresponding group_actions (if available)
+        if len(group_actions) > 0:
+            for i in range(min(len(actions), len(group_actions))):
+                if actions[i] is None and group_actions[i] is not None:
+                    actions[i] = group_actions[i]
+
         self._objects_step(actions, sensor_step=False)
         self._objects_sensor_step()
         self._world.step()
@@ -801,6 +811,7 @@ class EnvBase:
             self._robot_collection,
             self._obstacle_collection,
             self._map_collection,
+            self._object_groups,
         ) = self.env_config.reload_yaml_objects(world_name)
         self.build_tree()
         self.validate_unique_names()

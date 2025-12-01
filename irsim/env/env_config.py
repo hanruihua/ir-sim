@@ -146,6 +146,16 @@ class EnvConfig:
         objects = robot_collection + obstacle_collection + map_collection
         objects.sort(key=attrgetter("id"))
 
+        group_ids = sorted({obj.group for obj in objects})
+        object_groups = [
+            ObjectGroup(
+                [obj for obj in objects if obj.group == gid],
+                gid,
+                self.parse["group_behavior"],
+            )
+            for gid in group_ids
+        ]
+
         # env_plot = EnvPlot(world, objects, **world.plot_parse)
         self._env_plot.clear_components("all", self._objects)
         self._env_plot._init_plot(world, objects)
@@ -157,6 +167,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         )
 
     def reload_yaml_objects(self, world_name) -> Any:
@@ -182,6 +193,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         ) = self.reload_objects()
 
         return (
@@ -191,6 +203,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         )
 
     @property
