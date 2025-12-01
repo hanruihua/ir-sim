@@ -279,6 +279,8 @@ class EnvBase:
         ) or self.pause_flag:
             return
 
+        self._object_groups.gen_group_behavior_vel()
+
         actions = action  # normalized by decorator to a list aligned with self.objects
 
         if world_param.control_mode == "keyboard" and self.key_id < len(actions):
@@ -801,6 +803,7 @@ class EnvBase:
             self._robot_collection,
             self._obstacle_collection,
             self._map_collection,
+            self._object_groups,
         ) = self.env_config.reload_yaml_objects(world_name)
         self.build_tree()
         self.validate_unique_names()

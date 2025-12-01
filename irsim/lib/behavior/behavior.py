@@ -48,6 +48,7 @@ class Behavior:
 
         if external_objects is None:
             external_objects = []
+
         if self.behavior_dict is None or not self.behavior_dict:
             if world_param.control_mode == "auto" and world_param.count % 20 == 0:
                 self.logger.warning(
@@ -58,14 +59,10 @@ class Behavior:
 
         target_roles = self.behavior_dict.get("target_roles", "all")
 
-        if target_roles == "all":
-            external_objects = external_objects
-        elif target_roles == "obstacle":
+        if target_roles in ("robot", "obstacle"):
             external_objects = [
-                obj for obj in external_objects if obj.role == "obstacle"
+                obj for obj in external_objects if obj.role == target_roles
             ]
-        elif target_roles == "robot":
-            external_objects = [obj for obj in external_objects if obj.role == "robot"]
 
         return self.invoke_behavior(
             self.object_info.kinematics,
