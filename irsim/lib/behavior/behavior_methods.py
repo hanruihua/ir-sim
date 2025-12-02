@@ -1,11 +1,13 @@
+from functools import lru_cache
 from math import cos, sin
 from typing import Any, Optional
 
 import numpy as np
 
 from irsim.config import env_param, world_param
-from irsim.lib import reciprocal_vel_obs, register_behavior
+from irsim.lib import reciprocal_vel_obs, register_behavior, register_group_behavior
 from irsim.util.util import WrapToPi, omni_to_diff, relative_position
+from irsim.world.object_base import ObjectBase
 
 """
 Behavior Methods Module
@@ -213,6 +215,72 @@ def beh_acker_dash(
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
     return AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+
+
+@register_group_behavior("omni", "orca")
+def beh_diff_orca(members: list[ObjectBase], **kwargs: Any) -> np.ndarray:
+    """
+    Group Behavior function for differential drive robot using ORCA (Optimal Reciprocal Collision Avoidance).
+    """
+
+    orca = get_orca_sim(members, **kwargs)
+
+    for i, member in enumerate(members):
+        orca.set_agent_pref_velocity(
+            i, member.get_desired_omni_vel(normalized=True).flatten().tolist()
+        )
+        orca.set_agent_position(i, member.state[:2, 0].tolist())
+
+    orca.do_step()
+
+    # Return per-member 2x1 numpy arrays for downstream action application
+    return [
+        np.c_[list(orca.get_agent_velocity(i).to_tuple())]
+        for i in range(orca.get_num_agents())
+    ]
+
+
+@lru_cache(maxsize=1)
+def _get_pyrvo():
+    try:
+        import pyrvo
+    except ImportError as e:
+        raise ImportError(
+            "pyrvo is not installed. Please install it using `pip install pyrvo`."
+        ) from e
+    return pyrvo
+
+
+def get_orca_sim(
+    members: list[ObjectBase],
+    neighborDist: float = 15.0,
+    maxNeighbors: int = 10,
+    timeHorizon: float = 20.0,
+    timeHorizonObst: float = 10.0,
+    safe_radius: float = 0.1,
+    maxSpeed: Optional[float] = None,
+    **kwargs: Any,
+):
+    pyrvo = _get_pyrvo()
+    orca = pyrvo.RVOSimulator()
+
+    orca.set_time_step(world_param.step_time)
+    # orca.set_agent_defaults(neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed)
+
+    for _i, member in enumerate(members):
+        # derive max speed from per-axis limits if not provided
+        agent_max_speed = float(maxSpeed) if maxSpeed is not None else member.max_speed
+        orca.add_agent(
+            member.state[:2, 0].tolist(),
+            neighborDist,
+            maxNeighbors,
+            timeHorizon,
+            timeHorizonObst,
+            float(member.radius + safe_radius),
+            agent_max_speed,
+        )
+
+    return orca
 
 
 def OmniRVO(

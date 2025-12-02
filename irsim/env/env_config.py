@@ -101,11 +101,7 @@ class EnvConfig:
         # Initialize groups (unique and inclusive)
         group_ids = sorted({obj.group for obj in objects})
         object_groups = [
-            ObjectGroup(
-                [obj for obj in objects if obj.group == gid],
-                gid,
-                self.parse["group_behavior"],
-            )
+            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
             for gid in group_ids
         ]
 

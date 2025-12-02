@@ -189,6 +189,7 @@ class ObjectBase:
         acce: Optional[list] = None,
         angle_range: Optional[list] = None,
         behavior: Optional[dict] = None,
+        group_behavior: Optional[dict] = None,
         goal_threshold: float = 0.1,
         sensors: Optional[dict] = None,
         arrive_mode: str = "position",
@@ -368,6 +369,7 @@ class ObjectBase:
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
+        self.group_behavior = group_behavior
         self.rl = self.beh_config.get("range_low", [0, 0, -pi])
         self.rh = self.beh_config.get("range_high", [10, 10, pi])
         self.wander = self.beh_config.get("wander", False)
@@ -2424,6 +2426,25 @@ class ObjectBase:
         if self.kinematics == "diff" or self.kinematics == "acker":
             return diff_to_omni(self.state[2, 0], self.velocity)
         return np.zeros((2, 1))
+
+    @property
+    def max_speed(self):
+        """
+        Get the maximum speed of the object.
+
+        Returns:
+            float: The maximum speed of the object.
+        """
+
+        if self.kinematics == "omni":
+            return np.linalg.norm(self.vel_max)
+        if self.kinematics == "diff" or self.kinematics == "acker":
+            return self.vel_max[0, 0]
+
+        self.logger.warning(
+            f"The kinematics of the object {self.name} is not supported."
+        )
+        return 0
 
     @property
     def beh_config(self):

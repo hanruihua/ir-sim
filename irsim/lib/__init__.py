@@ -8,7 +8,10 @@ from irsim.lib.algorithm.kinematics import (
 )
 from irsim.lib.algorithm.rvo import reciprocal_vel_obs
 from irsim.lib.behavior.behavior import Behavior
-from irsim.lib.behavior.behavior_registry import register_behavior
+from irsim.lib.behavior.behavior_registry import (
+    register_behavior,
+    register_group_behavior,
+)
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.lib.handler.kinematics_handler import KinematicsFactory
 

@@ -1,3 +1,5 @@
+import time
+
 import pyrvo
 
 import irsim
@@ -14,6 +16,8 @@ if __name__ == "__main__":
         orca.add_agent(robot.state[:2, 0].tolist())
 
     while True:
+        start_time = time.time()
+
         for i, robot in enumerate(env.robot_list):
             orca.set_agent_pref_velocity(
                 i, robot.get_desired_omni_vel(normalized=True).flatten().tolist()
@@ -26,6 +30,8 @@ if __name__ == "__main__":
         ]
 
         env.step(action_list)
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time} seconds")
         env.render()
 
         if env.done():
