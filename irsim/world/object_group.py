@@ -1,7 +1,5 @@
 from typing import Any
 
-import numpy as np
-
 from irsim.config import env_param, world_param
 from irsim.lib.behavior.behavior_registry import group_behaviors_map
 from irsim.world.object_base import ObjectBase
@@ -98,7 +96,7 @@ class ObjectGroup:
                     f"Group behavior not defined for group {self.group_id}. auto control will be static. Available behaviors: orca"
                 )
 
-            return np.zeros((2, 1))
+            return [None]
 
         return self.invoke_group_behavior(
             self.kinematics,
