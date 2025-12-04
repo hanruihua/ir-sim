@@ -88,7 +88,9 @@ class EnvConfig:
         obstacle_collection = self.object_factory.create_from_parse(
             self.parse["obstacle"],
             "obstacle",
-            group_start_index=max(obj.group for obj in robot_collection) + 1,
+            group_start_index=(
+                max((obj.group for obj in robot_collection), default=-1) + 1
+            ),
         )
         map_collection = self.object_factory.create_from_map(
             world.obstacle_positions, world.buffer_reso
@@ -137,7 +139,11 @@ class EnvConfig:
             self.parse["robot"], "robot"
         )
         obstacle_collection = self.object_factory.create_from_parse(
-            self.parse["obstacle"], "obstacle"
+            self.parse["obstacle"],
+            "obstacle",
+            group_start_index=(
+                max((obj.group for obj in robot_collection), default=-1) + 1
+            ),
         )
         map_collection = self.object_factory.create_from_map(
             world.obstacle_positions, world.buffer_reso
@@ -148,11 +154,7 @@ class EnvConfig:
 
         group_ids = sorted({obj.group for obj in objects})
         object_groups = [
-            ObjectGroup(
-                [obj for obj in objects if obj.group == gid],
-                gid,
-                self.parse["group_behavior"],
-            )
+            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
             for gid in group_ids
         ]
 

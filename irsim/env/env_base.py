@@ -279,22 +279,11 @@ class EnvBase:
         ) or self.pause_flag:
             return
 
-        actions = action  # normalized by decorator to a list aligned with self.objects
+        # assign the keyboard and group action to the action list in a priority order
+        action = self._assign_keyboard_action(action)
+        action = self._assign_group_action(action)
 
-        if world_param.control_mode == "keyboard" and self.key_id < len(actions):
-            actions[self.key_id] = self.key_vel
-
-        group_actions = []
-        for group in self._object_groups:
-            group_actions += group.gen_group_behavior_vel()
-
-        # Fill missing actions with corresponding group_actions (if available)
-        if len(group_actions) > 0:
-            for i in range(min(len(actions), len(group_actions))):
-                if actions[i] is None and group_actions[i] is not None:
-                    actions[i] = group_actions[i]
-
-        self._objects_step(actions, sensor_step=False)
+        self._objects_step(action, sensor_step=False)
         self._objects_sensor_step()
         self._world.step()
         self._status_step()
@@ -340,6 +329,29 @@ class EnvBase:
     def _objects_check_status(self) -> None:
         """Refresh per-object status flags (e.g., arrival, collision)."""
         [obj.check_status() for obj in self.objects]
+
+    def _assign_keyboard_action(self, action: list[Any]) -> list[Any]:
+        """
+        Assign the keyboard action to the action list.
+        """
+
+        if world_param.control_mode == "keyboard" and self.key_id < len(action):
+            action[self.key_id] = self.key_vel
+
+        return action
+
+    def _assign_group_action(self, action: list[Any]) -> list[Any]:
+        """
+        Assign the group action to the action list.
+        """
+        group_actions = [
+            ga for group in self._object_groups for ga in group.gen_group_behavior_vel()
+        ]
+        for i, (a, ga) in enumerate(zip(action, group_actions)):
+            if a is None and ga is not None:
+                action[i] = ga
+
+        return action
 
     # render
     def render(
