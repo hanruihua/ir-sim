@@ -12,8 +12,8 @@ robot:
   distribution: {name: 'circle', radius: 140}
   color: 'g'
   goal_threshold: 0.1
-  vel_max: [2, 2]
-  vel_min: [-2, -2]
+  vel_max: [3, 3]
+  vel_min: [-3, -3]
   plot:
     show_trajectory: True
     show_goal: True

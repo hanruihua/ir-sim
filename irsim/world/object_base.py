@@ -369,7 +369,9 @@ class ObjectBase:
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
-        self.group_behavior = group_behavior
+        self.group_behavior = (
+            group_behavior if group_behavior is not None else dict[str, Any]()
+        )
         self.rl = self.beh_config.get("range_low", [0, 0, -pi])
         self.rh = self.beh_config.get("range_high", [10, 10, pi])
         self.wander = self.beh_config.get("wander", False)

@@ -1,7 +1,5 @@
-from typing import Any
-
-from irsim.config import env_param, world_param
-from irsim.lib.behavior.behavior_registry import group_behaviors_map
+from irsim.config import env_param
+from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
 
 
@@ -27,7 +25,9 @@ class ObjectGroup:
         self.kinematics = self._delegate_member.kinematics
         self.number = len(members)
 
-        self.group_behavior_dict = self._delegate_member.group_behavior
+        self.group_behavior = GroupBehavior(
+            members, **self._delegate_member.group_behavior
+        )
 
     def step(self, actions: list[any], sensor_step: bool = True):
         """
@@ -47,6 +47,9 @@ class ObjectGroup:
             member.step(action, sensor_step)
             for member, action in zip(self.members, actions)
         ]
+
+    def gen_group_vel(self):
+        return self.group_behavior.gen_group_vel()
 
     def __hash__(self) -> int:
         return hash((self.role, self.group_id))
@@ -88,31 +91,6 @@ class ObjectGroup:
             return any(m.id == int(item) for m in self.members)
         except (TypeError, ValueError):
             return False
-
-    def gen_group_behavior_vel(self):
-        if self.group_behavior_dict is None or not self.group_behavior_dict:
-            if world_param.control_mode == "auto" and world_param.count % 20 == 0:
-                self.logger.warning(
-                    f"Group behavior not defined for group {self.group_id}. auto control will be static. Available behaviors: orca"
-                )
-
-            return [None]
-
-        return self.invoke_group_behavior(
-            self.kinematics,
-            self.group_behavior_dict["name"],
-            **self.group_behavior_dict,
-        )
-
-    def invoke_group_behavior(self, kinematics: str, action: str, **kwargs: Any):
-        key: tuple[str, str] = (kinematics, action)
-        func = group_behaviors_map.get(key)
-        if not func:
-            raise ValueError(
-                f"No group behavior method found for category '{kinematics}' and action '{action}'."
-            )
-
-        return func(self.members, **kwargs)
 
     @property
     def _delegate_member(self) -> ObjectBase:

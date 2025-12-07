@@ -345,7 +345,7 @@ class EnvBase:
         Assign the group action to the action list.
         """
         group_actions = [
-            ga for group in self._object_groups for ga in group.gen_group_behavior_vel()
+            ga for group in self._object_groups for ga in group.gen_group_vel()
         ]
         for i, (a, ga) in enumerate(zip(action, group_actions)):
             if a is None and ga is not None:
