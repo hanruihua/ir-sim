@@ -114,6 +114,9 @@ class ObjectBase:
         behavior (dict or str): Behavioral mode or configuration of the object.
             Can be a behavior name (str) or a dictionary with behavior parameters. If None, default behavior is applied.
             Defaults to {'name': 'dash'}, moving to the goal directly.
+        group_behavior (dict): Shared behavior defaults for objects in the same group.
+            When an object's own behavior configuration is empty or missing, the
+            group behavior will be used as a fallback and exposed via `beh_config`.
         goal_threshold (float): Threshold distance to determine if the object has reached its goal.
             When the object is within this distance to the goal, it's considered to have arrived. Defaults to 0.1.
         sensors (list of dict): List of sensor configurations attached to the object.
@@ -369,9 +372,8 @@ class ObjectBase:
 
         # behavior
         self.obj_behavior = Behavior(self.info, behavior)
-        self.group_behavior = (
-            group_behavior if group_behavior is not None else dict[str, Any]()
-        )
+        self.group_behavior_dict = group_behavior if group_behavior is not None else {}
+
         self.rl = self.beh_config.get("range_low", [0, 0, -pi])
         self.rh = self.beh_config.get("range_high", [10, 10, pi])
         self.wander = self.beh_config.get("wander", False)
@@ -467,7 +469,8 @@ class ObjectBase:
         Check the current status of the object, including arrival and collision detection.
 
         This method evaluates collision detection and sets stop flags based on the collision mode.
-        It also handles different collision modes like 'stop',  , 'unobstructed', etc.
+        It also handles different collision modes like 'stop', 'reactive', 'unobstructed',
+        and 'unobstructed_obstacles'.
         """
         self.check_arrive_status()
         self.check_collision_status()
@@ -578,6 +581,9 @@ class ObjectBase:
         If no desired velocity is provided (`velocity` is None), the method may generate a default
         velocity or issue warnings based on the object's role and behavior settings.
 
+        Note:
+            Wander goal renewal (sampling a new random goal upon arrival) is handled in pre_process().
+
         Args:
             velocity (Optional[np.ndarray]): Desired velocity vector. If None, the method determines
                 the velocity based on behavior configurations. Defaults to None.
@@ -585,8 +591,8 @@ class ObjectBase:
         Returns:
             np.ndarray: Velocity vector adjusted based on behavior configurations and constraints.
 
-        Raises:
-            Warning: If `velocity` is None and no behavior configuration is set for a robot.
+        Logging:
+            Emits a warning if `velocity` is None and no behavior configuration is set for a robot.
         """
         min_vel, max_vel = self.get_vel_range()
 
@@ -598,10 +604,6 @@ class ObjectBase:
                     )
 
                 return np.zeros_like(self._velocity)
-
-            if self.wander and self.arrive_flag:
-                self._goal = deque([random_point_range(self.rl, self.rh)])
-                self.arrive_flag = False
 
             behavior_vel = self.obj_behavior.gen_vel(
                 self.ego_object, self.external_objects
@@ -631,8 +633,15 @@ class ObjectBase:
 
         This method is called before velocity generation and state updates.
         Can be overridden by subclasses to implement custom pre-processing logic.
+
+        Default behavior:
+            - If `wander` is enabled and the object has just arrived (`arrive_flag`),
+              sample a new random goal within [`rl`, `rh`] and clear `arrive_flag`.
         """
-        pass
+
+        if self.wander and self.arrive_flag:
+            self._goal = deque([random_point_range(self.rl, self.rh)])
+            self.arrive_flag = False
 
     def post_process(self):
         """
@@ -2449,15 +2458,15 @@ class ObjectBase:
         return 0
 
     @property
-    def beh_config(self):
+    def beh_config(self) -> dict[str, Any]:
         """
-        Get the behavior configuration of the object.
+        Get the behavior configuration for this object with group fallback.
 
         Returns:
-            dict: The behavior configuration of the object.
+            dict: The per-object behavior configuration if defined and non-empty;
+                otherwise, the group's shared behavior configuration.
         """
-
-        return self.obj_behavior.behavior_dict
+        return self.obj_behavior.behavior_dict or self.group_behavior_dict
 
     @property
     def logger(self):

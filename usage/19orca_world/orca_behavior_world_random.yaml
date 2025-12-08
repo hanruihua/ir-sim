@@ -1,0 +1,34 @@
+world:
+  height: 290 
+  width: 290  
+  step_time: 0.1
+  sample_time: 0.7
+  offset: [-140, -140]
+
+robot:
+  - number: 100
+    kinematics: {name: 'omni'}  
+    shape: {name: 'circle', radius: 1.0}  
+    distribution: {name: 'random', range_low: [-100, -100, -3.14], range_high: [100, 100, 3.14]}
+    color: 'g'
+    goal_threshold: 0.1
+    vel_max: [3, 3]
+    vel_min: [-3, -3]
+    plot:
+      show_trajectory: True
+      show_goal: True
+      keep_traj_length: 50
+    group_behavior: 
+      name: 'orca' 
+      neighborDist: 15.0 
+      maxNeighbors: 10
+      timeHorizon: 20.0
+      timeHorizonObst: 10.0
+      safe_radius: 0.5
+      maxSpeed: 2.0
+      wander: True
+      range_low: [-100, -100, -3.14]
+      range_high: [100, 100, 3.14]
+
+
+

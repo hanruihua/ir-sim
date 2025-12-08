@@ -26,7 +26,7 @@ class ObjectGroup:
         self.number = len(members)
 
         self.group_behavior = GroupBehavior(
-            members, **self._delegate_member.group_behavior
+            members, **self._delegate_member.group_behavior_dict
         )
 
     def step(self, actions: list[any], sensor_step: bool = True):
