@@ -24,7 +24,7 @@
 - Simulate robot platforms with diverse kinematics, sensors, and behaviors  ([support](#support)). 
 - Quickly configure and customize scenarios using straightforward YAML files. No complex coding required.
 - Visualize simulation outcomes using a naive visualizer matplotlib for immediate debugging.
-- Support collision detection and behavior control for each object.
+- Support collision detection and customizable behavior policies for each object.
 - Suitable for mutli-agent/robot reinforcement learning ([Reinforcement Learning Projects](#projects-using-ir-sim)).
 
 ## Demonstrations
