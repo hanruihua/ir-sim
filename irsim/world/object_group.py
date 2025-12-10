@@ -21,12 +21,21 @@ class ObjectGroup:
 
         self.members = members
         self.group_id = group_id
-        self.role = self._delegate_member.role
-        self.kinematics = self._delegate_member.kinematics
+        self.role = (
+            self._delegate_member.role if self._delegate_member is not None else None
+        )
+        self.kinematics = (
+            self._delegate_member.kinematics
+            if self._delegate_member is not None
+            else None
+        )
         self.number = len(members)
 
         self.group_behavior = GroupBehavior(
-            members, **self._delegate_member.group_behavior_dict
+            members,
+            **self._delegate_member.group_behavior_dict
+            if self._delegate_member is not None
+            else {},
         )
 
     def step(self, actions: list[any], sensor_step: bool = True):
@@ -94,6 +103,9 @@ class ObjectGroup:
 
     @property
     def _delegate_member(self) -> ObjectBase:
+        if len(self.members) == 0:
+            return None
+
         return self.members[0]
 
     @property

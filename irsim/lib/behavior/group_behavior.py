@@ -33,7 +33,9 @@ class GroupBehavior:
         """
         self.members = members
         self.behavior_dict = behavior_dict or {}
-        self.kinematics: Optional[str] = members[0].kinematics
+        self.kinematics: Optional[str] = (
+            members[0].kinematics if len(members) > 0 else None
+        )
         self.name: Optional[str] = self.behavior_dict.get("name")
 
         self.load_group_behaviors()
