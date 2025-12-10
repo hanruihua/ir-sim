@@ -39,7 +39,7 @@ dependencies = [
 
 [project.optional-dependencies]
 keyboard = ['pynput']
-all = ['pynput', 'imageio[ffmpeg]']
+all = ['pynput', 'imageio[ffmpeg]', 'pyrvo']
 
 [dependency-groups]
 docs = [
