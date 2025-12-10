@@ -103,7 +103,7 @@ class ObjectGroup:
 
     @property
     def _delegate_member(self) -> ObjectBase:
-        if len(self.members) == 0:
+        if not self.members:
             return None
 
         return self.members[0]
