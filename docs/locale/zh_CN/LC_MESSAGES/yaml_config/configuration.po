@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-01 20:13+0800\n"
+"POT-Creation-Date: 2025-12-12 01:32+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -15,21 +15,26 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: ../../source/yaml_config/configuration.md:1
 msgid "YAML Configuration Syntax"
 msgstr "YAML配置语法"
 
+# msgid ""
+# "The configuration file is a YAML file to initialize the environment. It "
+# "contains the configuration parameters to simulate and visualize the "
+# "world, obstacle, and robot. You can customize the scenario and define the"
+# " behavior of the objects simply by using the parameters."
 #: ../../source/yaml_config/configuration.md:3
-#msgid ""
-#"The configuration file is a YAML file to initialize the environment. It "
-#"contains the configuration parameters to simulate and visualize the "
-#"world, obstacle, and robot. You can customize the scenario and define the"
-#" behavior of the objects simply by using the parameters."
-
-msgid "The configuration file is a YAML file to initialize the environment. It contains the configuration parameters to simulate and visualize the world, obstacle, and robot. You can customize the scenario and define the behavior of the objects simply by using the parameters."
-msgstr "配置文件是一个用于初始化环境的 YAML 文件。它包含用于模拟和可视化世界、障碍物和机器人的配置参数。使用者可以通过使用这些参数简单地自定义场景并定义对象的行为。"
+msgid ""
+"The configuration file is a YAML file to initialize the environment. It "
+"contains the configuration parameters to simulate and visualize the "
+"world, obstacle, and robot. You can customize the scenario and define the"
+" behavior of the objects simply by using the parameters."
+msgstr ""
+"配置文件是一个用于初始化环境的 YAML "
+"文件。它包含用于模拟和可视化世界、障碍物和机器人的配置参数。使用者可以通过使用这些参数简单地自定义场景并定义对象的行为。"
 
 #: ../../source/yaml_config/configuration.md:7
 msgid "Parameter Quick Reference"
@@ -41,7 +46,7 @@ msgstr "使用此导航快速跳转到特定参数部分："
 
 #: ../../source/yaml_config/configuration.md
 msgid "**World Parameters**"
-msgstr "**世界参数**"
+msgstr "**World 参数**"
 
 #: ../../source/yaml_config/configuration.md:15
 msgid "[Parameters Table](#world-parameters-table)"
@@ -50,6 +55,7 @@ msgstr ""
 #: ../../source/yaml_config/configuration.md:16
 msgid "[world properties](#world-properties)"
 msgstr ""
+
 #: ../../source/yaml_config/configuration.md:17
 msgid "`name`, `height`, `width`, `step_time`, `sample_time`, `offset`"
 msgstr ""
@@ -59,34 +65,69 @@ msgid "[world mode](#world-mode)"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:19
+msgid "`control_mode`, `collision_mode`, `status`"
+msgstr ""
+
 #: ../../source/yaml_config/configuration.md:20
+msgid "[world map](#world-map)"
+msgstr ""
+
 #: ../../source/yaml_config/configuration.md:21
+msgid "`obstacle_map`, `mdownsample`"
+msgstr ""
+
 #: ../../source/yaml_config/configuration.md:22
+msgid "[world visualization](#world-visualization)"
+msgstr ""
+
 #: ../../source/yaml_config/configuration.md:23
+#: ../../source/yaml_config/configuration.md:109
+#: ../../source/yaml_config/configuration.md:271
 msgid "`plot`"
 msgstr ""
 
-msgid "**场景中对象参数**"
+#: ../../source/yaml_config/configuration.md
+msgid "**Object Parameters**"
+msgstr "**Object 参数**"
+
+#: ../../source/yaml_config/configuration.md:30
+msgid "[Parameters Table](#object-parameters-table)"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:31
+msgid "[object properties](#object-properties)"
+msgstr ""
+
+#: ../../source/yaml_config/configuration.md:32
+msgid ""
+"`number`, `distribution`, `state`, `goal`, `velocity`, `state_dim`, "
+"`vel_dim`, `group`, `name`"
+msgstr ""
+
+#: ../../source/yaml_config/configuration.md:33
 msgid "[object kinematics](#object-kinematics)"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:34
 msgid ""
 "`kinematics`, `vel_min`, `vel_max`, `acce`, `angle_range`, "
 "`goal_threshold`"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:35
 msgid "[object shape](#object-shape)"
-msgstr "[对象形状](#object-shape)"
+msgstr "[object shape](#object-shape)"
 
+#: ../../source/yaml_config/configuration.md:36
 #: ../../source/yaml_config/configuration.md:271
 msgid "`shape`"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:37
 msgid "[object behavior](#object-behavior)"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:38
 msgid "`behavior`, `role`, `static`,"
 msgstr ""
 
@@ -109,72 +150,112 @@ msgstr "**`goal`**（`float` 列表或列表的列表，默认 `None`）"
 #: ../../source/yaml_config/configuration.md:43
 msgid "[object visualization](#object-visualization)"
 msgstr ""
-#"设定对象的目标状态/位置，与行为结合以指引导航。格式可为 `[x, y, theta]`，也可为多个目标 `[[x, y, theta], "
-#"...]`。"
 
+# "设定对象的目标状态/位置，与行为结合以指引导航。格式可为 `[x, y, theta]`，也可为多个目标 `[[x, y, theta], "
+# "...]`。"
 #: ../../source/yaml_config/configuration.md:44
 msgid "`color`, `plot`, `description`"
 msgstr ""
-#msgstr "**性能提示**：更高的取值会降低障碍地图分辨率，从而减少计算负担、提升性能。"
 
+# msgstr "**性能提示**：更高的取值会降低障碍地图分辨率，从而减少计算负担、提升性能。"
 #: ../../source/yaml_config/configuration.md
 msgid "**GUI Parameters**"
 msgstr "**可视化界面参数**"
-#msgstr "**`state_dim`**（`int`，默认 `None`）"
 
+# msgstr "**`state_dim`**（`int`，默认 `None`）"
 #: ../../source/yaml_config/configuration.md:51
 msgid "[Parameters Table](#gui-parameters-table)"
 msgstr ""
-#msgstr "**`plot`**（`dict`，默认 `{}`）"
 
+# msgstr "**`plot`**（`dict`，默认 `{}`）"
 #: ../../source/yaml_config/configuration.md:52
 msgid "[keyboard properties](#keyboard-properties)"
 msgstr ""
-#msgstr "**常见取值：**"
 
+# msgstr "**常见取值：**"
+#: ../../source/yaml_config/configuration.md:53
 msgid ""
 "`backend`, `global_hook`, `key_lv_max`, `key_ang_max`, `key_lv`, "
 "`key_ang`, `key_id`"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:54
 msgid "[mouse properties](#mouse-properties)"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:55
 msgid "`zoom_factor`"
 msgstr ""
 
+#: ../../source/yaml_config/configuration.md:60
 msgid "**Quick Start Example**"
 msgstr "快速上手"
 
+#: ../../source/yaml_config/configuration.md:62
 msgid ""
 "The configuration file is divided into three main sections: `world`, "
 "`robot`, and `obstacle`. Here's a simple example:"
-msgstr "配置的内容主要分为三部分: `world`, "
-"`robot`, and `obstacle`. 下面是个建立的示例:`"
+msgstr "配置的内容主要分为三部分: `world`, `robot`, and `obstacle`. 下面是个建立的示例:`"
 
+#: ../../source/yaml_config/configuration.md
 msgid "Basic Configuration"
 msgstr "基础配置"
 
+#: ../../source/yaml_config/configuration.md:110
 msgid "**Key Configuration Guidelines:**"
 msgstr "**关键内容配置指南**"
 
-msgid "To include several robots or obstacles in the configuration file, add separate entries under the robot and obstacle sections using `-` for each additional item."
+#: ../../source/yaml_config/configuration.md:112
+msgid ""
+"To include several robots or obstacles in the configuration file, add "
+"separate entries under the robot and obstacle sections using `-` for each"
+" additional item."
 msgstr "要在配置文件中包含多个机器人或障碍物，请在 robot 和 obstacle 部分下添加单独的条目，并使用 `-` 标记每个添加的条目。"
 
-msgid "Parameters such as distribution, shape, behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter."
-msgstr "诸如分布、形状、行为和运动学等参数必须格式化为 `{key: value}` 对。请确保每个字典都包含 `name` 键；省略 name 将导致该参数的值为 None。"
+#: ../../source/yaml_config/configuration.md:113
+#, python-brace-format
+msgid ""
+"Parameters such as distribution, shape, behavior, and kinematics must be "
+"formatted as `{key: value}` pairs. Ensure that each dictionary includes "
+"the `name` key; omitting name will result in a None value for that "
+"parameter."
+msgstr ""
+"诸如分布、形状、行为和运动学等参数必须格式化为 `{key: value}` 对。请确保每个字典都包含 `name` 键；省略 name "
+"将导致该参数的值为 None。"
 
-msgid "When dealing with multiple objects (i.e., when the number is greater than 1), utilize the `distribution` parameter to define how these objects are distributed."
+#: ../../source/yaml_config/configuration.md:114
+msgid ""
+"When dealing with multiple objects (i.e., when the number is greater than"
+" 1), utilize the `distribution` parameter to define how these objects are"
+" distributed."
 msgstr "当处理多个对象（即数量大于 1）时，利用 `distribution` 参数来定义这些对象的摆放位置的分布方式。"
 
-msgid "By default, all objects within the same group share identical configurations. To customize individual objects within a group, add sub-parameters using `-`. Any additional objects not explicitly configured will inherit the settings of the last specified object in the group."
-msgstr "默认情况下，同一组内的所有对象共享相同的配置。要自定义组内的单个对象，请使用 `-` 添加子参数。任何未显式配置的额外对象将继承组中最后一个指定对象的设置。"
+#: ../../source/yaml_config/configuration.md:115
+msgid ""
+"By default, all objects within the same group share identical "
+"configurations. To customize individual objects within a group, add sub-"
+"parameters using `-`. Any additional objects not explicitly configured "
+"will inherit the settings of the last specified object in the group."
+msgstr ""
+"默认情况下，同一组内的所有对象共享相同的配置。要自定义组内的单个对象，请使用 `-` "
+"添加子参数。任何未显式配置的额外对象将继承组中最后一个指定对象的设置。"
 
-msgid "Object-level `name` is optional and identifies each object. If omitted, it defaults to `"<role>_<id>"` (e.g., `robot_0`, `obstacle_3`). Names must be unique across all objects; duplicates raise an error during environment initialization. Do not confuse object-level `name` with the `name` keys used inside dictionaries like `shape`, `kinematics`, or `behavior` (which indicate component types)."
-msgstr "对象级别的 `name` 是可选的，用于标识每个对象。如果省略，默认为 `\"<role>_<id>\"`（例如 `robot_0`，`obstacle_3`）。名称在所有对象中必须是唯一的；重复的名称会在环境初始化期间引发错误。不要将对象级别的 `name` 与 `shape`、`kinematics` 或 `behavior` 等字典中使用的 `name` 键（表示组件类型）混淆。"
+#: ../../source/yaml_config/configuration.md:116
+msgid ""
+"Object-level `name` is optional and identifies each object. If omitted, "
+"it defaults to `\"<role>_<id>\"` (e.g., `robot_0`, `obstacle_3`). Names "
+"must be unique across all objects; duplicates raise an error during "
+"environment initialization. Do not confuse object-level `name` with the "
+"`name` keys used inside dictionaries like `shape`, `kinematics`, or "
+"`behavior` (which indicate component types)."
+msgstr ""
+"对象级别的 `name` 是可选的，用于标识每个对象。如果省略，默认为 `\"<role>_<id>\"`（例如 "
+"`robot_0`，`obstacle_3`）。名称在所有对象中必须是唯一的；重复的名称会在环境初始化期间引发错误。不要将对象级别的 `name`"
+" 与 `shape`、`kinematics` 或 `behavior` 等字典中使用的 `name` 键（表示组件类型）混淆。"
 
+#: ../../source/yaml_config/configuration.md:121
 msgid "World Configuration"
-msgstr "世界配置"
+msgstr "World 配置"
 
 #: ../../source/yaml_config/configuration.md:123
 msgid ""
@@ -184,7 +265,7 @@ msgstr "本节介绍 `world` 区块可用的配置参数。"
 
 #: ../../source/yaml_config/configuration.md:126
 msgid "World Parameters Table"
-msgstr "世界参数表"
+msgstr "World 参数表"
 
 #: ../../source/yaml_config/configuration.md:109
 msgid "**Parameter**"
@@ -251,11 +332,38 @@ msgstr ""
 
 #: ../../source/yaml_config/configuration.md:109
 #: ../../source/yaml_config/configuration.md:271
-msgid "`list` of `float`"
+msgid "`0.1`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:109
+msgid "Time interval between simulation steps (in seconds)"
+msgstr "决定仿真每一步之间的时间间隔（秒）。"
+
+#: ../../source/yaml_config/configuration.md:109
+msgid "`sample_time`"
+msgstr "`sample_time`"
+
+#: ../../source/yaml_config/configuration.md:109
+msgid ""
+"Time interval between samples for rendering and data extraction (in "
+"seconds). Defaults to `step_time` if not specified."
+msgstr "渲染和数据提取的采样时间间隔（秒）。如未指定则默认为 `step_time`。"
+
+#: ../../source/yaml_config/configuration.md:109
+msgid "`offset`"
+msgstr "`offset`"
+
+#: ../../source/yaml_config/configuration.md:109
 #: ../../source/yaml_config/configuration.md:271
+msgid "`list` of `float`"
+msgstr "`float` 列表"
+
+#: ../../source/yaml_config/configuration.md:109
+#: ../../source/yaml_config/configuration.md:271
+msgid "`[0, 0]`"
+msgstr ""
+
+#: ../../source/yaml_config/configuration.md:109
 msgid "Offset for the world's position in `[x, y]` coordinates"
 msgstr "世界位置在 `[x, y]` 坐标上的偏移量"
 
@@ -280,8 +388,12 @@ msgid "`\"stop\"`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:109
-msgid "Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, `\"unobstructed_obstacles\"`)"
-msgstr "发生碰撞的处理模式 （支持：`\"stop\"`, `\"unobstructed\"`, `\"unobstructed_obstacles\"`）"
+msgid ""
+"Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, "
+"`\"unobstructed_obstacles\"`)"
+msgstr ""
+"发生碰撞的处理模式 （支持：`\"stop\"`, `\"unobstructed\"`, "
+"`\"unobstructed_obstacles\"`）"
 
 #: ../../source/yaml_config/configuration.md:109
 msgid "`status`"
@@ -292,7 +404,9 @@ msgid "`\"None\"`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:109
-msgid "Initial status of the simulation environment (Support: `\"Running\"`, `\"Arrived\"`, `\"Collision\"`, `\"Pause\"`)"
+msgid ""
+"Initial status of the simulation environment (Support: `\"Running\"`, "
+"`\"Arrived\"`, `\"Collision\"`, `\"Pause\"`)"
 msgstr "仿真环境状态初始化（支持 `\"Running\"`、`\"Arrived\"`、`\"Collision\"`、`\"Pause\"`）"
 
 #: ../../source/yaml_config/configuration.md:109
@@ -328,7 +442,8 @@ msgstr ""
 
 #: ../../source/yaml_config/configuration.md:109
 msgid ""
-"Downsampling factor for the obstacle map to reduce resolution and decrease computational load."
+"Downsampling factor for the obstacle map to reduce resolution and "
+"decrease computational load."
 msgstr "障碍地图的降采样系数，用于降低分辨率并减少计算量。"
 
 #: ../../source/yaml_config/configuration.md:109
@@ -340,6 +455,7 @@ msgstr ""
 #: ../../source/yaml_config/configuration.md:109
 #: ../../source/yaml_config/configuration.md:271
 #: ../../source/yaml_config/configuration.md:773
+#, python-brace-format
 msgid "`{}`"
 msgstr ""
 
@@ -354,7 +470,7 @@ msgstr "参数详解"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**world properties**"
-msgstr ""
+msgstr "**world 属性**"
 
 #: ../../source/yaml_config/configuration.md:148
 msgid "**`name`** (`str`, default: `\"world\"`)"
@@ -372,7 +488,8 @@ msgstr "**`height`**（`float`，默认 `10`）"
 
 #: ../../source/yaml_config/configuration.md:152
 msgid ""
-"Specifies the vertical size of the world in units of meters in the Y-axis direction plotted on the screen."
+"Specifies the vertical size of the world in units of meters in the Y-axis"
+" direction plotted on the screen."
 msgstr "指定世界在屏幕 Y 轴方向的垂直尺寸（米）。"
 
 #: ../../source/yaml_config/configuration.md:154
@@ -381,7 +498,8 @@ msgstr "**`width`**（`float`，默认 `10`）"
 
 #: ../../source/yaml_config/configuration.md:155
 msgid ""
-"Specifies the horizontal size of the world in units of meters in the X-axis direction plotted on the screen."
+"Specifies the horizontal size of the world in units of meters in the "
+"X-axis direction plotted on the screen."
 msgstr "指定世界在屏幕 X 轴方向的水平尺寸（米）。"
 
 #: ../../source/yaml_config/configuration.md:157
@@ -394,7 +512,9 @@ msgstr "决定仿真每一步之间的时间间隔。"
 
 #: ../../source/yaml_config/configuration.md:160
 msgid ""
-"**Performance Impact**: A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but needs longer time to run the simulation."
+"**Performance Impact**: A smaller `step_time` results in a higher "
+"simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but needs"
+" longer time to run the simulation."
 msgstr "**性能影响**：`step_time` 越小仿真频率越高（如 0.1 秒即 10 Hz），但仿真耗时也更长。"
 
 #: ../../source/yaml_config/configuration.md:162
@@ -402,7 +522,10 @@ msgid "**`sample_time`** (`float`, default: `step_time`)"
 msgstr "**`sample_time`**（`float`，默认与 `step_time` 相同）"
 
 #: ../../source/yaml_config/configuration.md:163
-msgid "Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur. If not specified, defaults to the value of `step_time`."
+msgid ""
+"Defines the time interval for rendering the simulation and extracting "
+"data. This controls how frequently visual updates and data recordings "
+"occur. If not specified, defaults to the value of `step_time`."
 msgstr "定义渲染与数据采集的时间间隔，决定可视化更新与记录的频率。未指定时默认等于 `step_time`。"
 
 #: ../../source/yaml_config/configuration.md:165
@@ -410,12 +533,15 @@ msgid "**`offset`** (`list` of `float`, default: `[0, 0]`)"
 msgstr "**`offset`**（`float` 列表，默认 `[0, 0]`）"
 
 #: ../../source/yaml_config/configuration.md:166
-msgid "Sets the initial positional offset of the world on the X and Y axes. This is useful for positioning the world within a larger coordinate system or for relative placement."
+msgid ""
+"Sets the initial positional offset of the world on the X and Y axes. This"
+" is useful for positioning the world within a larger coordinate system or"
+" for relative placement."
 msgstr "设置世界在 X、Y 轴上的初始偏移，便于在更大坐标系中定位或相对放置。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**world mode**"
-msgstr ""
+msgstr "**world 模式**"
 
 #: ../../source/yaml_config/configuration.md:172
 msgid "**`control_mode`** (`str`, default: `\"auto\"`)"
@@ -436,11 +562,15 @@ msgid "**Options:**"
 msgstr "**选项:**"
 
 #: ../../source/yaml_config/configuration.md:176
-msgid "`auto`: Automatic control by the input velocities defined in python script or behavior in the YAML file."
+msgid ""
+"`auto`: Automatic control by the input velocities defined in python "
+"script or behavior in the YAML file."
 msgstr "`auto`：通过 Python 脚本中定义的输入速度或 YAML 文件中的行为进行自动控制。"
 
 #: ../../source/yaml_config/configuration.md:177
-msgid "`keyboard`: Manual control via keyboard inputs. The key inputs are defined in the file."
+msgid ""
+"`keyboard`: Manual control via keyboard inputs. The key inputs are "
+"defined in the file."
 msgstr "`keyboard`：通过键盘输入进行手动控制。按键输入在文件中定义。"
 
 #: ../../source/yaml_config/configuration.md:179
@@ -456,11 +586,16 @@ msgid "`stop`: Stops the movement of objects upon collision. (default)"
 msgstr "`stop`：发生碰撞时立即停止（默认）。"
 
 #: ../../source/yaml_config/configuration.md:184
-msgid "`unobstructed`: Allows objects to pass through each other without consideration of any collision."
+msgid ""
+"`unobstructed`: Allows objects to pass through each other without "
+"consideration of any collision."
 msgstr "`unobstructed`：允许对象彼此穿过，不考虑任何碰撞。"
 
 #: ../../source/yaml_config/configuration.md:185
-msgid "`unobstructed_obstacles`: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles."
+msgid ""
+"`unobstructed_obstacles`: Only allows obstacles to pass through each "
+"other without consideration of any collision. The robots will stop when "
+"they are in collision with the obstacles."
 msgstr "`unobstructed_obstacles`：仅允许障碍物彼此穿过而不考虑碰撞；机器人与障碍物发生碰撞时仍会停止。"
 
 #: ../../source/yaml_config/configuration.md:187
@@ -484,46 +619,71 @@ msgid "`\"Arrived\"`: The simulation stops when the robot arrives at the goal."
 msgstr "`\"Arrived\"`: 仿真在机器人到达目标点的时候停止。"
 
 #: ../../source/yaml_config/configuration.md:194
-msgid "`\"Collision\"`: The simulation stops when the robot collides with an obstacle."
+msgid ""
+"`\"Collision\"`: The simulation stops when the robot collides with an "
+"obstacle."
 msgstr "`\"Collision\"`: 仿真在机器人与障碍物发生碰撞时停止。"
 
 #: ../../source/yaml_config/configuration.md:196
-msgid "**Note**: The status can be dynamically changed during simulation using keyboard controls (space key) or programmatically."
+msgid ""
+"**Note**: The status can be dynamically changed during simulation using "
+"keyboard controls (space key) or programmatically."
 msgstr "**注意**：仿真过程中可以通过键盘（空格键）或程序控制动态切换状态。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**world map**"
-msgstr ""
+msgstr "**world 地图**"
 
 #: ../../source/yaml_config/configuration.md:202
 msgid "**`obstacle_map`** (`str` (file path), default: `None`)"
 msgstr "**`obstacle_map`** (`str` (文件路径), 默认值： `None`)"
 
 #: ../../source/yaml_config/configuration.md:203
-msgid "Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle."
+msgid ""
+"Specifies the file path to an image that serves as the obstacle map. This"
+" image is used to generate the grid map that defines the positions of "
+"obstacles within the world. Each pixel in the image corresponds to a grid"
+" cell in the map, where the color of the pixel determines the presence of"
+" an obstacle."
 msgstr "指定障碍地图对应的图像文件路径。该图像用于生成描述世界中障碍位置的栅格地图；图像中的每个像素都对应栅格中的一个栅格，像素的颜色决定该位置是否存在障碍。"
 
 #: ../../source/yaml_config/configuration.md:205
-msgid "**Available Maps**: We provide some example maps in the `irsim/world/map` folder and you can also use your own map by 3D datasets like [HM3D](https://aihabitat.org/datasets/hm3d/), [MatterPort3D](https://niessner.github.io/Matterport/), [Gibson](http://gibsonenv.stanford.edu/database/), etc. See [here](https://github.com/hanruihua/ir-sim/tree/features/irsim/world/map/binary_map_generator_hm3d) for more details."
-msgstr "**可用地图**：我们在 `irsim/world/map` 文件夹中提供了一些示例地图；你也可以使用自己的地图，例如来自 [HM3D](https://aihabitat.org/datasets/hm3d/)、[MatterPort3D](https://niessner.github.io/Matterport/)、[Gibson](http://gibsonenv.stanford.edu/database/) 等 3D 数据集。更多细节可查看[这里](https://github.com/hanruihua/ir-sim/tree/features/irsim/world/map/binary_map_generator_hm3d)。"
+msgid ""
+"**Available Maps**: We provide some example maps in the `irsim/world/map`"
+" folder and you can also use your own map by 3D datasets like "
+"[HM3D](https://aihabitat.org/datasets/hm3d/), "
+"[MatterPort3D](https://niessner.github.io/Matterport/), "
+"[Gibson](http://gibsonenv.stanford.edu/database/), etc. See "
+"[here](https://github.com/hanruihua/ir-"
+"sim/tree/features/irsim/world/map/binary_map_generator_hm3d) for more "
+"details."
+msgstr ""
+"**可用地图**：我们在 `irsim/world/map` 文件夹中提供了一些示例地图；你也可以使用自己的地图，例如来自 "
+"[HM3D](https://aihabitat.org/datasets/hm3d/)、[MatterPort3D](https://niessner.github.io/Matterport/)、[Gibson](http://gibsonenv.stanford.edu/database/)"
+" 等 3D 数据集。更多细节可查看[这里](https://github.com/hanruihua/ir-"
+"sim/tree/features/irsim/world/map/binary_map_generator_hm3d)。"
 
 #: ../../source/yaml_config/configuration.md:212
 msgid "**`mdownsample`** (`int`, default: `1`)"
-msgstr ""
+msgstr "**`mdownsample`** (`int`, 默认值： `1`)"
 
 #: ../../source/yaml_config/configuration.md:213
 msgid "Sets the downsampling factor for the obstacle map image."
 msgstr "设置障碍物地图图像的降采样系数。"
 
 #: ../../source/yaml_config/configuration.md:215
-msgid "**Performance Tip**: A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load."
+msgid ""
+"**Performance Tip**: A higher value reduces the resolution of the "
+"obstacle map, which can optimize the simulation performance by decreasing"
+" computational load."
 msgstr "**提示**：更高的取值会降低障碍地图的分辨率，减小计算负载，从而提升仿真性能。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**world visualization**"
-msgstr ""
+msgstr "**world 可视化**"
 
 #: ../../source/yaml_config/configuration.md:221
+#, python-brace-format
 msgid "**`plot`** (`dict`, default: `{}`)"
 msgstr "**`plot`** (`dict`, 默认值： `{}`)"
 
@@ -536,11 +696,19 @@ msgid "**Visualization Options:**"
 msgstr "**可视化选项：**"
 
 #: ../../source/yaml_config/configuration.md:225
-msgid "`saved_figure`: Default `dpi` is `100`; default format is `png`; default bbox_inches is `tight`. See [matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details."
-msgstr "`saved_figure`: 默认 `dpi` is `100`; 默认格式是 `png`; 默认bbox_inches是`tight`。详情参考[matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html)。"
+msgid ""
+"`saved_figure`: Default `dpi` is `100`; default format is `png`; default "
+"bbox_inches is `tight`. See "
+"[matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html)"
+" for more details."
+msgstr ""
+"`saved_figure`: 默认 `dpi` is `100`; 默认格式是 `png`; "
+"默认bbox_inches是`tight`。详情参考[matplotlib.pyplot.savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html)。"
 
 #: ../../source/yaml_config/configuration.md:226
-msgid "`figure_pixels`: Width and height of the figure in pixels. Default is `[1000, 800]`."
+msgid ""
+"`figure_pixels`: Width and height of the figure in pixels. Default is "
+"`[1000, 800]`."
 msgstr "`figure_pixels`: 图像的像素宽和高，默认值为`[1000, 800]`。"
 
 #: ../../source/yaml_config/configuration.md:227
@@ -548,7 +716,9 @@ msgid "`show_title`: Whether to show the plot title. Default is `True`."
 msgstr "`show_title`: 是否显示图表标题，默认是`True`."
 
 #: ../../source/yaml_config/configuration.md:228
-msgid "`title`: Custom title for the plot. If not specified, shows simulation time and status."
+msgid ""
+"`title`: Custom title for the plot. If not specified, shows simulation "
+"time and status."
 msgstr "`title`：自定义图表标题；若未指定，则显示仿真时间与当前状态。"
 
 #: ../../source/yaml_config/configuration.md:229
@@ -560,7 +730,9 @@ msgid "`tight`: Whether to use tight layout. Default is `True`."
 msgstr "`tight`: 是否使用紧凑布局，默认是`True`."
 
 #: ../../source/yaml_config/configuration.md:231
-msgid "`viewpoint`: Controls the center of the camera/viewport. Default is `null`."
+msgid ""
+"`viewpoint`: Controls the center of the camera/viewport. Default is "
+"`null`."
 msgstr "`viewpoint`: 控制相机（视角）的中心位置，默认值为`null`."
 
 #: ../../source/yaml_config/configuration.md:232
@@ -572,7 +744,9 @@ msgid "`[x, y]`: Keep the viewport centered at the fixed point `[x, y]`."
 msgstr "`[x, y]`：视角始终以固定点`[x, y]`为中心"
 
 #: ../../source/yaml_config/configuration.md:234
-msgid "`\"<object_name>\"`: Follow the object with that name (dynamic panning), e.g., `\"robot_0\"`."
+msgid ""
+"`\"<object_name>\"`: Follow the object with that name (dynamic panning), "
+"e.g., `\"robot_0\"`."
 msgstr "`\"<object_name>\"`：跟随该名称的对象进行动态平移，例如`\"robot_0\"`。"
 
 #: ../../source/yaml_config/configuration.md:246
@@ -580,15 +754,24 @@ msgid "Complete World Configuration Example"
 msgstr "完整世界配置示例"
 
 #: ../../source/yaml_config/configuration.md:272
-msgid "**`obstacle_map`**: Replace `\"path/to/map.png\"` with the actual file path to your obstacle map image. Ensure that the image is in a compatible format (e.g., PNG, JPEG) and properly represents obstacle locations."
-msgstr "**`obstacle_map`**：请将 `\"path/to/map.png\"` 替换为真实的障碍地图路径，确保图像格式兼容（如PNG、JPEG）且能正确表示障碍位置。"
+msgid ""
+"**`obstacle_map`**: Replace `\"path/to/map.png\"` with the actual file "
+"path to your obstacle map image. Ensure that the image is in a compatible"
+" format (e.g., PNG, JPEG) and properly represents obstacle locations."
+msgstr ""
+"**`obstacle_map`**：请将 `\"path/to/map.png\"` "
+"替换为真实的障碍地图路径，确保图像格式兼容（如PNG、JPEG）且能正确表示障碍位置。"
 
 #: ../../source/yaml_config/configuration.md:278
 msgid "Object Configuration"
 msgstr "Object配置"
 
 #: ../../source/yaml_config/configuration.md:280
-msgid "All `robot` and `obstacle` entities in the simulation are configured as objects with similar parameters but may have different default values. This section outlines the configuration parameters available for these objects."
+msgid ""
+"All `robot` and `obstacle` entities in the simulation are configured as "
+"objects with similar parameters but may have different default values. "
+"This section outlines the configuration parameters available for these "
+"objects."
 msgstr "仿真中的 `robot` 与 `obstacle` 都作为对象进行配置，参数结构类似但默认值可能不同。本节介绍这些对象可用的配置项。"
 
 #: ../../source/yaml_config/configuration.md:283
@@ -602,19 +785,27 @@ msgstr "Parameter"
 
 #: ../../source/yaml_config/configuration.md:271
 #: ../../source/yaml_config/configuration.md:773
+msgid "Type"
+msgstr "类型"
+
+#: ../../source/yaml_config/configuration.md:271
+#: ../../source/yaml_config/configuration.md:773
 msgid "Default"
 msgstr "Default"
 
+#: ../../source/yaml_config/configuration.md:271
 #: ../../source/yaml_config/configuration.md:773
 msgid "Description"
-msgstr ""
+msgstr "描述"
 
 #: ../../source/yaml_config/configuration.md:271
 msgid "`str` or `list` of `str`"
 msgstr "`str` 或者 `list` of `str`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Unique identifier for the object. If omitted, auto-assigned as `\"<role>_<id>\"`. Supports a list when `number > 1`."
+msgid ""
+"Unique identifier for the object. If omitted, auto-assigned as "
+"`\"<role>_<id>\"`. Supports a list when `number > 1`."
 msgstr "对象的唯一标识符；若省略，则会自动分配为`\"<role>_<id>\"`。当`number > 1`时支持参数列表。"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -630,11 +821,14 @@ msgid "`distribution`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:271
+#, python-brace-format
 msgid "`{name: manual}`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`"
+msgid ""
+"Defines how multiple objects are distributed. Support name: `manual`, "
+"`random`, `circle`"
 msgstr "定义多个对象的分布方式。支持的分布方式有：`manual`, `random`, `circle`"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -646,11 +840,14 @@ msgid "Kinematic model of the object. Support name: `diff`, `acker`, `omni`"
 msgstr "对象的运动学模型。支持的模型有`diff`, `acker`, `omni`。"
 
 #: ../../source/yaml_config/configuration.md:271
+#, python-brace-format
 msgid "`{name: circle}`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`"
+msgid ""
+"Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , "
+"`linestring`"
 msgstr "对象的几何形状。支持的形状有`circle`, `rectangle`, `polygon` , `linestring`"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -690,7 +887,9 @@ msgid "`behavior`"
 msgstr ""
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Behavior configuration dictating object movement. Support name: `dash`, `rvo`"
+msgid ""
+"Behavior configuration dictating object movement. Support name: `dash`, "
+"`rvo`"
 msgstr "决定对象运动的行为配置，支持 `dash`、`rvo`。"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -798,7 +997,9 @@ msgid "`list` of `dict`"
 msgstr "`dict` 列表"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "List of sensor configurations attached to the object. Support name: `lidar2d`"
+msgid ""
+"List of sensor configurations attached to the object. Support name: "
+"`lidar2d`"
 msgstr "对象所挂载传感器配置列表，支持 `lidar2d`。"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -830,7 +1031,9 @@ msgid "`0`"
 msgstr "`0`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Group identifier for organizational purposes, allowing objects to be grouped."
+msgid ""
+"Group identifier for organizational purposes, allowing objects to be "
+"grouped."
 msgstr "用于组织的分组 ID，使对象可以按组管理。"
 
 #: ../../source/yaml_config/configuration.md:271
@@ -879,10 +1082,11 @@ msgstr "对象传感器的视场半径。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**object properties**"
-msgstr ""
+msgstr "**object 属性**"
 
 #: ../../source/yaml_config/configuration.md:320
 #: ../../source/yaml_config/configuration.md:545
+#: ../../source/yaml_config/configuration.md:691
 #: ../../source/yaml_config/configuration.md:743
 #: ../../source/yaml_config/configuration.md:773
 msgid "Overview"
@@ -929,11 +1133,19 @@ msgid "Specifies the number of objects to create using the given configuration."
 msgstr "指定使用该配置创建的对象数量。"
 
 #: ../../source/yaml_config/configuration.md:341
-msgid "**`distribution`** (`dict`, default: `{name: manual}`) ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list))"
-msgstr "**`distribution`** (`dict`, 默认值： `{name: manual}`) ([source](https://ir-sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list))"
+#, python-brace-format
+msgid ""
+"**`distribution`** (`dict`, default: `{name: manual}`) ([source](https"
+"://ir-"
+"sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list))"
+msgstr ""
+"**`distribution`** (`dict`, 默认值： `{name: manual}`) ([source](https://ir-"
+"sim.readthedocs.io/en/dev/irsim.world.html#irsim.world.object_factory.ObjectFactory.generate_state_list))"
 
 #: ../../source/yaml_config/configuration.md:342
-msgid "Defines how multiple objects are spatially distributed when `number` is greater than `1`."
+msgid ""
+"Defines how multiple objects are spatially distributed when `number` is "
+"greater than `1`."
 msgstr "当`number`大于1时，定义多个对象在空间中的分布方式。"
 
 #: ../../source/yaml_config/configuration.md:345
@@ -941,23 +1153,34 @@ msgid "`'manual'`: Manually specify initial states and goals for each object."
 msgstr "`'manual'`:手动为每个对象指定初始状态和目标"
 
 #: ../../source/yaml_config/configuration.md:346
-msgid "In this case, the `state` (or goal) parameters must be provided for each object. If the provided list is shorter than the number of objects, the last state (or goal) is repeated."
+msgid ""
+"In this case, the `state` (or goal) parameters must be provided for each "
+"object. If the provided list is shorter than the number of objects, the "
+"last state (or goal) is repeated."
 msgstr "这种模式下必须为每个对象提供`state`（或目标）参数；如果提供的列表长度少于对象数量，则最后一个状态（或目标）会被重复使用。"
 
 #: ../../source/yaml_config/configuration.md:355
-msgid "`'random'`: Randomly distribute objects within specified ranges. Optional parameters:"
+msgid ""
+"`'random'`: Randomly distribute objects within specified ranges. Optional"
+" parameters:"
 msgstr "`'random'`: 在指定范围内随机分布对象。可选参数："
 
 #: ../../source/yaml_config/configuration.md:356
-msgid "`range_low` (list): Lower bounds for random distribution. Default is `[0, 0, -3.14]`."
+msgid ""
+"`range_low` (list): Lower bounds for random distribution. Default is `[0,"
+" 0, -3.14]`."
 msgstr "`range_low` (list): 随机分布的下界。默认值为 `[0, 0, -3.14]`"
 
 #: ../../source/yaml_config/configuration.md:357
-msgid "`range_high` (list): Upper bounds for random distribution. Default is `[10, 10, 3.14]`."
+msgid ""
+"`range_high` (list): Upper bounds for random distribution. Default is "
+"`[10, 10, 3.14]`."
 msgstr "`range_high` (list): 随机分布的上界。默认值为  `[10, 10, 3.14]`"
 
 #: ../../source/yaml_config/configuration.md:364
-msgid "`'circle'`: Arrange objects in a circular formation around a specified center. Optional parameters:"
+msgid ""
+"`'circle'`: Arrange objects in a circular formation around a specified "
+"center. Optional parameters:"
 msgstr "`'circle'`:将对象以圆形阵列排布在指定中心周围。可选参数："
 
 #: ../../source/yaml_config/configuration.md:365
@@ -973,15 +1196,23 @@ msgid "**`state`** (`list` of `float`, default: `[0, 0, 0]`)"
 msgstr "**`state`** (`float`列表, 默认为`[0, 0, 0]`)"
 
 #: ../../source/yaml_config/configuration.md:374
-msgid "Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros."
-msgstr "定义对象的初始状态，通常格式为 `[x, y, theta]`，其中`theta`表示方向角（弧度）。如果提供的状态元素多于所需，则多余部分会被截断；如果少于所需，缺失值用零填充。"
+msgid ""
+"Defines the initial state of the object, typically in the format `[x, y, "
+"theta]`, where `theta` represents the orientation in radians. If the "
+"provided state has more elements than required, extra elements are "
+"truncated; if fewer, missing values are filled with zeros."
+msgstr ""
+"定义对象的初始状态，通常格式为 `[x, y, "
+"theta]`，其中`theta`表示方向角（弧度）。如果提供的状态元素多于所需，则多余部分会被截断；如果少于所需，缺失值用零填充。"
 
 #: ../../source/yaml_config/configuration.md:381
 msgid "**`velocity`** (`list` of `float`, default: `[0, 0]`)"
 msgstr "**`velocity`** (由`float`组成的列表, 默认值为`[0, 0]`)"
 
 #: ../../source/yaml_config/configuration.md:382
-msgid "Specifies the initial velocity (list) of the object. The format depends on the kinematics model:"
+msgid ""
+"Specifies the initial velocity (list) of the object. The format depends "
+"on the kinematics model:"
 msgstr "指定对象的初始速度（列表）。格式取决于运动学模型："
 
 #: ../../source/yaml_config/configuration.md:384
@@ -989,7 +1220,9 @@ msgid "**Format by Kinematics:**"
 msgstr "**运动学模型的格式：**"
 
 #: ../../source/yaml_config/configuration.md:385
-msgid "For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is angular velocity."
+msgid ""
+"For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is "
+"angular velocity."
 msgstr "`'diff'`模型参数由`[v, omega]`构成， 其中 `v` 线速度，`omega`角速度。"
 
 #: ../../source/yaml_config/configuration.md:386
@@ -997,11 +1230,15 @@ msgid "For `'omni'`: `[vx, vy]`, velocities along the x and y axes."
 msgstr "`'omni'`模型参数由`[vx, vy]`构成， 其中`vx`和`vy`分别是x和y轴方向上的速度。"
 
 #: ../../source/yaml_config/configuration.md:387
-msgid "For `'acker'`: Typically `[v, phi]`, where `v` is linear velocity and `phi` is steering angle."
+msgid ""
+"For `'acker'`: Typically `[v, phi]`, where `v` is linear velocity and "
+"`phi` is steering angle."
 msgstr "`'acker'`模型参数通常由`[v, phi]`构成，其中 `v` 是线速度，`phi`是转向角。"
 
 #: ../../source/yaml_config/configuration.md:394
-msgid "**`goal`** (`list` of `float` or `list` of `list` of `float`, default: `None`)"
+msgid ""
+"**`goal`** (`list` of `float` or `list` of `list` of `float`, default: "
+"`None`)"
 msgstr "**`goal`** (`float` 列表或 `float` 列表的列表，默认值：`None`)"
 
 #: ../../source/yaml_config/configuration.md:395
@@ -1010,10 +1247,15 @@ msgid ""
 "conjunction with behaviors to guide the object's navigation. The format "
 "is `[x, y, theta]` or `[[x, y, theta], [x, y, theta], ...]` for multiple "
 "goals."
-msgstr "设置对象应移动到的目标状态或位置。与行为结合使用以指导对象导航。格式为 `[x, y, theta]` 或 `[[x, y, theta], [x, y, theta], ...]`（用于多个目标）"
+msgstr ""
+"设置对象应移动到的目标状态或位置。与行为结合使用以指导对象导航。格式为 `[x, y, theta]` 或 `[[x, y, theta], "
+"[x, y, theta], ...]`（用于多个目标）"
 
 #: ../../source/yaml_config/configuration.md:402
-msgid "**Note**: For multiple goals for the single object (Pay attention to the difference between the single goal for multiple objects and multiple goals for the single object):"
+msgid ""
+"**Note**: For multiple goals for the single object (Pay attention to the "
+"difference between the single goal for multiple objects and multiple "
+"goals for the single object):"
 msgstr "**注意**：对于单个对象的多个目标（注意区分多个对象的单个目标与单个对象的多个目标）："
 
 #: ../../source/yaml_config/configuration.md:410
@@ -1037,7 +1279,9 @@ msgid "`3`: For 2D position and orientation `[x, y, theta]`"
 msgstr "`3`: 2D的位置和朝向角 `[x, y, theta]`"
 
 #: ../../source/yaml_config/configuration.md:415
-msgid "`4`: For vehicles with additional state (e.g., Ackermann with `[x, y, theta, steer_angle]`)"
+msgid ""
+"`4`: For vehicles with additional state (e.g., Ackermann with `[x, y, "
+"theta, steer_angle]`)"
 msgstr "`4`：对于具有额外状态的车辆（例如 Ackermann 模型的`[x, y, theta, steer_angle]`）"
 
 #: ../../source/yaml_config/configuration.md:422
@@ -1081,7 +1325,9 @@ msgid ""
 "defaults to \"<role>_<id>\" (e.g., `robot_0`, `obstacle_3`). Names must "
 "be unique across all objects in the environment; duplicates will raise a "
 "`ValueError` during initialization."
-msgstr "为对象设置唯一标识符。若不提供，名称默认为 \"<role>_<id>\"（如 `robot_0`、`obstacle_3`）。名称在整个环境中必须唯一；重复的名称会在初始化期间引发 `ValueError`。"
+msgstr ""
+"为对象设置唯一标识符。若不提供，名称默认为 \"<role>_<id>\"（如 "
+"`robot_0`、`obstacle_3`）。名称在整个环境中必须唯一；重复的名称会在初始化期间引发 `ValueError`。"
 
 #: ../../source/yaml_config/configuration.md:445
 msgid ""
@@ -1096,11 +1342,13 @@ msgid ""
 "Do not confuse the object-level `name` with the `name` keys inside "
 "dictionaries like `shape`, `kinematics`, or `behavior`. The latter "
 "specify the type of that component, not the object's identifier."
-msgstr "不要将对象级别的 `name` 与 `shape`、`kinematics` 或 `behavior` 等字典内的 `name` 键混淆。后者指定组件的类型，而非对象的标识符。"
+msgstr ""
+"不要将对象级别的 `name` 与 `shape`、`kinematics` 或 `behavior` 等字典内的 `name` "
+"键混淆。后者指定组件的类型，而非对象的标识符。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**object kinematics**"
-msgstr ""
+msgstr "**object 运动学**"
 
 #: ../../source/yaml_config/configuration.md:475
 msgid "Kinematics Models"
@@ -1187,16 +1435,15 @@ msgid ""
 "**`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** "
 "(`list` of `float`, default: `[1, 1]`)"
 msgstr ""
-"**`vel_min`**（`float` 列表，默认：`[-1, -1]`）和 **`vel_max`** "
-"（`float` 列表，默认：`[1, 1]`）"
+"**`vel_min`**（`float` 列表，默认：`[-1, -1]`）和 **`vel_max`** （`float` "
+"列表，默认：`[1, 1]`）"
 
 #: ../../source/yaml_config/configuration.md:517
 msgid ""
 "Set the minimum and maximum velocity limits for each control dimension "
 "(e.g., linear and angular velocities). These constraints ensure the "
 "object's motion stays within feasible and safe bounds."
-msgstr ""
-"设置每个控制维度的最小和最大速度限制（例如线速度和角速度）。这些约束确保对象的运动保持在可行且安全的范围内。"
+msgstr "设置每个控制维度的最小和最大速度限制（例如线速度和角速度）。这些约束确保对象的运动保持在可行且安全的范围内。"
 
 #: ../../source/yaml_config/configuration.md:519
 msgid "**`acce`** (`list` of `float`, default: `[inf, inf]`)"
@@ -1207,8 +1454,7 @@ msgid ""
 "Defines acceleration limits as the maximum change in velocity per time "
 "step for each control dimension. This parameter simulates the physical "
 "limitations of the object's motion capabilities."
-msgstr ""
-"定义加速度限制，即每个控制维度在每个时间步内的最大速度变化。此参数模拟对象运动能力的物理限制。"
+msgstr "定义加速度限制，即每个控制维度在每个时间步内的最大速度变化。此参数模拟对象运动能力的物理限制。"
 
 #: ../../source/yaml_config/configuration.md:522
 msgid "**`angle_range`** (`list` of `float`, default: `[-pi, pi]`)"
@@ -1219,8 +1465,7 @@ msgid ""
 "Specifies the allowed range of orientation angles `[min, max]` in "
 "radians. The object's orientation angle `theta` is wrapped within this "
 "range to maintain consistency."
-msgstr ""
-"指定允许的朝向角范围 `[min, max]`（弧度）。对象的朝向角 `theta` 会被归整到此范围内以保持一致性。"
+msgstr "指定允许的朝向角范围 `[min, max]`（弧度）。对象的朝向角 `theta` 会被归整到此范围内以保持一致性。"
 
 #: ../../source/yaml_config/configuration.md:525
 msgid "**`goal_threshold`** (`float`, default: `0.1`)"
@@ -1260,6 +1505,7 @@ msgid "**`linestring`** — Line segments (`vertices`)"
 msgstr "**`linestring`** — 线段（`vertices`）"
 
 #: ../../source/yaml_config/configuration.md:553
+#, python-brace-format
 msgid "**`shape`** (`dict`, default: `{name: circle}`)"
 msgstr "**`shape`**（`dict`，默认 `{name: circle}`）"
 
@@ -1354,7 +1600,9 @@ msgid ""
 " for more details. Parameters include `number `, `center_range `, "
 "`avg_radius_range `, `irregularity_range `, `spikeyness_range `, "
 "`num_vertices_range `."
-msgstr "随机多边形生成参数详见 [random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon)，包括`number`、`center_range`、`avg_radius_range`、`irregularity_range`、`spikeyness_range`、`num_vertices_range`。"
+msgstr ""
+"随机多边形生成参数详见 "
+"[random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon)，包括`number`、`center_range`、`avg_radius_range`、`irregularity_range`、`spikeyness_range`、`num_vertices_range`。"
 
 #: ../../source/yaml_config/configuration.md:603
 msgid ""
@@ -1395,7 +1643,7 @@ msgstr ""
 
 #: ../../source/yaml_config/configuration.md
 msgid "**object behavior**"
-msgstr ""
+msgstr "**object 行为**"
 
 #: ../../source/yaml_config/configuration.md:630
 msgid "Behavior Systems"
@@ -1651,7 +1899,7 @@ msgstr ""
 
 #: ../../source/yaml_config/configuration.md
 msgid "**object mode**"
-msgstr ""
+msgstr "**object 模式**"
 
 #: ../../source/yaml_config/configuration.md:745
 msgid "**`arrive_mode`** — Goal detection (`position`, `state`)"
@@ -1694,7 +1942,7 @@ msgstr "当设为 `True` 时，该对象被视为无障碍，忽略与其他对�
 
 #: ../../source/yaml_config/configuration.md
 msgid "**object visualization**"
-msgstr "**对象可视化**"
+msgstr "**object 可视化**"
 
 #: ../../source/yaml_config/configuration.md:775
 msgid "**`color`** — Object color (`'r'`, `'blue'`, `'k'`)"
@@ -2077,9 +2325,10 @@ msgstr "鼠标控制选项。"
 
 #: ../../source/yaml_config/configuration.md
 msgid "**keyboard properties**"
-msgstr "**键盘属性**"
+msgstr "**键盘控制**"
 
 #: ../../source/yaml_config/configuration.md:947
+#, python-brace-format
 msgid ""
 "**`keyboard`** (`dict`, default: `{}`) Configure keyboard control. "
 "Options are read by `KeyboardControl`. The default backend is `pynput`. "
@@ -2135,25 +2384,93 @@ msgstr "`key_ang`（`float`）：初始角速度，默认 `0.0`。"
 msgid "`key_id` (`int`): Initial robot control id. Default is `0`."
 msgstr "`key_id`（`int`）：初始机器人控制 ID，默认 `0`。"
 
-#: ../../source/yaml_config/configuration.md:996
+#: ../../source/yaml_config/configuration.md:974
+msgid "**Keyboard Control Keys:**"
+msgstr "**键盘控制按键：**"
+
+#: ../../source/yaml_config/configuration.md:976
+msgid "`w` — Forward"
+msgstr "`w` — 前进"
+
+#: ../../source/yaml_config/configuration.md:977
+msgid "`s` — Backward"
+msgstr "`s` — 后退"
+
+#: ../../source/yaml_config/configuration.md:978
+msgid "`a` — Turn Left"
+msgstr "`a` — 左转"
+
+#: ../../source/yaml_config/configuration.md:979
+msgid "`d` — Turn Right"
+msgstr "`d` — 右转"
+
+#: ../../source/yaml_config/configuration.md:980
+msgid "`q` — Decrease Linear Velocity"
+msgstr "`q` — 降低线速度"
+
+#: ../../source/yaml_config/configuration.md:981
+msgid "`e` — Increase Linear Velocity"
+msgstr "`e` — 提高线速度"
+
+#: ../../source/yaml_config/configuration.md:982
+msgid "`z` — Decrease Angular Velocity"
+msgstr "`z` — 降低角速度"
+
+#: ../../source/yaml_config/configuration.md:983
+msgid "`c` — Increase Angular Velocity"
+msgstr "`c` — 提高角速度"
+
+#: ../../source/yaml_config/configuration.md:984
+msgid "`alt+num` — Change Current Control Robot ID"
+msgstr "`alt+num` — 更改当前控制的机器人ID"
+
+#: ../../source/yaml_config/configuration.md:985
+msgid "`r` — Reset the Environment"
+msgstr "`r` — 重置环境"
+
+#: ../../source/yaml_config/configuration.md:986
+msgid "`space` — Toggle Pause/Resume Environment"
+msgstr "`space` — 切换暂停/恢复环境"
+
+#: ../../source/yaml_config/configuration.md:987
+msgid "`esc` — Quit the Environment (sets quit flag)"
+msgstr "`esc` — 退出环境（设置退出标志）"
+
+#: ../../source/yaml_config/configuration.md:988
+msgid "`x` — Switch Keyboard/Auto Control"
+msgstr "`x` — 切换键盘/自动控制"
+
+#: ../../source/yaml_config/configuration.md:989
+msgid "`l` — Reload the Environment"
+msgstr "`l` — 重新加载环境"
+
+#: ../../source/yaml_config/configuration.md:990
+msgid "`F5` — Debug the Environment (fn+f5 for mac)"
+msgstr "`F5` — 调试环境（Mac上使用fn+f5）"
+
+#: ../../source/yaml_config/configuration.md:991
+msgid "`v` — Save the current figure"
+msgstr "`v` — 保存当前图像"
+
+#: ../../source/yaml_config/configuration.md:994
 msgid "Debug mode lets you step the simulation frame-by-frame for inspection:"
 msgstr "调试模式可逐帧推进仿真以便检查："
 
-#: ../../source/yaml_config/configuration.md:998
+#: ../../source/yaml_config/configuration.md:996
 msgid ""
 "Press `F5` to enter debug mode at the current frame. While in debug mode,"
 " pressing `F5` again advances by one frame (single-step)."
 msgstr "按 `F5` 在当前帧进入调试模式，再次按下 `F5` 进入单步。"
 
-#: ../../source/yaml_config/configuration.md:999
+#: ../../source/yaml_config/configuration.md:997
 msgid "Press `space` to exit debug mode and resume normal execution."
 msgstr "按 `space` 退出调试模式并恢复正常执行。"
 
-#: ../../source/yaml_config/configuration.md:1001
+#: ../../source/yaml_config/configuration.md:999
 msgid "Notes:"
 msgstr "注意："
 
-#: ../../source/yaml_config/configuration.md:1002
+#: ../../source/yaml_config/configuration.md:1000
 msgid ""
 "On macOS laptops, you may need to hold the `fn` key (e.g., `fn+F5`). "
 "`alt` key is corresponding to `option` key in macOS."
@@ -2161,39 +2478,60 @@ msgstr "在 macOS 笔记本上可能需要配合 `fn` 键（如 `fn+F5`）。`al
 
 #: ../../source/yaml_config/configuration.md
 msgid "**mouse properties**"
-msgstr "**鼠标属性**"
+msgstr "**鼠标控制**"
 
-#: ../../source/yaml_config/configuration.md:1010
+#: ../../source/yaml_config/configuration.md:1008
+#, python-brace-format
 msgid ""
 "**`mouse`** (`dict`, default: `{}`) :: Configure mouse control. Options "
 "are read by `MouseControl`."
 msgstr "**`mouse`**（`dict`，默认 `{}`）：配置鼠标控制，由 `MouseControl` 读取。"
 
-#: ../../source/yaml_config/configuration.md:1013
+#: ../../source/yaml_config/configuration.md:1011
 msgid "`zoom_factor` (`float`): Zoom factor. Default is `1.1`."
 msgstr "`zoom_factor`（`float`）：缩放因子，默认 `1.1`。"
 
-#: ../../source/yaml_config/configuration.md:1030
+#: ../../source/yaml_config/configuration.md:1021
+msgid "**Mouse Actions:**"
+msgstr "**鼠标操作：**"
+
+#: ../../source/yaml_config/configuration.md:1023
+msgid "**Mouse Movement** — Track mouse position and update display coordinates"
+msgstr "**鼠标移动** — 跟踪鼠标位置并更新显示坐标"
+
+#: ../../source/yaml_config/configuration.md:1024
+msgid "**Middle Click** — Reset zoom to default view"
+msgstr "**中键点击** — 重置缩放到默认视图"
+
+#: ../../source/yaml_config/configuration.md:1025
+msgid "**Scroll Up** — Zoom in (centered on mouse position)"
+msgstr "**滚轮向上** — 放大（以鼠标位置为中心）"
+
+#: ../../source/yaml_config/configuration.md:1026
+msgid "**Scroll Down** — Zoom out (centered on mouse position)"
+msgstr "**滚轮向下** — 缩小（以鼠标位置为中心）"
+
+#: ../../source/yaml_config/configuration.md:1028
 msgid "**Mouse Position Attributes:**"
 msgstr "**鼠标位置属性：**"
 
-#: ../../source/yaml_config/configuration.md:1031
+#: ../../source/yaml_config/configuration.md:1029
 msgid "`mouse_left_pos` (`tuple`): Position of left click (x, y)."
 msgstr "`mouse_left_pos`（`tuple`）：左键点击位置 (x, y)。"
 
-#: ../../source/yaml_config/configuration.md:1032
+#: ../../source/yaml_config/configuration.md:1030
 msgid "`mouse_right_pos` (`tuple`): Position of right click (x, y)."
 msgstr "`mouse_right_pos`（`tuple`）：右键点击位置 (x, y)。"
 
-#: ../../source/yaml_config/configuration.md:1033
+#: ../../source/yaml_config/configuration.md:1031
 msgid "`mouse_pos` (`tuple`): Current mouse position (x, y)."
 msgstr "`mouse_pos`（`tuple`）：当前鼠标位置 (x, y)。"
 
-#: ../../source/yaml_config/configuration.md:1039
+#: ../../source/yaml_config/configuration.md:1037
 msgid "Configuration Examples"
 msgstr "配置示例"
 
-#: ../../source/yaml_config/configuration.md:1041
+#: ../../source/yaml_config/configuration.md:1039
 msgid ""
 "Let's explore various configuration examples to demonstrate the "
 "flexibility and power of IR-SIM:"
@@ -2215,11 +2553,11 @@ msgstr "阿克曼车辆"
 msgid "Sensor Integration"
 msgstr "传感器集成"
 
-#: ../../source/yaml_config/configuration.md:1133
+#: ../../source/yaml_config/configuration.md:1131
 msgid "**Configuration Best Practices:**"
 msgstr "**配置最佳实践：**"
 
-#: ../../source/yaml_config/configuration.md:1135
+#: ../../source/yaml_config/configuration.md:1133
 msgid ""
 "**Multiple Objects**: When configuring multiple objects, use the `number`"
 " and `distribution` parameters to efficiently generate them. For "
@@ -2229,7 +2567,7 @@ msgstr ""
 "**多对象**：配置多个对象时，结合 `number` 与 `distribution` 高效生成。例如设定 `number: 10` 且 "
 "`distribution: 'random'` 可快速随机填充场景。"
 
-#: ../../source/yaml_config/configuration.md:1136
+#: ../../source/yaml_config/configuration.md:1134
 msgid ""
 "**Dictionary Parameters**: All dictionary-type parameters (e.g., "
 "`distribution`, `shape`, `kinematics`, `behavior`) must include a "
@@ -2239,7 +2577,7 @@ msgstr ""
 "**字典参数**：所有字典类型参数（如 `distribution`、`shape`、`kinematics`、`behavior`）必须包含 "
 "`'name'` 键以声明类型，否则会退回默认值或引发错误。"
 
-#: ../../source/yaml_config/configuration.md:1137
+#: ../../source/yaml_config/configuration.md:1135
 msgid ""
 "**Group Configurations**: By default, objects within the same group share"
 " configurations. To customize individual objects within a group, add sub-"
@@ -2247,7 +2585,7 @@ msgid ""
 "configuration within the group."
 msgstr "**分组配置**：同组对象默认共享配置。若需定制，请使用 `-` 添加子参数；未显式配置的对象会继承组内最后一个配置。"
 
-#: ../../source/yaml_config/configuration.md:1138
+#: ../../source/yaml_config/configuration.md:1136
 msgid ""
 "**Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` "
 "parameters match the kinematics model. For example, a differential drive "
@@ -2257,11 +2595,110 @@ msgstr ""
 "**运动学与速度**：确保 `velocity` 与 `vel_max` 的格式与运动学模型匹配，例如差速 (`'diff'`) 使用 `[v, "
 "omega]`，全向 (`'omni'`) 使用 `[vx, vy]`。"
 
-#: ../../source/yaml_config/configuration.md:1139
+#: ../../source/yaml_config/configuration.md:1137
 msgid ""
 "**Plotting Options**: Customize the visualization of your simulation "
 "through the `plot` parameter for each object if the `plot` section is "
 "located in the object configuration. If it is located in the root of the "
 "object configuration, it will be applied to all objects."
 msgstr "**绘图选项**：若 `plot` 位于对象配置内部，可为单个对象定制可视化；若位于对象配置的根级，则应用于所有对象。"
+
+#~ msgid "**场景中对象参数**"
+#~ msgstr ""
+
+#~ msgid "`w`"
+#~ msgstr "`0`"
+
+#~ msgid "Forward"
+#~ msgstr ""
+
+#~ msgid "`s`"
+#~ msgstr "`0`"
+
+#~ msgid "Backward"
+#~ msgstr ""
+
+#~ msgid "`a`"
+#~ msgstr "`goal`"
+
+#~ msgid "Turn Left"
+#~ msgstr ""
+
+#~ msgid "`d`"
+#~ msgstr "`0`"
+
+#~ msgid "Turn Right"
+#~ msgstr ""
+
+#~ msgid "`q`"
+#~ msgstr "`0`"
+
+#~ msgid "Decrease Linear Velocity"
+#~ msgstr ""
+
+#~ msgid "`e`"
+#~ msgstr "`role`"
+
+#~ msgid "Increase Linear Velocity"
+#~ msgstr ""
+
+#~ msgid "`z`"
+#~ msgstr "`0`"
+
+#~ msgid "Decrease Angular Velocity"
+#~ msgstr ""
+
+#~ msgid "`c`"
+#~ msgstr "`acce`"
+
+#~ msgid "Increase Angular Velocity"
+#~ msgstr ""
+
+#~ msgid "`alt+num`"
+#~ msgstr ""
+
+#~ msgid "Change Current Control Robot ID"
+#~ msgstr ""
+
+#~ msgid "`r`"
+#~ msgstr "`role`"
+
+#~ msgid "Reset the Environment"
+#~ msgstr ""
+
+#~ msgid "`space`"
+#~ msgstr "`acce`"
+
+#~ msgid "Toggle Pause/Resume Environment"
+#~ msgstr ""
+
+#~ msgid "`esc`"
+#~ msgstr "`static`"
+
+#~ msgid "Quit the Environment (sets quit flag)"
+#~ msgstr ""
+
+#~ msgid "`x`"
+#~ msgstr "`0`"
+
+#~ msgid "Switch Keyboard/Auto Control"
+#~ msgstr ""
+
+#~ msgid "`l`"
+#~ msgstr "`role`"
+
+#~ msgid "Reload the Environment"
+#~ msgstr ""
+
+#~ msgid "`F5`"
+#~ msgstr "`fov`"
+
+#~ msgid "Debug the Environment (fn+f5 for mac)"
+#~ msgstr ""
+
+#~ msgid "`v`"
+#~ msgstr "`fov`"
+
+#~ msgid "Save the current figure"
+#~ msgstr ""
 
