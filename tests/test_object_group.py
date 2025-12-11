@@ -83,6 +83,23 @@ class TestObjectGroup(unittest.TestCase):
         # Test empty group logic is tricky due to __init__ dependencies
         assert not ObjectGroup([], 0)
 
+    def test_magic_methods(self):
+        """Test magic methods"""
+        assert (
+            str(self.object_group) == "ObjectGroup(role='robot', group_id=0, number=2)"
+        )
+        assert (
+            repr(self.object_group) == "ObjectGroup(role='robot', group_id=0, number=2)"
+        )
+        assert hash(self.object_group) == hash(
+            (self.object_group.role, self.object_group.group_id)
+        )
+        assert len(self.object_group) == 2
+        assert self.object_group[0] == self.member1
+        assert self.object_group[1] == self.member2
+        assert 1 in self.object_group
+        assert 99 not in self.object_group
+
 
 if __name__ == "__main__":
     unittest.main()
