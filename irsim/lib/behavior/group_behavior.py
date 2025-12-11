@@ -1,12 +1,15 @@
 import importlib
+import logging
 from typing import Any, Optional
 
-from irsim.config import env_param, world_param
+from irsim.config import world_param
 from irsim.lib.behavior.behavior_registry import (
     group_behaviors_class_map,
     group_behaviors_map,
 )
 from irsim.world.object_base import ObjectBase
+
+logger = logging.getLogger(__name__)
 
 
 class GroupBehavior:
@@ -60,9 +63,7 @@ class GroupBehavior:
         try:
             self._invoke_func = init_cls(self.members, **self.behavior_dict)
         except Exception as e:
-            env_param.logger.error(
-                f"Failed to init group behavior class for {key}: {e!s}"
-            )
+            logger.error(f"Failed to init group behavior class for {key}: {e!s}")
             self._invoke_func = None
 
     def update_members(self, members: list[ObjectBase]) -> None:
@@ -89,7 +90,7 @@ class GroupBehavior:
         """
         if not self.behavior_dict or self.name is None or self.kinematics is None:
             if world_param.control_mode == "auto" and world_param.count % 20 == 0:
-                env_param.logger.warning(
+                logger.warning(
                     "Group behavior not defined. Auto control will be static. "
                     "Available behaviors: orca"
                 )
@@ -103,10 +104,11 @@ class GroupBehavior:
         key = (self.kinematics, self.name)
         func = group_behaviors_map.get(key)
         if not func:
-            raise ValueError(
+            logger.error(
                 f"No group behavior method found for category '{self.kinematics}' "
                 f"and action '{self.name}'."
             )
+            return [None]
         return func(self.members, **self.behavior_dict)
 
     def load_group_behaviors(self, group_behaviors: str = ".group_behavior_methods"):
