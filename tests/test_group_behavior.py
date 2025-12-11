@@ -13,14 +13,6 @@ class TestGroupBehavior(unittest.TestCase):
         self.member2.kinematics = "diff"
         self.members = [self.member1, self.member2]
 
-        # Patch env_param to mock logger
-        self.env_param_patcher = patch("irsim.lib.behavior.group_behavior.env_param")
-        self.mock_env_param = self.env_param_patcher.start()
-        self.mock_env_param.logger = Mock()
-
-    def tearDown(self):
-        self.env_param_patcher.stop()
-
     def test_init_no_behavior(self):
         gb = GroupBehavior(self.members)
         assert gb.name is None
