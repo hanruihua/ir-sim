@@ -1,0 +1,206 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_behavior.md:1
+msgid "Configure behavior for objects"
+msgstr "为对象配置行为"
+
+#: ../../source/usage/configure_behavior.md:4
+msgid ""
+"Each object in the simulation can be assigned a behavior independently to"
+" simulate different scenarios. The behavior of the object can be "
+"configured by specifying the behavior parameters in the YAML "
+"configuration file."
+msgstr "仿真中的每个对象都可以独立指定行为以模拟不同场景。通过在 YAML 配置文件中设置行为参数即可完成配置。"
+
+#: ../../source/usage/configure_behavior.md:6
+msgid "Behavior Configuration Parameters"
+msgstr "行为配置参数"
+
+#: ../../source/usage/configure_behavior.md:8
+msgid ""
+"Currently, there are two built-in behaviors: `dash` and `rvo`. By "
+"default, the moving objects' behavior is static. You can set the behavior"
+" of the object to `dash` or `rvo` in the YAML configuration file. The "
+"`dash` behavior is a simple behavior that moves the object from its "
+"initial position to the goal position directly. The `rvo` behavior is a "
+"dynamic collision avoidance algorithm for multiple agents."
+msgstr ""
+"当前内置两种行为：`dash` 与 `rvo`。默认情况下运动对象的行为为静态。你可以在 YAML 文件中将行为设为 `dash` 或 "
+"`rvo`。`dash` 为简单的直线追踪行为，直接从初始位置移动到目标；`rvo` 则是多智能体的动态避碰算法。"
+
+#: ../../source/usage/configure_behavior.md:10
+msgid "The example of RVO behavior is shown below:"
+msgstr "下面示例展示了 RVO 行为："
+
+#: ../../source/usage/configure_behavior.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_behavior.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_behavior.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_behavior.md
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/configure_behavior.md:72
+msgid "Important Behavior Parameters Explained"
+msgstr "关键行为参数说明"
+
+#: ../../source/usage/configure_behavior.md:74
+msgid "**Common Parameters:**"
+msgstr "**通用参数：**"
+
+#: ../../source/usage/configure_behavior.md:75
+msgid "**`name`:** Behavior type (`'dash'`, `'rvo'`, or custom name)"
+msgstr "**`name`：** 行为类型（`'dash'`、`'rvo'` 或自定义名称）"
+
+#: ../../source/usage/configure_behavior.md:76
+msgid ""
+"**`wander`:** Random goal generation after reaching current goal "
+"(default: `False`)"
+msgstr "**`wander`：** 抵达当前目标后是否随机生成下一个目标（默认 `False`）"
+
+#: ../../source/usage/configure_behavior.md:77
+msgid ""
+"**`target_roles`:** Filter objects for behavior (`'all'`, `'robot'`, "
+"`'obstacle'`)"
+msgstr "**`target_roles`：** 行为作用对象筛选（`'all'`、`'robot'`、`'obstacle'`）"
+
+#: ../../source/usage/configure_behavior.md:79
+msgid "**RVO-specific Parameters:**"
+msgstr "**RVO 专用参数：**"
+
+#: ../../source/usage/configure_behavior.md:80
+msgid "**`vxmax`/`vymax`:** Maximum velocities in x/y directions (default: `1.5`)"
+msgstr "**`vxmax`/`vymax`：** x/y 方向最大速度（默认 `1.5`）"
+
+#: ../../source/usage/configure_behavior.md:81
+msgid "**`acce`:** Maximum acceleration (default: `1.0`)"
+msgstr "**`acce`：** 最大加速度（默认 `1.0`）"
+
+#: ../../source/usage/configure_behavior.md:82
+msgid ""
+"**`factor`:** Collision penalty weight (default: `1.0`, higher = more "
+"conservative)"
+msgstr "**`factor`：** 碰撞惩罚权重（默认 `1.0`，越大越保守）"
+
+#: ../../source/usage/configure_behavior.md:83
+msgid "**`mode`:** Algorithm variant - `'rvo'` (default), `'hrvo'`, or `'vo'`"
+msgstr "**`mode`：** 算法模式——`'rvo'`（默认）、`'hrvo'` 或 `'vo'`"
+
+#: ../../source/usage/configure_behavior.md:84
+msgid ""
+"**`neighbor_threshold`:** Detection range for nearby objects (default: "
+"`3.0` meters)"
+msgstr "**`neighbor_threshold`：** 邻近目标检测范围（默认 `3.0` 米）"
+
+#: ../../source/usage/configure_behavior.md:86
+msgid "**Dash-specific Parameters:**"
+msgstr "**Dash 专用参数：**"
+
+#: ../../source/usage/configure_behavior.md:87
+msgid ""
+"**`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker`"
+" (default: `0.1` radians)"
+msgstr "**`angle_tolerance`：** `diff`/`acker` 机动学对准方向的容差（默认 `0.1` 弧度）"
+
+#: ../../source/usage/configure_behavior.md:89
+msgid ""
+"Full list of behavior parameters can be found in the [YAML "
+"Configuration](../yaml_config/configuration/)."
+msgstr "完整的行为参数列表请参见 [YAML 配置](../yaml_config/configuration/)。"
+
+#: ../../source/usage/configure_behavior.md:92
+msgid "Advanced Configuration for Custom Behavior"
+msgstr "自定义行为的高级配置"
+
+#: ../../source/usage/configure_behavior.md:94
+msgid "Custom Behavior Function"
+msgstr "自定义行为函数"
+
+#: ../../source/usage/configure_behavior.md:96
+msgid ""
+"If you want to create a custom behavior for the object, you should first "
+"define your own behavior in a custom python script (e.g. "
+"`custom_behavior_methods.py`) as shown below:"
+msgstr "若希望为对象创建自定义行为，需先在自定义 Python 脚本（如 `custom_behavior_methods.py`）中定义行为，如下所示："
+
+#: ../../source/usage/configure_behavior.md:136
+msgid ""
+"The `ego_object` is the object that you want to control, and the "
+"`objects` is the list of all objects in the simulation. The custom "
+"behavior function should return the velocity of the object. You can "
+"obtain the state, goal, and other properties from the objects. "
+"`DiffDash2` is the custom behavior function that calculates the dash "
+"velocity of the object."
+msgstr ""
+"`ego_object` 表示需要控制的对象，`objects` "
+"是仿真中的对象列表。自定义行为函数需返回对象的速度，并可从对象中获取状态、目标等属性。`DiffDash2` "
+"就是一个计算冲刺速度的自定义行为函数。"
+
+#: ../../source/usage/configure_behavior.md:139
+msgid ""
+"You must use the `@register_behavior` decorator to register the custom "
+"behavior. The first argument of the decorator is the name of the "
+"kinematics (`diff`, `acker`, `omni`), and the second argument is the name"
+" of the behavior used in YAML file."
+msgstr ""
+"必须使用 `@register_behavior` "
+"装饰器注册自定义行为。装饰器的第一个参数为机动学名称（`diff`、`acker`、`omni`），第二个参数为在 YAML 中引用的行为名称。"
+
+#: ../../source/usage/configure_behavior.md:142
+msgid "Register Behavior"
+msgstr "注册行为"
+
+#: ../../source/usage/configure_behavior.md:144
+msgid ""
+"The python script and YAML to run the simulation with the custom behavior"
+" is shown below:"
+msgstr "下方给出了运行自定义行为所需的 Python 脚本与 YAML。"
+
+#: ../../source/usage/configure_behavior.md:166
+msgid ""
+"`load_behavior` function loads the custom behavior methods from the "
+"python script. `custom_behavior_methods` is the name of the python script"
+" that contains the custom behavior function."
+msgstr ""
+"`load_behavior` 函数会从 Python 脚本中加载自定义行为方法。`custom_behavior_methods` "
+"是包含自定义行为函数的脚本名称。"
+
+#: ../../source/usage/configure_behavior.md:169
+msgid ""
+"Please place the script with the name `custom_behavior_methods` in the "
+"same directory as the main python script."
+msgstr "请将名为 `custom_behavior_methods` 的脚本与主 Python 脚本放在同一目录下。"
+
+#: ../../source/usage/configure_behavior.md:174
+msgid ""
+"Now, you can use the custom behavior `dash_custom` in the YAML "
+"configuration file as shown below."
+msgstr "现在即可在 YAML 配置中使用自定义行为 `dash_custom`，如下所示。"
+

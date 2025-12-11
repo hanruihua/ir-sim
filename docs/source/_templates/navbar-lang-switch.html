@@ -1,0 +1,52 @@
+<li class="nav-item dropdown">
+    <button
+        id="irsim-lang-toggle"
+        class="btn btn-outline-secondary btn-sm px-2 py-1 dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+    >
+        🌐 <span id="irsim-lang-label">Language</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="irsim-lang-toggle">
+        <li><button class="dropdown-item" type="button" onclick="irsimSwitchLang('en')">English</button></li>
+        <li><button class="dropdown-item" type="button" onclick="irsimSwitchLang('zh_CN')">中文</button></li>
+    </ul>
+</li>
+
+<script>
+    (function () {
+        const current = irsimDetectLang();
+        const label = document.getElementById('irsim-lang-label');
+        if (label) {
+            label.textContent = current === 'zh_CN' ? '中文' : 'English';
+        }
+    })();
+
+    function irsimDetectLang() {
+        const path = window.location.pathname;
+        return path.includes('/zh_CN/') ? 'zh_CN' : 'en';
+    }
+
+    function irsimSwitchLang(targetLang) {
+        const url = new URL(window.location.href);
+        const currentLang = irsimDetectLang();
+        if (targetLang === currentLang) {
+            return;
+        }
+
+        if (targetLang === 'zh_CN') {
+            url.pathname = url.pathname.replace('/html/', '/zh_CN/');
+        } else {
+            url.pathname = url.pathname.replace('/zh_CN/', '/html/');
+        }
+
+        // 如果替换失败，退回对应语言首页
+        if (!url.pathname.includes('/html/') && !url.pathname.includes('/zh_CN/')) {
+            url.pathname = targetLang === 'zh_CN' ? '/zh_CN/index.html' : '/html/index.html';
+        }
+
+        url.search = '';
+        window.location.href = url.toString();
+    }
+</script>

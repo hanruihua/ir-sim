@@ -1,0 +1,36 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/api/index.rst:6
+msgid "API Documentation"
+msgstr "API 文档"
+
+#: ../../source/api/index.rst:2
+msgid "API Reference"
+msgstr "应用程序接口"
+
+#: ../../source/api/index.rst:4
+msgid ""
+"Welcome to the IR-SIM API Reference. This section provides detailed "
+"documentation for all modules, classes, and functions in the IR-SIM "
+"package."
+msgstr "欢迎阅读 IR-SIM API 参考。本节提供该软件包中所有模块、类与函数的详细说明。"
+

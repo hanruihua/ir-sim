@@ -998,7 +998,8 @@ gui:
     key_ang_max: 1.0
 ```
 
-````{note}
+**Keyboard Control Keys:**
+
 | Key       | Function                               |
 | --------- | -------------------------------------- |
 | `w`       | Forward                                |
@@ -1015,9 +1016,8 @@ gui:
 | `esc`     | Quit the Environment (sets quit flag)  |
 | `x`       | Switch Keyboard/Auto Control           |
 | `l`       | Reload the Environment                 |
-| `F5`      | Debug the Environment (fn+f5 for mac)                  |
-| `v`       | Save the current figure                 |
-````
+| `F5`      | Debug the Environment (fn+f5 for mac)  |
+| `v`       | Save the current figure                |
 
 ```{tip}
 Debug mode lets you step the simulation frame-by-frame for inspection:

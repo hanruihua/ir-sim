@@ -1,0 +1,86 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_grid_map.md:1
+msgid "Configure grid map environment"
+msgstr "配置网格地图环境"
+
+#: ../../source/usage/configure_grid_map.md:4
+msgid ""
+"The grid map environment is a 2D grid-based environment that can be used "
+"to simulate various scenarios. It can be simply configured by specifying "
+"path of image file in the YAML configuration file."
+msgstr "网格地图环境是基于二维栅格的场景，可用于模拟多种情形。只需在 YAML 配置中指定图像文件路径即可完成配置。"
+
+#: ../../source/usage/configure_grid_map.md:7
+msgid "Grid Map Configuration Parameters"
+msgstr "网格地图配置参数"
+
+#: ../../source/usage/configure_grid_map.md:9
+msgid ""
+"The python script and YAML configuration file for the grid map "
+"environment are shown below:"
+msgstr "下方给出了网格地图环境的 Python 脚本与 YAML 配置："
+
+#: ../../source/usage/configure_grid_map.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_grid_map.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_grid_map.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_grid_map.md
+#: ../../source/usage/configure_grid_map.md:89
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/configure_grid_map.md:85
+msgid "Important Parameters Explained"
+msgstr "关键参数说明"
+
+#: ../../source/usage/configure_grid_map.md:87
+msgid ""
+"To configure the grid map environment, the `obstacle_map` in the `world` "
+"section should be specified. The `mdownsample` parameter is used to "
+"downsample the image for acceleration. The image of `cave.png` should be "
+"placed in the same directory as the python script, and is shown below:"
+msgstr ""
+"配置网格地图需要在 `world` 部分指定 `obstacle_map`。`mdownsample` "
+"用于对图像降采样以加速。`cave.png` 图像需与 Python 脚本位于同一目录，效果如下："
+
+#: ../../source/usage/configure_grid_map.md:95
+msgid ""
+"In the simulation, this png figure will be rasterized into a grid map. "
+"Black pixels represent obstacles, and white pixels represent free space."
+msgstr "仿真时该 PNG 会被栅格化为地图：黑色像素代表障碍物，白色像素代表可通行区域。"
+
+#: ../../source/usage/configure_grid_map.md:98
+msgid ""
+"You can use custom png images to create different grid map environments. "
+"The absolute or relative paths can be used to specify the image file in "
+"other directories."
+msgstr "你可使用自定义 PNG 图像创建不同的网格地图，并通过绝对或相对路径引用位于其他目录的图像文件。"
+

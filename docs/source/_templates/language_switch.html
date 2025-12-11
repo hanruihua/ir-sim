@@ -1,0 +1,23 @@
+<li class="nav-item">
+    <a class="nav-link" href="#" onclick="switchLang()">🌐 语言</a>
+</li>
+
+<script>
+    function switchLang() {
+        const url = new URL(window.location.href);
+        const path = url.pathname;
+        const EN_SEGMENT = "/build/html/";
+        const ZH_SEGMENT = "/build/zh_CN/";
+
+        if (path.includes(ZH_SEGMENT)) {
+            url.pathname = path.replace(ZH_SEGMENT, EN_SEGMENT);
+        } else if (path.includes(EN_SEGMENT)) {
+            url.pathname = path.replace(EN_SEGMENT, ZH_SEGMENT);
+        } else {
+            url.pathname = path.replace(/\/zh_CN\//, "/html/")
+                .replace(/\/html\//, "/zh_CN/");
+        }
+        url.search = "";
+        window.location.href = url.toString();
+    }
+</script>

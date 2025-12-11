@@ -1,0 +1,176 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/save_animation.md:1
+msgid "Render and Save Animation"
+msgstr "渲染并保存动画"
+
+#: ../../source/usage/save_animation.md:4
+msgid "Render the environment"
+msgstr "渲染环境"
+
+#: ../../source/usage/save_animation.md:6
+msgid ""
+"You can render the environment by calling the "
+"[env.render()](#irsim.env.env_base.EnvBase.render) function and change "
+"the arguments of this function to control the rendering of each frame. "
+"The main parameters are:"
+msgstr ""
+"可以调用 [env.render()](#irsim.env.env_base.EnvBase.render) "
+"渲染环境，并通过调整参数来控制每一帧的渲染。主要参数包括："
+
+#: ../../source/usage/save_animation.md:8
+msgid ""
+"**`interval`:** The time interval between frames. Default 0.05. This "
+"parameter is used to control the speed of visualization."
+msgstr "**`interval`：** 帧间时间间隔（默认 0.05），用于控制可视化速度。"
+
+#: ../../source/usage/save_animation.md:9
+msgid ""
+"**`figure_kwargs`:** The parameters of the figures. Such as the "
+"transparent, bbox_inches, dpi, etc. Default {}. See "
+"[savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html)"
+" for more details."
+msgstr ""
+"**`figure_kwargs`：** 传递给图像的参数，如 transparent、bbox_inches、dpi 等，默认 {}。详见 "
+"[savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html)。"
+
+#: ../../source/usage/save_animation.md:10
+msgid ""
+"**`kwargs`:** These additional parameters are passed to the all the "
+"[object.plot](#irsim.world.object_base.ObjectBase.plot) function for "
+"default settings."
+msgstr ""
+"**`kwargs`：** 额外参数，会传递给所有 "
+"[object.plot](#irsim.world.object_base.ObjectBase.plot) 以设置默认绘图行为。"
+
+#: ../../source/usage/save_animation.md:12
+msgid "Save the animation as GIF file"
+msgstr "将动画保存为 GIF"
+
+#: ../../source/usage/save_animation.md:14
+msgid ""
+"You can save the animation of the simulation as a gif file very easily by"
+" setting the `save_ani` to `True` in the `make()` function:"
+msgstr "在 `make()` 函数中将 `save_ani` 设为 `True`，即可轻松把仿真动画保存为 GIF："
+
+#: ../../source/usage/save_animation.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/save_animation.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/save_animation.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/save_animation.md
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/save_animation.md:97
+msgid ""
+"`ending_time` denotes how long the figure will be closed. The animation "
+"generation is also performed in this `env.end()` function. You can set "
+"the additional arguments in this function to control the animation "
+"generation. Details of the parameters can be found in the "
+"[env.end()](#irsim.env.env_base.EnvBase.end)."
+msgstr ""
+"`ending_time` 表示窗口关闭所需时间。动画的生成同样发生在 `env.end()` "
+"中，可通过该函数的额外参数控制导出行为。参数细节参见 [env.end()](#irsim.env.env_base.EnvBase.end)。"
+
+#: ../../source/usage/save_animation.md:99
+msgid "Some common parameters for `GIF` format you may use are:"
+msgstr "常用的 `GIF` 参数示例如下："
+
+#: ../../source/usage/save_animation.md:101
+msgid ""
+"**`loop`:** The number of times the GIF should loop. Default 0 (meaning "
+"loop indefinitely)."
+msgstr "**`loop`：** GIF 循环次数，默认 0（无限循环）。"
+
+#: ../../source/usage/save_animation.md:102
+msgid ""
+"**`duration `:** The duration (in seconds) of each frame. Either specify "
+"one value that is used for all frames, or one value for each frame."
+msgstr "**`duration`：** 每帧持续时间（秒），可统一设置或为每帧单独设置。"
+
+#: ../../source/usage/save_animation.md:103
+msgid ""
+"**`fps`:** The number of frames per second. If duration is not given, the"
+" duration for each frame is set to 1/fps. Default 10."
+msgstr "**`fps`：** 每秒帧数，若未提供 duration，则每帧持续时间为 1/fps，默认 10。"
+
+#: ../../source/usage/save_animation.md:104
+msgid ""
+"**`subrectangles `:** If True, will try and optimize the GIF by storing "
+"only the rectangular parts of each frame that change with respect to the "
+"previous. Default True."
+msgstr "**`subrectangles`：** 若为 True，会仅保存相较上一帧变化的矩形区域以优化 GIF，默认 True。"
+
+#: ../../source/usage/save_animation.md:107
+msgid ""
+"The principle of the animation generation is to save the images of each "
+"frame and then combine them into a gif file."
+msgstr "动画生成的原理是保存每一帧的图像，再组合成 GIF 文件。"
+
+#: ../../source/usage/save_animation.md:110
+msgid "Save the animation as a video"
+msgstr "将动画保存为视频"
+
+#: ../../source/usage/save_animation.md:112
+msgid ""
+"You can save the animation of the simulation as a video file such as mp4 "
+"file by setting the suffix of the file to `.mp4` in the "
+"[env.end()](#irsim.env.env_base.EnvBase.end) function. Please make sure "
+"you have the `ffmpeg` installed in your system by `pip install "
+"imageio[ffmpeg]`. The example is shown below:"
+msgstr ""
+"在 [env.end()](#irsim.env.env_base.EnvBase.end) 中将文件后缀设为 "
+"`.mp4`，即可把仿真动画保存为视频。请通过 `pip install imageio[ffmpeg]` 安装 `ffmpeg`，示例如下："
+
+#: ../../source/usage/save_animation.md:130
+msgid ""
+"More `suffix` for the animation file format can be found on [imageio "
+"docs](https://imageio.readthedocs.io/en/stable/formats/video_formats.html)"
+msgstr ""
+"更多动画文件后缀可参考 [imageio "
+"文档](https://imageio.readthedocs.io/en/stable/formats/video_formats.html)。"
+
+#: ../../source/usage/save_animation.md:134
+msgid "3D Plot"
+msgstr "3D 绘图"
+
+#: ../../source/usage/save_animation.md:136
+msgid ""
+"You can simply set the `projection` parameter to `3d` in `irsim.make` "
+"function to render the 3D plot of the simulation. The example is shown "
+"below:"
+msgstr "在 `irsim.make` 中将 `projection` 设为 `3d`，即可渲染仿真的 3D 图，示例如下："
+
+#: ../../source/usage/save_animation.md:212
+msgid ""
+"Currently, the 3D plot only visualizes the 2D objects in the 3D space. "
+"The 3D objects are not supported yet."
+msgstr "当前 3D 绘图仅在三维空间展示 2D 对象，尚不支持真 3D 对象。"
+
