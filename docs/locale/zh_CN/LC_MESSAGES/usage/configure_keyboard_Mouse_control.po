@@ -1,0 +1,345 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:1
+msgid "Configure keyboard/Mouse control"
+msgstr "配置键盘/鼠标控制"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:4
+msgid ""
+"IR-SIM supports reading the keyboard and mouse input to control the robot"
+" manually."
+msgstr "IR-SIM 支持读取键盘与鼠标输入，以手动控制机器人。"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:6
+msgid "Keyboard Control Configuration Parameters"
+msgstr "键盘控制配置参数"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:8
+msgid ""
+"In the keyboard control mode, the behavior of the robot is controlled by "
+"the user and the settings in the YAML file will be ignored. By default "
+"IR-SIM uses the `pynput` global keyboard hook. If `pynput` is "
+"unavailable, IR-SIM automatically falls back to the Matplotlib figure key"
+" events backend. You can install `pynput` with:"
+msgstr ""
+"在键盘控制模式下，机器人的行为由用户操作，YAML 中的行为设置会被忽略。IR-SIM 默认使用 `pynput` 全局键盘钩子；若 "
+"`pynput` 不可用，则自动回退到 Matplotlib 图窗键盘事件后端。可通过以下命令安装 `pynput`："
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:14
+msgid ""
+"To start with the keyboard control, you can simply to specify the "
+"`control_mode` parameter in the `world` section as `keyboard`. The "
+"example of the keyboard control is shown below:"
+msgstr "要启用键盘控制，只需在 `world` 部分将 `control_mode` 设为 `keyboard`。示例如下："
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:82
+msgid "Keyboard Control Key Mapping"
+msgstr "键盘控制按键映射"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Key"
+msgstr "按键"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Function"
+msgstr "功能"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`w`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Forward"
+msgstr "前进"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`s`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Backward"
+msgstr "后退"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`a`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Turn Left"
+msgstr "左转"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`d`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Turn Right"
+msgstr "右转"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`q`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Decrease Linear Velocity"
+msgstr "降低线速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`e`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Increase Linear Velocity"
+msgstr "提升线速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`z`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Decrease Angular Velocity"
+msgstr "降低角速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`c`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Increase Angular Velocity"
+msgstr "提升角速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`alt+num`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Change Current Control Robot ID"
+msgstr "切换当前控制的机器人 ID"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`r`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Reset the Environment"
+msgstr "重置环境"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`space`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Toggle Pause/Resume Environment"
+msgstr "暂停/继续仿真"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`esc`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Quit the Environment (sets quit flag)"
+msgstr "退出环境（设置 quit 标志）"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`x`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Switch Keyboard/Auto Control"
+msgstr "切换键盘/自动控制"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`l`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Reload the Environment"
+msgstr "重新加载环境"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`F5`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Debug the Environment (fn+f5 for mac)"
+msgstr "调试环境（Mac 请按 fn+F5）"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`v`"
+msgstr ""
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Save the current figure"
+msgstr "保存当前图像"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:103
+msgid "Environment Status Control"
+msgstr "环境状态控制"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:105
+msgid ""
+"The space key toggles between \"Pause\" and \"Running\" based on the "
+"current state. If the environment hasn't entered Running yet, the first "
+"press may set it to \"Running\"."
+msgstr "空格键可依据当前状态在“Pause”和“Running”之间切换。如果环境尚未进入 Running，首次按下可能会将其置为 Running。"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:107
+msgid ""
+"You can access the current environment status through the `env.status` "
+"attribute:"
+msgstr "可通过 `env.status` 属性查看环境当前状态："
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:127
+msgid "Select Keyboard Backend (pynput vs Matplotlib)"
+msgstr "选择键盘后端（pynput vs Matplotlib）"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:129
+msgid ""
+"Default backend: `pynput` (global keyboard hook, but works when the "
+"Matplotlib window is focused). If not installed, IR-SIM automatically "
+"falls back to `mpl`."
+msgstr "默认后端：`pynput`（全局键盘钩子，Matplotlib 窗口聚焦时生效）。若未安装，IR-SIM 会自动回退到 `mpl`。"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:130
+msgid ""
+"Alternative backend: `mpl` (Matplotlib figure key events). Works when the"
+" figure window is focused; no extra package required."
+msgstr "备选后端：`mpl`（Matplotlib 图窗键盘事件），只要图窗获得焦点即可，无需额外依赖。"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:132
+msgid ""
+"Add a `keyboard` section at the root of the YAML to configure the backend"
+" and key parameters:"
+msgstr "可在 YAML 根节点添加 `keyboard` 段落，以配置后端与关键参数："
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:149
+msgid "Mouse Control"
+msgstr "鼠标控制"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:151
+msgid ""
+"IR-SIM supports the mouse control to zoom in and out the environment and "
+"track the mouse position. The mouse control is enabled by default. For "
+"example, you can use mouse left click to set the goal of the robot."
+msgstr "IR-SIM 支持通过鼠标缩放环境并跟踪鼠标位置，默认开启。你可以例如用鼠标左键设置机器人的目标点。"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:236
+msgid "Mouse Control Key Mapping"
+msgstr "鼠标控制映射"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Mouse Action"
+msgstr "鼠标操作"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Mouse Movement"
+msgstr "移动鼠标"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Track mouse position and update display coordinates"
+msgstr "跟踪鼠标位置并更新显示坐标"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Middle Click"
+msgstr "鼠标中键"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Reset zoom to default view"
+msgstr "重置缩放至默认视图"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Scroll Up"
+msgstr "滚轮上滑"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Zoom in (centered on mouse position)"
+msgstr "以鼠标位置为中心放大"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Scroll Down"
+msgstr "滚轮下滑"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Zoom out (centered on mouse position)"
+msgstr "以鼠标位置为中心缩小"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:245
+msgid "Mouse Position Attributes"
+msgstr "鼠标位置属性"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Attribute"
+msgstr "属性"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Type"
+msgstr "类型"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Description"
+msgstr "说明"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "`mouse_left_pos`"
+msgstr "`mouse_left_pos`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "`tuple`"
+msgstr "`tuple`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Position of left click (x, y)"
+msgstr "左键点击位置 (x, y)"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "`mouse_right_pos`"
+msgstr "`mouse_right_pos`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Position of right click (x, y)"
+msgstr "右键点击位置 (x, y)"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "`mouse_pos`"
+msgstr "`mouse_pos`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:228
+msgid "Current mouse position (x, y)"
+msgstr "当前鼠标位置 (x, y)"
+

@@ -1,0 +1,327 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_robots_obstacles.md:1
+msgid "Configure robots and obstacles"
+msgstr "配置机器人与障碍物"
+
+#: ../../source/usage/configure_robots_obstacles.md:4
+msgid ""
+"To effectively simulate robots within your environment, you need to "
+"define and configure various robot parameters."
+msgstr "要在环境中有效地模拟机器人，需要定义并配置多项机器人参数。"
+
+#: ../../source/usage/configure_robots_obstacles.md:6
+msgid "Robot Configuration Parameters"
+msgstr "机器人配置参数"
+
+#: ../../source/usage/configure_robots_obstacles.md:8
+msgid ""
+"Each robot in the simulation is defined by a set of parameters in a YAML "
+"configuration file. Below is a simple example of a robot configuration:"
+msgstr "仿真中的每个机器人都通过 YAML 配置文件中的参数定义。下面是一个简单示例："
+
+#: ../../source/usage/configure_robots_obstacles.md:10
+msgid "The python script and YAML configuration file:"
+msgstr "对应的 Python 脚本与 YAML 配置如下："
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_robots_obstacles.md:52
+#: ../../source/usage/configure_robots_obstacles.md:170
+msgid "Important Parameters Explained"
+msgstr "关键参数说明"
+
+#: ../../source/usage/configure_robots_obstacles.md:54
+msgid ""
+"**`kinematics`:** Defines the movement model of the robot. Name options "
+"include `'omni'`, `'diff'`, and `'acker'`."
+msgstr "**`kinematics`：** 定义机器人的运动学模型，可选 `'omni'`、`'diff'`、`'acker'`。"
+
+#: ../../source/usage/configure_robots_obstacles.md:55
+msgid "`'omni'`: Omnidirectional wheels allowing movement in all directions."
+msgstr "`'omni'`：全向轮，可向任意方向移动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:56
+msgid ""
+"`'diff'`: Differential drive allowing movement forward/backward and "
+"rotation."
+msgstr "`'diff'`：差速驱动，可前后移动并旋转。"
+
+#: ../../source/usage/configure_robots_obstacles.md:57
+msgid "`'acker'`: Ackermann steering, typical for car-like robots."
+msgstr "`'acker'`：阿克曼转向，常用于车式机器人。"
+
+#: ../../source/usage/configure_robots_obstacles.md:59
+msgid "**Kinematics Comparison:**"
+msgstr "**运动学对比：**"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Kinematics"
+msgstr "运动学"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Control Input"
+msgstr "控制输入"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Typical Use"
+msgstr "典型用途"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Can Rotate in Place?"
+msgstr "可原地旋转？"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`omni`"
+msgstr "`omni`"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`[vx, vy]` - velocity in x,y"
+msgstr "`[vx, vy]` —— x/y 方向速度"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Holonomic robots, drones"
+msgstr "全向机器人、无人机"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "✓ Yes"
+msgstr "✓ 可以"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`diff`"
+msgstr "`diff`"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`[v, ω]` - linear & angular velocity"
+msgstr "`[v, ω]` —— 线速度与角速度"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Two-wheeled robots"
+msgstr "双轮机器人"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`acker`"
+msgstr "`acker`"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`[v, φ]` - linear velocity & steering angle"
+msgstr "`[v, φ]` —— 线速度与转向角"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Cars, car-like robots"
+msgstr "汽车及车式机器人"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "✗ No"
+msgstr "✗ 不可以"
+
+#: ../../source/usage/configure_robots_obstacles.md:66
+msgid ""
+"**`shape`:** Specifies the physical shape and size of the robot. Name "
+"options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`."
+msgstr ""
+"**`shape`：** 指定机器人的物理形状与尺寸，可选 "
+"`'circle'`、`'rectangle'`、`'polygon'`、`linestring`。"
+
+#: ../../source/usage/configure_robots_obstacles.md:67
+msgid "`circle`: A circular robot with a specified radius."
+msgstr "`circle`：给定半径的圆形机器人。"
+
+#: ../../source/usage/configure_robots_obstacles.md:68
+msgid "`rectangle`: A rectangular robot with specified length and width."
+msgstr "`rectangle`：具有特定长宽的矩形机器人。"
+
+#: ../../source/usage/configure_robots_obstacles.md:69
+msgid "`polygon`: A polygonal robot."
+msgstr "`polygon`：多边形机器人。"
+
+#: ../../source/usage/configure_robots_obstacles.md:70
+msgid "`linestring`: list of lines."
+msgstr "`linestring`：由线段组成的形状。"
+
+#: ../../source/usage/configure_robots_obstacles.md:72
+msgid ""
+"**`state`:** Defines the initial position and orientation of the robot in"
+" the environment."
+msgstr "**`state`：** 定义机器人在环境中的初始位置与朝向。"
+
+#: ../../source/usage/configure_robots_obstacles.md:73
+msgid "**`goal`:** Specifies the target position and orientation for the robot."
+msgstr "**`goal`：** 指定机器人的目标位置与朝向。"
+
+#: ../../source/usage/configure_robots_obstacles.md:74
+msgid ""
+"**`plot`** (optional): Specifies the visualization settings for the "
+"robot. See [object.plot](#irsim.world.object_base.ObjectBase.plot) for "
+"more details."
+msgstr ""
+"**`plot`**（可选）：设置机器人的可视化样式。参见 "
+"[object.plot](#irsim.world.object_base.ObjectBase.plot)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:77
+msgid ""
+"The robot has a default behavior of moving from its initial position to "
+"the goal position directly (`dash`) if the `kinematics` is set."
+msgstr "当设置了 `kinematics` 时，机器人默认使用 `dash` 行为从起始位置直接移动到目标。"
+
+#: ../../source/usage/configure_robots_obstacles.md:79
+msgid "Explanation"
+msgstr "说明"
+
+#: ../../source/usage/configure_robots_obstacles.md:81
+msgid ""
+"**`env.step()`:** Advances the simulation by one time step. You can input"
+" your control commands here by `env.step(velocity)` to run your own "
+"control algorithm. `velocity` is associated with the `kinematics` of the "
+"robot. See [env.step](#irsim.env.env_base.EnvBase.step) for more details."
+msgstr ""
+"**`env.step()`：** 将仿真推进一个时间步。可通过 `env.step(velocity)` "
+"注入控制指令以运行自定义算法，`velocity` 对应机器人 `kinematics`。详情见 "
+"[env.step](#irsim.env.env_base.EnvBase.step)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:82
+msgid ""
+"**`env.render(0.05)`:** Renders the current state of the environment with"
+" a 0.05-second delay between frames. See "
+"[env.render](#irsim.env.env_base.EnvBase.render) for more details."
+msgstr ""
+"**`env.render(0.05)`：** 以 0.05 秒间隔渲染环境状态。详情见 "
+"[env.render](#irsim.env.env_base.EnvBase.render)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:83
+msgid ""
+"**`env.done()`:** Checks whether the simulation conditions to terminate "
+"have been met. Such as reaching the goal or a collision. See "
+"[env.done](#irsim.env.env_base.EnvBase.done) for more details."
+msgstr ""
+"**`env.done()`：** 检查是否满足终止条件（如达到目标或发生碰撞）。详情见 "
+"[env.done](#irsim.env.env_base.EnvBase.done)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:84
+msgid ""
+"**`env.end()`:** Ensures that the simulation is terminated gracefully, "
+"releasing any resources or handles. Provides a clean exit. See "
+"[env.end](#irsim.env.env_base.EnvBase.end) for more details."
+msgstr ""
+"**`env.end()`：** 优雅结束仿真并释放资源，确保干净退出。详情见 "
+"[env.end](#irsim.env.env_base.EnvBase.end)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:87
+msgid ""
+"The [rda_planner](https://github.com/hanruihua/RDA-planner) is a case of "
+"using the `env.step(velocity)` to run your own control algorithm."
+msgstr ""
+"[rda_planner](https://github.com/hanruihua/RDA-planner) 展示了如何通过 "
+"`env.step(velocity)` 运行自定义控制算法。"
+
+#: ../../source/usage/configure_robots_obstacles.md:91
+msgid ""
+"You can add Gaussian noise on the kinematics of the robot and obstacle by"
+" setting the `noise` to be True in parameter in the `kinematics` "
+"dictionary. See [kinematics](#../yaml_config/configuration) for more "
+"details."
+msgstr ""
+"在 `kinematics` 字典中将 `noise` 设为 True，即可为机器人或障碍物的运动学添加高斯噪声。详见 "
+"[kinematics](#../yaml_config/configuration)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:94
+msgid "Obstacle Configuration Parameters"
+msgstr "障碍物配置参数"
+
+#: ../../source/usage/configure_robots_obstacles.md:96
+msgid ""
+"The parameters of obstacles in the simulation are similar to those of "
+"robots. Below is an example of adding various obstacles to the yaml "
+"configuration file, and run the same python script as above."
+msgstr "仿真中障碍物的参数与机器人类似。下例展示了在 YAML 中添加多类障碍物并复用同一 Python 脚本。"
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/configure_robots_obstacles.md:172
+msgid ""
+"**unobstructed**: If `True`, there is no collision detection with the "
+"object."
+msgstr "**unobstructed**：设为 `True` 时，该对象不参与碰撞检测。"
+
+#: ../../source/usage/configure_robots_obstacles.md:175
+msgid "**Robot vs Obstacle - Key Differences:**"
+msgstr "**机器人与障碍物的主要区别：**"
+
+#: ../../source/usage/configure_robots_obstacles.md:184
+msgid "**Configuration Tips:**"
+msgstr "**配置提示：**"
+
+#: ../../source/usage/configure_robots_obstacles.md:185
+msgid "Without `kinematics`, obstacles remain stationary"
+msgstr "若未设置 `kinematics`，障碍物将保持静止"
+
+#: ../../source/usage/configure_robots_obstacles.md:186
+msgid "Add `kinematics` + `behavior` to create moving obstacles"
+msgstr "同时配置 `kinematics` 与 `behavior` 可让障碍物移动"
+
+#: ../../source/usage/configure_robots_obstacles.md:187
+msgid "Use `-` to define each new robot/obstacle in the list"
+msgstr "列表中使用 `-` 定义每个新的机器人/障碍物"
+
+#: ../../source/usage/configure_robots_obstacles.md:191
+msgid ""
+"Please make sure that the obstacles are not placed in the initial "
+"position of the robot. Otherwise, the robot will collide with the "
+"obstacles at the beginning of the simulation."
+msgstr "请确保障碍物不要放在机器人初始位置，否则仿真开始时就会发生碰撞。"
+
+#: ../../source/usage/configure_robots_obstacles.md:194
+msgid "Advanced Configurations for Multiple Robots and Obstacles"
+msgstr "多机器人/障碍物的高级配置"
+
+#: ../../source/usage/configure_robots_obstacles.md:196
+msgid ""
+"To simulate multiple robots and obstacles within the same environment, "
+"simply add the `number` and `distribution` of robots and obstacles to the"
+" configuration file. Below is an example of a configuration file with "
+"multiple robots and obstacles:"
+msgstr ""
+"若要在同一环境中模拟多个机器人与障碍物，只需在配置中设置它们的 `number` 与 "
+"`distribution`。下面是一个包含多个机器人和障碍物的示例："
+
+#: ../../source/usage/configure_robots_obstacles.md:263
+msgid ""
+"The `distribution` parameter specifies how the robots and obstacles are "
+"distributed within the environment. Options include `'manual'` and "
+"`'random'`. Details are provided in the [YAML "
+"Configuration](#../yaml_config/configuration/)"
+msgstr ""
+"`distribution` 参数用于控制机器人和障碍物的布局，可选 `'manual'` 或 `'random'`。更多细节见 [YAML "
+"配置](#../yaml_config/configuration/)。"
+

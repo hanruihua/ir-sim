@@ -1,0 +1,352 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/make_environment.md:1
+msgid "Make Environment"
+msgstr "创建环境"
+
+#: ../../source/usage/make_environment.md:4
+msgid "Python script and YAML configuration file"
+msgstr "Python 脚本与 YAML 配置文件"
+
+#: ../../source/usage/make_environment.md:6
+msgid ""
+"To start the simulation, you need to create an environment. The "
+"environment is a container for all the objects in the simulation. It is "
+"also responsible for updating the state of the simulation at each time "
+"step."
+msgstr "要开始仿真，需要先创建一个环境。环境是仿真中所有对象的容器，并负责在每个时间步更新仿真状态。"
+
+#: ../../source/usage/make_environment.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/make_environment.md:12
+msgid "Create your environment with a simple Python script:"
+msgstr "可以使用简单的 Python 脚本创建环境："
+
+#: ../../source/usage/make_environment.md:19
+msgid ""
+"The `make` function creates an environment from a configuration file. "
+"Supported parameters include:"
+msgstr "`make` 函数会根据配置文件创建环境，支持的参数包括："
+
+#: ../../source/usage/make_environment.md:21
+msgid ""
+"**`world_name`** (str, optional): Path to the world YAML configuration "
+"file"
+msgstr "**`world_name`**（str，可选）：世界 YAML 配置文件路径"
+
+#: ../../source/usage/make_environment.md:22
+msgid ""
+"**`projection`** (str, optional): Projection type (\"3d\" for 3D "
+"environment, None for 2D)"
+msgstr "**`projection`**（str，可选）：投影类型（“3d” 表示 3D 环境，None 表示 2D）"
+
+#: ../../source/usage/make_environment.md:23
+msgid ""
+"**`display`** (bool): Whether to display the environment visualization "
+"(default: True)"
+msgstr "**`display`**（bool）：是否显示环境可视化（默认 True）"
+
+#: ../../source/usage/make_environment.md:24
+msgid ""
+"**`save_ani`** (bool): Whether to save the simulation as an animation "
+"(default: False)"
+msgstr "**`save_ani`**（bool）：是否将仿真保存为动图（默认 False）"
+
+#: ../../source/usage/make_environment.md:25
+msgid ""
+"**`log_level`** (str): Logging level for the environment (default: "
+"\"INFO\")"
+msgstr "**`log_level`**（str）：环境日志级别（默认 \"INFO\"）"
+
+#: ../../source/usage/make_environment.md:26
+msgid ""
+"**`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided, "
+"random elements produced by IR-SIM become reproducible. If "
+"omitted/``None``, a new unseeded generator is used (non-reproducible). "
+"Custom extensions using ``np.random`` or Python ``random`` should either "
+"switch to IR-SIM's RNG or be seeded separately."
+msgstr ""
+"**`seed`**（int，可选）：IR-SIM 随机数引擎的种子。提供后，IR-SIM 生成的随机内容即可复现；若省略或为 "
+"``None``，则使用未设种子的生成器（不可复现）。若自定义扩展仍使用 ``np.random`` 或 Python "
+"``random``，需改用 IR-SIM RNG 或另行设定种子。"
+
+#: ../../source/usage/make_environment.md:32
+msgid ""
+"For more details, see the [EnvBase](#irsim.env.env_base.EnvBase) class "
+"documentation."
+msgstr "更多信息见 [EnvBase](#irsim.env.env_base.EnvBase) 类文档。"
+
+#: ../../source/usage/make_environment.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/make_environment.md:37
+msgid "Define your world properties in a YAML file (`empty_world.yaml`):"
+msgstr "在 YAML 文件（如 `empty_world.yaml`）中定义世界属性："
+
+#: ../../source/usage/make_environment.md:51
+msgid ""
+"The configuration file is a YAML file that specifies the properties of "
+"the environment. The `empty_world.yaml` file is a simple configuration "
+"file that creates an empty environment."
+msgstr "配置文件采用 YAML 格式，用于描述环境属性。`empty_world.yaml` 是一个简单示例，用于创建空环境。"
+
+#: ../../source/usage/make_environment.md:54
+msgid "Important Parameters Explanation"
+msgstr "重要参数说明"
+
+#: ../../source/usage/make_environment.md:56
+msgid "World Configuration"
+msgstr "世界配置"
+
+#: ../../source/usage/make_environment.md:58
+msgid ""
+"**`world`**: Main section that defines the simulation environment "
+"properties"
+msgstr "**`world`**：定义仿真环境属性的主段"
+
+#: ../../source/usage/make_environment.md:59
+msgid ""
+"**`height`** and **`width`**: Specify the size of the simulation world in"
+" meters"
+msgstr "**`height`** 与 **`width`**：以米为单位指定世界尺寸"
+
+#: ../../source/usage/make_environment.md:60
+msgid ""
+"**`step_time`**: Controls simulation accuracy and speed (smaller = more "
+"accurate, slower)"
+msgstr "**`step_time`**：控制仿真精度与速度（越小越精确但更慢）"
+
+#: ../../source/usage/make_environment.md:61
+msgid ""
+"**`sample_time`**: Controls rendering frequency (larger = faster "
+"simulation, less smooth visualization)"
+msgstr "**`sample_time`**：控制渲染频率（越大仿真越快，可视化越不平滑）"
+
+#: ../../source/usage/make_environment.md:62
+msgid "**`offset`**: Shifts the world coordinate system origin [x, y] in meters"
+msgstr "**`offset`**：以米为单位偏移世界坐标系原点 [x, y]"
+
+#: ../../source/usage/make_environment.md:63
+msgid "**`control_mode`**: Determines how the simulation is controlled"
+msgstr "**`control_mode`**：决定仿真控制方式"
+
+#: ../../source/usage/make_environment.md:64
+msgid "`'auto'`: Automatic simulation execution"
+msgstr "`'auto'`：自动执行仿真"
+
+#: ../../source/usage/make_environment.md:65
+msgid "`'keyboard'`: Manual keyboard control"
+msgstr "`'keyboard'`：手动键盘控制"
+
+#: ../../source/usage/make_environment.md:66
+msgid "**`collision_mode`**: Defines collision detection behavior"
+msgstr "**`collision_mode`**：定义碰撞检测行为"
+
+#: ../../source/usage/make_environment.md:67
+msgid "`'stop'`: Stop simulation when collision occurs (default)"
+msgstr "`'stop'`：发生碰撞时停止仿真（默认）"
+
+#: ../../source/usage/make_environment.md:68
+msgid "`'unobstructed'`: Ignore all collisions"
+msgstr "`'unobstructed'`：忽略所有碰撞"
+
+#: ../../source/usage/make_environment.md:69
+msgid "`'unobstructed_obstacles'`: Ignore only obstacle collisions"
+msgstr "`'unobstructed_obstacles'`：仅忽略障碍物碰撞"
+
+#: ../../source/usage/make_environment.md:70
+msgid "**`obstacle_map`**: Optional path to a pre-defined obstacle map file"
+msgstr "**`obstacle_map`**：可选，指向预设障碍地图文件的路径"
+
+#: ../../source/usage/make_environment.md:72
+msgid "Performance Considerations"
+msgstr "性能考量"
+
+#: ../../source/usage/make_environment.md:74
+msgid "**Smaller `step_time`**: More accurate physics but slower simulation"
+msgstr "**更小的 `step_time`**：物理更精确但仿真更慢"
+
+#: ../../source/usage/make_environment.md:75
+msgid "**Larger `sample_time`**: Faster simulation but less smooth visualization"
+msgstr "**更大的 `sample_time`**：仿真更快但可视化不够流畅"
+
+#: ../../source/usage/make_environment.md:76
+msgid "**World size**: Larger worlds require more computational resources"
+msgstr "**世界尺寸**：更大的世界需要更多算力"
+
+#: ../../source/usage/make_environment.md:79
+msgid ""
+"You can use `sample_time` to control the rendering frequency and "
+"accelerate the simulation speed. The default value of `sample_time` is "
+"the same as `step_time`."
+msgstr "可以通过 `sample_time` 控制渲染频率、提升仿真速度。默认情况下 `sample_time` 与 `step_time` 相同。"
+
+#: ../../source/usage/make_environment.md:82
+msgid ""
+"For more detailed parameter information, see the [YAML "
+"Configuration](../yaml_config/index.rst) reference."
+msgstr "更详细的参数说明参见 [YAML 配置](../yaml_config/index.rst) 参考。"
+
+#: ../../source/usage/make_environment.md:85
+msgid ""
+"**Automatic Configuration Detection**: The default YAML configuration "
+"file has the same name as your Python script. For example, if you create "
+"a script named `test.py`, IR-SIM automatically looks for `test.yaml` in "
+"the same directory."
+msgstr ""
+"**自动配置检测**：默认 YAML 配置文件与 Python 脚本同名。例如脚本为 `test.py`，IR-SIM 会在同目录自动寻找 "
+"`test.yaml`。"
+
+#: ../../source/usage/make_environment.md:94
+msgid ""
+"This feature simplifies development by eliminating the need to specify "
+"configuration files explicitly."
+msgstr "该特性避免手动指定配置文件，简化了开发流程。"
+
+#: ../../source/usage/make_environment.md:97
+msgid "Basic Simulation Loop"
+msgstr "基础仿真循环"
+
+#: ../../source/usage/make_environment.md:99
+msgid "After creating an environment, you'll typically run a simulation loop:"
+msgstr "创建环境后，通常会运行如下仿真循环："
+
+#: ../../source/usage/make_environment.md:117
+msgid "Core Methods Explained"
+msgstr "核心方法说明"
+
+#: ../../source/usage/make_environment.md:119
+msgid "**`env.step()`**: Advances the simulation by one time step"
+msgstr "**`env.step()`**：让仿真前进一步"
+
+#: ../../source/usage/make_environment.md:120
+msgid ""
+"**`env.render(interval)`**: Updates the visualization with specified time"
+" interval between frames"
+msgstr "**`env.render(interval)`**：按设定的帧间隔刷新可视化"
+
+#: ../../source/usage/make_environment.md:121
+msgid ""
+"**`env.done()`**: Returns `True` if simulation completion conditions are "
+"met"
+msgstr "**`env.done()`**：当满足结束条件时返回 `True`"
+
+#: ../../source/usage/make_environment.md:122
+msgid "**`env.end()`**: Properly closes the environment and releases resources"
+msgstr "**`env.end()`**：正确关闭环境并释放资源"
+
+#: ../../source/usage/make_environment.md:125
+msgid "Update order"
+msgstr "更新顺序"
+
+#: ../../source/usage/make_environment.md:127
+msgid ""
+"The environment advances all objects first, then updates all sensors. "
+"This two-phase update ensures sensors read the latest world state "
+"consistently. If you step objects manually, either pass "
+"`sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` "
+"after updating states."
+msgstr ""
+"环境会先推进所有对象，再更新全部传感器。这种两阶段更新保证传感器读取到的都是最新世界状态。若手动推进对象，请在 "
+"`ObjectBase.step(...)` 传入 `sensor_step=True`，或在更新对象状态后调用 "
+"`obj.sensor_step()`。"
+
+#: ../../source/usage/make_environment.md:130
+msgid "Environment Control and Status"
+msgstr "环境控制与状态"
+
+#: ../../source/usage/make_environment.md:132
+msgid "Status Management"
+msgstr "状态管理"
+
+#: ../../source/usage/make_environment.md:166
+msgid "Available Status Values"
+msgstr "可用状态值"
+
+#: ../../source/usage/make_environment.md:168
+msgid "**`\"Running\"`**: The environment is running in auto control mode"
+msgstr "**`\"Running\"`**：环境在自动控制模式运行"
+
+#: ../../source/usage/make_environment.md:169
+msgid ""
+"**`\"Running (keyboard)\"`**: The environment is running in keyboard "
+"control mode"
+msgstr "**`\"Running (keyboard)\"`**：环境在键盘控制模式运行"
+
+#: ../../source/usage/make_environment.md:170
+msgid "**`\"Pause\"`**: Simulation is paused"
+msgstr "**`\"Pause\"`**：仿真已暂停"
+
+#: ../../source/usage/make_environment.md:171
+msgid "**`\"Done\"`**: Simulation has completed"
+msgstr "**`\"Done\"`**：仿真已完成"
+
+#: ../../source/usage/make_environment.md:172
+msgid "**`\"Arrived\"`**: All robots have arrived at their goals"
+msgstr "**`\"Arrived\"`**：所有机器人都到达目标"
+
+#: ../../source/usage/make_environment.md:173
+msgid "**`\"Collision\"`**: A collision has occurred"
+msgstr "**`\"Collision\"`**：检测到碰撞"
+
+#: ../../source/usage/make_environment.md:174
+msgid "**`\"Pause (Debugging)\"`**: Debugging mode (when `F5` key is pressed)"
+msgstr "**`\"Pause (Debugging)\"`**：调试模式（按下 `F5` 时）"
+
+#: ../../source/usage/make_environment.md:175
+msgid "**`\"Reset\"`**: The environment is reset"
+msgstr "**`\"Reset\"`**：环境已复位"
+
+#: ../../source/usage/make_environment.md:176
+msgid "**`\"Reload\"`**: The environment is reloaded"
+msgstr "**`\"Reload\"`**：环境已重新加载"
+
+#: ../../source/usage/make_environment.md:177
+msgid "**`\"Save Figure\"`**: The figure is saved"
+msgstr "**`\"Save Figure\"`**：已保存图像"
+
+#: ../../source/usage/make_environment.md:178
+msgid "**`\"Quit\"`**: The environment is quit"
+msgstr "**`\"Quit\"`**：环境已退出"
+
+#: ../../source/usage/make_environment.md:181
+msgid "Configure Environment Title"
+msgstr "配置环境标题"
+
+#: ../../source/usage/make_environment.md:183
+msgid ""
+"By default, the simulation time and status are shown in the environment "
+"title. You can customize this behavior by setting the `show_title` and "
+"customizing the title by `env.set_title()`."
+msgstr "默认情况下，环境标题会显示仿真时间与状态。可通过设置 `show_title` 并调用 `env.set_title()` 来自定义该行为。"
+
+#: ../../source/usage/make_environment.md
+msgid "Custom Title Configuration"
+msgstr "自定义标题配置"
+
+#: ../../source/usage/make_environment.md
+msgid "Enable/Disable Title Display"
+msgstr "启用/禁用标题显示"
+
