@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from irsim.config import env_param, world_param
-from irsim.lib.behavior.behavior_registry import behaviors_map
+from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
 
 
 class Behavior:
@@ -34,6 +34,9 @@ class Behavior:
         self.behavior_dict = {} if behavior_dict is None else behavior_dict
         self.load_behavior()
 
+        self._invoke_func = None
+        self._init_behavior_class()
+
     def gen_vel(self, ego_object, external_objects=None):
         """Generate a velocity for the agent based on configured behavior.
 
@@ -48,6 +51,7 @@ class Behavior:
 
         if external_objects is None:
             external_objects = []
+
         if self.behavior_dict is None or not self.behavior_dict:
             if world_param.control_mode == "auto" and world_param.count % 20 == 0:
                 self.logger.warning(
@@ -58,14 +62,18 @@ class Behavior:
 
         target_roles = self.behavior_dict.get("target_roles", "all")
 
-        if target_roles == "all":
-            external_objects = external_objects
-        elif target_roles == "obstacle":
+        if target_roles in ("robot", "obstacle"):
             external_objects = [
-                obj for obj in external_objects if obj.role == "obstacle"
+                obj for obj in external_objects if obj.role == target_roles
             ]
-        elif target_roles == "robot":
-            external_objects = [obj for obj in external_objects if obj.role == "robot"]
+
+        # Prefer class-based behavior when registered
+        if callable(self._invoke_func):
+            return self._invoke_func(
+                ego_object=ego_object,
+                external_objects=external_objects,
+                **self.behavior_dict,
+            )
 
         return self.invoke_behavior(
             self.object_info.kinematics,
@@ -75,12 +83,42 @@ class Behavior:
             **self.behavior_dict,
         )
 
+    def _init_behavior_class(self) -> None:
+        """Initialize a class-based behavior handler if one is registered.
+
+        Looks up a class in `behaviors_class_map` using the tuple
+        (kinematics, behavior_name). If found, instantiates it and stores
+        the resulting callable in `self._invoke_func`; otherwise leaves it
+        as None.
+        """
+
+        # Resolve keys safely
+        kinematics = getattr(self.object_info, "kinematics", None)
+        behavior_name = self.behavior_dict.get("name") if self.behavior_dict else None
+
+        if not kinematics or not behavior_name:
+            self._invoke_func = None
+            return
+
+        key = (kinematics, behavior_name)
+        init_cls = behaviors_class_map.get(key)
+        if init_cls is None:
+            self._invoke_func = None
+            return
+
+        try:
+            # Instantiate class-based handler once
+            self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
+        except Exception as e:
+            self._invoke_func = None
+            self.logger.error(f"Failed to init behavior class for {key}: {e!s}")
+
     def load_behavior(self, behaviors: str = ".behavior_methods"):
         """
         Load behavior parameters from the script.
 
         Args:
-            behaviors (str): name of the bevavior script.
+            behaviors (str): name of the behavior script.
         """
 
         try:

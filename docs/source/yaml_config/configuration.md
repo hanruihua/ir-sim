@@ -35,7 +35,7 @@ Use this navigation to quickly jump to specific parameter sections:
 - [object shape](#object-shape)
   - `shape`
 - [object behavior](#object-behavior)
-  - `behavior`, `role`, `static`,
+  - `behavior`, `group_behavior`, `role`, `static`,
 - [object sensors](#object-sensor)
   - `sensors`, `fov`, `fov_radius`
 - [object mode](#object-mode)
@@ -110,7 +110,7 @@ obstacle:
 **Key Configuration Guidelines:**
 
 - To include several robots or obstacles in the configuration file, add separate entries under the robot and obstacle sections using `-` for each additional item.
-- Parameters such as distribution, shape, behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
+- Parameters such as distribution, shape, behavior, group_behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
 - When dealing with multiple objects (i.e., when the number is greater than 1), utilize the `distribution` parameter to define how these objects are distributed.
 - By default, all objects within the same group share identical configurations. To customize individual objects within a group, add sub-parameters using `-`. Any additional objects not explicitly configured will inherit the settings of the last specified object in the group.
 - Object-level `name` is optional and identifies each object. If omitted, it defaults to `"<role>_<id>"` (e.g., `robot_0`, `obstacle_3`). Names must be unique across all objects; duplicates raise an error during environment initialization. Do not confuse object-level `name` with the `name` keys used inside dictionaries like `shape`, `kinematics`, or `behavior` (which indicate component types).
@@ -293,6 +293,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                                           |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `None`           | Goal state(s) vector.                                                                                              |
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`                                      |
+| `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`                                           |
 | `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                                              |
 | `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                                               |
 | `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                                                 |
@@ -327,6 +328,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`state_dim`** — State vector size (auto: 3 or 4)
 - **`vel_dim`** — Velocity vector size (auto: 2)
 - **`name`** — Unique identifier for the object.
+- **`role`** — Object type (`robot`, `obstacle`)
 ```
 
 **`number`** (`int`, default: `1`)
@@ -467,6 +469,11 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```{note}
   Do not confuse the object-level `name` with the `name` keys inside dictionaries like `shape`, `kinematics`, or `behavior`. The latter specify the type of that component, not the object's identifier.
   ```
+
+  **`role`** (`str`, default: `'obstacle'`)
+  : Defines the object's role in the simulation, determined by the section it belongs to:
+  - `'robot'`: An active entity typically controlled by behaviors or input commands.
+  - `'obstacle'`: A passive entity that may or may not move but is considered during collision detection.
 ::::
 
 (object-kinematics)=
@@ -629,9 +636,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Behavior Systems
 :class-card: sd-bg-light sd-rounded-3
-- **`dash`** — Direct movement to goal
-- **`rvo`** — Collision avoidance algorithm
-- **`role`** — Object type (`robot`, `obstacle`)
+- **`behavior`**: `dash` (move toward the goal directly), `rvo` (collision avoidance algorithm)
+- **`group_behavior`**: `orca` (optimal reciprocal collision avoidance)
 - **`static`** — Immobile objects (`True`/`False`)
 ```
 
@@ -640,11 +646,11 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   **Options:**
   - `'dash'`: Moves directly toward the goal at maximum allowable speed.
-    - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
-    - `target_roles` (str): Only the objects with the target role will be applied to the behavior. Default is `all`. Currently, you can set the target role as `robot` or `obstacle`.
-    - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
-    - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
-    - `angle_tolerance` (float): Tolerance for orientation alignment with `diff` and `acker` kinematics. Default is `0.1`. 
+    - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
+    - `target_roles` (str/`all`): Only the objects with the target role will be applied to the behavior. Currently, you can set the target role as `robot` or `obstacle`.
+    - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering. 
+    - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering. 
+    - `angle_tolerance` (float/`0.1`): Tolerance for orientation alignment with `diff` and `acker` kinematics. 
   
     **Example:**
     ```yaml
@@ -652,29 +658,50 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```
 
   - `'rvo'`: Implements Reciprocal Velocity Obstacles for collision avoidance among multiple moving objects. Support kinematics are `diff` and `omni`.
-    - `wander` (bool): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal. Default is `False`.
-    - `target_roles` (str): Only the objects with the target role will be applied to the behavior. Default is `all`. Currently, you can set the target role as `robot` or `obstacle`.
-    - `range_low`(list): Lower bounds for random wandering. Default is `[0, 0, -3.14]`. 
-    - `range_high`(list): Upper bounds for random wandering. Default is `[10, 10, 3.14]`.
-    - `vxmax` (float): Maximum linear velocity in x axis. Default is `1.5`.
-    - `vymax` (float): Maximum linear velocity in y axis. Default is `1.5`.
-    - `acce` (float): Maximum acceleration. Default is `1.0`.
-    - `factor` (float): Factor for the RVO algorithm. Default is `1.0`.
-    - `mode` (str): Mode for RVO algorithm, either `rvo`, `hrvo`, or `vo`. Default is `rvo`. 
+    - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
+    - `target_roles` (str/`all`): Only the objects with the target role will be applied to the behavior. Currently, you can set the target role as `robot` or `obstacle`.
+    - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
+    - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
+    - `vxmax` (float/`1.5`): Maximum linear velocity in x axis.
+    - `vymax` (float/`1.5`): Maximum linear velocity in y axis.
+    - `acce` (float/`1.0`): Maximum acceleration.
+    - `factor` (float/`1.0`): Factor for the RVO algorithm.
+    - `mode` (str/`rvo`): Mode for RVO algorithm, either `rvo`, `hrvo`, or `vo`.
       - `rvo`: Reciprocal Velocity Obstacles. For multi-agent collision avoidance.
       - `hrvo`: Hybrid Reciprocal Velocity Obstacles. Combine RVO with VO to avoid deadlocks.
       - `vo`: Velocity Obstacles. For obstacle avoidance.
-    - `neighbor_threshold` (float): Distance threshold to filter the neighbors to the self robot. Default is `3.0`.
+    - `neighbor_threshold` (float/`3.0`): Distance threshold to filter the neighbors to the self robot.
 
     **Example:**
     ```yaml
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0, mode: 'rvo', wander: False}
     ```
 
-**`role`**:
-  Defines the object's role in the simulation, determined by the section it belongs to:
-  - `'robot'`: An active entity typically controlled by behaviors or input commands.
-  - `'obstacle'`: A passive entity that may or may not move but is considered during collision detection.
+**`group_behavior`** (`dict`, default: `None`)
+: Group-level behavior for all objects within the same group. This is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. Must include `name` plus behavior-specific parameters.
+
+  **Options:**
+  - `'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used.
+    - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
+    - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
+    - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
+    - `neighborDist` (float/`15.0`): Max distance to search for neighbors.
+    - `maxNeighbors` (int/`10`): Max number of neighbors to consider.
+    - `timeHorizon` (float/`20.0`): Time horizon for computing safe velocities with respect to other agents.
+    - `timeHorizonObst` (float/`10.0`): Time horizon for computing safe velocities with respect to static obstacles.
+    - `safe_radius` (float/`0.1`): Additional safety radius padding.
+    - `maxSpeed` (float/`None`): Max speed for the agents. If `None`, uses the object's `vel_max`.
+
+    **Example:**
+    ```yaml
+    group_behavior: 
+      name: 'orca'
+      neighborDist: 10.0
+      maxNeighbors: 10
+      timeHorizon: 10.0
+      timeHorizonObst: 10.0
+      safe_radius: 0.1
+    ```
 
 **`static`**:
   A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state.
@@ -698,18 +725,18 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 **`sensors`**:
   Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Currently supported sensor `name` (or `type`) include:
   - `lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
-    - `range_min` (float): Minimum detection range. Default is `0.0`.
-    - `range_max` (float): Maximum detection range. Default is `10.0`.
-    - `angle_range` (float): Total angle range of the sensor. Default is `pi`.
-    - `number` (int): Number of laser beams. Default is `100`.
-    - `scan_time` (float): Time taken for one complete scan. Default is `0.1`.
-    - `noise` (bool): Whether noise is added to measurements. Default is `False`.
-    - `std` (float): Standard deviation for range noise if `noise` is `True`. Default is `0.2`.
-    - `angle_std` (float): Standard deviation for angle noise if `noise` is `True`. Default is `0.02`.
-    - `offset` (list): Offset of the sensor from the object's position (x, y, theta). Default is `[0, 0, 0]`.
-    - `alpha` (float): Transparency for plotting. Default is `0.3`.
-    - `has_velocity` (bool): Whether measures the lidar point velocity. Default is `False`.
-    - `color` (str): Color of the sensor. Default is `r`.
+    - `range_min` (float/`0.0`): Minimum detection range.
+    - `range_max` (float/`10.0`): Maximum detection range.
+    - `angle_range` (float/`pi`): Total angle range of the sensor.
+    - `number` (int/`100`): Number of laser beams.
+    - `scan_time` (float/`0.1`): Time taken for one complete scan.
+    - `noise` (bool/`False`): Whether noise is added to measurements.
+    - `std` (float/`0.2`): Standard deviation for range noise if `noise` is `True`.
+    - `angle_std` (float/`0.02`): Standard deviation for angle noise if `noise` is `True`.
+    - `offset` (list/`[0, 0, 0]`): Offset of the sensor from the object's position (x, y, theta).
+    - `alpha` (float/`0.3`): Transparency for plotting.
+    - `has_velocity` (bool/`False`): Whether measures the lidar point velocity.
+    - `color` (str/`r`): Color of the sensor.
 
     **Example:**
     ```yaml
@@ -809,64 +836,64 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   Contains plotting options controlling the visual representation of the object. All plot elements are initially created at the origin and positioned using transforms and data updates during animation updates.
 
   **Object Visualization Properties:**
-  - `obj_linestyle` (str): Line style for object outline (e.g., '-', '--', ':', '-.'). Default is '-'.
-  - `obj_zorder` (int): Z-order (drawing layer) for object elements. Default is 3 for robots, 1 for obstacles.
+  - `obj_linestyle` (str/`'-'`): Line style for object outline (e.g., '-', '--', ':', '-.').
+  - `obj_zorder` (int/`3`): Z-order (drawing layer) for object elements. Default is 3 for robots, 1 for obstacles.
   - `obj_color` (str): Color of the object. Default is the object's color property.
-  - `obj_alpha` (float): Transparency of the object (0.0 to 1.0). Default is 1.0.
-  - `obj_linewidth` (float): Width of the object outline. Default varies by object type.
+  - `obj_alpha` (float/`1.0`): Transparency of the object (0.0 to 1.0).
+  - `obj_linewidth` (float/`None`): Width of the object outline. Default varies by object type.
 
   **Goal Visualization:**
-  - `show_goal` (bool): Whether to show the goal position. Default is False.
+  - `show_goal` (bool/`False`): Whether to show the goal position.
     - `goal_color` (str): Color of the goal marker. Default is the object's color.
-    - `goal_alpha` (float): Transparency of the goal marker (0.0 to 1.0). Default is 0.5.
-    - `goal_zorder` (int): Z-order of the goal marker. Default is 1.
+    - `goal_alpha` (float/`0.5`): Transparency of the goal marker (0.0 to 1.0).
+    - `goal_zorder` (int/`1`): Z-order of the goal marker.
 
   **Text Label Visualization:**
-  - `show_text` (bool): Whether to show text information. Default is False.
+  - `show_text` (bool/`False`): Whether to show text information.
     - `text_color` (str): Color of the text. Default is 'k' (black).
-    - `text_size` (int): Font size of the text. Default is 10.
-    - `text_alpha` (float): Transparency of the text (0.0 to 1.0). Default is 1.0.
-    - `text_zorder` (int): Z-order of the text. Default is 2.
-    - `text_position` (list): Position offset from object center [dx, dy]. Default is [-radius-0.1, radius+0.1].
+    - `text_size` (int/`10`): Font size of the text.
+    - `text_alpha` (float/`1.0`): Transparency of the text (0.0 to 1.0).
+    - `text_zorder` (int/`2`): Z-order of the text.
+    - `text_position` (list/`[-radius-0.1, radius+0.1]`): Position offset from object center [dx, dy].
 
   **Velocity Arrow Visualization:**
-  - `show_arrow` (bool): Whether to show the velocity arrow. Default is False.
-    - `arrow_color` (str): Color of the arrow. Default is "gold".
-    - `arrow_length` (float): Length of the arrow. Default is 0.4.
-    - `arrow_width` (float): Width of the arrow. Default is 0.6.
-    - `arrow_alpha` (float): Transparency of the arrow (0.0 to 1.0). Default is 1.0.
-    - `arrow_zorder` (int): Z-order of the arrow. Default is 4.
+  - `show_arrow` (bool/`False`): Whether to show the velocity arrow.
+    - `arrow_color` (str/`"gold"`): Color of the arrow.
+    - `arrow_length` (float/`0.4`): Length of the arrow.
+    - `arrow_width` (float/`0.6`): Width of the arrow.
+    - `arrow_alpha` (float/`1.0`): Transparency of the arrow (0.0 to 1.0).
+    - `arrow_zorder` (int/`4`): Z-order of the arrow.
 
   **Trajectory Path Visualization:**
-  - `show_trajectory` (bool): Whether to show the trajectory line. Default is False.
+  - `show_trajectory` (bool/`False`): Whether to show the trajectory line.
     - `traj_color` (str): Color of the trajectory. Default is the object's color.
     - `traj_style` (str): Line style of the trajectory (e.g., '-', '--', ':', '-.'). Default is "-".
-    - `traj_width` (float): Width of the trajectory line. Default is the object's width.
-    - `traj_alpha` (float): Transparency of the trajectory (0.0 to 1.0). Default is 0.5.
-    - `traj_zorder` (int): Z-order for trajectory elements. Default is 0.
-    - `keep_traj_length` (int): Number of steps to keep from the end of trajectory. Default is 0 (keep all steps).
+    - `traj_width` (float/`None`): Width of the trajectory line. Default is the object's width.
+    - `traj_alpha` (float/`0.5`): Transparency of the trajectory (0.0 to 1.0).
+    - `traj_zorder` (int/`0`): Z-order for trajectory elements.
+    - `keep_traj_length` (int/`0`): Number of steps to keep from the end of trajectory. Default is 0 (keep all steps).
 
   **Object Trail Visualization:**
-  - `show_trail` (bool): Whether to show object trails. Default is False.
-    - `trail_freq` (int): Frequency of trail display (every N steps). Default is 2.
+  - `show_trail` (bool/`False`): Whether to show object trails.
+    - `trail_freq` (int/`2`): Frequency of trail display (every N steps).
     - `trail_type` (str): Type of trail shape. Default is the object's shape.
     - `trail_edgecolor` (str): Edge color of the trail. Default is the object's color.
-    - `trail_linewidth` (float): Width of the trail outline. Default is 0.8.
-    - `trail_alpha` (float): Transparency of the trail (0.0 to 1.0). Default is 0.7.
-    - `trail_fill` (bool): Whether to fill the trail shape. Default is False.
+    - `trail_linewidth` (float/`0.8`): Width of the trail outline.
+    - `trail_alpha` (float/`0.7`): Transparency of the trail (0.0 to 1.0).
+    - `trail_fill` (bool/`False`): Whether to fill the trail shape.
     - `trail_color` (str): Fill color of the trail. Default is the object's color.
-    - `trail_zorder` (int): Z-order for trail elements. Default is 0.
-    - `keep_trail_length` (int): Number of steps to keep from the end of trail. Default is 0 (keep all steps).
+    - `trail_zorder` (int/`0`): Z-order for trail elements.
+    - `keep_trail_length` (int/`0`): Number of steps to keep from the end of trail. Default is 0 (keep all steps).
 
   **Sensor Visualization:**
-  - `show_sensor` (bool): Whether to show sensor visualizations. Default is True.
+  - `show_sensor` (bool/`True`): Whether to show sensor visualizations.
 
   **Field of View Visualization:**
-  - `show_fov` (bool): Whether to show field of view visualization. Default is False.
-    - `fov_color` (str): Fill color of the field of view. Default is "lightblue".
-    - `fov_edge_color` (str): Edge color of the field of view. Default is "blue".
-    - `fov_alpha` (float): Transparency of the field of view (0.0 to 1.0). Default is 0.5.
-    - `fov_zorder` (int): Z-order of the field of view. Default is 1.
+  - `show_fov` (bool/`False`): Whether to show field of view visualization.
+    - `fov_color` (str/`"lightblue"`): Fill color of the field of view.
+    - `fov_edge_color` (str/`"blue"`): Edge color of the field of view.
+    - `fov_alpha` (float/`0.5`): Transparency of the field of view (0.0 to 1.0).
+    - `fov_zorder` (int/`1`): Z-order of the field of view.
 
   **Note:** All visual elements are created at the origin during initialization and positioned using matplotlib transforms (for patches) and set_data methods (for lines) during animation updates.
 
@@ -947,15 +974,15 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 **`keyboard`** (`dict`, default: `{}`)
 Configure keyboard control. Options are read by `KeyboardControl`. The default backend is `pynput`. If `pynput` is unavailable, IR‑SIM automatically falls back to the Matplotlib backend.
 
-  - `backend` (`str`): Keyboard backend.
-    - `"pynput"` (default): Global keyboard hook, but works when the Matplotlib window is focused (requires the `pynput` package).
+  - `backend` (`str`/`"pynput"`): Keyboard backend.
+    - `"pynput"`: Global keyboard hook, but works when the Matplotlib window is focused (requires the `pynput` package).
     - `"mpl"`: Matplotlib figure key events works when the figure window is focused. (no extra dependency, but may be delayed when there are lots of objects).
-  - `global_hook` (`bool`): With `backend: 'pynput'`, capture keys even if the Matplotlib window is not focused. Default is `False` (only active when the window is focused).
-  - `key_lv_max` (`float`): Maximum linear velocity. Default is 3.0.
-  - `key_ang_max` (`float`): Maximum angular velocity. Default is 1.0.
-  - `key_lv` (`float`): Initial linear velocity. Default is `0.0`.
-  - `key_ang` (`float`): Initial angular velocity. Default is `0.0`.
-  - `key_id` (`int`): Initial robot control id. Default is `0`.
+  - `global_hook` (`bool`/`False`): With `backend: 'pynput'`, capture keys even if the Matplotlib window is not focused. (only active when the window is focused).
+  - `key_lv_max` (`float`/`3.0`): Maximum linear velocity.
+  - `key_ang_max` (`float`/`1.0`): Maximum angular velocity.
+  - `key_lv` (`float`/`0.0`): Initial linear velocity.
+  - `key_ang` (`float`/`0.0`): Initial angular velocity.
+  - `key_id` (`int`/`0`): Initial robot control id.
 
 ```yaml
 # Example: enable keyboard control with GUI settings
@@ -1062,6 +1089,28 @@ robot:
       trail_fill: true
       trail_alpha: 0.2
       show_trajectory: false
+```
+:::
+
+:::{tab-item} Multi-Robot ORCA
+```yaml
+robot:
+  - number: 10
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}
+    kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.2}
+    group_behavior: 
+      name: 'orca'
+      neighborDist: 10.0
+      maxNeighbors: 10
+      timeHorizon: 10.0
+      timeHorizonObst: 10.0
+      safe_radius: 0.1
+    vel_max: [2.0, 2.0]
+    goal: [9, 9, 0]
+    plot:
+      show_trail: true
+      trail_alpha: 0.5
 ```
 :::
 

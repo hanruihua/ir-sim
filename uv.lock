@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -830,6 +830,7 @@ dependencies = [
 all = [
     { name = "imageio", extra = ["ffmpeg"] },
     { name = "pynput" },
+    { name = "pyrvo" },
 ]
 keyboard = [
     { name = "pynput" },
@@ -882,6 +883,7 @@ requires-dist = [
     { name = "numpy" },
     { name = "pynput", marker = "extra == 'all'" },
     { name = "pynput", marker = "extra == 'keyboard'" },
+    { name = "pyrvo", marker = "extra == 'all'" },
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "shapely", specifier = ">=2.0.3" },
@@ -1981,6 +1983,58 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/bb/22/f1129e69d94ffff626bdb5c835506b3a5b4f3d070f17ea295e12c2c6f60f/pyparsing-3.2.3.tar.gz", hash = "sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be", size = 1088608, upload-time = "2025-03-25T05:01:28.114Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/05/e7/df2285f3d08fee213f2d041540fa4fc9ca6c2d44cf36d3a035bf2a8d2bcc/pyparsing-3.2.3-py3-none-any.whl", hash = "sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf", size = 111120, upload-time = "2025-03-25T05:01:24.908Z" },
+]
+
+[[package]]
+name = "pyrvo"
+version = "0.4.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ir-sim" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3e/b3/301bf89da3220081469a71f16f454a86a14c2d642ec47d4ce829fda9a27b/pyrvo-0.4.3.tar.gz", hash = "sha256:17992088fd781400dd5bd3b8e579237cb1791099b0aa0cc1783a5c8ec597c0cf", size = 53659, upload-time = "2025-10-17T19:34:29.301Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/cb/2cd3ba2e21f22ed2526f736cb988ac6785ccaf6fa62b6f3ad4a2ce6d78ee/pyrvo-0.4.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:2f4619aae78c9fbe5bcf625554bb16ad4069616aea5493679c778beaa6428295", size = 430416, upload-time = "2025-10-17T19:33:41.869Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/6a/6d45c0abcd665db0ae8c52a6db6a8b697c9e51ae744e85c53a0bee17be1e/pyrvo-0.4.3-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:95d3c18e2cd8319635df931431244d685d21fa1945211199aaae2a068704cf46", size = 323774, upload-time = "2025-10-17T19:33:43.345Z" },
+    { url = "https://files.pythonhosted.org/packages/62/c3/488397f3acac2e8544654e470a94bc09f9a33664e9fc5e9c7ee368e36375/pyrvo-0.4.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cdf3f2106d7a0f6f2c90fd52f6c2fe39870f6dde7542d8ab8831e9c901c1daf8", size = 305671, upload-time = "2025-10-17T19:33:44.426Z" },
+    { url = "https://files.pythonhosted.org/packages/db/ad/076a2f1c3d96a7e326372dc9c118440754e3054a4d7814713903e2d679bd/pyrvo-0.4.3-cp310-cp310-musllinux_1_2_i686.whl", hash = "sha256:730dceca4967e079a59e73abd8bf45104610bb309b5cbdab7006fca9d352a4ba", size = 1403672, upload-time = "2025-10-17T19:33:45.488Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/c6/7fc81244dceea9e78179d2dda4a5ef1a79e3f797ec9cf93f6c72f6d663db/pyrvo-0.4.3-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:e632c95209fcb5ed524d20a548ef8e9d27d010087139ac63f64c04efa6d14d4f", size = 1286748, upload-time = "2025-10-17T19:33:46.582Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/48/da4c9e8e10a6101e2085170ee233e0730292b04f3045c9f8b15fd140b888/pyrvo-0.4.3-cp310-cp310-win32.whl", hash = "sha256:dc5fed16aafc7d039f1477a46d95be538c6a7b4a1931b43be4f3bcd5cce83241", size = 718956, upload-time = "2025-10-17T19:33:47.625Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/6d/082b6f165be6010a790e5ecc40547263842ffc2c9e016f9d04e788e4466d/pyrvo-0.4.3-cp310-cp310-win_amd64.whl", hash = "sha256:2fb7dbd81394f450660002520e0e2c570631884362e567d51acdaaa41728688b", size = 847634, upload-time = "2025-10-17T19:33:48.584Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/ba/3e6b45f8a4a1fa029f826e711a3b7c645c7b311ff63e6ee70a89e12a9b54/pyrvo-0.4.3-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:7124deb2d742f8b669b17de64b73d35cbfdfec8c0647a6f83888ae5e713eb0ec", size = 433113, upload-time = "2025-10-17T19:33:49.515Z" },
+    { url = "https://files.pythonhosted.org/packages/32/bc/efc5467e30932dfcedf22f57dfcd491689768389561bd1ccdcd06527d355/pyrvo-0.4.3-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a2e04a8e3d59d015958084e1a6957244f54551a9b8325e72511d8879e4d6d1b9", size = 325128, upload-time = "2025-10-17T19:33:50.712Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/60/e0b9a034652469891e59c2a161e4e4c2e853be0373a22a7e691467f10456/pyrvo-0.4.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7f829942d4a3d986104bb4aa5924581554379de5ba3875a75cb16783910fc941", size = 307184, upload-time = "2025-10-17T19:33:51.64Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/61/660a142ae90344fa3d474dffdd7399a983860225187eee6833a89e4637a4/pyrvo-0.4.3-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:2d414180135dd0c547d3e38628971b2524f1ed023b41bad4c3da892240e818dd", size = 1404833, upload-time = "2025-10-17T19:33:53.015Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/7e/840729c67b301527c9c8a350fcdf475029a7300fa0ef51a733764474d5ac/pyrvo-0.4.3-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:819c7aa4c01d8d815afc7d0a44b4bafe6c758478405b724fecb7ef080a511189", size = 1287798, upload-time = "2025-10-17T19:33:54.039Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/97/5079e5f72334997267f24013f40a26c80ab948c508e8cab6ac0649f6c8fc/pyrvo-0.4.3-cp311-cp311-win32.whl", hash = "sha256:a8d3b2f2d5c421834a6539adce98ca6434ecdefd9ce5ab4ff5fa452dcbffa23e", size = 720145, upload-time = "2025-10-17T19:33:55.111Z" },
+    { url = "https://files.pythonhosted.org/packages/58/a0/b6bb402ff0e7c58d8710c11389c1ae3ec19776e9d3da27e2430e9a67d2d1/pyrvo-0.4.3-cp311-cp311-win_amd64.whl", hash = "sha256:c05c7007ee1824f8744f39800c850e85cd4a56fa6041f25a3aa55b332e77582c", size = 848373, upload-time = "2025-10-17T19:33:56.6Z" },
+    { url = "https://files.pythonhosted.org/packages/63/75/6f43f325e9537c3428c3e649e59f89728d44f86f57077e9bddc1b61b493e/pyrvo-0.4.3-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:d19badb7d22b36db79e161c2845e2d3e24922073ef8386a010dcf89eecda409a", size = 432202, upload-time = "2025-10-17T19:33:57.972Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/d0/1cb1d93145d1594c36ab9976f3a40a1df2c6e150028ae34db88e5dc4eecc/pyrvo-0.4.3-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9b2e8466a094daf42d953656651810a43f57eb2785617da61e6998c985b261b1", size = 325550, upload-time = "2025-10-17T19:33:59.088Z" },
+    { url = "https://files.pythonhosted.org/packages/10/53/24a34cf56f1b13e2889da3e0fdbda9b8d25a8d39b9cfa0c928c9035a5a5b/pyrvo-0.4.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ac8dc4b571f890aa97db78fec3c14facb3613ac8534ab909fcedc3dc4598d9f3", size = 306825, upload-time = "2025-10-17T19:34:00.392Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/53/dc0dedc24345acba00e4e1838eaa1f2fb8c77e831bc51f03d7a00104ee9c/pyrvo-0.4.3-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:dfb18333ca13daea6319d379cdc1903c641bf8164d7af58eb0993c6a3e65b03b", size = 1405734, upload-time = "2025-10-17T19:34:01.764Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/15/31caab337cc008a375402ad2a036a7bac08f8e1ff5cd76286194858a5924/pyrvo-0.4.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:a610966ca6b6929a0130cec69026ab2a14a3c55fcd7006af128c18863d60bf49", size = 1288957, upload-time = "2025-10-17T19:34:03.346Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/88/12c92b676460e65364aa5413f81924272b0c864fd645231598bf4d701cae/pyrvo-0.4.3-cp312-cp312-win32.whl", hash = "sha256:0e74d18e8823401d7f981bf43813dff435dbecef3b7f263cdab0767f3938ea31", size = 720726, upload-time = "2025-10-17T19:34:04.466Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/f5/7f081b33c2b97c811060d30f6a5ed4c98c3043801c35fa50409e19c176b2/pyrvo-0.4.3-cp312-cp312-win_amd64.whl", hash = "sha256:089f735d1f1c78bc4774d9d18827b9523c05de5c3c9cb89e765f731c9024af00", size = 849193, upload-time = "2025-10-17T19:34:06.128Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/75/10e2701e9617bb9aad11ba395868d259639af22c2cd79065c7cd5620bddc/pyrvo-0.4.3-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:b6d529cc22ae13794c8e323c5e1366c2383d8f8b8aac7271ad9e7b396e37d542", size = 432372, upload-time = "2025-10-17T19:34:07.083Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/41/a7857eb1242935477dbd15acf991a6366e7775e756e5485805fb45672058/pyrvo-0.4.3-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a281867395fdb839488949b7599f5c7b81342f725c5afb18592889117e7dcfa5", size = 325194, upload-time = "2025-10-17T19:34:07.995Z" },
+    { url = "https://files.pythonhosted.org/packages/56/7a/ada33c8a0e3497ded42c809e97fae29b1de63897494c78a4396fa0215f01/pyrvo-0.4.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:18ddacc936424538ae25d4a493597f69ebf542d86df1cd2a0001f0ade690245e", size = 306981, upload-time = "2025-10-17T19:34:08.934Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/32/56c6268a71cc0842c6f8c5494053afbd4dc821ef45d5a56019835ba35625/pyrvo-0.4.3-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:4edbdc85a0611c1776185909ed808bca7780e0aa87f354eb26f5d0842ce033f2", size = 1405597, upload-time = "2025-10-17T19:34:10.264Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/12/6af17b922d60d85b3fe36acf734f3c50c45d76bc09681f47197b11b6f8d4/pyrvo-0.4.3-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:04b4323432fcefa5f7d84347d953d25b2f3bb56031dd4a8fc82258119064bd4e", size = 1288775, upload-time = "2025-10-17T19:34:11.339Z" },
+    { url = "https://files.pythonhosted.org/packages/09/5c/e88334dc87af165dbe7511b921c24e367b928dfdb46b75c9687ccfaf261d/pyrvo-0.4.3-cp313-cp313-win32.whl", hash = "sha256:c223aa5abbe1ea884aea1935d4ee3028010bff70e2b51f41f0fd29d90761c7f7", size = 720722, upload-time = "2025-10-17T19:34:12.327Z" },
+    { url = "https://files.pythonhosted.org/packages/da/cf/f1f475271418e9a7b30ee462efcc8af1f9b5a401e8c43cbe994fdc49107d/pyrvo-0.4.3-cp313-cp313-win_amd64.whl", hash = "sha256:1cad8ab53477e8c12de56a8e10c9c074186d9b8ad8f247f9439065ff7c2b6321", size = 849200, upload-time = "2025-10-17T19:34:13.276Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/30/baed96033a8d2f05799e089615893768e000d033f002a9763db93d408487/pyrvo-0.4.3-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:b0f30cab484e5d3238cfbaa73578abb4487b9f855e4de23b4438cf11a434dff9", size = 430610, upload-time = "2025-10-17T19:34:14.221Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/af/0a418b5d4855528159504473b99ee5f6ae4126b14a7235b482c6fa54cc0a/pyrvo-0.4.3-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a3c96db691b8a0471c6ae47c6c77a21fd6f67e8ca06ba68031f84e4869bc1e4b", size = 323824, upload-time = "2025-10-17T19:34:15.564Z" },
+    { url = "https://files.pythonhosted.org/packages/41/6e/67aa1b7f4b6d3f03fe82c1daf9f5110e9bb503a073fb528ec549ae58af77/pyrvo-0.4.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:25b12c410228a3b209cc2038de16d7112e61f7fa0f8b7d297668ca010141dbef", size = 305825, upload-time = "2025-10-17T19:34:16.487Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/f1/a4217afc56ed7f24e53a493912da72a34e89e56f3ae375d3f91aa4a5a4ad/pyrvo-0.4.3-cp39-cp39-musllinux_1_2_i686.whl", hash = "sha256:5085bece2250eae71c6c311dbbb520ee3f827929453cf2380ffc5e1900ae8b28", size = 1403919, upload-time = "2025-10-17T19:34:17.435Z" },
+    { url = "https://files.pythonhosted.org/packages/23/3d/860b38ef6a7c7eb2e95a3b0041f398200134b95748dafa8e1dca75934e87/pyrvo-0.4.3-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:95757f6e0c5d23b1f1379f1214bb3a2353b91aef3704325a9fba95a643d7eb3c", size = 1286837, upload-time = "2025-10-17T19:34:18.436Z" },
+    { url = "https://files.pythonhosted.org/packages/54/a0/df8b4bebf89abbe3b402765e6a0b2193b1205c2f13abffcecde3d6fca077/pyrvo-0.4.3-cp39-cp39-win32.whl", hash = "sha256:ed45684228f1d1cbfdcc8af2e85067534903d79ceeed42be548e9155cb9db520", size = 718807, upload-time = "2025-10-17T19:34:19.433Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/08/56aba3ae7886039e083c17014515994d0900cf1f56fbf20e91b79237e69e/pyrvo-0.4.3-cp39-cp39-win_amd64.whl", hash = "sha256:5f7442d22d44642e758b6d3af4a69e54c3799c496547d3fe8a274238ed76687b", size = 847379, upload-time = "2025-10-17T19:34:20.549Z" },
+    { url = "https://files.pythonhosted.org/packages/88/d1/9bb6fecfbf444072e6d58b8803710af16baa6b09a677bb4c0f260789e471/pyrvo-0.4.3-pp310-pypy310_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8d6a178e5c3fd9d43b85c0a99ea1253ea2aba6818b8c0c32647c4e898c2822ed", size = 322779, upload-time = "2025-10-17T19:34:21.625Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/81/f202f9fe378eff009a73490fb14273006c3e71b84618a85a83ee8a6d9fb0/pyrvo-0.4.3-pp310-pypy310_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a01eed011c9dae796d8ebe797399ce368e80ab2a3c588375a4736407be026bc6", size = 305453, upload-time = "2025-10-17T19:34:22.729Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/7e/92830cd5a3d78212d03aa129be5001dcc296b1b24083f3db56d6fe86b0c3/pyrvo-0.4.3-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:3cde0204d6b9c337fdc5ec4c29f1196673a2d309051639105d908268ab5df5da", size = 846839, upload-time = "2025-10-17T19:34:24.17Z" },
+    { url = "https://files.pythonhosted.org/packages/30/f8/ac6107ee81066214ce1dfbeb4b5bef996c7153cba22c78767f8c10b0fd00/pyrvo-0.4.3-pp39-pypy39_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ac878370b18f03f41eb349451922cc572792d9bc9262814c0032e7f515e40e7b", size = 322622, upload-time = "2025-10-17T19:34:25.712Z" },
+    { url = "https://files.pythonhosted.org/packages/74/63/17506b78cbf37bfc69dc145a6c39b769af28135fdfd5ebc5a93eb98406cd/pyrvo-0.4.3-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2bfb4db1d5119b51917e93568f87b8e0852d6a161069111331d27f94fd405bc2", size = 305350, upload-time = "2025-10-17T19:34:26.652Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/15/35b5f9e9cf62b4eab7f6251b1c22cb37d1eb176f6f4233c017d6c836af61/pyrvo-0.4.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:50228691d812e63c60af964dc861cbb88fc0e146efb727049efdb51eb1392f49", size = 846706, upload-time = "2025-10-17T19:34:28.014Z" },
 ]
 
 [[package]]

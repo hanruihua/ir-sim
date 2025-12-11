@@ -9,6 +9,7 @@ from irsim.config import env_param
 from irsim.util.util import file_check
 from irsim.world import World
 from irsim.world.object_factory import ObjectFactory
+from irsim.world.object_group import ObjectGroup
 
 from .env_plot import EnvPlot
 
@@ -85,7 +86,11 @@ class EnvConfig:
             self.parse["robot"], "robot"
         )
         obstacle_collection = self.object_factory.create_from_parse(
-            self.parse["obstacle"], "obstacle"
+            self.parse["obstacle"],
+            "obstacle",
+            group_start_index=(
+                max((obj.group for obj in robot_collection), default=-1) + 1
+            ),
         )
         map_collection = self.object_factory.create_from_map(
             world.obstacle_positions, world.buffer_reso
@@ -94,6 +99,13 @@ class EnvConfig:
         objects = robot_collection + obstacle_collection + map_collection
 
         objects.sort(key=attrgetter("id"))
+
+        # Initialize groups (unique and inclusive)
+        group_ids = sorted({obj.group for obj in objects})
+        object_groups = [
+            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
+            for gid in group_ids
+        ]
 
         env_plot = EnvPlot(world, objects)
 
@@ -108,6 +120,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         )
 
     def reload_objects(self) -> Any:
@@ -126,7 +139,11 @@ class EnvConfig:
             self.parse["robot"], "robot"
         )
         obstacle_collection = self.object_factory.create_from_parse(
-            self.parse["obstacle"], "obstacle"
+            self.parse["obstacle"],
+            "obstacle",
+            group_start_index=(
+                max((obj.group for obj in robot_collection), default=-1) + 1
+            ),
         )
         map_collection = self.object_factory.create_from_map(
             world.obstacle_positions, world.buffer_reso
@@ -134,6 +151,12 @@ class EnvConfig:
 
         objects = robot_collection + obstacle_collection + map_collection
         objects.sort(key=attrgetter("id"))
+
+        group_ids = sorted({obj.group for obj in objects})
+        object_groups = [
+            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
+            for gid in group_ids
+        ]
 
         # env_plot = EnvPlot(world, objects, **world.plot_parse)
         self._env_plot.clear_components("all", self._objects)
@@ -146,6 +169,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         )
 
     def reload_yaml_objects(self, world_name) -> Any:
@@ -171,6 +195,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         ) = self.reload_objects()
 
         return (
@@ -180,6 +205,7 @@ class EnvConfig:
             robot_collection,
             obstacle_collection,
             map_collection,
+            object_groups,
         )
 
     @property

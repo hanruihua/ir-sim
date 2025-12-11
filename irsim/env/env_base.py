@@ -166,6 +166,7 @@ class EnvBase:
             self._robot_collection,
             self._obstacle_collection,
             self._map_collection,
+            self._object_groups,
         ) = self.env_config.initialize_objects()
 
         self.build_tree()
@@ -278,12 +279,11 @@ class EnvBase:
         ) or self.pause_flag:
             return
 
-        actions = action  # normalized by decorator to a list aligned with self.objects
+        # assign the keyboard and group action to the action list in a priority order
+        action = self._assign_keyboard_action(action)
+        action = self._assign_group_action(action)
 
-        if world_param.control_mode == "keyboard" and self.key_id < len(actions):
-            actions[self.key_id] = self.key_vel
-
-        self._objects_step(actions, sensor_step=False)
+        self._objects_step(action, sensor_step=False)
         self._objects_sensor_step()
         self._world.step()
         self._status_step()
@@ -296,6 +296,7 @@ class EnvBase:
                 If the list is shorter than the number of objects, it is padded
                 with ``None`` for the remaining objects.
         """
+
         action = action + [None] * (len(self.objects) - len(action))
         [obj.step(action, sensor_step) for obj, action in zip(self.objects, action)]
 
@@ -328,6 +329,29 @@ class EnvBase:
     def _objects_check_status(self) -> None:
         """Refresh per-object status flags (e.g., arrival, collision)."""
         [obj.check_status() for obj in self.objects]
+
+    def _assign_keyboard_action(self, action: list[Any]) -> list[Any]:
+        """
+        Assign the keyboard action to the action list.
+        """
+
+        if world_param.control_mode == "keyboard" and self.key_id < len(action):
+            action[self.key_id] = self.key_vel
+
+        return action
+
+    def _assign_group_action(self, action: list[Any]) -> list[Any]:
+        """
+        Assign the group action to the action list.
+        """
+        group_actions = [
+            ga for group in self._object_groups for ga in group.gen_group_vel()
+        ]
+        for i, (a, ga) in enumerate(zip(action, group_actions)):
+            if a is None and ga is not None:
+                action[i] = ga
+
+        return action
 
     # render
     def render(
@@ -799,6 +823,7 @@ class EnvBase:
             self._robot_collection,
             self._obstacle_collection,
             self._map_collection,
+            self._object_groups,
         ) = self.env_config.reload_yaml_objects(world_name)
         self.build_tree()
         self.validate_unique_names()

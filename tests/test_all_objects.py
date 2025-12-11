@@ -63,6 +63,8 @@ def test_collision_avoidance():
     print(env.robot.original_vertices)
     print(env.robot.name)
     print(env.names)
+    print(env.robot.max_speed)
+    print(env.robot_list[1].max_speed)
 
     env.logger.info("test")
     env.logger.warning("test")
