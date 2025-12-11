@@ -36,7 +36,7 @@
 | <img src="https://github.com/user-attachments/assets/0fac81e7-60c0-46b2-91f0-efe4762bb758" alt="drawing" width="280"/> | A car-like robot controlled via keyboard navigates a grid map generated from 3D habitat spaces datasets like [HM3D](https://aihabitat.org/datasets/hm3d/), [MatterPort3D](https://niessner.github.io/Matterport/), [Gibson](http://gibsonenv.stanford.edu/database/), etc. See [Usage - grid map hm3d](https://github.com/hanruihua/ir-sim/blob/main/usage/10grid_map/grid_map_hm3d.py) |
 | <img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" alt="drawing" width="280"/> |                                                                                   Each robot employing RVO behavior is equipped with a field of view (FOV) to detect other robots within this area.  See [Usage - fov](https://github.com/hanruihua/ir-sim/blob/main/usage/15fov_world/fov_world.py)                                                                                    |
 | <img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" alt="drawing" width="280"/> |                                                                                     A car-like robot navigates through the randomly generated and moving obstacles. See [Usage - dynamic random obstacles](https://github.com/hanruihua/ir-sim/blob/main/usage/08random_obstacle/dynamic_random.py)                                                                                     |
-| <img src="https://github.com/user-attachments/assets/162cf52e-070d-4588-b9b2-bf21c487fbc8" alt="drawing" width="280"/> |                                                                                     200 agents with ORCA behavior implemented by [pyrvo](https://github.com/hanruihua/pyrvo) See [Usage - ORCA world](https://github.com/hanruihua/ir-sim/blob/main/usage/19orca_world/orca_world.py)                                                                                     |
+| <img src="https://github.com/user-attachments/assets/162cf52e-070d-4588-b9b2-bf21c487fbc8" alt="drawing" width="280"/> |                                                                                     200 agents with ORCA behavior implemented by [pyrvo](https://github.com/hanruihua/pyrvo) See [Usage - ORCA group behavior world](https://github.com/hanruihua/ir-sim/blob/main/usage/19orca_world/orca_behavior_world.py)                                                                                  |
 
 
 ## Prerequisite
@@ -131,7 +131,7 @@ Currently, the simulator supports the following features. Further features, such
 | **Kinematics** | Differential Drive mobile Robot<br>Omni-Directional mobile Robot<br>Ackermann Steering mobile Robot             |
 | **Sensors**    | 2D LiDAR <br> FOV detector                                                                                      |
 | **Geometries** | Circle<br>Rectangle<br>Polygon <br> linestring <br> Binary Grid Map                                             |
-| **Behaviors**  | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior) |
+| **Behaviors**  | dash (Move directly toward the goal)<br> rvo (Move toward the goal using Reciprocal Velocity Obstacle behavior) <br> orca (Move toward the goal using Optimal Reciprocal Collision Avoidance group behavior) |
 
 
 ## Projects Using IR-SIM
