@@ -110,7 +110,7 @@ obstacle:
 **Key Configuration Guidelines:**
 
 - To include several robots or obstacles in the configuration file, add separate entries under the robot and obstacle sections using `-` for each additional item.
-- Parameters such as distribution, shape, behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
+- Parameters such as distribution, shape, behavior, group_behavior, and kinematics must be formatted as `{key: value}` pairs. Ensure that each dictionary includes the `name` key; omitting name will result in a None value for that parameter.
 - When dealing with multiple objects (i.e., when the number is greater than 1), utilize the `distribution` parameter to define how these objects are distributed.
 - By default, all objects within the same group share identical configurations. To customize individual objects within a group, add sub-parameters using `-`. Any additional objects not explicitly configured will inherit the settings of the last specified object in the group.
 - Object-level `name` is optional and identifies each object. If omitted, it defaults to `"<role>_<id>"` (e.g., `robot_0`, `obstacle_3`). Names must be unique across all objects; duplicates raise an error during environment initialization. Do not confuse object-level `name` with the `name` keys used inside dictionaries like `shape`, `kinematics`, or `behavior` (which indicate component types).
@@ -1089,6 +1089,28 @@ robot:
       trail_fill: true
       trail_alpha: 0.2
       show_trajectory: false
+```
+:::
+
+:::{tab-item} Multi-Robot ORCA
+```yaml
+robot:
+  - number: 10
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}
+    kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.2}
+    group_behavior: 
+      name: 'orca'
+      neighborDist: 10.0
+      maxNeighbors: 10
+      timeHorizon: 10.0
+      timeHorizonObst: 10.0
+      safe_radius: 0.1
+    vel_max: [2.0, 2.0]
+    goal: [9, 9, 0]
+    plot:
+      show_trail: true
+      trail_alpha: 0.5
 ```
 :::
 
