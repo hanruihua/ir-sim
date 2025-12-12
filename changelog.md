@@ -1,3 +1,7 @@
+## 2.8.1
+
+Hotfix: Fix the autoapi extension issue in the documentation.
+
 ## 2.8.0
 
 This version add the feature of `group_behavior` to support group-level behavior for all objects within the same group, which is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. The chinese (中文) version documentation is also supported.
