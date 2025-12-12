@@ -25,25 +25,40 @@
 
     function irsimDetectLang() {
         const path = window.location.pathname;
-        return path.includes('/zh_CN/') ? 'zh_CN' : 'en';
+        return (path.includes('/zh_CN/') || path.includes('/zh-cn/')) ? 'zh_CN' : 'en';
     }
 
     function irsimSwitchLang(targetLang) {
         const url = new URL(window.location.href);
         const currentLang = irsimDetectLang();
+        
         if (targetLang === currentLang) {
             return;
         }
 
-        if (targetLang === 'zh_CN') {
-            url.pathname = url.pathname.replace('/html/', '/zh_CN/');
-        } else {
-            url.pathname = url.pathname.replace('/zh_CN/', '/html/');
-        }
+        const isLocal = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1' || 
+                        window.location.protocol === 'file:';
 
-        // 如果替换失败，退回对应语言首页
-        if (!url.pathname.includes('/html/') && !url.pathname.includes('/zh_CN/')) {
-            url.pathname = targetLang === 'zh_CN' ? '/zh_CN/index.html' : '/html/index.html';
+        if (targetLang === 'zh_CN') {
+            if (isLocal) {
+                if (url.pathname.includes('/html/')) {
+                    url.pathname = url.pathname.replace('/html/', '/zh_CN/');
+                } else {
+                    url.pathname = url.pathname.replace('/en/', '/zh_CN/');
+                }
+            } else {
+                // RTD: replace /en/ with /zh-cn/
+                url.pathname = url.pathname.replace('/en/', '/zh-cn/');
+            }
+        } else {
+            // Target is English
+            if (isLocal) {
+                url.pathname = url.pathname.replace('/zh_CN/', '/html/');
+            } else {
+                // RTD: replace /zh-cn/ with /en/
+                url.pathname = url.pathname.replace('/zh-cn/', '/en/').replace('/zh_CN/', '/en/');
+            }
         }
 
         url.search = '';
