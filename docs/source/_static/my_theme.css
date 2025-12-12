@@ -7,39 +7,75 @@
     white-space: nowrap;
 }
 
-/* Force navbar to stay on single row */
+/* Center and constrain navbar layout */
 .bd-header .bd-header__inner {
-    max-width: 100% !important;
+    max-width: 1600px !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 0 2rem !important;
 }
 
+/* Logo container */
+.bd-header .col-lg-3 {
+    flex: 0 0 auto !important;
+    margin-right: 2rem !important;
+}
+
+/* Navigation items container */
 .bd-header .col-lg-9 {
-    flex: 0 1 auto !important;
-    min-width: auto !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-width: 0 !important;
 }
 
 .bd-navbar-elements {
     flex-wrap: nowrap !important;
-    gap: 0 !important;
+    gap: 2rem !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
 }
 
 .bd-navbar-elements .nav-link {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.9rem !important;
+    padding: 0.5rem 0 !important;
+    font-size: 0.95rem !important;
+    white-space: nowrap !important;
 }
 
 .navbar-header-items__center {
-    flex: 1 1 auto !important;
+    flex: 0 1 auto !important;
+    display: flex !important;
+    justify-content: flex-start !important;
     min-width: 0 !important;
+}
+
+.navbar-header-items__center .navbar-nav {
+    display: flex !important;
+    gap: 2rem !important;
+    align-items: center !important;
 }
 
 .navbar-header-items__end {
     flex-shrink: 0 !important;
+    margin-left: 2rem !important;
+    display: flex !important;
+    gap: 1rem !important;
+    align-items: center !important;
 }
 
-/* Center the navbar content for consistent layout */
-.bd-header .col-lg-9.navbar-header-items {
-    display: flex !important;
-    justify-content: center !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+/* Shrink language switcher and move to far right */
+.navbar-header-items__end .bd-header-article__inner {
+    order: 999 !important;
+}
+
+.bd-header-article__inner .dropdown {
+    font-size: 0.85rem !important;
+}
+
+.bd-header-article__inner .dropdown-toggle {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.85rem !important;
 }

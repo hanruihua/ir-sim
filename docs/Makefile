@@ -24,6 +24,10 @@ gettext:
 	@echo "[sphinx] extracting source strings into gettext catalog"
 	@$(SPHINXBUILD) -M gettext "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+update-po: gettext
+	@echo "[sphinx-intl] updating translation catalogs for '$(I18N_LANGUAGE)'"
+	@sphinx-intl update -p build/gettext -l $(I18N_LANGUAGE)
+
 translations translations-zh:
 	@echo "[sphinx-intl] compiling message catalogs for '$(I18N_LANGUAGE)'"
 	@sphinx-intl build --locale-dir "$(LOCALEDIR)" --language "$(I18N_LANGUAGE)"
