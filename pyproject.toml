@@ -55,6 +55,7 @@ docs = [
     "sphinx-inline-tabs>=2023.4.21",
     "sphinx-multiversion>=0.2.4",
     "sphinx-rtd-theme>=3.0.2",
+    "sphinx-intl",
 ]
 lint = [
     "black>=25.1.0",
