@@ -63,6 +63,7 @@ except PackageNotFoundError:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "autoapi.extension",
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
@@ -73,24 +74,7 @@ extensions = [
     "sphinx_inline_tabs",
 ]
 
-# Only enable AutoAPI when the Sphinx version exposes the APIs it expects.
 ENABLE_AUTOAPI = True
-try:
-    import sphinx.builders.html as sphinx_html
-
-    if not hasattr(sphinx_html, "doc_node"):
-        ENABLE_AUTOAPI = False
-except Exception as exc:  # pragma: no cover - defensive guard
-    warnings.warn(f"Unable to check Sphinx compatibility for AutoAPI: {exc}")
-    ENABLE_AUTOAPI = False
-
-if ENABLE_AUTOAPI:
-    extensions.append("autoapi.extension")
-else:
-    warnings.warn(
-        "AutoAPI disabled because current Sphinx build lacks 'doc_node'. "
-        "Set ENABLE_AUTOAPI=1 and upgrade Sphinx/AutoAPI to re-enable."
-    )
 
 myst_enable_extensions = [
     "amsmath",
