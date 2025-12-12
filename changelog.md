@@ -1,3 +1,22 @@
+## 2.8.0
+
+This version add the feature of `group_behavior` to support group-level behavior for all objects within the same group, which is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. The chinese (中文) version documentation is also supported.
+
+- Features:
+  - Add `group_behavior` YAML parameter to support group-level behavior for all objects within the same group.
+  - Integrate `GroupBehavior` class to handle group-level logic, allowing for both function-based and class-based behaviors.
+  - Add ORCA (Optimal Reciprocal Collision Avoidance) behavior support implemented by `pyrvo` library, this behavior can be configured in the YAML file.
+  - Update `behavior_registry` to support registration of behavior classes and group behavior classes using decorators (`@register_behavior_class`, `@register_group_behavior_class`).
+  - Add `viewpoint` YAML parameter for rendering the plot with the viewpoint of the object.
+
+- Docs:
+  - Support chinese version documentation.
+  - Update documentation for `group_behavior` configuration, including ORCA parameters.
+
+- Fix:
+  - rng random in generate_polygon function
+  - Group index increment issue
+
 ## 2.7.5
 
 - Features:
@@ -7,7 +26,7 @@
 - Bug fixes:
   - Fix issue where sampling time did not work.
   - Fix documentation errors.
- 
+
 ## 2.7.4
 
 - Features:
