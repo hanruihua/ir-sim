@@ -998,26 +998,24 @@ gui:
     key_ang_max: 1.0
 ```
 
-````{note}
-| Key       | Function                               |
-| --------- | -------------------------------------- |
-| `w`       | Forward                                |
-| `s`       | Backward                               |
-| `a`       | Turn Left                              |
-| `d`       | Turn Right                             |
-| `q`       | Decrease Linear Velocity               |
-| `e`       | Increase Linear Velocity               |
-| `z`       | Decrease Angular Velocity              |
-| `c`       | Increase Angular Velocity              |
-| `alt+num` | Change Current Control Robot ID        |
-| `r`       | Reset the Environment                  |
-| `space`   | Toggle Pause/Resume Environment        |
-| `esc`     | Quit the Environment (sets quit flag)  |
-| `x`       | Switch Keyboard/Auto Control           |
-| `l`       | Reload the Environment                 |
-| `F5`      | Debug the Environment (fn+f5 for mac)                  |
-| `v`       | Save the current figure                 |
-````
+**Keyboard Control Keys:**
+
+- `w` — Forward
+- `s` — Backward
+- `a` — Turn Left
+- `d` — Turn Right
+- `q` — Decrease Linear Velocity
+- `e` — Increase Linear Velocity
+- `z` — Decrease Angular Velocity
+- `c` — Increase Angular Velocity
+- `alt+num` — Change Current Control Robot ID
+- `r` — Reset the Environment
+- `space` — Toggle Pause/Resume Environment
+- `esc` — Quit the Environment (sets quit flag)
+- `x` — Switch Keyboard/Auto Control
+- `l` — Reload the Environment
+- `F5` — Debug the Environment (fn+f5 for mac)
+- `v` — Save the current figure
 
 ```{tip}
 Debug mode lets you step the simulation frame-by-frame for inspection:
@@ -1047,12 +1045,12 @@ Notes:
   ``` 
 
   ````{note}
-  | Mouse Action   | Function                                            |
-  | -------------- | --------------------------------------------------- |
-  | Mouse Movement | Track mouse position and update display coordinates |
-  | Middle Click   | Reset zoom to default view                          |
-  | Scroll Up      | Zoom in (centered on mouse position)                |
-  | Scroll Down    | Zoom out (centered on mouse position)               |
+  **Mouse Actions:**
+
+  - **Mouse Movement** — Track mouse position and update display coordinates
+  - **Middle Click** — Reset zoom to default view
+  - **Scroll Up** — Zoom in (centered on mouse position)
+  - **Scroll Down** — Zoom out (centered on mouse position)
 
   **Mouse Position Attributes:**
   - `mouse_left_pos` (`tuple`): Position of left click (x, y).

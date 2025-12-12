@@ -1,0 +1,141 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_sensor.md:1
+msgid "Configure Sensors for the robot"
+msgstr "为机器人配置传感器"
+
+#: ../../source/usage/configure_sensor.md:4
+msgid "LiDAR Configuration Parameters"
+msgstr "LiDAR 配置参数"
+
+#: ../../source/usage/configure_sensor.md:6
+msgid ""
+"The YAML configuration file and Python Script below shows an example of a"
+" robot with a 2D LiDAR sensor:"
+msgstr "下面的 YAML 配置与 Python 脚本展示了带 2D LiDAR 传感器的机器人示例："
+
+#: ../../source/usage/configure_sensor.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_sensor.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_sensor.md:32
+msgid "YAML file (same name as the python script):"
+msgstr "与 Python 脚本同名的 YAML 文件："
+
+#: ../../source/usage/configure_sensor.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_sensor.md
+msgid "Select Parameters"
+msgstr "参数选择"
+
+#: ../../source/usage/configure_sensor.md:80
+msgid "Update order"
+msgstr "更新顺序"
+
+#: ../../source/usage/configure_sensor.md:82
+msgid ""
+"The environment updates sensors after all objects have moved in a step. "
+"This avoids temporal skew in readings. If you control objects manually, "
+"either pass `sensor_step=True` to `ObjectBase.step(...)` or call "
+"`obj.sensor_step()` after updating object states."
+msgstr ""
+"环境会在所有对象完成该时间步移动后再更新传感器，从而避免读数的时间偏差。若手动控制对象，请在 `ObjectBase.step(...)` 中传入"
+" `sensor_step=True`，或在更新对象状态后调用 `obj.sensor_step()`。"
+
+#: ../../source/usage/configure_sensor.md:85
+msgid "Important Parameters Explained"
+msgstr "关键参数说明"
+
+#: ../../source/usage/configure_sensor.md:87
+msgid ""
+"To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be "
+"defined in the `sensors` section of the robot. Key parameters of the "
+"LiDAR sensor are explained below:"
+msgstr "若要配置 2D LiDAR，需在机器人 `sensors` 部分定义名为 `lidar2d` 的传感器。主要参数如下："
+
+#: ../../source/usage/configure_sensor.md:89
+msgid "**range_min**: The minimum range of the laser beam."
+msgstr "**range_min**：激光束的最小量程。"
+
+#: ../../source/usage/configure_sensor.md:90
+msgid "**range_max**: The maximum range of the laser beam."
+msgstr "**range_max**：激光束的最大量程。"
+
+#: ../../source/usage/configure_sensor.md:91
+msgid "**angle_range**: The angle range of the laser beam."
+msgstr "**angle_range**：激光束覆盖的角度范围。"
+
+#: ../../source/usage/configure_sensor.md:92
+msgid "**number**: The number of beams."
+msgstr "**number**：束数量。"
+
+#: ../../source/usage/configure_sensor.md:93
+msgid "**alpha**: The transparency of the laser beam."
+msgstr "**alpha**：激光束透明度。"
+
+#: ../../source/usage/configure_sensor.md:95
+msgid ""
+"A full list of parameters can be found in the [YAML "
+"Configuration](#../yaml_config/configuration/)."
+msgstr "完整参数列表见 [YAML 配置](#../yaml_config/configuration/)。"
+
+#: ../../source/usage/configure_sensor.md:98
+msgid "Advanced Lidar Configuration with noise"
+msgstr "带噪声的高级 LiDAR 配置"
+
+#: ../../source/usage/configure_sensor.md:100
+msgid ""
+"To add noise to the LiDAR sensor, you can set the `noise` parameter to "
+"`True`."
+msgstr "若需为 LiDAR 添加噪声，可将 `noise` 设为 `True`。"
+
+#: ../../source/usage/configure_sensor.md:163
+msgid ""
+"Gaussian noise is added to the LiDAR sensor with the `std` and "
+"`angle_std` parameters. The `std` parameter is the standard deviation of "
+"the range noise, and the `angle_std` parameter is the standard deviation "
+"of the angle noise."
+msgstr ""
+"通过 `std` 与 `angle_std` 参数为 LiDAR 添加高斯噪声。其中 `std` 为距离噪声的标准差，`angle_std` "
+"为角度噪声的标准差。"
+
+#: ../../source/usage/configure_sensor.md:166
+msgid "FOV Configuration Parameters"
+msgstr "视场（FOV）配置参数"
+
+#: ../../source/usage/configure_sensor.md:168
+msgid ""
+"The YAML configuration file and Python Script below shows an example of "
+"objects within the field of view (FOV). The FOV is defined by the `fov` "
+"(float) and `fov_radius` (float) parameters in the object configuration. "
+"Each object has a FOV that can detect the robot within the FOV by the "
+"function `fov_detect_object()`."
+msgstr ""
+"下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 `fov`（角度）与 "
+"`fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 `fov_detect_object()` 检测视场内的机器人。"
+

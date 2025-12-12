@@ -1,0 +1,121 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_dynamic_random_env.md:1
+msgid "Configure dynamic random environment"
+msgstr "配置动态随机环境"
+
+#: ../../source/usage/configure_dynamic_random_env.md:4
+msgid ""
+"The dynamic, random, and clutter environment is useful to test the "
+"navigation and collision avoidance algorithms. In this environment, the "
+"distribution, goal position, and geometry of the obstacles are random at "
+"each episode."
+msgstr "动态、随机且拥挤的环境非常适合测试导航与避障算法。在该环境中，每个回合的障碍物分布、目标位置与几何形状都会随机变化。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:7
+msgid "Random Obstacles Configuration Parameters"
+msgstr "随机障碍物配置参数"
+
+#: ../../source/usage/configure_dynamic_random_env.md
+msgid "Python Script"
+msgstr "Python 脚本"
+
+#: ../../source/usage/configure_dynamic_random_env.md
+msgid "YAML Configuration"
+msgstr "YAML 配置"
+
+#: ../../source/usage/configure_dynamic_random_env.md
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_dynamic_random_env.md
+msgid "random_obstacles"
+msgstr "random_obstacles"
+
+#: ../../source/usage/configure_dynamic_random_env.md:82
+msgid "Important Parameters Explanation"
+msgstr "关键参数说明"
+
+#: ../../source/usage/configure_dynamic_random_env.md:84
+msgid ""
+"The parameters to generate random obstacles with various shapes are the "
+"settings of `behavior`, `distribution`, and `shape` in the `obstacle` "
+"section."
+msgstr "生成不同形状随机障碍物所需的参数位于 `obstacle` 部分的 `behavior`、`distribution` 与 `shape` 设置。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:86
+msgid ""
+"For the `rvo` behavior, set the `wander` to `True` to enable the random "
+"movement of the obstacles when they reach the goal position. And the "
+"`rvo` behavior is used to avoid the collision among obstacles. "
+"`range_low` and `range_high` are the lower and upper bounds of the random"
+" distribution of the goal position of the obstacles."
+msgstr ""
+"若使用 `rvo` 行为，可将 `wander` 设为 `True`，使障碍物到达目标后继续随机移动；`rvo` "
+"还可用于障碍物之间的避碰。`range_low` 与 `range_high` 则决定障碍物目标位置的随机范围。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:88
+msgid ""
+"The `distribution` parameter with name `random` is used to set the random"
+" distribution of the obstacles in a certain area. The `range_low` and "
+"`range_high` are the lower and upper bounds of the random distribution of"
+" the initial position of the obstacles."
+msgstr ""
+"当 `distribution` 的 name 为 `random` 时，可在指定区域内随机生成障碍物。`range_low` 和 "
+"`range_high` 控制障碍物初始位置的随机范围。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:90
+msgid ""
+"The `shape` parameter is used to set the random shape of the obstacles by"
+" setting the `random_shape` to `True`."
+msgstr "在 `shape` 参数中将 `random_shape` 设为 `True`，即可随机生成障碍物的形状。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:91
+msgid ""
+"For circular obstacles, the `radius` will be randomly generated within "
+"`radius_range`."
+msgstr "圆形障碍物的 `radius` 会在 `radius_range` 内随机生成。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:92
+msgid ""
+"For polygon obstacles, `avg_radius_range`, `irregularity_range`, "
+"`num_vertices_range`, and `spikeyness_range` define which type of polygon"
+" will be generated. See "
+"[random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon)"
+" for details."
+msgstr ""
+"对于多边形障碍物，`avg_radius_range`、`irregularity_range`、`num_vertices_range` 与 "
+"`spikeyness_range` 决定生成的多边形类型。详情参见 "
+"[random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon)。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:94
+msgid ""
+"The details of the parameters are listed in the [YAML "
+"Configuration](../yaml_config/configuration/)"
+msgstr "更多参数细节见 [YAML 配置](../yaml_config/configuration/)。"
+
+#: ../../source/usage/configure_dynamic_random_env.md:97
+msgid ""
+"To generate a convex polygon, you can set `spikeyness_range` to [0, 0] or"
+" set `is_convex` to True."
+msgstr "如需生成凸多边形，可将 `spikeyness_range` 设为 [0, 0]，或将 `is_convex` 设为 True。"
+

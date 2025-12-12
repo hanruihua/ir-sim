@@ -1,0 +1,231 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/get_started/install.rst:4
+msgid "Install"
+msgstr "安装"
+
+#: ../../source/get_started/install.rst:6
+msgid ""
+"IR-SIM supports Python 3.9+ on Linux, macOS, and Windows. You can use pip"
+" or conda for installation."
+msgstr "IR-SIM 支持运行在 Linux、macOS 与 Windows 上的 Python 3.9+，可通过 pip 或 conda 进行安装。"
+
+#: ../../source/get_started/install.rst:9
+msgid "Instructions"
+msgstr "安装说明"
+
+#: ../../source/get_started/install.rst:13
+msgid "Install IR-SIM using `pip`_:"
+msgstr "使用 `pip`_ 安装 IR-SIM："
+
+#: ../../source/get_started/install.rst:19
+msgid ""
+"This will install the package and core dependencies for the base "
+"environment."
+msgstr "这将安装软件包以及基础环境所需的核心依赖。"
+
+#: ../../source/get_started/install.rst:23
+msgid "`conda`_ is a system for package and environment management."
+msgstr "`conda`_ 是一个用于管理软件包与环境的系统。"
+
+#: ../../source/get_started/install.rst:25
+msgid "Install `conda`_."
+msgstr "先安装 `conda`_。"
+
+#: ../../source/get_started/install.rst:27
+msgid "2. Create a new conda environment, ::"
+msgstr "2. 创建一个新的 conda 环境：::"
+
+#: ../../source/get_started/install.rst:33
+msgid "or activate an existing one"
+msgstr "或激活一个已有的环境"
+
+#: ../../source/get_started/install.rst:35
+msgid "3. Install ``ir-sim`` in the virtual environment ::"
+msgstr "3. 在该虚拟环境中安装 ``ir-sim``：::"
+
+#: ../../source/get_started/install.rst:42
+msgid "`uv`_ is an extremely fast Python package and project manager."
+msgstr "`uv`_ 是一个极其快速的 Python 包与项目管理器。"
+
+#: ../../source/get_started/install.rst:44
+msgid "Install IR-SIM using `uv`_:"
+msgstr "使用 `uv`_ 安装 IR-SIM："
+
+#: ../../source/get_started/install.rst:50
+msgid "or use uv's project management:"
+msgstr "或使用 uv 的项目管理功能："
+
+#: ../../source/get_started/install.rst:58
+msgid ""
+"We strongly recommend using a fresh virtual environment (uv or conda) "
+"when installing IR-SIM from source."
+msgstr "强烈建议在全新的虚拟环境（uv 或 conda）中从源码安装 IR-SIM。"
+
+#: ../../source/get_started/install.rst:60
+msgid "Perform the following steps to install IR-SIM from source:"
+msgstr "按以下步骤从源码安装 IR-SIM："
+
+#: ../../source/get_started/install.rst:62
+msgid ""
+"Clone the official `IR-SIM git repository`_, or a newly minted fork of "
+"the IR-SIM repository."
+msgstr "克隆官方 `IR-SIM git 仓库`"
+
+#: ../../source/get_started/install.rst:68
+msgid "Navigate to the top-level of the cloned directory."
+msgstr "进入克隆目录的顶层"
+
+#: ../../source/get_started/install.rst:74
+msgid "If you want to use IR-SIM with editable source code, run"
+msgstr "若希望以可编辑模式使用 IR-SIM，请运行"
+
+#: ../../source/get_started/install.rst:80
+msgid "otherwise, run"
+msgstr "否则运行"
+
+#: ../../source/get_started/install.rst:86
+msgid "or for `uv`_ users, run"
+msgstr "若使用 `uv`_，执行"
+
+#: ../../source/get_started/install.rst:93
+msgid "Install with Additional Features"
+msgstr "安装附加功能"
+
+#: ../../source/get_started/install.rst
+msgid "Keyboard Control"
+msgstr "键盘控制"
+
+#: ../../source/get_started/install.rst:98
+msgid ""
+"IR-SIM supports keyboard control for interactive robot simulation. "
+"Install the keyboard control dependencies:"
+msgstr "IR-SIM 支持通过键盘进行交互式机器人仿真。请安装以下键盘控制依赖："
+
+#: ../../source/get_started/install.rst:105
+msgid "This installs:"
+msgstr "将安装："
+
+#: ../../source/get_started/install.rst:107
+msgid "`pynput`_ - For keyboard and mouse input handling"
+msgstr "`pynput`_ —— 处理键盘与鼠标输入"
+
+#: ../../source/get_started/install.rst
+msgid "Linting"
+msgstr "代码检查"
+
+#: ../../source/get_started/install.rst:112
+msgid ""
+"IR-SIM uses `Ruff`_ for linting. To install the dependency-groups for "
+"linting locally, run"
+msgstr "IR-SIM 使用 `Ruff`_ 进行代码检查。若要在本地安装 lint 依赖组，请运行"
+
+#: ../../source/get_started/install.rst:118
+#: ../../source/get_started/install.rst:177
+#: ../../source/get_started/install.rst:188
+msgid "This includes:"
+msgstr "包含："
+
+#: ../../source/get_started/install.rst:120
+msgid "`Ruff`_ - Linting tool"
+msgstr "`Ruff`_ —— 代码检查工具"
+
+#: ../../source/get_started/install.rst:121
+msgid "`ty`_ - Type hinting tool"
+msgstr "`ty`_ —— 类型提示工具"
+
+#: ../../source/get_started/install.rst:122
+msgid "`black`_ - Code formatter"
+msgstr "`black`_ —— 代码格式化工具"
+
+#: ../../source/get_started/install.rst
+msgid "Testing"
+msgstr "测试"
+
+#: ../../source/get_started/install.rst:126
+msgid "Install test dependencies using the test group (from ``pyproject.toml``):"
+msgstr "使用 test 依赖组（源于 ``pyproject.toml``）安装测试依赖："
+
+#: ../../source/get_started/install.rst:132
+msgid "Run the tests:"
+msgstr "运行测试："
+
+#: ../../source/get_started/install.rst:138
+msgid "Generate coverage:"
+msgstr "生成覆盖率报告："
+
+#: ../../source/get_started/install.rst:144
+msgid "Type-check the codebase:"
+msgstr "对代码库执行类型检查："
+
+#: ../../source/get_started/install.rst
+msgid "Documentation"
+msgstr "文档"
+
+#: ../../source/get_started/install.rst:153
+msgid ""
+"Install documentation dependencies using the docs group (from "
+"``pyproject.toml``):"
+msgstr "使用 docs 依赖组（源于 ``pyproject.toml``）安装文档依赖："
+
+#: ../../source/get_started/install.rst:159
+msgid "Build the docs locally (HTML):"
+msgstr "在本地构建 HTML 文档："
+
+#: ../../source/get_started/install.rst:166
+msgid ""
+"The output will be available under ``docs/build/html`` (or "
+"``docs/_build/html`` depending on your environment setup)."
+msgstr "输出文件将位于 ``docs/build/html``（或视环境位于 ``docs/_build/html``）。"
+
+#: ../../source/get_started/install.rst
+msgid "All Features"
+msgstr "全部功能"
+
+#: ../../source/get_started/install.rst:171
+msgid "To install all optional dependencies and features:"
+msgstr "如需安装全部可选依赖与功能："
+
+#: ../../source/get_started/install.rst:179
+msgid "Keyboard control features (`pynput`)"
+msgstr "键盘控制功能（`pynput`）"
+
+#: ../../source/get_started/install.rst:180
+msgid "Enhanced video support (`imageio[ffmpeg]`)"
+msgstr "增强的视频支持（`imageio[ffmpeg]`）"
+
+#: ../../source/get_started/install.rst:182
+msgid "To install dependency-groups:"
+msgstr "安装依赖组："
+
+#: ../../source/get_started/install.rst:190
+msgid "lint group"
+msgstr "lint 组"
+
+#: ../../source/get_started/install.rst:191
+msgid "test group"
+msgstr "test 组"
+
+#: ../../source/get_started/install.rst:192
+msgid "docs group"
+msgstr "docs 组"
+

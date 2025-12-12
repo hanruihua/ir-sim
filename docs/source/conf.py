@@ -12,11 +12,13 @@
 #
 import os
 import sys
+import warnings
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.abspath("../../"))
 sys.path.insert(0, os.path.abspath("."))
 import importlib.metadata
+from importlib.metadata import PackageNotFoundError
 from unittest.mock import MagicMock
 
 
@@ -39,8 +41,21 @@ project = "IR-SIM"
 copyright = "2024, Ruihua Han"
 author = "Ruihua Han"
 
+language = 'en'
+
+locale_dirs = ['../locale/']
+gettext_compact = False
+
+templates_path = ['_templates']
+html_context = {
+    'display_language_switch': True,
+}
+
 # The full version, including alpha/beta/rc tags
-release = importlib.metadata.version("ir-sim")
+try:
+    release = importlib.metadata.version("ir-sim")
+except PackageNotFoundError:
+    release = os.environ.get("IR_SIM_DOC_VERSION", "local")
 
 # -- General configuration ---------------------------------------------------
 
@@ -49,7 +64,6 @@ release = importlib.metadata.version("ir-sim")
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "autoapi.extension",  # Add AutoAPI for automatic API documentation
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "myst_parser",
@@ -58,6 +72,25 @@ extensions = [
     "sphinx_design",
     "sphinx_inline_tabs",
 ]
+
+# Only enable AutoAPI when the Sphinx version exposes the APIs it expects.
+ENABLE_AUTOAPI = True
+try:
+    import sphinx.builders.html as sphinx_html
+
+    if not hasattr(sphinx_html, "doc_node"):
+        ENABLE_AUTOAPI = False
+except Exception as exc:  # pragma: no cover - defensive guard
+    warnings.warn(f"Unable to check Sphinx compatibility for AutoAPI: {exc}")
+    ENABLE_AUTOAPI = False
+
+if ENABLE_AUTOAPI:
+    extensions.append("autoapi.extension")
+else:
+    warnings.warn(
+        "AutoAPI disabled because current Sphinx build lacks 'doc_node'. "
+        "Set ENABLE_AUTOAPI=1 and upgrade Sphinx/AutoAPI to re-enable."
+    )
 
 myst_enable_extensions = [
     "amsmath",
@@ -151,11 +184,6 @@ def autoapi_skip_member(app, what, name, obj, skip, options):
         return True  # Skip if there's any error
 
 
-def setup(app):
-    """Setup function for Sphinx."""
-    app.connect("autoapi-skip-member", autoapi_skip_member)
-
-
 # root_doc = 'irsim'
 # -- Options for HTML output -------------------------------------------------
 
@@ -189,6 +217,7 @@ html_sidebars = {
     ],  # This ensures we test for custom sidebars
 }
 
+# Default sidebar stack without language switcher (language lives in top navbar)
 html_sidebars = {"**": ["sidebar-nav-bs"]}  # Use default navigation for all pages
 
 html_js_files = [
@@ -219,7 +248,12 @@ html_theme_options = {
     #     "text": "IR-SIM",
     # },
     "navbar_start": ["navbar-logo"],
-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+    "navbar_end": [
+        "version-switcher",
+        "theme-switcher",
+        "navbar-lang-switch",
+        "navbar-icon-links",
+    ],
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/main/docs/source/_static/switcher.json",
         "version_match": release,
@@ -237,7 +271,10 @@ html_theme_options = {
 
 
 def setup(app):
+    """Register custom Sphinx integrations."""
     app.add_css_file("my_theme.css")
+    if ENABLE_AUTOAPI:
+        app.connect("autoapi-skip-member", autoapi_skip_member)
 
     # Filter out duplicate object warnings using logging
     import logging
