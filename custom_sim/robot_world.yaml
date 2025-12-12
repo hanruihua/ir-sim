@@ -1,0 +1,25 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+
+robots:
+  - id: 0
+    kinematics: {name: 'ackermann'}  # diff or ackermann
+    shape: {name: 'circle', radius: 0.2}
+    state: [1.0, 1.0, 0.0]  # x, y, theta
+    goal: [9.0, 9.0]        # x, y
+  - id: 1
+    kinematics: {name: 'diff'}  # diff
+    shape: {name: 'circle', radius: 0.2}
+    state: [1.0, 9.0, 0.0]  # x, y, theta
+    goal: [9.0, 1.0]        # x, y
+    color: 'k'              # black
+
+obstacles:
+  - {x: 4.0, y: 4.0, radius: 0.8, shape: 'circle'}
+  - {x: 6.0, y: 3.0, radius: 0.8, shape: 'circle'}
+  - {x: 3.0, y: 7.0, radius: 0.8, shape: 'circle'}
+  - {x: 7.0, y: 7.0, shape: 'rectangle', width: 2.0, height: 1.0, theta: 0.785} # Rect at 45 deg

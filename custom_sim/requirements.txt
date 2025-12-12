@@ -1,0 +1,27 @@
+# Core RL training dependencies
+gymnasium>=0.28.0
+stable-baselines3[extra]>=2.0.0
+torch>=1.12.0
+tensorboard>=2.10.0
+
+# Scientific computing
+numpy>=1.21.0
+matplotlib>=3.5.0
+scipy>=1.8.0
+
+# ROS interface (install only on robot)
+# rospy  # Usually comes with ROS installation
+# geometry_msgs
+# sensor_msgs
+# nav_msgs
+# tf2_ros
+# tf2_geometry_msgs
+
+# Development and testing
+pytest>=7.0.0
+black>=22.0.0
+flake8>=5.0.0
+
+# Monitoring and visualization
+wandb  # Optional: for experiment tracking
+seaborn  # Optional: for better plots
