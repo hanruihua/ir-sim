@@ -41,10 +41,8 @@ project = "IR-SIM"
 copyright = "2024, Ruihua Han"
 author = "Ruihua Han"
 
-# 默认语言还是英文原稿
 language = 'en'
 
-# 启用翻译目录
 locale_dirs = ['../locale/']
 gettext_compact = False
 
@@ -52,20 +50,6 @@ templates_path = ['_templates']
 html_context = {
     'display_language_switch': True,
 }
-
-
-# 这个后面有设置
-# html_theme_options = {
-#     "navigation_depth": 3,
-#     "collapse_navigation": False,
-# }
-# html_sidebars = {
-#     "**": ["language_switch.html", "searchbox.html", "globaltoc.html"]
-# }
-# html_theme_options = {
-#     "navbar_end": ["navbar-icon-links", "theme-switcher", "language_switch"],
-# }
-
 
 # The full version, including alpha/beta/rc tags
 try:
