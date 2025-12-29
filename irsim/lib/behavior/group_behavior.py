@@ -88,7 +88,11 @@ class GroupBehavior:
             - If no behavior is configured, returns `[None]` (one sentinel
               element) and logs a warning periodically in auto mode.
         """
-        if not self.behavior_dict or self.name is None or self.kinematics is None:
+
+        if not self.behavior_dict:
+            return [None]
+
+        if self.name is None or self.kinematics is None:
             if world_param.control_mode == "auto" and world_param.count % 20 == 0:
                 logger.warning(
                     "Group behavior not defined. Auto control will be static. "
