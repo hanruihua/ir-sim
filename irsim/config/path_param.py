@@ -22,4 +22,20 @@ class PathManager:
     fig_path: str = sys.path[0] + "/figure"
 
 
-path_manager = PathManager()
+_current = PathManager()
+
+
+def bind(instance: PathManager) -> None:
+    global _current
+    _current = instance
+
+
+class _Proxy:
+    def __getattr__(self, name: str):
+        return getattr(_current, name)
+
+    def __setattr__(self, name: str, value):
+        setattr(_current, name, value)
+
+
+path_manager = _Proxy()

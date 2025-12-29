@@ -21,7 +21,10 @@ from matplotlib import pyplot as plt
 from shapely import Polygon
 from shapely.strtree import STRtree
 
-from irsim.config import env_param, world_param
+from irsim.config import env_param, path_param, world_param
+from irsim.config.env_param import EnvParam
+from irsim.config.path_param import PathManager
+from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
@@ -141,6 +144,14 @@ class EnvBase:
         log_level: str = "INFO",
         seed: Optional[int] = None,
     ) -> None:
+        # Bind per-instance config objects
+        self._env_param = EnvParam()
+        self._world_param = WorldParam()
+        self._path_manager = PathManager()
+        env_param.bind(self._env_param)
+        world_param.bind(self._world_param)
+        path_param.bind(self._path_manager)
+
         # init env setting
         self.display = display
         set_seed(seed)
@@ -221,6 +232,12 @@ class EnvBase:
             str: Summary string including the world name.
         """
         return f"Environment: {self._world.name}"
+
+    def _bind_config(self) -> None:
+        """Bind this env's config instances to the module-level delegates."""
+        env_param.bind(self._env_param)
+        world_param.bind(self._world_param)
+        path_param.bind(self._path_manager)
 
     @normalize_actions
     def step(
