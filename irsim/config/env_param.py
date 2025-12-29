@@ -19,11 +19,18 @@ class EnvParam:
     platform_name: str = field(default_factory=platform.system)
 
 
-_current = EnvParam()
+# Multi-env storage (default index 0)
+_instances: list[EnvParam] = [EnvParam()]
+_current = _instances[0]
 
 
 def bind(instance: EnvParam) -> None:
+    """Bind instance to default index 0 and update current alias."""
     global _current
+    if _instances:
+        _instances[0] = instance
+    else:
+        _instances.append(instance)
     _current = instance
 
 
@@ -33,3 +40,19 @@ def __getattr__(name: str):
 
 def __setattr__(name: str, value):
     setattr(_current, name, value)
+
+
+def __getitem__(index: int) -> EnvParam:
+    return _instances[index]
+
+
+def __setitem__(index: int, instance: EnvParam) -> None:
+    """Assign an EnvParam at a specific index. Extends list if needed."""
+    global _current
+    if index < 0:
+        raise IndexError("env_param index must be non-negative")
+    if index >= len(_instances):
+        _instances.extend(EnvParam() for _ in range(index - len(_instances) + 1))
+    _instances[index] = instance
+    if index == 0:
+        _current = instance
