@@ -15,9 +15,29 @@ world parameters:
 
 """
 
-time: float = 0
-control_mode: str = "auto"
-collision_mode: str = "stop"
+from dataclasses import dataclass
 
-step_time: float = 0.1
-count: int = 0
+
+@dataclass
+class WorldParam:
+    time: float = 0.0
+    control_mode: str = "auto"
+    collision_mode: str = "stop"
+    step_time: float = 0.1
+    count: int = 0
+
+
+_current = WorldParam()
+
+
+def bind(instance: WorldParam) -> None:
+    global _current
+    _current = instance
+
+
+def __getattr__(name: str):
+    return getattr(_current, name)
+
+
+def __setattr__(name: str, value):
+    setattr(_current, name, value)
