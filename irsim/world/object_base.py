@@ -1436,32 +1436,33 @@ class ObjectBase:
             if "text_zorder" in kwargs:
                 text.set_zorder(kwargs["text_zorder"])
                 
-        goal_x = self.goal[0, 0]
-        goal_y = self.goal[1, 0]
         # Update goal text position using set_position (works for both 2D and 3D)
-        if hasattr(self, "goal_abbr_text"):
-            goal_text = self.goal_abbr_text
-            # Prefer runtime kwargs, then initial plot kwargs, fallback to default
-            default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
-            text_position = kwargs.get(
-                "text_position",
-                self.plot_kwargs.get("text_position", default_text_pos),
-            )
+        if self.goal is not None:
+            goal_x = self.goal[0, 0]
+            goal_y = self.goal[1, 0]
+            if hasattr(self, "goal_abbr_text"):
+                goal_text = self.goal_abbr_text
+                # Prefer runtime kwargs, then initial plot kwargs, fallback to default
+                default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
+                text_position = kwargs.get(
+                    "text_position",
+                    self.plot_kwargs.get("text_position", default_text_pos),
+                )
 
-            goal_text.set_position((goal_x + text_position[0], goal_y + text_position[1]))
+                goal_text.set_position((goal_x + text_position[0], goal_y + text_position[1]))
 
-            # Update text properties
-            if "text_color" in kwargs:
-                goal_text.set_color(kwargs["text_color"])
+                # Update text properties
+                if "text_color" in kwargs:
+                    goal_text.set_color(kwargs["text_color"])
 
-            if "text_size" in kwargs:
-                goal_text.set_fontsize(kwargs["text_size"])
+                if "text_size" in kwargs:
+                    goal_text.set_fontsize(kwargs["text_size"])
 
-            if "text_alpha" in kwargs:
-                goal_text.set_alpha(kwargs["text_alpha"])
+                if "text_alpha" in kwargs:
+                    goal_text.set_alpha(kwargs["text_alpha"])
 
-            if "text_zorder" in kwargs:
-                goal_text.set_zorder(kwargs["text_zorder"])
+                if "text_zorder" in kwargs:
+                    goal_text.set_zorder(kwargs["text_zorder"])
 
         # Handle trail plotting (creates new elements each time)
         if self.show_trail and world_param.count % self.trail_freq == 0:
@@ -2113,7 +2114,7 @@ class ObjectBase:
             str: The abbreviation of the object.
         """
 
-        return "G" + str(self.group) +"-"+ self.role[0] + str(self.id)
+        return self.role[0] + str(self.id)
     
     @property
     def goal_abbr(self) -> str:
@@ -2124,7 +2125,7 @@ class ObjectBase:
             str: The goal abbreviation of the object.
         """
 
-        return "Goal" + str(self.group) +"-"+ self.role[0] + str(self.id)
+        return "G" + "-" + self.role[0] + str(self.id)
     
 
     @property
