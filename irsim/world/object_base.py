@@ -1128,10 +1128,10 @@ class ObjectBase:
 
         show_goal = self.plot_kwargs.get("show_goal", False)
         show_goal_text = self.plot_kwargs.get("show_goal_text", False)
-        
+
         self.show_goal = show_goal
         self.show_goal_text = show_goal_text
-        
+
         self.show_goals = self.plot_kwargs.get("show_goals", False)
         show_text = self.plot_kwargs.get("show_text", False)
         show_arrow = self.plot_kwargs.get("show_arrow", False)
@@ -1435,7 +1435,7 @@ class ObjectBase:
 
             if "text_zorder" in kwargs:
                 text.set_zorder(kwargs["text_zorder"])
-                
+
         # Update goal text position using set_position (works for both 2D and 3D)
         if self.goal is not None:
             goal_x = self.goal[0, 0]
@@ -1720,7 +1720,7 @@ class ObjectBase:
         text_alpha = kwargs.get("text_alpha", 1)
 
         x, y = state[0, 0], state[1, 0]
-            
+
         if isinstance(ax, Axes3D):
             self.abbr_text = ax.text(
                 x + text_position[0],
@@ -1743,7 +1743,7 @@ class ObjectBase:
                 alpha=text_alpha,
             )
         self.plot_text_list.append(self.abbr_text)
-        
+
         if self.show_goal and self.show_goal_text:
             goal_x, goal_y = self.goal[0, 0], self.goal[1, 0]
             if isinstance(ax, Axes3D):
@@ -1769,7 +1769,7 @@ class ObjectBase:
                 )
             self.plot_text_list.append(self.goal_abbr_text)
 
-        
+
 
     def plot_arrow(
         self,
@@ -2115,7 +2115,7 @@ class ObjectBase:
         """
 
         return self.role[0] + str(self.id)
-    
+
     @property
     def goal_abbr(self) -> str:
         """
@@ -2126,7 +2126,7 @@ class ObjectBase:
         """
 
         return "G" + "-" + self.role[0] + str(self.id)
-    
+
 
     @property
     def shape(self) -> str:
