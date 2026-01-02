@@ -93,6 +93,7 @@ def test_collision_avoidance():
     env.get_map()
     env.get_object_by_name("testtest")
     env.get_object_by_id(env.robot.id)
+    env.get_group_by_name("robot_group")
     env.robot.get_desired_omni_vel()
     env.robot.get_desired_omni_vel(normalized=True)
     env.robot.set_goal(None)

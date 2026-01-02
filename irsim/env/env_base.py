@@ -1016,6 +1016,18 @@ class EnvBase:
         """
         return self._world.get_map(resolution, self.obstacle_list)
 
+    def get_group_by_name(self, group_name: str) -> Optional[ObjectBase]:
+        """
+        Get the objects with the given group name.
+
+        Args:
+            group_name (str): Group name of the robot.
+
+        Returns:
+            list[ObjectBase]: The object list with the given group name.
+        """
+        return [obj for obj in self.objects if obj.group_name == group_name]
+
     def get_object_by_name(self, name: str) -> Optional[ObjectBase]:
         """
         Get the object with the given name.

@@ -48,7 +48,7 @@ class ObjectFactory:
                 obj
                 for group_index, sp in enumerate(parse)
                 for obj in self.create_object(
-                    obj_type, group=group_start_index + group_index, **sp
+                    obj_type, **{"group": group_start_index + group_index, **sp}
                 )
             ]
 

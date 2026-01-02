@@ -306,6 +306,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                                                        |
 | `description`    | `str`                                            | `None`           | Image description or label for the object.                                                                         |
 | `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.                                      |
+| `group_name`     | `str`                                            | `None`           | Group name used for organization, allowing objects to be managed by group name.                                      |
 | `unobstructed`   | `bool`                                           | `False`          | Indicates if the object ignores collisions.                                                                        |
 | `plot`           | `dict`                                           | `{}`             | Plotting options for object visualization.                                                                         |
 | `state_dim`      | `int`                                            | `None`           | Dimension of the state vector.                                                                                     |
@@ -439,6 +440,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```yaml
   # Example usage
   group: 1
+  ```
+
+**`group_name`** (`str`, default: `None`)
+: Specifies a group name for organizational purposes, allowing objects to be categorized and managed together. Objects with the same group name can be treated as a cohesive unit for certain operations.
+
+  ```yaml
+  # Example usage
+  group_name: "robot_flow"
   ```
 
 **`name`** (`str` or `list` of `str`, default: `None`)
@@ -803,7 +812,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`description`** — Image file (`'car_blue.png'`, `'diff_robot0.png'`)
 - **`plot`** — Advanced display options
   - **Object** — Appearance (`obj_color`, `obj_alpha`, `obj_linestyle`)
-  - **Goal** — Goal markers (`show_goal`, `goal_color`)
+  - **Goal** — Goal markers (`show_goal`, `goal_color`, `show_goal_text`)
   - **Trail** — Object trails (`show_trail`, `keep_trail_length`)
   - **Trajectory** — Path lines (`show_trajectory`, `keep_traj_length`)
   - **Sensors** — Sensor display (`show_sensor`, `show_fov`)
@@ -847,6 +856,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `goal_color` (str): Color of the goal marker. Default is the object's color.
     - `goal_alpha` (float/`0.5`): Transparency of the goal marker (0.0 to 1.0).
     - `goal_zorder` (int/`1`): Z-order of the goal marker.
+  - `show_goal_text` (bool/`False`): Whether to show the goal text.
 
   **Text Label Visualization:**
   - `show_text` (bool/`False`): Whether to show text information.
