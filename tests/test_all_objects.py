@@ -953,5 +953,51 @@ def test_envbase_empty_yaml_path_logs(capsys):
     assert "YAML Configuration load failed" in out or "YAML File not found" in out
 
 
+def test_goal_abbr_text_update():
+    """Test goal abbreviation text position and property updates during step_plot"""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+    robot.set_goal([8, 8, 0])
+
+    # Mock goal_abbr_text
+    mock_text = Mock()
+    robot.goal_abbr_text = mock_text
+
+    # Test with all text properties
+    robot._step_plot(text_color="red", text_size=12, text_alpha=0.8, text_zorder=10)
+
+    mock_text.set_position.assert_called()
+    mock_text.set_color.assert_called_with("red")
+    mock_text.set_fontsize.assert_called_with(12)
+    mock_text.set_alpha.assert_called_with(0.8)
+    mock_text.set_zorder.assert_called_with(10)
+
+    env.end()
+
+
+def test_goal_abbr_text_creation():
+    """Test goal abbreviation text is created during plot_object"""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+    robot.set_goal([8, 8, 0])
+    robot.show_goal = True
+    robot.show_goal_text = True
+
+    # Mock ax.text to capture calls
+    mock_ax = Mock()
+    mock_text = Mock()
+    mock_ax.text = Mock(return_value=mock_text)
+
+    robot.plot_object(
+        mock_ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
+    )
+
+    # Verify ax.text was called for goal_abbr_text
+    assert mock_ax.text.call_count >= 1
+    assert robot.goal_abbr_text == mock_text
+
+    env.end()
+
+
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])
