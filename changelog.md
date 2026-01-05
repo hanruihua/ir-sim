@@ -1,3 +1,15 @@
+## 2.8.2
+
+- Features #183:
+  - Add `group_name` YAML parameter to help user manage the objects in the same group.
+  - Add `show_goal_text` YAML parameter to decide whether to show the goal text on the plot.
+  - Add `get_group_by_name` function to get the objects in the same group by the group name.
+  - Update related documentation
+  
+- Fix:
+  - Fix Group ID parameter conflict issue #180 #183
+  - Fix group behavior warning issue e8ca7df
+
 ## 2.8.1
 
 Hotfix: Fix the autoapi extension issue in the documentation.
