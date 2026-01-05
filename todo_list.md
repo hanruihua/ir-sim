@@ -16,6 +16,10 @@
 - [ ] Plugin system 
 - [ ] template for custom robots, sensor..
 
+## Reinforcement Learning Project Support 
+
+- [ ] Make the env vectorized to support large scale reinforcement learning in parallel (e.g. gymnasium)
+
 ## 🤖 Robot & Movement
 - [x] Omni directional robots
 - [x] Add custom robot model
@@ -64,7 +68,6 @@
 - [ ] Refine plot function with collection of elements
 - [ ] Draw error band (uncertainty) https://matplotlib.org/stable/gallery/lines_bars_and_markers/curve_error_band.html
 
-
 ## 🔧 System & Performance
 - [x] Add collision mode
 - [x] Add regular event for other obstacles or robots
@@ -76,15 +79,15 @@
 - [x] Add more key functions for keyboard control (esc, space, r, l, x)
 - [x] Assign robot goals by mouse click
 - [x] Add reload function for the environment
+- [x] moving view of robots.
 - [ ] Using decorator for function input checking
 - [ ] Add synchronization and asynchronization mode
 - [ ] Multi-process for large scale simulation
 - [ ] Make multiple env instances
 - [ ] accelerate the simulation (collision check, kinematics, etc.) by numba/c++
-- [ ] vectorize the loop
 - [ ] Complete the reactive collision mode
 - [ ] YAML schema validation with clear error messages and defaults.
-- [ ] moving view of robots.
+
 
 ## 🧪 Testing & Quality
 - [x] Pytest
@@ -109,6 +112,7 @@
 - [ ] Add tutorial with more examples.
 - [ ] Doc path manager and change the path
 - [ ] Generate Logo
+- [x] Chinese version
 
 ## 🔗 External Interfaces
 - [ ] Add the interface with gym
@@ -118,7 +122,7 @@
 - [ ] Add the interface with URDF file
 
 ## 🧠 Advanced Features
-- [ ] Add wrapper for ORCA algorithm
+- [x] Add wrapper for ORCA algorithm
 - [ ] Add various navigation algorithms implemented on the ir-sim
 - [ ] Modular yaml import so that ir-sim can read the yaml file separately
 - [ ] Add more behaviors for the objects (orca, pure pursuit, etc.)
