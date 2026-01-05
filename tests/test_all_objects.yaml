@@ -27,6 +27,10 @@ robot:
         has_velocity: True
     
     name: ['testtest']
+    plot:
+      show_goal_text: True
+      show_goal: True
+      show_text: True
       
   - kinematics: {name: 'diff', noise: True}  # omni, diff, ackers
     shape: {name: 'circle', radius: 0.2}  # radius

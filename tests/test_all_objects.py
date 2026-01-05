@@ -93,6 +93,7 @@ def test_collision_avoidance():
     env.get_map()
     env.get_object_by_name("testtest")
     env.get_object_by_id(env.robot.id)
+    env.get_group_by_name("robot_group")
     env.robot.get_desired_omni_vel()
     env.robot.get_desired_omni_vel(normalized=True)
     env.robot.set_goal(None)
@@ -950,6 +951,52 @@ def test_envbase_empty_yaml_path_logs(capsys):
 
     out = capsys.readouterr().out
     assert "YAML Configuration load failed" in out or "YAML File not found" in out
+
+
+def test_goal_abbr_text_update():
+    """Test goal abbreviation text position and property updates during step_plot"""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+    robot.set_goal([8, 8, 0])
+
+    # Mock goal_abbr_text
+    mock_text = Mock()
+    robot.goal_abbr_text = mock_text
+
+    # Test with all text properties
+    robot._step_plot(text_color="red", text_size=12, text_alpha=0.8, text_zorder=10)
+
+    mock_text.set_position.assert_called()
+    mock_text.set_color.assert_called_with("red")
+    mock_text.set_fontsize.assert_called_with(12)
+    mock_text.set_alpha.assert_called_with(0.8)
+    mock_text.set_zorder.assert_called_with(10)
+
+    env.end()
+
+
+def test_goal_abbr_text_creation():
+    """Test goal abbreviation text is created during plot_object"""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+    robot.set_goal([8, 8, 0])
+    robot.show_goal = True
+    robot.show_goal_text = True
+    robot.show_text = True
+
+    # Use real matplotlib axes
+    fig, ax = plt.subplots()
+
+    robot.plot_object(
+        ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
+    )
+
+    # Verify goal_abbr_text was created
+    assert hasattr(robot, "goal_abbr_text")
+    assert robot.goal_abbr_text is not None
+
+    plt.close(fig)
+    env.end()
 
 
 if __name__ == "__main__":

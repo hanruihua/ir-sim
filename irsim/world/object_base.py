@@ -198,6 +198,7 @@ class ObjectBase:
         arrive_mode: str = "position",
         description: Optional[str] = None,
         group: int = 0,
+        group_name: Optional[str] = None,
         state_dim: Optional[int] = None,
         vel_dim: Optional[int] = None,
         unobstructed: bool = False,
@@ -301,6 +302,7 @@ class ObjectBase:
 
         self._geometry = self.gf.step(self.state) if self.gf is not None else None
         self.group = group
+        self._group_name = group_name
 
         # flag
         self.stop_flag = False
@@ -1100,6 +1102,7 @@ class ObjectBase:
             - object_img: Object image for description-based visualization
             - goal_patch: Goal position marker (patch)
             - abbr_text: Object abbreviation text label
+            - goal_abbr_text: Goal abbreviation text label
             - arrow_patch: Velocity direction arrow (patch)
             - trajectory_line: Trajectory path visualization (line)
             - fov_patch: Field of view visualization (patch)
@@ -1114,6 +1117,7 @@ class ObjectBase:
             "object_img",
             "goal_patch",
             "abbr_text",
+            "goal_abbr_text",
             "arrow_patch",
             "trajectory_line",
             "fov_patch",
@@ -1122,7 +1126,8 @@ class ObjectBase:
         self.plot_kwargs.update(kwargs)
         self.ax = ax
 
-        show_goal = self.plot_kwargs.get("show_goal", False)
+        self.show_goal = self.plot_kwargs.get("show_goal", False)
+        self.show_goal_text = self.plot_kwargs.get("show_goal_text", False)
         self.show_goals = self.plot_kwargs.get("show_goals", False)
         show_text = self.plot_kwargs.get("show_text", False)
         show_arrow = self.plot_kwargs.get("show_arrow", False)
@@ -1136,7 +1141,7 @@ class ObjectBase:
         if self.shape != "map":
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
-        if show_goal:
+        if self.show_goal:
             goal_state = state if initial else self.goal
             goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
@@ -1427,6 +1432,36 @@ class ObjectBase:
             if "text_zorder" in kwargs:
                 text.set_zorder(kwargs["text_zorder"])
 
+        # Update goal text position using set_position (works for both 2D and 3D)
+        if self.goal is not None:
+            goal_x = self.goal[0, 0]
+            goal_y = self.goal[1, 0]
+            if hasattr(self, "goal_abbr_text"):
+                goal_text = self.goal_abbr_text
+                # Prefer runtime kwargs, then initial plot kwargs, fallback to default
+                default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
+                text_position = kwargs.get(
+                    "text_position",
+                    self.plot_kwargs.get("text_position", default_text_pos),
+                )
+
+                goal_text.set_position(
+                    (goal_x + text_position[0], goal_y + text_position[1])
+                )
+
+                # Update text properties
+                if "text_color" in kwargs:
+                    goal_text.set_color(kwargs["text_color"])
+
+                if "text_size" in kwargs:
+                    goal_text.set_fontsize(kwargs["text_size"])
+
+                if "text_alpha" in kwargs:
+                    goal_text.set_alpha(kwargs["text_alpha"])
+
+                if "text_zorder" in kwargs:
+                    goal_text.set_zorder(kwargs["text_zorder"])
+
         # Handle trail plotting (creates new elements each time)
         if self.show_trail and world_param.count % self.trail_freq == 0:
             self.plot_trail(
@@ -1705,8 +1740,32 @@ class ObjectBase:
                 zorder=text_zorder,
                 alpha=text_alpha,
             )
-
         self.plot_text_list.append(self.abbr_text)
+
+        if self.show_goal and self.show_goal_text:
+            goal_x, goal_y = self.goal[0, 0], self.goal[1, 0]
+            if isinstance(ax, Axes3D):
+                self.goal_abbr_text = ax.text(
+                    goal_x + text_position[0],
+                    goal_y + text_position[1],
+                    self.z,
+                    self.goal_abbr,
+                    fontsize=text_size,
+                    color=text_color,
+                    zorder=text_zorder,
+                    alpha=text_alpha,
+                )
+            else:
+                self.goal_abbr_text = ax.text(
+                    goal_x + text_position[0],
+                    goal_y + text_position[1],
+                    self.goal_abbr,
+                    fontsize=text_size,
+                    color=text_color,
+                    zorder=text_zorder,
+                    alpha=text_alpha,
+                )
+            self.plot_text_list.append(self.goal_abbr_text)
 
     def plot_arrow(
         self,
@@ -2032,6 +2091,21 @@ class ObjectBase:
         return self._name if self._name is not None else self.role + "_" + str(self.id)
 
     @property
+    def group_name(self) -> str:
+        """
+        Get the group name of the object.
+
+        Returns:
+            str: The group name of the object.
+        """
+
+        return (
+            self._group_name
+            if self._group_name is not None
+            else self.role + "_" + str(self.group)
+        )
+
+    @property
     def abbr(self) -> str:
         """
         Get the abbreviation of the object.
@@ -2041,6 +2115,17 @@ class ObjectBase:
         """
 
         return self.role[0] + str(self.id)
+
+    @property
+    def goal_abbr(self) -> str:
+        """
+        Get the goal abbreviation of the object.
+
+        Returns:
+            str: The goal abbreviation of the object.
+        """
+
+        return "G" + "-" + self.role[0] + str(self.id)
 
     @property
     def shape(self) -> str:
