@@ -1126,12 +1126,8 @@ class ObjectBase:
         self.plot_kwargs.update(kwargs)
         self.ax = ax
 
-        show_goal = self.plot_kwargs.get("show_goal", False)
-        show_goal_text = self.plot_kwargs.get("show_goal_text", False)
-
-        self.show_goal = show_goal
-        self.show_goal_text = show_goal_text
-
+        self.show_goal = self.plot_kwargs.get("show_goal", False)
+        self.show_goal_text = self.plot_kwargs.get("show_goal_text", False)
         self.show_goals = self.plot_kwargs.get("show_goals", False)
         show_text = self.plot_kwargs.get("show_text", False)
         show_arrow = self.plot_kwargs.get("show_arrow", False)
@@ -1145,7 +1141,7 @@ class ObjectBase:
         if self.shape != "map":
             self.plot_object(ax, state, vertices, **self.plot_kwargs)
 
-        if show_goal:
+        if self.show_goal:
             goal_state = state if initial else self.goal
             goal_vertices = vertices if initial else self.goal_vertices
             self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
@@ -1449,7 +1445,9 @@ class ObjectBase:
                     self.plot_kwargs.get("text_position", default_text_pos),
                 )
 
-                goal_text.set_position((goal_x + text_position[0], goal_y + text_position[1]))
+                goal_text.set_position(
+                    (goal_x + text_position[0], goal_y + text_position[1])
+                )
 
                 # Update text properties
                 if "text_color" in kwargs:
@@ -1768,8 +1766,6 @@ class ObjectBase:
                     alpha=text_alpha,
                 )
             self.plot_text_list.append(self.goal_abbr_text)
-
-
 
     def plot_arrow(
         self,
@@ -2103,7 +2099,11 @@ class ObjectBase:
             str: The group name of the object.
         """
 
-        return self._group_name if self._group_name is not None else self.role + "_" + str(self.group)
+        return (
+            self._group_name
+            if self._group_name is not None
+            else self.role + "_" + str(self.group)
+        )
 
     @property
     def abbr(self) -> str:
@@ -2126,7 +2126,6 @@ class ObjectBase:
         """
 
         return "G" + "-" + self.role[0] + str(self.id)
-
 
     @property
     def shape(self) -> str:

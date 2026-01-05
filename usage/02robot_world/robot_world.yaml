@@ -23,6 +23,8 @@ robot:
   plot:
     show_trajectory: True
     show_goal: True
+    show_goal_text: True
+    show_text: True
   # description: 'diff_robot0.png'
 
 

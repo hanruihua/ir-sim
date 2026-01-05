@@ -982,20 +982,20 @@ def test_goal_abbr_text_creation():
     robot.set_goal([8, 8, 0])
     robot.show_goal = True
     robot.show_goal_text = True
+    robot.show_text = True
 
-    # Mock ax.text to capture calls
-    mock_ax = Mock()
-    mock_text = Mock()
-    mock_ax.text = Mock(return_value=mock_text)
+    # Use real matplotlib axes
+    fig, ax = plt.subplots()
 
     robot.plot_object(
-        mock_ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
+        ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
     )
 
-    # Verify ax.text was called for goal_abbr_text
-    assert mock_ax.text.call_count >= 1
-    assert robot.goal_abbr_text == mock_text
+    # Verify goal_abbr_text was created
+    assert hasattr(robot, "goal_abbr_text")
+    assert robot.goal_abbr_text is not None
 
+    plt.close(fig)
     env.end()
 
 
