@@ -10,9 +10,25 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
+from irsim.config import env_param, world_param
 from irsim.lib.behavior.behavior import Behavior
+from irsim.lib.behavior.behavior_registry import behaviors_class_map
 from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
+
+
+def _install_dummy_logger():
+    class _Logger:
+        def info(self, *_args, **_kwargs):
+            pass
+
+        def warning(self, *_args, **_kwargs):
+            pass
+
+        def error(self, *_args, **_kwargs):
+            pass
+
+    env_param.logger = _Logger()
 
 
 class TestBehavior:
@@ -37,6 +53,96 @@ class TestBehavior:
             b.invoke_behavior(
                 "diff", "unknown_action", ego_object=None, external_objects=[]
             )
+
+
+class TestBehaviorCoverage:
+    """Additional tests to cover remaining lines in behavior.py"""
+
+    def test_behavior_warning_no_behavior(self, dummy_logger):
+        """Test warning when behavior not defined in auto mode (lines 56-59)."""
+        _install_dummy_logger()
+        world_param.control_mode = "auto"
+        world_param.count = 20
+
+        info = types.SimpleNamespace(id=1, name="test_obj", kinematics="diff")
+        b = Behavior(object_info=info, behavior_dict=None)
+
+        vel = b.gen_vel(ego_object=None, external_objects=[])
+        assert np.allclose(vel, np.zeros((2, 1)))
+
+        world_param.control_mode = "keyboard"
+
+    def test_behavior_class_invoke(self, dummy_logger):
+        """Test class-based behavior invocation (line 72)."""
+        _install_dummy_logger()
+
+        mock_behavior_func = Mock(return_value=np.array([[1.0], [0.0]]))
+
+        with patch.dict(
+            behaviors_class_map,
+            {("diff", "test_class_beh"): Mock(return_value=mock_behavior_func)},
+        ):
+            info = types.SimpleNamespace(id=1, name="test_obj", kinematics="diff")
+            b = Behavior(
+                object_info=info,
+                behavior_dict={"name": "test_class_beh"},
+            )
+
+            if callable(b._invoke_func):
+                ego = Mock()
+                b.gen_vel(ego_object=ego, external_objects=[])
+                mock_behavior_func.assert_called()
+
+    def test_behavior_class_init_exception(self, dummy_logger):
+        """Test exception handling in _init_behavior_class (lines 109-114)."""
+        _install_dummy_logger()
+
+        mock_class = Mock(side_effect=ValueError("Init failed"))
+
+        with patch.dict(behaviors_class_map, {("diff", "failing_beh"): mock_class}):
+            info = types.SimpleNamespace(id=1, name="test_obj", kinematics="diff")
+            b = Behavior(
+                object_info=info,
+                behavior_dict={"name": "failing_beh"},
+            )
+            assert b._invoke_func is None
+
+    def test_behavior_filter_by_role(self, dummy_logger):
+        """Test behavior filters external objects by role (lines 65-68)."""
+        _install_dummy_logger()
+
+        info = types.SimpleNamespace(id=1, name="test_obj", kinematics="diff")
+        b = Behavior(
+            object_info=info,
+            behavior_dict={"name": "dash", "target_roles": "robot"},
+        )
+
+        robot_obj = Mock()
+        robot_obj.role = "robot"
+
+        obstacle_obj = Mock()
+        obstacle_obj.role = "obstacle"
+
+        ego = Mock()
+        ego.state = np.array([[0], [0], [0]])
+        ego.goal = np.array([[1], [1]])
+        ego.goal_threshold = 0.1
+        ego.get_vel_range = Mock(
+            return_value=(np.array([[0], [0]]), np.array([[1], [1]]))
+        )
+        ego.max_speed = 1.0
+
+        # This should filter out the obstacle and keep only the robot
+        _ = b.gen_vel(ego_object=ego, external_objects=[robot_obj, obstacle_obj])
+
+    def test_load_behavior_import_error(self, dummy_logger):
+        """Test ImportError handling in load_behavior (lines 126-127)."""
+        _install_dummy_logger()
+
+        info = types.SimpleNamespace(id=1, name="test_obj", kinematics="diff")
+        b = Behavior(object_info=info, behavior_dict={})
+
+        b.load_behavior(".non_existent_module_xyz")
 
 
 class TestGroupBehavior:

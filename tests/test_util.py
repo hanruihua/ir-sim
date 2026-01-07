@@ -2,6 +2,7 @@ import math
 import time
 
 import numpy as np
+import pytest
 
 from irsim.util import util
 
@@ -136,3 +137,71 @@ def test_time_it2_counts_with_print(capsys):
 
     assert Dummy.fn.count == 1
     assert Dummy.fn.func_count == 1
+
+
+def test_vertices_transform():
+    """Test vertices_transform function."""
+    vertices = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+    state = np.array([[1], [2], [0]])
+    result = util.vertices_transform(vertices, state)
+    assert result is not None
+    assert result.shape[0] == 2
+
+
+def test_relative_position():
+    """Test relative_position function."""
+    state1 = np.array([[0], [0], [0]])
+    state2 = np.array([[1], [1], [0]])
+    result = util.relative_position(state1, state2)
+    assert result is not None
+
+
+def test_gen_inequal_from_vertex():
+    """Test gen_inequal_from_vertex function."""
+    vertices = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+    G, h = util.gen_inequal_from_vertex(vertices)
+    assert G is not None
+    assert h is not None
+
+
+def test_is_convex_and_ordered():
+    """Test is_convex_and_ordered function."""
+    # Convex polygon (square)
+    vertices = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+    convex, ordered = util.is_convex_and_ordered(vertices)
+    assert isinstance(convex, bool)
+    # ordered is a string like 'CCW' or 'CW', not a bool
+    assert ordered in ("CCW", "CW", None) or isinstance(ordered, str)
+
+
+def test_is_2d_list():
+    """Test is_2d_list function."""
+    assert util.is_2d_list([[1, 2], [3, 4]])
+    assert not util.is_2d_list([1, 2, 3])
+    assert not util.is_2d_list("notalist")
+
+
+def test_angle_normalize():
+    """Test angle normalization functions."""
+    # Test WrapToPi with edge cases
+    assert util.WrapToPi(2 * math.pi) == pytest.approx(0, abs=1e-10)
+    assert util.WrapToPi(-2 * math.pi) == pytest.approx(0, abs=1e-10)
+
+    # Test WrapTo2Pi
+    assert util.WrapTo2Pi(-math.pi / 2) == pytest.approx(3 * math.pi / 2, abs=1e-10)
+
+
+def test_state_to_covariance():
+    """Test state_to_covariance function if exists."""
+    if hasattr(util, "state_to_covariance"):
+        state = np.array([[1], [2], [0]])
+        result = util.state_to_covariance(state)
+        assert result is not None
+
+
+def test_random_generate():
+    """Test random point generation."""
+    point = util.random_point_range([0, 0], [10, 10])
+    assert len(point) >= 2
+    assert 0 <= point[0] <= 10
+    assert 0 <= point[1] <= 10

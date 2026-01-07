@@ -1,8 +1,23 @@
 import unittest
 from unittest.mock import Mock
 
+from irsim.config import env_param
 from irsim.world.object_base import ObjectBase
 from irsim.world.object_group import ObjectGroup
+
+
+def _install_dummy_logger():
+    class _Logger:
+        def info(self, *_args, **_kwargs):
+            pass
+
+        def warning(self, *_args, **_kwargs):
+            pass
+
+        def error(self, *_args, **_kwargs):
+            pass
+
+    env_param.logger = _Logger()
 
 
 class TestObjectGroup(unittest.TestCase):
@@ -103,3 +118,90 @@ class TestObjectGroup(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestObjectGroupCoverage:
+    """Additional tests to cover remaining lines in object_group.py"""
+
+    def test_eq_not_implemented(self):
+        """Test __eq__ returns NotImplemented for non-ObjectGroup (line 86)."""
+        member = Mock(spec=ObjectBase)
+        member.role = "robot"
+        member.kinematics = "diff"
+        member.group_behavior_dict = {}
+        member.id = 1
+
+        group = ObjectGroup([member], 0)
+        result = group.__eq__("not a group")
+        assert result is NotImplemented
+
+    def test_iter(self):
+        """Test __iter__ method (line 90)."""
+        member1 = Mock(spec=ObjectBase)
+        member1.role = "robot"
+        member1.kinematics = "diff"
+        member1.group_behavior_dict = {}
+        member1.id = 1
+
+        member2 = Mock(spec=ObjectBase)
+        member2.role = "robot"
+        member2.kinematics = "diff"
+        member2.group_behavior_dict = {}
+        member2.id = 2
+
+        group = ObjectGroup([member1, member2], 0)
+
+        members_list = list(group)
+        assert len(members_list) == 2
+        assert member1 in members_list
+        assert member2 in members_list
+
+    def test_contains_object_base(self):
+        """Test __contains__ with ObjectBase (lines 96-97)."""
+        member = Mock(spec=ObjectBase)
+        member.role = "robot"
+        member.kinematics = "diff"
+        member.group_behavior_dict = {}
+        member.id = 1
+
+        group = ObjectGroup([member], 0)
+
+        assert member in group
+
+        other_member = Mock(spec=ObjectBase)
+        other_member.id = 99
+        assert other_member not in group
+
+    def test_contains_invalid_type(self):
+        """Test __contains__ with invalid type (lines 101-102)."""
+        member = Mock(spec=ObjectBase)
+        member.role = "robot"
+        member.kinematics = "diff"
+        member.group_behavior_dict = {}
+        member.id = 1
+
+        group = ObjectGroup([member], 0)
+
+        assert "not_an_id" not in group
+        assert None not in group
+
+    def test_logger_property(self):
+        """Test logger property (line 113)."""
+        _install_dummy_logger()
+
+        member = Mock(spec=ObjectBase)
+        member.role = "robot"
+        member.kinematics = "diff"
+        member.group_behavior_dict = {}
+        member.id = 1
+
+        group = ObjectGroup([member], 0)
+        logger = group.logger
+        assert logger is not None
+
+    def test_delegate_member_empty(self):
+        """Test _delegate_member with empty members (lines 106-107)."""
+        group = ObjectGroup([], 0)
+        assert group._delegate_member is None
+        assert group.role is None
+        assert group.kinematics is None

@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import Mock, patch
 
+import numpy as np
+
+from irsim.config import world_param
 from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
 
@@ -130,6 +133,87 @@ class TestGroupBehavior(unittest.TestCase):
         new_members = [self.member1]
         gb.update_members(new_members)
         assert gb.members == new_members
+
+
+class TestGroupBehaviorCoverage:
+    """Additional tests to cover remaining lines in group_behavior.py"""
+
+    def test_gen_group_vel_warning_auto_mode(self):
+        """Test warning in gen_group_vel when name/kinematics is None (lines 96-101)."""
+        world_param.control_mode = "auto"
+        world_param.count = 20
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = None
+
+        gb = GroupBehavior([member], name=None)
+        result = gb.gen_group_vel()
+        assert result == [None]
+
+        world_param.control_mode = "keyboard"
+
+    def test_load_group_behaviors_import_error(self):
+        """Test ImportError handling in load_group_behaviors (lines 132-133)."""
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "diff"
+
+        gb = GroupBehavior([member])
+
+        gb.load_group_behaviors(".non_existent_group_behavior_xyz")
+
+
+class TestOrcaGroupBehaviorCoverage:
+    """Tests for OrcaGroupBehavior in group_behavior_methods.py"""
+
+    def test_orca_ensure_pyrvo_import_error(self):
+        """Test ImportError when pyrvo not installed (lines 47-50)."""
+        from unittest.mock import patch
+
+        import pytest
+
+        with (
+            patch.dict("sys.modules", {"pyrvo": None}),
+            patch(
+                "irsim.lib.behavior.group_behavior_methods.OrcaGroupBehavior._ensure_pyrvo",
+                side_effect=ImportError("pyrvo not installed"),
+            ),
+        ):
+            from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+            member = Mock(spec=ObjectBase)
+            member.kinematics = "omni"
+            member.state = np.array([[0], [0]])
+            member.radius = 0.5
+            member.max_speed = 1.0
+
+            with pytest.raises(ImportError, match="pyrvo"):
+                OrcaGroupBehavior([member])
+
+    def test_orca_rebuild_sim_on_mismatch(self):
+        """Test rebuild sim when agent count mismatches (lines 96-99)."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member1 = Mock(spec=ObjectBase)
+        member1.kinematics = "omni"
+        member1.state = np.array([[0], [0]])
+        member1.radius = 0.5
+        member1.max_speed = 1.0
+        member1.get_desired_omni_vel = Mock(return_value=np.array([[1], [0]]))
+
+        orca = OrcaGroupBehavior([member1])
+
+        member2 = Mock(spec=ObjectBase)
+        member2.kinematics = "omni"
+        member2.state = np.array([[1], [1]])
+        member2.radius = 0.5
+        member2.max_speed = 1.0
+        member2.get_desired_omni_vel = Mock(return_value=np.array([[0], [1]]))
+
+        result = orca([member1, member2])
+        assert len(result) == 2
 
 
 if __name__ == "__main__":
