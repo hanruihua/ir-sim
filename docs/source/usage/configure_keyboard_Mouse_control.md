@@ -57,8 +57,8 @@ robot:
       show_trajectory: True
       show_goal: False
 
-    sensors: 
-      - type: 'lidar2d'
+    sensors:
+      - name: 'lidar2d'
         range_min: 0
         range_max: 20
         angle_range: 3.14
@@ -200,14 +200,14 @@ robot:
       traj_color: 'g'
       show_goals: True
 
-    sensors: 
-      - type: 'lidar2d'
+    sensors:
+      - name: 'lidar2d'
         range_min: 0
         range_max: 20
         angle_range: 3.14
         number: 100
         noise: False
-        std: 1   
+        std: 1
         angle_std: 0.2
         offset: [0, 0, 0]
         alpha: 0.4
