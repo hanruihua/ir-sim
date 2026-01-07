@@ -95,10 +95,3 @@ def test_kinematics_error_handling():
         differential_kinematics(
             state, velocity, 1.0, noise=True, alpha=[0.03]
         )  # Too few parameters
-
-
-if __name__ == "__main__":
-    test_differential_kinematics()
-    test_ackermann_kinematics()
-    test_omni_kinematics()
-    test_kinematics_error_handling()

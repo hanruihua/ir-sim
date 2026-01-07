@@ -136,15 +136,3 @@ def test_time_it2_counts_with_print(capsys):
 
     assert Dummy.fn.count == 1
     assert Dummy.fn.func_count == 1
-
-
-if __name__ == "__main__":
-    test_WrapToPi()
-    test_WrapToRegion()
-    test_convert_list_length()
-    test_convert_list_length_dict()
-    test_is_list_of_dicts()
-    test_is_list_of_numbers()
-    test_is_list_of_lists()
-    test_distance()
-    test_random_point_range()

@@ -137,7 +137,9 @@ def test_geometry_factory_and_Gh_edges():
 def test_behavior_edges():
     _install_dummy_logger()
     # Empty behavior dict early return
-    b = Behavior(object_info=types.SimpleNamespace(id=1, name="test_obj"), behavior_dict={})
+    b = Behavior(
+        object_info=types.SimpleNamespace(id=1, name="test_obj"), behavior_dict={}
+    )
     vel = b.gen_vel(ego_object=None, external_objects=[])
     assert np.allclose(vel, np.zeros((2, 1)))
 
@@ -287,7 +289,9 @@ def test_draw_patch_variants():
 def test_object_factory_3d_distribution_not_implemented():
     """Test that 3D distribution raises NotImplementedError"""
     factory = ObjectFactory()
-    with pytest.raises(NotImplementedError, match="3D state generation is not yet implemented"):
+    with pytest.raises(
+        NotImplementedError, match="3D state generation is not yet implemented"
+    ):
         factory.create_object(
             obj_type="robot",
             number=1,
@@ -298,7 +302,9 @@ def test_object_factory_3d_distribution_not_implemented():
 def test_object_factory_uniform_distribution_not_implemented():
     """Test that uniform distribution raises NotImplementedError"""
     factory = ObjectFactory()
-    with pytest.raises(NotImplementedError, match="'uniform' distribution is not yet implemented"):
+    with pytest.raises(
+        NotImplementedError, match="'uniform' distribution is not yet implemented"
+    ):
         factory.generate_state_list(
             number=1,
             distribution={"name": "uniform"},
@@ -340,6 +346,7 @@ def test_save_figure_no_extension():
     env.end()
 
     import os
+
     # Clean up the generated file
     if os.path.exists("test_no_ext.png"):
         os.remove("test_no_ext.png")
@@ -356,6 +363,7 @@ def test_save_figure_multiple_dots():
     env.end()
 
     import os
+
     # Clean up the generated file
     if os.path.exists("test.file.name.png"):
         os.remove("test.file.name.png")

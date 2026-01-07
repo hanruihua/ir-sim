@@ -52,7 +52,3 @@ def test_random_goals():
         assert all(3 < point[1] < 7 for point in goals)
     goal = env.robot._goal[0]
     assert len(goal) == 3
-
-
-if __name__ == "__main__":
-    test_random_goals()
