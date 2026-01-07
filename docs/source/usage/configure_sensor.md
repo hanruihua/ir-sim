@@ -74,8 +74,6 @@ obstacle:
 :::
 ::::
 
-:::::
-
 ```{tip}
 Update order
 

@@ -1,5 +1,5 @@
 Configure robots and obstacles
-================
+==============================
 
 To effectively simulate robots within your environment, you need to define and configure various robot parameters.
 
