@@ -511,14 +511,17 @@ class EnvPlot:
         if self.viewpoint is None:
             point = None
         elif isinstance(self.viewpoint, str):
-            target = next(
-                (
-                    obj
-                    for obj in objects
-                    if getattr(obj, "name", None) == self.viewpoint
-                ),
-                None,
-            )
+            if objects is None:
+                target = None
+            else:
+                target = next(
+                    (
+                        obj
+                        for obj in objects
+                        if getattr(obj, "name", None) == self.viewpoint
+                    ),
+                    None,
+                )
 
             point = target.state[0:2].flatten().tolist() if target is not None else None
 

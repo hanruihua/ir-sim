@@ -700,8 +700,8 @@ class EnvBase:
     # region: environment change
     def random_obstacle_position(
         self,
-        range_low: Optional[list[float]] = None,
-        range_high: Optional[list[float]] = None,
+        range_low: Union[list[float], np.ndarray, None] = None,
+        range_high: Union[list[float], np.ndarray, None] = None,
         ids: Optional[list[int]] = None,
         non_overlapping: bool = False,
     ) -> None:
@@ -971,12 +971,12 @@ class EnvBase:
 
         return self.robot_list[id].get_lidar_offset()
 
-    def get_obstacle_info_list(self) -> list[dict[str, Any]]:
+    def get_obstacle_info_list(self) -> list[Any]:
         """
         Get the information of the obstacles in the environment.
 
         Returns:
-            list of dict: List of obstacle information, see :py:meth:`.ObjectBase.get_obstacle_info` for detail.
+            list of ObstacleInfo: List of obstacle information, see :py:meth:`.ObjectBase.get_obstacle_info` for detail.
         """
 
         return [obj.get_obstacle_info() for obj in self.obstacle_list]
@@ -994,12 +994,12 @@ class EnvBase:
 
         return self.robot_list[id].get_info()
 
-    def get_robot_info_list(self) -> list[dict[str, Any]]:
+    def get_robot_info_list(self) -> list[Any]:
         """
         Get the information of the robots in the environment.
 
         Returns:
-            list of dict: List of robot information, see :py:meth:`.ObjectBase.get_info` for detail.
+            list of ObjectInfo: List of robot information, see :py:meth:`.ObjectBase.get_info` for detail.
         """
 
         return [obj.get_info() for obj in self.robot_list]
@@ -1016,7 +1016,7 @@ class EnvBase:
         """
         return self._world.get_map(resolution, self.obstacle_list)
 
-    def get_group_by_name(self, group_name: str) -> Optional[ObjectBase]:
+    def get_group_by_name(self, group_name: str) -> list[ObjectBase]:
         """
         Get the objects with the given group name.
 
@@ -1086,7 +1086,11 @@ class EnvBase:
         """
         file_save_name = save_name or self._world.name + ".png"
 
-        file_name, file_format = file_save_name.split(".")
+        if "." not in file_save_name:
+            file_name = file_save_name
+            file_format = "png"
+        else:
+            file_name, file_format = file_save_name.rsplit(".", 1)
 
         self._env_plot.save_figure(
             file_name, file_format, include_index, save_gif, **kwargs
@@ -1189,7 +1193,12 @@ class EnvBase:
 
         Returns:
             Robot: The first robot object in the robot list.
+
+        Raises:
+            IndexError: If no robots exist in the environment.
         """
+        if not self.robot_list:
+            raise IndexError("No robots in the environment. Add a robot first.")
         return self.robot_list[0]
 
     @property
