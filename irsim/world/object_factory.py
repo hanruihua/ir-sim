@@ -109,8 +109,9 @@ class ObjectFactory:
                 number, distribution, state, goal
             )
         else:
-            state_list, goal_list = self.generate_state_list3D(
-                number, distribution, state, goal
+            raise NotImplementedError(
+                "3D state generation is not yet implemented. "
+                "Please set '3d: false' in the distribution configuration."
             )
 
         object_list = []
@@ -267,7 +268,10 @@ class ObjectFactory:
             goal_list = goal_array.tolist()
 
         elif distribution["name"] == "uniform":
-            pass
+            raise NotImplementedError(
+                "The 'uniform' distribution is not yet implemented. "
+                "Use 'random' or 'circle' distribution instead."
+            )
 
         elif distribution["name"] == "circle":
             radius = distribution.get("radius", 4)
@@ -283,5 +287,11 @@ class ObjectFactory:
                 goal_x = center[0] - radius * np.cos(theta)
                 goal_y = center[1] - radius * np.sin(theta)
                 goal_list.append([goal_x, goal_y, theta - np.pi])
+
+        else:
+            raise ValueError(
+                f"Unknown distribution name: '{distribution['name']}'. "
+                "Supported distributions are: 'manual', 'random', 'circle'."
+            )
 
         return state_list, goal_list

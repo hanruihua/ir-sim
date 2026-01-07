@@ -15,6 +15,7 @@ from irsim.env.env_plot3d import EnvPlot3D
 from irsim.lib.behavior.behavior import Behavior
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.lib.path_planners.rrt_star import RRTStar
+from irsim.world.object_factory import ObjectFactory
 from irsim.world.obstacles.obstacle_acker import ObstacleAcker
 
 
@@ -136,7 +137,7 @@ def test_geometry_factory_and_Gh_edges():
 def test_behavior_edges():
     _install_dummy_logger()
     # Empty behavior dict early return
-    b = Behavior(object_info=types.SimpleNamespace(id=1), behavior_dict={})
+    b = Behavior(object_info=types.SimpleNamespace(id=1, name="test_obj"), behavior_dict={})
     vel = b.gen_vel(ego_object=None, external_objects=[])
     assert np.allclose(vel, np.zeros((2, 1)))
 
@@ -281,3 +282,92 @@ def test_draw_patch_variants():
     # invalid shape
     with pytest.raises(ValueError, match="Unsupported shape type"):
         draw_patch(ax, "unknown-shape", state=state)
+
+
+def test_object_factory_3d_distribution_not_implemented():
+    """Test that 3D distribution raises NotImplementedError"""
+    factory = ObjectFactory()
+    with pytest.raises(NotImplementedError, match="3D state generation is not yet implemented"):
+        factory.create_object(
+            obj_type="robot",
+            number=1,
+            distribution={"name": "manual", "3d": True},
+        )
+
+
+def test_object_factory_uniform_distribution_not_implemented():
+    """Test that uniform distribution raises NotImplementedError"""
+    factory = ObjectFactory()
+    with pytest.raises(NotImplementedError, match="'uniform' distribution is not yet implemented"):
+        factory.generate_state_list(
+            number=1,
+            distribution={"name": "uniform"},
+        )
+
+
+def test_object_factory_unknown_distribution_raises():
+    """Test that unknown distribution raises ValueError"""
+    factory = ObjectFactory()
+    with pytest.raises(ValueError, match="Unknown distribution name"):
+        factory.generate_state_list(
+            number=1,
+            distribution={"name": "unknown_distribution"},
+        )
+
+
+def test_env_robot_property_empty_list():
+    """Test that robot property raises IndexError when no robots exist"""
+    env = irsim.make(
+        "test_collision_world.yaml", save_ani=False, full=False, display=False
+    )
+    # Clear all robots
+    for robot in list(env.robot_list):
+        env.delete_object(robot.id)
+
+    with pytest.raises(IndexError, match="No robots in the environment"):
+        _ = env.robot
+    env.end()
+
+
+def test_save_figure_no_extension():
+    """Test save_figure with filename without extension"""
+    env = irsim.make(
+        "test_collision_world.yaml", save_ani=False, full=False, display=False
+    )
+    env.render()
+    # Test filename without extension - should default to png
+    env.save_figure(save_name="test_no_ext")
+    env.end()
+
+    import os
+    # Clean up the generated file
+    if os.path.exists("test_no_ext.png"):
+        os.remove("test_no_ext.png")
+
+
+def test_save_figure_multiple_dots():
+    """Test save_figure with filename containing multiple dots"""
+    env = irsim.make(
+        "test_collision_world.yaml", save_ani=False, full=False, display=False
+    )
+    env.render()
+    # Test filename with multiple dots
+    env.save_figure(save_name="test.file.name.png")
+    env.end()
+
+    import os
+    # Clean up the generated file
+    if os.path.exists("test.file.name.png"):
+        os.remove("test.file.name.png")
+
+
+def test_env_plot_set_ax_viewpoint_none_objects():
+    """Test set_ax_viewpoint with None objects"""
+    _install_dummy_logger()
+    w = _DummyWorld2D()
+    plot = EnvPlot(
+        w, objects=[], saved_figure={}, figure_pixels=[200, 150], show_title=True
+    )
+    plot.viewpoint = "some_name"  # Set string viewpoint to trigger the branch
+    # Should not raise when objects is None
+    plot.set_ax_viewpoint(objects=None)
