@@ -127,7 +127,7 @@ class Lidar2D:
         self.obj_id = obj_id
 
         # Parent object reference (set by ObjectBase or SensorFactory)
-        self.parent: Optional["ObjectBase"] = None
+        self.parent: Optional[ObjectBase] = None
 
         self.plot_patch_list = []
         self.plot_line_list = []

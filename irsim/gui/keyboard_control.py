@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 if TYPE_CHECKING:
-    from irsim.env.env_base import EnvBase
+    pass
 
 # Optional pynput import (allows fallback to Matplotlib key events)
 # Predeclare for type checkers

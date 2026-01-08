@@ -31,8 +31,8 @@ class EnvConfig:
     def __init__(
         self,
         world_name: Optional[str],
-        env_param_instance: Optional["EnvParam"] = None,
-        world_param_instance: Optional["WorldParam"] = None,
+        env_param_instance: Optional[EnvParam] = None,
+        world_param_instance: Optional[WorldParam] = None,
     ) -> None:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
