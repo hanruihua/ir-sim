@@ -250,6 +250,54 @@ class TestEnvironmentProperties:
         assert isinstance(names, list)
         assert len(names) > 0
 
+    def test_world_param_property(self, env_factory):
+        """Test world_param property returns WorldParam instance."""
+        env = env_factory("test_collision_world.yaml")
+        wp = env.world_param
+        assert wp is not None
+        assert hasattr(wp, "control_mode")
+        assert hasattr(wp, "collision_mode")
+        assert hasattr(wp, "step_time")
+        assert hasattr(wp, "count")
+        assert wp.step_time > 0
+
+    def test_env_param_property(self, env_factory):
+        """Test env_param property returns EnvParam instance."""
+        env = env_factory("test_collision_world.yaml")
+        ep = env.env_param
+        assert ep is not None
+        assert hasattr(ep, "logger")
+        assert hasattr(ep, "objects")
+        assert ep.logger is not None
+
+    def test_path_param_property(self, env_factory):
+        """Test path_param property returns PathManager instance."""
+        env = env_factory("test_collision_world.yaml")
+        pp = env.path_param
+        assert pp is not None
+        assert hasattr(pp, "root_path")
+        assert hasattr(pp, "ani_buffer_path")
+        assert hasattr(pp, "ani_path")
+        assert hasattr(pp, "fig_path")
+
+    def test_object_world_param_property(self, env_factory):
+        """Test world_param property on objects."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        wp = robot.world_param
+        assert wp is not None
+        assert wp.step_time == env.world_param.step_time
+        assert wp is env.world_param
+
+    def test_object_env_param_property(self, env_factory):
+        """Test env_param property on objects."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        ep = robot.env_param
+        assert ep is not None
+        assert ep.logger is env.logger
+        assert ep is env.env_param
+
 
 class TestEnvironmentFlags:
     """Tests for environment flag processing."""
@@ -405,3 +453,69 @@ class TestQuit:
         env = env_factory("test_multi_objects_world.yaml")
         with pytest.raises(SystemExit):
             env.quit()
+
+
+class TestMultipleEnvironments:
+    """Tests for multiple environment instances with isolated parameters."""
+
+    def test_two_environments_have_separate_world_params(self, env_factory):
+        """Test that two environments have separate world_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.world_param is not env2.world_param
+
+        # Modifying one should not affect the other
+        original_mode = env2.world_param.control_mode
+        env1.world_param.control_mode = "keyboard"
+        assert env2.world_param.control_mode == original_mode
+
+    def test_two_environments_have_separate_env_params(self, env_factory):
+        """Test that two environments have separate env_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.env_param is not env2.env_param
+        assert env1.env_param.objects is not env2.env_param.objects
+
+    def test_two_environments_have_separate_path_params(self, env_factory):
+        """Test that two environments have separate path_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.path_param is not env2.path_param
+
+    def test_objects_reference_correct_env_params(self, env_factory):
+        """Test that objects reference their own environment's params."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # Robots should reference their own env's params
+        assert env1.robot.world_param is env1.world_param
+        assert env1.robot.env_param is env1.env_param
+
+        assert env2.robot.world_param is env2.world_param
+        assert env2.robot.env_param is env2.env_param
+
+        # Cross-check they are different
+        assert env1.robot.world_param is not env2.robot.world_param
+
+    def test_concurrent_step_isolated(self, env_factory):
+        """Test that stepping one env doesn't affect another's count."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # Step env1 multiple times
+        for _ in range(5):
+            env1.step()
+
+        # Step env2 fewer times
+        for _ in range(2):
+            env2.step()
+
+        # Counts should be independent
+        assert env1.world_param.count == 5
+        assert env2.world_param.count == 2
