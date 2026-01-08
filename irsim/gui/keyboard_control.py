@@ -20,6 +20,10 @@ try:  # pragma: no cover - availability depends on environment
 except Exception:  # pragma: no cover
     _PYNPUT_AVAILABLE = False
 
+# Global registry to track which KeyboardControl instance is currently active
+# This ensures only one environment responds to keyboard input at a time
+_active_keyboard_instance: Optional["KeyboardControl"] = None
+
 
 class KeyboardControl:
     """
@@ -162,7 +166,9 @@ class KeyboardControl:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
             self.backend = "mpl"
 
-        # Track Matplotlib window focus/enter/leave to gate pynput callbacks
+        # Track Matplotlib window focus to gate pynput callbacks
+        # We use button_press_event to detect clicks (more reliable focus indicator)
+        # and figure_leave_event as a fallback for mouse-based deactivation
         try:
             fig = plt.gcf()
             self._mpl_enter_cid = fig.canvas.mpl_connect(
@@ -173,6 +179,10 @@ class KeyboardControl:
             )
             self._mpl_close_cid = fig.canvas.mpl_connect(
                 "close_event", self._on_mpl_close
+            )
+            # Track button press to reliably detect when this window gains focus
+            self._mpl_button_cid = fig.canvas.mpl_connect(
+                "button_press_event", self._on_mpl_button_press
             )
         except Exception:
             pass
@@ -517,10 +527,30 @@ class KeyboardControl:
 
     # Window focus helpers (used to gate pynput when active_only=True)
     def _on_mpl_focus_in(self, event: Any) -> None:
-        self._is_active = True
+        self._set_active()
 
     def _on_mpl_focus_out(self, event: Any) -> None:
-        self._is_active = False
+        # Only deactivate if we are the currently active instance
+        global _active_keyboard_instance
+        if _active_keyboard_instance is self:
+            self._is_active = False
 
     def _on_mpl_close(self, event: Any) -> None:
+        global _active_keyboard_instance
         self._is_active = False
+        if _active_keyboard_instance is self:
+            _active_keyboard_instance = None
+
+    def _on_mpl_button_press(self, event: Any) -> None:
+        """Handle mouse button press to reliably detect window focus."""
+        self._set_active()
+
+    def _set_active(self) -> None:
+        """Set this instance as the active keyboard controller."""
+        global _active_keyboard_instance
+        # Deactivate the previous active instance
+        if _active_keyboard_instance is not None and _active_keyboard_instance is not self:
+            _active_keyboard_instance._is_active = False
+        # Activate this instance
+        self._is_active = True
+        _active_keyboard_instance = self
