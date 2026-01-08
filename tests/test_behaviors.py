@@ -145,6 +145,100 @@ class TestBehaviorCoverage:
         b.load_behavior(".non_existent_module_xyz")
 
 
+class TestBehaviorMethodsGoalNone:
+    """Tests for behavior methods when goal is None."""
+
+    def test_diff_rvo_goal_none(self, dummy_logger):
+        """Test diff rvo behavior returns zeros when goal is None (lines 59-63)."""
+        from irsim.lib.behavior.behavior_methods import beh_diff_rvo
+
+        _install_dummy_logger()
+
+        ego = Mock()
+        ego.goal = None
+        ego._world_param = Mock()
+        ego._world_param.count = 10  # divisible by 10 to trigger warning
+        ego.logger = Mock()
+
+        result = beh_diff_rvo(ego, [])
+        assert np.allclose(result, np.zeros((2, 1)))
+        ego.logger.warning.assert_called_once()
+
+    def test_omni_dash_goal_none(self, dummy_logger):
+        """Test omni dash behavior returns zeros when goal is None (lines 129-133)."""
+        from irsim.lib.behavior.behavior_methods import beh_omni_dash
+
+        _install_dummy_logger()
+
+        ego = Mock()
+        ego.goal = None
+        ego._world_param = Mock()
+        ego._world_param.count = 10  # divisible by 10 to trigger warning
+        ego.logger = Mock()
+
+        result = beh_omni_dash(ego, [])
+        assert np.allclose(result, np.zeros((2, 1)))
+        ego.logger.warning.assert_called_once()
+
+
+class TestBehaviorMethodsFunctions:
+    """Tests for standalone behavior method functions."""
+
+    def test_omni_rvo_neighbor_none(self):
+        """Test OmniRVO with neighbor_list=None (line 245)."""
+        from irsim.lib.behavior.behavior_methods import OmniRVO
+
+        # State: (x, y, theta, vx, vy, goal_x, goal_y)
+        state_tuple = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0)
+        result = OmniRVO(state_tuple, neighbor_list=None)
+        assert result.shape == (2, 1)
+
+    def test_diff_rvo_neighbor_none(self):
+        """Test DiffRVO with neighbor_list=None (line 290)."""
+        from irsim.lib.behavior.behavior_methods import DiffRVO
+
+        # State: (x, y, theta, vx, vy, goal_x, goal_y)
+        state_tuple = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0)
+        result = DiffRVO(state_tuple, neighbor_list=None)
+        assert result.shape == (2, 1)
+
+    def test_omni_dash_at_goal(self):
+        """Test OmniDash when at goal (lines 331-332)."""
+        from irsim.lib.behavior.behavior_methods import OmniDash
+
+        state = np.array([[5.0], [5.0], [0.0]])
+        goal = np.array([[5.0], [5.0]])  # Same position as state
+        max_vel = np.array([[1.0], [1.0]])
+
+        result = OmniDash(state, goal, max_vel, goal_threshold=0.5)
+        assert np.allclose(result, np.zeros((2, 1)))
+
+    def test_diff_dash_at_goal_and_aligned(self):
+        """Test DiffDash at goal and angle aligned (lines 398, 401)."""
+        from irsim.lib.behavior.behavior_methods import DiffDash
+
+        state = np.array([[5.0], [5.0], [0.0]])
+        goal = np.array([[5.0], [5.0]])
+        max_vel = np.array([[1.0], [0.5]])
+
+        result = DiffDash(state, goal, max_vel, goal_threshold=0.5, angle_tolerance=0.2)
+        assert np.allclose(result, np.zeros((2, 1)))
+
+    def test_diff_dash_angle_within_tolerance(self):
+        """Test DiffDash when angle is within tolerance (line 398)."""
+        from irsim.lib.behavior.behavior_methods import DiffDash
+
+        # Robot facing roughly toward goal (within tolerance)
+        state = np.array([[0.0], [0.0], [0.1]])  # theta = 0.1
+        goal = np.array([[5.0], [0.1]])  # Goal roughly in front
+        max_vel = np.array([[1.0], [0.5]])
+
+        result = DiffDash(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2)
+        assert result.shape == (2, 1)
+        # Should be moving forward, not at goal
+        assert result[0, 0] > 0
+
+
 class TestGroupBehavior:
     """Tests for GroupBehavior class."""
 

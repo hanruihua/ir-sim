@@ -205,3 +205,42 @@ def test_random_generate():
     assert len(point) >= 2
     assert 0 <= point[0] <= 10
     assert 0 <= point[1] <= 10
+
+
+def test_transform_none_inputs():
+    """Test vertices_transform function with None inputs (line 355)."""
+    # Vertices as None
+    result = util.vertices_transform(None, np.array([[1], [2], [0]]))
+    assert result is None
+
+    # State as None
+    result = util.vertices_transform(np.array([[0, 1], [0, 1]]), None)
+    assert result is None
+
+
+def test_diff_to_omni_scalar():
+    """Test diff_to_omni with scalar/0-dim input (line 425)."""
+    # 0-dimensional array edge case
+    vel_diff = np.array(0.0)
+    result = util.diff_to_omni(0.0, vel_diff)
+    assert np.allclose(result, np.zeros((2, 1)))
+
+
+def test_is_convex_few_points():
+    """Test is_convex_and_ordered with less than 3 points (line 462)."""
+    # Only 2 points - not a valid polygon
+    points = np.array([[0, 1], [0, 1]])
+    convex, ordering = util.is_convex_and_ordered(points)
+    assert convex is False
+    assert ordering is None
+
+
+def test_convert_list_length_dict_extend():
+    """Test convert_list_length_dict extending list (line 168)."""
+    # List shorter than needed - should extend
+    d = {"a": 1}
+    result = util.convert_list_length_dict([d, d], 4)
+    assert len(result) == 4
+    # Last element repeated
+    assert result[2] == [d, d]
+    assert result[3] == [d, d]
