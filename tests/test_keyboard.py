@@ -409,6 +409,151 @@ class TestKeyboardControlMpl:
         assert env.quit_flag
 
 
+class TestMultiEnvSwitching:
+    """Tests for multi-environment keyboard switching."""
+
+    def test_only_one_active_at_a_time(self, env_factory):
+        """Test that only one keyboard instance is active at a time."""
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Initially neither is active
+        assert not env1.keyboard._is_active
+        assert not env2.keyboard._is_active
+
+        # Activate env1
+        env1.keyboard._set_active()
+        assert env1.keyboard._is_active
+        assert not env2.keyboard._is_active
+
+        # Activate env2 - env1 should be deactivated
+        env2.keyboard._set_active()
+        assert not env1.keyboard._is_active
+        assert env2.keyboard._is_active
+
+        # Switch back to env1
+        env1.keyboard._set_active()
+        assert env1.keyboard._is_active
+        assert not env2.keyboard._is_active
+
+    def test_global_instance_tracking(self, env_factory):
+        """Test that global _active_keyboard_instance is correctly tracked."""
+        import irsim.gui.keyboard_control as kb_module
+
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Activate env1
+        env1.keyboard._set_active()
+        assert kb_module._active_keyboard_instance is env1.keyboard
+
+        # Activate env2
+        env2.keyboard._set_active()
+        assert kb_module._active_keyboard_instance is env2.keyboard
+
+    def test_focus_in_activates(self, env_factory):
+        """Test that focus in event activates keyboard control."""
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Simulate focus in on env1
+        env1.keyboard._on_mpl_focus_in(None)
+        assert env1.keyboard._is_active
+        assert not env2.keyboard._is_active
+
+        # Simulate focus in on env2
+        env2.keyboard._on_mpl_focus_in(None)
+        assert not env1.keyboard._is_active
+        assert env2.keyboard._is_active
+
+    def test_button_press_activates(self, env_factory):
+        """Test that button press event activates keyboard control."""
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Simulate button press on env1
+        env1.keyboard._on_mpl_button_press(None)
+        assert env1.keyboard._is_active
+        assert not env2.keyboard._is_active
+
+        # Simulate button press on env2
+        env2.keyboard._on_mpl_button_press(None)
+        assert not env1.keyboard._is_active
+        assert env2.keyboard._is_active
+
+    def test_focus_out_deactivates_only_active(self, env_factory):
+        """Test that focus out only deactivates the currently active instance."""
+        import irsim.gui.keyboard_control as kb_module
+
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Activate env1
+        env1.keyboard._set_active()
+
+        # Focus out on env2 should NOT deactivate env1
+        env2.keyboard._on_mpl_focus_out(None)
+        assert env1.keyboard._is_active
+
+        # Focus out on env1 should deactivate it
+        env1.keyboard._on_mpl_focus_out(None)
+        assert not env1.keyboard._is_active
+        assert kb_module._active_keyboard_instance is env1.keyboard  # Still tracked
+
+    def test_close_clears_global_instance(self, env_factory):
+        """Test that closing the active window clears global instance."""
+        import irsim.gui.keyboard_control as kb_module
+
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Activate env1 and close it
+        env1.keyboard._set_active()
+        env1.keyboard._on_mpl_close(None)
+        assert not env1.keyboard._is_active
+        assert kb_module._active_keyboard_instance is None
+
+        # Activate env2 and close it
+        env2.keyboard._set_active()
+        env2.keyboard._on_mpl_close(None)
+        assert not env2.keyboard._is_active
+        assert kb_module._active_keyboard_instance is None
+
+    def test_pynput_gated_by_active(self, env_factory, mock_keyboard_key):
+        """Test pynput key events are gated by active status."""
+        env1 = env_factory("test_keyboard_control.yaml")
+        env2 = env_factory("test_keyboard_control2.yaml")
+
+        # Enable active_only mode (default)
+        env1.keyboard._active_only = True
+        env2.keyboard._active_only = True
+
+        # Neither is active - key presses should be ignored
+        initial_lv1 = env1.keyboard.key_lv
+        initial_lv2 = env2.keyboard.key_lv
+        env1.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        env2.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        assert env1.keyboard.key_lv == initial_lv1
+        assert env2.keyboard.key_lv == initial_lv2
+
+        # Activate env1 - only env1 should respond
+        env1.keyboard._set_active()
+        env1.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        env2.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        assert env1.keyboard.key_lv == env1.keyboard.key_lv_max
+        assert env2.keyboard.key_lv == initial_lv2
+
+        # Release and reset
+        env1.keyboard._on_pynput_release(mock_keyboard_key("w"))
+
+        # Activate env2 - only env2 should respond
+        env2.keyboard._set_active()
+        env1.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        env2.keyboard._on_pynput_press(mock_keyboard_key("w"))
+        assert env1.keyboard.key_lv == 0  # Still from release
+        assert env2.keyboard.key_lv == env2.keyboard.key_lv_max
+
+
 class TestKeyboardControl3D:
     """Tests for keyboard control in 3D projection."""
 
