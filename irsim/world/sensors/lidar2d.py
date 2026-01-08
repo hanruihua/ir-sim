@@ -1,5 +1,5 @@
 from math import cos, pi, sin
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import matplotlib.transforms as mtransforms
 import numpy as np
@@ -9,13 +9,15 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from shapely import MultiLineString, Point, is_valid, prepare
 from shapely.ops import unary_union
 
-from irsim.config import env_param
 from irsim.util.random import rng
 from irsim.util.util import (
     WrapTo2Pi,
     geometry_transform,
     transform_point_with_state,
 )
+
+if TYPE_CHECKING:
+    from irsim.world.object_base import ObjectBase
 
 
 class Lidar2D:
@@ -124,9 +126,21 @@ class Lidar2D:
 
         self.obj_id = obj_id
 
+        # Parent object reference (set by ObjectBase or SensorFactory)
+        self.parent: Optional["ObjectBase"] = None
+
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
+
+    @property
+    def _env_param(self):
+        """Access env_param via parent's env instance if available."""
+        if self.parent is not None and self.parent._env is not None:
+            return self.parent._env._env_param
+        from irsim.config import env_param
+
+        return env_param
 
     def init_geometry(self, state):
         """
@@ -193,8 +207,8 @@ class Lidar2D:
             list: The indices of the intersected objects.
         """
 
-        object_tree = env_param.GeometryTree
-        objects = env_param.objects
+        object_tree = self._env_param.GeometryTree
+        objects = self._env_param.objects
         geometries = [obj._geometry for obj in objects]
 
         # Guard against missing geometry index
@@ -264,7 +278,7 @@ class Lidar2D:
 
             if self.has_velocity and line.length < self.range_max - 0.02:
                 for index_obj in intersect_index:
-                    obj = env_param.objects[index_obj]
+                    obj = self._env_param.objects[index_obj]
                     if obj.geometry.distance(line) < 0.1:
                         self.velocity[:, index : index + 1] = obj.velocity_xy
                         break

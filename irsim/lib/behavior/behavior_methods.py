@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 import numpy as np
 
-from irsim.config import env_param, world_param
 from irsim.lib import reciprocal_vel_obs, register_behavior
 from irsim.util.util import WrapToPi, omni_to_diff, relative_position
 
@@ -57,8 +56,8 @@ def beh_diff_rvo(
     """
 
     if ego_object.goal is None:
-        if world_param.count % 10 == 0:
-            env_param.logger.warning(
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
                 "Goal is currently None. This rvo behavior is waiting for goal configuration"
             )
         return np.zeros((2, 1))
@@ -100,8 +99,8 @@ def beh_diff_dash(
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
     if goal is None:
-        if world_param.count % 10 == 0:
-            env_param.logger.warning(
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
                 "Goal is currently None. This dash behavior is waiting for goal configuration"
             )
 
@@ -127,8 +126,8 @@ def beh_omni_dash(
     """
 
     if ego_object.goal is None:
-        if world_param.count % 10 == 0:
-            env_param.logger.warning(
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
                 "Goal is currently None. This dash behavior is waiting for goal configuration"
             )
         return np.zeros((2, 1))
@@ -163,8 +162,8 @@ def beh_omni_rvo(
     """
 
     if ego_object.goal is None:
-        if world_param.count % 10 == 0:
-            env_param.logger.warning(
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
                 "Goal is currently None. This rvo behavior is waiting for goal configuration"
             )
         return np.zeros((2, 1))
@@ -200,8 +199,8 @@ def beh_acker_dash(
     """
 
     if ego_object.goal is None:
-        if world_param.count % 10 == 0:
-            env_param.logger.warning(
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
                 "Goal is currently None. This rvo behavior is waiting for goal configuration"
             )
         return np.zeros((2, 1))

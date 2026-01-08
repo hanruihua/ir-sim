@@ -2,7 +2,6 @@ import importlib
 import logging
 from typing import Any, Optional
 
-from irsim.config import world_param
 from irsim.lib.behavior.behavior_registry import (
     group_behaviors_class_map,
     group_behaviors_map,
@@ -93,11 +92,14 @@ class GroupBehavior:
             return [None]
 
         if self.name is None or self.kinematics is None:
-            if world_param.control_mode == "auto" and world_param.count % 20 == 0:
-                logger.warning(
-                    "Group behavior not defined. Auto control will be static. "
-                    "Available behaviors: orca"
-                )
+            # Access params via first member if available
+            if self.members:
+                wp = self.members[0]._world_param
+                if wp.control_mode == "auto" and wp.count % 20 == 0:
+                    logger.warning(
+                        "Group behavior not defined. Auto control will be static. "
+                        "Available behaviors: orca"
+                    )
             return [None]
 
         # Prefer class-based handler if initialized

@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 from operator import attrgetter
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import yaml
 
-from irsim.config import env_param
 from irsim.util.util import file_check
 from irsim.world import World
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.object_group import ObjectGroup
 
 from .env_plot import EnvPlot
+
+if TYPE_CHECKING:
+    from irsim.config.env_param import EnvParam
+    from irsim.config.world_param import WorldParam
 
 
 class EnvConfig:
@@ -25,8 +28,15 @@ class EnvConfig:
         - Support reloading the YAML and updating the scene in the same figure
     """
 
-    def __init__(self, world_name: Optional[str]) -> None:
+    def __init__(
+        self,
+        world_name: Optional[str],
+        env_param_instance: Optional["EnvParam"] = None,
+        world_param_instance: Optional["WorldParam"] = None,
+    ) -> None:
         self.object_factory = ObjectFactory()
+        self._env_param = env_param_instance
+        self._world_param = world_param_instance
         self.load_yaml(world_name)
 
     def load_yaml(self, world_name: Optional[str] = None) -> None:
@@ -80,7 +90,11 @@ class EnvConfig:
               during in-place reloads.
         """
 
-        world = World(self.world_name, **self.parse["world"])
+        world = World(
+            self.world_name,
+            world_param_instance=self._world_param,
+            **self.parse["world"],
+        )
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
@@ -133,7 +147,11 @@ class EnvConfig:
             Tuple: ``(world, objects, env_plot, robot_collection, obstacle_collection, map_collection)``
         """
 
-        world = World(self.world_name, **self.parse["world"])
+        world = World(
+            self.world_name,
+            world_param_instance=self._world_param,
+            **self.parse["world"],
+        )
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
@@ -220,4 +238,8 @@ class EnvConfig:
         """
         Get the logger of the env_param.
         """
+        if self._env_param is not None:
+            return self._env_param.logger
+        from irsim.config import env_param
+
         return env_param.logger

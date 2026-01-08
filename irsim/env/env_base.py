@@ -162,10 +162,14 @@ class EnvBase:
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
 
-        env_param.logger = EnvLogger(log_file, log_level)
+        self._env_param.logger = EnvLogger(log_file, log_level)
 
         try:
-            self.env_config = EnvConfig(world_name)
+            self.env_config = EnvConfig(
+                world_name,
+                env_param_instance=self._env_param,
+                world_param_instance=self._world_param,
+            )
         except Exception as e:
             self.logger.critical(f"YAML Configuration load failed: {e}")
             raise
@@ -180,8 +184,11 @@ class EnvBase:
             self._object_groups,
         ) = self.env_config.initialize_objects()
 
+        # Wire env reference to all objects for param access
+        self._wire_env_to_objects()
+
         self.build_tree()
-        env_param.objects = self._objects
+        self._env_param.objects = self._objects
         self.validate_unique_names()
 
         # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
@@ -193,7 +200,7 @@ class EnvBase:
                 f"Keyboard control unavailable error: {e}. Auto control applied. "
                 "Install 'pynput' or set backend='mpl' in YAML keyboard config."
             )
-            world_param.control_mode = "auto"
+            self._world_param.control_mode = "auto"
 
         mouse_config = self.env_config.parse["gui"].get("mouse", {})
         self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
@@ -238,6 +245,11 @@ class EnvBase:
         env_param.bind(self._env_param)
         world_param.bind(self._world_param)
         path_param.bind(self._path_manager)
+
+    def _wire_env_to_objects(self) -> None:
+        """Set env reference on all objects for param access."""
+        for obj in self._objects:
+            obj._env = self
 
     @normalize_actions
     def step(
@@ -292,7 +304,7 @@ class EnvBase:
             self.quit()
 
         if (
-            self.debug_flag and world_param.count > self.debug_count
+            self.debug_flag and self._world_param.count > self.debug_count
         ) or self.pause_flag:
             return
 
@@ -352,7 +364,7 @@ class EnvBase:
         Assign the keyboard action to the action list.
         """
 
-        if world_param.control_mode == "keyboard" and self.key_id < len(action):
+        if self._world_param.control_mode == "keyboard" and self.key_id < len(action):
             action[self.key_id] = self.key_vel
 
         return action
@@ -518,7 +530,7 @@ class EnvBase:
             )
 
         plt.close("all")
-        env_param.objects = []
+        self._env_param.objects = []
         ObjectBase.reset_id_iter()
 
         if hasattr(self, "keyboard"):
@@ -630,7 +642,7 @@ class EnvBase:
         elif self.debug_flag:
             self.set_status("Pause (Debugging)")
         else:
-            if world_param.control_mode == "keyboard":
+            if self._world_param.control_mode == "keyboard":
                 self.set_status("Running (keyboard)")
             else:
                 self.set_status("Running")
@@ -842,9 +854,11 @@ class EnvBase:
             self._map_collection,
             self._object_groups,
         ) = self.env_config.reload_yaml_objects(world_name)
+        # Wire env reference to newly created objects
+        self._wire_env_to_objects()
         self.build_tree()
         self.validate_unique_names()
-        env_param.objects = self._objects
+        self._env_param.objects = self._objects
         self.reload_flag = False
 
     # endregion: environment change
@@ -874,6 +888,7 @@ class EnvBase:
         """
         if any(existing.name == obj.name for existing in self.objects):
             raise ValueError(f"Object name '{obj.name}' already exists.")
+        obj._env = self
         self._objects.append(obj)
         self.build_tree()
 
@@ -893,6 +908,8 @@ class EnvBase:
         conflicts = [n for n in new_names if n in existing_names]
         if conflicts:
             raise ValueError(f"Object names already exist: {conflicts}")
+        for obj in objs:
+            obj._env = self
         self._objects.extend(objs)
         self.build_tree()
 
@@ -933,7 +950,7 @@ class EnvBase:
         Build the geometry tree for the objects in the environment to detect the possible collision objects.
         """
 
-        env_param.GeometryTree = STRtree([obj.geometry for obj in self.objects])
+        self._env_param.GeometryTree = STRtree([obj.geometry for obj in self.objects])
 
     def validate_unique_names(self) -> None:
         """Validate that all object names are unique.
@@ -1190,6 +1207,38 @@ class EnvBase:
         return self._world.step_time
 
     @property
+    def world_param(self):
+        """
+        Get the world parameters of the simulation.
+
+        Returns:
+            WorldParam: World parameters including time, control_mode,
+                collision_mode, step_time, and count.
+        """
+        return self._world_param
+
+    @property
+    def env_param(self):
+        """
+        Get the environment parameters.
+
+        Returns:
+            EnvParam: Environment parameters including logger and objects.
+        """
+        return self._env_param
+
+    @property
+    def path_param(self):
+        """
+        Get the path manager for the simulation.
+
+        Returns:
+            PathManager: Path manager including root_path, ani_buffer_path,
+                ani_path, and fig_path.
+        """
+        return self._path_manager
+
+    @property
     def time(self) -> float:
         """
         Get the time of the simulation.
@@ -1246,7 +1295,7 @@ class EnvBase:
         Returns:
             EnvLogger: The logger instance for the environment.
         """
-        return env_param.logger  # type: ignore[return-value]
+        return self._env_param.logger  # type: ignore[return-value]
 
     @property
     def key_vel(self) -> Any:

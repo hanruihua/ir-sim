@@ -22,7 +22,6 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Arrow, Circle, Ellipse, Polygon, Rectangle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 
-from irsim.config import env_param, world_param
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
 
@@ -445,7 +444,7 @@ class EnvPlot:
         self.saved_figure_kwargs.update(kwargs)
 
         if include_index or save_gif:
-            order = str(world_param.count).zfill(4)
+            order = str(self._world_param.count).zfill(4)
             full_name = fp + "/" + file_name + "_" + order + "." + file_format
         else:
             full_name = fp + "/" + file_name + "." + file_format
@@ -561,8 +560,24 @@ class EnvPlot:
         plt.close()
 
     @property
+    def _world_param(self):
+        """Access world_param via world's instance if available."""
+        if hasattr(self.world, "_wp"):
+            return self.world._wp
+        from irsim.config import world_param
+
+        return world_param
+
+    @property
+    def _env_param(self):
+        """Access env_param, fallback to global."""
+        from irsim.config import env_param
+
+        return env_param
+
+    @property
     def logger(self):
-        return env_param.logger
+        return self._env_param.logger
 
     @property
     def x_range(self):

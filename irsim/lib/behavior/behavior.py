@@ -3,7 +3,6 @@ from typing import Any
 
 import numpy as np
 
-from irsim.config import env_param, world_param
 from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
 
 
@@ -53,10 +52,13 @@ class Behavior:
             external_objects = []
 
         if self.behavior_dict is None or not self.behavior_dict:
-            if world_param.control_mode == "auto" and world_param.count % 20 == 0:
-                self.logger.warning(
-                    f"Behavior not defined for {self.object_info.name}. auto control will be static. Available behaviors: rvo, dash"
-                )
+            # Access params via ego_object's env reference if available
+            if ego_object is not None:
+                wp = ego_object._world_param
+                if wp.control_mode == "auto" and wp.count % 20 == 0:
+                    ego_object.logger.warning(
+                        f"Behavior not defined for {self.object_info.name}. auto control will be static. Available behaviors: rvo, dash"
+                    )
 
             return np.zeros((2, 1))
 
@@ -111,7 +113,10 @@ class Behavior:
             self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
         except Exception as e:
             self._invoke_func = None
-            self.logger.error(f"Failed to init behavior class for {key}: {e!s}")
+            # Use global logger as fallback since we don't have ego_object here
+            from irsim.config import env_param
+
+            env_param.logger.error(f"Failed to init behavior class for {key}: {e!s}")
 
     def load_behavior(self, behaviors: str = ".behavior_methods"):
         """
@@ -170,7 +175,3 @@ class Behavior:
             )
 
         return func(**kwargs)
-
-    @property
-    def logger(self):
-        return env_param.logger
