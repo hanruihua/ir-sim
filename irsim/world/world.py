@@ -1,13 +1,15 @@
 import os
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import matplotlib.image as mpimg
 import numpy as np
 
-from irsim.config import world_param
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import file_check
 from irsim.world.map import Map
+
+if TYPE_CHECKING:
+    from irsim.config.world_param import WorldParam
 
 
 class World:
@@ -43,6 +45,7 @@ class World:
         mdownsample: int = 1,
         plot: Optional[dict[str, Any]] = None,
         status: str = "None",
+        world_param_instance: Optional["WorldParam"] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -61,7 +64,17 @@ class World:
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.
             status (str): Initial simulation status.
+            world_param_instance: Optional WorldParam instance. If provided, uses
+                this instance for param storage; otherwise falls back to global.
         """
+
+        # Store world_param instance or fallback to global
+        if world_param_instance is not None:
+            self._wp = world_param_instance
+        else:
+            from irsim.config import world_param
+
+            self._wp = world_param
 
         # basic properties
         if offset is None:
@@ -79,7 +92,7 @@ class World:
         self.count = 0
         self.sampling = True
 
-        world_param.step_time = step_time
+        self._wp.step_time = step_time
 
         self.x_range = [self.offset[0], self.offset[0] + self.width]
         self.y_range = [self.offset[1], self.offset[1] + self.height]
@@ -95,8 +108,8 @@ class World:
         self.status = status
 
         # mode
-        world_param.control_mode = control_mode
-        world_param.collision_mode = collision_mode
+        self._wp.control_mode = control_mode
+        self._wp.collision_mode = collision_mode
 
     def step(self) -> None:
         """
@@ -105,8 +118,8 @@ class World:
         self.count += 1
         self.sampling = self.count % (int(self.sample_time / self.step_time)) == 0
 
-        world_param.time = self.time
-        world_param.count = self.count
+        self._wp.time = self.time
+        self._wp.count = self.count
 
     def gen_grid_map(self, obstacle_map: Optional[str], mdownsample: int = 1) -> tuple:
         """
@@ -162,7 +175,7 @@ class World:
         Reset the world simulation.
         """
 
-        world_param.count = 0
+        self._wp.count = 0
         self.count = 0
 
     @property

@@ -429,14 +429,13 @@ def test_keyboard_control():
 
     # Test 1: Invalid backend handling (lines 99-100)
 
-    with patch("irsim.gui.keyboard_control.env_param") as mock_env_param:
-        mock_env_param.logger.warning = Mock()
+    with patch.object(env._env_param.logger, "warning") as mock_warning:
         # Create a new keyboard control with invalid backend
         invalid_kb = irsim.gui.keyboard_control.KeyboardControl(
             env, backend="invalid_backend"
         )
         assert invalid_kb.backend == "mpl"
-        mock_env_param.logger.warning.assert_called_once()
+        mock_warning.assert_called_once()
 
     # Test 2: Alt key AttributeError handling (lines 204-205)
     env.keyboard._active_only = False  # Disable gating for testing
@@ -477,12 +476,11 @@ def test_keyboard_control():
     # Test 6: pynput fallback when unavailable (lines 152-153)
     with (
         patch("irsim.gui.keyboard_control._PYNPUT_AVAILABLE", False),
-        patch("irsim.gui.keyboard_control.env_param") as mock_env_param,
+        patch.object(env._env_param.logger, "warning") as mock_warning,
     ):
-        mock_env_param.logger.warning = Mock()
         fallback_kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="pynput")
         assert fallback_kb.backend == "mpl"
-        mock_env_param.logger.warning.assert_called_once()
+        mock_warning.assert_called_once()
 
     # Test 7: matplotlib connection exception handling (lines 167-168)
     with patch("matplotlib.pyplot.gcf") as mock_gcf:

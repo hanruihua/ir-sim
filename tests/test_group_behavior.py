@@ -202,6 +202,8 @@ class TestOrcaGroupBehaviorCoverage:
         member1.radius = 0.5
         member1.max_speed = 1.0
         member1.get_desired_omni_vel = Mock(return_value=np.array([[1], [0]]))
+        member1._world_param = Mock()
+        member1._world_param.step_time = 0.1
 
         orca = OrcaGroupBehavior([member1])
 
@@ -211,6 +213,8 @@ class TestOrcaGroupBehaviorCoverage:
         member2.radius = 0.5
         member2.max_speed = 1.0
         member2.get_desired_omni_vel = Mock(return_value=np.array([[0], [1]]))
+        member2._world_param = Mock()
+        member2._world_param.step_time = 0.1
 
         result = orca([member1, member2])
         assert len(result) == 2

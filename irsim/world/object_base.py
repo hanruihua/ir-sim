@@ -15,7 +15,6 @@ from shapely.geometry import MultiLineString
 from shapely.geometry.base import BaseGeometry
 from shapely.strtree import STRtree
 
-from irsim.config import env_param, world_param
 from irsim.config.path_param import path_manager
 from irsim.env.env_plot import draw_patch, linewidth_from_data_units, set_patch_property
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
@@ -241,6 +240,10 @@ class ObjectBase:
             velocity = [0, 0]
         if state is None:
             state = [0, 0, 0]
+
+        # Environment reference for accessing params (set by EnvBase after creation)
+        self._env = None
+
         self._id = next(ObjectBase.id_iter)
 
         # handlers
@@ -355,6 +358,9 @@ class ObjectBase:
                 sf.create_sensor(self._state[0:3], self._id, **sensor_kwargs)
                 for sensor_kwargs in sensors
             ]
+            # Set parent reference for sensors to access env_param
+            for sensor in self.sensors:
+                sensor.parent = self
 
             self.lidar = next(
                 (sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"),
@@ -446,7 +452,7 @@ class ObjectBase:
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
-        new_state = self.kf.step(self.state, behavior_vel, world_param.step_time)
+        new_state = self.kf.step(self.state, behavior_vel, self._world_param.step_time)
         next_state = self.mid_process(new_state)
 
         self._state = next_state
@@ -477,25 +483,25 @@ class ObjectBase:
         self.check_arrive_status()
         self.check_collision_status()
 
-        if world_param.collision_mode == "stop":
+        if self._world_param.collision_mode == "stop":
             self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
 
-        elif world_param.collision_mode == "reactive":
+        elif self._world_param.collision_mode == "reactive":
             "currently same as unobstructed: to be further implemented"
             pass
 
-        elif world_param.collision_mode == "unobstructed":
+        elif self._world_param.collision_mode == "unobstructed":
             pass
 
-        elif world_param.collision_mode == "unobstructed_obstacles":
+        elif self._world_param.collision_mode == "unobstructed_obstacles":
             if self.role == "robot":
                 self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
             elif self.role == "obstacle":
                 self.stop_flag = False
         else:
-            if world_param.count % 50 == 0 and self.role == "robot":
+            if self._world_param.count % 50 == 0 and self.role == "robot":
                 self.logger.warning(
-                    f"collision mode {world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
+                    f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
                 )
 
     def check_arrive_status(self):
@@ -1159,8 +1165,8 @@ class ObjectBase:
 
         if (
             self.show_trail
-            and world_param.count % self.trail_freq == 0
-            and world_param.count > 0
+            and self._world_param.count % self.trail_freq == 0
+            and self._world_param.count > 0
         ):
             self.plot_trail(ax, state, self.vertices, **self.plot_kwargs)
 
@@ -1463,7 +1469,7 @@ class ObjectBase:
                     goal_text.set_zorder(kwargs["text_zorder"])
 
         # Handle trail plotting (creates new elements each time)
-        if self.show_trail and world_param.count % self.trail_freq == 0:
+        if self.show_trail and self._world_param.count % self.trail_freq == 0:
             self.plot_trail(
                 self.ax, self.state, self.original_vertices, **self.plot_kwargs
             )
@@ -1994,10 +2000,10 @@ class ObjectBase:
             tuple: Minimum and maximum velocities.
         """
         min_vel = np.maximum(
-            self.vel_min, self.velocity - self.info.acce * world_param.step_time
+            self.vel_min, self.velocity - self.info.acce * self._world_param.step_time
         )
         max_vel = np.minimum(
-            self.vel_max, self.velocity + self.info.acce * world_param.step_time
+            self.vel_max, self.velocity + self.info.acce * self._world_param.step_time
         )
 
         return min_vel, max_vel
@@ -2397,7 +2403,7 @@ class ObjectBase:
         Returns:
             list: The environment objects that are not the self object.
         """
-        return [obj for obj in env_param.objects if self.id != obj.id]
+        return [obj for obj in self._env_param.objects if self.id != obj.id]
 
     @property
     def ego_object(self):
@@ -2417,7 +2423,7 @@ class ObjectBase:
         Returns:
             list: The possible collision objects that could collide with this object.
         """
-        tree = env_param.GeometryTree
+        tree = self._env_param.GeometryTree
         possible = []
 
         if tree is None:
@@ -2426,7 +2432,7 @@ class ObjectBase:
         candidates_index = tree.query(self.geometry)
 
         for index in candidates_index:
-            obj = env_param.objects[index]
+            obj = self._env_param.objects[index]
 
             if obj.unobstructed or obj.id == self.id:
                 continue
@@ -2554,6 +2560,55 @@ class ObjectBase:
         return self.obj_behavior.behavior_dict or self.group_behavior_dict
 
     @property
+    def _world_param(self):
+        """
+        Access world_param via env instance if available, otherwise fallback to global.
+
+        Returns:
+            WorldParam: The world param instance.
+        """
+        if self._env is not None:
+            return self._env._world_param
+        from irsim.config import world_param
+
+        return world_param
+
+    @property
+    def _env_param(self):
+        """
+        Access env_param via env instance if available, otherwise fallback to global.
+
+        Returns:
+            EnvParam: The env param instance.
+        """
+        if self._env is not None:
+            return self._env._env_param
+        from irsim.config import env_param
+
+        return env_param
+
+    @property
+    def world_param(self):
+        """
+        Get the world parameters.
+
+        Returns:
+            WorldParam: World parameters including time, control_mode,
+                collision_mode, step_time, and count.
+        """
+        return self._world_param
+
+    @property
+    def env_param(self):
+        """
+        Get the environment parameters.
+
+        Returns:
+            EnvParam: Environment parameters including logger and objects.
+        """
+        return self._env_param
+
+    @property
     def logger(self):
         """
         Get the logger of the env_param.
@@ -2562,7 +2617,7 @@ class ObjectBase:
             Logger: The logger associated in the env_param.
         """
 
-        return env_param.logger
+        return self._env_param.logger
 
     @property
     def heading(self):

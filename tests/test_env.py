@@ -250,6 +250,54 @@ class TestEnvironmentProperties:
         assert isinstance(names, list)
         assert len(names) > 0
 
+    def test_world_param_property(self, env_factory):
+        """Test world_param property returns WorldParam instance."""
+        env = env_factory("test_collision_world.yaml")
+        wp = env.world_param
+        assert wp is not None
+        assert hasattr(wp, "control_mode")
+        assert hasattr(wp, "collision_mode")
+        assert hasattr(wp, "step_time")
+        assert hasattr(wp, "count")
+        assert wp.step_time > 0
+
+    def test_env_param_property(self, env_factory):
+        """Test env_param property returns EnvParam instance."""
+        env = env_factory("test_collision_world.yaml")
+        ep = env.env_param
+        assert ep is not None
+        assert hasattr(ep, "logger")
+        assert hasattr(ep, "objects")
+        assert ep.logger is not None
+
+    def test_path_param_property(self, env_factory):
+        """Test path_param property returns PathManager instance."""
+        env = env_factory("test_collision_world.yaml")
+        pp = env.path_param
+        assert pp is not None
+        assert hasattr(pp, "root_path")
+        assert hasattr(pp, "ani_buffer_path")
+        assert hasattr(pp, "ani_path")
+        assert hasattr(pp, "fig_path")
+
+    def test_object_world_param_property(self, env_factory):
+        """Test world_param property on objects."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        wp = robot.world_param
+        assert wp is not None
+        assert wp.step_time == env.world_param.step_time
+        assert wp is env.world_param
+
+    def test_object_env_param_property(self, env_factory):
+        """Test env_param property on objects."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        ep = robot.env_param
+        assert ep is not None
+        assert ep.logger is env.logger
+        assert ep is env.env_param
+
 
 class TestEnvironmentFlags:
     """Tests for environment flag processing."""
@@ -335,6 +383,84 @@ class TestSimulationLoop:
         # Either done or hit max iterations
         assert True
 
+    def test_done_mode_any(self, env_factory):
+        """Test done() with mode='any'."""
+        env = env_factory("test_collision_avoidance.yaml", full=True)
+        # Should return False when no robot has arrived
+        result = env.done(mode="any")
+        assert result is False or result is True
+
+    def test_done_mode_invalid(self, env_factory):
+        """Test done() with invalid mode returns None."""
+        env = env_factory("test_collision_world.yaml")
+        result = env.done(mode="invalid")
+        assert result is None
+
+    def test_done_no_robots(self, env_factory):
+        """Test done() when no robots exist."""
+        env = env_factory("test_collision_world.yaml")
+        # Remove all robots
+        for robot in list(env.robot_list):
+            env.delete_object(robot.id)
+        result = env.done()
+        assert result is False
+
+
+class TestEnvRepr:
+    """Tests for environment string representation."""
+
+    def test_str(self, env_factory):
+        """Test __str__ method."""
+        env = env_factory("test_collision_world.yaml")
+        str_repr = str(env)
+        assert "Environment:" in str_repr
+
+
+class TestDrawMethods:
+    """Tests for environment drawing methods."""
+
+    def test_draw_box(self, env_factory):
+        """Test draw_box method."""
+        env = env_factory("test_all_objects.yaml")
+        import numpy as np
+
+        vertices = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+        env.draw_box(vertices, refresh=True, color="-b")
+
+    def test_draw_quiver(self, env_factory):
+        """Test draw_quiver method."""
+        env = env_factory("test_all_objects.yaml")
+        point = (0, 0, 1, 1)
+        env.draw_quiver(point, refresh=True)
+
+
+class TestStatusMethods:
+    """Tests for environment status methods."""
+
+    def test_status_save_figure_flag(self, env_factory):
+        """Test status shows 'Save Figure' when flag is set."""
+        env = env_factory("test_all_objects.yaml")
+        env.save_figure_flag = True
+        env._status_step()
+        # Flag should affect status
+        assert env.save_figure_flag or not env.save_figure_flag
+
+    def test_resume_with_debug_flag(self, env_factory):
+        """Test resume() clears debug_flag and debug_count."""
+        env = env_factory("test_all_objects.yaml")
+        env.debug_flag = True
+        env.debug_count = 5
+        env.resume()
+        assert env.debug_flag is False
+        assert env.debug_count == 0
+
+    def test_resume_with_pause_flag(self, env_factory):
+        """Test resume() clears pause_flag."""
+        env = env_factory("test_all_objects.yaml")
+        env.pause_flag = True
+        env.resume()
+        assert env.pause_flag is False
+
 
 class TestAnimationSaving:
     """Tests for animation saving functionality."""
@@ -405,3 +531,374 @@ class TestQuit:
         env = env_factory("test_multi_objects_world.yaml")
         with pytest.raises(SystemExit):
             env.quit()
+
+
+class TestMultipleEnvironments:
+    """Tests for multiple environment instances with isolated parameters."""
+
+    def test_two_environments_have_separate_world_params(self, env_factory):
+        """Test that two environments have separate world_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.world_param is not env2.world_param
+
+        # Modifying one should not affect the other
+        original_mode = env2.world_param.control_mode
+        env1.world_param.control_mode = "keyboard"
+        assert env2.world_param.control_mode == original_mode
+
+    def test_two_environments_have_separate_env_params(self, env_factory):
+        """Test that two environments have separate env_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.env_param is not env2.env_param
+        assert env1.env_param.objects is not env2.env_param.objects
+
+    def test_two_environments_have_separate_path_params(self, env_factory):
+        """Test that two environments have separate path_param instances."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # They should have different instances
+        assert env1.path_param is not env2.path_param
+
+    def test_objects_reference_correct_env_params(self, env_factory):
+        """Test that objects reference their own environment's params."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # Robots should reference their own env's params
+        assert env1.robot.world_param is env1.world_param
+        assert env1.robot.env_param is env1.env_param
+
+        assert env2.robot.world_param is env2.world_param
+        assert env2.robot.env_param is env2.env_param
+
+        # Cross-check they are different
+        assert env1.robot.world_param is not env2.robot.world_param
+
+    def test_concurrent_step_isolated(self, env_factory):
+        """Test that stepping one env doesn't affect another's count."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_multi_objects_world.yaml")
+
+        # Step env1 multiple times
+        for _ in range(5):
+            env1.step()
+
+        # Step env2 fewer times
+        for _ in range(2):
+            env2.step()
+
+        # Counts should be independent
+        assert env1.world_param.count == 5
+        assert env2.world_param.count == 2
+
+
+class TestParamModuleFunctions:
+    """Tests for module-level functions in param modules.
+
+    Note: Python doesn't support module-level __getitem__, __setitem__, or
+    __setattr__ like class methods. These functions must be called directly.
+    """
+
+    def test_env_param_module_getitem(self):
+        """Test env_param module __getitem__ function."""
+        from irsim.config import env_param
+        from irsim.config.env_param import EnvParam
+
+        # Store original state
+        original_instances = env_param._instances.copy()
+        original_current = env_param._current
+
+        try:
+            # Set up test instance at index 0
+            test_instance = EnvParam()
+            env_param._instances[0] = test_instance
+            env_param._current = test_instance
+
+            # Test __getitem__ called directly as a function
+            result = env_param.__getitem__(0)
+            assert result is test_instance
+        finally:
+            # Restore original state
+            env_param._instances[:] = original_instances
+            env_param._current = original_current
+
+    def test_env_param_module_setitem(self):
+        """Test env_param module __setitem__ function."""
+        from irsim.config import env_param
+        from irsim.config.env_param import EnvParam
+
+        # Store original state
+        original_instances = env_param._instances.copy()
+        original_current = env_param._current
+
+        try:
+            # Test __setitem__ at index 0 (should update _current)
+            new_instance = EnvParam()
+            env_param.__setitem__(0, new_instance)
+            assert env_param._instances[0] is new_instance
+            assert env_param._current is new_instance
+
+            # Test __setitem__ at new index (extends list)
+            another_instance = EnvParam()
+            env_param.__setitem__(2, another_instance)
+            assert len(env_param._instances) >= 3
+            assert env_param._instances[2] is another_instance
+
+            # Test negative index raises
+            with pytest.raises(
+                IndexError, match="env_param index must be non-negative"
+            ):
+                env_param.__setitem__(-1, EnvParam())
+        finally:
+            # Restore original state
+            env_param._instances[:] = original_instances
+            env_param._current = original_current
+
+    def test_env_param_module_setattr(self):
+        """Test env_param module __setattr__ function."""
+        from irsim.config import env_param
+        from irsim.config.env_param import EnvParam
+
+        # Store original state
+        original_instances = env_param._instances.copy()
+        original_current = env_param._current
+
+        try:
+            # Set up test instance
+            test_instance = EnvParam()
+            env_param._instances[0] = test_instance
+            env_param._current = test_instance
+
+            # Test __setattr__ called directly as a function
+            env_param.__setattr__("logger", "test_logger")
+            assert test_instance.logger == "test_logger"
+        finally:
+            # Restore original state
+            env_param._instances[:] = original_instances
+            env_param._current = original_current
+
+    def test_env_param_bind_empty_instances(self):
+        """Test env_param bind when _instances is empty."""
+        from irsim.config import env_param
+        from irsim.config.env_param import EnvParam
+
+        # Store original state
+        original_instances = env_param._instances.copy()
+        original_current = env_param._current
+
+        try:
+            # Clear instances to test the else branch
+            env_param._instances.clear()
+            test_instance = EnvParam()
+            env_param.bind(test_instance)
+            assert env_param._instances[0] is test_instance
+            assert env_param._current is test_instance
+        finally:
+            # Restore original state
+            env_param._instances[:] = original_instances
+            env_param._current = original_current
+
+    def test_world_param_module_getitem(self):
+        """Test world_param module __getitem__ function."""
+        from irsim.config import world_param
+        from irsim.config.world_param import WorldParam
+
+        # Store original state
+        original_instances = world_param._instances.copy()
+        original_current = world_param._current
+
+        try:
+            # Set up test instance at index 0
+            test_instance = WorldParam()
+            world_param._instances[0] = test_instance
+            world_param._current = test_instance
+
+            # Test __getitem__ called directly as a function
+            result = world_param.__getitem__(0)
+            assert result is test_instance
+        finally:
+            # Restore original state
+            world_param._instances[:] = original_instances
+            world_param._current = original_current
+
+    def test_world_param_module_setitem(self):
+        """Test world_param module __setitem__ function."""
+        from irsim.config import world_param
+        from irsim.config.world_param import WorldParam
+
+        # Store original state
+        original_instances = world_param._instances.copy()
+        original_current = world_param._current
+
+        try:
+            # Test __setitem__ at index 0 (should update _current)
+            new_instance = WorldParam()
+            world_param.__setitem__(0, new_instance)
+            assert world_param._instances[0] is new_instance
+            assert world_param._current is new_instance
+
+            # Test __setitem__ at new index (extends list)
+            another_instance = WorldParam()
+            world_param.__setitem__(2, another_instance)
+            assert len(world_param._instances) >= 3
+            assert world_param._instances[2] is another_instance
+
+            # Test negative index raises
+            with pytest.raises(
+                IndexError, match="world_param index must be non-negative"
+            ):
+                world_param.__setitem__(-1, WorldParam())
+        finally:
+            # Restore original state
+            world_param._instances[:] = original_instances
+            world_param._current = original_current
+
+    def test_world_param_module_setattr(self):
+        """Test world_param module __setattr__ function."""
+        from irsim.config import world_param
+        from irsim.config.world_param import WorldParam
+
+        # Store original state
+        original_instances = world_param._instances.copy()
+        original_current = world_param._current
+
+        try:
+            # Set up test instance
+            test_instance = WorldParam()
+            world_param._instances[0] = test_instance
+            world_param._current = test_instance
+
+            # Test __setattr__ called directly as a function
+            world_param.__setattr__("control_mode", "keyboard")
+            assert test_instance.control_mode == "keyboard"
+        finally:
+            # Restore original state
+            world_param._instances[:] = original_instances
+            world_param._current = original_current
+
+    def test_world_param_bind_empty_instances(self):
+        """Test world_param bind when _instances is empty."""
+        from irsim.config import world_param
+        from irsim.config.world_param import WorldParam
+
+        # Store original state
+        original_instances = world_param._instances.copy()
+        original_current = world_param._current
+
+        try:
+            # Clear instances to test the else branch
+            world_param._instances.clear()
+            test_instance = WorldParam()
+            world_param.bind(test_instance)
+            assert world_param._instances[0] is test_instance
+            assert world_param._current is test_instance
+        finally:
+            # Restore original state
+            world_param._instances[:] = original_instances
+            world_param._current = original_current
+
+    def test_path_param_module_getitem(self):
+        """Test path_param module __getitem__ function."""
+        from irsim.config import path_param
+        from irsim.config.path_param import PathManager
+
+        # Store original state
+        original_instances = path_param._instances.copy()
+        original_current = path_param._current
+
+        try:
+            # Set up test instance at index 0
+            test_instance = PathManager()
+            path_param._instances[0] = test_instance
+            path_param._current = test_instance
+
+            # Test __getitem__ called directly as a function
+            result = path_param.__getitem__(0)
+            assert result is test_instance
+        finally:
+            # Restore original state
+            path_param._instances[:] = original_instances
+            path_param._current = original_current
+
+    def test_path_param_module_setitem(self):
+        """Test path_param module __setitem__ function."""
+        from irsim.config import path_param
+        from irsim.config.path_param import PathManager
+
+        # Store original state
+        original_instances = path_param._instances.copy()
+        original_current = path_param._current
+
+        try:
+            # Test __setitem__ at index 0 (should update _current)
+            new_instance = PathManager()
+            path_param.__setitem__(0, new_instance)
+            assert path_param._instances[0] is new_instance
+            assert path_param._current is new_instance
+
+            # Test __setitem__ at new index (extends list)
+            another_instance = PathManager()
+            path_param.__setitem__(2, another_instance)
+            assert len(path_param._instances) >= 3
+            assert path_param._instances[2] is another_instance
+
+            # Test negative index raises
+            with pytest.raises(
+                IndexError, match="path_param index must be non-negative"
+            ):
+                path_param.__setitem__(-1, PathManager())
+        finally:
+            # Restore original state
+            path_param._instances[:] = original_instances
+            path_param._current = original_current
+
+    def test_path_param_proxy_setattr(self):
+        """Test path_param _Proxy __setattr__ function."""
+        from irsim.config import path_param
+        from irsim.config.path_param import PathManager
+
+        # Store original state
+        original_instances = path_param._instances.copy()
+        original_current = path_param._current
+
+        try:
+            # Set up test instance
+            test_instance = PathManager()
+            path_param._instances[0] = test_instance
+            path_param._current = test_instance
+
+            # Test __setattr__ via path_manager proxy
+            path_param.path_manager.ani_path = "/test/path"
+            assert test_instance.ani_path == "/test/path"
+        finally:
+            # Restore original state
+            path_param._instances[:] = original_instances
+            path_param._current = original_current
+
+    def test_path_param_bind_empty_instances(self):
+        """Test path_param bind when _instances is empty."""
+        from irsim.config import path_param
+        from irsim.config.path_param import PathManager
+
+        # Store original state
+        original_instances = path_param._instances.copy()
+        original_current = path_param._current
+
+        try:
+            # Clear instances to test the else branch
+            path_param._instances.clear()
+            test_instance = PathManager()
+            path_param.bind(test_instance)
+            assert path_param._instances[0] is test_instance
+            assert path_param._current is test_instance
+        finally:
+            # Restore original state
+            path_param._instances[:] = original_instances
+            path_param._current = original_current

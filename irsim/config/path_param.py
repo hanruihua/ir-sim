@@ -22,4 +22,43 @@ class PathManager:
     fig_path: str = sys.path[0] + "/figure"
 
 
-path_manager = PathManager()
+# Multi-env storage (default index 0)
+_instances: list[PathManager] = [PathManager()]
+_current = _instances[0]
+
+
+def bind(instance: PathManager) -> None:
+    """Bind instance to default index 0 and update current alias."""
+    global _current
+    if _instances:
+        _instances[0] = instance
+    else:
+        _instances.append(instance)
+    _current = instance
+
+
+class _Proxy:
+    def __getattr__(self, name: str):
+        return getattr(_current, name)
+
+    def __setattr__(self, name: str, value):
+        setattr(_current, name, value)
+
+
+path_manager = _Proxy()
+
+
+def __getitem__(index: int) -> PathManager:
+    return _instances[index]
+
+
+def __setitem__(index: int, instance: PathManager) -> None:
+    """Assign a PathManager at a specific index. Extends list if needed."""
+    global _current
+    if index < 0:
+        raise IndexError("path_param index must be non-negative")
+    if index >= len(_instances):
+        _instances.extend(PathManager() for _ in range(index - len(_instances) + 1))
+    _instances[index] = instance
+    if index == 0:
+        _current = instance

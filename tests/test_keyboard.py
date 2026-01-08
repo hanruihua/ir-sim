@@ -83,16 +83,15 @@ class TestKeyboardControlPynput:
         """Test 'x' key toggles control mode."""
         env = env_factory("test_keyboard_control.yaml")
         env.keyboard._active_only = False  # Allow testing without focus
-        from irsim.config import world_param as wp
 
         class XKeyMock:
             char = "x"
 
-        mode0 = wp.control_mode
+        mode0 = env.keyboard._world_param.control_mode
         env.keyboard._on_pynput_release(XKeyMock())
-        assert wp.control_mode != mode0
+        assert env._world_param.control_mode != mode0
         env.keyboard._on_pynput_release(XKeyMock())
-        assert wp.control_mode == mode0
+        assert env._world_param.control_mode == mode0
 
     def test_qe_adjust_lv_max(self, env_factory, mock_keyboard_key):
         """Test 'q'/'e' keys adjust linear velocity max."""
@@ -168,11 +167,10 @@ class TestKeyboardControlPynput:
     def test_invalid_backend_falls_back_to_mpl(self, env_factory):
         """Test invalid backend falls back to mpl."""
         env = env_factory("test_keyboard_control.yaml")
-        with patch("irsim.gui.keyboard_control.env_param") as mock_env_param:
-            mock_env_param.logger.warning = Mock()
+        with patch.object(env._env_param.logger, "warning") as mock_warning:
             kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="invalid")
             assert kb.backend == "mpl"
-            mock_env_param.logger.warning.assert_called_once()
+            mock_warning.assert_called_once()
 
     def test_alt_key_attribute_error_handling(self, env_factory):
         """Test Alt key AttributeError is handled gracefully."""
@@ -194,12 +192,11 @@ class TestKeyboardControlPynput:
         env = env_factory("test_keyboard_control.yaml")
         with (
             patch("irsim.gui.keyboard_control._PYNPUT_AVAILABLE", False),
-            patch("irsim.gui.keyboard_control.env_param") as mock_env_param,
+            patch.object(env._env_param.logger, "warning") as mock_warning,
         ):
-            mock_env_param.logger.warning = Mock()
             kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="pynput")
             assert kb.backend == "mpl"
-            mock_env_param.logger.warning.assert_called_once()
+            mock_warning.assert_called_once()
 
     def test_mpl_connect_exception_handling(self, env_factory):
         """Test matplotlib connection exception handling."""
@@ -392,13 +389,12 @@ class TestKeyboardControlMpl:
     def test_x_key_toggle_mode(self, env_factory, mock_mpl_event):
         """Test 'x' key toggles control mode in mpl backend."""
         env = env_factory("test_keyboard_control2.yaml")
-        from irsim.config import world_param as wp
 
-        mode0 = wp.control_mode
+        mode0 = env.keyboard._world_param.control_mode
         env.keyboard._on_mpl_release(mock_mpl_event("x"))
-        assert wp.control_mode != mode0
+        assert env.keyboard._world_param.control_mode != mode0
         env.keyboard._on_mpl_release(mock_mpl_event("x"))
-        assert wp.control_mode == mode0
+        assert env.keyboard._world_param.control_mode == mode0
 
     def test_escape_key_quit(self, env_factory, mock_mpl_event):
         """Test escape key sets quit flag in mpl backend."""

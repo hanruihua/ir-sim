@@ -1,9 +1,10 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from irsim.config import env_param, world_param
+if TYPE_CHECKING:
+    pass
 
 # Optional pynput import (allows fallback to Matplotlib key events)
 # Predeclare for type checkers
@@ -124,7 +125,7 @@ class KeyboardControl:
 
         self.key_vel = np.zeros((2, 1))
 
-        if world_param.control_mode == "keyboard":
+        if self._world_param.control_mode == "keyboard":
             self.logger.info("start to keyboard control")
 
             commands = [
@@ -215,7 +216,7 @@ class KeyboardControl:
 
         # Handle character keys
         try:
-            if world_param.control_mode == "keyboard":
+            if self._world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
                     if self.env_ref and int(key.char) >= self.env_ref.robot_number:
                         self.logger.warning(
@@ -285,11 +286,11 @@ class KeyboardControl:
 
             # Switch control mode with 'x'
             if key.char == "x":
-                if world_param.control_mode == "keyboard":
-                    world_param.control_mode = "auto"
+                if self._world_param.control_mode == "keyboard":
+                    self._world_param.control_mode = "auto"
                     self.logger.info("switch to auto control")
                 else:
-                    world_param.control_mode = "keyboard"
+                    self._world_param.control_mode = "keyboard"
                     self.logger.info("switch to keyboard control")
 
             if key.char == "v":
@@ -318,7 +319,7 @@ class KeyboardControl:
             if keyboard is not None and key == keyboard.Key.f5:
                 if not self.env_ref.debug_flag:
                     self.env_ref.debug_flag = True
-                    self.env_ref.debug_count = world_param.count
+                    self.env_ref.debug_count = self._world_param.count
                     self.env_ref.pause_flag = False
                 else:
                     self.env_ref.debug_count += 1
@@ -343,7 +344,7 @@ class KeyboardControl:
         # Extract base key without modifiers
         base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
 
-        if world_param.control_mode == "keyboard":
+        if self._world_param.control_mode == "keyboard":
             if base.isdigit() and self.alt_flag:
                 if self.env_ref and int(base) >= self.env_ref.robot_number:
                     self.logger.warning(
@@ -375,7 +376,7 @@ class KeyboardControl:
         key = (event.key or "").lower()
         base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
 
-        if world_param.control_mode == "keyboard":
+        if self._world_param.control_mode == "keyboard":
             if base == "w":
                 self.key_lv = 0
             if base == "s":
@@ -414,11 +415,11 @@ class KeyboardControl:
 
         # Switch control mode with 'x'
         if base == "x":
-            if world_param.control_mode == "keyboard":
-                world_param.control_mode = "auto"
+            if self._world_param.control_mode == "keyboard":
+                self._world_param.control_mode = "auto"
                 self.logger.info("switch to auto control")
             else:
-                world_param.control_mode = "keyboard"
+                self._world_param.control_mode = "keyboard"
                 self.logger.info("switch to keyboard control")
 
         if base == "l":
@@ -429,7 +430,7 @@ class KeyboardControl:
         if base == "f5":
             if not self.env_ref.debug_flag:
                 self.env_ref.debug_flag = True
-                self.env_ref.debug_count = world_param.count
+                self.env_ref.debug_count = self._world_param.count
                 self.env_ref.pause_flag = False
             else:
                 self.env_ref.debug_count += 1
@@ -487,6 +488,24 @@ class KeyboardControl:
         return "\n".join(lines)
 
     @property
+    def _world_param(self):
+        """Access world_param via env_ref if available."""
+        if self.env_ref is not None:
+            return self.env_ref._world_param
+        from irsim.config import world_param
+
+        return world_param
+
+    @property
+    def _env_param(self):
+        """Access env_param via env_ref if available."""
+        if self.env_ref is not None:
+            return self.env_ref._env_param
+        from irsim.config import env_param
+
+        return env_param
+
+    @property
     def logger(self) -> Any:
         """
         Get the environment logger.
@@ -494,7 +513,7 @@ class KeyboardControl:
         Returns:
             EnvLogger: The logger instance for the environment.
         """
-        return env_param.logger
+        return self._env_param.logger
 
     # Window focus helpers (used to gate pynput when active_only=True)
     def _on_mpl_focus_in(self, event: Any) -> None:

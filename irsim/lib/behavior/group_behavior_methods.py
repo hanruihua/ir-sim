@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 import numpy as np
 
-from irsim.config import world_param
 from irsim.lib.behavior.behavior_registry import register_group_behavior_class
 from irsim.world.object_base import ObjectBase
 
@@ -61,7 +60,9 @@ class OrcaGroupBehavior:
 
         pyrvo = self._ensure_pyrvo()
         sim = pyrvo.RVOSimulator()
-        sim.set_time_step(world_param.step_time)
+        # Get step_time from first member's world_param
+        step_time = members[0]._world_param.step_time if members else 0.1
+        sim.set_time_step(step_time)
 
         for member in members:
             agent_max_speed = (
