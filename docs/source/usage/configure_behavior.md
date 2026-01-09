@@ -300,7 +300,7 @@ You can create custom group behaviors for coordinated multi-agent control. IR-SI
 Here's an example of a custom group behavior that implements simple formation control:
 
 ```python
-# custom_group_behavior.py
+# custom_group_methods.py
 from typing import Any
 import numpy as np
 from irsim.lib.behavior.behavior_registry import register_group_behavior_class
@@ -405,9 +405,9 @@ class FormationGroupBehavior:
 import irsim
 
 env = irsim.make()
-env.load_behavior("custom_group_behavior")  # Load custom behavior module
+env.load_behavior("custom_group_methods")
 
-while True:
+for i in range(500):
     env.step()
     env.render()
 
@@ -448,7 +448,7 @@ robot:
 For simpler behaviors without initialization requirements:
 
 ```python
-# custom_group_behavior.py
+# custom_group_methods.py
 from typing import Any
 import numpy as np
 from irsim.lib.behavior.behavior_registry import register_group_behavior
@@ -583,7 +583,7 @@ for i in range(1000):
 env.end(5)
 ```
 
-`load_behavior` function loads the custom behavior methods from the python script. `custom_behavior_methods` is the name of the python script that contains the custom behavior function. 
+`load_behavior` function loads the custom behavior methods from the python script. `custom_behavior_methods` is the name of the python script that contains the custom behavior function.
 
 :::{note}
 Please place the script with the name `custom_behavior_methods` in the same directory as the main python script.
@@ -735,6 +735,25 @@ class SmoothDashBehavior:
 
 ::::{tab-set}
 
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make()
+env.load_behavior("custom_behavior_methods")
+
+for i in range(500):
+    env.step()
+    env.render(0.05)
+
+    if env.done():
+        break
+
+env.end()
+```
+:::
+
 :::{tab-item} YAML Configuration
 
 ```yaml
@@ -752,25 +771,6 @@ robot:
       smoothing: 0.5  # Custom smoothing parameter
     vel_max: [2, 2]
     vel_min: [-2, -2]
-```
-:::
-
-:::{tab-item} Python Script
-
-```python
-import irsim
-
-env = irsim.make()
-env.load_behavior("custom_behavior_methods")
-
-for i in range(500):
-    env.step()
-    env.render(0.05)
-
-    if env.done():
-        break
-
-env.end()
 ```
 :::
 

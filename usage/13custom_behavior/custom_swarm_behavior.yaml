@@ -1,0 +1,22 @@
+world:
+  height: 20
+  width: 20
+
+robot:
+  - number: 8
+    kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.3}
+    distribution: {name: 'random', range_low: [2, 2, -3.14], range_high: [8, 8, 3.14]}
+    color: 'green'
+    goal: [15, 15]
+    vel_max: [2, 2]
+    vel_min: [-2, -2]
+    goal_threshold: 0.5
+    plot:
+      show_goal: true
+      show_trajectory: true
+      keep_traj_length: 100
+    group_behavior:
+      name: 'swarm'
+      cohesion_gain: 0.3
+      goal_gain: 1.0
