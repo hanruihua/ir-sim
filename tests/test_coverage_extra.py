@@ -868,3 +868,324 @@ def test_object_gf_none():
     robot = env.robot
     assert robot.gf is not None
     env.end()
+
+
+class TestOrcaGroupBehaviorCoverage:
+    """Tests for OrcaGroupBehavior coverage with mocked pyrvo."""
+
+    def _clear_orca_registration(self):
+        """Clear ORCA registration from registry to allow fresh import."""
+        import sys
+
+        from irsim.lib.behavior.behavior_registry import group_behaviors_class_map
+
+        key = ("omni", "orca")
+        if key in group_behaviors_class_map:
+            del group_behaviors_class_map[key]
+
+        # Also clear the module cache
+        if "irsim.lib.behavior.group_behavior_methods" in sys.modules:
+            del sys.modules["irsim.lib.behavior.group_behavior_methods"]
+
+    def _restore_orca_registration(self):
+        """Restore ORCA registration after test."""
+        import sys
+
+        from irsim.lib.behavior.behavior_registry import group_behaviors_class_map
+
+        # Clear registration if it exists (from mock import)
+        key = ("omni", "orca")
+        if key in group_behaviors_class_map:
+            del group_behaviors_class_map[key]
+
+        # Clear module cache
+        if "irsim.lib.behavior.group_behavior_methods" in sys.modules:
+            del sys.modules["irsim.lib.behavior.group_behavior_methods"]
+
+        # Note: We don't re-import since pyrvo isn't installed.
+        # The module will be imported naturally when needed by other tests.
+
+    def test_orca_build_sim_and_call(self):
+        """Test ORCA behavior _build_sim and __call__ with mocked pyrvo."""
+        from unittest.mock import MagicMock, patch
+
+        self._clear_orca_registration()
+
+        try:
+            # Create mock pyrvo module
+            mock_pyrvo = MagicMock()
+            mock_sim = MagicMock()
+            mock_pyrvo.RVOSimulator.return_value = mock_sim
+            mock_sim.get_num_agents.return_value = 2
+            mock_sim.get_agent_velocity.return_value = MagicMock(
+                to_tuple=lambda: (1.0, 0.5)
+            )
+
+            with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
+                from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+                # Create mock members
+                member1 = MagicMock()
+                member1.state = np.array([[0.0], [0.0]])
+                member1.radius = 0.5
+                member1.max_speed = 1.0
+                member1._world_param = MagicMock()
+                member1._world_param.step_time = 0.1
+                member1.get_desired_omni_vel = MagicMock(
+                    return_value=np.array([[1.0], [0.0]])
+                )
+
+                member2 = MagicMock()
+                member2.state = np.array([[2.0], [2.0]])
+                member2.radius = 0.5
+                member2.max_speed = 1.0
+                member2._world_param = MagicMock()
+                member2._world_param.step_time = 0.1
+                member2.get_desired_omni_vel = MagicMock(
+                    return_value=np.array([[0.0], [1.0]])
+                )
+
+                members = [member1, member2]
+
+                # Test initialization (lines 62-83)
+                orca = OrcaGroupBehavior(members, maxSpeed=2.0)
+
+                # Verify sim was built
+                assert mock_pyrvo.RVOSimulator.called
+                assert mock_sim.set_time_step.called
+                assert mock_sim.add_agent.call_count == 2
+
+                # Test __call__ (lines 96-110)
+                result = orca(members)
+
+                # Verify sim methods were called
+                assert mock_sim.set_agent_pref_velocity.call_count == 2
+                assert mock_sim.set_agent_position.call_count == 2
+                assert mock_sim.do_step.called
+                assert len(result) == 2
+        finally:
+            self._restore_orca_registration()
+
+    def test_orca_rebuild_on_mismatch(self):
+        """Test ORCA rebuilds sim when member count changes."""
+        from unittest.mock import MagicMock, patch
+
+        self._clear_orca_registration()
+
+        try:
+            mock_pyrvo = MagicMock()
+            mock_sim = MagicMock()
+            mock_pyrvo.RVOSimulator.return_value = mock_sim
+            mock_sim.get_agent_velocity.return_value = MagicMock(
+                to_tuple=lambda: (0.5, 0.5)
+            )
+
+            with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
+                from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+                member1 = MagicMock()
+                member1.state = np.array([[0.0], [0.0]])
+                member1.radius = 0.5
+                member1.max_speed = 1.0
+                member1._world_param = MagicMock()
+                member1._world_param.step_time = 0.1
+                member1.get_desired_omni_vel = MagicMock(
+                    return_value=np.array([[1.0], [0.0]])
+                )
+
+                # Initialize with one member
+                mock_sim.get_num_agents.return_value = 1
+                orca = OrcaGroupBehavior([member1])
+                initial_call_count = mock_pyrvo.RVOSimulator.call_count
+
+                # Call with two members (triggers rebuild at line 98)
+                member2 = MagicMock()
+                member2.state = np.array([[1.0], [1.0]])
+                member2.radius = 0.5
+                member2.max_speed = 1.0
+                member2._world_param = MagicMock()
+                member2._world_param.step_time = 0.1
+                member2.get_desired_omni_vel = MagicMock(
+                    return_value=np.array([[0.0], [1.0]])
+                )
+
+                # get_num_agents returns 1 (mismatched), triggering rebuild
+                mock_sim.get_num_agents.return_value = 1
+                result = orca([member1, member2])
+
+                # Should have rebuilt (RVOSimulator called again)
+                assert mock_pyrvo.RVOSimulator.call_count > initial_call_count
+                assert len(result) == 1  # Based on final get_num_agents
+        finally:
+            self._restore_orca_registration()
+
+    def test_orca_rebuild_on_exception(self):
+        """Test ORCA rebuilds sim when get_num_agents raises exception."""
+        from unittest.mock import MagicMock, patch
+
+        self._clear_orca_registration()
+
+        try:
+            mock_pyrvo = MagicMock()
+            mock_sim = MagicMock()
+            mock_pyrvo.RVOSimulator.return_value = mock_sim
+            # First call raises exception, triggering rebuild at line 100
+            call_count = [0]
+
+            def get_num_agents_side_effect():
+                call_count[0] += 1
+                if call_count[0] == 1:
+                    raise RuntimeError("Sim error")
+                return 1
+
+            mock_sim.get_num_agents.side_effect = get_num_agents_side_effect
+            mock_sim.get_agent_velocity.return_value = MagicMock(
+                to_tuple=lambda: (0.5, 0.5)
+            )
+
+            with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
+                from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+                member1 = MagicMock()
+                member1.state = np.array([[0.0], [0.0]])
+                member1.radius = 0.5
+                member1.max_speed = 1.0
+                member1._world_param = MagicMock()
+                member1._world_param.step_time = 0.1
+                member1.get_desired_omni_vel = MagicMock(
+                    return_value=np.array([[1.0], [0.0]])
+                )
+
+                orca = OrcaGroupBehavior([member1])
+
+                # This call triggers exception handling and rebuild
+                result = orca([member1])
+
+                # Should have rebuilt
+                assert mock_pyrvo.RVOSimulator.call_count == 2
+                assert len(result) == 1
+        finally:
+            self._restore_orca_registration()
+
+    def test_orca_ensure_pyrvo_success(self):
+        """Test _ensure_pyrvo returns pyrvo when available."""
+        from unittest.mock import MagicMock, patch
+
+        self._clear_orca_registration()
+
+        try:
+            mock_pyrvo = MagicMock()
+            mock_sim = MagicMock()
+            mock_pyrvo.RVOSimulator.return_value = mock_sim
+            mock_sim.get_num_agents.return_value = 0
+
+            with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
+                from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+                member = MagicMock()
+                member.state = np.array([[0.0], [0.0]])
+                member.radius = 0.5
+                member.max_speed = 1.0
+                member._world_param = MagicMock()
+                member._world_param.step_time = 0.1
+
+                orca = OrcaGroupBehavior([member])
+
+                # Test _ensure_pyrvo returns module (line 45)
+                result = orca._ensure_pyrvo()
+                assert result == mock_pyrvo
+        finally:
+            self._restore_orca_registration()
+
+
+class TestLoadBehaviorReinitialization:
+    """Tests for load_behavior behavior reinitialization (env_base.py lines 1151-1159)."""
+
+    def test_load_behavior_with_group_behaviors_mock(self):
+        """Test load_behavior reinitializes group behaviors using mocks."""
+        from unittest.mock import MagicMock, patch
+
+        # Create mock environment with objects and groups
+        mock_env = MagicMock()
+
+        # Mock object with behavior
+        mock_obj = MagicMock()
+        mock_obj.obj_behavior = MagicMock()
+        mock_obj.obj_behavior._init_behavior_class = MagicMock()
+        mock_env.objects = [mock_obj]
+
+        # Mock object group with group behavior
+        mock_group = MagicMock()
+        mock_group.group_behavior = MagicMock()
+        mock_group.group_behavior._init_group_behavior_class = MagicMock()
+        mock_env._object_groups = [mock_group]
+
+        # Import the real load_behavior method and bind it to our mock
+        from irsim.env.env_base import EnvBase
+
+        # Patch importlib.import_module to succeed
+        with patch("importlib.import_module"):
+            # Call the real method on mock env
+            EnvBase.load_behavior(mock_env, "test_module")
+
+        # Verify individual behavior reinitialization was called
+        mock_obj.obj_behavior._init_behavior_class.assert_called_once()
+
+        # Verify group behavior reinitialization was called
+        mock_group.group_behavior._init_group_behavior_class.assert_called_once()
+
+    def test_load_behavior_import_error_mock(self, capsys):
+        """Test that load_behavior returns early on import error."""
+        from unittest.mock import MagicMock, patch
+
+        mock_env = MagicMock()
+        mock_env.objects = []
+        mock_env._object_groups = []
+
+        from irsim.env.env_base import EnvBase
+
+        # Patch importlib to raise ImportError
+        with patch(
+            "importlib.import_module", side_effect=ImportError("Module not found")
+        ):
+            EnvBase.load_behavior(mock_env, "nonexistent_module")
+
+        captured = capsys.readouterr()
+        assert "Failed to load module" in captured.out
+
+    def test_load_behavior_skips_none_behaviors(self):
+        """Test load_behavior handles objects without behaviors."""
+        from unittest.mock import MagicMock, patch
+
+        mock_env = MagicMock()
+
+        # Object without obj_behavior attribute
+        mock_obj1 = MagicMock(spec=[])
+
+        # Object with None behavior
+        mock_obj2 = MagicMock()
+        mock_obj2.obj_behavior = None
+
+        # Object with valid behavior
+        mock_obj3 = MagicMock()
+        mock_obj3.obj_behavior = MagicMock()
+        mock_obj3.obj_behavior._init_behavior_class = MagicMock()
+
+        mock_env.objects = [mock_obj1, mock_obj2, mock_obj3]
+
+        # Group without group_behavior
+        mock_group1 = MagicMock(spec=[])
+
+        # Group with None group_behavior
+        mock_group2 = MagicMock()
+        mock_group2.group_behavior = None
+
+        mock_env._object_groups = [mock_group1, mock_group2]
+
+        from irsim.env.env_base import EnvBase
+
+        with patch("importlib.import_module"):
+            EnvBase.load_behavior(mock_env, "test_module")
+
+        # Only the valid behavior should be reinitialized
+        mock_obj3.obj_behavior._init_behavior_class.assert_called_once()

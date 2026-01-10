@@ -1135,14 +1135,28 @@ class EnvBase:
         Load behavior parameters from the script. Please refer to the behavior_methods.py file for more details.
         Please make sure the python file is placed in the same folder with the implemented script.
 
+        This method imports the specified module and reinitializes all behaviors
+        (both individual and group) so that newly registered behaviors are available.
+
         Args:
-            behaviors (str): name of the bevavior script.
+            behaviors (str): name of the behavior script.
         """
 
         try:
             importlib.import_module(behaviors)
         except ImportError as e:
             print(f"Failed to load module '{behaviors}': {e}")
+            return
+
+        # Reinitialize individual behaviors for all objects
+        for obj in self.objects:
+            if hasattr(obj, "obj_behavior") and obj.obj_behavior is not None:
+                obj.obj_behavior._init_behavior_class()
+
+        # Reinitialize group behaviors for all object groups
+        for group in self._object_groups:
+            if hasattr(group, "group_behavior") and group.group_behavior is not None:
+                group.group_behavior._init_group_behavior_class()
 
     # region: property
     @property

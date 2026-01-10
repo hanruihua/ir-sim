@@ -82,7 +82,7 @@ msgstr "功能"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`w`"
-msgstr ""
+msgstr "`w`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Forward"
@@ -90,7 +90,7 @@ msgstr "前进"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`s`"
-msgstr ""
+msgstr "`s`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Backward"
@@ -98,7 +98,7 @@ msgstr "后退"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`a`"
-msgstr ""
+msgstr "`a`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Turn Left"
@@ -106,7 +106,7 @@ msgstr "左转"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`d`"
-msgstr ""
+msgstr "`d`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Turn Right"
@@ -114,7 +114,7 @@ msgstr "右转"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`q`"
-msgstr ""
+msgstr "`q`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Decrease Linear Velocity"
@@ -122,7 +122,7 @@ msgstr "降低线速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`e`"
-msgstr ""
+msgstr "`e`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Increase Linear Velocity"
@@ -130,7 +130,7 @@ msgstr "提升线速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`z`"
-msgstr ""
+msgstr "`z`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Decrease Angular Velocity"
@@ -138,7 +138,7 @@ msgstr "降低角速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`c`"
-msgstr ""
+msgstr "`c`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Increase Angular Velocity"
@@ -146,7 +146,7 @@ msgstr "提升角速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`alt+num`"
-msgstr ""
+msgstr "`alt+num`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Change Current Control Robot ID"
@@ -154,7 +154,7 @@ msgstr "切换当前控制的机器人 ID"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`r`"
-msgstr ""
+msgstr "`r`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Reset the Environment"
@@ -162,7 +162,7 @@ msgstr "重置环境"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`space`"
-msgstr ""
+msgstr "`space`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Toggle Pause/Resume Environment"
@@ -170,7 +170,7 @@ msgstr "暂停/继续仿真"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`esc`"
-msgstr ""
+msgstr "`esc`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Quit the Environment (sets quit flag)"
@@ -178,7 +178,7 @@ msgstr "退出环境（设置 quit 标志）"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`x`"
-msgstr ""
+msgstr "`x`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Switch Keyboard/Auto Control"
@@ -186,7 +186,7 @@ msgstr "切换键盘/自动控制"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`l`"
-msgstr ""
+msgstr "`l`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Reload the Environment"
@@ -194,7 +194,7 @@ msgstr "重新加载环境"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`F5`"
-msgstr ""
+msgstr "`F5`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Debug the Environment (fn+f5 for mac)"
@@ -202,7 +202,7 @@ msgstr "调试环境（Mac 请按 fn+F5）"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`v`"
-msgstr ""
+msgstr "`v`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "Save the current figure"

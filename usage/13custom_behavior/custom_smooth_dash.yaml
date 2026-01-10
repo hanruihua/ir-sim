@@ -1,0 +1,36 @@
+world:
+  height: 10
+  width: 10
+
+robot:
+  # Robot using class-based smooth_dash behavior
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2, 2, 0]
+    goal: [8, 8]
+    color: 'blue'
+    vel_max: [2, 2]
+    vel_min: [-2, -2]
+    goal_threshold: 0.3
+    behavior:
+      name: 'smooth_dash'
+      smoothing: 0.5
+    plot:
+      show_goal: true
+      show_trajectory: true
+      keep_traj_length: 200
+
+  # Robot using regular dash behavior for comparison
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2, 3, 0]
+    goal: [8, 7]
+    color: 'red'
+    vel_max: [2, 2]
+    vel_min: [-2, -2]
+    goal_threshold: 0.3
+    behavior: {name: 'dash'}
+    plot:
+      show_goal: true
+      show_trajectory: true
+      keep_traj_length: 200

@@ -350,3 +350,151 @@ msgstr "自定义标题配置"
 msgid "Enable/Disable Title Display"
 msgstr "启用/禁用标题显示"
 
+#: ../../source/usage/make_environment.md:225
+msgid "Multiple Environments"
+msgstr "多环境"
+
+#: ../../source/usage/make_environment.md:227
+msgid ""
+"IR-SIM supports creating and running multiple environments simultaneously. "
+"Each environment maintains its own isolated state, including world parameters, "
+"objects, and simulation time. This is useful for:"
+msgstr ""
+"IR-SIM 支持同时创建和运行多个环境。每个环境维护各自独立的状态，包括世界参数、对象和仿真时间。适用场景包括："
+
+#: ../../source/usage/make_environment.md:229
+msgid "**Parallel simulations**: Running multiple scenarios simultaneously"
+msgstr "**并行仿真**：同时运行多个场景"
+
+#: ../../source/usage/make_environment.md:230
+msgid "**Comparison studies**: Comparing different algorithms or configurations"
+msgstr "**对比研究**：比较不同算法或配置"
+
+#: ../../source/usage/make_environment.md:231
+msgid "**Training**: Running multiple instances for reinforcement learning"
+msgstr "**训练**：为强化学习运行多个实例"
+
+#: ../../source/usage/make_environment.md:233
+msgid "Creating Multiple Environments"
+msgstr "创建多个环境"
+
+#: ../../source/usage/make_environment.md:247
+msgid "Isolated Parameters"
+msgstr "参数隔离"
+
+#: ../../source/usage/make_environment.md:249
+msgid "Each environment has completely separate parameter instances:"
+msgstr "每个环境拥有完全独立的参数实例："
+
+#: ../../source/usage/make_environment.md:273
+msgid "Running Multiple Environments"
+msgstr "运行多个环境"
+
+#: ../../source/usage/make_environment.md
+msgid "Sequential Execution"
+msgstr "顺序执行"
+
+#: ../../source/usage/make_environment.md
+msgid "Headless Parallel (for Training)"
+msgstr "无头并行（用于训练）"
+
+#: ../../source/usage/make_environment.md:341
+msgid "Parameter Isolation Details"
+msgstr "参数隔离详情"
+
+#: ../../source/usage/make_environment.md:343
+msgid "Each environment instance creates and binds its own parameter objects:"
+msgstr "每个环境实例创建并绑定各自的参数对象："
+
+#: ../../source/usage/make_environment.md:345
+msgid "**`world_param`** - Simulation state and settings:"
+msgstr "**`world_param`** - 仿真状态与设置："
+
+#: ../../source/usage/make_environment.md:347
+msgid "Attribute"
+msgstr "属性"
+
+#: ../../source/usage/make_environment.md:347
+msgid "Type"
+msgstr "类型"
+
+#: ../../source/usage/make_environment.md:347
+msgid "Default"
+msgstr "默认值"
+
+#: ../../source/usage/make_environment.md:347
+msgid "Description"
+msgstr "描述"
+
+#: ../../source/usage/make_environment.md:349
+msgid "Current simulation time"
+msgstr "当前仿真时间"
+
+#: ../../source/usage/make_environment.md:350
+msgid "Control mode (`\"auto\"` or `\"keyboard\"`)"
+msgstr "控制模式（`\"auto\"` 或 `\"keyboard\"`）"
+
+#: ../../source/usage/make_environment.md:351
+msgid "Collision handling mode"
+msgstr "碰撞处理模式"
+
+#: ../../source/usage/make_environment.md:352
+msgid "Time step duration (seconds)"
+msgstr "时间步长（秒）"
+
+#: ../../source/usage/make_environment.md:353
+msgid "Simulation step counter"
+msgstr "仿真步数计数器"
+
+#: ../../source/usage/make_environment.md:355
+msgid "**`env_param`** - Environment objects and utilities:"
+msgstr "**`env_param`** - 环境对象与工具："
+
+#: ../../source/usage/make_environment.md:359
+msgid "List of all objects in the environment"
+msgstr "环境中所有对象的列表"
+
+#: ../../source/usage/make_environment.md:360
+msgid "Logger instance for this environment"
+msgstr "此环境的日志器实例"
+
+#: ../../source/usage/make_environment.md:361
+msgid "Spatial index for collision detection"
+msgstr "用于碰撞检测的空间索引"
+
+#: ../../source/usage/make_environment.md:362
+msgid "Operating system name"
+msgstr "操作系统名称"
+
+#: ../../source/usage/make_environment.md:364
+msgid "**`path_param`** - File path management:"
+msgstr "**`path_param`** - 文件路径管理："
+
+#: ../../source/usage/make_environment.md:368
+msgid "Path to irsim package directory"
+msgstr "irsim 包目录路径"
+
+#: ../../source/usage/make_environment.md:369
+msgid "Path for animation frame buffer"
+msgstr "动画帧缓冲路径"
+
+#: ../../source/usage/make_environment.md:370
+msgid "Path for saved animations"
+msgstr "保存动画的路径"
+
+#: ../../source/usage/make_environment.md:371
+msgid "Path for saved figures"
+msgstr "保存图像的路径"
+
+#: ../../source/usage/make_environment.md:373
+msgid "Objects within each environment reference their own environment's parameters:"
+msgstr "每个环境中的对象引用各自环境的参数："
+
+#: ../../source/usage/make_environment.md:375
+msgid ""
+"When creating multiple environments with `display=True`, each environment "
+"opens its own visualization window. For training or batch simulations, use "
+"`display=False` to disable rendering and improve performance."
+msgstr ""
+"使用 `display=True` 创建多个环境时，每个环境会打开各自的可视化窗口。对于训练或批量仿真，建议使用 "
+"`display=False` 禁用渲染以提高性能。"

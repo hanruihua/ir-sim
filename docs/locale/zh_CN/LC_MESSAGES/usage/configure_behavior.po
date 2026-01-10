@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"POT-Creation-Date: 2025-01-08 10:00+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -32,22 +32,34 @@ msgid ""
 msgstr "仿真中的每个对象都可以独立指定行为以模拟不同场景。通过在 YAML 配置文件中设置行为参数即可完成配置。"
 
 #: ../../source/usage/configure_behavior.md:6
+msgid "IR-SIM supports two types of behavior configuration:"
+msgstr "IR-SIM 支持两种行为配置类型："
+
+#: ../../source/usage/configure_behavior.md:8
+msgid "**`behavior`**: Controls individual object movement (e.g., `dash`, `rvo`)"
+msgstr "**`behavior`**：控制单个对象的运动（如 `dash`、`rvo`）"
+
+#: ../../source/usage/configure_behavior.md:9
+msgid "**`group_behavior`**: Coordinates behavior for all objects in a group (e.g., `orca`)"
+msgstr "**`group_behavior`**：协调群组中所有对象的行为（如 `orca`）"
+
+#: ../../source/usage/configure_behavior.md:11
 msgid "Behavior Configuration Parameters"
 msgstr "行为配置参数"
 
-#: ../../source/usage/configure_behavior.md:8
+#: ../../source/usage/configure_behavior.md:13
 msgid ""
-"Currently, there are two built-in behaviors: `dash` and `rvo`. By "
+"Currently, there are two built-in individual behaviors: `dash` and `rvo`. By "
 "default, the moving objects' behavior is static. You can set the behavior"
 " of the object to `dash` or `rvo` in the YAML configuration file. The "
 "`dash` behavior is a simple behavior that moves the object from its "
 "initial position to the goal position directly. The `rvo` behavior is a "
 "dynamic collision avoidance algorithm for multiple agents."
 msgstr ""
-"当前内置两种行为：`dash` 与 `rvo`。默认情况下运动对象的行为为静态。你可以在 YAML 文件中将行为设为 `dash` 或 "
+"当前内置两种个体行为：`dash` 与 `rvo`。默认情况下运动对象的行为为静态。你可以在 YAML 文件中将行为设为 `dash` 或 "
 "`rvo`。`dash` 为简单的直线追踪行为，直接从初始位置移动到目标；`rvo` 则是多智能体的动态避碰算法。"
 
-#: ../../source/usage/configure_behavior.md:10
+#: ../../source/usage/configure_behavior.md:15
 msgid "The example of RVO behavior is shown below:"
 msgstr "下面示例展示了 RVO 行为："
 
@@ -67,90 +79,405 @@ msgstr "演示"
 msgid "Select Parameters"
 msgstr "参数选择"
 
-#: ../../source/usage/configure_behavior.md:72
+#: ../../source/usage/configure_behavior.md:77
 msgid "Important Behavior Parameters Explained"
 msgstr "关键行为参数说明"
 
-#: ../../source/usage/configure_behavior.md:74
+#: ../../source/usage/configure_behavior.md:79
 msgid "**Common Parameters:**"
 msgstr "**通用参数：**"
 
-#: ../../source/usage/configure_behavior.md:75
+#: ../../source/usage/configure_behavior.md:80
 msgid "**`name`:** Behavior type (`'dash'`, `'rvo'`, or custom name)"
 msgstr "**`name`：** 行为类型（`'dash'`、`'rvo'` 或自定义名称）"
 
-#: ../../source/usage/configure_behavior.md:76
+#: ../../source/usage/configure_behavior.md:81
 msgid ""
 "**`wander`:** Random goal generation after reaching current goal "
 "(default: `False`)"
 msgstr "**`wander`：** 抵达当前目标后是否随机生成下一个目标（默认 `False`）"
 
-#: ../../source/usage/configure_behavior.md:77
+#: ../../source/usage/configure_behavior.md:82
 msgid ""
 "**`target_roles`:** Filter objects for behavior (`'all'`, `'robot'`, "
 "`'obstacle'`)"
 msgstr "**`target_roles`：** 行为作用对象筛选（`'all'`、`'robot'`、`'obstacle'`）"
 
-#: ../../source/usage/configure_behavior.md:79
+#: ../../source/usage/configure_behavior.md:84
 msgid "**RVO-specific Parameters:**"
 msgstr "**RVO 专用参数：**"
 
-#: ../../source/usage/configure_behavior.md:80
+#: ../../source/usage/configure_behavior.md:85
 msgid "**`vxmax`/`vymax`:** Maximum velocities in x/y directions (default: `1.5`)"
 msgstr "**`vxmax`/`vymax`：** x/y 方向最大速度（默认 `1.5`）"
 
-#: ../../source/usage/configure_behavior.md:81
+#: ../../source/usage/configure_behavior.md:86
 msgid "**`acce`:** Maximum acceleration (default: `1.0`)"
 msgstr "**`acce`：** 最大加速度（默认 `1.0`）"
 
-#: ../../source/usage/configure_behavior.md:82
+#: ../../source/usage/configure_behavior.md:87
 msgid ""
 "**`factor`:** Collision penalty weight (default: `1.0`, higher = more "
 "conservative)"
 msgstr "**`factor`：** 碰撞惩罚权重（默认 `1.0`，越大越保守）"
 
-#: ../../source/usage/configure_behavior.md:83
+#: ../../source/usage/configure_behavior.md:88
 msgid "**`mode`:** Algorithm variant - `'rvo'` (default), `'hrvo'`, or `'vo'`"
 msgstr "**`mode`：** 算法模式——`'rvo'`（默认）、`'hrvo'` 或 `'vo'`"
 
-#: ../../source/usage/configure_behavior.md:84
+#: ../../source/usage/configure_behavior.md:89
 msgid ""
 "**`neighbor_threshold`:** Detection range for nearby objects (default: "
 "`3.0` meters)"
 msgstr "**`neighbor_threshold`：** 邻近目标检测范围（默认 `3.0` 米）"
 
-#: ../../source/usage/configure_behavior.md:86
+#: ../../source/usage/configure_behavior.md:91
 msgid "**Dash-specific Parameters:**"
 msgstr "**Dash 专用参数：**"
 
-#: ../../source/usage/configure_behavior.md:87
+#: ../../source/usage/configure_behavior.md:92
 msgid ""
 "**`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker`"
 " (default: `0.1` radians)"
 msgstr "**`angle_tolerance`：** `diff`/`acker` 机动学对准方向的容差（默认 `0.1` 弧度）"
 
-#: ../../source/usage/configure_behavior.md:89
+#: ../../source/usage/configure_behavior.md:94
 msgid ""
 "Full list of behavior parameters can be found in the [YAML "
 "Configuration](../yaml_config/configuration/)."
 msgstr "完整的行为参数列表请参见 [YAML 配置](../yaml_config/configuration/)。"
 
-#: ../../source/usage/configure_behavior.md:92
+#: ../../source/usage/configure_behavior.md:97
+msgid "Group Behavior"
+msgstr "群组行为"
+
+#: ../../source/usage/configure_behavior.md:99
+msgid ""
+"While `behavior` controls individual object movement, **`group_behavior`** "
+"enables coordinated behavior for all objects within the same group. This is "
+"particularly useful for:"
+msgstr ""
+"`behavior` 控制单个对象的运动，而 **`group_behavior`** "
+"则用于协调同一群组内所有对象的行为。这在以下场景特别有用："
+
+#: ../../source/usage/configure_behavior.md:101
+msgid "**Swarm simulations**: Multiple agents moving together with collision avoidance"
+msgstr "**集群仿真**：多智能体协同运动并避免碰撞"
+
+#: ../../source/usage/configure_behavior.md:102
+msgid "**Crowd simulation**: Large numbers of agents navigating shared spaces"
+msgstr "**人群仿真**：大量智能体在共享空间中导航"
+
+#: ../../source/usage/configure_behavior.md:103
+msgid "**Multi-robot coordination**: Teams of robots working together"
+msgstr "**多机器人协调**：机器人团队协同工作"
+
+#: ../../source/usage/configure_behavior.md:105
+msgid ""
+"Group behavior computes actions for all members in a single step, making it "
+"more efficient than individual behaviors for coordinated scenarios."
+msgstr "群组行为在单步计算中为所有成员生成动作，比逐个计算个体行为更高效。"
+
+#: ../../source/usage/configure_behavior.md:107
+msgid "Behavior vs Group Behavior"
+msgstr "行为与群组行为对比"
+
+#: ../../source/usage/configure_behavior.md:109
+msgid "Feature"
+msgstr "特性"
+
+#: ../../source/usage/configure_behavior.md:109
+msgid "Scope"
+msgstr "作用域"
+
+#: ../../source/usage/configure_behavior.md:109
+msgid "Individual object"
+msgstr "单个对象"
+
+#: ../../source/usage/configure_behavior.md:109
+msgid "All objects in a group"
+msgstr "群组中的所有对象"
+
+#: ../../source/usage/configure_behavior.md:110
+msgid "Computation"
+msgstr "计算方式"
+
+#: ../../source/usage/configure_behavior.md:110
+msgid "Per-object each step"
+msgstr "每步逐对象计算"
+
+#: ../../source/usage/configure_behavior.md:110
+msgid "All members at once"
+msgstr "一次性计算所有成员"
+
+#: ../../source/usage/configure_behavior.md:111
+msgid "Use case"
+msgstr "使用场景"
+
+#: ../../source/usage/configure_behavior.md:111
+msgid "Simple navigation"
+msgstr "简单导航"
+
+#: ../../source/usage/configure_behavior.md:111
+msgid "Coordinated multi-agent"
+msgstr "多智能体协调"
+
+#: ../../source/usage/configure_behavior.md:112
+msgid "Available"
+msgstr "可用行为"
+
+#: ../../source/usage/configure_behavior.md:116
+msgid "ORCA (Optimal Reciprocal Collision Avoidance)"
+msgstr "ORCA（最优互惠碰撞避免）"
+
+#: ../../source/usage/configure_behavior.md:118
+msgid ""
+"ORCA is a group-level collision avoidance algorithm that computes optimal "
+"velocities for multiple agents simultaneously. It ensures smooth, "
+"collision-free navigation even with hundreds of agents."
+msgstr ""
+"ORCA 是一种群组级碰撞避免算法，可同时为多个智能体计算最优速度。即使有数百个智能体，也能确保平滑无碰撞的导航。"
+
+#: ../../source/usage/configure_behavior.md:120
+msgid "ORCA requires the `pyrvo` library. Install it using:"
+msgstr "ORCA 需要 `pyrvo` 库。使用以下命令安装："
+
+#: ../../source/usage/configure_behavior.md:127
+msgid "Basic ORCA Configuration"
+msgstr "基本 ORCA 配置"
+
+#: ../../source/usage/configure_behavior.md:181
+msgid "ORCA Basic Configuration"
+msgstr "ORCA 基本配置"
+
+#: ../../source/usage/configure_behavior.md:189
+msgid "ORCA Parameters Explained"
+msgstr "ORCA 参数说明"
+
+#: ../../source/usage/configure_behavior.md:182
+msgid "Parameter"
+msgstr "参数"
+
+#: ../../source/usage/configure_behavior.md:182
+msgid "Type"
+msgstr "类型"
+
+#: ../../source/usage/configure_behavior.md:182
+msgid "Default"
+msgstr "默认值"
+
+#: ../../source/usage/configure_behavior.md:182
+msgid "Description"
+msgstr "描述"
+
+#: ../../source/usage/configure_behavior.md:184
+msgid "Must be `'orca'`"
+msgstr "必须为 `'orca'`"
+
+#: ../../source/usage/configure_behavior.md:185
+msgid "Maximum distance to consider other agents as neighbors"
+msgstr "将其他智能体视为邻居的最大距离"
+
+#: ../../source/usage/configure_behavior.md:186
+msgid "Maximum number of neighbors to consider for collision avoidance"
+msgstr "碰撞避免考虑的最大邻居数量"
+
+#: ../../source/usage/configure_behavior.md:187
+msgid "Time horizon for agent-agent collision avoidance (seconds)"
+msgstr "智能体间碰撞避免的时间视野（秒）"
+
+#: ../../source/usage/configure_behavior.md:188
+msgid "Time horizon for agent-obstacle collision avoidance (seconds)"
+msgstr "智能体与障碍物碰撞避免的时间视野（秒）"
+
+#: ../../source/usage/configure_behavior.md:189
+msgid "Additional safety margin added to agent radius"
+msgstr "添加到智能体半径的额外安全边距"
+
+#: ../../source/usage/configure_behavior.md:190
+msgid "Maximum speed override (uses robot's `max_speed` if not set)"
+msgstr "最大速度覆盖值（未设置时使用机器人的 `max_speed`）"
+
+#: ../../source/usage/configure_behavior.md:191
+msgid "Generate random goals when current goal is reached"
+msgstr "到达当前目标时生成随机目标"
+
+#: ../../source/usage/configure_behavior.md:192
+msgid "Lower bounds for random goal generation `[x, y, theta]`"
+msgstr "随机目标生成的下界 `[x, y, theta]`"
+
+#: ../../source/usage/configure_behavior.md:193
+msgid "Upper bounds for random goal generation `[x, y, theta]`"
+msgstr "随机目标生成的上界 `[x, y, theta]`"
+
+#: ../../source/usage/configure_behavior.md:195
+msgid "ORCA with Random Wandering"
+msgstr "带随机漫游的 ORCA"
+
+#: ../../source/usage/configure_behavior.md:197
+msgid "For continuous simulation where agents keep moving after reaching their goals:"
+msgstr "用于智能体到达目标后继续移动的持续仿真："
+
+#: ../../source/usage/configure_behavior.md:259
+msgid "ORCA Random Wandering"
+msgstr "ORCA 随机漫游"
+
+#: ../../source/usage/configure_behavior.md:267
+msgid "Manual ORCA Integration"
+msgstr "手动 ORCA 集成"
+
+#: ../../source/usage/configure_behavior.md:242
+msgid ""
+"For advanced use cases where you need direct control over the ORCA algorithm, "
+"you can use the `pyrvo` library directly:"
+msgstr "对于需要直接控制 ORCA 算法的高级用例，可以直接使用 `pyrvo` 库："
+
+#: ../../source/usage/configure_behavior.md:323
+msgid ""
+"Use `group_behavior` in YAML for most cases as it handles initialization "
+"automatically. Use the manual approach only when you need custom ORCA logic "
+"or integration with external planners."
+msgstr ""
+"大多数情况下建议在 YAML 中使用 `group_behavior`，因为它会自动处理初始化。仅在需要自定义 ORCA "
+"逻辑或与外部规划器集成时才使用手动方式。"
+
+#: ../../source/usage/configure_behavior.md:332
+msgid "Custom Group Behavior"
+msgstr "自定义群组行为"
+
+#: ../../source/usage/configure_behavior.md:334
+msgid ""
+"You can create custom group behaviors for coordinated multi-agent control. "
+"IR-SIM provides two registration patterns:"
+msgstr "你可以创建自定义群组行为以实现多智能体协调控制。IR-SIM 提供两种注册模式："
+
+#: ../../source/usage/configure_behavior.md:336
+msgid "**`@register_group_behavior`**: Function-based (called every step)"
+msgstr "**`@register_group_behavior`**：基于函数（每步调用）"
+
+#: ../../source/usage/configure_behavior.md:337
+msgid "**`@register_group_behavior_class`**: Class-based (initialized once, then called every step)"
+msgstr "**`@register_group_behavior_class`**：基于类（初始化一次，然后每步调用）"
+
+#: ../../source/usage/configure_behavior.md:339
+msgid "Function-based vs Class-based Behaviors"
+msgstr "基于函数与基于类的行为对比"
+
+#: ../../source/usage/configure_behavior.md:341
+msgid "Aspect"
+msgstr "方面"
+
+#: ../../source/usage/configure_behavior.md:341
+msgid "Function-based"
+msgstr "基于函数"
+
+#: ../../source/usage/configure_behavior.md:341
+msgid "Class-based"
+msgstr "基于类"
+
+#: ../../source/usage/configure_behavior.md:342
+msgid "Decorator"
+msgstr "装饰器"
+
+#: ../../source/usage/configure_behavior.md:343
+msgid "Initialization"
+msgstr "初始化"
+
+#: ../../source/usage/configure_behavior.md:343
+msgid "None (stateless)"
+msgstr "无（无状态）"
+
+#: ../../source/usage/configure_behavior.md:343
+msgid "Once at start"
+msgstr "启动时执行一次"
+
+#: ../../source/usage/configure_behavior.md:344
+msgid "State"
+msgstr "状态"
+
+#: ../../source/usage/configure_behavior.md:344
+msgid "No persistent state"
+msgstr "无持久状态"
+
+#: ../../source/usage/configure_behavior.md:344
+msgid "Can maintain state between steps"
+msgstr "可在步骤间保持状态"
+
+#: ../../source/usage/configure_behavior.md:346
+msgid "Simple calculations"
+msgstr "简单计算"
+
+#: ../../source/usage/configure_behavior.md:346
+msgid "Complex algorithms with initialization"
+msgstr "需要初始化的复杂算法"
+
+#: ../../source/usage/configure_behavior.md:347
+msgid "Example"
+msgstr "示例"
+
+#: ../../source/usage/configure_behavior.md:347
+msgid "Simple formation control"
+msgstr "简单编队控制"
+
+#: ../../source/usage/configure_behavior.md:347
+msgid "ORCA (requires simulator setup)"
+msgstr "ORCA（需要仿真器设置）"
+
+#: ../../source/usage/configure_behavior.md:349
+msgid "Custom Group Behavior Example (Class-based)"
+msgstr "自定义群组行为示例（基于类）"
+
+#: ../../source/usage/configure_behavior.md:351
+msgid "Here's an example of a custom group behavior that implements simple formation control:"
+msgstr "以下是一个实现简单编队控制的自定义群组行为示例："
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Using Custom Group Behavior"
+msgstr "使用自定义群组行为"
+
+#: ../../source/usage/configure_behavior.md:497
+msgid "Function-based Group Behavior Example"
+msgstr "基于函数的群组行为示例"
+
+#: ../../source/usage/configure_behavior.md:499
+msgid "For simpler behaviors without initialization requirements:"
+msgstr "对于无需初始化的简单行为："
+
+#: ../../source/usage/configure_behavior.md:555
+msgid ""
+"Use `@register_group_behavior_class` when your behavior needs initialization "
+"(e.g., setting up external libraries, computing initial states)"
+msgstr ""
+"当行为需要初始化时使用 `@register_group_behavior_class`（如设置外部库、计算初始状态）"
+
+#: ../../source/usage/configure_behavior.md:556
+msgid "Use `@register_group_behavior` for simple stateless behaviors"
+msgstr "对于简单的无状态行为使用 `@register_group_behavior`"
+
+#: ../../source/usage/configure_behavior.md:557
+msgid "The first argument is the kinematics type (`'omni'`, `'diff'`, `'acker'`)"
+msgstr "第一个参数是机动学类型（`'omni'`、`'diff'`、`'acker'`）"
+
+#: ../../source/usage/configure_behavior.md:558
+msgid "The second argument is the behavior name used in YAML `group_behavior: {name: 'your_name'}`"
+msgstr "第二个参数是在 YAML 中使用的行为名称 `group_behavior: {name: 'your_name'}`"
+
+#: ../../source/usage/configure_behavior.md:563
 msgid "Advanced Configuration for Custom Behavior"
 msgstr "自定义行为的高级配置"
 
-#: ../../source/usage/configure_behavior.md:94
+#: ../../source/usage/configure_behavior.md:565
 msgid "Custom Behavior Function"
 msgstr "自定义行为函数"
 
-#: ../../source/usage/configure_behavior.md:96
+#: ../../source/usage/configure_behavior.md:567
 msgid ""
 "If you want to create a custom behavior for the object, you should first "
 "define your own behavior in a custom python script (e.g. "
 "`custom_behavior_methods.py`) as shown below:"
 msgstr "若希望为对象创建自定义行为，需先在自定义 Python 脚本（如 `custom_behavior_methods.py`）中定义行为，如下所示："
 
-#: ../../source/usage/configure_behavior.md:136
+#: ../../source/usage/configure_behavior.md:607
 msgid ""
 "The `ego_object` is the object that you want to control, and the "
 "`objects` is the list of all objects in the simulation. The custom "
@@ -163,7 +490,7 @@ msgstr ""
 "是仿真中的对象列表。自定义行为函数需返回对象的速度，并可从对象中获取状态、目标等属性。`DiffDash2` "
 "就是一个计算冲刺速度的自定义行为函数。"
 
-#: ../../source/usage/configure_behavior.md:139
+#: ../../source/usage/configure_behavior.md:609
 msgid ""
 "You must use the `@register_behavior` decorator to register the custom "
 "behavior. The first argument of the decorator is the name of the "
@@ -173,17 +500,17 @@ msgstr ""
 "必须使用 `@register_behavior` "
 "装饰器注册自定义行为。装饰器的第一个参数为机动学名称（`diff`、`acker`、`omni`），第二个参数为在 YAML 中引用的行为名称。"
 
-#: ../../source/usage/configure_behavior.md:142
+#: ../../source/usage/configure_behavior.md:613
 msgid "Register Behavior"
 msgstr "注册行为"
 
-#: ../../source/usage/configure_behavior.md:144
+#: ../../source/usage/configure_behavior.md:615
 msgid ""
 "The python script and YAML to run the simulation with the custom behavior"
 " is shown below:"
 msgstr "下方给出了运行自定义行为所需的 Python 脚本与 YAML。"
 
-#: ../../source/usage/configure_behavior.md:166
+#: ../../source/usage/configure_behavior.md:637
 msgid ""
 "`load_behavior` function loads the custom behavior methods from the "
 "python script. `custom_behavior_methods` is the name of the python script"
@@ -192,15 +519,157 @@ msgstr ""
 "`load_behavior` 函数会从 Python 脚本中加载自定义行为方法。`custom_behavior_methods` "
 "是包含自定义行为函数的脚本名称。"
 
-#: ../../source/usage/configure_behavior.md:169
+#: ../../source/usage/configure_behavior.md:640
 msgid ""
 "Please place the script with the name `custom_behavior_methods` in the "
 "same directory as the main python script."
 msgstr "请将名为 `custom_behavior_methods` 的脚本与主 Python 脚本放在同一目录下。"
 
-#: ../../source/usage/configure_behavior.md:174
+#: ../../source/usage/configure_behavior.md:645
 msgid ""
 "Now, you can use the custom behavior `dash_custom` in the YAML "
 "configuration file as shown below."
 msgstr "现在即可在 YAML 配置中使用自定义行为 `dash_custom`，如下所示。"
 
+#: ../../source/usage/configure_behavior.md:684
+msgid "Custom Behavior Class (Stateful)"
+msgstr "自定义行为类（有状态）"
+
+#: ../../source/usage/configure_behavior.md:686
+msgid ""
+"For behaviors that require initialization or need to maintain state between "
+"steps, use the `@register_behavior_class` decorator. This is useful when:"
+msgstr ""
+"对于需要初始化或需要在步骤间保持状态的行为，请使用 `@register_behavior_class` 装饰器。适用场景包括："
+
+#: ../../source/usage/configure_behavior.md:688
+msgid "Your behavior needs one-time setup (e.g., loading models, initializing planners)"
+msgstr "行为需要一次性设置（如加载模型、初始化规划器）"
+
+#: ../../source/usage/configure_behavior.md:689
+msgid "You need to track history or state across simulation steps"
+msgstr "需要在仿真步骤间跟踪历史或状态"
+
+#: ../../source/usage/configure_behavior.md:690
+msgid "You want to cache computations for efficiency"
+msgstr "希望缓存计算以提高效率"
+
+#: ../../source/usage/configure_behavior.md:692
+msgid "Function-based vs Class-based Individual Behaviors"
+msgstr "基于函数与基于类的个体行为对比"
+
+#: ../../source/usage/configure_behavior.md:696
+msgid "Execution"
+msgstr "执行方式"
+
+#: ../../source/usage/configure_behavior.md:696
+msgid "Called every step"
+msgstr "每步调用"
+
+#: ../../source/usage/configure_behavior.md:696
+msgid "`__init__` once, `__call__` every step"
+msgstr "`__init__` 执行一次，`__call__` 每步调用"
+
+#: ../../source/usage/configure_behavior.md:698
+msgid "Setup"
+msgstr "设置"
+
+#: ../../source/usage/configure_behavior.md:698
+msgid "None"
+msgstr "无"
+
+#: ../../source/usage/configure_behavior.md:698
+msgid "One-time initialization in `__init__`"
+msgstr "在 `__init__` 中一次性初始化"
+
+#: ../../source/usage/configure_behavior.md:699
+msgid "Simple reactive behaviors"
+msgstr "简单反应式行为"
+
+#: ../../source/usage/configure_behavior.md:699
+msgid "Complex planners, learning-based control"
+msgstr "复杂规划器、基于学习的控制"
+
+#: ../../source/usage/configure_behavior.md:701
+msgid "Class-based Behavior Example"
+msgstr "基于类的行为示例"
+
+#: ../../source/usage/configure_behavior.md:785
+msgid "Using Class-based Behavior"
+msgstr "使用基于类的行为"
+
+#: ../../source/usage/configure_behavior.md:830
+msgid "Behavior Registration Summary"
+msgstr "行为注册总结"
+
+#: ../../source/usage/configure_behavior.md:832
+msgid "IR-SIM provides four behavior registration decorators:"
+msgstr "IR-SIM 提供四种行为注册装饰器："
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Scope"
+msgstr "作用域"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Individual"
+msgstr "个体"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Group"
+msgstr "群组"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Function"
+msgstr "函数"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Class"
+msgstr "类"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Use Case"
+msgstr "使用场景"
+
+#: ../../source/usage/configure_behavior.md:836
+msgid "Simple per-object behaviors"
+msgstr "简单的逐对象行为"
+
+#: ../../source/usage/configure_behavior.md:837
+msgid "Stateful per-object behaviors"
+msgstr "有状态的逐对象行为"
+
+#: ../../source/usage/configure_behavior.md:838
+msgid "Simple multi-agent coordination"
+msgstr "简单的多智能体协调"
+
+#: ../../source/usage/configure_behavior.md:839
+msgid "Complex multi-agent algorithms (e.g., ORCA)"
+msgstr "复杂的多智能体算法（如 ORCA）"
+
+#: ../../source/usage/configure_behavior.md:841
+msgid "All decorators take two arguments:"
+msgstr "所有装饰器接受两个参数："
+
+#: ../../source/usage/configure_behavior.md:842
+msgid "**Kinematics type**: `'omni'`, `'diff'`, or `'acker'`"
+msgstr "**机动学类型**：`'omni'`、`'diff'` 或 `'acker'`"
+
+#: ../../source/usage/configure_behavior.md:843
+msgid "**Behavior name**: The name used in YAML configuration"
+msgstr "**行为名称**：在 YAML 配置中使用的名称"
+
+#: ../../source/usage/configure_behavior.md:845
+msgid "Choose the right decorator based on your needs:"
+msgstr "根据需求选择合适的装饰器："
+
+#: ../../source/usage/configure_behavior.md:846
+msgid "Start with function-based (`@register_behavior` or `@register_group_behavior`) for simple behaviors"
+msgstr "对于简单行为，从基于函数的装饰器开始（`@register_behavior` 或 `@register_group_behavior`）"
+
+#: ../../source/usage/configure_behavior.md:847
+msgid "Use class-based when you need initialization, state, or complex algorithms"
+msgstr "当需要初始化、状态或复杂算法时使用基于类的装饰器"
+
+#: ../../source/usage/configure_behavior.md:848
+msgid "Use group behaviors when actions depend on multiple agents together"
+msgstr "当动作依赖于多个智能体协同时使用群组行为"
