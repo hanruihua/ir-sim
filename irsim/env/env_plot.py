@@ -10,7 +10,7 @@ import glob
 import os
 import shutil
 from collections.abc import Iterable
-from math import cos, sin
+from math import cos, pi, sin
 from typing import Any, Optional
 
 import imageio.v3 as imageio
@@ -18,12 +18,13 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
+from matplotlib import image
 from matplotlib.lines import Line2D
 from matplotlib.patches import Arrow, Circle, Ellipse, Polygon, Rectangle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 
 from irsim.config.path_param import path_manager as pm
-from irsim.util.util import points_to_xy_list, traj_to_xy_list
+from irsim.util.util import file_check, points_to_xy_list, traj_to_xy_list
 
 
 class EnvPlot:
@@ -906,3 +907,530 @@ def set_patch_property(
         element.set_linewidth(linewidth)
     if fill is not None and hasattr(element, "set_fill"):
         element.set_fill(fill)
+
+
+def draw_text(
+    ax: Any,
+    text: str,
+    state: np.ndarray,
+    offset: Optional[list[float]] = None,
+    color: str = "k",
+    size: int = 10,
+    alpha: float = 1.0,
+    zorder: int = 2,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw text at a position relative to the given state.
+
+    Args:
+        ax: Matplotlib axis.
+        text: Text string to display.
+        state: State vector [x, y, theta, ...].
+        offset: Position offset [dx, dy] from state position. Defaults to [0, 0].
+        color: Text color.
+        size: Font size.
+        alpha: Text transparency.
+        zorder: Drawing order.
+        **kwargs: Additional text kwargs.
+
+    Returns:
+        Text artist.
+    """
+    if offset is None:
+        offset = [0, 0]
+
+    x = float(state[0, 0]) + offset[0]
+    y = float(state[1, 0]) + offset[1]
+
+    if isinstance(ax, Axes3D):
+        z = float(state[2, 0]) if state.shape[0] >= 6 else 0
+        text_artist = ax.text(
+            x, y, z, text, fontsize=size, color=color, alpha=alpha, zorder=zorder, **kwargs
+        )
+    else:
+        text_artist = ax.text(
+            x, y, text, fontsize=size, color=color, alpha=alpha, zorder=zorder, **kwargs
+        )
+
+    return text_artist
+
+
+def update_text_position(
+    text_artist: Any,
+    state: np.ndarray,
+    offset: Optional[list[float]] = None,
+) -> None:
+    """
+    Update text artist position based on state and offset.
+
+    Args:
+        text_artist: Matplotlib text artist.
+        state: Current state vector [x, y, theta, ...].
+        offset: Position offset [dx, dy] from state position. Defaults to [0, 0].
+    """
+    if offset is None:
+        offset = [0, 0]
+
+    x = float(state[0, 0]) + offset[0]
+    y = float(state[1, 0]) + offset[1]
+    text_artist.set_position((x, y))
+
+
+def update_text_style(
+    text_artist: Any,
+    color: Optional[str] = None,
+    size: Optional[int] = None,
+    alpha: Optional[float] = None,
+    zorder: Optional[int] = None,
+) -> None:
+    """
+    Update text artist style properties.
+
+    Args:
+        text_artist: Matplotlib text artist.
+        color: Text color.
+        size: Font size.
+        alpha: Text transparency.
+        zorder: Drawing order.
+    """
+    if color is not None:
+        text_artist.set_color(color)
+    if size is not None:
+        text_artist.set_fontsize(size)
+    if alpha is not None:
+        text_artist.set_alpha(alpha)
+    if zorder is not None:
+        text_artist.set_zorder(zorder)
+
+
+def draw_trajectory_line(
+    ax: Any,
+    trajectory: list[Any],
+    color: str,
+    style: str = "-",
+    width: float = 1.0,
+    alpha: float = 0.5,
+    zorder: int = 0,
+    shape: str = "circle",
+    keep_length: int = 0,
+) -> Any:
+    """
+    Draw a trajectory line on the given axis.
+
+    Args:
+        ax: Matplotlib axis.
+        trajectory: List of state arrays.
+        color: Line color.
+        style: Line style (-, --, :, -.).
+        width: Line width in data units (will be converted).
+        alpha: Line transparency.
+        zorder: Drawing order.
+        shape: Object shape (affects cap style).
+        keep_length: Number of points to keep (0 = all).
+
+    Returns:
+        Line artist (list from ax.plot).
+    """
+    if keep_length > 0:
+        trajectory = trajectory[-keep_length:]
+
+    if not trajectory:
+        return ax.plot([], [], color=color, linestyle=style, alpha=alpha, zorder=zorder)
+
+    x_list = [t[0, 0] for t in trajectory]
+    y_list = [t[1, 0] for t in trajectory]
+
+    linewidth = linewidth_from_data_units(width, ax, "y")
+
+    if isinstance(ax, Axes3D):
+        linewidth = width * 10  # 3D scaling factor
+
+    solid_capstyle = "round" if shape == "circle" else "butt"
+
+    return ax.plot(
+        x_list,
+        y_list,
+        color=color,
+        linestyle=style,
+        linewidth=linewidth,
+        solid_joinstyle="round",
+        solid_capstyle=solid_capstyle,
+        alpha=alpha,
+        zorder=zorder,
+    )
+
+
+def update_trajectory_line(
+    line: Any,
+    ax: Any,
+    trajectory: list[Any],
+    width: float = 1.0,
+    keep_length: int = 0,
+    color: Optional[str] = None,
+    style: Optional[str] = None,
+    alpha: Optional[float] = None,
+    zorder: Optional[int] = None,
+) -> None:
+    """
+    Update trajectory line data and style.
+
+    Args:
+        line: Line artist (list from ax.plot).
+        ax: Matplotlib axis.
+        trajectory: List of state arrays.
+        width: Line width in data units.
+        keep_length: Number of points to keep (0 = all).
+        color: Line color to update.
+        style: Line style to update.
+        alpha: Line transparency to update.
+        zorder: Drawing order to update.
+    """
+    if keep_length > 0:
+        trajectory = trajectory[-keep_length:]
+
+    if not trajectory:
+        x_list, y_list = [], []
+    else:
+        x_list = [t[0, 0] for t in trajectory]
+        y_list = [t[1, 0] for t in trajectory]
+
+    if isinstance(line, list) and len(line) > 0:
+        line_obj = line[0]
+        if isinstance(ax, Axes3D):
+            z_list = [0] * len(x_list)
+            line_obj.set_data_3d(x_list, y_list, z_list)
+        else:
+            line_obj.set_data(x_list, y_list)
+
+        linewidth = linewidth_from_data_units(width, ax, "y")
+        line_obj.set_linewidth(linewidth)
+
+        if color is not None:
+            line_obj.set_color(color)
+        if style is not None:
+            line_obj.set_linestyle(style)
+        if alpha is not None:
+            line_obj.set_alpha(alpha)
+        if zorder is not None:
+            line_obj.set_zorder(zorder)
+
+
+def update_line_data(
+    line: Any,
+    ax: Any,
+    vertices: np.ndarray,
+    state: np.ndarray,
+) -> None:
+    """
+    Update line data by transforming vertices with state.
+
+    Args:
+        line: Line2D artist.
+        ax: Matplotlib axis.
+        vertices: Original vertices (2, N).
+        state: Current state [x, y, theta, ...].
+    """
+    x = float(state[0, 0])
+    y = float(state[1, 0])
+    theta = float(state[2, 0])
+
+    cos_phi = np.cos(theta)
+    sin_phi = np.sin(theta)
+    rotation_matrix = np.array([[cos_phi, -sin_phi], [sin_phi, cos_phi]])
+    rotated_vertices = np.dot(vertices.T, rotation_matrix.T).T
+    translated_vertices = rotated_vertices + np.array([[x], [y]])
+
+    line.set_data(translated_vertices[0, :], translated_vertices[1, :])
+
+
+def draw_object(
+    ax: Any,
+    shape: str,
+    state: np.ndarray,
+    radius: Optional[float] = None,
+    vertices: Optional[np.ndarray] = None,
+    color: str = "k",
+    linestyle: str = "-",
+    zorder: int = 1,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw an object patch on the given axis.
+
+    Args:
+        ax: Matplotlib axis.
+        shape: Shape type ('circle', 'rectangle', 'polygon', etc.).
+        state: State vector [x, y, theta, ...].
+        radius: Radius for circle shapes.
+        vertices: Vertices for polygon/rectangle shapes.
+        color: Object color.
+        linestyle: Line style for outline.
+        zorder: Drawing layer order.
+        **kwargs: Additional kwargs passed to draw_patch.
+
+    Returns:
+        The created patch artist.
+    """
+    return draw_patch(
+        ax,
+        shape=shape,
+        state=state,
+        radius=radius,
+        vertices=vertices,
+        color=color,
+        linestyle=linestyle,
+        zorder=zorder,
+        **kwargs,
+    )
+
+
+def draw_object_image(
+    ax: Any,
+    description: str,
+    state: np.ndarray,
+    vertices: np.ndarray,
+    length: float,
+    width: float,
+    zorder: int = 2,
+    root_path: Optional[str] = None,
+) -> Optional[Any]:
+    """
+    Draw an object using an image file.
+
+    Args:
+        ax: Matplotlib axis.
+        description: Path or name of the image file.
+        state: State vector [x, y, theta, ...].
+        vertices: Vertices for positioning the image.
+        length: Length of the object.
+        width: Width of the object.
+        zorder: Drawing layer order.
+        root_path: Root path for image search. Defaults to path_manager root.
+
+    Returns:
+        The image artist, or None if image not found.
+    """
+    if root_path is None:
+        root_path = pm.root_path + "/world/description/"
+
+    image_path = file_check(description, root_path=root_path)
+    if image_path is None:
+        return None
+
+    start_x = float(vertices[0, 0])
+    start_y = float(vertices[1, 0])
+    r_phi = float(state[2, 0])
+    r_phi_ang = 180 * r_phi / pi
+
+    img_data = image.imread(image_path)
+
+    img_artist = ax.imshow(
+        img_data,
+        extent=[
+            start_x,
+            start_x + length,
+            start_y,
+            start_y + width,
+        ],
+        zorder=zorder,
+    )
+
+    trans_data = (
+        mtransforms.Affine2D().rotate_deg_around(start_x, start_y, r_phi_ang)
+        + ax.transData
+    )
+    img_artist.set_transform(trans_data)
+
+    return img_artist
+
+
+def draw_goal(
+    ax: Any,
+    shape: str,
+    goal_state: np.ndarray,
+    radius: Optional[float] = None,
+    vertices: Optional[np.ndarray] = None,
+    color: str = "k",
+    alpha: float = 0.5,
+    zorder: int = 1,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw a goal marker on the given axis.
+
+    Args:
+        ax: Matplotlib axis.
+        shape: Shape type of the goal marker.
+        goal_state: State vector [x, y, theta, ...] for goal position.
+        radius: Radius for circle shapes.
+        vertices: Vertices for polygon/rectangle shapes.
+        color: Goal marker color.
+        alpha: Transparency.
+        zorder: Drawing layer order.
+        **kwargs: Additional kwargs passed to draw_patch.
+
+    Returns:
+        The created patch artist.
+    """
+    return draw_patch(
+        ax,
+        shape=shape,
+        state=goal_state,
+        radius=radius,
+        vertices=vertices,
+        color=color,
+        alpha=alpha,
+        zorder=zorder,
+        **kwargs,
+    )
+
+
+def draw_arrow(
+    ax: Any,
+    state: np.ndarray,
+    theta: Optional[float] = None,
+    arrow_length: float = 0.4,
+    arrow_width: float = 0.6,
+    color: str = "gold",
+    zorder: int = 4,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw a velocity/heading arrow on the given axis.
+
+    Args:
+        ax: Matplotlib axis.
+        state: State vector [x, y, theta, ...] for arrow position.
+        theta: Arrow direction in radians. If None, uses state[2].
+        arrow_length: Length of the arrow.
+        arrow_width: Width of the arrow.
+        color: Arrow color.
+        zorder: Drawing layer order.
+        **kwargs: Additional kwargs passed to draw_patch.
+
+    Returns:
+        The created arrow patch.
+    """
+    if theta is None:
+        theta = float(state[2, 0]) if state.shape[0] > 2 else 0.0
+
+    return draw_patch(
+        ax,
+        shape="arrow",
+        state=state,
+        color=color,
+        zorder=zorder,
+        arrow_length=arrow_length,
+        arrow_width=arrow_width,
+        theta=theta,
+        **kwargs,
+    )
+
+
+def draw_trail(
+    ax: Any,
+    shape: str,
+    state: np.ndarray,
+    vertices: Optional[np.ndarray] = None,
+    radius: Optional[float] = None,
+    length: Optional[float] = None,
+    width: Optional[float] = None,
+    edgecolor: str = "k",
+    facecolor: str = "k",
+    fill: bool = False,
+    alpha: float = 0.7,
+    linewidth: float = 0.8,
+    zorder: int = 0,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw a trail/ghost element on the given axis.
+
+    Args:
+        ax: Matplotlib axis.
+        shape: Shape type for the trail.
+        state: State vector [x, y, theta, ...] for trail position.
+        vertices: Vertices for polygon/rectangle shapes.
+        radius: Radius for circle shapes.
+        length: Length for rectangle/ellipse shapes.
+        width: Width for rectangle/ellipse shapes.
+        edgecolor: Edge color of the trail.
+        facecolor: Fill color of the trail.
+        fill: Whether to fill the trail shape.
+        alpha: Transparency.
+        linewidth: Line width of the trail edge.
+        zorder: Drawing layer order.
+        **kwargs: Additional kwargs passed to draw_patch.
+
+    Returns:
+        The created patch artist.
+    """
+    return draw_patch(
+        ax,
+        shape=shape,
+        state=state,
+        vertices=vertices,
+        radius=radius,
+        width=length,
+        height=width,
+        edgecolor=edgecolor,
+        facecolor=facecolor,
+        fill=fill,
+        alpha=alpha,
+        linewidth=linewidth,
+        zorder=zorder,
+        **kwargs,
+    )
+
+
+def draw_fov(
+    ax: Any,
+    fov: float,
+    fov_radius: float,
+    facecolor: str = "lightblue",
+    edgecolor: str = "blue",
+    alpha: float = 0.5,
+    zorder: int = 1,
+    **kwargs: Any,
+) -> Any:
+    """
+    Draw a field of view wedge/circle on the given axis.
+
+    The FOV is created at the origin and should be positioned using transforms.
+
+    Args:
+        ax: Matplotlib axis.
+        fov: Field of view angle in radians.
+        fov_radius: Radius of the field of view.
+        facecolor: Fill color of the FOV.
+        edgecolor: Edge color of the FOV.
+        alpha: Transparency.
+        zorder: Drawing layer order.
+        **kwargs: Additional kwargs passed to draw_patch.
+
+    Returns:
+        The created patch artist.
+    """
+    # Create FOV wedge at origin with no rotation
+    start_degree = -180 * fov / (2 * pi)
+    end_degree = 180 * fov / (2 * pi)
+
+    state = np.array([[0.0], [0.0], [0.0]])
+
+    # Use circle if FOV is full 360 degrees
+    shape = "circle" if abs(fov - 2 * pi) < 0.01 else "wedge"
+
+    return draw_patch(
+        ax,
+        shape=shape,
+        state=state,
+        radius=fov_radius,
+        theta1=start_degree,
+        theta2=end_degree,
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        alpha=alpha,
+        zorder=zorder,
+        **kwargs,
+    )
