@@ -21,7 +21,7 @@ class TestKeyboardControlPynput:
     def test_basic_key_presses(self, env_factory, mock_keyboard_key):
         """Test basic keyboard key press and release."""
         env = env_factory("test_keyboard_control.yaml")
-        key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r", "l", "v", "x"]
+        key_list = ["w", "a", "s", "d", "q", "e", "z", "c", "r", "l", "v", "x", "y"]
         mock_keys = [mock_keyboard_key(c) for c in key_list]
 
         for _ in range(3):
@@ -139,6 +139,16 @@ class TestKeyboardControlPynput:
             env.keyboard._on_pynput_release(mock_keyboard_key("v"))
             env.render(0.0)
             mock_save.assert_called_once()
+
+    def test_y_key_toggles_display(self, env_factory, mock_keyboard_key):
+        """Test 'y' key toggles display."""
+        env = env_factory("test_keyboard_control.yaml")
+        env.keyboard._active_only = False  # Allow testing without focus
+        initial_display = env.display
+        env.keyboard._on_pynput_release(mock_keyboard_key("y"))
+        assert env.display != initial_display
+        env.keyboard._on_pynput_release(mock_keyboard_key("y"))
+        assert env.display == initial_display
 
     def test_f5_debug_single_step(self, env_factory):
         """Test F5 key for debug single-step."""
@@ -351,6 +361,15 @@ class TestKeyboardControlMpl:
             env.keyboard._on_mpl_release(mock_mpl_event("v"))
             env.render(0.0)
             mock_save.assert_called_once()
+
+    def test_y_key_toggles_display(self, env_factory, mock_mpl_event):
+        """Test 'y' key toggles display in mpl backend."""
+        env = env_factory("test_keyboard_control2.yaml")
+        initial_display = env.display
+        env.keyboard._on_mpl_release(mock_mpl_event("y"))
+        assert env.display != initial_display
+        env.keyboard._on_mpl_release(mock_mpl_event("y"))
+        assert env.display == initial_display
 
     @pytest.mark.skip(
         reason="Flaky test due to global state pollution - tested in test_all_objects.py"

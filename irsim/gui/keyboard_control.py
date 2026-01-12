@@ -53,6 +53,7 @@ class KeyboardControl:
         - x: Switch between keyboard and auto control modes
         - l: Reload the environment
         - F5: Debug the environment
+        - y: Toggle display render window
 
     Notes:
         - The "mpl" backend requires the Matplotlib figure window to have focus to receive key events.
@@ -90,6 +91,7 @@ class KeyboardControl:
             - x: Switch between keyboard and auto control modes
             - l: Reload the environment
             - F5: Debug the environment
+            - y: Toggle display render window
         """
 
         # Store environment reference for reset functionality
@@ -149,6 +151,7 @@ class KeyboardControl:
                 ["l", "reload the environment"],
                 ["F5", "debug the environment"],
                 ["v", "save the current figure"],
+                ["y", "toggle display render window"],
             ]
 
             headers = ["Key", "Function"]
@@ -307,6 +310,11 @@ class KeyboardControl:
                 self.env_ref.reload_flag = True
                 self.logger.info("reload the environment")
 
+            if key.char == "y":
+                self.env_ref.display = not self.env_ref.display
+                state = "on" if self.env_ref.display else "off"
+                self.logger.info(f"toggle display: {state}")
+
             self.key_vel = np.array([[self.key_lv], [self.key_ang]])
 
         except AttributeError:
@@ -444,6 +452,11 @@ class KeyboardControl:
         if base == "v":
             self.logger.info("save the figure")
             self.env_ref.save_figure_flag = True
+
+        if base == "y":
+            self.env_ref.display = not self.env_ref.display
+            state = "on" if self.env_ref.display else "off"
+            self.logger.info(f"toggle display: {state}")
 
         # Quit environment on ESC/escape
         if base in ("escape", "esc"):
