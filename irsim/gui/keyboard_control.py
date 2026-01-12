@@ -167,8 +167,8 @@ class KeyboardControl:
             self.backend = "mpl"
 
         # Track Matplotlib window focus to gate pynput callbacks
-        # We use button_press_event to detect clicks (more reliable focus indicator)
-        # and figure_leave_event as a fallback for mouse-based deactivation
+        # Keyboard control is activated when mouse enters the figure area
+        # and deactivated when mouse leaves the figure area
         try:
             fig = plt.gcf()
             self._mpl_enter_cid = fig.canvas.mpl_connect(
@@ -179,10 +179,6 @@ class KeyboardControl:
             )
             self._mpl_close_cid = fig.canvas.mpl_connect(
                 "close_event", self._on_mpl_close
-            )
-            # Track button press to reliably detect when this window gains focus
-            self._mpl_button_cid = fig.canvas.mpl_connect(
-                "button_press_event", self._on_mpl_button_press
             )
         except Exception:
             pass
@@ -540,10 +536,6 @@ class KeyboardControl:
         self._is_active = False
         if _active_keyboard_instance is self:
             _active_keyboard_instance = None
-
-    def _on_mpl_button_press(self, event: Any) -> None:
-        """Handle mouse button press to reliably detect window focus."""
-        self._set_active()
 
     def _set_active(self) -> None:
         """Set this instance as the active keyboard controller."""
