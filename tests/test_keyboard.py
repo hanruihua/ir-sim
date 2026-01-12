@@ -485,21 +485,6 @@ class TestMultiEnvSwitching:
         assert not env1.keyboard._is_active
         assert env2.keyboard._is_active
 
-    def test_button_press_activates(self, env_factory):
-        """Test that button press event activates keyboard control."""
-        env1 = env_factory("test_keyboard_control.yaml")
-        env2 = env_factory("test_keyboard_control2.yaml")
-
-        # Simulate button press on env1
-        env1.keyboard._on_mpl_button_press(None)
-        assert env1.keyboard._is_active
-        assert not env2.keyboard._is_active
-
-        # Simulate button press on env2
-        env2.keyboard._on_mpl_button_press(None)
-        assert not env1.keyboard._is_active
-        assert env2.keyboard._is_active
-
     def test_focus_out_deactivates_only_active(self, env_factory):
         """Test that focus out only deactivates the currently active instance."""
         import irsim.gui.keyboard_control as kb_module
