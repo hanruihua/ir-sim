@@ -1461,11 +1461,13 @@ class ObjectBase:
                      If None, uses the object's current vertices. Defaults to None.
             **kwargs: Additional plotting options
                 - obj_linestyle (str): Line style for object outline, defaults to '-'
+                - obj_edgecolor (str): Edge color, set to 'none' to hide edges
                 - obj_zorder (int): Drawing layer order, defaults to 3 if object is robot, 1 if object is the obstacle.
                 - obj_color (str): Color of the object, defaults to 'k' (black).
                 - obj_alpha (float): Transparency of the object, defaults to 1.0.
         """
         obj_linestyle = kwargs.get("obj_linestyle", "-")
+        obj_edgecolor = kwargs.get("obj_edgecolor")
         obj_zorder = kwargs.get("obj_zorder", 3) if self.role == "robot" else 1
 
         state = self.state if state is None else state
@@ -1481,6 +1483,7 @@ class ObjectBase:
                     radius=self.radius,
                     vertices=vertices,
                     color=self.color,
+                    edgecolor=obj_edgecolor,
                     linestyle=obj_linestyle,
                     zorder=obj_zorder,
                 )
@@ -1572,6 +1575,7 @@ class ObjectBase:
         goal_state: Optional[np.ndarray] = None,
         vertices: Optional[np.ndarray] = None,
         goal_color: Optional[str] = None,
+        goal_edgecolor: Optional[str] = None,
         goal_zorder: Optional[int] = 1,
         goal_alpha: Optional[float] = 0.5,
         **kwargs,
@@ -1586,6 +1590,7 @@ class ObjectBase:
             vertices: Vertices for polygon/rectangle goal shapes.
                      If None, uses original_vertices. Defaults to None.
             goal_color (str): Color of the goal marker. Defaults to be the color of the object.
+            goal_edgecolor (str): Edge color of the goal marker. Set to 'none' to hide edges.
             goal_zorder (int): Zorder of the goal marker. Defaults to 1.
             goal_alpha (float): Transparency of the goal marker. Defaults to 0.5.
         """
@@ -1601,6 +1606,7 @@ class ObjectBase:
             radius=self.radius,
             vertices=vertices,
             color=goal_color,
+            edgecolor=goal_edgecolor,
             alpha=goal_alpha,
             zorder=goal_zorder,
         )

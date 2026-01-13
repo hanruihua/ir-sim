@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import numpy as np
 
@@ -16,6 +16,9 @@ from irsim.world.robots.robot_acker import RobotAcker
 from irsim.world.robots.robot_diff import RobotDiff
 from irsim.world.robots.robot_omni import RobotOmni
 
+if TYPE_CHECKING:
+    from irsim.env.env_theme import EnvTheme
+
 # from irsim.world.robots.robot_rigid3d import RobotRigid3D
 
 
@@ -23,6 +26,19 @@ class ObjectFactory:
     """
     Factory class for creating various objects in the simulation.
     """
+
+    def __init__(self, theme: Optional["EnvTheme"] = None) -> None:
+        """
+        Initialize the ObjectFactory.
+
+        Args:
+            theme: Optional EnvTheme to apply default styles to objects.
+        """
+        self._theme: Optional[EnvTheme] = theme
+
+    def set_theme(self, theme: "EnvTheme") -> None:
+        """Set the theme for object creation."""
+        self._theme = theme
 
     def create_from_parse(
         self,
@@ -113,6 +129,9 @@ class ObjectFactory:
                 "3D state generation is not yet implemented. "
                 "Please set '3d: false' in the distribution configuration."
             )
+
+        # Merge theme defaults with object plot config
+        kwargs = self._merge_theme_defaults(kwargs, obj_type)
 
         object_list = []
 
@@ -295,3 +314,42 @@ class ObjectFactory:
             )
 
         return state_list, goal_list
+
+    def _merge_theme_defaults(
+        self, kwargs: dict[str, Any], obj_type: str
+    ) -> dict[str, Any]:
+        """
+        Merge theme defaults with object kwargs.
+
+        Theme defaults are only applied when the object has no plot config.
+        If the object has any plot config, it takes full priority.
+
+        Args:
+            kwargs: Object configuration kwargs.
+            obj_type: Type of object ('robot' or 'obstacle').
+
+        Returns:
+            Updated kwargs with theme defaults applied if needed.
+        """
+        if self._theme is None:
+            return kwargs
+
+        # Get existing plot config
+        plot_config = kwargs.get("plot")
+
+        # Only apply theme defaults if there's no object-level plot config
+        if plot_config is not None and len(plot_config) > 0:
+            # Object has its own plot config, don't override with theme
+            return kwargs
+
+        # Get theme defaults for this object type
+        if obj_type == "robot":
+            theme_style = self._theme.get_robot_style()
+        elif obj_type == "obstacle":
+            theme_style = self._theme.get_obstacle_style()
+        else:
+            return kwargs
+
+        # Apply theme defaults (nested format)
+        kwargs["plot"] = theme_style.to_dict()
+        return kwargs

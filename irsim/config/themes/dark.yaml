@@ -1,0 +1,45 @@
+# Dark theme for IR-SIM
+# Dark background suitable for presentations and low-light environments
+
+background_color: "#1a1a2e"
+grid_cmap: "cividis"
+grid_alpha: 0.8
+grid_zorder: 0
+
+robot:
+  obj:
+    alpha: 1.0
+    edgecolor: "none"
+    linestyle: "-"
+  goal:
+    show: false
+    edgecolor: "none"
+    alpha: 0.6
+  text:
+    show: false
+    color: "#e0e0e0"
+    size: 10
+  arrow:
+    show: false
+    color: "#ffd700"
+  trajectory:
+    show: false
+    alpha: 0.6
+  trail:
+    show: false
+    alpha: 0.7
+  fov:
+    show: false
+    color: "#4a90d9"
+    edge_color: "#6bb3f0"
+    alpha: 0.4
+
+obstacle:
+  obj:
+    alpha: 1.0
+    edgecolor: "none"
+    linestyle: "-"
+  text:
+    show: false
+    color: "#e0e0e0"
+    size: 10

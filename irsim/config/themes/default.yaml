@@ -1,0 +1,45 @@
+# Default theme for IR-SIM
+# Light background with viridis colormap (perceptually uniform, colorblind-friendly)
+
+background_color: "#ffffff"
+grid_cmap: "viridis"
+grid_alpha: 1.0
+grid_zorder: 0
+
+robot:
+  obj:
+    alpha: 0.2
+    edgecolor: "none"
+    linestyle: "-"
+  goal:
+    show: false
+    edgecolor: "none"
+    alpha: 0.5
+  text:
+    show: false
+    color: "k"
+    size: 10
+  arrow:
+    show: false
+    color: "gold"
+  trajectory:
+    show: false
+    alpha: 0.5
+  trail:
+    show: false
+    alpha: 0.7
+  fov:
+    show: false
+    color: "lightblue"
+    edge_color: "blue"
+    alpha: 0.5
+
+obstacle:
+  obj:
+    alpha: 0.8
+    edgecolor: "none"
+    linestyle: "-"
+  text:
+    show: false
+    color: "k"
+    size: 10

@@ -11,6 +11,7 @@ from irsim.world.object_factory import ObjectFactory
 from irsim.world.object_group import ObjectGroup
 
 from .env_plot import EnvPlot
+from .env_theme import EnvTheme
 
 if TYPE_CHECKING:
     from irsim.config.env_param import EnvParam
@@ -37,6 +38,7 @@ class EnvConfig:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
         self._world_param = world_param_instance
+        self._theme: EnvTheme = EnvTheme()  # Default theme
         self.load_yaml(world_name)
 
     def load_yaml(self, world_name: Optional[str] = None) -> None:
@@ -78,6 +80,42 @@ class EnvConfig:
             self.logger.error(
                 f"{self.world_name} YAML File not found!, using default world config as alternative."
             )
+
+        # Load theme from world config
+        self._load_theme()
+
+    def _load_theme(self) -> None:
+        """Load theme from world config or use default theme file."""
+        theme_config = self.parse["world"].get("theme")
+
+        if theme_config is None:
+            # Load default theme from file
+            try:
+                self._theme = EnvTheme.load("default")
+            except FileNotFoundError:
+                self._theme = EnvTheme()
+        elif isinstance(theme_config, str):
+            # Load theme by name or path
+            try:
+                self._theme = EnvTheme.load(theme_config)
+            except FileNotFoundError as e:
+                self.logger.warning(f"Theme load failed: {e}. Using default theme.")
+                try:
+                    self._theme = EnvTheme.load("default")
+                except FileNotFoundError:
+                    self._theme = EnvTheme()
+        elif isinstance(theme_config, dict):
+            # Theme defined inline in YAML
+            self._theme = EnvTheme.from_dict(theme_config)
+        else:
+            self.logger.warning(f"Invalid theme config type: {type(theme_config)}. Using default theme.")
+            try:
+                self._theme = EnvTheme.load("default")
+            except FileNotFoundError:
+                self._theme = EnvTheme()
+
+        # Set theme on object factory
+        self.object_factory.set_theme(self._theme)
 
     def initialize_objects(self) -> Any:
         """Construct world, objects and plot from the current parsed config.
@@ -121,7 +159,7 @@ class EnvConfig:
             for gid in group_ids
         ]
 
-        env_plot = EnvPlot(world, objects)
+        env_plot = EnvPlot(world, objects, theme=self._theme)
 
         # cache for in-place reload
         self._env_plot = env_plot
@@ -178,7 +216,7 @@ class EnvConfig:
 
         # env_plot = EnvPlot(world, objects, **world.plot_parse)
         self._env_plot.clear_components("all", self._objects)
-        self._env_plot._init_plot(world, objects)
+        self._env_plot._init_plot(world, objects, theme=self._theme)
 
         return (
             world,
@@ -243,3 +281,8 @@ class EnvConfig:
         from irsim.config import env_param
 
         return env_param.logger
+
+    @property
+    def theme(self) -> EnvTheme:
+        """Get the current environment theme."""
+        return self._theme

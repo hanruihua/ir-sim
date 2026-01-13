@@ -8,8 +8,11 @@ and a new nested format for cleaner configuration.
 Author: Ruihua Han
 """
 
+import os
 from dataclasses import asdict, dataclass, field
 from typing import Any, Optional
+
+import yaml
 
 
 @dataclass
@@ -17,6 +20,7 @@ class ObjStyle:
     """Style properties for the object itself."""
 
     color: Optional[str] = None  # Falls back to object.color
+    edgecolor: Optional[str] = None  # Edge color, set to "none" to hide edges
     alpha: float = 1.0
     linestyle: str = "-"
     zorder: Optional[int] = None  # Falls back to 3 for robots, 1 for obstacles
@@ -25,6 +29,7 @@ class ObjStyle:
         """Convert to kwargs with 'obj_' prefix for backward compatibility."""
         return {
             "obj_color": self.color,
+            "obj_edgecolor": self.edgecolor,
             "obj_alpha": self.alpha,
             "obj_linestyle": self.linestyle,
             "obj_zorder": self.zorder,
@@ -39,6 +44,7 @@ class GoalStyle:
     show_text: bool = False
     show_all: bool = False  # show_goals - show multiple goals
     color: Optional[str] = None  # Falls back to object color
+    edgecolor: Optional[str] = None  # Edge color, set to "none" to hide edges
     alpha: float = 0.5
     zorder: int = 1
 
@@ -49,6 +55,7 @@ class GoalStyle:
             "show_goal_text": self.show_text,
             "show_goals": self.show_all,
             "goal_color": self.color,
+            "goal_edgecolor": self.edgecolor,
             "goal_alpha": self.alpha,
             "goal_zorder": self.zorder,
         }
@@ -272,6 +279,7 @@ class PlotStyle:
         return cls(
             obj=ObjStyle(
                 color=d.get("obj_color"),
+                edgecolor=d.get("obj_edgecolor"),
                 alpha=d.get("obj_alpha", 1.0),
                 linestyle=d.get("obj_linestyle", "-"),
                 zorder=d.get("obj_zorder"),
@@ -281,6 +289,7 @@ class PlotStyle:
                 show_text=d.get("show_goal_text", False),
                 show_all=d.get("show_goals", False),
                 color=d.get("goal_color"),
+                edgecolor=d.get("goal_edgecolor"),
                 alpha=d.get("goal_alpha", 0.5),
                 zorder=d.get("goal_zorder", 1),
             ),
@@ -367,3 +376,135 @@ class PlotStyle:
         result = self.to_kwargs()
         result.update(kwargs)
         return result
+
+
+# Path to built-in themes directory
+_THEMES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config", "themes")
+
+
+@dataclass
+class EnvTheme:
+    """
+    Global environment theme for controlling all visualization styles.
+
+    This class provides centralized theme configuration that applies default
+    styles to all objects in the environment. Individual object styles can
+    still override these defaults.
+
+    Attributes:
+        background_color: Background color of the figure (hex or named color).
+        grid_cmap: Colormap for grid map visualization.
+        grid_alpha: Alpha (transparency) for grid map.
+        grid_zorder: Z-order (drawing layer) for grid map.
+        robot: Default PlotStyle for robot objects.
+        obstacle: Default PlotStyle for obstacle objects.
+
+    Example:
+        # Load built-in theme
+        theme = EnvTheme.load("dark")
+
+        # Load custom theme from file
+        theme = EnvTheme.load("./my_theme.yaml")
+
+        # Create programmatically
+        theme = EnvTheme(background_color="#1a1a2e", grid_cmap="viridis")
+    """
+
+    # Environment-level styles
+    background_color: str = "#ffffff"
+    grid_cmap: str = "viridis"
+    grid_alpha: float = 1.0
+    grid_zorder: int = 0
+
+    # Default styles for object types
+    robot: PlotStyle = field(default_factory=PlotStyle)
+    obstacle: PlotStyle = field(default_factory=PlotStyle)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert theme to nested dictionary representation."""
+        return {
+            "background_color": self.background_color,
+            "grid_cmap": self.grid_cmap,
+            "grid_alpha": self.grid_alpha,
+            "grid_zorder": self.grid_zorder,
+            "robot": self.robot.to_dict(),
+            "obstacle": self.obstacle.to_dict(),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "EnvTheme":
+        """
+        Create EnvTheme from a dictionary.
+
+        Args:
+            d: Dictionary with theme configuration.
+
+        Returns:
+            EnvTheme instance.
+        """
+        robot_dict = d.get("robot", {})
+        obstacle_dict = d.get("obstacle", {})
+
+        return cls(
+            background_color=d.get("background_color", "#ffffff"),
+            grid_cmap=d.get("grid_cmap", "viridis"),
+            grid_alpha=d.get("grid_alpha", 1.0),
+            grid_zorder=d.get("grid_zorder", 0),
+            robot=PlotStyle.from_dict(robot_dict) if robot_dict else PlotStyle(),
+            obstacle=PlotStyle.from_dict(obstacle_dict) if obstacle_dict else PlotStyle(),
+        )
+
+    @classmethod
+    def load(cls, theme_name_or_path: str) -> "EnvTheme":
+        """
+        Load theme from a built-in name or file path.
+
+        Args:
+            theme_name_or_path: Either a built-in theme name (e.g., "default", "dark")
+                or a path to a custom YAML theme file.
+
+        Returns:
+            EnvTheme instance.
+
+        Raises:
+            FileNotFoundError: If the theme file cannot be found.
+        """
+        # Check if it's a file path
+        if os.path.isfile(theme_name_or_path):
+            theme_path = theme_name_or_path
+        else:
+            # Try built-in themes
+            theme_path = os.path.join(_THEMES_DIR, f"{theme_name_or_path}.yaml")
+            if not os.path.isfile(theme_path):
+                raise FileNotFoundError(
+                    f"Theme '{theme_name_or_path}' not found. "
+                    f"Available built-in themes: {cls.list_themes()}"
+                )
+
+        with open(theme_path) as f:
+            theme_dict = yaml.safe_load(f) or {}
+
+        return cls.from_dict(theme_dict)
+
+    @classmethod
+    def list_themes(cls) -> list[str]:
+        """
+        List available built-in theme names.
+
+        Returns:
+            List of theme names (without .yaml extension).
+        """
+        if not os.path.isdir(_THEMES_DIR):
+            return []
+        return [
+            f[:-5] for f in os.listdir(_THEMES_DIR)
+            if f.endswith(".yaml")
+        ]
+
+    def get_robot_style(self) -> PlotStyle:
+        """Get default PlotStyle for robots."""
+        return self.robot
+
+    def get_obstacle_style(self) -> PlotStyle:
+        """Get default PlotStyle for obstacles."""
+        return self.obstacle

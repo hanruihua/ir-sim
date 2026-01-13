@@ -11,7 +11,7 @@ import os
 import shutil
 from collections.abc import Iterable
 from math import cos, pi, sin
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import imageio.v3 as imageio
 import matplotlib.pyplot as plt
@@ -25,6 +25,9 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import file_check, points_to_xy_list, traj_to_xy_list
+
+if TYPE_CHECKING:
+    from .env_theme import EnvTheme
 
 
 class EnvPlot:
@@ -45,6 +48,7 @@ class EnvPlot:
         self,
         world: Any,
         objects: Optional[list[Any]] = None,
+        theme: Optional[EnvTheme] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -56,6 +60,13 @@ class EnvPlot:
         """
 
         world.plot_parse.update(kwargs)
+
+        # Store theme (use default if None)
+        if theme is None:
+            from .env_theme import EnvTheme
+            self._theme = EnvTheme()
+        else:
+            self._theme = theme
 
         # default saved figure kwargs
         self.saved_figure_kwargs: dict[str, Any] = {
@@ -86,12 +97,13 @@ class EnvPlot:
         self.dyna_quiver_list: list[Any] = []
 
         # Initialize the plot with world data
-        self._init_plot(world, objects, **kwargs)
+        self._init_plot(world, objects, theme=self._theme, **kwargs)
 
     def _init_plot(
         self,
         world: Any,
         objects: list[Any],
+        theme: Optional[EnvTheme] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -103,6 +115,7 @@ class EnvPlot:
         Args:
             world: World instance providing ranges and grid map.
             objects (list): List of objects to initialize and draw.
+            theme: Optional EnvTheme to apply.
             **kwargs: Plot overrides merged into ``world.plot_parse``.
         """
 
@@ -112,6 +125,14 @@ class EnvPlot:
         self.title = world.plot_parse.get("title", None)
         self.show_title = world.plot_parse.get("show_title", True)
         self.saved_figure_kwargs.update(world.plot_parse.get("saved_figure", {}))
+
+        # Update theme if provided
+        if theme is not None:
+            self._theme = theme
+
+        # Apply theme background color
+        self.fig.set_facecolor(self._theme.background_color)
+        self.ax.set_facecolor(self._theme.background_color)
 
         if isinstance(self.ax, Axes3D):
             self.ax.set_box_aspect([1, 1, 1])
@@ -255,10 +276,11 @@ class EnvPlot:
         if grid_map is not None:
             self.ax.imshow(
                 grid_map.T,
-                cmap="Greys",
+                cmap=self._theme.grid_cmap,
+                alpha=self._theme.grid_alpha,
                 origin="lower",
                 extent=self.x_range + self.y_range,
-                zorder=0,
+                zorder=self._theme.grid_zorder,
             )
 
             if isinstance(self.ax, Axes3D):
@@ -587,6 +609,11 @@ class EnvPlot:
     @property
     def y_range(self):
         return self.world.y_range
+
+    @property
+    def theme(self) -> EnvTheme:
+        """Get the current environment theme."""
+        return self._theme
 
 
 def linewidth_from_data_units(

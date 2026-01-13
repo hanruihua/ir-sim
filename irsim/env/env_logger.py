@@ -1,8 +1,6 @@
 import sys
 from typing import Optional
-
 from loguru import logger
-
 
 class EnvLogger:
     def __init__(
