@@ -142,6 +142,26 @@ class Lidar2D:
 
         return env_param
 
+    def _ensure_multi_linestring(self, geometry):
+        """
+        Ensure geometry is a MultiLineString, converting if necessary.
+
+        Args:
+            geometry: Shapely geometry object.
+
+        Returns:
+            MultiLineString: Geometry as MultiLineString.
+        """
+        if geometry.geom_type == "LineString":
+            return MultiLineString([geometry])
+        if geometry.geom_type == "MultiLineString":
+            return geometry
+        if geometry.is_empty:
+            return MultiLineString()
+
+        # Handle other geometry types by converting to MultiLineString
+        return MultiLineString([geometry])
+
     def init_geometry(self, state):
         """
         Initialize the Lidar's scanning geometry.
@@ -186,14 +206,17 @@ class Lidar2D:
         new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
 
         if len(intersect_indices) == 0:
-            self._geometry = new_geometry
+            self._geometry = self._ensure_multi_linestring(new_geometry)
             self.calculate_range()
         else:
+            new_geometry = self._ensure_multi_linestring(new_geometry)
             origin_point = Point(self.lidar_origin[0, 0], self.lidar_origin[1, 0])
             filtered_geoms = [
                 g for g in new_geometry.geoms if g.intersects(origin_point)
             ]
-            self._geometry = MultiLineString(filtered_geoms)
+            self._geometry = (
+                MultiLineString(filtered_geoms) if filtered_geoms else MultiLineString()
+            )
             self.calculate_range_vel(intersect_indices)
 
     def laser_geometry_process(self, lidar_geometry):
@@ -249,6 +272,8 @@ class Lidar2D:
         if geometries_to_subtract:
             merged_geometry = unary_union(geometries_to_subtract)
             lidar_geometry = lidar_geometry.difference(merged_geometry)
+            # Ensure result is always a MultiLineString
+            lidar_geometry = self._ensure_multi_linestring(lidar_geometry)
 
         return lidar_geometry, intersect_indices
 
