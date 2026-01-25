@@ -67,9 +67,7 @@ msgid ""
 "section should be specified. The `mdownsample` parameter is used to "
 "downsample the image for acceleration. The image of `cave.png` should be "
 "placed in the same directory as the python script, and is shown below:"
-msgstr ""
-"配置网格地图需要在 `world` 部分指定 `obstacle_map`。`mdownsample` "
-"用于对图像降采样以加速。`cave.png` 图像需与 Python 脚本位于同一目录，效果如下："
+msgstr "配置网格地图需要在 `world` 部分指定 `obstacle_map`。`mdownsample` 用于对图像降采样以加速。`cave.png` 图像需与 Python 脚本位于同一目录，效果如下："
 
 #: ../../source/usage/configure_grid_map.md:95
 msgid ""

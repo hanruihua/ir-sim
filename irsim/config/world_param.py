@@ -1,18 +1,13 @@
 """
-world parameters:
+World parameters.
+
+Attributes:
     time: time elapse of the simulation
-    control_mode:
-        - auto: robot will be controlled automatically
-        - keyboard: robot will be controlled by keyboard
-
-    collision_mode:
-        - stop (default): All Objects stop when collision,
-        - unobstructed: No collision check
-        - unobstructed_obstacles: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
-
+    control_mode: 'auto' (robot controlled automatically) or 'keyboard' (robot controlled by keyboard)
+    collision_mode: 'stop' (default, all objects stop on collision), 'unobstructed' (no collision check),
+        or 'unobstructed_obstacles' (only obstacles pass through each other)
     step_time: time of the simulation step, default is 0.1
     count: count of the simulation, time = count * step_time
-
 """
 
 from dataclasses import dataclass

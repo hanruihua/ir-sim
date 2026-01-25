@@ -1,3 +1,33 @@
+# Changelog
+
+## 2.9.0
+
+This version adds multi-environment support with instance-based parameters, allowing multiple independent simulation environments to run simultaneously. It also introduces 1D ToF sensor support and keyboard improvements.
+
+- Features:
+  - Add 1D ToF (Time-of-Flight) sensor support by setting lidar2d sensor `number: 1` and `angle_range: 0`. ([#200](https://github.com/hanruihua/ir-sim/pull/200))
+  - Add multi-environment keyboard switching support. Only one environment responds to keyboard input at a time; switching occurs via mouse click or focus events. ([#192](https://github.com/hanruihua/ir-sim/pull/192))
+  - Add `y` key to toggle display render window on/off. ([#194](https://github.com/hanruihua/ir-sim/pull/194))
+
+- Refactor:
+  - Environment parameters (`env_param`, `world_param`, `path_param`) are now instance-based rather than global, enabling proper multi-environment support. ([#191](https://github.com/hanruihua/ir-sim/pull/191))
+
+- Fix:
+  - Fix `robot` property to raise `IndexError` with clear message when no robots exist. ([#188](https://github.com/hanruihua/ir-sim/pull/188))
+  - Fix `save_figure` to handle filenames with multiple dots correctly. ([#188](https://github.com/hanruihua/ir-sim/pull/188))
+  - Fix type annotations for `get_group_by_name`, `get_obstacle_info_list`, `get_robot_info_list`, and `random_obstacle_position`. ([#188](https://github.com/hanruihua/ir-sim/pull/188))
+  - Fix `set_ax_viewpoint` to handle `None` objects parameter. ([#188](https://github.com/hanruihua/ir-sim/pull/188))
+  - Add `NotImplementedError` for 3D state generation and uniform distribution (not yet implemented). ([#188](https://github.com/hanruihua/ir-sim/pull/188))
+
+- Docs:
+  - Add changelog and contributing pages to documentation. ([#203](https://github.com/hanruihua/ir-sim/pull/203))
+  - Improve custom behavior tutorial and examples. ([#193](https://github.com/hanruihua/ir-sim/pull/193))
+  - Fix formatting issues in documentation. ([#190](https://github.com/hanruihua/ir-sim/pull/190))
+
+- Tests:
+  - Refactor and improve test coverage from 94% to 97%. ([#189](https://github.com/hanruihua/ir-sim/pull/189))
+  - Add tests for multi-env keyboard switching and display toggle.
+
 ## 2.8.2
 
 - Features #183:

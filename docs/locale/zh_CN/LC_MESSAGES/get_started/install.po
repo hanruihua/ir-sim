@@ -53,7 +53,7 @@ msgstr "先安装 `conda`_。"
 
 #: ../../source/get_started/install.rst:27
 msgid "2. Create a new conda environment, ::"
-msgstr "2. 创建一个新的 conda 环境：::"
+msgstr "2. 创建一个新的 conda 环境："
 
 #: ../../source/get_started/install.rst:33
 msgid "or activate an existing one"
@@ -61,7 +61,7 @@ msgstr "或激活一个已有的环境"
 
 #: ../../source/get_started/install.rst:35
 msgid "3. Install ``ir-sim`` in the virtual environment ::"
-msgstr "3. 在该虚拟环境中安装 ``ir-sim``：::"
+msgstr "3. 在该虚拟环境中安装 ``ir-sim``："
 
 #: ../../source/get_started/install.rst:42
 msgid "`uv`_ is an extremely fast Python package and project manager."
@@ -89,7 +89,7 @@ msgstr "按以下步骤从源码安装 IR-SIM："
 msgid ""
 "Clone the official `IR-SIM git repository`_, or a newly minted fork of "
 "the IR-SIM repository."
-msgstr "克隆官方 `IR-SIM git 仓库`"
+msgstr "克隆官方 `IR-SIM git repository`_，或 fork 该仓库。"
 
 #: ../../source/get_started/install.rst:68
 msgid "Navigate to the top-level of the cloned directory."
