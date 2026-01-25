@@ -9,22 +9,20 @@ Welcome to IR-SIM's documentation!
 
 **IR-SIM** is an open-source, Python-based, lightweight robot simulator designed for navigation, control, and learning. It provides a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments. Ideal for academic and educational use, IR-SIM enables rapid prototyping of robotics and AI algorithms in custom scenarios with minimal coding and hardware requirements.
 
-.. grid:: 1 1 2 2
-    :gutter: 2 3 4 4
+.. grid:: 1 2 2 2
+    :gutter: 2
 
     .. grid-item-card:: 🚀 Quick Start
         :link: get_started/index
         :link-type: doc
         :text-align: center
-        :shadow: lg
-      
+
         Get up and running with IR-SIM in minutes
 
-    .. grid-item-card:: 📚 User Guide  
+    .. grid-item-card:: 📚 User Guide
         :link: usage/index
         :link-type: doc
         :text-align: center
-        :shadow: lg
 
         Learn how to use IR-SIM effectively
 
@@ -32,7 +30,6 @@ Welcome to IR-SIM's documentation!
         :link: yaml_config/index
         :link-type: doc
         :text-align: center
-        :shadow: lg
 
         YAML configuration syntax and examples
 
@@ -40,9 +37,22 @@ Welcome to IR-SIM's documentation!
         :link: api/index
         :link-type: doc
         :text-align: center
-        :shadow: lg
 
         Complete API documentation
+
+    .. grid-item-card:: 📋 Changelog
+        :link: changelog
+        :link-type: doc
+        :text-align: center
+
+        Version history and release notes
+
+    .. grid-item-card:: 🤝 Contributing
+        :link: contributing
+        :link-type: doc
+        :text-align: center
+
+        Guide for contributors
 
 ----
 
@@ -127,31 +137,21 @@ Key Features
 
 .. toctree::
    :maxdepth: 2
-   :caption: Getting Started:
+   :caption: Documentation
    :hidden:
 
-   get_started/index
+   Getting Started <get_started/index>
+   User Guide <usage/index>
+   Configuration <yaml_config/index>
+   API Reference <api/index>
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Guide:
+   :caption: Development
    :hidden:
 
-   usage/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: YAML Configuration Syntax:
-   :hidden:
-
-   yaml_config/index
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API Reference:
-   :hidden:
-
-   api/index
+   Contributing <contributing>
+   Changelog <changelog>
 
 ----
 

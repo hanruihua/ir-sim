@@ -232,12 +232,15 @@ html_theme_options = {
     #     "text": "IR-SIM",
     # },
     "navbar_start": ["navbar-logo"],
+    "navbar_center": ["navbar-nav"],
     "navbar_end": [
         "version-switcher",
         "theme-switcher",
         "navbar-lang-switch",
         "navbar-icon-links",
     ],
+    # Show 4 nav items before collapsing rest to dropdown
+    "header_links_before_dropdown": 4,
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/main/docs/source/_static/switcher.json",
         "version_match": release,
@@ -250,7 +253,8 @@ html_theme_options = {
     "secondary_sidebar_items": ["page-toc", "edit-this-page", "sourcelink"],
     # Show more levels in the table of contents by default
     "show_toc_level": 3,  # Shows headings up to level 2 by default
-    # "navbar_persistent": [],  # Enable search in navbar
+    # Add search button to navbar
+    "navbar_persistent": ["search-button"],
 }
 
 

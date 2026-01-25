@@ -1,0 +1,139 @@
+# Chinese translations for IR-SIM contributing.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-26 00:00+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/contributing.md:1
+msgid "Contributing to IR-SIM"
+msgstr "为 IR-SIM 做贡献"
+
+#: ../../source/contributing.md:3
+msgid "Thank you for your interest in improving IR-SIM! Whether you're fixing a typo, adding a new feature, or writing documentation, your contribution is welcome by opening an issue or a pull request to the `main` branch. Below are a few guidelines to help you get started."
+msgstr "感谢您对改进 IR-SIM 的关注！无论是修复拼写错误、添加新功能还是编写文档，我们都欢迎您通过向 `main` 分支提交 issue 或 pull request 来贡献。以下是一些帮助您入门的指南。"
+
+#: ../../source/contributing.md:7
+msgid "What You Can Contribute"
+msgstr "您可以贡献什么"
+
+#: ../../source/contributing.md:9
+msgid "**Source Code**"
+msgstr "**源代码**"
+
+#: ../../source/contributing.md:10
+msgid "New features (sensors, controllers, kinematic models)"
+msgstr "新功能（传感器、控制器、运动学模型）"
+
+#: ../../source/contributing.md:11
+msgid "Bug fixes and performance improvements"
+msgstr "错误修复和性能改进"
+
+#: ../../source/contributing.md:13
+msgid "**Documentation**"
+msgstr "**文档**"
+
+#: ../../source/contributing.md:14
+msgid "Fix typos, clarify API descriptions"
+msgstr "修复拼写错误，完善 API 描述"
+
+#: ../../source/contributing.md:15
+msgid "Add new tutorials or usage guides"
+msgstr "添加新的教程或使用指南"
+
+#: ../../source/contributing.md:16
+msgid "Improve examples under [`docs/`](https://ir-sim.readthedocs.io/en/stable/)"
+msgstr "改进 [`docs/`](https://ir-sim.readthedocs.io/en/stable/) 下的示例"
+
+#: ../../source/contributing.md:18
+msgid "**Usage Examples & Tests**"
+msgstr "**使用示例与测试**"
+
+#: ../../source/contributing.md:19
+msgid "Extend or polish the [`usage/`](https://github.com/hanruihua/ir-sim/tree/main/usage) directory"
+msgstr "扩展或完善 [`usage/`](https://github.com/hanruihua/ir-sim/tree/main/usage) 目录"
+
+#: ../../source/contributing.md:20
+msgid "Add unit tests for new features"
+msgstr "为新功能添加单元测试"
+
+#: ../../source/contributing.md:22
+msgid "**Discussion & Design**"
+msgstr "**讨论与设计**"
+
+#: ../../source/contributing.md:23
+msgid "Propose architectural changes"
+msgstr "提出架构变更建议"
+
+#: ../../source/contributing.md:24
+msgid "Provide feedback on roadmap or UX"
+msgstr "对路线图或用户体验提供反馈"
+
+#: ../../source/contributing.md:28
+msgid "Code Style"
+msgstr "代码风格"
+
+#: ../../source/contributing.md:30
+msgid "We use **[Ruff](https://docs.astral.sh/ruff/)** to format and lint Python code. Before opening a PR, run:"
+msgstr "我们使用 **[Ruff](https://docs.astral.sh/ruff/)** 来格式化和检查 Python 代码。在提交 PR 之前，请运行："
+
+#: ../../source/contributing.md:37
+msgid "To enable automatic checks on each commit, install the pre-commit hook:"
+msgstr "要在每次提交时启用自动检查，请安装 pre-commit 钩子："
+
+#: ../../source/contributing.md:46
+msgid "Documentation"
+msgstr "文档"
+
+#: ../../source/contributing.md:48
+msgid "IR-SIM's documentation lives in the `docs/` directory and uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). To build the docs locally:"
+msgstr "IR-SIM 的文档位于 `docs/` 目录，使用 [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/)。要在本地构建文档："
+
+#: ../../source/contributing.md:55
+msgid "New tutorials or guides belong in `docs/` or under `usage/`"
+msgstr "新的教程或指南应放在 `docs/` 或 `usage/` 目录下"
+
+#: ../../source/contributing.md:56
+msgid "The API reference is auto-generated from docstrings"
+msgstr "API 参考文档由 docstring 自动生成"
+
+#: ../../source/contributing.md:60
+msgid "Adding New Features"
+msgstr "添加新功能"
+
+#: ../../source/contributing.md:62
+msgid "Current support of sensors, behaviors, and robot kinematics models can be seen in the [support](https://github.com/hanruihua/ir-sim?tab=readme-ov-file#support)."
+msgstr "当前支持的传感器、行为和机器人运动学模型可在 [support](https://github.com/hanruihua/ir-sim?tab=readme-ov-file#support) 中查看。"
+
+#: ../../source/contributing.md:64
+msgid "New features to support more platforms and scenarios to make IR-SIM more versatile are welcome. Please open an issue to discuss the design. If you prefer, you can also email `hanrh@connect.hku.hk` for a design discussion."
+msgstr "欢迎添加新功能以支持更多平台和场景，使 IR-SIM 更加通用。请提交 issue 讨论设计方案。如果您愿意，也可以发送邮件至 `hanrh@connect.hku.hk` 进行设计讨论。"
+
+#: ../../source/contributing.md:68
+msgid "Testing"
+msgstr "测试"
+
+#: ../../source/contributing.md:70
+msgid "We use **pytest** for our test suite. To run all tests:"
+msgstr "我们使用 **pytest** 作为测试框架。要运行所有测试："
+
+#: ../../source/contributing.md:76
+msgid "Please add tests for any new functionality or bug fix."
+msgstr "请为任何新功能或错误修复添加测试。"
+
+#: ../../source/contributing.md:80
+msgid "Thanks again for helping make IR-SIM better!"
+msgstr "再次感谢您帮助改进 IR-SIM！"

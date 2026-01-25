@@ -1,0 +1,235 @@
+# Chinese translations for IR-SIM changelog.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-26 00:00+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/changelog.md:1
+msgid "Changelog"
+msgstr "更新日志"
+
+#: ../../source/changelog.md:3
+msgid "2.9.0"
+msgstr "2.9.0"
+
+#: ../../source/changelog.md:5
+msgid "This version adds multi-environment support with instance-based parameters, allowing multiple independent simulation environments to run simultaneously. It also introduces 1D ToF sensor support and keyboard improvements."
+msgstr "此版本新增了基于实例参数的多环境支持，允许多个独立的仿真环境同时运行。还引入了 1D ToF 传感器支持和键盘改进。"
+
+#: ../../source/changelog.md:7
+msgid "Features:"
+msgstr "新功能："
+
+#: ../../source/changelog.md:12
+msgid "Refactor:"
+msgstr "重构："
+
+#: ../../source/changelog.md:15
+msgid "Fix:"
+msgstr "修复："
+
+#: ../../source/changelog.md:22
+msgid "Docs:"
+msgstr "文档："
+
+#: ../../source/changelog.md:26
+msgid "Tests:"
+msgstr "测试："
+
+#: ../../source/changelog.md:30
+msgid "2.8.2"
+msgstr "2.8.2"
+
+#: ../../source/changelog.md:42
+msgid "2.8.1"
+msgstr "2.8.1"
+
+#: ../../source/changelog.md:44
+msgid "Hotfix: Fix the autoapi extension issue in the documentation."
+msgstr "热修复：修复文档中的 autoapi 扩展问题。"
+
+#: ../../source/changelog.md:46
+msgid "2.8.0"
+msgstr "2.8.0"
+
+#: ../../source/changelog.md:48
+msgid "This version add the feature of `group_behavior` to support group-level behavior for all objects within the same group, which is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. The chinese (中文) version documentation is also supported."
+msgstr "此版本添加了 `group_behavior` 功能，支持同一组内所有对象的群体级行为，这对于协调行为（如群体或人群仿真）更加高效，因为它可以在单步中计算所有成员的动作。同时支持中文版文档。"
+
+#: ../../source/changelog.md:65
+msgid "2.7.5"
+msgstr "2.7.5"
+
+#: ../../source/changelog.md:75
+msgid "2.7.4"
+msgstr "2.7.4"
+
+#: ../../source/changelog.md:91
+msgid "2.7.3"
+msgstr "2.7.3"
+
+#: ../../source/changelog.md:114
+msgid "2.7.2"
+msgstr "2.7.2"
+
+#: ../../source/changelog.md:132
+msgid "2.7.1"
+msgstr "2.7.1"
+
+#: ../../source/changelog.md:142
+msgid "ir-sim 2.7.0"
+msgstr "ir-sim 2.7.0"
+
+#: ../../source/changelog.md:144
+msgid "This version improves the CI pipeline, GitHub Actions workflows, linting, and formatting to ensure consistent style and faster checks, with no API changes."
+msgstr "此版本改进了 CI 流水线、GitHub Actions 工作流、代码检查和格式化，以确保一致的代码风格和更快的检查速度，无 API 变更。"
+
+#: ../../source/changelog.md:163
+msgid "ir-sim 2.6.1"
+msgstr "ir-sim 2.6.1"
+
+#: ../../source/changelog.md:172
+msgid "ir-sim 2.6.0"
+msgstr "ir-sim 2.6.0"
+
+#: ../../source/changelog.md:174
+msgid "This version is a major update of the documentation website. The new website is more user-friendly and easier to navigate the parameters usage and the API."
+msgstr "此版本是文档网站的重大更新。新网站更加用户友好，更容易浏览参数用法和 API。"
+
+#: ../../source/changelog.md:190
+msgid "ir-sim 2.5.5"
+msgstr "ir-sim 2.5.5"
+
+#: ../../source/changelog.md:201
+msgid "ir-sim 2.5.4"
+msgstr "ir-sim 2.5.4"
+
+#: ../../source/changelog.md:206
+msgid "ir-sim 2.5.3"
+msgstr "ir-sim 2.5.3"
+
+#: ../../source/changelog.md:222
+msgid "ir-sim 2.5.2"
+msgstr "ir-sim 2.5.2"
+
+#: ../../source/changelog.md:228
+msgid "ir-sim 2.5.1"
+msgstr "ir-sim 2.5.1"
+
+#: ../../source/changelog.md:239
+msgid "ir-sim 2.5.0"
+msgstr "ir-sim 2.5.0"
+
+#: ../../source/changelog.md:241
+msgid "This version improves performance (approximately 40% speed improvement) by refactoring the object plot function and the geometry transform operation for large environments."
+msgstr "此版本通过重构对象绘图函数和大型环境的几何变换操作，提升了性能（约 40% 的速度提升）。"
+
+#: ../../source/changelog.md:258
+msgid "ir-sim 2.4.4"
+msgstr "ir-sim 2.4.4"
+
+#: ../../source/changelog.md:272
+msgid "ir-sim 2.4.3"
+msgstr "ir-sim 2.4.3"
+
+#: ../../source/changelog.md:283
+msgid "ir-sim 2.4.2"
+msgstr "ir-sim 2.4.2"
+
+#: ../../source/changelog.md:296
+msgid "ir-sim 2.4.1"
+msgstr "ir-sim 2.4.1"
+
+#: ../../source/changelog.md:308
+msgid "ir-sim 2.4.0"
+msgstr "ir-sim 2.4.0"
+
+#: ../../source/changelog.md:323
+msgid "ir-sim 2.3.6"
+msgstr "ir-sim 2.3.6"
+
+#: ../../source/changelog.md:335
+msgid "ir-sim 2.3.5"
+msgstr "ir-sim 2.3.5"
+
+#: ../../source/changelog.md:347
+msgid "ir-sim 2.3.4"
+msgstr "ir-sim 2.3.4"
+
+#: ../../source/changelog.md:358
+msgid "ir-sim 2.3.2"
+msgstr "ir-sim 2.3.2"
+
+#: ../../source/changelog.md:360
+msgid "ir-sim 2.3.2 is a bug fix release with no new features compared to 2.3.1."
+msgstr "ir-sim 2.3.2 是一个错误修复版本，与 2.3.1 相比没有新功能。"
+
+#: ../../source/changelog.md:362
+msgid "ir-sim 2.3.1"
+msgstr "ir-sim 2.3.1"
+
+#: ../../source/changelog.md:371
+msgid "ir-sim 2.3.0"
+msgstr "ir-sim 2.3.0"
+
+#: ../../source/changelog.md:373
+msgid "**Major Version Update:**"
+msgstr "**主要版本更新：**"
+
+#: ../../source/changelog.md:383
+msgid "ir-sim 2.2.6"
+msgstr "ir-sim 2.2.6"
+
+#: ../../source/changelog.md:395
+msgid "ir-sim 2.2.5"
+msgstr "ir-sim 2.2.5"
+
+#: ../../source/changelog.md:404
+msgid "ir-sim 2.2.4"
+msgstr "ir-sim 2.2.4"
+
+#: ../../source/changelog.md:412
+msgid "ir-sim 2.2.3"
+msgstr "ir-sim 2.2.3"
+
+#: ../../source/changelog.md:421
+msgid "ir-sim 2.2.0"
+msgstr "ir-sim 2.2.0"
+
+#: ../../source/changelog.md:428
+msgid "ir-sim 2.1.4"
+msgstr "ir-sim 2.1.4"
+
+#: ../../source/changelog.md:435
+msgid "ir-sim 2.1.3"
+msgstr "ir-sim 2.1.3"
+
+#: ../../source/changelog.md:440
+msgid "ir-sim 2.1.2"
+msgstr "ir-sim 2.1.2"
+
+#: ../../source/changelog.md:447
+msgid "ir-sim 2.1.1"
+msgstr "ir-sim 2.1.1"
+
+#: ../../source/changelog.md:454
+msgid "ir-sim 2.1.0"
+msgstr "ir-sim 2.1.0"
+
+#: ../../source/changelog.md:456
+msgid "Big Version"
+msgstr "大版本更新"
