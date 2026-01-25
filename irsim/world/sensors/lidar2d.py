@@ -158,9 +158,18 @@ class Lidar2D:
             return geometry
         if geometry.is_empty:
             return MultiLineString()
+        if geometry.geom_type == "GeometryCollection":
+            # Extract LineString components (and any lines from nested MultiLineStrings)
+            linestrings = []
+            for g in geometry.geoms:
+                if g.geom_type == "LineString":
+                    linestrings.append(g)
+                elif g.geom_type == "MultiLineString":
+                    linestrings.extend(list(g.geoms))
+            return MultiLineString(linestrings) if linestrings else MultiLineString()
 
-        # Handle other geometry types by converting to MultiLineString
-        return MultiLineString([geometry])
+        # For unsupported geometry types (e.g., Point, Polygon), return an empty MultiLineString
+        return MultiLineString()
 
     def init_geometry(self, state):
         """
