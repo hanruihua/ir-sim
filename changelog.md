@@ -2,7 +2,7 @@
 
 ## 2.9.0
 
-This version adds multi-environment support with instance-based parameters, allowing multiple independent simulation environments to run simultaneously. It also introduces 1D ToF sensor support and keyboard improvements.
+Assistant by claude code, this version adds multi-environment support with instance-based parameters, allowing multiple independent simulation environments to run simultaneously. It also introduces 1D ToF sensor support and keyboard improvements.
 
 - Features:
   - Add 1D ToF (Time-of-Flight) sensor support by setting lidar2d sensor `number: 1` and `angle_range: 0`. ([#200](https://github.com/hanruihua/ir-sim/pull/200))
