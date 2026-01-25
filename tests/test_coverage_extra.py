@@ -1189,3 +1189,114 @@ class TestLoadBehaviorReinitialization:
 
         # Only the valid behavior should be reinitialized
         mock_obj3.obj_behavior._init_behavior_class.assert_called_once()
+
+
+class TestLidar2DEnsureMultiLineString:
+    """Tests for Lidar2D._ensure_multi_linestring method."""
+
+    @pytest.fixture
+    def lidar(self):
+        """Create a minimal Lidar2D instance for testing."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        return Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+
+    def test_linestring_input(self, lidar):
+        """Test that LineString is wrapped in MultiLineString."""
+        from shapely import LineString, MultiLineString
+
+        line = LineString([(0, 0), (1, 1)])
+        result = lidar._ensure_multi_linestring(line)
+
+        assert isinstance(result, MultiLineString)
+        assert len(result.geoms) == 1
+        assert result.geoms[0].equals(line)
+
+    def test_multilinestring_input(self, lidar):
+        """Test that MultiLineString is returned unchanged."""
+        from shapely import MultiLineString
+
+        lines = MultiLineString([[(0, 0), (1, 1)], [(2, 2), (3, 3)]])
+        result = lidar._ensure_multi_linestring(lines)
+
+        assert result is lines
+        assert len(result.geoms) == 2
+
+    def test_empty_geometry(self, lidar):
+        """Test that empty geometry returns empty MultiLineString."""
+        from shapely import MultiLineString, MultiPolygon
+
+        # Use an empty MultiPolygon to hit the is_empty branch
+        # (empty LineString would hit the LineString branch first)
+        empty = MultiPolygon()
+        result = lidar._ensure_multi_linestring(empty)
+
+        assert isinstance(result, MultiLineString)
+        assert result.is_empty
+
+    def test_geometry_collection_with_linestrings(self, lidar):
+        """Test GeometryCollection with LineString components."""
+        from shapely import GeometryCollection, LineString, MultiLineString
+
+        line1 = LineString([(0, 0), (1, 1)])
+        line2 = LineString([(2, 2), (3, 3)])
+        collection = GeometryCollection([line1, line2])
+        result = lidar._ensure_multi_linestring(collection)
+
+        assert isinstance(result, MultiLineString)
+        assert len(result.geoms) == 2
+
+    def test_geometry_collection_with_nested_multilinestring(self, lidar):
+        """Test GeometryCollection with nested MultiLineString."""
+        from shapely import GeometryCollection, LineString, MultiLineString
+
+        line1 = LineString([(0, 0), (1, 1)])
+        multi = MultiLineString([[(2, 2), (3, 3)], [(4, 4), (5, 5)]])
+        collection = GeometryCollection([line1, multi])
+        result = lidar._ensure_multi_linestring(collection)
+
+        assert isinstance(result, MultiLineString)
+        assert len(result.geoms) == 3  # 1 from line1 + 2 from multi
+
+    def test_geometry_collection_empty(self, lidar):
+        """Test empty GeometryCollection returns empty MultiLineString."""
+        from shapely import GeometryCollection, MultiLineString
+
+        collection = GeometryCollection()
+        result = lidar._ensure_multi_linestring(collection)
+
+        assert isinstance(result, MultiLineString)
+        assert result.is_empty
+
+    def test_unsupported_point_geometry(self, lidar):
+        """Test that Point geometry returns empty MultiLineString."""
+        from shapely import MultiLineString, Point
+
+        point = Point(1, 1)
+        result = lidar._ensure_multi_linestring(point)
+
+        assert isinstance(result, MultiLineString)
+        assert result.is_empty
+
+    def test_unsupported_polygon_geometry(self, lidar):
+        """Test that Polygon geometry returns empty MultiLineString."""
+        from shapely import MultiLineString, Polygon
+
+        polygon = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+        result = lidar._ensure_multi_linestring(polygon)
+
+        assert isinstance(result, MultiLineString)
+        assert result.is_empty
+
+    def test_geometry_collection_mixed_types(self, lidar):
+        """Test GeometryCollection with mixed geometry types extracts only lines."""
+        from shapely import GeometryCollection, LineString, MultiLineString, Point
+
+        line = LineString([(0, 0), (1, 1)])
+        point = Point(5, 5)  # Should be ignored
+        collection = GeometryCollection([line, point])
+        result = lidar._ensure_multi_linestring(collection)
+
+        assert isinstance(result, MultiLineString)
+        assert len(result.geoms) == 1  # Only the LineString
