@@ -100,8 +100,8 @@ class ObstacleMap(ObjectBase):
                     cell_y = offset_y + (j + CELL_CENTER_OFFSET) * y_reso
                     cell_center = Point(cell_x, cell_y)
 
-                    # Check if geometry is within collision radius of cell center
-                    if geometry.distance(cell_center) < collision_radius:
+                    # Check if geometry is within or exactly at the collision radius of the cell center
+                    if geometry.distance(cell_center) <= collision_radius:
                         return True
 
         return False
