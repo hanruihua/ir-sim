@@ -69,11 +69,15 @@ class ObjectFactory:
         Create map objects from points.
 
         Args:
-            points (list): List of points.
+            points (np.ndarray): Array of points defining the map.
             reso (float): Resolution of the map.
-            grid_map (np.ndarray): Grid map array for fast collision detection.
-            grid_reso (np.ndarray): Resolution [x_reso, y_reso] of the grid.
-            world_offset (list): World offset [x, y].
+            grid_map (np.ndarray, optional): Grid map array for fast collision detection.
+                If None, no precomputed grid is used.
+            grid_reso (np.ndarray, optional): Resolution [x_reso, y_reso] of the grid.
+                If None, the resolution is not specified and grid-based collision is
+                either inferred elsewhere or not used.
+            world_offset (list[float], optional): World offset [x, y].
+                If None, no additional world offset is applied.
 
         Returns:
             list: List of ObstacleMap objects.
