@@ -13,7 +13,6 @@ from matplotlib.patches import Arrow, Circle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 from shapely.geometry import MultiLineString
 from shapely.geometry.base import BaseGeometry
-from shapely.strtree import STRtree
 
 from irsim.config.path_param import path_manager
 from irsim.env.env_plot import draw_patch, linewidth_from_data_units, set_patch_property
@@ -571,12 +570,16 @@ class ObjectBase:
         """
 
         if obj.shape == "map":
-            line_strings = list(obj._geometry.geoms)
-            tree = STRtree(line_strings)
-            candidate_indices = tree.query(self.geometry)
-            filtered_lines = [line_strings[i] for i in candidate_indices]
-            filtered_multi_line = MultiLineString(filtered_lines)
+            # Use grid-based collision detection if grid_map is available
+            if obj.grid_map is not None:
+                return obj.check_grid_collision(self.geometry)
 
+            # Fallback to geometry-based detection using pre-built tree
+            candidate_indices = obj.geometry_tree.query(self.geometry)
+            filtered_lines = [obj.linestrings[i] for i in candidate_indices]
+            if not filtered_lines:
+                return False
+            filtered_multi_line = MultiLineString(filtered_lines)
             return shapely.intersects(self.geometry, filtered_multi_line)
 
         return shapely.intersects(self.geometry, obj._geometry)

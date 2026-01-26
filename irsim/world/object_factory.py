@@ -57,13 +57,27 @@ class ObjectFactory:
 
         return object_list
 
-    def create_from_map(self, points: np.ndarray, reso: float = 0.1) -> list[Any]:
+    def create_from_map(
+        self,
+        points: np.ndarray,
+        reso: float = 0.1,
+        grid_map: Optional[np.ndarray] = None,
+        grid_reso: Optional[np.ndarray] = None,
+        world_offset: Optional[list[float]] = None,
+    ) -> list[Any]:
         """
         Create map objects from points.
 
         Args:
-            points (list): List of points.
+            points (np.ndarray): Array of points defining the map.
             reso (float): Resolution of the map.
+            grid_map (np.ndarray, optional): Grid map array for fast collision detection.
+                If None, no precomputed grid is used.
+            grid_reso (np.ndarray, optional): Resolution [x_reso, y_reso] of the grid.
+                If None, the resolution is not specified and grid-based collision is
+                either inferred elsewhere or not used.
+            world_offset (list[float], optional): World offset [x, y].
+                If None, no additional world offset is applied.
 
         Returns:
             list: List of ObstacleMap objects.
@@ -72,7 +86,11 @@ class ObjectFactory:
             return []
         return [
             ObstacleMap(
-                shape={"name": "map", "points": points, "reso": reso}, color="k"
+                shape={"name": "map", "points": points, "reso": reso},
+                color="k",
+                grid_map=grid_map,
+                grid_reso=grid_reso,
+                world_offset=world_offset,
             )
         ]
 
