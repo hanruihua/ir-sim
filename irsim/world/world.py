@@ -152,7 +152,8 @@ class World:
             self.reso = np.array([[x_reso], [y_reso]])
 
             obstacle_index = np.array(np.where(grid_map > 50))
-            obstacle_positions = obstacle_index * self.reso
+            # Apply world offset to obstacle positions to align with grid collision detection
+            obstacle_positions = obstacle_index * self.reso + np.array([[self.offset[0]], [self.offset[1]]])
 
         else:
             grid_map = None
