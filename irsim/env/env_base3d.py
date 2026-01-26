@@ -43,7 +43,7 @@ class EnvBase3D(EnvBase):
             self._world.buffer_reso,
             grid_map=self._world.grid_map,
             grid_reso=self._world.reso,
-            world_offset=self._world.offset,
+            world_offset=self._world.offset[:2],
         )
 
         self._env_plot.close()
