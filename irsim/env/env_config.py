@@ -107,7 +107,11 @@ class EnvConfig:
             ),
         )
         map_collection = self.object_factory.create_from_map(
-            world.obstacle_positions, world.buffer_reso
+            world.obstacle_positions,
+            world.buffer_reso,
+            grid_map=world.grid_map,
+            grid_reso=world.reso,
+            world_offset=world.offset,
         )
 
         objects = robot_collection + obstacle_collection + map_collection
@@ -164,7 +168,11 @@ class EnvConfig:
             ),
         )
         map_collection = self.object_factory.create_from_map(
-            world.obstacle_positions, world.buffer_reso
+            world.obstacle_positions,
+            world.buffer_reso,
+            grid_map=world.grid_map,
+            grid_reso=world.reso,
+            world_offset=world.offset,
         )
 
         objects = robot_collection + obstacle_collection + map_collection
