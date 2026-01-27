@@ -209,6 +209,12 @@ class Lidar2D:
         self._state = state
 
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
+
+        # Try fast grid-based raycasting first
+        if self._try_grid_raycasting():
+            return
+
+        # Fall back to geometry-based processing
         new_geometry = geometry_transform(self._original_geometry, self._state)
         prepare(new_geometry)
 
@@ -227,6 +233,206 @@ class Lidar2D:
                 MultiLineString(filtered_geoms) if filtered_geoms else MultiLineString()
             )
             self.calculate_range_vel(intersect_indices)
+
+    def _try_grid_raycasting(self) -> bool:
+        """
+        Try to use fast grid-based raycasting if a grid map is available.
+
+        Falls back to geometry-based processing for non-map obstacles.
+
+        Returns:
+            bool: True if grid raycasting was used, False otherwise.
+        """
+        objects = self._env_param.objects
+
+        # Find obstacle map with grid data and collect non-map obstacles
+        grid_map = None
+        grid_reso = None
+        world_offset = None
+        non_map_obstacles = []
+
+        for obj in objects:
+            if obj._id == self.obj_id or obj.unobstructed:
+                continue
+            if (
+                obj.shape == "map"
+                and hasattr(obj, "grid_map")
+                and obj.grid_map is not None
+            ):
+                grid_map = obj.grid_map
+                grid_reso = obj.grid_reso
+                world_offset = obj.world_offset
+            elif obj.shape != "map" and is_valid(obj._geometry):
+                non_map_obstacles.append(obj)
+
+        if grid_map is None:
+            return False
+
+        # Perform grid-based raycasting for the map
+        self._grid_raycast(grid_map, grid_reso, world_offset)
+
+        # Also check non-map obstacles and clip ranges
+        if non_map_obstacles:
+            self._clip_ranges_by_obstacles(non_map_obstacles)
+
+        return True
+
+    def _clip_ranges_by_obstacles(self, obstacles):
+        """
+        Clip LiDAR ranges by non-map obstacles using geometry intersection.
+
+        Args:
+            obstacles: List of obstacle objects with shapely geometry.
+        """
+        origin_x = self.lidar_origin[0, 0]
+        origin_y = self.lidar_origin[1, 0]
+        lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+
+        world_angles = self.angle_list + lidar_theta
+
+        for obj in obstacles:
+            geo = obj._geometry
+            for i in range(self.number):
+                end_x = origin_x + self.range_data[i] * cos(world_angles[i])
+                end_y = origin_y + self.range_data[i] * sin(world_angles[i])
+                ray = MultiLineString([[(origin_x, origin_y), (end_x, end_y)]])
+
+                if ray.intersects(geo):
+                    intersection = ray.intersection(geo)
+                    if intersection.is_empty:
+                        continue
+                    origin_pt = Point(origin_x, origin_y)
+                    dist = origin_pt.distance(intersection)
+                    if dist < self.range_data[i]:
+                        self.range_data[i] = dist
+
+            # Update geometry after clipping
+            self._update_geometry_from_ranges()
+
+    def _grid_raycast(self, grid_map, grid_reso, world_offset):
+        """
+        Perform fast grid-based raycasting using DDA algorithm.
+
+        Uses a proper Digital Differential Analyzer (DDA) algorithm to trace
+        each ray through the grid cells it passes through.
+
+        Args:
+            grid_map: 2D numpy array of occupancy values (>50 = occupied)
+            grid_reso: Resolution array [[x_reso], [y_reso]]
+            world_offset: World offset [x, y]
+        """
+        # Get LiDAR origin in world coordinates
+        origin_x = self.lidar_origin[0, 0]
+        origin_y = self.lidar_origin[1, 0]
+        lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+
+        # Grid parameters
+        x_reso = grid_reso[0, 0]
+        y_reso = grid_reso[1, 0]
+        offset_x, offset_y = world_offset
+        grid_height, grid_width = grid_map.shape
+
+        # Occupancy threshold
+        occupancy_threshold = 50
+
+        # Compute world angles for each ray
+        world_angles = self.angle_list + lidar_theta
+
+        # Ray directions
+        cos_angles = np.cos(world_angles)
+        sin_angles = np.sin(world_angles)
+
+        # Initialize range data to max range
+        self.range_data = np.full(self.number, self.range_max, dtype=np.float64)
+
+        # Process each ray with DDA algorithm
+        for ray_idx in range(self.number):
+            # Ray direction
+            dir_x = cos_angles[ray_idx]
+            dir_y = sin_angles[ray_idx]
+
+            # Starting position in grid coordinates
+            start_x = (origin_x - offset_x) / x_reso
+            start_y = (origin_y - offset_y) / y_reso
+
+            # Current grid cell
+            cell_x = int(np.floor(start_x))
+            cell_y = int(np.floor(start_y))
+
+            # Direction of step (+1 or -1)
+            step_x = 1 if dir_x >= 0 else -1
+            step_y = 1 if dir_y >= 0 else -1
+
+            # Distance to next cell boundary (in grid units)
+            if dir_x != 0:
+                if dir_x > 0:
+                    t_max_x = (cell_x + 1 - start_x) / dir_x * x_reso
+                else:
+                    t_max_x = (cell_x - start_x) / dir_x * x_reso
+                t_delta_x = abs(x_reso / dir_x)
+            else:
+                t_max_x = float('inf')
+                t_delta_x = float('inf')
+
+            if dir_y != 0:
+                if dir_y > 0:
+                    t_max_y = (cell_y + 1 - start_y) / dir_y * y_reso
+                else:
+                    t_max_y = (cell_y - start_y) / dir_y * y_reso
+                t_delta_y = abs(y_reso / dir_y)
+            else:
+                t_max_y = float('inf')
+                t_delta_y = float('inf')
+
+            # Traverse grid using DDA
+            distance = 0.0
+            while distance < self.range_max:
+                # Check if current cell is valid and occupied
+                if (
+                    0 <= cell_x < grid_height
+                    and 0 <= cell_y < grid_width
+                    and grid_map[cell_x, cell_y] > occupancy_threshold
+                ):
+                    # Hit an obstacle - use the distance to this cell
+                    self.range_data[ray_idx] = max(distance, self.range_min)
+                    break
+
+                # Move to next cell
+                if t_max_x < t_max_y:
+                    distance = t_max_x
+                    t_max_x += t_delta_x
+                    cell_x += step_x
+                else:
+                    distance = t_max_y
+                    t_max_y += t_delta_y
+                    cell_y += step_y
+
+                # Check if we've exceeded max range
+                if distance >= self.range_max:
+                    break
+
+        # Apply noise if enabled
+        if self.noise:
+            self.range_data += rng.normal(0, self.std, self.number)
+            self.range_data = np.clip(self.range_data, self.range_min, self.range_max)
+
+        # Update geometry for visualization
+        self._update_geometry_from_ranges()
+
+    def _update_geometry_from_ranges(self):
+        """Update the LiDAR geometry based on current range data for visualization."""
+        origin_x = self.lidar_origin[0, 0]
+        origin_y = self.lidar_origin[1, 0]
+        lidar_theta = self.lidar_origin[2, 0] if self.lidar_origin.shape[0] > 2 else 0
+
+        world_angles = self.angle_list + lidar_theta
+        end_x = origin_x + self.range_data * np.cos(world_angles)
+        end_y = origin_y + self.range_data * np.sin(world_angles)
+
+        segments = [
+            [(origin_x, origin_y), (ex, ey)] for ex, ey in zip(end_x, end_y)
+        ]
+        self._geometry = MultiLineString(segments)
 
     def laser_geometry_process(self, lidar_geometry):
         """
