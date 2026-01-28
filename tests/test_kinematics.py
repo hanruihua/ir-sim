@@ -79,19 +79,19 @@ def test_kinematics_error_handling():
     # Test invalid state dimensions
     state = np.array([[0], [0]])  # Too few dimensions
     velocity = np.array([[1], [0]])
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="shape"):
         differential_kinematics(state, velocity, 1.0)
 
     # Test invalid velocity dimensions
     state = np.array([[0], [0], [0]])
     velocity = np.array([[1]])  # Too few dimensions
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="shape"):
         differential_kinematics(state, velocity, 1.0)
 
     # Test invalid noise parameters
     state = np.array([[0], [0], [0]])
     velocity = np.array([[1], [0]])
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="alpha"):
         differential_kinematics(
             state, velocity, 1.0, noise=True, alpha=[0.03]
         )  # Too few parameters

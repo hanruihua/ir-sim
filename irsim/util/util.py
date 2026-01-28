@@ -1,8 +1,10 @@
+import inspect
 import math
 import os
 import sys
 import time
 from collections import deque
+from functools import wraps
 from math import atan2, cos, pi, sin
 from typing import Any, Optional, Union
 
@@ -118,7 +120,10 @@ def WrapToRegion(rad: float, range: list[float]) -> float:
     Returns:
         float: Wrapped angle.
     """
-    assert len(range) >= 2
+    if len(range) < 2:
+        raise ValueError(
+            f"Parameter 'range' must have length >= 2, got {len(range)}"
+        )
     assert range[1] - range[0] == 2 * pi
     while rad > range[1]:
         rad = rad - 2 * pi
@@ -381,7 +386,9 @@ def omni_to_diff(
         np.array: Differential velocity [linear, angular] (2x1).
     """
     if isinstance(vel_omni, list):
-        vel_omni = np.array(vel_omni).reshape((2, 1))
+        vel_omni = np.array(vel_omni)
+    if isinstance(vel_omni, np.ndarray) and vel_omni.ndim == 1:
+        vel_omni = vel_omni[:, np.newaxis]
 
     speed = np.sqrt(vel_omni[0, 0] ** 2 + vel_omni[1, 0] ** 2)
 
@@ -559,15 +566,18 @@ def random_point_range(
         np.array: Random point within the range.
     """
     if range_low is None:
-        range_low = [0, 0, -pi]
-    if range_high is None:
-        range_high = [10, 10, pi]
-
-    if isinstance(range_low, list):
+        range_low = np.c_[[0, 0, -pi]]
+    elif isinstance(range_low, list):
         range_low = np.c_[range_low]
+    elif isinstance(range_low, np.ndarray) and range_low.ndim == 1:
+        range_low = range_low[:, np.newaxis]
 
-    if isinstance(range_high, list):
+    if range_high is None:
+        range_high = np.c_[[10, 10, pi]]
+    elif isinstance(range_high, list):
         range_high = np.c_[range_high]
+    elif isinstance(range_high, np.ndarray) and range_high.ndim == 1:
+        range_high = range_high[:, np.newaxis]
 
     return rng.uniform(range_low, range_high)
 
@@ -592,6 +602,184 @@ def is_2d_list(data: Union[list, deque]) -> bool:
 
 
 # decorator
+
+
+def validate_shape(**shape_requirements):
+    """
+    Decorator to validate that numpy array parameters have minimum shape[0] dimensions.
+
+    Args:
+        **shape_requirements: Mapping of parameter names to minimum shape[0] values.
+            e.g., state=3 means state.shape[0] must be >= 3
+
+    Example:
+        @validate_shape(state=3, velocity=2)
+        def differential_kinematics(state, velocity, step_time):
+            ...
+
+    Raises:
+        TypeError: If parameter is not a numpy array.
+        ValueError: If parameter shape[0] is less than required.
+    """
+
+    def decorator(func):
+        sig = inspect.signature(func)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            for param, min_dim in shape_requirements.items():
+                if param in bound.arguments:
+                    value = bound.arguments[param]
+                    if value is not None:
+                        if not hasattr(value, "shape"):
+                            raise TypeError(
+                                f"Parameter '{param}' must be a numpy array, "
+                                f"got {type(value).__name__}"
+                            )
+                        if value.shape[0] < min_dim:
+                            raise ValueError(
+                                f"Parameter '{param}' must have shape[0] >= {min_dim}, "
+                                f"got {value.shape[0]}"
+                            )
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def validate_length(**length_requirements):
+    """
+    Decorator to validate that sequence parameters have minimum length.
+
+    Args:
+        **length_requirements: Mapping of parameter names to minimum length values.
+            e.g., alpha=4 means len(alpha) must be >= 4
+
+    Example:
+        @validate_length(alpha=4)
+        def some_function(alpha):
+            ...
+
+    Raises:
+        TypeError: If parameter doesn't support len().
+        ValueError: If parameter length is less than required.
+    """
+
+    def decorator(func):
+        sig = inspect.signature(func)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            for param, min_len in length_requirements.items():
+                if param in bound.arguments:
+                    value = bound.arguments[param]
+                    if value is not None:
+                        try:
+                            length = len(value)
+                        except TypeError:
+                            raise TypeError(
+                                f"Parameter '{param}' must be a sequence, "
+                                f"got {type(value).__name__}"
+                            ) from None
+                        if length < min_len:
+                            raise ValueError(
+                                f"Parameter '{param}' must have length >= {min_len}, "
+                                f"got {length}"
+                            )
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def ensure_column_vector(*param_names):
+    """
+    Decorator to convert parameters to column vectors (Nx1 numpy arrays).
+
+    - Lists are converted to numpy arrays
+    - 1D arrays are reshaped to column vectors (N,) -> (N, 1)
+    - None values are left unchanged
+
+    Args:
+        *param_names: Names of parameters to convert.
+
+    Example:
+        @ensure_column_vector('state', 'velocity')
+        def some_function(state, velocity, step_time):
+            ...
+    """
+
+    def decorator(func):
+        sig = inspect.signature(func)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            for param in param_names:
+                if param in bound.arguments:
+                    value = bound.arguments[param]
+                    if value is not None:
+                        if isinstance(value, list):
+                            value = np.array(value)
+                        if isinstance(value, np.ndarray) and value.ndim == 1:
+                            value = value[:, np.newaxis]
+                        bound.arguments[param] = value
+
+            return func(*bound.args, **bound.kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def ensure_numpy(*param_names):
+    """
+    Decorator to convert parameters to numpy arrays.
+
+    - Lists are converted to numpy arrays
+    - None values are left unchanged
+    - Already numpy arrays are left unchanged
+
+    Args:
+        *param_names: Names of parameters to convert.
+
+    Example:
+        @ensure_numpy('data', 'weights')
+        def some_function(data, weights):
+            ...
+    """
+
+    def decorator(func):
+        sig = inspect.signature(func)
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            for param in param_names:
+                if param in bound.arguments:
+                    value = bound.arguments[param]
+                    if value is not None and isinstance(value, list):
+                        bound.arguments[param] = np.array(value)
+
+            return func(*bound.args, **bound.kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def time_it(name: str = "Function") -> Any:
