@@ -80,10 +80,10 @@
 - [x] Assign robot goals by mouse click
 - [x] Add reload function for the environment
 - [x] moving view of robots.
-- [ ] Using decorator for function input checking
+- [x] Using decorator for function input checking
 - [ ] Add synchronization and asynchronization mode
 - [ ] Multi-process for large scale simulation
-- [ ] Make multiple env instances
+- [x] Make multiple env instances
 - [ ] accelerate the simulation (collision check, kinematics, etc.) by numba/c++
 - [ ] Complete the reactive collision mode
 - [ ] YAML schema validation with clear error messages and defaults.
@@ -95,7 +95,7 @@
 - [x] Improve coverage of the code over 90%
 - [x] reduce the dependency of the package
 - [x] using uv to manage and format the dependency and project
-- [ ] Improve coverage of the code over 99%
+- [x] Improve coverage of the code over 97%
 
 ## 📚 Documentation & Examples
 - [x] Documentation
