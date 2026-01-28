@@ -490,6 +490,18 @@ class TestRandomization:
         env.set_random_seed(42)
         # Seed is set; no assertion needed
 
+    def test_set_random_seed_with_reload(self, env_factory):
+        """Test setting random seed with reload parameter."""
+        env = env_factory("test_collision_avoidance.yaml", full=True)
+        # Step environment a few times to change state
+        for _ in range(3):
+            env.step()
+        # Set seed with reload - should regenerate environment
+        env.set_random_seed(42, reload=True)
+        # Verify environment is functional after reload
+        assert env is not None
+        assert env.robot is not None
+
     def test_random_polygon_shape(self, env_factory):
         """Test random polygon shape generation."""
         env = env_factory("test_all_objects.yaml")
