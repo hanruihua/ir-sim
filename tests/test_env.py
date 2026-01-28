@@ -496,10 +496,15 @@ class TestRandomization:
         # Step environment a few times to change state
         for _ in range(3):
             env.step()
+        # Record state before reload
+        time_before = env.time
         # Set seed with reload - should regenerate environment
         env.set_random_seed(42, reload=True)
+        # Verify reload occurred: reload() calls reset() which resets world time
+        assert env.time < time_before, "World time should be reset after reload"
+        # Verify reload_flag is cleared (reload() sets it to False)
+        assert env.reload_flag is False
         # Verify environment is functional after reload
-        assert env is not None
         assert env.robot is not None
 
     def test_random_polygon_shape(self, env_factory):
