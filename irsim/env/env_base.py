@@ -1083,18 +1083,23 @@ class EnvBase:
 
         self._env_plot.title = title
 
-    def set_random_seed(self, seed: Optional[int] = None) -> None:
+    def set_random_seed(self, seed: Optional[int] = None, reload: bool = False) -> None:
         """
         Set IR-SIM's random seed for reproducibility.
 
         Args:
             seed (int, optional): Seed for IR-SIM's project RNG. If ``None``, a
                 new unseeded generator is created (non-reproducible). This
-                controls randomness that goes through IR-SIM's RNG. Custom code
-                using ``np.random.*`` or Python ``random`` must be seeded separately
-                or migrated to use IR-SIM's RNG.
+                controls randomness that goes through IR-SIM's RNG. Custom code using ``np.random.*`` or Python ``random`` must be seeded separately or migrated to use IR-SIM's RNG.
+            reload (bool): If True, reload the environment to regenerate random obstacles with the new seed. Default is False (only sets seed).
+
+        Example:
+            >>> env.set_random_seed(100)  # Only set seed, no regeneration
+            >>> env.set_random_seed(100, reload=True)  # Set seed and regenerate env by yaml file
         """
         set_seed(seed)
+        if reload:
+            self.reload()
 
     def set_status(self, status: str) -> None:
         """
