@@ -1090,8 +1090,12 @@ class EnvBase:
         Args:
             seed (int, optional): Seed for IR-SIM's project RNG. If ``None``, a
                 new unseeded generator is created (non-reproducible). This
-                controls randomness that goes through IR-SIM's RNG. Custom code using ``np.random.*`` or Python ``random`` must be seeded separately or migrated to use IR-SIM's RNG.
-            reload (bool): If True, reload the environment to regenerate random obstacles with the new seed. Default is False (only sets seed).
+                controls randomness that goes through IR-SIM's RNG. Custom
+                code using ``np.random.*`` or Python ``random`` must be
+                seeded separately or migrated to use IR-SIM's RNG.
+            reload (bool): If True, reload the environment to regenerate
+                random obstacles with the new seed. Default is False (only
+                sets seed).
 
         Example:
             >>> env.set_random_seed(100)  # Only set seed, no regeneration
