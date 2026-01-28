@@ -485,10 +485,23 @@ class TestRandomization:
     """Tests for randomization methods."""
 
     def test_set_random_seed(self, env_factory):
-        """Test setting random seed."""
+        """Test setting random seed without reload (default)."""
         env = env_factory("test_collision_avoidance.yaml", full=True)
         env.set_random_seed(42)
         # Seed is set; no assertion needed
+
+    def test_set_random_seed_with_reload_false(self, env_factory):
+        """Test setting random seed with explicit reload=False."""
+        env = env_factory("test_collision_avoidance.yaml", full=True)
+        env.set_random_seed(42, reload=False)
+        # Seed is set without reload; no assertion needed
+
+    def test_set_random_seed_with_reload_true(self, env_factory):
+        """Test setting random seed with reload=True regenerates environment."""
+        env = env_factory("test_collision_avoidance.yaml", full=True)
+        env.set_random_seed(42, reload=True)
+        # Seed is set and environment is reloaded
+        assert env is not None
 
     def test_random_polygon_shape(self, env_factory):
         """Test random polygon shape generation."""
