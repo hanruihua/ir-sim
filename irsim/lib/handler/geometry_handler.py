@@ -176,6 +176,23 @@ class geometry_handler(ABC):
 
         return length, width
 
+    def _get_multipolygon_vertices(self, geometry) -> np.ndarray:
+        """
+        Extract combined vertices from a MultiPolygon geometry.
+
+        Args:
+            geometry: A Shapely MultiPolygon geometry object.
+
+        Returns:
+            np.ndarray: Combined vertices array of shape (2, N) where N is total vertex count.
+        """
+        all_vertices = []
+        for geom in geometry.geoms:
+            coords = geom.exterior.coords._coords[:-1]  # Exclude repeated last point
+            all_vertices.append(coords)
+        combined = np.vstack(all_vertices)
+        return combined.T
+
     @property
     def vertices(self):
         if self.name == "linestring":
@@ -183,13 +200,7 @@ class geometry_handler(ABC):
             y = self.geometry.xy[1]
             return np.c_[x, y].T
         if self.name == "multipolygon":
-            # For MultiPolygon, return combined vertices from all polygons
-            all_vertices = []
-            for geom in self.geometry.geoms:
-                coords = geom.exterior.coords._coords[:-1]  # Exclude repeated last point
-                all_vertices.append(coords)
-            combined = np.vstack(all_vertices)
-            return combined.T
+            return self._get_multipolygon_vertices(self.geometry)
         return self.geometry.exterior.coords._coords.T[:, :-1]
 
     @property
@@ -214,13 +225,7 @@ class geometry_handler(ABC):
             return None
 
         if self.name == "multipolygon":
-            # For MultiPolygon, return combined vertices from all polygons
-            all_vertices = []
-            for geom in self._original_geometry.geoms:
-                coords = geom.exterior.coords._coords[:-1]  # Exclude repeated last point
-                all_vertices.append(coords)
-            combined = np.vstack(all_vertices)
-            return combined.T
+            return self._get_multipolygon_vertices(self._original_geometry)
 
         return self._original_geometry.exterior.coords._coords.T[:, :-1]
 
