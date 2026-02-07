@@ -79,6 +79,10 @@ class EnvConfig:
                 f"{self.world_name} YAML File not found!, using default world config as alternative."
             )
 
+    def _world_kwargs(self) -> dict[str, Any]:
+        """World constructor kwargs from the ``world`` section."""
+        return dict(self.parse["world"])
+
     def initialize_objects(self) -> Any:
         """Construct world, objects and plot from the current parsed config.
 
@@ -93,7 +97,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self.parse["world"],
+            **self._world_kwargs(),
         )
 
         robot_collection = self.object_factory.create_from_parse(
@@ -154,7 +158,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self.parse["world"],
+            **self._world_kwargs(),
         )
 
         robot_collection = self.object_factory.create_from_parse(

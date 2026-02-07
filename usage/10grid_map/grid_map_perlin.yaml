@@ -1,0 +1,42 @@
+# Perlin noise grid map via obstacle_map dict spec (no PNG or Python pre-generation).
+# obstacle_map accepts: null, image path (str), or generator spec { name, ... }.
+world:
+  height: 20  # the height of the world (meters)
+  width: 20   # the width of the world (meters)
+  step_time: 0.1  # 10Hz simulation step
+  sample_time: 0.1  # 10Hz for render and data extraction
+  offset: [0, 0]  # world origin offset
+  collision_mode: 'stop'  # 'stop', 'unobstructed'
+  control_mode: 'auto'  # 'keyboard', 'auto'
+  mdownsample: 1
+  obstacle_map:
+    name: perlin
+    resolution: 0.1   # m/cell; grid size = world size / resolution (20/0.1 = 200 per axis)
+    complexity: 0.12
+    fill: 0.32
+    fractal: 1
+    attenuation: 0.5
+    seed: 48     # optional; omit for random map each run
+
+robot:
+  - kinematics: {name: 'diff'}  # differential drive robot
+    shape: {name: 'circle', radius: 0.3}
+    state: [2, 2, 0]  # initial state [x, y, theta]
+    goal: [16, 18, 0]  # goal position
+    vel_max: [3, 1]  # max linear and angular velocity
+    behavior: {name: 'dash'}  # move toward goal directly
+
+    plot:
+      show_trail: True
+      traj_color: 'g'
+      show_trajectory: True
+      show_goal: True
+
+    sensors:
+      - type: 'lidar2d'
+        range_min: 0
+        range_max: 8
+        angle_range: 3.14  # 180 degree FOV
+        number: 60
+        noise: False
+        alpha: 0.3

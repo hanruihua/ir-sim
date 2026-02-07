@@ -1,6 +1,10 @@
 """
+A* grid planning.
 
-A* grid planning
+Collision precedence:
+  1. Grid lookup when ``env_map.grid`` is not ``None``; if occupied, collision.
+  2. When the grid reports free or is unavailable, Shapely vs. obstacle_list.
+  (Grid and obstacle_list are combined when both are present.)
 
 author: Atsushi Sakai(@Atsushi_twi)
         Nikos Kanargias (nkana@tee.gr)
@@ -8,38 +12,39 @@ author: Atsushi Sakai(@Atsushi_twi)
 adapted by: Reinis Cimurs
 
 See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
-
 """
+
+from __future__ import annotations
 
 import math
 
 import matplotlib.pyplot as plt
 import numpy as np
-import shapely
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
-from irsim.world.map import Map
+from irsim.world.map import EnvGridMap
 
 
 class AStarPlanner:
-    def __init__(self, env_map: Map, resolution: float) -> None:
+    def __init__(self, env_map: EnvGridMap) -> None:
         """
         Initialize A* planner.
 
         Args:
-            env_map (Map): Environment map where planning takes place.
-            resolution (float): Grid resolution in meters.
+            env_map: Environment map (any :class:`~irsim.world.map.EnvGridMap`
+                compatible object).
         """
 
-        self.resolution = resolution
+        self._map = env_map
+        self.resolution = env_map.resolution  # m/cell
         self.obstacle_list = env_map.obstacle_list[:]
-        self.min_x, self.min_y = 0, 0
-        self.max_x, self.max_y = (
-            env_map.height,
-            env_map.width,
-        )
-        self.x_width = round((self.max_x - self.min_x) / self.resolution)
-        self.y_width = round((self.max_y - self.min_y) / self.resolution)
+        self.origin_x = float(env_map.world_offset[0])
+        self.origin_y = float(env_map.world_offset[1])
+        self.min_x, self.min_y = 0, 0  # grid indices are 0-based
+        self.max_x = self.origin_x + env_map.width
+        self.max_y = self.origin_y + env_map.height
+        self.x_width = round((self.max_x - self.origin_x) / self.resolution)
+        self.y_width = round((self.max_y - self.origin_y) / self.resolution)
         self.motion = self.get_motion_model()
 
     class Node:
@@ -91,14 +96,14 @@ class AStarPlanner:
             (np.array): xy position array of the final path
         """
         start_node = self.Node(
-            self.calc_xy_index(start_pose[0].item(), self.min_x),
-            self.calc_xy_index(start_pose[1].item(), self.min_y),
+            self.calc_xy_index(start_pose[0].item(), self.origin_x),
+            self.calc_xy_index(start_pose[1].item(), self.origin_y),
             0.0,
             -1,
         )
         goal_node = self.Node(
-            self.calc_xy_index(goal_pose[0].item(), self.min_x),
-            self.calc_xy_index(goal_pose[1].item(), self.min_y),
+            self.calc_xy_index(goal_pose[0].item(), self.origin_x),
+            self.calc_xy_index(goal_pose[1].item(), self.origin_y),
             0.0,
             -1,
         )
@@ -121,14 +126,14 @@ class AStarPlanner:
             # show graph
             if show_animation:  # pragma: no cover
                 plt.plot(
-                    self.calc_grid_position(current.x, self.min_x),
-                    self.calc_grid_position(current.y, self.min_y),
+                    self.calc_grid_position(current.x, self.origin_x),
+                    self.calc_grid_position(current.y, self.origin_y),
                     "xc",
                 )
                 # for stopping simulation with the esc key.
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: [exit(0) if event.key == "escape" else None],
+                    lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
                 )
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)
@@ -187,14 +192,14 @@ class AStarPlanner:
             ry (list): list of y positions of final path
         """
         rx, ry = (
-            [self.calc_grid_position(goal_node.x, self.min_x)],
-            [self.calc_grid_position(goal_node.y, self.min_y)],
+            [self.calc_grid_position(goal_node.x, self.origin_x)],
+            [self.calc_grid_position(goal_node.y, self.origin_y)],
         )
         parent_index = goal_node.parent_index
         while parent_index != -1:
             n = closed_set[parent_index]
-            rx.append(self.calc_grid_position(n.x, self.min_x))
-            ry.append(self.calc_grid_position(n.y, self.min_y))
+            rx.append(self.calc_grid_position(n.x, self.origin_x))
+            ry.append(self.calc_grid_position(n.y, self.origin_y))
             parent_index = n.parent_index
 
         return rx, ry
@@ -252,25 +257,29 @@ class AStarPlanner:
         Returns:
             (bool): True if node is acceptable. False otherwise
         """
-        px = self.calc_grid_position(node.x, self.min_x)
-        py = self.calc_grid_position(node.y, self.min_y)
+        px = self.calc_grid_position(node.x, self.origin_x)
+        py = self.calc_grid_position(node.y, self.origin_y)
 
-        if px < self.min_x or py < self.min_y or px >= self.max_x or py >= self.max_y:
+        if (
+            px < self.origin_x
+            or py < self.origin_y
+            or px >= self.max_x
+            or py >= self.max_y
+        ):
             return False
 
         # collision check
         return not self.check_node(px, py)
 
-    def check_node(self, x: int, y: int) -> bool:
-        """
-        Check positon for a collision
+    def check_node(self, x: float, y: float) -> bool:
+        """Check position for a collision.
 
         Args:
-            x (float): x value of the position
-            y (float): y value of the position
+            x: World x coordinate of the cell centre.
+            y: World y coordinate of the cell centre.
 
         Returns:
-            result (bool): True if there is a collision. False otherwise
+            ``True`` if a collision is detected.
         """
         node_position = [x, y]
         shape = {
@@ -280,9 +289,7 @@ class AStarPlanner:
         }
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        return any(
-            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
-        )
+        return self._map.is_collision(geometry)
 
     @staticmethod
     def get_motion_model() -> list[list[float]]:
