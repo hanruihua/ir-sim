@@ -67,7 +67,7 @@ The configuration file is a YAML file that specifies the properties of the envir
   - `'stop'`: Stop simulation when collision occurs (default)
   - `'unobstructed'`: Ignore all collisions
   - `'unobstructed_obstacles'`: Ignore only obstacle collisions
-- **`obstacle_map`**: Optional path to a pre-defined obstacle map file
+- **`obstacle_map`**: Optional. Path to an obstacle map image, or a generator spec (e.g. `{ name: perlin, ... }`). See [Configure grid map](configure_grid_map).
 
 ### Performance Considerations
 

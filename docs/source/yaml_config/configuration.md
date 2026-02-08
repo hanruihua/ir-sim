@@ -136,7 +136,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
 | `status`         | `str`             | `"None"`    | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`) |
-| `obstacle_map`   | `str` (file path) | `None`      | Path to the image file representing the obstacle map                                                       |
+| `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](configure_grid_map). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
 | `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                   |
 
@@ -199,14 +199,27 @@ This section outlines the configuration parameters available for the `world` sec
 (world-map)=
 ::::{dropdown} **world map**
 
-**`obstacle_map`** (`str` (file path), default: `None`)
-: Specifies the file path to an image that serves as the obstacle map. This image is used to generate the grid map that defines the positions of obstacles within the world. Each pixel in the image corresponds to a grid cell in the map, where the color of the pixel determines the presence of an obstacle.
+**`obstacle_map`** (`dict`, `str`, `ndarray`, or `null`, default: `None`)
+: Occupancy grid source. **Canonical form is a generator spec dict** with ``name``; other types are convenience/backward compat.
+
+  - **Generator spec** (`dict`): ``name`` identifies the generator. ``name: image`` with ``path`` (e.g. ``'cave.png'``) loads an image; grid size from the image. ``name: perlin`` (and others) require ``resolution``; grid size = world size / resolution. See [Configure grid map](configure_grid_map). To add a new generator, see [Adding a new map generator](configure_grid_map#add-new-map-generator).
+  - **Image path** (`str`): Treated as ``{ name: image, path: obstacle_map }`` (backward compat).
+  - **Occupancy grid** (`ndarray`): Programmatic use only. Float 0–100; world size must match grid shape.
+  - **`null`**: No obstacle map (empty world).
 
   **Available Maps**: We provide some example maps in the `irsim/world/map` folder and you can also use your own map by 3D datasets like [HM3D](https://aihabitat.org/datasets/hm3d/), [MatterPort3D](https://niessner.github.io/Matterport/), [Gibson](http://gibsonenv.stanford.edu/database/), etc. See [here](https://github.com/hanruihua/ir-sim/tree/features/irsim/world/map/binary_map_generator_hm3d) for more details.
 
   ```yaml
-  # Example usage
-  obstacle_map: 'hm3d_2.png' # hm3d_1.png, hm3d_2.png, hm3d_3.png, hm3d_4.png, hm3d_5.png, hm3d_6.png, hm3d_7.png, hm3d_8.png, hm3d_9.png, cave.png
+  # Image path
+  obstacle_map: 'hm3d_2.png'
+
+  # Procedural generator (grid size = world size / resolution)
+  obstacle_map:
+    name: perlin
+    resolution: 0.1
+    complexity: 0.12
+    fill: 0.32
+    seed: 48
   ```
 
 **`mdownsample`** (`int`, default: `1`)

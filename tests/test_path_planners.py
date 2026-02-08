@@ -1,12 +1,14 @@
 """
 Tests for path planning algorithms.
 
-Covers A*, RRT, RRT*, and PRM planners.
+Covers A*, JPS, RRT, RRT*, Informed RRT*, and PRM planners.
 """
 
 import pytest
 
 from irsim.lib.path_planners.a_star import AStarPlanner
+from irsim.lib.path_planners.informed_rrt_star import InformedRRTStar
+from irsim.lib.path_planners.jps import JPSPlanner
 from irsim.lib.path_planners.probabilistic_road_map import PRMPlanner
 from irsim.lib.path_planners.rrt import RRT
 from irsim.lib.path_planners.rrt_star import RRTStar
@@ -16,74 +18,77 @@ from irsim.lib.path_planners.rrt_star import RRTStar
     ("planner_class", "resolution"),
     [
         (AStarPlanner, 0.3),
+        (JPSPlanner, 0.3),
         (RRTStar, 0.3),
+        (InformedRRTStar, 0.3),
         (RRT, 0.3),
         (PRMPlanner, 0.3),
     ],
 )
 def test_path_planners(planner_class, resolution, env_factory):
-    """Test path planning algorithms find valid paths."""
+    """Test path planning algorithms find valid paths. Resolution is from the map."""
     env = env_factory("test_collision_world.yaml", full=False)
-    env_map = env.get_map()
-    planner = planner_class(env_map, resolution)
-    robot_info = env.get_robot_info()
+    env_map = env.get_map(resolution=resolution)
+    if planner_class in (AStarPlanner, JPSPlanner):
+        planner = planner_class(env_map)
+    elif planner_class in (RRT, RRTStar, InformedRRTStar):
+        planner = planner_class(env_map, robot=env.robot)
+    else:
+        planner = planner_class(env_map, robot_radius=resolution)
     robot_state = env.get_robot_state()
-    trajectory = planner.planning(robot_state, robot_info.goal)
+    goal_pose = env.robot.goal[:2, 0].tolist()
+    trajectory = planner.planning(robot_state, goal_pose)
     env.draw_trajectory(trajectory, traj_type="r-")
     assert trajectory is not None
 
 
 class TestRRTStarEdgeMethods:
-    """Tests for RRT* edge cases and methods."""
+    """Tests for RRT* edge cases and internal methods."""
 
     @pytest.fixture
     def rrt_star(self, env_factory):
         """Create RRT* planner for testing."""
         env = env_factory("test_collision_world.yaml", full=False)
         env_map = env.get_map()
-        r = RRTStar(env_map=env_map, robot_radius=0.5)
+        r = RRTStar(env_map=env_map, robot=env.robot)
         r.node_list = []
-        r.robot_radius = 0.5
         r.expand_dis = 1.0
         return r
 
     def test_choose_parent_empty_near_indices(self, rrt_star):
-        """Test choose_parent with empty near indices."""
-        nn = rrt_star.Node(0.0, 0.0)
-        assert rrt_star.choose_parent(nn, []) is None
+        """Test _choose_parent with empty near indices returns nearest."""
+        nearest = rrt_star.Node(0.0, 0.0)
+        nearest.cost = 0.0
+        rrt_star.node_list = [nearest]
+        new_node = rrt_star.Node(1.0, 0.0)
+        cost_fp = 1.0
+        best_parent, best_cost_fp = rrt_star._choose_parent(
+            new_node, nearest, 0, cost_fp, []
+        )
+        assert best_parent is nearest
+        assert best_cost_fp == cost_fp
 
-    def test_choose_parent_all_costs_inf(self, rrt_star):
-        """Test choose_parent when all costs are infinite."""
-        rrt_star.node_list = [rrt_star.Node(0.0, 0.0)]
-        rrt_star.steer = lambda *_args, **_kwargs: None
-        rrt_star.check_collision = lambda *_args, **_kwargs: False
-        nn = rrt_star.Node(0.0, 0.0)
-        assert rrt_star.choose_parent(nn, [0]) is None
-
-    def test_rewire_edge_node_none(self, rrt_star):
-        """Test rewire when edge_node is None."""
-        rrt_star.node_list = [rrt_star.Node(0.0, 0.0), rrt_star.Node(1.0, 0.0)]
-        new_node = rrt_star.Node(0.5, 0.0)
-        rrt_star.steer = lambda *_args, **_kwargs: None
-        rrt_star.rewire(new_node, [0])
+    def test_choose_parent_all_collision_fail(self, rrt_star):
+        """Test _choose_parent when all candidates fail collision."""
+        nearest = rrt_star.Node(0.0, 0.0)
+        nearest.cost = 0.0
+        rrt_star.node_list = [nearest]
+        rrt_star.is_collision = lambda *_args, **_kwargs: False
+        new_node = rrt_star.Node(1.0, 0.0)
+        best_parent, _ = rrt_star._choose_parent(
+            new_node, nearest, 0, 1.0, [0]
+        )
+        assert best_parent is nearest
 
     def test_rewire_no_improvement(self, rrt_star):
-        """Test rewire when no cost improvement."""
+        """Test _rewire when no cost improvement (candidate cost already lower)."""
         rrt_star.node_list = [rrt_star.Node(0.0, 0.0), rrt_star.Node(1.0, 0.0)]
-        new_node = rrt_star.Node(0.5, 0.0)
-        tmp_edge = rrt_star.Node(0.6, 0.0)
-        tmp_edge.cost = 10.0
-        rrt_star.steer = lambda *_args, **_kwargs: tmp_edge
-        rrt_star.check_collision = lambda *_args, **_kwargs: True
         rrt_star.node_list[0].cost = 0.0
-        rrt_star.calc_new_cost = lambda _a, _b: 100.0
-        rrt_star.rewire(new_node, [0])
-
-    def test_search_best_goal_node_no_safe_goals(self, rrt_star):
-        """Test search_best_goal_node when no safe goals."""
-        rrt_star.calc_dist_to_goal = lambda *_args, **_kwargs: 999.0
-        rrt_star.steer = lambda *_args, **_kwargs: rrt_star.Node(0.0, 0.0)
-        assert rrt_star.search_best_goal_node() is None
+        rrt_star.node_list[1].cost = 0.5
+        new_node = rrt_star.Node(0.5, 0.0)
+        new_node.cost = 10.0
+        rrt_star._rewire(new_node, [1])
+        assert rrt_star.node_list[1].parent is None
 
 
 class TestRRTStarCoverage:
@@ -95,32 +100,30 @@ class TestRRTStarCoverage:
         env_map = env.get_map()
         planner = RRTStar(
             env_map=env_map,
-            robot_radius=0.3,
+            robot=env.robot,
             max_iter=10,
             search_until_max_iter=True,
         )
         robot_state = env.get_robot_state()
-        robot_info = env.get_robot_info()
-        _ = planner.planning(robot_state, robot_info.goal, show_animation=False)
+        _ = planner.planning(
+            robot_state, env.robot.goal[:2, 0].tolist(), show_animation=False
+        )
 
     def test_planning_no_show_animation(self, env_factory):
         """Test planning without animation (branches at 112-113, 116-117)."""
         env = env_factory("test_collision_world.yaml", full=False)
         env_map = env.get_map()
-        planner = RRTStar(
-            env_map=env_map,
-            robot_radius=0.3,
-            max_iter=10,
-        )
+        planner = RRTStar(env_map=env_map, robot=env.robot, max_iter=10)
         robot_state = env.get_robot_state()
-        robot_info = env.get_robot_info()
-        _ = planner.planning(robot_state, robot_info.goal, show_animation=False)
+        _ = planner.planning(
+            robot_state, env.robot.goal[:2, 0].tolist(), show_animation=False
+        )
 
     def test_choose_parent_valid_path(self, env_factory):
-        """Test choose_parent with valid min_ind (lines 162-166)."""
+        """Test _choose_parent with valid candidate."""
         env = env_factory("test_collision_world.yaml", full=False)
         env_map = env.get_map()
-        planner = RRTStar(env_map=env_map, robot_radius=0.3)
+        planner = RRTStar(env_map=env_map, robot=env.robot)
 
         start_node = planner.Node(0.0, 0.0)
         start_node.cost = 0.0
@@ -129,15 +132,17 @@ class TestRRTStarCoverage:
         new_node = planner.Node(1.0, 0.0)
         near_inds = [0]
 
-        result = planner.choose_parent(new_node, near_inds)
-        if result is not None:
-            assert hasattr(result, "cost")
+        best_parent, best_cost_fp = planner._choose_parent(
+            new_node, start_node, 0, 1.0, near_inds
+        )
+        assert best_parent is start_node
+        assert best_cost_fp == 1.0
 
     def test_rewire_with_improvement(self, env_factory):
-        """Test rewire when cost improvement occurs (lines 252-257)."""
+        """Test _rewire when cost improvement occurs."""
         env = env_factory("test_collision_world.yaml", full=False)
         env_map = env.get_map()
-        planner = RRTStar(env_map=env_map, robot_radius=0.1)
+        planner = RRTStar(env_map=env_map, robot=env.robot)
 
         node0 = planner.Node(0.0, 0.0)
         node0.cost = 0.0
@@ -152,58 +157,4 @@ class TestRRTStarCoverage:
         new_node.parent = node0
 
         planner.node_list = [node0, node1, new_node]
-        planner.rewire(new_node, [1])
-
-    def test_propagate_cost_to_leaves(self, env_factory):
-        """Test propagate_cost_to_leaves (lines 288-291)."""
-        env = env_factory("test_collision_world.yaml", full=False)
-        env_map = env.get_map()
-        planner = RRTStar(env_map=env_map, robot_radius=0.3)
-
-        parent = planner.Node(0.0, 0.0)
-        parent.cost = 1.0
-
-        child = planner.Node(1.0, 0.0)
-        child.cost = 10.0
-        child.parent = parent
-
-        grandchild = planner.Node(2.0, 0.0)
-        grandchild.cost = 20.0
-        grandchild.parent = child
-
-        planner.node_list = [parent, child, grandchild]
-        parent.cost = 0.5
-        planner.propagate_cost_to_leaves(parent)
-
-        assert child.cost < 10.0
-
-    def test_calc_new_cost(self, env_factory):
-        """Test calc_new_cost method (lines 270-271)."""
-        env = env_factory("test_collision_world.yaml", full=False)
-        env_map = env.get_map()
-        planner = RRTStar(env_map=env_map, robot_radius=0.3)
-
-        from_node = planner.Node(0.0, 0.0)
-        from_node.cost = 1.0
-
-        to_node = planner.Node(1.0, 0.0)
-
-        cost = planner.calc_new_cost(from_node, to_node)
-        import pytest
-
-        assert cost == pytest.approx(2.0, rel=0.01)
-
-    def test_search_best_goal_node_returns_index(self, env_factory):
-        """Test search_best_goal_node returns valid index (lines 196-200)."""
-        env = env_factory("test_collision_world.yaml", full=False)
-        env_map = env.get_map()
-        planner = RRTStar(env_map=env_map, robot_radius=0.1, expand_dis=2.0)
-
-        planner.end = planner.Node(1.0, 0.0)
-
-        node = planner.Node(0.5, 0.0)
-        node.cost = 0.5
-        node.parent = None
-        planner.node_list = [node]
-
-        _ = planner.search_best_goal_node()
+        planner._rewire(new_node, [1])

@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
 import numpy as np
-from shapely.geometry import Point
+import shapely
+from shapely.geometry import MultiLineString, Point
 from shapely.strtree import STRtree
 
 from irsim.world.object_base import ObjectBase
@@ -105,3 +106,15 @@ class ObstacleMap(ObjectBase):
                         return True
 
         return False
+
+    def is_collision(self, geometry) -> bool:
+        """Check collision against grid (if present) and map geometry."""
+        if self.grid_map is not None and self.check_grid_collision(geometry):
+            return True
+
+        candidate_indices = self.geometry_tree.query(geometry)
+        filtered_lines = [self.linestrings[i] for i in candidate_indices]
+        if not filtered_lines:
+            return False
+        filtered_multi_line = MultiLineString(filtered_lines)
+        return shapely.intersects(geometry, filtered_multi_line)

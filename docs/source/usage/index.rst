@@ -9,6 +9,7 @@ User Guide
    configure_sensor
    configure_behavior
    configure_grid_map
+   configure_path_planning
    configure_keyboard_Mouse_control
    configure_dynamic_random_env
    save_animation   
