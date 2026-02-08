@@ -161,11 +161,11 @@ class JPSPlanner:
             if the start or goal cell is not walkable, or if no path exists (open set
             exhausted).
         """
-        sx = self.calc_xy_index(start_pose[0].item(), self.origin_x)
-        sy = self.calc_xy_index(start_pose[1].item(), self.origin_y)
+        sx = self.calc_xy_index(float(start_pose[0]), self.origin_x)
+        sy = self.calc_xy_index(float(start_pose[1]), self.origin_y)
         start_node = _JpsNode(sx, sy, 0.0, -1, 0, 0)
-        gx = self.calc_xy_index(goal_pose[0].item(), self.origin_x)
-        gy = self.calc_xy_index(goal_pose[1].item(), self.origin_y)
+        gx = self.calc_xy_index(float(goal_pose[0]), self.origin_x)
+        gy = self.calc_xy_index(float(goal_pose[1]), self.origin_y)
         goal_node = _JpsNode(gx, gy, 0.0, -1)
 
         if not self._is_walkable(start_node.x, start_node.y):
