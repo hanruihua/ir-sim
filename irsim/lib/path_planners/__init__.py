@@ -18,10 +18,10 @@ from irsim.lib.path_planners.rrt import RRT
 from irsim.lib.path_planners.rrt_star import RRTStar
 
 __all__ = [
+    "RRT",
     "AStarPlanner",
     "InformedRRTStar",
     "JPSPlanner",
     "PRMPlanner",
-    "RRT",
     "RRTStar",
 ]

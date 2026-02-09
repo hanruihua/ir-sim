@@ -9,7 +9,7 @@ _build_grid() and set name / yaml_param_names to register.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,7 +22,7 @@ class GridMapGenerator(ABC):
     name (for YAML) and yaml_param_names (allowed constructor params from YAML).
     """
 
-    registry: dict[str, type["GridMapGenerator"]] = {}
+    registry: ClassVar[dict[str, type[GridMapGenerator]]] = {}
     name: str = ""
     yaml_param_names: tuple[str, ...] = ()
 

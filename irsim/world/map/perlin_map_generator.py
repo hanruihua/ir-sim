@@ -158,9 +158,9 @@ def generate_perlin_noise(
         ValueError: If fractal < 1 or attenuation <= 0.
     """
     if fractal < 1:
-        raise ValueError("fractal must be >= 1 (got %s)" % fractal)
+        raise ValueError(f"fractal must be >= 1 (got {fractal})")
     if attenuation <= 0:
-        raise ValueError("attenuation must be > 0 (got %s)" % attenuation)
+        raise ValueError(f"attenuation must be > 0 (got {attenuation})")
     local_rng = np.random.default_rng(seed)
     perm = _generate_permutation_table(local_rng)
 
@@ -220,9 +220,9 @@ class PerlinGridGenerator(GridMapGenerator):
             seed (int | None): Random seed for reproducibility.
         """
         if fractal < 1:
-            raise ValueError("fractal must be >= 1 (got %s)" % fractal)
+            raise ValueError(f"fractal must be >= 1 (got {fractal})")
         if attenuation <= 0:
-            raise ValueError("attenuation must be > 0 (got %s)" % attenuation)
+            raise ValueError(f"attenuation must be > 0 (got {attenuation})")
         super().__init__()
         self.width = width
         self.height = height

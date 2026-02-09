@@ -10,16 +10,15 @@ from shapely.geometry import Point
 from .grid_map_generator_base import GridMapGenerator
 from .image_map_generator import ImageGridGenerator
 from .obstacle_map import (
-    ObstacleMap,
     CELL_CENTER_OFFSET,
     COLLISION_RADIUS_FACTOR,
     OCCUPANCY_THRESHOLD,
+    ObstacleMap,
 )
 from .perlin_map_generator import PerlinGridGenerator
 
-
 # ---------------------------------------------------------------------------
-# Typed protocol – structural contract expected by all path planners
+# Typed protocol - structural contract expected by all path planners
 # ---------------------------------------------------------------------------
 
 
@@ -108,7 +107,7 @@ def _grid_collision_geometry(
 
 
 def resolve_obstacle_map(
-    obstacle_map: "str | np.ndarray | dict[str, Any] | None" = None,
+    obstacle_map: str | np.ndarray | dict[str, Any] | None = None,
     world_width: Optional[float] = None,
     world_height: Optional[float] = None,
 ) -> Optional[np.ndarray]:
