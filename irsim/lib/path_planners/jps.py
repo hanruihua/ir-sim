@@ -144,8 +144,9 @@ class JPSPlanner:
                 map (same as :class:`AStarPlanner`).
         """
         self._map = env_map
-        self.origin_x = float(env_map.world_offset[0])
-        self.origin_y = float(env_map.world_offset[1])
+        off = np.asarray(env_map.world_offset, dtype=float).flatten()
+        self.origin_x = float(off[0])
+        self.origin_y = float(off[1])
         self.min_x, self.min_y = 0, 0  # grid indices are 0-based
         self.max_x = self.origin_x + env_map.width
         self.max_y = self.origin_y + env_map.height
@@ -185,6 +186,8 @@ class JPSPlanner:
             if the start or goal cell is not walkable, or if no path exists (open set
             exhausted).
         """
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
         sx = self.calc_xy_index(float(start_pose[0]), self.origin_x)
         sy = self.calc_xy_index(float(start_pose[1]), self.origin_y)
         start_node = _JpsNode(sx, sy, 0.0, -1, 0, 0)

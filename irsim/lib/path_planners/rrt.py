@@ -108,12 +108,13 @@ class RRT:
         __slots__ = ("xmax", "xmin", "ymax", "ymin")
 
         def __init__(self, env_map: EnvGridMap) -> None:
-            ox = float(env_map.world_offset[0])
-            oy = float(env_map.world_offset[1])
-            self.xmin: float = ox
-            self.ymin: float = oy
-            self.xmax: float = ox + float(env_map.width)
-            self.ymax: float = oy + float(env_map.height)
+            off = np.asarray(env_map.world_offset, dtype=float).flatten()
+            self.xmin: float = float(off[0])
+            self.ymin: float = float(off[1])
+            w = float(np.asarray(env_map.width).flat[0])
+            h = float(np.asarray(env_map.height).flat[0])
+            self.xmax: float = self.xmin + w
+            self.ymax: float = self.ymin + h
 
     # ------------------------------------------------------------------
     # Construction
@@ -146,8 +147,9 @@ class RRT:
 
         self._map = env_map
         self.obstacle_list = env_map.obstacle_list[:]
-        self._origin_x = float(env_map.world_offset[0])
-        self._origin_y = float(env_map.world_offset[1])
+        off = np.asarray(env_map.world_offset, dtype=float).flatten()
+        self._origin_x = float(off[0])
+        self._origin_y = float(off[1])
         self.play_area = self.AreaBounds(env_map)
         self.max_x = self.play_area.xmax
         self.max_y = self.play_area.ymax
@@ -285,6 +287,8 @@ class RRT:
         Returns:
             ``(2, N)`` numpy array ``[rx, ry]`` or *None*.
         """
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
         sx, sy = float(start_pose[0]), float(start_pose[1])
         gx, gy = float(goal_pose[0]), float(goal_pose[1])
 

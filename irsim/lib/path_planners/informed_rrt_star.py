@@ -120,6 +120,8 @@ class InformedRRTStar(RRTStar):
         Returns:
             ``(2, N)`` waypoint array or *None*.
         """
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
         sx, sy = float(start_pose[0]), float(start_pose[1])
         gx, gy = float(goal_pose[0]), float(goal_pose[1])
 

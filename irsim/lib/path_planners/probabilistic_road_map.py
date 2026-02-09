@@ -83,10 +83,11 @@ class PRMPlanner:
         self._map = env_map
         self.rr = robot_radius
         self.obstacle_list = env_map.obstacle_list[:]
-        self.min_x = float(env_map.world_offset[0])
-        self.min_y = float(env_map.world_offset[1])
-        self.max_x = self.min_x + env_map.width
-        self.max_y = self.min_y + env_map.height
+        off = np.asarray(env_map.world_offset, dtype=float).flatten()
+        self.min_x = float(off[0])
+        self.min_y = float(off[1])
+        self.max_x = self.min_x + float(np.asarray(env_map.width).flat[0])
+        self.max_y = self.min_y + float(np.asarray(env_map.height).flat[0])
         self.n_sample = n_sample
         self.n_knn = n_knn
         self.max_edge_len = max_edge_len
@@ -110,12 +111,10 @@ class PRMPlanner:
         Returns:
             (np.array): xy position array of the final path
         """
-        start_x, start_y, goal_x, goal_y = (
-            float(start_pose[0]),
-            float(start_pose[1]),
-            float(goal_pose[0]),
-            float(goal_pose[1]),
-        )
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
+        start_x, start_y = float(start_pose[0]), float(start_pose[1])
+        goal_x, goal_y = float(goal_pose[0]), float(goal_pose[1])
         sample_x, sample_y = self.sample_points(start_x, start_y, goal_x, goal_y, rng)
         if show_animation:
             plt.plot(sample_x, sample_y, ".b")

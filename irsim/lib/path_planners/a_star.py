@@ -39,8 +39,9 @@ class AStarPlanner:
 
         self._map = env_map
         self.obstacle_list = env_map.obstacle_list[:]
-        self.origin_x = float(env_map.world_offset[0])
-        self.origin_y = float(env_map.world_offset[1])
+        off = np.asarray(env_map.world_offset, dtype=float).flatten()
+        self.origin_x = float(off[0])
+        self.origin_y = float(off[1])
         self.min_x, self.min_y = 0, 0  # grid indices are 0-based
         self.max_x = self.origin_x + env_map.width
         self.max_y = self.origin_y + env_map.height

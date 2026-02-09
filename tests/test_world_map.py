@@ -31,6 +31,7 @@ from irsim.world.map import (
     resolve_obstacle_map,
 )
 from irsim.world.map.perlin_map_generator import generate_perlin_noise
+from irsim.world.world import World
 
 
 class TestPerlinGridGenerator:
@@ -322,6 +323,16 @@ class TestResolveObstacleMap:
             resolve_obstacle_map({"name": "image"})
         with pytest.raises(ValueError, match="requires 'path'"):
             resolve_obstacle_map({"name": "image", "path": ""})
+
+    def test_dict_image_with_path_returns_ndarray(self):
+        """Explicit dict with name='image' and path returns ndarray (ImageGridGenerator)."""
+        cave_path = os.path.join(os.path.dirname(__file__), "cave.png")
+        result = resolve_obstacle_map({"name": "image", "path": cave_path})
+        assert result is not None
+        assert isinstance(result, np.ndarray)
+        assert result.dtype == np.float64
+        assert result.shape[0] > 0
+        assert result.shape[1] > 0
 
 
 # ---------------------------------------------------------------------------
@@ -689,3 +700,108 @@ class TestMapIsCollision:
             grid, (1.0, 1.0), pt, (0.0, 0.0)
         )
         assert out is False
+
+    def test_map_world_offset_accepts_list(self):
+        """Map accepts world_offset as list and stores as tuple."""
+        grid = np.zeros((10, 10), dtype=np.float64)
+        m = Map(
+            width=10.0,
+            height=10.0,
+            resolution=1.0,
+            obstacle_list=[],
+            grid=grid,
+            world_offset=[1.0, 2.0],
+        )
+        assert m.world_offset == (1.0, 2.0)
+
+
+# ---------------------------------------------------------------------------
+# World.gen_grid_map and World.get_map
+# ---------------------------------------------------------------------------
+
+
+class TestWorldGridMap:
+    """Tests for World.gen_grid_map with various obstacle_map types."""
+
+    def test_gen_grid_map_none_returns_none_and_zero_reso(self):
+        """obstacle_map=None yields (None, None, None) and self.reso zeros."""
+        w = World(obstacle_map=None, width=10, height=10)
+        assert w.grid_map is None
+        assert w.obstacle_index is None
+        assert w.obstacle_positions is None
+        np.testing.assert_array_equal(w.reso, np.zeros((2, 1)))
+
+    def test_gen_grid_map_ndarray(self):
+        """obstacle_map as ndarray produces grid_map and obstacle indices."""
+        grid = np.zeros((20, 20), dtype=np.float64)
+        grid[5, 5] = 100.0
+        w = World(obstacle_map=grid, width=10, height=10)
+        assert w.grid_map is not None
+        assert w.grid_map.shape == (20, 20)
+        assert w.obstacle_index is not None
+        assert w.obstacle_positions is not None
+        assert w.reso.shape == (2, 1)
+
+    def test_gen_grid_map_dict_perlin(self):
+        """obstacle_map as dict name=perlin uses build_grid_from_generator."""
+        w = World(
+            obstacle_map={"name": "perlin", "resolution": 0.5, "seed": 1},
+            width=10,
+            height=10,
+        )
+        assert w.grid_map is not None
+        # 10/0.5 = 20 cells per dimension
+        assert w.grid_map.shape == (20, 20)
+        assert w.obstacle_index is not None
+
+    def test_gen_grid_map_dict_image(self):
+        """obstacle_map as dict name=image with path loads image grid."""
+        cave_path = os.path.join(os.path.dirname(__file__), "cave.png")
+        w = World(
+            obstacle_map={"name": "image", "path": cave_path},
+            width=50,
+            height=50,
+        )
+        assert w.grid_map is not None
+        assert w.grid_map.shape[0] > 0
+        assert w.grid_map.shape[1] > 0
+
+
+class TestWorldGetMap:
+    """Tests for World.get_map when grid is not None (resolution branches)."""
+
+    def test_get_map_invalid_resolution_warns_and_uses_grid_resolution(
+        self, env_factory
+    ):
+        """get_map(0) or non-finite resolution warns and uses grid resolution."""
+        env = env_factory("test_grid_map.yaml", full=False)
+        with pytest.warns(UserWarning, match="resolution must be positive"):
+            env_map = env.get_map(0)
+        assert env_map is not None
+        assert env_map.grid is not None
+        env.end()
+
+    def test_get_map_coarser_resolution_downsampled(self, env_factory):
+        """get_map with coarser resolution triggers downsampling and warn."""
+        env = env_factory("test_grid_map.yaml", full=False)
+        # test_grid_map has 50x50 world, cave.png; mdownsample=2 so grid is ~250x250.
+        # Request res=2.0 -> grid shape ~ (25, 25)
+        with pytest.warns(UserWarning, match="downsampled"):
+            env_map = env.get_map(resolution=2.0)
+        assert env_map is not None
+        assert env_map.grid is not None
+        # Coarser than original
+        assert env_map.grid.shape[0] <= env._world.grid_map.shape[0]
+        assert env_map.grid.shape[1] <= env._world.grid_map.shape[1]
+        env.end()
+
+    def test_get_map_finer_resolution_warns(self, env_factory):
+        """get_map with finer resolution than grid only warns, no upsampling."""
+        env = env_factory("test_grid_map.yaml", full=False)
+        with pytest.warns(UserWarning, match="finer than"):
+            env_map = env.get_map(resolution=0.01)
+        assert env_map is not None
+        assert env_map.grid is not None
+        # Still uses original grid (no upsampling)
+        assert env_map.grid.shape == env._world.grid_map.shape
+        env.end()
