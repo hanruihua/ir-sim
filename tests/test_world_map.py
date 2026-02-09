@@ -1,19 +1,27 @@
 """
-Tests for grid map generators, resolve_obstacle_map, and build_grid_from_generator.
+Tests for irsim.world.map: grid map generators, Map, and obstacle map resolution.
 
 Covers:
-- PerlinGridGenerator (+ generate_perlin_noise internals)
-- resolve_obstacle_map: the single-point resolution dispatch
-- build_grid_from_generator: YAML spec -> ndarray
-- ImageGridGenerator: image-file based grid loading
+- PerlinGridGenerator and generate_perlin_noise
+- ImageGridGenerator (image-file based grid loading)
+- GridMapGenerator base (grid property, preview)
+- resolve_obstacle_map and build_grid_from_generator
+- Map (grid_occupied, grid_resolution, is_collision)
+- _grid_collision_geometry (grid vs geometry collision)
 """
 
 import os
+import runpy
 import tempfile
+from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from shapely.geometry import Point as ShapelyPoint
+from shapely.geometry import box
 
+from irsim.world import map as world_map_module
 from irsim.world.map import (
     GridMapGenerator,
     ImageGridGenerator,
@@ -298,6 +306,23 @@ class TestResolveObstacleMap:
         with pytest.raises(TypeError, match="obstacle_map must be"):
             resolve_obstacle_map({"width": 10})
 
+    def test_str_path_treated_as_image(self):
+        """A str is treated as image path; returns ndarray when file exists."""
+        cave_path = os.path.join(os.path.dirname(__file__), "cave.png")
+        result = resolve_obstacle_map(cave_path)
+        assert result is not None
+        assert isinstance(result, np.ndarray)
+        assert result.dtype == np.float64
+        assert result.shape[0] > 0
+        assert result.shape[1] > 0
+
+    def test_dict_image_missing_path_raises(self):
+        """Dict with name='image' but no path raises ValueError."""
+        with pytest.raises(ValueError, match="requires 'path'"):
+            resolve_obstacle_map({"name": "image"})
+        with pytest.raises(ValueError, match="requires 'path'"):
+            resolve_obstacle_map({"name": "image", "path": ""})
+
 
 # ---------------------------------------------------------------------------
 # build_grid_from_generator tests
@@ -382,8 +407,48 @@ class TestBuildGridFromGenerator:
 
 
 # ---------------------------------------------------------------------------
-# ImageGridGenerator tests
+# GridMapGenerator base and ImageGridGenerator tests
 # ---------------------------------------------------------------------------
+
+
+class TestGridMapGeneratorBase:
+    """Tests for GridMapGenerator base (grid property, preview)."""
+
+    def test_grid_raises_when_build_returns_none(self):
+        """Accessing .grid when _build_grid returns None raises RuntimeError."""
+        class FailingGenerator(GridMapGenerator):
+            name = "failing"
+            yaml_param_names = ()
+
+            def _build_grid(self):
+                return None  # type: ignore[return-value]
+
+            def generate(self):
+                self._grid = self._build_grid()  # leaves _grid None
+                return self
+
+        gen = FailingGenerator()
+        with pytest.raises(RuntimeError, match="Grid generation failed"):
+            _ = gen.grid
+
+    def test_preview_calls_show(self):
+        """preview() calls plt.show() and does not raise."""
+        pmap = PerlinGridGenerator(10, 10, seed=42).generate()
+        with patch("matplotlib.pyplot.show"):
+            pmap.preview(title="Test")
+        # No exception; show was called (covered by mock)
+
+    def test_perlin_module_main_runnable(self):
+        """Running perlin_map_generator as __main__ does not raise (covers __main__ block)."""
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            with patch("matplotlib.pyplot.show"):
+                runpy.run_module(
+                    "irsim.world.map.perlin_map_generator",
+                    run_name="__main__",
+                )
 
 
 class TestImageGridGenerator:
@@ -415,6 +480,58 @@ class TestImageGridGenerator:
         assert grid is not None
         assert grid.shape[0] > 0
 
+    def test_load_rgb_image_uses_grayscale(self):
+        """RGB image is converted to grayscale (covers _rgb2gray branch)."""
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            # 5x5 RGB image
+            rgb = np.random.randint(0, 255, (5, 5, 3), dtype=np.uint8)
+            plt.imsave(f.name, rgb)
+            try:
+                gen = ImageGridGenerator(path=f.name).generate()
+                assert gen.grid.shape == (5, 5)
+                assert gen.grid.dtype == np.float64
+            finally:
+                os.unlink(f.name)
+
+    def test_load_integer_image_normalized(self):
+        """Integer dtype image is normalized by iinfo max (covers integer branch)."""
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            arr = np.random.randint(0, 255, (4, 4), dtype=np.uint8)
+            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=255)
+            try:
+                gen = ImageGridGenerator(path=f.name).generate()
+                assert gen.grid.dtype == np.float64
+                assert gen.grid.min() >= 0
+                assert gen.grid.max() <= 100
+            finally:
+                os.unlink(f.name)
+
+    def test_load_float_max_gt_one_normalized(self):
+        """Float image with max > 1 is normalized by max (covers max>1 branch)."""
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            arr = np.random.rand(4, 4).astype(np.float64) * 10
+            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=10)
+            try:
+                gen = ImageGridGenerator(path=f.name).generate()
+                assert gen.grid.dtype == np.float64
+                assert gen.grid.min() >= 0
+                assert gen.grid.max() <= 100
+            finally:
+                os.unlink(f.name)
+
+    def test_load_float_in_zero_one_passthrough(self):
+        """Float image already in [0, 1] is cast to float64 (covers else branch)."""
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            arr = np.random.rand(4, 4).astype(np.float64)  # max <= 1
+            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=1)
+            try:
+                gen = ImageGridGenerator(path=f.name).generate()
+                assert gen.grid.dtype == np.float64
+                assert gen.grid.min() >= 0
+                assert gen.grid.max() <= 100
+            finally:
+                os.unlink(f.name)
+
 
 # ---------------------------------------------------------------------------
 # RNG isolation tests
@@ -443,6 +560,11 @@ class TestRNGIsolation:
         assert rng_state_after != rng_state_after2
 
 
+# ---------------------------------------------------------------------------
+# Map: grid_occupied, grid_resolution, is_collision
+# ---------------------------------------------------------------------------
+
+
 class TestMapGridOccupiedBoundary:
     """Tests for Map.grid_occupied out-of-bounds behaviour (no false negatives at edges)."""
 
@@ -468,3 +590,102 @@ class TestMapGridOccupiedBoundary:
         assert m.grid_occupied(-0.1, 5.0) is True
         assert m.grid_occupied(5.0, -0.1) is True
         assert m.grid_occupied(-1.0, -1.0) is True
+
+    def test_grid_occupied_returns_none_when_no_grid(self):
+        """When Map has no grid, grid_occupied returns None."""
+        m = Map(width=10.0, height=10.0, resolution=1.0, obstacle_list=[], grid=None)
+        assert m.grid_occupied(5.0, 5.0) is None
+
+    def test_grid_occupied_with_margin(self):
+        """grid_occupied with margin_x/margin_y expands check region."""
+        # One occupied cell at (0,0); point at (1,1) with margin may or may not hit it
+        grid = np.zeros((10, 10), dtype=np.float64)
+        grid[0, 0] = 100.0
+        m = Map(width=10.0, height=10.0, resolution=1.0, obstacle_list=[], grid=grid)
+        assert m.grid_occupied(0.5, 0.5) is True
+        assert m.grid_occupied(1.5, 1.5, margin_x=1.0, margin_y=1.0) is True
+        assert m.grid_occupied(5.0, 5.0, margin_x=0.1, margin_y=0.1) is False
+
+    def test_grid_resolution_none_when_no_grid(self):
+        """grid_resolution is None when Map has no grid."""
+        m = Map(width=10.0, height=10.0, resolution=1.0, obstacle_list=[], grid=None)
+        assert m.grid_resolution is None
+
+    def test_map_resolution_warning_when_diverges_from_grid(self):
+        """Map warns when resolution differs from grid cell size by >5%."""
+        grid = np.zeros((20, 20), dtype=np.float64)  # 20x20 grid, width=10 -> 0.5 per cell
+        with pytest.warns(UserWarning, match="resolution.*differs from grid"):
+            Map(
+                width=10.0,
+                height=10.0,
+                resolution=0.1,  # very different from 0.5
+                obstacle_list=[],
+                grid=grid,
+            )
+
+
+class TestMapIsCollision:
+    """Tests for Map.is_collision (grid + obstacle_list)."""
+
+    def test_is_collision_grid_occupied_cell(self):
+        """is_collision returns True when geometry overlaps occupied grid cell."""
+        # 10x10 grid, resolution 1.0, one occupied cell at (0,0)
+        grid = np.zeros((10, 10), dtype=np.float64)
+        grid[0, 0] = 100.0
+        m = Map(
+            width=10.0,
+            height=10.0,
+            resolution=1.0,
+            obstacle_list=[],
+            grid=grid,
+            world_offset=(0.0, 0.0),
+        )
+        # Point at cell center (0.5, 0.5) is in collision
+        pt = ShapelyPoint(0.5, 0.5)
+        assert m.is_collision(pt) is True
+        # Point far away is free
+        pt_free = ShapelyPoint(5.0, 5.0)
+        assert m.is_collision(pt_free) is False
+
+    def test_is_collision_out_of_bounds_returns_true(self):
+        """is_collision returns True when geometry is outside world bounds."""
+        grid = np.zeros((10, 10), dtype=np.float64)
+        m = Map(width=10.0, height=10.0, resolution=1.0, obstacle_list=[], grid=grid)
+        assert m.is_collision(box(11, 11, 12, 12)) is True
+        assert m.is_collision(box(-1, 0, 0, 1)) is True
+
+    def test_is_collision_obstacle_list_only(self):
+        """is_collision uses obstacle_list when no grid or grid reports free."""
+        # No grid; obstacle_list with one object
+        class SimpleObstacle:
+            pass
+
+        obj = SimpleObstacle()
+        obj._geometry = box(2, 2, 4, 4)
+        m = Map(
+            width=10.0,
+            height=10.0,
+            resolution=1.0,
+            obstacle_list=[obj],
+            grid=None,
+        )
+        assert m.is_collision(ShapelyPoint(3, 3)) is True
+        assert m.is_collision(ShapelyPoint(1, 1)) is False
+
+    def test_grid_collision_geometry_none_grid_returns_false(self):
+        """_grid_collision_geometry with grid=None returns False."""
+        pt = ShapelyPoint(1, 1)
+        out = world_map_module._grid_collision_geometry(
+            None, (1.0, 1.0), pt, (0.0, 0.0)
+        )
+        assert out is False
+
+    def test_grid_collision_geometry_bounds_outside_grid(self):
+        """_grid_collision_geometry returns False when geometry bounds outside grid."""
+        # Grid 10x10, reso 1.0, offset 0,0. Geometry at 100,100 -> i_min > i_max
+        grid = np.zeros((10, 10), dtype=np.float64)
+        pt = ShapelyPoint(100, 100)
+        out = world_map_module._grid_collision_geometry(
+            grid, (1.0, 1.0), pt, (0.0, 0.0)
+        )
+        assert out is False
