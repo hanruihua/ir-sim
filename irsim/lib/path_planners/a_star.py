@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.util.util import to_numpy
 from irsim.world.map import EnvGridMap
 
 
@@ -96,14 +97,14 @@ class AStarPlanner:
             (np.array): xy position array of the final path
         """
         start_node = self.Node(
-            self.calc_xy_index(float(start_pose[0]), self.origin_x),
-            self.calc_xy_index(float(start_pose[1]), self.origin_y),
+            self.calc_xy_index(float(to_numpy(start_pose)[0].item()), self.origin_x),
+            self.calc_xy_index(float(to_numpy(start_pose)[1].item()), self.origin_y),
             0.0,
             -1,
         )
         goal_node = self.Node(
-            self.calc_xy_index(float(goal_pose[0]), self.origin_x),
-            self.calc_xy_index(float(goal_pose[1]), self.origin_y),
+            self.calc_xy_index(float(to_numpy(goal_pose)[0].item()), self.origin_x),
+            self.calc_xy_index(float(to_numpy(goal_pose)[1].item()), self.origin_y),
             0.0,
             -1,
         )
@@ -179,7 +180,7 @@ class AStarPlanner:
         return np.array([rx, ry])
 
     def calc_final_path(
-        self, goal_node: "Node", closed_set: dict
+        self, goal_node: Node, closed_set: dict
     ) -> tuple[list[float], list[float]]:
         """Generate the final path
 
@@ -205,7 +206,7 @@ class AStarPlanner:
         return rx, ry
 
     @staticmethod
-    def calc_heuristic(n1: "Node", n2: "Node") -> float:
+    def calc_heuristic(n1: Node, n2: Node) -> float:
         w = 1.0  # weight of heuristic
         return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
@@ -235,7 +236,7 @@ class AStarPlanner:
         """
         return round((position - min_pos) / self.resolution)
 
-    def calc_grid_index(self, node: "Node") -> int:
+    def calc_grid_index(self, node: Node) -> int:
         """
         calc grid index of node
 
@@ -247,7 +248,7 @@ class AStarPlanner:
         """
         return (node.y - self.min_y) * self.x_width + (node.x - self.min_x)
 
-    def verify_node(self, node: "Node") -> bool:
+    def verify_node(self, node: Node) -> bool:
         """
         Check if node is acceptable - within limits of search space and free of collisions
 

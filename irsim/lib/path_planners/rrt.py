@@ -105,7 +105,7 @@ class RRT:
     class AreaBounds:
         """Rectangular play-area bounds in world coordinates."""
 
-        __slots__ = ("xmin", "ymin", "xmax", "ymax")
+        __slots__ = ("xmax", "xmin", "ymax", "ymin")
 
         def __init__(self, env_map: EnvGridMap) -> None:
             ox = float(env_map.world_offset[0])

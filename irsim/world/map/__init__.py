@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Optional, Protocol, runtime_checkable, Union, Tuple, Dict, List
 
 import numpy as np
 import shapely
@@ -10,16 +10,15 @@ from shapely.geometry import Point
 from .grid_map_generator_base import GridMapGenerator
 from .image_map_generator import ImageGridGenerator
 from .obstacle_map import (
-    ObstacleMap,
     CELL_CENTER_OFFSET,
     COLLISION_RADIUS_FACTOR,
     OCCUPANCY_THRESHOLD,
+    ObstacleMap,
 )
 from .perlin_map_generator import PerlinGridGenerator
 
-
 # ---------------------------------------------------------------------------
-# Typed protocol – structural contract expected by all path planners
+# Typed protocol - structural contract expected by all path planners
 # ---------------------------------------------------------------------------
 
 
@@ -44,11 +43,11 @@ class EnvGridMap(Protocol):
     height: float
     resolution: float
     obstacle_list: list
-    grid: np.ndarray | None
-    world_offset: tuple[float, float]
+    grid: Optional[np.ndarray]
+    world_offset: Tuple[float, float]
 
     @property
-    def grid_resolution(self) -> tuple[float, float] | None:
+    def grid_resolution(self) -> Optional[Tuple[float, float]]:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size."""
         ...
 
@@ -59,7 +58,7 @@ class EnvGridMap(Protocol):
         margin_x: float = 0.0,
         margin_y: float = 0.0,
         threshold: float = 50.0,
-    ) -> bool | None:
+    ) -> Optional[bool]:
         """Check if any grid cell within the bounding box is occupied."""
         ...
 
@@ -70,9 +69,9 @@ class EnvGridMap(Protocol):
 
 def _grid_collision_geometry(
     grid: np.ndarray,
-    grid_reso: tuple[float, float],
+    grid_reso: Tuple[float, float],
     geometry,
-    world_offset: tuple[float, float] = (0.0, 0.0),
+    world_offset: Tuple[float, float] = (0.0, 0.0),
 ) -> bool:
     """Check collision of a Shapely geometry against an occupancy grid.
 
@@ -108,7 +107,7 @@ def _grid_collision_geometry(
 
 
 def resolve_obstacle_map(
-    obstacle_map: "str | np.ndarray | dict[str, Any] | None" = None,
+    obstacle_map: Optional[Union[str, np.ndarray, Dict[str, Any]]] = None,
     world_width: Optional[float] = None,
     world_height: Optional[float] = None,
 ) -> Optional[np.ndarray]:
@@ -155,7 +154,7 @@ def resolve_obstacle_map(
 
 
 def build_grid_from_generator(
-    spec: dict[str, Any],
+    spec: Dict[str, Any],
     world_width: float,
     world_height: float,
 ) -> np.ndarray:
@@ -216,7 +215,7 @@ class Map:
         resolution: float = 0.1,
         obstacle_list: Optional[list] = None,
         grid: Optional[np.ndarray] = None,
-        world_offset: Optional[tuple[float, float] | list[float]] = None,
+        world_offset: Optional[Union[Tuple[float, float], List[float]]] = None,
     ):
         """
         Initialize the Map.
@@ -258,7 +257,7 @@ class Map:
                     )
 
     @property
-    def grid_resolution(self) -> tuple[float, float] | None:
+    def grid_resolution(self) -> Optional[Tuple[float, float]]:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size.
 
         Returns ``None`` when no grid is present.
@@ -277,7 +276,7 @@ class Map:
         margin_x: float = 0.0,
         margin_y: float = 0.0,
         threshold: float = 50.0,
-    ) -> bool | None:
+    ) -> Optional[bool]:
         """Check if any grid cell within the bounding box around ``(x, y)`` is occupied.
 
         The bounding box extends *margin_x* / *margin_y* (in world metres) in

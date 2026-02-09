@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
 import numpy as np
 
