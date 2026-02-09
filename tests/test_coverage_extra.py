@@ -1286,3 +1286,87 @@ class TestLidar2DEnsureMultiLineString:
 
         assert isinstance(result, MultiLineString)
         assert len(result.geoms) == 1  # Only the LineString
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests for lidar2d.py
+# ---------------------------------------------------------------------------
+
+
+class TestLidar2DNoise:
+    """Test Lidar2D with noise=True (line 296)."""
+
+    def test_lidar_with_noise(self):
+        """Lidar2D with noise=True adds noise to range data (line 296)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
+        assert lidar.noise is True
+        # Calculate range with noise
+        lidar.calculate_range()
+        assert lidar.range_data is not None
+
+
+class TestLidar2DScanToPointcloud:
+    """Test scan_to_pointcloud (lines 585-591)."""
+
+    def test_scan_to_pointcloud_with_hits(self):
+        """scan_to_pointcloud with hits returns array (lines 585-586)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        # Set some ranges shorter than range_max to simulate hits
+        lidar.range_data[:5] = 2.0  # Half of beams hit something
+        result = lidar.scan_to_pointcloud()
+        assert result is not None
+        assert result.shape[0] == 2  # 2D points
+        assert result.shape[1] == 5  # 5 hit points
+
+    def test_scan_to_pointcloud_no_hits(self):
+        """scan_to_pointcloud with no hits returns None (line 591)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        # All ranges at max (no hits)
+        lidar.range_data[:] = 5.0
+        result = lidar.scan_to_pointcloud()
+        assert result is None
+
+
+class TestBehaviorRegistryDuplicate:
+    """Test behavior registry duplicate registration (line 24)."""
+
+    def test_duplicate_behavior_raises(self):
+        """Registering same (kinematics, action) twice raises ValueError."""
+        from irsim.lib.behavior.behavior_registry import _make_register
+
+        target_map = {}
+        register = _make_register(
+            target_map, "Duplicate behavior '{kinematics}/{action}'"
+        )
+
+        @register("test_kin", "test_action")
+        class Beh1:
+            pass
+
+        with pytest.raises(ValueError, match="Duplicate behavior"):
+
+            @register("test_kin", "test_action")
+            class Beh2:
+                pass
+
+
+class TestBehaviorGenVelExternalNone:
+    """Test Behavior.gen_vel with external_objects=None (line 52)."""
+
+    def test_gen_vel_external_none(self):
+        """gen_vel with external_objects=None uses empty list (line 52)."""
+        from irsim.lib.behavior.behavior import Behavior
+
+        beh = Behavior(object_info=None, behavior_dict={})
+        # When behavior_dict is empty and external_objects is None
+        vel = beh.gen_vel(ego_object=None, external_objects=None)
+        assert vel is not None
