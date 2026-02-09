@@ -208,7 +208,8 @@ class InformedRRTStar(RRTStar):
 
             # 8. Try goal connection
             dist_to_goal = math.hypot(
-                added.x - self.end.x, added.y - self.end.y,
+                added.x - self.end.x,
+                added.y - self.end.y,
             )
             if dist_to_goal <= self.expand_dis:
                 goal_edge = self.steer(added, self.end, self.expand_dis)
@@ -228,7 +229,9 @@ class InformedRRTStar(RRTStar):
                             goal_found = True
                         else:
                             self._change_node_parent(
-                                self.end, added, dist_to_goal,
+                                self.end,
+                                added,
+                                dist_to_goal,
                             )
                             self.end.path_x = goal_edge.path_x
                             self.end.path_y = goal_edge.path_y
@@ -325,7 +328,9 @@ class InformedRRTStar(RRTStar):
         if not self._vis_setup_done:
             ax.figure.canvas.mpl_connect(
                 "key_release_event",
-                lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
+                lambda event: plt.close(event.canvas.figure)
+                if event.key == "escape"
+                else None,
             )
             (self._start_marker,) = ax.plot(
                 self.start.x,

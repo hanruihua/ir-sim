@@ -8,8 +8,6 @@ GCOPTER (https://github.com/ZJU-FAST-Lab/GCOPTER). Pure NumPy implementation.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 
 from .grid_map_generator_base import GridMapGenerator
@@ -135,7 +133,7 @@ def generate_perlin_noise(
     complexity: float = 0.142857,
     fractal: int = 1,
     attenuation: float = 0.5,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> np.ndarray:
     """Generate 2D Perlin noise array.
 
@@ -172,12 +170,10 @@ def generate_perlin_noise(
     max_amplitude = 0.0
 
     for k in range(fractal):
-        dfv = 2 ** k
+        dfv = 2**k
         amplitude = attenuation / (k + 1)
         frequency = complexity * dfv
-        noise += amplitude * _perlin_2d(
-            xx * frequency, yy * frequency, perm
-        )
+        noise += amplitude * _perlin_2d(xx * frequency, yy * frequency, perm)
         max_amplitude += amplitude
 
     # Normalize to [0, 1]
@@ -206,7 +202,7 @@ class PerlinGridGenerator(GridMapGenerator):
         fill: float = 0.38,
         fractal: int = 1,
         attenuation: float = 0.5,
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> None:
         """Initialize map parameters.
 

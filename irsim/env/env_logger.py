@@ -1,12 +1,11 @@
 import sys
-from typing import Optional
 
 from loguru import logger
 
 
 class EnvLogger:
     def __init__(
-        self, log_file: Optional[str] = "irsim_error.log", log_level: str = "WARNING"
+        self, log_file: str | None = "irsim_error.log", log_level: str = "WARNING"
     ) -> None:
         """
         Initialize the EnvLogger.

@@ -15,7 +15,7 @@ adapted by: Reinis Cimurs
 from __future__ import annotations
 
 import math
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -96,9 +96,9 @@ class PRMPlanner:
         self,
         start_pose: np.ndarray,
         goal_pose: np.ndarray,
-        rng: Optional[Any] = None,
+        rng: Any | None = None,
         show_animation: bool = True,
-    ) -> Optional[tuple[list[float], list[float]]]:
+    ) -> tuple[list[float], list[float]] | None:
         """
         Plan a path from start to goal using the PRM method.
 
@@ -204,7 +204,7 @@ class PRMPlanner:
         n_sample = len(sample_x)
         sample_kd_tree = KDTree(np.vstack((sample_x, sample_y)).T)
 
-        for _i, ix, iy in zip(range(n_sample), sample_x, sample_y):
+        for _i, ix, iy in zip(range(n_sample), sample_x, sample_y, strict=True):
             _, indexes = sample_kd_tree.query([ix, iy], k=n_sample)
             edge_id = []
 
@@ -234,7 +234,7 @@ class PRMPlanner:
         sample_x: list[float],
         sample_y: list[float],
         show_animation: bool,
-    ) -> Optional[tuple[list[float], list[float]]]:
+    ) -> tuple[list[float], list[float]] | None:
         """
         Args:
             sx (float): start x position [m]
@@ -271,7 +271,9 @@ class PRMPlanner:
                 # for stopping simulation with the esc key.
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
+                    lambda event: plt.close(event.canvas.figure)
+                    if event.key == "escape"
+                    else None,
                 )
                 plt.plot(current.x, current.y, "xg")
                 plt.pause(0.001)
@@ -332,7 +334,7 @@ class PRMPlanner:
                 )
 
     def sample_points(
-        self, sx: float, sy: float, gx: float, gy: float, rng: Optional[Any]
+        self, sx: float, sy: float, gx: float, gy: float, rng: Any | None
     ) -> tuple[list[float], list[float]]:
         """
         Generate sample points

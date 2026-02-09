@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import importlib
 from collections import Counter
-from typing import Any, Optional, Union
+from typing import Any
 
 import matplotlib
 import numpy as np
@@ -135,14 +135,14 @@ class EnvBase:
 
     def __init__(
         self,
-        world_name: Optional[str] = None,
+        world_name: str | None = None,
         display: bool = True,
         disable_all_plot: bool = False,
         save_ani: bool = False,
         full: bool = False,
-        log_file: Optional[str] = None,
+        log_file: str | None = None,
         log_level: str = "INFO",
-        seed: Optional[int] = None,
+        seed: int | None = None,
     ) -> None:
         # Bind per-instance config objects
         self._env_param = EnvParam()
@@ -254,8 +254,8 @@ class EnvBase:
     @normalize_actions
     def step(
         self,
-        action: Optional[Union[np.ndarray, list[Any]]] = None,
-        action_id: Optional[Union[int, list[int]]] = 0,
+        action: np.ndarray | list[Any] | None = None,
+        action_id: int | list[int] | None = 0,
     ) -> None:
         """
         Perform a single simulation step in the environment.
@@ -327,7 +327,10 @@ class EnvBase:
         """
 
         action = action + [None] * (len(self.objects) - len(action))
-        [obj.step(action, sensor_step) for obj, action in zip(self.objects, action)]
+        [
+            obj.step(action, sensor_step)
+            for obj, action in zip(self.objects, action, strict=True)
+        ]
 
         self.build_tree()
 
@@ -376,7 +379,7 @@ class EnvBase:
         group_actions = [
             ga for group in self._object_groups for ga in group.gen_group_vel()
         ]
-        for i, (a, ga) in enumerate(zip(action, group_actions)):
+        for i, (a, ga) in enumerate(zip(action, group_actions, strict=False)):
             if a is None and ga is not None:
                 action[i] = ga
 
@@ -386,7 +389,7 @@ class EnvBase:
     def render(
         self,
         interval: float = 0.01,
-        figure_kwargs: Optional[dict[str, Any]] = None,
+        figure_kwargs: dict[str, Any] | None = None,
         mode: str = "dynamic",
         **kwargs: Any,
     ) -> None:
@@ -563,7 +566,7 @@ class EnvBase:
         self.end(ending_time=1.0)
         raise SystemExit(0)
 
-    def done(self, mode: str = "all") -> Optional[bool]:
+    def done(self, mode: str = "all") -> bool | None:
         """
         Check if the simulation should terminate based on robot completion status.
 
@@ -729,9 +732,9 @@ class EnvBase:
     # region: environment change
     def random_obstacle_position(
         self,
-        range_low: Union[list[float], np.ndarray, None] = None,
-        range_high: Union[list[float], np.ndarray, None] = None,
-        ids: Optional[list[int]] = None,
+        range_low: list[float] | np.ndarray | None = None,
+        range_high: list[float] | np.ndarray | None = None,
+        ids: list[int] | None = None,
         non_overlapping: bool = False,
     ) -> None:
         """
@@ -772,11 +775,11 @@ class EnvBase:
 
     def random_polygon_shape(
         self,
-        center_range: Optional[list[float]] = None,
-        avg_radius_range: Optional[list[float]] = None,
-        irregularity_range: Optional[list[float]] = None,
-        spikeyness_range: Optional[list[float]] = None,
-        num_vertices_range: Optional[list[int]] = None,
+        center_range: list[float] | None = None,
+        avg_radius_range: list[float] | None = None,
+        irregularity_range: list[float] | None = None,
+        spikeyness_range: list[float] | None = None,
+        num_vertices_range: list[int] | None = None,
     ) -> None:
         """
         Random polygon shapes for the obstacles in the environment.
@@ -831,7 +834,7 @@ class EnvBase:
 
         self._env_plot.step("all", self.obstacle_list)
 
-    def reload(self, world_name: Optional[str] = None) -> None:
+    def reload(self, world_name: str | None = None) -> None:
         """
         Reload the environment from YAML and update the current figure.
 
@@ -1062,13 +1065,13 @@ class EnvBase:
         """
         return [obj for obj in self.objects if obj.group_name == group_name]
 
-    def get_object_by_name(self, name: str) -> Optional[ObjectBase]:
+    def get_object_by_name(self, name: str) -> ObjectBase | None:
         """
         Get the object with the given name.
         """
         return next((obj for obj in self.objects if obj.name == name), None)
 
-    def get_object_by_id(self, target_id: int) -> Optional[ObjectBase]:
+    def get_object_by_id(self, target_id: int) -> ObjectBase | None:
         """
         Get the object with the given id.
         """
@@ -1083,7 +1086,7 @@ class EnvBase:
 
         self._env_plot.title = title
 
-    def set_random_seed(self, seed: Optional[int] = None, reload: bool = False) -> None:
+    def set_random_seed(self, seed: int | None = None, reload: bool = False) -> None:
         """
         Set IR-SIM's random seed for reproducibility.
 
@@ -1113,7 +1116,7 @@ class EnvBase:
 
     def save_figure(
         self,
-        save_name: Optional[str] = None,
+        save_name: str | None = None,
         include_index: bool = False,
         save_gif: bool = False,
         **kwargs: Any,

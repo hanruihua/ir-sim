@@ -54,7 +54,7 @@ class ObjectGroup:
 
         [
             member.step(action, sensor_step)
-            for member, action in zip(self.members, actions)
+            for member, action in zip(self.members, actions, strict=True)
         ]
 
     def gen_group_vel(self):

@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -27,7 +27,7 @@ class OrcaGroupBehavior:
         timeHorizon: float = 20.0,
         timeHorizonObst: float = 10.0,
         safe_radius: float = 0.1,
-        maxSpeed: Optional[float] = None,
+        maxSpeed: float | None = None,
         **kwargs: Any,
     ) -> None:
         self._neighborDist = neighborDist

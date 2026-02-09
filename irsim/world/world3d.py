@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from irsim.world.world import World
 
@@ -8,7 +8,7 @@ class World3D(World):
         self,
         name: str,
         depth: float = 10.0,
-        offset: Optional[list[float]] = None,
+        offset: list[float] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize a 3D world extending the 2D world with depth.

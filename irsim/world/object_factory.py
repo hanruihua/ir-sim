@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -26,7 +26,7 @@ class ObjectFactory:
 
     def create_from_parse(
         self,
-        parse: Union[list[dict[str, Any]], dict[str, Any]],
+        parse: list[dict[str, Any]] | dict[str, Any],
         obj_type: str = "robot",
         group_start_index: int = 0,
     ) -> list[Any]:
@@ -61,9 +61,9 @@ class ObjectFactory:
         self,
         points: np.ndarray,
         reso: float = 0.1,
-        grid_map: Optional[np.ndarray] = None,
-        grid_reso: Optional[np.ndarray] = None,
-        world_offset: Optional[list[float]] = None,
+        grid_map: np.ndarray | None = None,
+        grid_reso: np.ndarray | None = None,
+        world_offset: list[float] | None = None,
     ) -> list[Any]:
         """
         Create map objects from points.
@@ -98,9 +98,9 @@ class ObjectFactory:
         self,
         obj_type: str = "robot",
         number: int = 1,
-        distribution: Optional[dict[str, Any]] = None,
-        state: Optional[list[float]] = None,
-        goal: Optional[list[float]] = None,
+        distribution: dict[str, Any] | None = None,
+        state: list[float] | None = None,
+        goal: list[float] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
         """
@@ -153,7 +153,7 @@ class ObjectFactory:
         return object_list
 
     def create_robot(
-        self, kinematics: Optional[dict[str, Any]] = None, **kwargs: Any
+        self, kinematics: dict[str, Any] | None = None, **kwargs: Any
     ) -> Any:
         """
         Create a robot based on kinematics.
@@ -182,7 +182,7 @@ class ObjectFactory:
         raise NotImplementedError(f"Robot kinematics {kinematics_name} not implemented")
 
     def create_obstacle(
-        self, kinematics: Optional[dict[str, Any]] = None, **kwargs: Any
+        self, kinematics: dict[str, Any] | None = None, **kwargs: Any
     ) -> Any:
         """
         Create a obstacle based on kinematics.
@@ -211,9 +211,9 @@ class ObjectFactory:
     def generate_state_list(
         self,
         number: int = 1,
-        distribution: Optional[dict[str, Any]] = None,
-        state: Optional[list[float]] = None,
-        goal: Optional[list[float]] = None,
+        distribution: dict[str, Any] | None = None,
+        state: list[float] | None = None,
+        goal: list[float] | None = None,
     ) -> tuple[list[list[float]], list[list[float]]]:
         """
         Generate a list of state vectors for multiple objects based on the specified distribution method.

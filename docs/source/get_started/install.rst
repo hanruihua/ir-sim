@@ -3,7 +3,7 @@
 Install
 =======
 
-IR-SIM supports Python 3.9+ on Linux, macOS, and Windows. You can use
+IR-SIM supports Python 3.10+ on Linux, macOS, and Windows. You can use
 pip or conda for installation.
 
 .. card:: Instructions

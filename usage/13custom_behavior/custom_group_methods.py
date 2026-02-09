@@ -6,6 +6,7 @@ This module demonstrates two patterns for custom group behaviors:
 1. Class-based (register_group_behavior_class) - for behaviors with initialization
 2. Function-based (register_group_behavior) - for simple stateless behaviors
 """
+
 from typing import Any
 
 import numpy as np

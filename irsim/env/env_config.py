@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
@@ -30,16 +30,16 @@ class EnvConfig:
 
     def __init__(
         self,
-        world_name: Optional[str],
-        env_param_instance: Optional[EnvParam] = None,
-        world_param_instance: Optional[WorldParam] = None,
+        world_name: str | None,
+        env_param_instance: EnvParam | None = None,
+        world_param_instance: WorldParam | None = None,
     ) -> None:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
         self._world_param = world_param_instance
         self.load_yaml(world_name)
 
-    def load_yaml(self, world_name: Optional[str] = None) -> None:
+    def load_yaml(self, world_name: str | None = None) -> None:
         """Parse the YAML file and populate internal configuration state.
 
         Args:

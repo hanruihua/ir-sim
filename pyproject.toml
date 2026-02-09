@@ -12,18 +12,18 @@ authors = [
 ]
 description = "IR-SIM is an open-source, lightweight robot simulator based on Python, designed for robotics navigation, control, and learning. This simulator provides a simple and user-friendly framework for simulating robots, sensors, and environments, facilitating the development and testing of robotics algorithms with minimal hardware requirements."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
 keywords = ["robotics", "simulation", "navigation", "control", "learning"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -84,7 +84,7 @@ exclude = ["docs*", "tests*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py310"
 # Optional: keep docs/examples out of lint (adjust as you like)
 extend-exclude = ["docs/source/conf.py"]
 
@@ -94,7 +94,7 @@ select = [
   "F",    # pyflakes: undefined/unused/etc.
   "E", "W",  # pycodestyle: basic style
   "I",    # isort: import sorting
-  "UP",   # pyupgrade: modernize for py39+
+  "UP",   # pyupgrade: modernize for py310+
   "B",    # flake8-bugbear: common pitfalls
   "RUF",  # Ruff-specific rules
   "C4",   # comprehensions
@@ -105,7 +105,7 @@ select = [
 ]
 
 # If you use Black or Ruff's formatter, don't fail on long lines.
-ignore = ["E501", "UP045", "UP007"]
+ignore = ["E501"]
 
 # Typical import sorting tweak: treat "irsim" as first-party.
 [tool.ruff.lint.isort]

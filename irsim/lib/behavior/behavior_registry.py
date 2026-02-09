@@ -1,4 +1,5 @@
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 # Behavior registries
 behaviors_map: dict[tuple[str, str], Callable[..., Any]] = {}

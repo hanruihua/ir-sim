@@ -177,8 +177,12 @@ class TestComplexityParameter:
 
     def test_complexity_affects_feature_size(self):
         """Test that different complexity produces different patterns."""
-        grid_small = PerlinGridGenerator(100, 100, complexity=0.02, seed=42).generate().grid
-        grid_large = PerlinGridGenerator(100, 100, complexity=0.2, seed=42).generate().grid
+        grid_small = (
+            PerlinGridGenerator(100, 100, complexity=0.02, seed=42).generate().grid
+        )
+        grid_large = (
+            PerlinGridGenerator(100, 100, complexity=0.2, seed=42).generate().grid
+        )
 
         assert not np.array_equal(grid_small, grid_large)
 
@@ -282,9 +286,7 @@ class TestResolveObstacleMap:
     def test_dict_spec_perlin(self):
         """A dict with name='perlin' and resolution builds ndarray when world size is passed."""
         spec = {"name": "perlin", "resolution": 1.0, "seed": 7}
-        result = resolve_obstacle_map(
-            spec, world_width=30.0, world_height=30.0
-        )
+        result = resolve_obstacle_map(spec, world_width=30.0, world_height=30.0)
         assert isinstance(result, np.ndarray)
         assert result.shape == (30, 30)
         assert result.dtype == np.float64
@@ -346,9 +348,7 @@ class TestBuildGridFromGenerator:
     def test_builds_perlin_grid(self):
         """Correctly builds an ndarray from a perlin spec with resolution and world size."""
         spec = {"name": "perlin", "resolution": 0.1, "seed": 99}
-        grid = build_grid_from_generator(
-            spec, world_width=4.0, world_height=4.0
-        )
+        grid = build_grid_from_generator(spec, world_width=4.0, world_height=4.0)
         assert isinstance(grid, np.ndarray)
         assert grid.shape == (40, 40)
         assert grid.dtype == np.float64
@@ -386,9 +386,7 @@ class TestBuildGridFromGenerator:
             "seed": 1,
             "unknown_param": 999,
         }
-        grid = build_grid_from_generator(
-            spec, world_width=2.0, world_height=2.0
-        )
+        grid = build_grid_from_generator(spec, world_width=2.0, world_height=2.0)
         assert grid.shape == (20, 20)
 
     def test_resolution_computes_grid_from_world_size(self):
@@ -400,9 +398,7 @@ class TestBuildGridFromGenerator:
             "complexity": 0.12,
             "fill": 0.32,
         }
-        grid = build_grid_from_generator(
-            spec, world_width=20.0, world_height=15.0
-        )
+        grid = build_grid_from_generator(spec, world_width=20.0, world_height=15.0)
         assert grid.shape == (200, 150)
         assert grid.dtype == np.float64
 
@@ -427,6 +423,7 @@ class TestGridMapGeneratorBase:
 
     def test_grid_raises_when_build_returns_none(self):
         """Accessing .grid when _build_grid returns None raises RuntimeError."""
+
         class FailingGenerator(GridMapGenerator):
             name = "failing"
             yaml_param_names = ()
@@ -588,8 +585,8 @@ class TestMapGridOccupiedBoundary:
         assert m.grid_occupied(5.0, 5.0) is False
         assert m.grid_occupied(9.5, 9.5) is False
         # At/over upper boundary: must be occupied (was false negative before fix)
-        assert m.grid_occupied(10.0, 5.0) is True   # x == width
-        assert m.grid_occupied(5.0, 10.0) is True   # y == height
+        assert m.grid_occupied(10.0, 5.0) is True  # x == width
+        assert m.grid_occupied(5.0, 10.0) is True  # y == height
         assert m.grid_occupied(10.0, 10.0) is True
         assert m.grid_occupied(11.0, 5.0) is True
         assert m.grid_occupied(5.0, 11.0) is True
@@ -624,7 +621,9 @@ class TestMapGridOccupiedBoundary:
 
     def test_map_resolution_warning_when_diverges_from_grid(self):
         """Map warns when resolution differs from grid cell size by >5%."""
-        grid = np.zeros((20, 20), dtype=np.float64)  # 20x20 grid, width=10 -> 0.5 per cell
+        grid = np.zeros(
+            (20, 20), dtype=np.float64
+        )  # 20x20 grid, width=10 -> 0.5 per cell
         with pytest.warns(UserWarning, match="resolution.*differs from grid"):
             Map(
                 width=10.0,
@@ -667,6 +666,7 @@ class TestMapIsCollision:
 
     def test_is_collision_obstacle_list_only(self):
         """is_collision uses obstacle_list when no grid or grid reports free."""
+
         # No grid; obstacle_list with one object
         class SimpleObstacle:
             pass

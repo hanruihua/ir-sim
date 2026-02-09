@@ -6,7 +6,7 @@ import time
 from collections import deque
 from functools import wraps
 from math import atan2, cos, pi, sin
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 from shapely.affinity import affine_transform
@@ -15,9 +15,7 @@ from irsim.config import env_param
 from irsim.util.random import rng
 
 
-def file_check(
-    file_name: Optional[str], root_path: Optional[str] = None
-) -> Optional[str]:
+def file_check(file_name: str | None, root_path: str | None = None) -> str | None:
     """
     Check whether a file exists and return its absolute path.
 
@@ -121,9 +119,7 @@ def WrapToRegion(rad: float, range: list[float]) -> float:
         float: Wrapped angle.
     """
     if len(range) < 2:
-        raise ValueError(
-            f"Parameter 'range' must have length >= 2, got {len(range)}"
-        )
+        raise ValueError(f"Parameter 'range' must have length >= 2, got {len(range)}")
     assert range[1] - range[0] == 2 * pi
     while rad > range[1]:
         rad = rad - 2 * pi
@@ -344,7 +340,7 @@ def geometry_transform(geometry: Any, state: np.ndarray) -> Any:
     return affine_transform(geometry, [a, b, d, e, xoff, yoff])
 
 
-def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> Optional[np.ndarray]:
+def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray | None:
     """
     Transform vertices using a state.
 
@@ -452,7 +448,7 @@ def cross_product(o: list[float], a: list[float], b: list[float]) -> float:
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 
-def is_convex_and_ordered(points: np.ndarray) -> tuple[bool, Optional[str]]:
+def is_convex_and_ordered(points: np.ndarray) -> tuple[bool, str | None]:
     """
     Determine if the polygon is convex and return the order (CW or CCW).
 
@@ -533,7 +529,7 @@ def gen_inequal_from_vertex(vertex: np.ndarray):
 
 
 def distance(
-    point1: Union[list[float], np.ndarray], point2: Union[list[float], np.ndarray]
+    point1: list[float] | np.ndarray, point2: list[float] | np.ndarray
 ) -> float:
     """
     Compute the distance between two points.
@@ -553,7 +549,7 @@ def dist_hypot(x1: float, y1: float, x2: float, y2: float) -> float:
 
 
 def random_point_range(
-    range_low: Optional[list[float]] = None, range_high: Optional[list[float]] = None
+    range_low: list[float] | None = None, range_high: list[float] | None = None
 ) -> list[float]:
     """
     Generate a random point within a range.
@@ -582,7 +578,7 @@ def random_point_range(
     return rng.uniform(range_low, range_high)
 
 
-def is_2d_list(data: Union[list, deque]) -> bool:
+def is_2d_list(data: list | deque) -> bool:
     """
     Returns True if 'data' is a non-empty list of lists (or tuples), indicating a 2D structure.
     Returns False if 'data' is a single list
@@ -826,7 +822,7 @@ def normalize_actions(func):
         if action is not None:
             if isinstance(action, list):
                 if isinstance(action_id, list):
-                    for a, ai in zip(action, action_id):
+                    for a, ai in zip(action, action_id, strict=True):
                         actions[int(ai)] = a
                 else:
                     start = int(action_id)
@@ -875,9 +871,9 @@ def time_it2(name: str = "Function") -> Any:
 
 def to_numpy(
     data: Any,
-    default: Optional[np.ndarray] = None,
-    expected_shape: Optional[tuple[int, ...]] = None,
-) -> Optional[np.ndarray]:
+    default: np.ndarray | None = None,
+    expected_shape: tuple[int, ...] | None = None,
+) -> np.ndarray | None:
     """
     Convert input to numpy array and optionally reshape.
 

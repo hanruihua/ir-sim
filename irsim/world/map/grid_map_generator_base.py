@@ -9,7 +9,7 @@ _build_grid() and set name / yaml_param_names to register.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +28,7 @@ class GridMapGenerator(ABC):
 
     def __init__(self, **kwargs: Any) -> None:
         """Subclasses accept their own parameters via kwargs."""
-        self._grid: Optional[np.ndarray] = None
+        self._grid: np.ndarray | None = None
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)

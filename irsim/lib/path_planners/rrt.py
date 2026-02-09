@@ -321,7 +321,8 @@ class RRT:
 
             # 5. Add to tree
             cost_fp = math.hypot(
-                new_node.x - nearest_node.x, new_node.y - nearest_node.y,
+                new_node.x - nearest_node.x,
+                new_node.y - nearest_node.y,
             )
             added = self._add_tree_node(
                 nearest_node,
@@ -337,7 +338,8 @@ class RRT:
 
             # 6. Try to connect to goal
             dist_to_goal = math.hypot(
-                added.x - self.end.x, added.y - self.end.y,
+                added.x - self.end.x,
+                added.y - self.end.y,
             )
             if dist_to_goal <= self.expand_dis:
                 goal_edge = self.steer(added, self.end, self.expand_dis)
@@ -428,7 +430,7 @@ class RRT:
             return False
 
         # Check each point along the discretised edge
-        for px, py in zip(node.path_x, node.path_y):
+        for px, py in zip(node.path_x, node.path_y, strict=True):
             if self._check_point(px, py):
                 return False
         # Also check the node endpoint itself
@@ -465,7 +467,9 @@ class RRT:
         if not self._vis_setup_done:
             ax.figure.canvas.mpl_connect(
                 "key_release_event",
-                lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
+                lambda event: plt.close(event.canvas.figure)
+                if event.key == "escape"
+                else None,
             )
             ax.plot(self.start.x, self.start.y, "xr", markersize=8, zorder=5)
             ax.plot(self.end.x, self.end.y, "xr", markersize=8, zorder=5)
