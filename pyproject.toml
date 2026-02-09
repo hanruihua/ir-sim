@@ -29,7 +29,7 @@ classifiers = [
 ]
 dependencies = [
     'matplotlib',
-    'shapely>=2.1.0',
+    'shapely>=2.1.2',
     'numpy',
     'pyyaml',
     'imageio',
