@@ -714,7 +714,7 @@ requires-dist = [
     { name = "pyrvo", marker = "extra == 'all'" },
     { name = "pyyaml" },
     { name = "scipy" },
-    { name = "shapely", specifier = ">=2.0.3" },
+    { name = "shapely", specifier = ">=2.1.0" },
 ]
 provides-extras = ["keyboard", "all"]
 
