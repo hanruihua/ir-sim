@@ -30,9 +30,9 @@ planner = InformedRRTStar(
 )
 
 robot_state = env.get_robot_state()
-trajectory = planner.planning(
-    robot_state, env.robot.goal[:2, 0].tolist(), show_animation=True
-)
+robot_info = env.get_robot_info()
+goal_xy = robot_info.goal[:2, 0].tolist()
+trajectory = planner.planning(robot_state, goal_xy, show_animation=True)
 
 if trajectory is not None:
     env.draw_trajectory(np.array(trajectory), traj_type="r-")

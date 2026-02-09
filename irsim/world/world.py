@@ -1,9 +1,10 @@
 import os
+import warnings
 from typing import TYPE_CHECKING, Any, Optional
 
 import numpy as np
 
-from irsim.world.map import Map, resolve_obstacle_map
+from irsim.world.map import Map, _downsample_occupancy_grid, resolve_obstacle_map
 
 if TYPE_CHECKING:
     from irsim.config.world_param import WorldParam
@@ -161,14 +162,54 @@ class World:
     ) -> "Map":
         """
         Get the map of the world with the given resolution.
+
+        When *resolution* is coarser than the obstacle grid, the grid is
+        downsampled (conservative: any obstacle in a block marks the block) so
+        that planning and collision use the same grid. When *resolution* is
+        finer than the grid, no upsampling is done; planning uses the grid
+        resolution and a warning is emitted.
         """
         world_offset = (float(self.offset[0]), float(self.offset[1]))
+        grid = self.grid_map
+        res = resolution
+
+        if grid is not None:
+            if not (np.isfinite(res) and res > 0):
+                res = float(self.width / grid.shape[0])
+                warnings.warn(
+                    f"resolution must be positive and finite; using grid "
+                    f"resolution {res}.",
+                    stacklevel=2,
+                )
+            else:
+                current_rx = self.width / grid.shape[0]
+                current_ry = self.height / grid.shape[1]
+                thresh_coarser = 1.05
+                thresh_finer = 0.95
+                if res > max(current_rx, current_ry) * thresh_coarser:
+                    grid = _downsample_occupancy_grid(
+                        grid, self.width, self.height, res
+                    )
+                    warnings.warn(
+                        f"Planning grid downsampled from ({self.grid_map.shape[0]}, "
+                        f"{self.grid_map.shape[1]}) at {current_rx:.4f}m/cell to "
+                        f"({grid.shape[0]}, {grid.shape[1]}) at {res}m/cell.",
+                        stacklevel=2,
+                    )
+                elif res < min(current_rx, current_ry) * thresh_finer:
+                    warnings.warn(
+                        f"Requested resolution ({res}) is finer than the "
+                        f"obstacle grid ({current_rx:.4f} x {current_ry:.4f}). "
+                        "Planning will use the grid resolution.",
+                        stacklevel=2,
+                    )
+
         return Map(
             self.width,
             self.height,
-            resolution,
+            res,
             obstacle_list,
-            self.grid_map,
+            grid,
             world_offset=world_offset,
         )
 

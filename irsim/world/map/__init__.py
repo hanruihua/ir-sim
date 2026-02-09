@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any, Optional, Protocol, runtime_checkable, Union, Tuple, Dict, List
+from typing import Any, Optional, Protocol, Union, runtime_checkable
 
 import numpy as np
 import shapely
@@ -44,10 +44,10 @@ class EnvGridMap(Protocol):
     resolution: float
     obstacle_list: list
     grid: Optional[np.ndarray]
-    world_offset: Tuple[float, float]
+    world_offset: tuple[float, float]
 
     @property
-    def grid_resolution(self) -> Optional[Tuple[float, float]]:
+    def grid_resolution(self) -> Optional[tuple[float, float]]:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size."""
         ...
 
@@ -67,11 +67,52 @@ class EnvGridMap(Protocol):
         ...
 
 
+def _downsample_occupancy_grid(
+    grid: np.ndarray,
+    width: float,
+    height: float,
+    target_resolution: float,
+) -> np.ndarray:
+    """Downsample an occupancy grid to a coarser resolution (conservative: block max).
+
+    Each coarse cell is the max of the fine cells it covers, so any obstacle
+    in the block keeps the coarse cell occupied. Output dtype and 0-100 range
+    are preserved.
+
+    Args:
+        grid: Fine-resolution occupancy grid (0-100), shape (fine_nx, fine_ny).
+        width: World width in metres (x).
+        height: World height in metres (y).
+        target_resolution: Desired cell size in metres (same for x and y).
+
+    Returns:
+        Downsampled grid, shape (coarse_nx, coarse_ny), same dtype as grid.
+    """
+    fine_nx, fine_ny = grid.shape[0], grid.shape[1]
+    coarse_nx = max(1, round(width / target_resolution))
+    coarse_ny = max(1, round(height / target_resolution))
+    out = np.zeros((coarse_nx, coarse_ny), dtype=grid.dtype)
+    for ic in range(coarse_nx):
+        i_lo = int(ic * fine_nx / coarse_nx)
+        i_hi = int((ic + 1) * fine_nx / coarse_nx)
+        if i_hi <= i_lo:
+            i_hi = i_lo + 1
+        i_hi = min(i_hi, fine_nx)
+        for jc in range(coarse_ny):
+            j_lo = int(jc * fine_ny / coarse_ny)
+            j_hi = int((jc + 1) * fine_ny / coarse_ny)
+            if j_hi <= j_lo:
+                j_hi = j_lo + 1
+            j_hi = min(j_hi, fine_ny)
+            out[ic, jc] = np.max(grid[i_lo:i_hi, j_lo:j_hi])
+    return out
+
+
 def _grid_collision_geometry(
     grid: np.ndarray,
-    grid_reso: Tuple[float, float],
+    grid_reso: tuple[float, float],
     geometry,
-    world_offset: Tuple[float, float] = (0.0, 0.0),
+    world_offset: tuple[float, float] = (0.0, 0.0),
 ) -> bool:
     """Check collision of a Shapely geometry against an occupancy grid.
 
@@ -107,7 +148,7 @@ def _grid_collision_geometry(
 
 
 def resolve_obstacle_map(
-    obstacle_map: Optional[Union[str, np.ndarray, Dict[str, Any]]] = None,
+    obstacle_map: Optional[Union[str, np.ndarray, dict[str, Any]]] = None,
     world_width: Optional[float] = None,
     world_height: Optional[float] = None,
 ) -> Optional[np.ndarray]:
@@ -154,7 +195,7 @@ def resolve_obstacle_map(
 
 
 def build_grid_from_generator(
-    spec: Dict[str, Any],
+    spec: dict[str, Any],
     world_width: float,
     world_height: float,
 ) -> np.ndarray:
@@ -215,7 +256,7 @@ class Map:
         resolution: float = 0.1,
         obstacle_list: Optional[list] = None,
         grid: Optional[np.ndarray] = None,
-        world_offset: Optional[Union[Tuple[float, float], List[float]]] = None,
+        world_offset: Optional[Union[tuple[float, float], list[float]]] = None,
     ):
         """
         Initialize the Map.
@@ -257,7 +298,7 @@ class Map:
                     )
 
     @property
-    def grid_resolution(self) -> Optional[Tuple[float, float]]:
+    def grid_resolution(self) -> Optional[tuple[float, float]]:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size.
 
         Returns ``None`` when no grid is present.
@@ -342,7 +383,9 @@ class Map:
             for obj in self.obstacle_list:
                 shapely.prepare(obj._geometry)
             self._obstacles_prepared = True
-        return any(shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list)
+        return any(
+            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
+        )
 
 
 __all__ = [

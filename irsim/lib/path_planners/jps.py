@@ -20,6 +20,7 @@ References
 
 from __future__ import annotations
 
+import contextlib
 import math
 from dataclasses import dataclass
 
@@ -39,6 +40,7 @@ JpsSuccessor = tuple[tuple[int, int, int, int], float]
 # norm1 = |dx| + |dy|  =>  0: start, 1: cardinal, 2: diagonal
 _JPS2D_NSZ = ((8, 0), (1, 2), (3, 2))
 
+
 # Natural neighbors ns[id][0/1][dev]: id -> (list of dx, list of dy) to try
 # Precomputed like JPS2DNeib::Neib: norm1=0 -> 8 dirs; norm1=1 -> (dx,dy); norm1=2 -> (dx,0),(0,dy),(dx,dy)
 def _build_jps2d_ns() -> list[list[list[int]]]:
@@ -50,7 +52,16 @@ def _build_jps2d_ns() -> list[list[list[int]]]:
             n = _JPS2D_NSZ[norm1][0]
             for dev in range(n):
                 if norm1 == 0:
-                    tbl = [(1, 0), (-1, 0), (0, 1), (1, 1), (-1, 1), (0, -1), (1, -1), (-1, -1)]
+                    tbl = [
+                        (1, 0),
+                        (-1, 0),
+                        (0, 1),
+                        (1, 1),
+                        (-1, 1),
+                        (0, -1),
+                        (1, -1),
+                        (-1, -1),
+                    ]
                     tx, ty = tbl[dev]
                 elif norm1 == 1:
                     tx, ty = dx, dy
@@ -133,14 +144,26 @@ class JPSPlanner:
                 map (same as :class:`AStarPlanner`).
         """
         self._map = env_map
-        self.resolution = env_map.resolution
         self.origin_x = float(env_map.world_offset[0])
         self.origin_y = float(env_map.world_offset[1])
         self.min_x, self.min_y = 0, 0  # grid indices are 0-based
         self.max_x = self.origin_x + env_map.width
         self.max_y = self.origin_y + env_map.height
-        self.x_width = round((self.max_x - self.origin_x) / self.resolution)
-        self.y_width = round((self.max_y - self.origin_y) / self.resolution)
+        # When map has a grid, use its actual resolution and shape so planner grid
+        # matches collision lookups (avoids "Open set is empty" on resolution mismatch).
+        grid = getattr(env_map, "grid", None)
+        gr = None
+        if grid is not None and hasattr(env_map, "grid_resolution"):
+            with contextlib.suppress(Exception):
+                gr = env_map.grid_resolution
+        if grid is not None and gr is not None:
+            self.resolution = gr[0]  # m/cell; assume square cells (gr[0]==gr[1])
+            self.x_width = grid.shape[0]
+            self.y_width = grid.shape[1]
+        else:
+            self.resolution = env_map.resolution
+            self.x_width = round((self.max_x - self.origin_x) / self.resolution)
+            self.y_width = round((self.max_y - self.origin_y) / self.resolution)
         self.obstacle_list = env_map.obstacle_list[:]
 
     def planning(
@@ -182,7 +205,9 @@ class JPSPlanner:
             c_id = min(
                 open_set,
                 key=lambda o: open_set[o].cost
-                + self._heuristic(goal_node.x, goal_node.y, open_set[o].x, open_set[o].y),
+                + self._heuristic(
+                    goal_node.x, goal_node.y, open_set[o].x, open_set[o].y
+                ),
             )
             current = open_set[c_id]
 
@@ -194,7 +219,9 @@ class JPSPlanner:
                 )
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
+                    lambda event: plt.close(event.canvas.figure)
+                    if event.key == "escape"
+                    else None,
                 )
                 if len(closed_set) % 10 == 0:
                     plt.pause(0.01)
@@ -225,7 +252,9 @@ class JPSPlanner:
         rx, ry = self._calc_final_path(goal_node, closed_set)
         return np.array([rx, ry])
 
-    def _get_jps_successors(self, current: _JpsNode, gx: int, gy: int) -> list[JpsSuccessor]:
+    def _get_jps_successors(
+        self, current: _JpsNode, gx: int, gy: int
+    ) -> list[JpsSuccessor]:
         """Return list of ((jx, jy, dx, dy), cost) for each jump point successor (jps3d getJpsSucc style)."""
         dx, dy = current.dx, current.dy
         norm1 = abs(dx) + abs(dy)
@@ -320,7 +349,9 @@ class JPSPlanner:
         dy = abs(gy - y)
         return (dx + dy) + (math.sqrt(2) - 1) * min(dx, dy)
 
-    def _calc_final_path(self, goal_node: _JpsNode, closed_set: dict[int, _JpsNode]) -> tuple[list[float], list[float]]:
+    def _calc_final_path(
+        self, goal_node: _JpsNode, closed_set: dict[int, _JpsNode]
+    ) -> tuple[list[float], list[float]]:
         """Build the final path with intermediate cells between jump points.
 
         JPS only stores jump points in ``closed_set``.  Between consecutive
@@ -360,8 +391,11 @@ class JPSPlanner:
         return y * self.x_width + x
 
     def is_collision(self, x: float, y: float) -> bool:
-        """True if world position ``(x, y)`` is in collision.
-        """
-        shape = {"name": "rectangle", "length": self.resolution, "width": self.resolution}
+        """True if world position ``(x, y)`` is in collision."""
+        shape = {
+            "name": "rectangle",
+            "length": self.resolution,
+            "width": self.resolution,
+        }
         geometry = GeometryFactory.create_geometry(**shape).step(np.array([[x, y]]).T)
         return self._map.is_collision(geometry)

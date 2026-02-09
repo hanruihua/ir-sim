@@ -12,17 +12,17 @@ world:
   obstacle_map:
     name: perlin
     resolution: 0.1   # m/cell; grid size = world size / resolution (20/0.1 = 200 per axis)
-    complexity: 0.18
-    fill: 0.21
+    complexity: 0.08
+    fill: 0.15
     fractal: 1
     attenuation: 0.5
-    seed: 43
+    seed: 56
 
 robot:
   - kinematics: {name: 'diff'}
-    shape: {name: 'circle', radius: 0.3}
+    shape: {name: 'circle', radius: 0.2}
     state: [2, 2, 0]
-    goal: [24, 18, 0]
+    goal: [24, 16, 0]
     behavior: {name: 'dash'}
 
 # obstacle:

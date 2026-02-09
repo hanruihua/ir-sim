@@ -16,6 +16,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 
 from __future__ import annotations
 
+import contextlib
 import math
 
 import matplotlib.pyplot as plt
@@ -37,15 +38,27 @@ class AStarPlanner:
         """
 
         self._map = env_map
-        self.resolution = env_map.resolution  # m/cell
         self.obstacle_list = env_map.obstacle_list[:]
         self.origin_x = float(env_map.world_offset[0])
         self.origin_y = float(env_map.world_offset[1])
         self.min_x, self.min_y = 0, 0  # grid indices are 0-based
         self.max_x = self.origin_x + env_map.width
         self.max_y = self.origin_y + env_map.height
-        self.x_width = round((self.max_x - self.origin_x) / self.resolution)
-        self.y_width = round((self.max_y - self.origin_y) / self.resolution)
+        # When map has a grid, use its actual resolution and shape so planner grid
+        # matches collision lookups (avoids "Open set is empty" on resolution mismatch).
+        grid = getattr(env_map, "grid", None)
+        gr = None
+        if grid is not None and hasattr(env_map, "grid_resolution"):
+            with contextlib.suppress(Exception):
+                gr = env_map.grid_resolution
+        if grid is not None and gr is not None:
+            self.resolution = gr[0]  # m/cell; assume square cells (gr[0]==gr[1])
+            self.x_width = grid.shape[0]
+            self.y_width = grid.shape[1]
+        else:
+            self.resolution = env_map.resolution
+            self.x_width = round((self.max_x - self.origin_x) / self.resolution)
+            self.y_width = round((self.max_y - self.origin_y) / self.resolution)
         self.motion = self.get_motion_model()
 
     class Node:
@@ -134,7 +147,9 @@ class AStarPlanner:
                 # for stopping simulation with the esc key.
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
+                    lambda event: plt.close(event.canvas.figure)
+                    if event.key == "escape"
+                    else None,
                 )
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)
