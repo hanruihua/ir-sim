@@ -144,7 +144,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 ## Testing Notes
 
 - Tests use pytest with fixtures that auto-close matplotlib figures
-- CI runs on Python 3.10-3.14 across Ubuntu and macOS
+- CI runs on Python 3.10-3.13 across Ubuntu and macOS
 - Linux CI uses `xvfb-run` for headless display testing
 
 ## Git Commit Notes
