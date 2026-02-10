@@ -190,7 +190,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
     
 ## IR-sim documentation notes
 
-- The documentation is written in markdown format. 
+- The documentation is built with Sphinx and uses a mix of reStructuredText (`.rst`) and Markdown (`.md`) files.
 - If you change the english documentation, please also change the chinese documentation.
 - If there are code changes, please also update the related documentation.
-- documentation files are located in the `docs` directory. The main documentation file is `index.md`. Other documentation files are located in the `docs` directory and its subdirectories.
+- Documentation files are located in the `docs` directory. The main Sphinx entrypoint is `docs/index.rst`, with additional documentation files in `docs` and its subdirectories.
