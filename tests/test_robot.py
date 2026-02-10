@@ -4,6 +4,8 @@ Tests for robot functionality.
 Covers robot properties, state management, velocity, lidar, and behaviors.
 """
 
+from collections import deque
+
 import numpy as np
 import pytest
 
@@ -273,3 +275,159 @@ class TestRobotHeading:
         if len(env.robot_list) > 1:
             heading = env.robot_list[1].heading
             assert heading is not None
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests for object_base.py
+# ---------------------------------------------------------------------------
+
+
+class TestSetGoalEdgeCases:
+    """Tests for set_goal edge cases (lines 912-964)."""
+
+    def test_set_goal_deque(self, env_factory):
+        """set_goal with deque input (lines 928-934)."""
+        env = env_factory("test_collision_world.yaml")
+        goal_deque = deque([[5, 5, 0], [8, 8, 0]])
+        env.robot.set_goal(goal_deque)
+        assert env.robot._goal is goal_deque
+
+    def test_set_goal_deque_with_init(self, env_factory):
+        """set_goal with deque and init=True (lines 931-932)."""
+        env = env_factory("test_collision_world.yaml")
+        goal_deque = deque([[5, 5, 0], [8, 8, 0]])
+        env.robot.set_goal(goal_deque, init=True)
+        assert env.robot._init_goal is not None
+
+    def test_set_goal_none_with_init(self, env_factory):
+        """set_goal(None) with init=True (lines 912-918)."""
+        env = env_factory("test_collision_world.yaml")
+        env.robot.set_goal(None, init=True)
+        assert env.robot._goal is None
+        assert env.robot._init_goal is None
+
+    def test_set_goal_2d_list_with_init(self, env_factory):
+        """set_goal with 2D list and init=True (lines 920-926)."""
+        env = env_factory("test_collision_world.yaml")
+        env.robot.set_goal([[5, 5, 0], [8, 8, 0]], init=True)
+        assert isinstance(env.robot._goal, deque)
+        assert env.robot._init_goal is not None
+
+    def test_set_goal_numpy_array(self, env_factory):
+        """set_goal with numpy array (lines 942-946)."""
+        env = env_factory("test_collision_world.yaml")
+        goal = np.array([[5], [5], [0]])
+        env.robot.set_goal(goal)
+        assert env.robot._goal is not None
+
+    def test_set_goal_single_list_with_init(self, env_factory):
+        """set_goal with single list and init=True (lines 936-953)."""
+        env = env_factory("test_collision_world.yaml")
+        env.robot.set_goal([5, 5, 0], init=True)
+        assert env.robot._init_goal is not None
+
+
+class TestSetLaserColorNoLidar:
+    """Test set_laser_color on object without lidar (line 981)."""
+
+    def test_set_laser_color_no_lidar(self, env_factory):
+        """set_laser_color warns when no lidar (line 981)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        if robot.lidar is None:
+            robot.set_laser_color([0, 1, 2])  # Should just warn
+
+
+class TestGenBehaviorVelNoBehavior:
+    """Test gen_behavior_vel with no behavior (lines 601-606)."""
+
+    def test_gen_behavior_vel_no_behavior(self, env_factory):
+        """gen_behavior_vel without behavior returns zeros (lines 600-606)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        # Temporarily remove behavior config
+        original_beh = robot.obj_behavior.behavior_dict
+        robot.obj_behavior.behavior_dict = {}
+        robot.group_behavior_dict = {}
+        vel = robot.gen_behavior_vel(None)
+        assert np.allclose(vel, 0)
+        robot.obj_behavior.behavior_dict = original_beh
+
+
+class TestObjectBaseProperties:
+    """Tests for centroid and init_state properties (lines 2177, 2210)."""
+
+    def test_centroid(self, env_factory):
+        """centroid property (line 2177)."""
+        env = env_factory("test_collision_world.yaml")
+        centroid = env.robot.centroid
+        assert centroid is not None
+        assert centroid.shape[0] == 2
+
+    def test_init_state(self, env_factory):
+        """init_state property (line 2210)."""
+        env = env_factory("test_collision_world.yaml")
+        init_state = env.robot.init_state
+        assert init_state is not None
+
+
+class TestMaxSpeedAndHeadingUnsupported:
+    """Test max_speed and heading for unsupported kinematics (lines 2534-2537, 2624)."""
+
+    def test_max_speed_static(self, env_factory):
+        """max_speed on static object returns 0 (lines 2534-2537)."""
+        env = env_factory("test_all_objects.yaml")
+        for obs in env.obstacle_list:
+            if obs.kinematics == "static":
+                speed = obs.max_speed
+                assert speed == 0
+                break
+
+
+class TestSetStateEdgeCases:
+    """Tests for set_state with None state (line 791)."""
+
+    def test_set_state_none(self, env_factory):
+        """set_state(None) uses default [0,0,0] (line 791)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.set_state(None)
+        assert robot.state is not None
+
+
+class TestAppendGoal:
+    """Tests for append_goal (lines 960-964)."""
+
+    def test_append_goal_list(self, env_factory):
+        """append_goal with list input (line 961)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.set_goal([5, 5, 0])
+        robot.append_goal([8, 8, 0])
+        assert len(robot._goal) == 2
+
+    def test_append_goal_numpy(self, env_factory):
+        """append_goal with numpy array (lines 963-964)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.set_goal([5, 5, 0])
+        robot.append_goal(np.array([[8], [8], [0]]))
+        assert len(robot._goal) == 2
+
+
+class TestGenBehaviorVelNoBehConfig:
+    """Test gen_behavior_vel when beh_config is None (lines 600-606)."""
+
+    def test_gen_behavior_vel_no_beh_config(self, env_factory):
+        """gen_behavior_vel returns zeros when beh_config is None (lines 600-606)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        # Make beh_config return None: set both to None
+        original_beh = robot.obj_behavior.behavior_dict
+        original_group = robot.group_behavior_dict
+        robot.obj_behavior.behavior_dict = None
+        robot.group_behavior_dict = None
+        vel = robot.gen_behavior_vel(None)
+        assert np.allclose(vel, 0)
+        robot.obj_behavior.behavior_dict = original_beh
+        robot.group_behavior_dict = original_group

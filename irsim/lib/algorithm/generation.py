@@ -5,7 +5,7 @@ Author: Ruihua Han
 """
 
 import math
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -29,13 +29,13 @@ def clip(value: float, lower: float, upper: float) -> float:
 
 def random_generate_polygon(
     number: int = 1,
-    center_range: Optional[list[float]] = None,
-    avg_radius_range: Optional[list[float]] = None,
-    irregularity_range: Optional[list[float]] = None,
-    spikeyness_range: Optional[list[float]] = None,
-    num_vertices_range: Optional[list[int]] = None,
+    center_range: list[float] | None = None,
+    avg_radius_range: list[float] | None = None,
+    irregularity_range: list[float] | None = None,
+    spikeyness_range: list[float] | None = None,
+    num_vertices_range: list[int] | None = None,
     **kwargs: Any,
-) -> Union[np.ndarray, list[np.ndarray]]:
+) -> np.ndarray | list[np.ndarray]:
     """
     reference: https://stackoverflow.com/questions/8997099/algorithm-to-generate-random-2d-polygon
 

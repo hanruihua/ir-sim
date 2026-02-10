@@ -193,3 +193,96 @@ class TestObstacleAcker:
         """Test ObstacleAcker instantiation."""
         obstacle = ObstacleAcker()
         assert obstacle is not None
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests for ObjectFactory
+# ---------------------------------------------------------------------------
+
+
+class TestObjectFactoryCreateFromParse:
+    """Tests for ObjectFactory.create_from_parse with dict input (line 56)."""
+
+    def test_create_from_parse_dict(self):
+        """create_from_parse with dict input (line 56)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        parse = {
+            "number": 1,
+            "shape": {"name": "circle", "radius": 0.5},
+        }
+        result = factory.create_from_parse("obstacle", parse)
+        assert isinstance(result, list)
+        env.end()
+
+
+class TestObjectFactoryKinematics:
+    """Tests for create_robot and create_obstacle with various kinematics."""
+
+    def test_create_robot_static(self):
+        """create_robot with static kinematics (line 178-179)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        robot = factory.create_robot(
+            kinematics={"name": "static"},
+            shape={"name": "circle", "radius": 0.5},
+        )
+        assert robot is not None
+        env.end()
+
+    def test_create_robot_none_kinematics(self):
+        """create_robot with None kinematics (lines 168-169, 178-179)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        robot = factory.create_robot(
+            kinematics=None,
+            shape={"name": "circle", "radius": 0.5},
+        )
+        assert robot is not None
+        env.end()
+
+    def test_create_obstacle_acker(self):
+        """create_obstacle with acker kinematics (line 203-204)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        obs = factory.create_obstacle(kinematics={"name": "acker"})
+        assert obs is not None
+        env.end()
+
+    def test_create_obstacle_omni(self):
+        """create_obstacle with omni kinematics (line 205-206)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        obs = factory.create_obstacle(kinematics={"name": "omni"})
+        assert obs is not None
+        env.end()
+
+    def test_create_robot_unsupported_kinematics(self):
+        """create_robot with unsupported kinematics raises NotImplementedError (line 182)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        with pytest.raises(NotImplementedError, match="not implemented"):
+            factory.create_robot(kinematics={"name": "nonexistent_kin"})
+        env.end()
+
+    def test_create_obstacle_unsupported_kinematics(self):
+        """create_obstacle with unsupported kinematics raises NotImplementedError (line 209)."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        factory = ObjectFactory()
+        with pytest.raises(NotImplementedError, match="not implemented"):
+            factory.create_obstacle(kinematics={"name": "nonexistent_kin"})
+        env.end()

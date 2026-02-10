@@ -5,7 +5,6 @@ reference: Lynch, Kevin M., and Frank C. Park. Modern Robotics: Mechanics, Plann
 """
 
 from math import cos, sin, tan
-from typing import Optional
 
 import numpy as np
 
@@ -19,7 +18,7 @@ def differential_kinematics(
     velocity: np.ndarray,
     step_time: float,
     noise: bool = False,
-    alpha: Optional[list[float]] = None,
+    alpha: list[float] | None = None,
 ) -> np.ndarray:
     """
     Calculate the next state for a differential wheel robot.
@@ -66,7 +65,7 @@ def ackermann_kinematics(
     velocity: np.ndarray,
     step_time: float,
     noise: bool = False,
-    alpha: Optional[list[float]] = None,
+    alpha: list[float] | None = None,
     mode: str = "steer",
     wheelbase: float = 1,
 ) -> np.ndarray:
@@ -131,7 +130,7 @@ def omni_kinematics(
     velocity: np.ndarray,
     step_time: float,
     noise: bool = False,
-    alpha: Optional[list[float]] = None,
+    alpha: list[float] | None = None,
 ) -> np.ndarray:
     """
     Calculate the next position for an omnidirectional robot.

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import numpy as np
 from shapely import (
@@ -106,7 +105,7 @@ class geometry_handler(ABC):
 
         return G, h, cone_type, convex_flag
 
-    def get_polygon_Gh(self, vertices: Optional[np.ndarray] = None):
+    def get_polygon_Gh(self, vertices: np.ndarray | None = None):
         """
         Generate G and h for convex polygon.
 
@@ -184,7 +183,7 @@ class geometry_handler(ABC):
         assert "this property is renamed to be original_vertices"
 
     @property
-    def original_vertices(self) -> Optional[np.ndarray]:
+    def original_vertices(self) -> np.ndarray | None:
         """
         Get the original vertices of the geometry.
         """
@@ -220,10 +219,10 @@ class CircleGeometry(geometry_handler):
     def construct_original_geometry(
         self,
         radius: float = 0.2,
-        center: Optional[list] = None,
+        center: list | None = None,
         random_shape: bool = False,
-        radius_range: Optional[list] = None,
-        wheelbase: Optional[float] = None,
+        radius_range: list | None = None,
+        wheelbase: float | None = None,
     ):
         if radius_range is None:
             radius_range = [0.1, 1.0]
@@ -294,7 +293,7 @@ class RectangleGeometry(geometry_handler):
         super().__init__(name, **kwargs)
 
     def construct_original_geometry(
-        self, length: float = 1.0, width: float = 1.0, wheelbase: Optional[float] = None
+        self, length: float = 1.0, width: float = 1.0, wheelbase: float | None = None
     ):
         """
         Args

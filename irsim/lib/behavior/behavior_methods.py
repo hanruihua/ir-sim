@@ -1,5 +1,5 @@
 from math import cos, sin
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -216,7 +216,7 @@ def beh_acker_dash(
 
 def OmniRVO(
     state_tuple: Any,
-    neighbor_list: Optional[list[Any]] = None,
+    neighbor_list: list[Any] | None = None,
     vxmax: float = 1.5,
     vymax: float = 1.5,
     acce: float = 1,
@@ -262,7 +262,7 @@ def OmniRVO(
 
 def DiffRVO(
     state_tuple: Any,
-    neighbor_list: Optional[list[Any]] = None,
+    neighbor_list: list[Any] | None = None,
     vxmax: float = 1.5,
     vymax: float = 1.5,
     acce: float = 1,

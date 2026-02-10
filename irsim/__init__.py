@@ -1,6 +1,7 @@
 import os
 import sys
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any, Optional
 
 from irsim.env import EnvBase, EnvBase3D
 
@@ -19,7 +20,7 @@ class _EnvFactory:
     """
 
     def __init__(
-        self, default_projection: Optional[str] = None, **default_kwargs: Any
+        self, default_projection: str | None = None, **default_kwargs: Any
     ) -> None:
         self.default_projection = default_projection
         self.default_kwargs = default_kwargs
@@ -29,7 +30,7 @@ class _EnvFactory:
             "3d": EnvBase3D,
         }
 
-    def _resolve_world_name(self, world_name: Optional[str]) -> str:
+    def _resolve_world_name(self, world_name: str | None) -> str:
         return world_name or os.path.basename(sys.argv[0]).split(".")[0] + ".yaml"
 
     def register(self, key: str, ctor: Callable[..., EnvBase]) -> None:
@@ -37,8 +38,8 @@ class _EnvFactory:
 
     def create(
         self,
-        world_name: Optional[str] = None,
-        projection: Optional[str] = None,
+        world_name: str | None = None,
+        projection: str | None = None,
         **kwargs: Any,
     ) -> EnvBase:
         resolved_world = self._resolve_world_name(world_name)
@@ -57,7 +58,7 @@ _env_factory = _EnvFactory()
 
 
 def make(
-    world_name: Optional[str] = None, projection: Optional[str] = None, **kwargs: Any
+    world_name: str | None = None, projection: str | None = None, **kwargs: Any
 ) -> EnvBase:
     """
     Create an environment by the given world file and projection.

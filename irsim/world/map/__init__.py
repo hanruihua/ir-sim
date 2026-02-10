@@ -43,11 +43,11 @@ class EnvGridMap(Protocol):
     height: float
     resolution: float
     obstacle_list: list
-    grid: Optional[np.ndarray]
+    grid: np.ndarray | None
     world_offset: tuple[float, float]
 
     @property
-    def grid_resolution(self) -> Optional[tuple[float, float]]:
+    def grid_resolution(self) -> tuple[float, float] | None:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size."""
         ...
 
@@ -58,7 +58,7 @@ class EnvGridMap(Protocol):
         margin_x: float = 0.0,
         margin_y: float = 0.0,
         threshold: float = 50.0,
-    ) -> Optional[bool]:
+    ) -> bool | None:
         """Check if any grid cell within the bounding box is occupied."""
         ...
 
@@ -148,10 +148,10 @@ def _grid_collision_geometry(
 
 
 def resolve_obstacle_map(
-    obstacle_map: Optional[Union[str, np.ndarray, dict[str, Any]]] = None,
-    world_width: Optional[float] = None,
-    world_height: Optional[float] = None,
-) -> Optional[np.ndarray]:
+    obstacle_map: str | np.ndarray | dict[str, Any] | None = None,
+    world_width: float | None = None,
+    world_height: float | None = None,
+) -> np.ndarray | None:
     """Resolve obstacle_map to None or a float64 occupancy grid ndarray.
 
     Accepted types: ``None``, ndarray, or a generator spec **dict** with
@@ -254,9 +254,9 @@ class Map:
         width: float = 10,
         height: float = 10,
         resolution: float = 0.1,
-        obstacle_list: Optional[list] = None,
-        grid: Optional[np.ndarray] = None,
-        world_offset: Optional[Union[tuple[float, float], list[float]]] = None,
+        obstacle_list: list | None = None,
+        grid: np.ndarray | None = None,
+        world_offset: tuple[float, float] | list[float] | None = None,
     ):
         """
         Initialize the Map.
@@ -298,7 +298,7 @@ class Map:
                     )
 
     @property
-    def grid_resolution(self) -> Optional[tuple[float, float]]:
+    def grid_resolution(self) -> tuple[float, float] | None:
         """Actual cell size ``(x_reso, y_reso)`` derived from *grid* shape and world size.
 
         Returns ``None`` when no grid is present.
@@ -317,7 +317,7 @@ class Map:
         margin_x: float = 0.0,
         margin_y: float = 0.0,
         threshold: float = 50.0,
-    ) -> Optional[bool]:
+    ) -> bool | None:
         """Check if any grid cell within the bounding box around ``(x, y)`` is occupied.
 
         The bounding box extends *margin_x* / *margin_y* (in world metres) in

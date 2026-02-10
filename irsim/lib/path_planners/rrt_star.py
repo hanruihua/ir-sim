@@ -134,7 +134,11 @@ class RRTStar(RRT):
             near_inds = self._find_near_nodes(new_node.x, new_node.y)
 
             best_parent, best_cost_fp = self._choose_parent(
-                new_node, nearest_node, nearest_ind, cost_from_nearest, near_inds,
+                new_node,
+                nearest_node,
+                nearest_ind,
+                cost_from_nearest,
+                near_inds,
             )
 
             # 6. Add to tree
@@ -160,7 +164,8 @@ class RRTStar(RRT):
 
             # 8. Try to connect to goal
             dist_to_goal = math.hypot(
-                added.x - self.end.x, added.y - self.end.y,
+                added.x - self.end.x,
+                added.y - self.end.y,
             )
             if dist_to_goal <= self.expand_dis:
                 goal_edge = self.steer(added, self.end, self.expand_dis)
@@ -182,7 +187,9 @@ class RRTStar(RRT):
                         else:
                             # Cheaper route — re-parent the goal node
                             self._change_node_parent(
-                                self.end, added, dist_to_goal,
+                                self.end,
+                                added,
+                                dist_to_goal,
                             )
                             self.end.path_x = goal_edge.path_x
                             self.end.path_y = goal_edge.path_y
@@ -200,7 +207,8 @@ class RRTStar(RRT):
             return self._fill_path(self.end)
 
         logger.info(
-            "[RRT*] no feasible path found after %d iterations", self.max_iter,
+            "[RRT*] no feasible path found after %d iterations",
+            self.max_iter,
         )
         return None
 
@@ -262,7 +270,8 @@ class RRTStar(RRT):
                 continue
 
             d = math.hypot(
-                new_node.x - candidate.x, new_node.y - candidate.y,
+                new_node.x - candidate.x,
+                new_node.y - candidate.y,
             )
             new_cost = new_node.cost + d
             if new_cost >= candidate.cost:

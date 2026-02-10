@@ -421,3 +421,90 @@ class TestDrawMethods:
         """Test setting plot title."""
         env = env_factory("test_collision_avoidance.yaml", full=True)
         env.set_title(f"Simulation time: {env.time:.2f}s")
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests for env_plot.py
+# ---------------------------------------------------------------------------
+
+
+class TestSetPatchProperty:
+    """Tests for set_patch_property kwargs (lines 831, 841, 905-908)."""
+
+    def test_set_patch_property_fill_and_linewidth(self, dummy_world_2d, dummy_logger):
+        """set_patch_property with fill and linewidth kwargs."""
+        from irsim.env.env_plot import draw_patch, set_patch_property
+
+        plot = EnvPlot(
+            dummy_world_2d,
+            objects=[],
+            saved_figure={},
+            figure_pixels=[200, 150],
+            show_title=False,
+        )
+        state = np.array([[0.0], [0.0], [0.0]])
+        circ = draw_patch(plot.ax, "circle", state=state, radius=1.0, color="k")
+        set_patch_property(
+            circ,
+            plot.ax,
+            state=state,
+            fill=True,
+            linewidth=2.0,
+            linestyle="--",
+            alpha=0.5,
+            zorder=3,
+        )
+        plt.close("all")
+
+
+class TestStepObjectsPlotInvalidMode:
+    """Tests for step_objects_plot and draw_components with invalid mode (lines 183, 187, 209)."""
+
+    def test_step_objects_plot_invalid_mode(self, dummy_world_2d, dummy_logger):
+        """step_objects_plot with invalid mode logs error (line 187)."""
+        plot = EnvPlot(
+            dummy_world_2d,
+            objects=[],
+            saved_figure={},
+            figure_pixels=[200, 150],
+            show_title=False,
+        )
+        plot.step_objects_plot(mode="invalid_mode", objects=[])
+        plt.close("all")
+
+    def test_draw_components_invalid_mode(self, dummy_world_2d, dummy_logger):
+        """draw_components with invalid mode logs error (line 209)."""
+        plot = EnvPlot(
+            dummy_world_2d,
+            objects=[],
+            saved_figure={},
+            figure_pixels=[200, 150],
+            show_title=False,
+        )
+        plot.draw_components(mode="invalid_mode", objects=[])
+        plt.close("all")
+
+
+class TestDrawPatchLineWithAlphaFill:
+    """Tests for draw_patch line shape with fill and alpha kwargs (lines 831, 841)."""
+
+    def test_draw_line_with_fill_and_alpha(self, dummy_world_2d, dummy_logger):
+        """draw_patch line with alpha (line 841)."""
+        plot = EnvPlot(
+            dummy_world_2d,
+            objects=[],
+            saved_figure={},
+            figure_pixels=[200, 150],
+            show_title=False,
+        )
+        line_vertices = np.array([[0.0, 1.0], [0.0, 1.0]])
+        line = draw_patch(
+            plot.ax,
+            "line",
+            vertices=line_vertices,
+            color="k",
+            alpha=0.5,
+            linestyle="--",
+        )
+        assert line is not None
+        plt.close("all")

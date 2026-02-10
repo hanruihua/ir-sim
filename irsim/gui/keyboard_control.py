@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 # Optional pynput import (allows fallback to Matplotlib key events)
 # Predeclare for type checkers
-keyboard: Optional[Any] = None
+keyboard: Any | None = None
 try:  # pragma: no cover - availability depends on environment
     from pynput import keyboard as _pynput_keyboard
 
@@ -60,7 +60,7 @@ class KeyboardControl:
         - In keyboard control mode, behavior planners are ignored; robot motion follows key input.
     """
 
-    def __init__(self, env_ref: Optional[Any] = None, **keyboard_kwargs: Any) -> None:
+    def __init__(self, env_ref: Any | None = None, **keyboard_kwargs: Any) -> None:
         """
         Initialize keyboard control for the environment.
 
@@ -554,7 +554,10 @@ class KeyboardControl:
         """Set this instance as the active keyboard controller."""
         global _active_keyboard_instance
         # Deactivate the previous active instance
-        if _active_keyboard_instance is not None and _active_keyboard_instance is not self:
+        if (
+            _active_keyboard_instance is not None
+            and _active_keyboard_instance is not self
+        ):
             _active_keyboard_instance._is_active = False
         # Activate this instance
         self._is_active = True

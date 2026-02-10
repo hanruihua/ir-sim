@@ -21,6 +21,7 @@ References
 from __future__ import annotations
 
 import contextlib
+import itertools
 import math
 from dataclasses import dataclass
 
@@ -370,7 +371,7 @@ class JPSPlanner:
             idx = n.parent_index
 
         rx, ry = [], []
-        for (cx, cy), (px, py) in zip(waypoints[:-1], waypoints[1:]):
+        for (cx, cy), (px, py) in itertools.pairwise(waypoints):
             ddx = 0 if px == cx else (1 if px > cx else -1)
             ddy = 0 if py == cy else (1 if py > cy else -1)
             ix, iy = cx, cy

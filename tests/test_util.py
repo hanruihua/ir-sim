@@ -244,3 +244,292 @@ def test_convert_list_length_dict_extend():
     # Last element repeated
     assert result[2] == [d, d]
     assert result[3] == [d, d]
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests
+# ---------------------------------------------------------------------------
+
+
+def test_file_check_none():
+    """file_check(None) returns None (line 33)."""
+    assert util.file_check(None) is None
+
+
+def test_wrap_to_region_short_range():
+    """WrapToRegion with len(range) < 2 raises ValueError (line 122)."""
+    with pytest.raises(ValueError, match="length >= 2"):
+        util.WrapToRegion(0, [1])
+
+
+def test_gen_inequal_from_vertex_non_convex():
+    """gen_inequal_from_vertex with non-convex polygon returns None (lines 499-500)."""
+    # L-shaped (non-convex) polygon
+    vertices = np.array([[0, 2, 2, 1, 1, 0], [0, 0, 1, 1, 2, 2]])
+    G, h = util.gen_inequal_from_vertex(vertices)
+    assert G is None
+    assert h is None
+
+
+def test_gen_inequal_from_vertex_clockwise():
+    """gen_inequal_from_vertex with CW polygon reverses vertices (line 503)."""
+    # CW square: (0,0) -> (0,1) -> (1,1) -> (1,0)
+    vertices = np.array([[0, 0, 1, 1], [0, 1, 1, 0]])
+    G, h = util.gen_inequal_from_vertex(vertices)
+    assert G is not None
+    assert h is not None
+    assert G.shape == (4, 2)
+
+
+def test_random_point_range_none_args():
+    """random_point_range with None args uses defaults (lines 565, 572)."""
+    pt = util.random_point_range(None, None)
+    assert pt.shape == (3, 1)
+
+
+def test_random_point_range_1d_ndarray():
+    """random_point_range with 1D ndarray args (lines 568-569, 575-576)."""
+    low = np.array([0, 0, -math.pi])
+    high = np.array([5, 5, math.pi])
+    pt = util.random_point_range(low, high)
+    assert pt.shape == (3, 1)
+
+
+def test_is_2d_list_numpy():
+    """is_2d_list with numpy array returns False (line 588)."""
+    assert util.is_2d_list(np.array([[1, 2], [3, 4]])) is False
+
+
+def test_validate_shape_non_array():
+    """validate_shape raises TypeError for non-array (line 634)."""
+
+    @util.validate_shape(state=3)
+    def fn(state):
+        return state
+
+    with pytest.raises(TypeError, match="must be a numpy array"):
+        fn(state=[1, 2, 3])
+
+
+def test_validate_shape_small_array():
+    """validate_shape raises ValueError for small array (line 638)."""
+
+    @util.validate_shape(state=3)
+    def fn(state):
+        return state
+
+    with pytest.raises(ValueError, match="shape\\[0\\] >= 3"):
+        fn(state=np.array([[1], [2]]))
+
+
+def test_validate_shape_passes():
+    """validate_shape passes for valid array."""
+
+    @util.validate_shape(state=3)
+    def fn(state):
+        return state
+
+    result = fn(state=np.array([[1], [2], [3]]))
+    assert result.shape == (3, 1)
+
+
+def test_validate_length_non_sequence():
+    """validate_length raises TypeError for non-sequence (lines 681-687)."""
+
+    @util.validate_length(alpha=4)
+    def fn(alpha):
+        return alpha
+
+    with pytest.raises(TypeError, match="must be a sequence"):
+        fn(alpha=42)
+
+
+def test_validate_length_short_sequence():
+    """validate_length raises ValueError for short sequence (lines 688-692)."""
+
+    @util.validate_length(alpha=4)
+    def fn(alpha):
+        return alpha
+
+    with pytest.raises(ValueError, match="length >= 4"):
+        fn(alpha=[1, 2])
+
+
+def test_validate_length_passes():
+    """validate_length passes for valid sequence."""
+
+    @util.validate_length(alpha=2)
+    def fn(alpha):
+        return alpha
+
+    result = fn(alpha=[1, 2, 3])
+    assert result == [1, 2, 3]
+
+
+def test_ensure_column_vector_list():
+    """ensure_column_vector converts list to column (line 731)."""
+
+    @util.ensure_column_vector("state")
+    def fn(state):
+        return state
+
+    result = fn(state=[1, 2, 3])
+    assert isinstance(result, np.ndarray)
+    assert result.shape == (3, 1)
+
+
+def test_ensure_column_vector_1d_array():
+    """ensure_column_vector converts 1D array to column (line 733)."""
+
+    @util.ensure_column_vector("state")
+    def fn(state):
+        return state
+
+    result = fn(state=np.array([1, 2, 3]))
+    assert result.shape == (3, 1)
+
+
+def test_ensure_column_vector_none():
+    """ensure_column_vector leaves None unchanged."""
+
+    @util.ensure_column_vector("state")
+    def fn(state=None):
+        return state
+
+    assert fn() is None
+
+
+def test_ensure_numpy_list():
+    """ensure_numpy converts list to ndarray (line 772)."""
+
+    @util.ensure_numpy("data")
+    def fn(data):
+        return data
+
+    result = fn(data=[1, 2, 3])
+    assert isinstance(result, np.ndarray)
+    np.testing.assert_array_equal(result, [1, 2, 3])
+
+
+def test_ensure_numpy_none():
+    """ensure_numpy leaves None unchanged."""
+
+    @util.ensure_numpy("data")
+    def fn(data=None):
+        return data
+
+    assert fn() is None
+
+
+def test_to_numpy_none():
+    """to_numpy(None) returns None (line 888)."""
+    assert util.to_numpy(None) is None
+
+
+def test_to_numpy_none_with_default():
+    """to_numpy(None, default=...) returns default."""
+    default = np.array([[1], [2]])
+    result = util.to_numpy(None, default=default)
+    np.testing.assert_array_equal(result, default)
+
+
+def test_to_numpy_list():
+    """to_numpy with list converts to column vector."""
+    result = util.to_numpy([1, 2, 3])
+    assert isinstance(result, np.ndarray)
+    assert result.shape == (3, 1)
+
+
+def test_traj_to_xy_list_ndarray_multi_column():
+    """traj_to_xy_list with ndarray multi-column (lines 921-924)."""
+    traj = np.array([[1, 2, 3], [4, 5, 6], [0.1, 0.2, 0.3]])
+    x_list, y_list = util.traj_to_xy_list(traj)
+    assert x_list == [1, 2, 3]
+    assert y_list == [4, 5, 6]
+
+
+def test_traj_to_xy_list_ndarray_single_column():
+    """traj_to_xy_list with ndarray single column (lines 927-929)."""
+    traj = np.array([[1], [4], [0.1]])
+    x_list, y_list = util.traj_to_xy_list(traj)
+    assert x_list == [np.array([1])]
+    assert y_list == [np.array([4])]
+
+
+def test_traj_to_xy_list_ndarray_3d():
+    """traj_to_xy_list with three_d=True (lines 925-926)."""
+    traj = np.array([[1, 2], [4, 5], [7, 8]])
+    x_list, y_list, z_list = util.traj_to_xy_list(traj, three_d=True)
+    assert x_list == [1, 2]
+    assert y_list == [4, 5]
+    assert z_list == [7, 8]
+
+
+def test_traj_to_xy_list_ndarray_single_column_3d():
+    """traj_to_xy_list with single column 3D (lines 930-931)."""
+    traj = np.array([[1], [4], [7]])
+    x_list, _y_list, z_list = util.traj_to_xy_list(traj, three_d=True)
+    assert len(x_list) == 1
+    assert len(z_list) == 1
+
+
+def test_traj_to_xy_list_invalid_type():
+    """traj_to_xy_list with invalid type raises ValueError (line 933)."""
+    with pytest.raises(ValueError, match="Invalid trajectory type"):
+        util.traj_to_xy_list("bad")
+
+
+def test_points_to_xy_list_none():
+    """points_to_xy_list(None) returns empty lists (line 956)."""
+    x, y = util.points_to_xy_list(None)
+    assert x == []
+    assert y == []
+
+
+def test_points_to_xy_list_invalid_type():
+    """points_to_xy_list with invalid type raises ValueError (line 975)."""
+    with pytest.raises(ValueError, match="Invalid points type"):
+        util.points_to_xy_list("bad")
+
+
+def test_points_to_xy_list_ndarray_single_column():
+    """points_to_xy_list with ndarray single column (lines 970-971)."""
+    pts = np.array([[1], [2]])
+    x, y = util.points_to_xy_list(pts)
+    assert len(x) == 1
+    assert len(y) == 1
+
+
+def test_points_to_xy_list_ndarray_3d():
+    """points_to_xy_list with three_d=True (lines 967-968)."""
+    pts = np.array([[1, 2], [3, 4], [5, 6]])
+    x, y, z = util.points_to_xy_list(pts, three_d=True)
+    assert x == [1, 2]
+    assert y == [3, 4]
+    assert z == [5, 6]
+
+
+def test_points_to_xy_list_ndarray_single_3d():
+    """points_to_xy_list single column 3D (lines 972-973)."""
+    pts = np.array([[1], [3], [5]])
+    x, _y, z = util.points_to_xy_list(pts, three_d=True)
+    assert len(x) == 1
+    assert len(z) == 1
+
+
+def test_traj_to_xy_list_list_3d():
+    """traj_to_xy_list with list input and three_d=True (line 920)."""
+    traj = [np.array([[1], [2], [3]]), np.array([[4], [5], [6]])]
+    x, y, z = util.traj_to_xy_list(traj, three_d=True)
+    assert x == [1, 4]
+    assert y == [2, 5]
+    assert z == [3, 6]
+
+
+def test_points_to_xy_list_list_3d():
+    """points_to_xy_list with list input and three_d=True (line 962)."""
+    pts = [[1, 2, 3], [4, 5, 6]]
+    x, y, z = util.points_to_xy_list(pts, three_d=True)
+    assert x == [1, 4]
+    assert y == [2, 5]
+    assert z == [3, 6]

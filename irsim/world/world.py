@@ -31,17 +31,17 @@ class World:
 
     def __init__(
         self,
-        name: Optional[str] = "world",
+        name: str | None = "world",
         height: float = 10,
         width: float = 10,
         step_time: float = 0.1,
-        sample_time: Optional[float] = None,
-        offset: Optional[list[float]] = None,
+        sample_time: float | None = None,
+        offset: list[float] | None = None,
         control_mode: str = "auto",
         collision_mode: str = "stop",
-        obstacle_map: Optional[Any] = None,
+        obstacle_map: Any | None = None,
         mdownsample: int = 1,
-        plot: Optional[dict[str, Any]] = None,
+        plot: dict[str, Any] | None = None,
         status: str = "None",
         world_param_instance: Optional["WorldParam"] = None,
         **kwargs: Any,
@@ -121,7 +121,7 @@ class World:
 
     def gen_grid_map(
         self,
-        obstacle_map: Optional[Any] = None,
+        obstacle_map: Any | None = None,
         mdownsample: int = 1,
     ) -> tuple:
         """Generate a grid map for obstacles.
@@ -158,7 +158,7 @@ class World:
         return grid_map, obstacle_index, obstacle_positions
 
     def get_map(
-        self, resolution: float = 0.1, obstacle_list: Optional[list[Any]] = None
+        self, resolution: float = 0.1, obstacle_list: list[Any] | None = None
     ) -> "Map":
         """
         Get the map of the world with the given resolution.
