@@ -1,45 +1,58 @@
 """
+RRT* (RRT-Star) path planner.
 
-Path planning Sample Code with RRT*
+Collision precedence (inherited from :class:`RRT`):
+  1. Grid lookup (O(1) per cell) when ``env_map.grid`` is not ``None``.
+  2. Shapely geometry intersection when the grid is unavailable.
 
-author: Atsushi Sakai(@Atsushi_twi)
+Reference:
+    S. Karaman and E. Frazzoli, "Sampling-based Algorithms for Optimal
+    Motion Planning," Int. J. Robotics Research, 2011.
 
-adapted by: Reinis Cimurs
+Implementation reference:
+    ZJU-FAST-Lab/sampling-based-path-finding
+    https://github.com/ZJU-FAST-Lab/sampling-based-path-finding
+    (C++ implementation with kd-tree nearest-neighbour and range queries,
+    optimised parent selection, and BFS cost propagation.)
 
+Adapted for ir-sim.
 """
 
-import math
-from typing import Optional
+from __future__ import annotations
 
-from irsim.lib.path_planners.rrt import RRT
-from irsim.world.map import Map
+import logging
+import math
+from typing import Any
+
+import numpy as np
+
+from irsim.lib.path_planners.rrt import RRT, TreeNode
+from irsim.world.map import EnvGridMap
+
+logger = logging.getLogger(__name__)
 
 
 class RRTStar(RRT):
+    """RRT* path planner with asymptotic optimality.
+
+    Extends :class:`RRT` with:
+
+    * **Neighbour search** — after steering, all nodes within a shrinking
+      radius are considered as potential parents (``_choose_parent``).
+    * **Rewiring** — after inserting a new node, nearby nodes are checked
+      to see whether their cost can be reduced by re-parenting through
+      the new node (``_rewire``).
+    * **Efficient cost propagation** — ``_change_node_parent`` uses BFS
+      through the ``children`` list for O(subtree) updates.
     """
-    Class for RRT Star planning
-    """
 
-    class Node(RRT.Node):
-        """
-        RRT Node
-        """
-
-        def __init__(self, x: float, y: float) -> None:
-            """
-            Initialize Node
-
-            Args:
-                x (float): x position of the node
-                y (float): y position of the node
-            """
-            super().__init__(x, y)
-            self.cost = 0.0
+    # Share the same node type
+    Node = TreeNode
 
     def __init__(
         self,
-        env_map: Map,
-        robot_radius: float,
+        env_map: EnvGridMap,
+        robot: Any,
         expand_dis: float = 1.5,
         path_resolution: float = 0.25,
         goal_sample_rate: int = 5,
@@ -47,22 +60,10 @@ class RRTStar(RRT):
         connect_circle_dist: float = 0.5,
         search_until_max_iter: bool = False,
     ) -> None:
-        """
-        Initialize RRT planner
-
-        Args:
-            env_map (Env): environment map where the planning will take place
-            robot_radius (float): robot body modeled as circle with given radius
-            expand_dis (float): expansion distance
-            path_resolution (float): resolution of the path
-            goal_sample_rate (int): goal sample rate
-            max_iter (int): max iteration count
-            connect_circle_dist (float): maximum distance for nearby node connection ir rewiring
-            search_until_max_iter (bool): if to search for path until the max_iter count
-        """
+        """Initialise the RRT* planner."""
         super().__init__(
             env_map,
-            robot_radius,
+            robot,
             expand_dis,
             path_resolution,
             goal_sample_rate,
@@ -70,222 +71,218 @@ class RRTStar(RRT):
         )
         self.connect_circle_dist = connect_circle_dist
         self.search_until_max_iter = search_until_max_iter
-        self.node_list = []
+
+    # ------------------------------------------------------------------
+    # Planning
+    # ------------------------------------------------------------------
 
     def planning(
         self,
         start_pose: list[float],
         goal_pose: list[float],
         show_animation: bool = True,
-    ) -> Optional[tuple[list[float], list[float]]]:
-        """
-        rrt star path planning
+    ) -> np.ndarray | None:
+        """RRT* path planning.
 
         Args:
-            start_pose (np.array): start pose [x,y]
-            goal_pose (np.array): goal pose [x,y]
-            show_animation (bool): If true, shows the animation of planning process
+            start_pose: Start position ``[x, y]``.
+            goal_pose: Goal position ``[x, y]``.
+            show_animation: Render the tree during planning.
 
         Returns:
-            (np.array): xy position array of the final path
+            ``(2, N)`` waypoint array or *None*.
         """
-        self.start = self.Node(start_pose[0].item(), start_pose[1].item())
-        self.end = self.Node(goal_pose[0].item(), goal_pose[1].item())
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
+        sx, sy = float(start_pose[0]), float(start_pose[1])
+        gx, gy = float(goal_pose[0]), float(goal_pose[1])
 
+        self.start = TreeNode(x=sx, y=sy, cost=0.0)
+        self.end = TreeNode(x=gx, y=gy, cost=float("inf"))
+
+        # Reset
         self.node_list = [self.start]
-        for i in range(self.max_iter):
-            print("Iter:", i, ", number of nodes:", len(self.node_list))
+        self._kd_dirty = True
+        self._vis_setup_done = False
+        self._tree_line = None
+        self._vis_temp = []
+
+        goal_found = False
+
+        for _i in range(self.max_iter):
+            # 1. Sample
             rnd = self.get_random_node()
-            nearest_ind = self.get_nearest_node_index(self.node_list, rnd)
-            new_node = self.steer(self.node_list[nearest_ind], rnd, self.expand_dis)
-            near_node = self.node_list[nearest_ind]
-            new_node.cost = near_node.cost + math.hypot(
-                new_node.x - near_node.x, new_node.y - near_node.y
+
+            # 2. Nearest node
+            nearest_ind = self._nearest(rnd.x, rnd.y)
+            nearest_node = self.node_list[nearest_ind]
+
+            # 3. Steer
+            new_node = self.steer(nearest_node, rnd, self.expand_dis)
+
+            # 4. Bounds + collision
+            if not self._check_bounds(new_node.x, new_node.y):
+                continue
+            if not self.is_collision(new_node):
+                continue
+
+            # 5. Choose best parent from neighbours
+            cost_from_nearest = math.hypot(
+                new_node.x - nearest_node.x,
+                new_node.y - nearest_node.y,
+            )
+            near_inds = self._find_near_nodes(new_node.x, new_node.y)
+
+            best_parent, best_cost_fp = self._choose_parent(
+                new_node, nearest_node, nearest_ind, cost_from_nearest, near_inds,
             )
 
-            if self.check_collision(new_node, self.robot_radius):
-                near_inds = self.find_near_nodes(new_node)
-                node_with_updated_parent = self.choose_parent(new_node, near_inds)
-                if node_with_updated_parent:
-                    self.rewire(node_with_updated_parent, near_inds)
-                    self.node_list.append(node_with_updated_parent)
-                    if show_animation:
-                        self.draw_graph(node_with_updated_parent)
-                else:
-                    self.node_list.append(new_node)
-                    if show_animation:
-                        self.draw_graph(new_node)
+            # 6. Add to tree
+            added = self._add_tree_node(
+                best_parent,
+                new_node.x,
+                new_node.y,
+                best_cost_fp,
+                path_x=new_node.path_x,
+                path_y=new_node.path_y,
+            )
+            # If parent changed, re-steer for the correct edge path
+            if best_parent is not nearest_node:
+                edge = self.steer(best_parent, added)
+                added.path_x = edge.path_x
+                added.path_y = edge.path_y
 
-            if (not self.search_until_max_iter) and new_node:  # if reaches goal
-                last_index = self.search_best_goal_node()
-                if last_index is not None:
-                    return self.generate_final_course(last_index)
+            # 7. Rewire
+            self._rewire(added, near_inds)
 
-        print("reached max iteration")
+            if show_animation:
+                self.draw_graph(added)
 
-        last_index = self.search_best_goal_node()
-        if last_index is not None:
-            return self.generate_final_course(last_index)
+            # 8. Try to connect to goal
+            dist_to_goal = math.hypot(
+                added.x - self.end.x, added.y - self.end.y,
+            )
+            if dist_to_goal <= self.expand_dis:
+                goal_edge = self.steer(added, self.end, self.expand_dis)
+                if self.is_collision(goal_edge):
+                    new_goal_cost = added.cost + dist_to_goal
+                    if new_goal_cost < self.end.cost:
+                        if not goal_found:
+                            # First connection — wire goal into the tree
+                            self.end.cost = new_goal_cost
+                            self.end.cost_from_parent = dist_to_goal
+                            self.end.parent = added
+                            self.end.path_x = goal_edge.path_x
+                            self.end.path_y = goal_edge.path_y
+                            self.end.children = []
+                            added.children.append(self.end)
+                            self.node_list.append(self.end)
+                            self._kd_dirty = True
+                            goal_found = True
+                        else:
+                            # Cheaper route — re-parent the goal node
+                            self._change_node_parent(
+                                self.end, added, dist_to_goal,
+                            )
+                            self.end.path_x = goal_edge.path_x
+                            self.end.path_y = goal_edge.path_y
 
+            # Early termination
+            if goal_found and not self.search_until_max_iter:
+                return self._fill_path(self.end)
+
+        if goal_found:
+            logger.info(
+                "[RRT*] path cost = %.3f, nodes = %d",
+                self.end.cost,
+                len(self.node_list),
+            )
+            return self._fill_path(self.end)
+
+        logger.info(
+            "[RRT*] no feasible path found after %d iterations", self.max_iter,
+        )
         return None
 
-    def choose_parent(self, new_node: "Node", near_inds: list[int]) -> Optional["Node"]:
-        """
-        Computes the cheapest point to new_node contained in the list
-        near_inds and set such a node as the parent of new_node.
+    # ------------------------------------------------------------------
+    # Choose parent (cost check before collision — reference optimisation)
+    # ------------------------------------------------------------------
 
-        Args:
-            new_node (Node): randomly generated node with a path from its neared point
-            near_inds (List): indices of the nodes what are near to new_node
+    def _choose_parent(
+        self,
+        new_node: TreeNode,
+        nearest_node: TreeNode,
+        nearest_ind: int,
+        cost_from_nearest: float,
+        near_inds: list[int],
+    ) -> tuple[TreeNode, float]:
+        """Select the lowest-cost parent for *new_node* from *near_inds*.
 
-        Returns:
-            (Node): a copy of new_node
-        """
-        if not near_inds:
-            return None
-
-        # search nearest cost in near_inds
-        costs = []
-        for i in near_inds:
-            near_node = self.node_list[i]
-            t_node = self.steer(near_node, new_node)
-            if t_node and self.check_collision(t_node, self.robot_radius):
-                costs.append(self.calc_new_cost(near_node, new_node))
-            else:
-                costs.append(float("inf"))  # the cost of collision node
-        min_cost = min(costs)
-
-        if min_cost == float("inf"):
-            print("There is no good path.(min_cost is inf)")
-            return None
-
-        min_ind = near_inds[costs.index(min_cost)]
-        new_node = self.steer(self.node_list[min_ind], new_node)
-        new_node.cost = min_cost
-
-        return new_node
-
-    def search_best_goal_node(self) -> Optional[int]:
-        """
-        Search for the best goal node in the current RRT* tree.
+        The potential cost is checked **before** the expensive collision
+        test so that unpromising candidates are skipped early.
 
         Returns:
-            Optional[int]: Index of the best goal node if found; otherwise ``None``.
+            ``(best_parent, best_cost_from_parent)``
         """
-        dist_to_goal_list = [self.calc_dist_to_goal(n.x, n.y) for n in self.node_list]
-        goal_inds = [
-            dist_to_goal_list.index(i)
-            for i in dist_to_goal_list
-            if i <= self.expand_dis
-        ]
+        best_parent = nearest_node
+        best_cost = nearest_node.cost + cost_from_nearest
+        best_cost_fp = cost_from_nearest
 
-        safe_goal_inds = []
-        for goal_ind in goal_inds:
-            t_node = self.steer(self.node_list[goal_ind], self.end)
-            if self.check_collision(t_node, self.robot_radius):
-                safe_goal_inds.append(goal_ind)
+        for idx in near_inds:
+            if idx == nearest_ind:
+                continue
+            candidate = self.node_list[idx]
+            d = math.hypot(candidate.x - new_node.x, candidate.y - new_node.y)
+            potential_cost = candidate.cost + d
 
-        if not safe_goal_inds:
-            return None
+            # Potential cost first (cheap), collision second (expensive)
+            if potential_cost >= best_cost:
+                continue
 
-        safe_goal_costs = [
-            self.node_list[i].cost
-            + self.calc_dist_to_goal(self.node_list[i].x, self.node_list[i].y)
-            for i in safe_goal_inds
-        ]
+            edge = self.steer(candidate, new_node)
+            if self.is_collision(edge):
+                best_parent = candidate
+                best_cost = potential_cost
+                best_cost_fp = d
 
-        min_cost = min(safe_goal_costs)
-        for i, cost in zip(safe_goal_inds, safe_goal_costs):
-            if cost == min_cost:
-                return i
+        return best_parent, best_cost_fp
 
-        return None
+    # ------------------------------------------------------------------
+    # Rewire
+    # ------------------------------------------------------------------
 
-    def find_near_nodes(self, new_node: "Node") -> list[int]:
+    def _rewire(self, new_node: TreeNode, near_inds: list[int]) -> None:
+        """Try to rewire nearby nodes through *new_node* for a lower cost.
+
+        Uses :meth:`_change_node_parent` for efficient BFS cost propagation.
         """
-        1) defines a ball centered on new_node
-        2) Returns all nodes of the three that are inside this ball
-            Args:
-                new_node (Node): new randomly generated node, without collisions between it and its nearest node
+        for idx in near_inds:
+            candidate = self.node_list[idx]
+            if candidate is new_node or candidate is self.start:
+                continue
 
-            Returns:
-                list[int]: Indices of nodes inside the ball radius.
-        """
+            d = math.hypot(
+                new_node.x - candidate.x, new_node.y - candidate.y,
+            )
+            new_cost = new_node.cost + d
+            if new_cost >= candidate.cost:
+                continue
+
+            edge = self.steer(new_node, candidate)
+            if not self.is_collision(edge):
+                continue
+
+            self._change_node_parent(candidate, new_node, d)
+            candidate.path_x = edge.path_x
+            candidate.path_y = edge.path_y
+
+    # ------------------------------------------------------------------
+    # Find near nodes
+    # ------------------------------------------------------------------
+
+    def _find_near_nodes(self, x: float, y: float) -> list[int]:
+        """Indices of nodes within the RRT* connection radius."""
         nnode = len(self.node_list) + 1
         r = self.connect_circle_dist * math.sqrt(math.log(nnode) / nnode)
-        # if expand_dist exists, search vertices in a range no more than
-        # expand_dist
-        if hasattr(self, "expand_dis"):
-            r = min(r, self.expand_dis)
-        dist_list = [
-            (node.x - new_node.x) ** 2 + (node.y - new_node.y) ** 2
-            for node in self.node_list
-        ]
-        return [dist_list.index(i) for i in dist_list if i <= r**2]
-
-    def rewire(self, new_node: "Node", near_inds: list[int]) -> None:
-        """
-        Rewire the tree to improve path cost by checking nearby nodes.
-
-        For each node in near_inds, this method checks whether it is more
-        cost-effective to reach it via new_node. If so, the parent of that
-        node is updated to new_node, and the cost is propagated to its children.
-
-        Args:
-            new_node (Node): The newly added node that may provide a better path.
-            near_inds (list of int): Indices of nodes within the connection radius
-                                     that are candidates for rewiring.
-
-        Returns:
-            None
-        """
-        for i in near_inds:
-            near_node = self.node_list[i]
-            edge_node = self.steer(new_node, near_node)
-            if not edge_node:
-                continue
-            edge_node.cost = self.calc_new_cost(new_node, near_node)
-
-            no_collision = self.check_collision(edge_node, self.robot_radius)
-            improved_cost = near_node.cost > edge_node.cost
-
-            if no_collision and improved_cost:
-                for node in self.node_list:
-                    if node.parent == self.node_list[i]:
-                        node.parent = edge_node
-                self.node_list[i] = edge_node
-                self.propagate_cost_to_leaves(self.node_list[i])
-
-    def calc_new_cost(self, from_node: "Node", to_node: "Node") -> float:
-        """
-        Calculate the cost of reaching to_node from from_node.
-
-        Args:
-            from_node (Node): The starting node.
-            to_node (Node): The target node.
-
-        Returns:
-            float: The total cost to reach to_node via from_node.
-        """
-        d, _ = self.calc_distance_and_angle(from_node, to_node)
-        return from_node.cost + d
-
-    def propagate_cost_to_leaves(self, parent_node: "Node") -> None:
-        """
-        Recursively update the cost of all descendant nodes.
-
-        This function updates the cost of all child nodes of the given
-        parent_node by recalculating their cost, and then propagates
-        the update down to their children.
-
-        Args:
-            parent_node (Node): The node from which to start cost propagation.
-
-        Returns:
-            None
-        """
-
-        for node in self.node_list:
-            if node.parent == parent_node:
-                node.cost = self.calc_new_cost(parent_node, node)
-                self.propagate_cost_to_leaves(node)
+        r = min(r, self.expand_dis)
+        return self._near_in_radius(x, y, r)

@@ -1,6 +1,10 @@
 """
+Probabilistic Road Map (PRM) Planner.
 
-Probabilistic Road Map (PRM) Planner
+Collision precedence:
+  1. Grid lookup when ``env_map.grid`` is not ``None``; if occupied, collision.
+  2. When the grid reports free or is unavailable, Shapely vs. obstacle_list.
+  (Grid and obstacle_list are combined when both are present.)
 
 author: Atsushi Sakai (@Atsushi_twi)
 
@@ -8,17 +12,18 @@ adapted by: Reinis Cimurs
 
 """
 
+from __future__ import annotations
+
 import math
 from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-import shapely
 from scipy.spatial import KDTree
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.util.random import rng as sim_rng
-from irsim.world.map import Map
+from irsim.world.map import EnvGridMap
 
 
 class Node:
@@ -57,7 +62,7 @@ class Node:
 class PRMPlanner:
     def __init__(
         self,
-        env_map: Map,
+        env_map: EnvGridMap,
         robot_radius: float,
         n_sample: int = 500,
         n_knn: int = 10,
@@ -67,20 +72,22 @@ class PRMPlanner:
         Initialize the PRM planner.
 
         Args:
-            env_map (Map): Environment map where planning takes place.
-            robot_radius (float): Robot radius modeled as a circle.
-            n_sample (int): Number of sampled points.
-            n_knn (int): Number of nearest neighbors per node.
-            max_edge_len (float): Maximum allowed edge length.
+            env_map: Environment map (any :class:`~irsim.world.map.EnvGridMap`
+                compatible object).
+            robot_radius: Robot radius modeled as a circle.
+            n_sample: Number of sampled points.
+            n_knn: Number of nearest neighbors per node.
+            max_edge_len: Maximum allowed edge length.
         """
 
+        self._map = env_map
         self.rr = robot_radius
         self.obstacle_list = env_map.obstacle_list[:]
-        self.min_x, self.min_y = 0, 0
-        self.max_x, self.max_y = (
-            env_map.width,
-            env_map.height,
-        )
+        off = np.asarray(env_map.world_offset, dtype=float).flatten()
+        self.min_x = float(off[0])
+        self.min_y = float(off[1])
+        self.max_x = self.min_x + float(np.asarray(env_map.width).flat[0])
+        self.max_y = self.min_y + float(np.asarray(env_map.height).flat[0])
         self.n_sample = n_sample
         self.n_knn = n_knn
         self.max_edge_len = max_edge_len
@@ -104,12 +111,10 @@ class PRMPlanner:
         Returns:
             (np.array): xy position array of the final path
         """
-        start_x, start_y, goal_x, goal_y = (
-            start_pose[0].item(),
-            start_pose[1].item(),
-            goal_pose[0].item(),
-            goal_pose[1].item(),
-        )
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
+        start_x, start_y = float(start_pose[0]), float(start_pose[1])
+        goal_x, goal_y = float(goal_pose[0]), float(goal_pose[1])
         sample_x, sample_y = self.sample_points(start_x, start_y, goal_x, goal_y, rng)
         if show_animation:
             plt.plot(sample_x, sample_y, ".b")
@@ -130,23 +135,21 @@ class PRMPlanner:
         return np.array([rx, ry])
 
     def check_node(self, x: float, y: float, rr: float) -> bool:
-        """
-        Check positon for a collision
+        """Check position for a collision.
 
         Args:
-            x (float): x value of the position
-            y (float): y value of the position
+            x: World x coordinate.
+            y: World y coordinate.
+            rr: Robot radius for the check.
 
         Returns:
-            (bool): True if there is a collision. False otherwise
+            ``True`` if a collision is detected.
         """
         node_position = [x, y]
         shape = {"name": "circle", "radius": rr}
         gf = GeometryFactory.create_geometry(**shape)
         geometry = gf.step(np.c_[node_position])
-        return any(
-            shapely.intersects(geometry, obj._geometry) for obj in self.obstacle_list
-        )
+        return self._map.is_collision(geometry)
 
     def is_collision(self, sx: float, sy: float, gx: float, gy: float) -> bool:
         """
@@ -268,7 +271,7 @@ class PRMPlanner:
                 # for stopping simulation with the esc key.
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: [exit(0) if event.key == "escape" else None],
+                    lambda event: plt.close(event.canvas.figure) if event.key == "escape" else None,
                 )
                 plt.plot(current.x, current.y, "xg")
                 plt.pause(0.001)

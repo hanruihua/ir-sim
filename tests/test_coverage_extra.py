@@ -156,45 +156,31 @@ def test_rrt_star_edge_methods():
         "test_collision_world.yaml", save_ani=False, full=False, display=False
     )
     env_map = env.get_map()
-    r = RRTStar(env_map=env_map, robot_radius=0.5)
-    # Monkeypatch required attributes/methods
+    r = RRTStar(env_map=env_map, robot=env.robot)
     r.node_list = []
-    r.robot_radius = 0.5
     r.expand_dis = 1.0
 
-    # choose_parent: empty near indices
-    nn = r.Node(0.0, 0.0)
-    assert r.choose_parent(nn, []) is None
+    # _choose_parent: empty near indices returns nearest
+    nearest = r.Node(0.0, 0.0)
+    nearest.cost = 0.0
+    r.node_list = [nearest]
+    nn = r.Node(1.0, 0.0)
+    best_parent, _ = r._choose_parent(nn, nearest, 0, 1.0, [])
+    assert best_parent is nearest
 
-    # choose_parent: all costs inf (steer returns Falsey)
-    r.node_list = [r.Node(0.0, 0.0)]
-    r.steer = lambda *_args, **_kwargs: None  # type: ignore[assignment]
-    r.check_collision = lambda *_args, **_kwargs: False  # type: ignore[assignment]
-    assert r.choose_parent(nn, [0]) is None
+    # _choose_parent: all candidates fail collision returns nearest
+    r.is_collision = lambda *_args, **_kwargs: False  # type: ignore[assignment]
+    best_parent, _ = r._choose_parent(nn, nearest, 0, 1.0, [0])
+    assert best_parent is nearest
 
-    # rewire: edge_node is None path and no improved cost path
+    # _rewire: no cost improvement (candidate cost already lower)
     r.node_list = [r.Node(0.0, 0.0), r.Node(1.0, 0.0)]
-    new_node = r.Node(0.5, 0.0)
-    # First, edge_node None -> continue
-    r.steer = lambda *_args, **_kwargs: None  # type: ignore[assignment]
-    r.rewire(new_node, [0])
-    # Now, edge_node with no improvement
-    tmp_edge = r.Node(0.6, 0.0)
-    tmp_edge.cost = 10.0
-    r.steer = lambda *_args, **_kwargs: tmp_edge  # type: ignore[assignment]
-    r.check_collision = lambda *_args, **_kwargs: True  # type: ignore[assignment]
     r.node_list[0].cost = 0.0
-
-    def _calc_new_cost_stub(_a, _b):
-        return 100.0
-
-    r.calc_new_cost = _calc_new_cost_stub  # type: ignore[assignment]
-    r.rewire(new_node, [0])
-
-    # search_best_goal_node: no safe goals
-    r.calc_dist_to_goal = lambda *_args, **_kwargs: 999.0  # type: ignore[assignment]
-    r.steer = lambda *_args, **_kwargs: r.Node(0.0, 0.0)  # type: ignore[assignment]
-    assert r.search_best_goal_node() is None
+    r.node_list[1].cost = 0.5
+    new_node = r.Node(0.5, 0.0)
+    new_node.cost = 10.0
+    r._rewire(new_node, [1])
+    assert r.node_list[1].parent is None
 
 
 def test_obstacle_acker_instantiation():
