@@ -194,3 +194,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 - If you change the english documentation, please also change the chinese documentation.
 - If there are code changes, please also update the related documentation.
 - Documentation files are located in the `docs` directory. The main Sphinx entrypoint is `docs/index.rst`, with additional documentation files in `docs` and its subdirectories.
+
+## Note
+
+- You can try to use the uv virtual environment for testing and development: ir-sim/.venv/bin/python
