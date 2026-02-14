@@ -524,6 +524,9 @@ class EnvBase:
             return
 
         if self.save_ani:
+            if "ani_name" not in kwargs:
+                kwargs["ani_name"] = f"animation_{self._world.name}"
+
             self._env_plot.save_animate(**kwargs)
 
         if self.display:
