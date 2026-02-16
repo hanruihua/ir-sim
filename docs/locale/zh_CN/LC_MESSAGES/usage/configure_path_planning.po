@@ -1,0 +1,107 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-16 00:00+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.1\n"
+
+#: ../../source/usage/configure_path_planning.md:1
+msgid "Path planning"
+msgstr "路径规划"
+
+#: ../../source/usage/configure_path_planning.md:4
+msgid ""
+"IR-SIM includes grid-based path planners for computing collision-free "
+"paths on occupancy maps. Planners are used programmatically; the "
+"simulation can then follow the path (e.g. with a dash behavior or custom "
+"control)."
+msgstr ""
+"IR-SIM 包含基于栅格的路径规划器，可在占据地图上计算无碰撞路径。规划器通过编"
+"程方式调用，仿真随后可沿路径运动（例如使用 dash 行为或自定义控制）。"
+
+#: ../../source/usage/configure_path_planning.md:7
+msgid "Supported algorithms"
+msgstr "支持的算法"
+
+#: ../../source/usage/configure_path_planning.md:10
+msgid "**A\\*** — Classic grid A* with 8-neighbourhood."
+msgstr "**A\\*** — 经典栅格 A* 算法，8 邻域搜索。"
+
+#: ../../source/usage/configure_path_planning.md:11
+msgid "**JPS (Jump Point Search)** — Faster grid search with equivalent optimal paths."
+msgstr "**JPS（跳点搜索）** — 更快的栅格搜索，保证最优路径。"
+
+#: ../../source/usage/configure_path_planning.md:12
+msgid "**RRT** — Rapidly-exploring Random Tree; no grid required, works with Shapely obstacles."
+msgstr "**RRT** — 快速探索随机树；无需栅格，可直接使用 Shapely 障碍物。"
+
+#: ../../source/usage/configure_path_planning.md:13
+msgid "**RRT\\*** — Optimised RRT with rewiring for shorter paths."
+msgstr "**RRT\\*** — 带重连优化的 RRT，可获得更短路径。"
+
+#: ../../source/usage/configure_path_planning.md:14
+msgid "**Informed RRT\\*** — RRT* with an informed search heuristic (ellipsoid) once an initial solution exists."
+msgstr "**Informed RRT\\*** — 在获得初始解后使用椭球启发式搜索的 RRT*。"
+
+#: ../../source/usage/configure_path_planning.md:16
+msgid ""
+"When a grid map is present (e.g. from ``obstacle_map`` in the world "
+"config), A* and JPS use grid occupancy for collision checks. RRT/RRT*/"
+"Informed RRT* can use the same grid or Shapely geometry."
+msgstr ""
+"当存在栅格地图（例如在 world 配置中通过 ``obstacle_map`` 指定）时，A* 和 JPS "
+"使用栅格占据信息进行碰撞检测。RRT/RRT*/Informed RRT* 可使用相同的栅格或 "
+"Shapely 几何体。"
+
+#: ../../source/usage/configure_path_planning.md:18
+msgid "Example usage"
+msgstr "示例用法"
+
+#: ../../source/usage/configure_path_planning.md:21
+msgid "Scripts and YAML under **usage/20path_planning** demonstrate each planner:"
+msgstr "**usage/20path_planning** 目录下的脚本和 YAML 文件演示了各个规划器："
+
+#: ../../source/usage/configure_path_planning.md:23
+msgid "``path_planning_astar.py`` — A* on a Perlin grid."
+msgstr "``path_planning_astar.py`` — 在 Perlin 栅格上运行 A*。"
+
+#: ../../source/usage/configure_path_planning.md:24
+msgid "``path_planning_jps.py`` — Jump Point Search on the same setup."
+msgstr "``path_planning_jps.py`` — 在相同配置下运行跳点搜索。"
+
+#: ../../source/usage/configure_path_planning.md:25
+msgid "``path_planning_rrt.py`` — RRT with optional grid + obstacles."
+msgstr "``path_planning_rrt.py`` — 带可选栅格和障碍物的 RRT。"
+
+#: ../../source/usage/configure_path_planning.md:26
+msgid "``path_planning_rrt_star.py`` — RRT*."
+msgstr "``path_planning_rrt_star.py`` — RRT*。"
+
+#: ../../source/usage/configure_path_planning.md:27
+msgid "``path_planning_informed_rrt_star.py`` — Informed RRT*."
+msgstr "``path_planning_informed_rrt_star.py`` — Informed RRT*。"
+
+#: ../../source/usage/configure_path_planning.md:29
+msgid ""
+"Use the shared ``path_planning.yaml`` (or equivalent) for world and "
+"robot; each script selects the planner and computes a path from the "
+"robot's initial state to its goal. See the scripts and "
+"``irsim.lib.path_planners`` for API details."
+msgstr ""
+"使用共享的 ``path_planning.yaml``（或等效配置）定义世界和机器人；每个脚本选择"
+"规划器并计算从机器人初始状态到目标的路径。详细 API 请参阅脚本和 "
+"``irsim.lib.path_planners``。"
