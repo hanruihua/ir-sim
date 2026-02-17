@@ -1,3 +1,4 @@
+import difflib
 import inspect
 import math
 import os
@@ -977,3 +978,41 @@ def points_to_xy_list(
     if three_d:
         return x_list, y_list, z_list
     return x_list, y_list
+
+
+def check_unknown_kwargs(
+    kwargs: dict,
+    valid_keys: set[str],
+    context: str = "",
+    logger=None,
+) -> list[str]:
+    """Warn about unknown keyword arguments and suggest corrections.
+
+    When *logger* is not provided, falls back to the global
+    ``env_param.logger`` (same convention used by :func:`file_check`).
+
+    Args:
+        kwargs: Dictionary of provided keyword arguments.
+        valid_keys: Set of valid parameter names.
+        context: Optional context string for the warning message.
+        logger: Optional logger to emit warnings. If ``None``, the
+            global ``env_param.logger`` is used when available.
+
+    Returns:
+        List of warning message strings for unknown keys.
+    """
+    if logger is None:
+        logger = getattr(env_param, "logger", None)
+
+    unknown = set(kwargs) - valid_keys
+    messages = []
+    for key in sorted(unknown):
+        matches = difflib.get_close_matches(key, valid_keys, n=3, cutoff=0.6)
+        if matches:
+            msg = f"Unknown parameter '{key}'{context}. Did you mean: {', '.join(matches)}?"
+        else:
+            msg = f"Unknown parameter '{key}'{context}. Valid parameters: {', '.join(sorted(valid_keys))}"
+        messages.append(msg)
+        if logger:
+            logger.warning(msg)
+    return messages

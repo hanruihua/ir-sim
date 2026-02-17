@@ -1370,3 +1370,116 @@ class TestBehaviorGenVelExternalNone:
         # When behavior_dict is empty and external_objects is None
         vel = beh.gen_vel(ego_object=None, external_objects=None)
         assert vel is not None
+
+
+# ---------------------------------------------------------------------------
+# Tests for typo-detection / unknown-kwargs validation
+# ---------------------------------------------------------------------------
+
+
+class TestWorldUnknownKwargs:
+    """Tests for World unknown kwargs validation and logger/env_param properties."""
+
+    def test_world_unknown_kwarg_warns(self):
+        """World.__init__ with unknown kwarg emits a warning via check_unknown_kwargs."""
+        from unittest.mock import MagicMock
+
+        from irsim.world.world import World
+
+        logger = MagicMock()
+        # Patch the logger property to capture the warning
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(World, "logger", property(lambda self: logger))
+            World(name="test", step_tme=0.05)  # typo: step_tme
+
+        logger.warning.assert_called_once()
+        msg = logger.warning.call_args[0][0]
+        assert "step_tme" in msg
+
+    def test_world_env_param_fallback_to_global(self):
+        """World._env_param falls back to global env_param when _env is None."""
+        from irsim.config import env_param as global_ep
+        from irsim.world.world import World
+
+        w = World(name="test")
+        assert w._env is None
+        assert w._env_param is global_ep
+
+    def test_world_env_param_via_env(self):
+        """World._env_param delegates to env._env_param when _env is set."""
+        from unittest.mock import MagicMock
+
+        from irsim.world.world import World
+
+        w = World(name="test")
+        mock_env = MagicMock()
+        mock_env._env_param = MagicMock()
+        w._env = mock_env
+        assert w._env_param is mock_env._env_param
+
+    def test_world_logger_property(self):
+        """World.logger returns the logger from _env_param."""
+        from irsim.world.world import World
+
+        w = World(name="test")
+        assert w.logger is w._env_param.logger
+
+
+class TestEnvConfigInvalidKey:
+    """Tests for EnvConfig.load_yaml invalid key suggestion."""
+
+    def test_invalid_yaml_key_close_match(self, tmp_path):
+        """EnvConfig raises KeyError with suggestion for close typo."""
+        _install_dummy_logger()
+
+        yaml_file = tmp_path / "bad.yaml"
+        yaml_file.write_text("wrold:\n  height: 10\n")
+
+        from irsim.env.env_config import EnvConfig
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+    def test_invalid_yaml_key_no_match(self, tmp_path):
+        """EnvConfig raises KeyError listing valid keys for unrecognised key."""
+        _install_dummy_logger()
+
+        yaml_file = tmp_path / "bad2.yaml"
+        yaml_file.write_text("zzzzz:\n  foo: bar\n")
+
+        from irsim.env.env_config import EnvConfig
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+
+class TestObjectBaseUnknownKwargs:
+    """Tests for ObjectBase unknown kwargs validation."""
+
+    def test_object_base_unknown_kwarg_warns(self):
+        """ObjectBase.__init__ warns about unknown kwargs."""
+        _install_dummy_logger()
+        warnings_collected = []
+        original_logger = env_param.logger
+
+        class CapturingLogger:
+            def info(self, *a, **kw):
+                pass
+
+            def warning(self, msg, *a, **kw):
+                warnings_collected.append(msg)
+
+            def error(self, *a, **kw):
+                pass
+
+            def debug(self, *a, **kw):
+                pass
+
+        env_param.logger = CapturingLogger()
+        try:
+            from irsim.world.object_base import ObjectBase
+
+            ObjectBase(colr="red")  # typo: colr instead of color
+            assert any("colr" in w for w in warnings_collected)
+        finally:
+            env_param.logger = original_logger

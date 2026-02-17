@@ -533,3 +533,65 @@ def test_points_to_xy_list_list_3d():
     assert x == [1, 4]
     assert y == [2, 5]
     assert z == [3, 6]
+
+
+# ---------------------------------------------------------------------------
+# check_unknown_kwargs tests
+# ---------------------------------------------------------------------------
+
+
+def test_check_unknown_kwargs_exact_match():
+    """No warnings when all keys are valid."""
+    valid = {"alpha", "beta", "gamma"}
+    msgs = util.check_unknown_kwargs({"alpha": 1, "beta": 2}, valid)
+    assert msgs == []
+
+
+def test_check_unknown_kwargs_close_typo():
+    """Suggests correct name for close typo."""
+    valid = {"step_time", "sample_time", "height", "width"}
+    msgs = util.check_unknown_kwargs({"step_tim": 0.1}, valid)
+    assert len(msgs) == 1
+    assert "Did you mean" in msgs[0]
+    assert "step_time" in msgs[0]
+
+
+def test_check_unknown_kwargs_no_close_match():
+    """Lists all valid params when no close match exists."""
+    valid = {"alpha", "beta"}
+    msgs = util.check_unknown_kwargs({"zzzzz": 1}, valid)
+    assert len(msgs) == 1
+    assert "Valid parameters:" in msgs[0]
+    assert "alpha" in msgs[0]
+    assert "beta" in msgs[0]
+
+
+def test_check_unknown_kwargs_empty():
+    """No warnings for empty kwargs."""
+    valid = {"alpha", "beta"}
+    msgs = util.check_unknown_kwargs({}, valid)
+    assert msgs == []
+
+
+def test_check_unknown_kwargs_with_logger():
+    """Logger.warning is called for each unknown key."""
+    warnings = []
+
+    class FakeLogger:
+        def warning(self, msg):
+            warnings.append(msg)
+
+    valid = {"step_time", "height"}
+    msgs = util.check_unknown_kwargs(
+        {"step_tim": 0.1, "xyz": 1}, valid, logger=FakeLogger()
+    )
+    assert len(msgs) == 2
+    assert len(warnings) == 2
+
+
+def test_check_unknown_kwargs_context():
+    """Context string is included in message."""
+    valid = {"alpha"}
+    msgs = util.check_unknown_kwargs({"alph": 1}, valid, context=" in 'world' config")
+    assert len(msgs) == 1
+    assert "in 'world' config" in msgs[0]
