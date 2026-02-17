@@ -82,6 +82,9 @@ class World:
                 this instance for param storage; otherwise falls back to global.
         """
 
+        # Environment reference for accessing params (set by EnvBase after creation)
+        self._env = None
+
         # Store world_param instance or fallback to global
         if world_param_instance is not None:
             self._wp = world_param_instance
@@ -126,7 +129,7 @@ class World:
         self._wp.collision_mode = collision_mode
 
         check_unknown_kwargs(
-            kwargs, self._VALID_PARAMS, context=" in 'world' config"
+            kwargs, self._VALID_PARAMS, context=" in 'world' config", logger=self.logger
         )
 
     def step(self) -> None:
@@ -260,7 +263,6 @@ class World:
             float: Maximum resolution.
         """
         return np.max(self.reso)
-
 
     @property
     def _env_param(self):
