@@ -270,10 +270,10 @@ class World:
         Returns:
             EnvParam: The env param instance.
         """
-        if self._env is not None:
-            return self._env._env_param
+        env = getattr(self, "_env", None)
+        if env is not None:
+            return env._env_param
         from irsim.config import env_param
-
         return env_param
 
     @property
