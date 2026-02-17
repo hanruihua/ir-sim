@@ -74,9 +74,9 @@ class EnvConfig:
                             key, self._kwargs_parse.keys(), n=3, cutoff=0.6
                         )
                         if matches:
-                            suggestion = f" Did you mean: {', '.join(matches)}?"
+                            suggestion = f". Did you mean: {', '.join(matches)}?"
                         else:
-                            suggestion = f" Valid keys: {', '.join(sorted(self._kwargs_parse.keys()))}"
+                            suggestion = f". Valid keys: {', '.join(sorted(self._kwargs_parse.keys()))}"
                         self.logger.error(
                             f"Invalid key: '{key}' in {self.world_name} file!{suggestion}"
                         )
