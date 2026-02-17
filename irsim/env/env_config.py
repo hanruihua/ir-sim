@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import difflib
 from operator import attrgetter
 from typing import TYPE_CHECKING, Any
 
@@ -69,10 +70,17 @@ class EnvConfig:
                     if key in self._kwargs_parse:
                         self._kwargs_parse[key] = com_list[key]
                     else:
-                        self.logger.error(
-                            f"There are invalid key: '{key}' in {self.world_name} file!"
+                        matches = difflib.get_close_matches(
+                            key, self._kwargs_parse.keys(), n=3, cutoff=0.6
                         )
-                        raise KeyError
+                        if matches:
+                            suggestion = f" Did you mean: {', '.join(matches)}?"
+                        else:
+                            suggestion = f" Valid keys: {', '.join(sorted(self._kwargs_parse.keys()))}"
+                        self.logger.error(
+                            f"Invalid key: '{key}' in {self.world_name} file!{suggestion}"
+                        )
+                        raise KeyError(key)
 
         else:
             self.logger.error(

@@ -1,9 +1,10 @@
 import os
 import warnings
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 import numpy as np
 
+from irsim.util.util import check_unknown_kwargs
 from irsim.world.map import Map, _downsample_occupancy_grid, resolve_obstacle_map
 
 if TYPE_CHECKING:
@@ -28,6 +29,21 @@ class World:
         status: Status of the world and objects.
         plot: Plot configuration for the world.
     """
+
+    _VALID_PARAMS: ClassVar[set[str]] = {
+        "name",
+        "height",
+        "width",
+        "step_time",
+        "sample_time",
+        "offset",
+        "control_mode",
+        "collision_mode",
+        "obstacle_map",
+        "mdownsample",
+        "plot",
+        "status",
+    }
 
     def __init__(
         self,
@@ -108,6 +124,10 @@ class World:
         # mode
         self._wp.control_mode = control_mode
         self._wp.collision_mode = collision_mode
+
+        check_unknown_kwargs(
+            kwargs, self._VALID_PARAMS, context=" in 'world' config"
+        )
 
     def step(self) -> None:
         """
@@ -240,3 +260,29 @@ class World:
             float: Maximum resolution.
         """
         return np.max(self.reso)
+
+
+    @property
+    def _env_param(self):
+        """
+        Access env_param via env instance if available, otherwise fallback to global.
+
+        Returns:
+            EnvParam: The env param instance.
+        """
+        if self._env is not None:
+            return self._env._env_param
+        from irsim.config import env_param
+
+        return env_param
+
+    @property
+    def logger(self):
+        """
+        Get the logger of the env_param.
+
+        Returns:
+            Logger: The logger associated in the env_param.
+        """
+
+        return self._env_param.logger

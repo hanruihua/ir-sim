@@ -3,7 +3,7 @@ import math
 from collections import deque
 from dataclasses import dataclass
 from math import atan2, cos, inf, pi, sin
-from typing import Any
+from typing import Any, ClassVar
 
 import matplotlib.transforms as mtransforms
 import numpy as np
@@ -20,6 +20,7 @@ from irsim.util.util import (
     WrapTo2Pi,
     WrapToPi,
     WrapToRegion,
+    check_unknown_kwargs,
     diff_to_omni,
     file_check,
     is_2d_list,
@@ -173,6 +174,39 @@ class ObjectBase:
     id_iter = itertools.count()
     vel_shape = (2, 1)
     state_shape = (3, 1)
+
+    _VALID_PARAMS: ClassVar[set[str]] = {
+        "shape",
+        "kinematics",
+        "state",
+        "velocity",
+        "goal",
+        "role",
+        "color",
+        "static",
+        "vel_min",
+        "vel_max",
+        "acce",
+        "angle_range",
+        "behavior",
+        "group_behavior",
+        "goal_threshold",
+        "sensors",
+        "arrive_mode",
+        "description",
+        "group",
+        "group_name",
+        "state_dim",
+        "vel_dim",
+        "unobstructed",
+        "fov",
+        "fov_radius",
+        "name",
+        "plot",
+        # consumed by ObjectFactory before reaching __init__
+        "number",
+        "distribution",
+    }
 
     def __init__(
         self,
@@ -394,6 +428,11 @@ class ObjectBase:
         self.plot_text_list = []
         self.collision_obj = []
         self.plot_trail_list = []
+
+        # validate unknown kwargs
+        check_unknown_kwargs(
+            kwargs, self._VALID_PARAMS, context=f" in '{role}' config"
+        )
 
     def __eq__(self, o: "ObjectBase") -> bool:
         if isinstance(o, ObjectBase):
