@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+> **Language:** English is preferred so that discussions are accessible to the broader community. Chinese (中文) is also welcome. If English is not your first language, feel free to use translation tools — we appreciate the effort!
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
