@@ -331,3 +331,201 @@ class TestGeometryHandlerCoverage:
         assert h is None
         assert cone is None
         assert convex is None
+
+
+class TestMultiPolygonGeometry:
+    """Tests for MultiPolygonGeometry class (issue #102: Robot with complex shape)."""
+
+    def test_create_multipolygon_basic(self):
+        """Test creating a basic multipolygon with two rectangles."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 0.5, "offset": [0, 0]},
+                {"length": 0.5, "width": 1.5, "offset": [-0.75, 0.5]},
+            ],
+        )
+        assert multi is not None
+        assert multi.name == "multipolygon"
+        assert multi.geometry.geom_type == "MultiPolygon"
+
+    def test_multipolygon_step_transformation(self):
+        """Test step transformation for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 0.5, "offset": [0, 0]},
+                {"length": 0.5, "width": 1.5, "offset": [-0.75, 0.5]},
+            ],
+        )
+        state = np.array([[1.0], [2.0], [0.0]])
+        geometry = multi.step(state)
+        assert geometry is not None
+        assert geometry.geom_type == "MultiPolygon"
+
+    def test_multipolygon_vertices_property(self):
+        """Test vertices property for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 1.0, "offset": [0, 0]},
+            ],
+        )
+        vertices = multi.vertices
+        assert vertices.shape[0] == 2  # x, y coordinates
+        assert vertices.shape[1] == 4  # 4 vertices for a rectangle
+
+    def test_multipolygon_original_vertices_property(self):
+        """Test original_vertices property for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 1.0, "offset": [0, 0]},
+                {"length": 1.0, "width": 2.0, "offset": [3.0, 0]},
+            ],
+        )
+        vertices = multi.original_vertices
+        assert vertices.shape[0] == 2  # x, y coordinates
+        # Two non-overlapping rectangles = 8 vertices total
+        assert vertices.shape[1] == 8
+
+    def test_multipolygon_get_init_gh(self):
+        """Test get_init_Gh for multipolygon (should be non-convex by default)."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 0.5, "offset": [0, 0]},
+            ],
+        )
+        G, h, cone, convex = multi.get_init_Gh()
+        # MultiPolygon is treated as non-convex (falls through else branch)
+        assert G is None
+        assert h is None
+        assert cone is None
+        assert convex is None
+
+    def test_multipolygon_get_gh(self):
+        """Test get_Gh for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 0.5, "offset": [0, 0]},
+            ],
+        )
+        G, h, cone, convex = multi.get_Gh()
+        assert G is None
+        assert h is None
+        assert cone is None
+        assert convex is False
+
+    def test_multipolygon_radius_property(self):
+        """Test radius property (minimum bounding radius) for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 1.0, "offset": [0, 0]},
+            ],
+        )
+        assert multi.radius > 0
+
+    def test_multipolygon_overlapping_components(self):
+        """Test that overlapping components are merged using unary_union."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 1.0, "offset": [0, 0]},
+                {"length": 2.0, "width": 1.0, "offset": [1.0, 0]},  # overlapping
+            ],
+        )
+        assert multi is not None
+        # unary_union should merge overlapping polygons
+        assert multi.geometry.is_valid
+
+    def test_multipolygon_with_rotation(self):
+        """Test multipolygon component with rotation parameter."""
+        import math
+
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 0.5, "offset": [0, 0], "rotation": math.pi / 4},
+            ],
+        )
+        assert multi is not None
+        assert multi.geometry.is_valid
+
+    def test_multipolygon_with_polygon_component(self):
+        """Test multipolygon with polygon type component."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"type": "polygon", "vertices": [(0, 0), (1, 0), (0.5, 1)]},
+                {"type": "rectangle", "length": 1.0, "width": 0.5, "offset": [2, 0]},
+            ],
+        )
+        assert multi is not None
+        assert multi.geometry.is_valid
+
+    def test_multipolygon_default_components(self):
+        """Test multipolygon with no components uses default."""
+        multi = GeometryFactory.create_geometry("multipolygon", components=None)
+        assert multi is not None
+        assert multi.geometry.is_valid
+
+    def test_multipolygon_polygon_with_offset(self):
+        """Test polygon component with offset."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {
+                    "type": "polygon",
+                    "vertices": [(0, 0), (1, 0), (0.5, 1)],
+                    "offset": [5, 5],
+                },
+            ],
+        )
+        # Check that offset was applied
+        centroid = multi.geometry.centroid
+        assert centroid.x > 4  # Should be shifted to around x=5.5
+        assert centroid.y > 4  # Should be shifted to around y=5.3
+
+    def test_multipolygon_invalid_component_type_raises(self):
+        """Test that invalid component type raises ValueError."""
+        with pytest.raises(ValueError, match="Unknown component type"):
+            GeometryFactory.create_geometry(
+                "multipolygon",
+                components=[{"type": "invalid_type", "length": 1.0}],
+            )
+
+    def test_multipolygon_polygon_without_vertices_raises(self):
+        """Test that polygon component without vertices raises ValueError."""
+        with pytest.raises(ValueError, match="requires 'vertices' parameter"):
+            GeometryFactory.create_geometry(
+                "multipolygon",
+                components=[{"type": "polygon"}],
+            )
+
+    def test_multipolygon_length_width_properties(self):
+        """Test length and width properties for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 4.0, "width": 2.0, "offset": [0, 0]},
+            ],
+        )
+        assert abs(multi.length - 4.0) < 0.01
+        assert abs(multi.width - 2.0) < 0.01
+
+    def test_multipolygon_original_centroid(self):
+        """Test original_centroid property for multipolygon."""
+        multi = GeometryFactory.create_geometry(
+            "multipolygon",
+            components=[
+                {"length": 2.0, "width": 2.0, "offset": [0, 0]},
+            ],
+        )
+        centroid = multi.original_centroid
+        assert centroid.shape == (2, 1)
+        # Centered rectangle should have centroid at origin
+        assert abs(centroid[0, 0]) < 0.01
+        assert abs(centroid[1, 0]) < 0.01
