@@ -263,15 +263,15 @@ class ObjectBase:
         if angle_range is None:
             angle_range = [-pi, pi]
         if acce is None:
-            acce = [inf, inf]
+            acce = [inf] * self.vel_shape[0]
         if vel_max is None:
-            vel_max = [1, 1]
+            vel_max = [1] * self.vel_shape[0]
         if vel_min is None:
-            vel_min = [-1, -1]
+            vel_min = [-1] * self.vel_shape[0]
         if velocity is None:
-            velocity = [0, 0]
+            velocity = [0] * self.vel_shape[0]
         if state is None:
-            state = [0, 0, 0]
+            state = [0] * self.state_shape[0]
 
         # Environment reference for accessing params (set by EnvBase after creation)
         self._env = None
@@ -827,7 +827,7 @@ class ObjectBase:
             >>> robot.set_state([0, 0, 0], init=True)
         """
         if state is None:
-            state = [0, 0, 0]
+            state = [0] * self.state_shape[0]
 
         temp_state = to_numpy(state, expected_shape=self.state_shape)
 
@@ -2552,6 +2552,8 @@ class ObjectBase:
         """
         if self.kinematics == "omni":
             return self.velocity
+        if self.kinematics == "omni_angular":
+            return self.velocity[0:2]
         if self.kinematics == "diff" or self.kinematics == "acker":
             return diff_to_omni(self.state[2, 0], self.velocity)
         return np.zeros((2, 1))
@@ -2567,6 +2569,8 @@ class ObjectBase:
 
         if self.kinematics == "omni":
             return np.linalg.norm(self.vel_max)
+        if self.kinematics == "omni_angular":
+            return np.linalg.norm(self.vel_max[0:2])
         if self.kinematics == "diff" or self.kinematics == "acker":
             return self.vel_max[0, 0]
 
@@ -2657,7 +2661,7 @@ class ObjectBase:
 
         if self.kinematics == "omni":
             heading = atan2(self.velocity[1, 0], self.velocity[0, 0])
-        elif self.kinematics == "diff" or self.kinematics == "acker":
+        elif self.kinematics in ("omni_angular", "diff", "acker"):
             heading = self.state[2, 0]
         else:
             self.logger.warning(

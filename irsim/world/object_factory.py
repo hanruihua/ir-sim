@@ -11,10 +11,12 @@ from irsim.world.map.obstacle_map import ObstacleMap
 from irsim.world.obstacles.obstacle_acker import ObstacleAcker
 from irsim.world.obstacles.obstacle_diff import ObstacleDiff
 from irsim.world.obstacles.obstacle_omni import ObstacleOmni
+from irsim.world.obstacles.obstacle_omni_angular import ObstacleOmniAngular
 from irsim.world.obstacles.obstacle_static import ObjectStatic
 from irsim.world.robots.robot_acker import RobotAcker
 from irsim.world.robots.robot_diff import RobotDiff
 from irsim.world.robots.robot_omni import RobotOmni
+from irsim.world.robots.robot_omni_angular import RobotOmniAngular
 
 # from irsim.world.robots.robot_rigid3d import RobotRigid3D
 
@@ -175,6 +177,8 @@ class ObjectFactory:
             return RobotAcker(kinematics=kinematics, **kwargs)
         if kinematics_name == "omni":
             return RobotOmni(kinematics=kinematics, **kwargs)
+        if kinematics_name == "omni_angular":
+            return RobotOmniAngular(kinematics=kinematics, **kwargs)
         if kinematics_name == "static" or kinematics_name is None:
             return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
         # elif kinematics_name == "rigid3d":
@@ -204,6 +208,8 @@ class ObjectFactory:
             return ObstacleAcker(kinematics=kinematics, **kwargs)
         if kinematics_name == "omni":
             return ObstacleOmni(kinematics=kinematics, **kwargs)
+        if kinematics_name == "omni_angular":
+            return ObstacleOmniAngular(kinematics=kinematics, **kwargs)
         if kinematics_name == "static" or kinematics_name is None:
             return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
         raise NotImplementedError(f"Robot kinematics {kinematics_name} not implemented")

@@ -124,6 +124,51 @@ def ackermann_kinematics(
     return new_state
 
 
+@validate_shape(state=3, velocity=3)
+def omni_angular_kinematics(
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: list[float] | None = None,
+) -> np.ndarray:
+    """
+    Calculate the next state for an omnidirectional robot with angular velocity.
+
+    Args:
+        state: A 3x1 vector [x, y, theta] representing the current position and orientation.
+        velocity: A 3x1 vector [vx, vy, omega] representing the current velocities.
+        step_time: The time step for the simulation.
+        noise: Boolean indicating whether to add noise to the velocity (default False).
+        alpha: List of noise parameters for the velocity model (default [0.03, 0, 0, 0.03, 0, 0.03]).
+            alpha[0] is for vx, alpha[3] is for vy, alpha[5] is for omega.
+
+    Returns:
+        next_state: A 3x1 vector [x, y, theta] representing the next state.
+    """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0.03, 0, 0.03]
+
+    if noise:
+        if len(alpha) < 6:
+            raise ValueError(
+                "Parameter 'alpha' must have length >= 6 when noise=True"
+            )
+        std_vx = np.sqrt(alpha[0])
+        std_vy = np.sqrt(alpha[3])
+        std_omega = np.sqrt(alpha[5])
+        real_velocity = velocity + rng.normal(
+            [[0], [0], [0]], scale=[[std_vx], [std_vy], [std_omega]]
+        )
+    else:
+        real_velocity = velocity
+
+    next_state = state[0:3] + real_velocity * step_time
+    next_state[2, 0] = WrapToPi(next_state[2, 0])
+
+    return next_state
+
+
 @validate_shape(state=2, velocity=2)
 def omni_kinematics(
     state: np.ndarray,

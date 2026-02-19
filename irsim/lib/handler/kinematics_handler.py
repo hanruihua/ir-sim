@@ -5,6 +5,7 @@ import numpy as np
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 
@@ -67,6 +68,29 @@ class OmniKinematics(KinematicsHandler):
             state[0:2], velocity, step_time, self.noise, self.alpha
         )
         return np.concatenate((next_position, state[2:]))
+
+
+class OmniAngularKinematics(KinematicsHandler):
+    def __init__(self, name, noise, alpha):
+        super().__init__(name, noise, alpha)
+
+    def step(
+        self, state: np.ndarray, velocity: np.ndarray, step_time: float
+    ) -> np.ndarray:
+        """Advance omnidirectional-angular state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta, ...].
+            velocity (np.ndarray): Velocity [vx, vy, omega].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: New state (x, y, theta updated; rest preserved).
+        """
+        next_state = omni_angular_kinematics(
+            state[0:3], velocity, step_time, self.noise, self.alpha
+        )
+        return np.concatenate((next_state, state[3:]))
 
 
 class DifferentialKinematics(KinematicsHandler):
@@ -155,6 +179,8 @@ class KinematicsFactory:
         name = name.lower() if name else None
         if name == "omni":
             return OmniKinematics(name, noise, alpha)
+        if name == "omni_angular":
+            return OmniAngularKinematics(name, noise, alpha)
         if name == "diff":
             return DifferentialKinematics(name, noise, alpha)
         if name == "acker":

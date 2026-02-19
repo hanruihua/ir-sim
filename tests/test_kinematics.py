@@ -4,6 +4,7 @@ import pytest
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 
@@ -72,6 +73,42 @@ def test_omni_kinematics():
     # Test with noise
     next_state_noisy = omni_kinematics(state, velocity, 1.0, noise=True)
     assert next_state_noisy.shape == (2, 1)
+
+
+def test_omni_angular_kinematics():
+    """Test omnidirectional robot with angular velocity kinematics"""
+    # Test basic translational movement
+    state = np.array([[0], [0], [0]])  # x, y, theta
+    velocity = np.array([[1], [0], [0]])  # vx, vy, omega
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [0], [0]]))
+
+    # Test diagonal movement with rotation
+    velocity = np.array([[1], [1], [0.5]])  # vx, vy, omega
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [1], [0.5]]))
+
+    # Test pure rotation
+    velocity = np.array([[0], [0], [1]])  # vx, vy, omega
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [0], [1]]))
+
+    # Test angle wrapping
+    state = np.array([[0], [0], [np.pi]])
+    velocity = np.array([[0], [0], [np.pi]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state[2], 0)
+
+    # Test with noise
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [1], [0.5]])
+    next_state_noisy = omni_angular_kinematics(state, velocity, 1.0, noise=True)
+    assert next_state_noisy.shape == (3, 1)
+
+    # Test with 2D velocity (vx, vy only) - should work via validate_shape
+    velocity_2d = np.array([[1], [0]])
+    with pytest.raises(ValueError, match="shape"):
+        omni_angular_kinematics(state, velocity_2d, 1.0)
 
 
 def test_kinematics_error_handling():

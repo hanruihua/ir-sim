@@ -181,6 +181,38 @@ def beh_omni_rvo(
     )
 
 
+@register_behavior("omni_angular", "dash")
+def beh_omni_angular_dash(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
+    """
+    Behavior function for omnidirectional-angular robot using dash-to-goal behavior.
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: Additional keyword arguments:
+            - angle_tolerance (float): Allowable angular deviation, default 0.1.
+
+    Returns:
+        np.array: Velocity [vx, vy, omega] (3x1) for omnidirectional-angular drive.
+    """
+
+    if ego_object.goal is None:
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
+                "Goal is currently None. This dash behavior is waiting for goal configuration"
+            )
+        return np.zeros((3, 1))
+
+    state = ego_object.state
+    goal = ego_object.goal
+    goal_threshold = ego_object.goal_threshold
+    _, max_vel = ego_object.get_vel_range()
+    angle_tolerance = kwargs.get("angle_tolerance", 0.1)
+    return OmniAngularDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+
+
 @register_behavior("acker", "dash")
 def beh_acker_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
@@ -404,3 +436,47 @@ def AckerDash(
         steer_opt = np.clip(diff_radian, -max_vel[1, 0], max_vel[1, 0])
 
     return np.array([[v_opt], [steer_opt]])
+
+
+def OmniAngularDash(
+    state: np.ndarray,
+    goal: np.ndarray,
+    max_vel: np.ndarray,
+    goal_threshold: float = 0.1,
+    angle_tolerance: float = 0.1,
+) -> np.ndarray:
+    """
+    Calculate the omnidirectional-angular velocity to reach a goal.
+
+    The robot moves toward the goal in x-y while rotating to face the goal.
+
+    Args:
+        state (np.array): Current state [x, y, theta] (3x1).
+        goal (np.array): Goal position [x, y, theta] (3x1).
+        max_vel (np.array): Maximum velocity [vx, vy, omega] (3x1).
+        goal_threshold (float): Distance threshold to consider goal reached (default 0.1).
+        angle_tolerance (float): Allowable angular deviation (default 0.1).
+
+    Returns:
+        np.array: Velocity [vx, vy, omega] (3x1).
+    """
+    distance, radian = relative_position(state, goal)
+
+    if distance > goal_threshold:
+        vx = max_vel[0, 0] * cos(radian)
+        vy = max_vel[1, 0] * sin(radian)
+    else:
+        vx = 0
+        vy = 0
+
+    # Rotate toward goal orientation if goal has theta
+    if goal.shape[0] >= 3:
+        diff_radian = WrapToPi(goal[2, 0] - state[2, 0])
+        if abs(diff_radian) > angle_tolerance:
+            omega = max_vel[2, 0] * np.sign(diff_radian)
+        else:
+            omega = 0
+    else:
+        omega = 0
+
+    return np.array([[vx], [vy], [omega]])

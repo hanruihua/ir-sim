@@ -11,7 +11,7 @@ world:
       dpi: 200
     
 robot:
-  kinematics: {name: 'diff'}  # omni, diff, acker
+  kinematics: {name: 'omni_angular'}  # omni, diff, acker
   shape: {name: 'circle', radius: 0.2}  # radius
   # shape: {name: 'rectangle', length: 0.3, width: 1.0} 
   state: [1, 1, 0]
