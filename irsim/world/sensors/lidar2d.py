@@ -1,5 +1,5 @@
 from math import cos, pi, sin
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import matplotlib.transforms as mtransforms
 import numpy as np
@@ -71,7 +71,7 @@ class Lidar2D:
 
     def __init__(
         self,
-        state: Optional[np.ndarray] = None,
+        state: np.ndarray | None = None,
         obj_id: int = 0,
         range_min: float = 0,
         range_max: float = 10,
@@ -81,7 +81,7 @@ class Lidar2D:
         noise: bool = False,
         std: float = 0.2,
         angle_std: float = 0.02,
-        offset: Optional[list[float]] = None,
+        offset: list[float] | None = None,
         alpha: float = 0.3,
         has_velocity: bool = False,
         **kwargs,
@@ -127,7 +127,7 @@ class Lidar2D:
         self.obj_id = obj_id
 
         # Parent object reference (set by ObjectBase or SensorFactory)
-        self.parent: Optional[ObjectBase] = None
+        self.parent: ObjectBase | None = None
 
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -356,7 +356,7 @@ class Lidar2D:
         """
         return np.squeeze(self.offset).tolist()
 
-    def plot(self, ax, state: Optional[np.ndarray] = None, **kwargs):
+    def plot(self, ax, state: np.ndarray | None = None, **kwargs):
         """
         Plot the Lidar's detected lines on a given axis.
         """

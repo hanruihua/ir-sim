@@ -1,11 +1,12 @@
 cff-version: 1.2.0
 type: software
-message: "If you use IR-SIM in your work, please cite it as below."
-title: "IR-SIM: An open-source lightweight simulator for robot navigation, control, and learning"
+title: "IR-SIM: An Open-Source Lightweight Simulator for Robot Navigation, Control, and Learning"
+message: "If you use IR-SIM in your work, please cite it as follows."
+version: 2.9.0
+date-released: 2026-01-30
 authors:
-  - family-names: "Han"
-    given-names:  "Ruihua"
-contributors:
-  - name: "Contributors to IR-SIM"
-url:     "https://github.com/hanruihua/ir-sim"
-license: "MIT"
+  - family-names: Han
+    given-names: Ruihua
+repository-code: https://github.com/hanruihua/ir-sim
+url: https://github.com/hanruihua/ir-sim
+license: MIT

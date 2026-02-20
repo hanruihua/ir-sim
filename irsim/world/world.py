@@ -1,12 +1,11 @@
 import os
-from typing import TYPE_CHECKING, Any, Optional
+import warnings
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
-import matplotlib.image as mpimg
 import numpy as np
 
-from irsim.config.path_param import path_manager as pm
-from irsim.util.util import file_check
-from irsim.world.map import Map
+from irsim.util.util import check_unknown_kwargs
+from irsim.world.map import Map, _downsample_occupancy_grid, resolve_obstacle_map
 
 if TYPE_CHECKING:
     from irsim.config.world_param import WorldParam
@@ -25,25 +24,40 @@ class World:
         offset (list): Offset for the world's position.
         control_mode (str): Control mode ('auto' or 'keyboard').
         collision_mode (str): Collision mode ('stop',  , 'unobstructed').
-        obstacle_map: Image file for the obstacle map.
+        obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
         mdownsample (int): Downsampling factor for the obstacle map.
         status: Status of the world and objects.
         plot: Plot configuration for the world.
     """
 
+    _VALID_PARAMS: ClassVar[set[str]] = {
+        "name",
+        "height",
+        "width",
+        "step_time",
+        "sample_time",
+        "offset",
+        "control_mode",
+        "collision_mode",
+        "obstacle_map",
+        "mdownsample",
+        "plot",
+        "status",
+    }
+
     def __init__(
         self,
-        name: Optional[str] = "world",
+        name: str | None = "world",
         height: float = 10,
         width: float = 10,
         step_time: float = 0.1,
-        sample_time: Optional[float] = None,
-        offset: Optional[list[float]] = None,
+        sample_time: float | None = None,
+        offset: list[float] | None = None,
         control_mode: str = "auto",
         collision_mode: str = "stop",
-        obstacle_map: Optional[Any] = None,
+        obstacle_map: Any | None = None,
         mdownsample: int = 1,
-        plot: Optional[dict[str, Any]] = None,
+        plot: dict[str, Any] | None = None,
         status: str = "None",
         world_param_instance: Optional["WorldParam"] = None,
         **kwargs: Any,
@@ -60,13 +74,16 @@ class World:
             offset (list): Offset for the world's position.
             control_mode (str): Control mode ('auto' or 'keyboard').
             collision_mode (str): Collision mode ('stop',  , 'unobstructed').
-            obstacle_map: Image file for the obstacle map.
+            obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.
             status (str): Initial simulation status.
             world_param_instance: Optional WorldParam instance. If provided, uses
                 this instance for param storage; otherwise falls back to global.
         """
+
+        # Environment reference for accessing params (set by EnvBase after creation)
+        self._env = None
 
         # Store world_param instance or fallback to global
         if world_param_instance is not None:
@@ -111,6 +128,10 @@ class World:
         self._wp.control_mode = control_mode
         self._wp.collision_mode = collision_mode
 
+        check_unknown_kwargs(
+            kwargs, self._VALID_PARAMS, context=" in 'world' config", logger=self.logger
+        )
+
     def step(self) -> None:
         """
         Advance the simulation by one step.
@@ -121,41 +142,38 @@ class World:
         self._wp.time = self.time
         self._wp.count = self.count
 
-    def gen_grid_map(self, obstacle_map: Optional[str], mdownsample: int = 1) -> tuple:
-        """
-        Generate a grid map for obstacles.
+    def gen_grid_map(
+        self,
+        obstacle_map: Any | None = None,
+        mdownsample: int = 1,
+    ) -> tuple:
+        """Generate a grid map for obstacles.
+
+        The *obstacle_map* value is resolved to a float64 ndarray by
+        :pyfunc:`irsim.world.map.resolve_obstacle_map`.  Accepted types:
+        ``None``, path string (image), ndarray, or generator spec dict.
 
         Args:
-            obstacle_map: Path to the obstacle map image.
+            obstacle_map: ``None``, path string, ndarray, or generator spec dict.
             mdownsample (int): Downsampling factor.
 
         Returns:
-            tuple: Grid map, obstacle indices, and positions.
+            tuple: ``(grid_map, obstacle_index, obstacle_positions)``.
         """
-        abs_obstacle_map = file_check(
-            obstacle_map, root_path=pm.root_path + "/world/map"
+        grid_map = resolve_obstacle_map(
+            obstacle_map,
+            world_width=self.width,
+            world_height=self.height,
         )
 
-        if abs_obstacle_map is not None:
-            grid_map = mpimg.imread(abs_obstacle_map)
+        if grid_map is not None:
             grid_map = grid_map[::mdownsample, ::mdownsample]
-
-            if len(grid_map.shape) > 2:
-                print("convert to grayscale")
-                grid_map = self.rgb2gray(grid_map)
-
-            grid_map = 100 * (1 - grid_map)  # range: 0 - 100
-            grid_map = np.fliplr(grid_map.T)
-
             x_reso = self.width / grid_map.shape[0]
             y_reso = self.height / grid_map.shape[1]
             self.reso = np.array([[x_reso], [y_reso]])
-
             obstacle_index = np.array(np.where(grid_map > 50))
             obstacle_positions = obstacle_index * self.reso
-
         else:
-            grid_map = None
             obstacle_index = None
             obstacle_positions = None
             self.reso = np.zeros((2, 1))
@@ -163,12 +181,60 @@ class World:
         return grid_map, obstacle_index, obstacle_positions
 
     def get_map(
-        self, resolution: float = 0.1, obstacle_list: Optional[list[Any]] = None
+        self, resolution: float = 0.1, obstacle_list: list[Any] | None = None
     ) -> "Map":
         """
         Get the map of the world with the given resolution.
+
+        When *resolution* is coarser than the obstacle grid, the grid is
+        downsampled (conservative: any obstacle in a block marks the block) so
+        that planning and collision use the same grid. When *resolution* is
+        finer than the grid, no upsampling is done; planning uses the grid
+        resolution and a warning is emitted.
         """
-        return Map(self.width, self.height, resolution, obstacle_list, self.grid_map)
+        world_offset = (float(self.offset[0]), float(self.offset[1]))
+        grid = self.grid_map
+        res = resolution
+
+        if grid is not None:
+            if not (np.isfinite(res) and res > 0):
+                res = float(self.width / grid.shape[0])
+                warnings.warn(
+                    f"resolution must be positive and finite; using grid "
+                    f"resolution {res}.",
+                    stacklevel=2,
+                )
+            else:
+                current_rx = self.width / grid.shape[0]
+                current_ry = self.height / grid.shape[1]
+                thresh_coarser = 1.05
+                thresh_finer = 0.95
+                if res > max(current_rx, current_ry) * thresh_coarser:
+                    grid = _downsample_occupancy_grid(
+                        grid, self.width, self.height, res
+                    )
+                    warnings.warn(
+                        f"Planning grid downsampled from ({self.grid_map.shape[0]}, "
+                        f"{self.grid_map.shape[1]}) at {current_rx:.4f}m/cell to "
+                        f"({grid.shape[0]}, {grid.shape[1]}) at {res}m/cell.",
+                        stacklevel=2,
+                    )
+                elif res < min(current_rx, current_ry) * thresh_finer:
+                    warnings.warn(
+                        f"Requested resolution ({res}) is finer than the "
+                        f"obstacle grid ({current_rx:.4f} x {current_ry:.4f}). "
+                        "Planning will use the grid resolution.",
+                        stacklevel=2,
+                    )
+
+        return Map(
+            self.width,
+            self.height,
+            res,
+            obstacle_list,
+            grid,
+            world_offset=world_offset,
+        )
 
     def reset(self) -> None:
         """
@@ -198,5 +264,27 @@ class World:
         """
         return np.max(self.reso)
 
-    def rgb2gray(self, rgb: np.ndarray) -> np.ndarray:
-        return np.dot(rgb[..., :3], [0.2989, 0.5870, 0.1140])
+    @property
+    def _env_param(self):
+        """
+        Access env_param via env instance if available, otherwise fallback to global.
+
+        Returns:
+            EnvParam: The env param instance.
+        """
+        env = getattr(self, "_env", None)
+        if env is not None:
+            return env._env_param
+        from irsim.config import env_param
+        return env_param
+
+    @property
+    def logger(self):
+        """
+        Get the logger of the env_param.
+
+        Returns:
+            Logger: The logger associated in the env_param.
+        """
+
+        return self._env_param.logger

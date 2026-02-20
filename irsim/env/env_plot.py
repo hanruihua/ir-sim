@@ -11,7 +11,7 @@ import os
 import shutil
 from collections.abc import Iterable
 from math import cos, sin
-from typing import Any, Optional
+from typing import Any
 
 import imageio.v2 as imageio  # Use v2 API for video streaming
 import matplotlib.pyplot as plt
@@ -43,7 +43,7 @@ class EnvPlot:
     def __init__(
         self,
         world: Any,
-        objects: Optional[list[Any]] = None,
+        objects: list[Any] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -132,7 +132,7 @@ class EnvPlot:
             self.fig.tight_layout()
 
     def step(
-        self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
+        self, mode: str = "dynamic", objects: list[Any] | None = None, **kwargs: Any
     ) -> None:
         """Advance the plot by one step for the given objects.
 
@@ -170,7 +170,7 @@ class EnvPlot:
         self.step_objects_plot("all", objects, **kwargs)
 
     def step_objects_plot(
-        self, mode: str = "dynamic", objects: Optional[list[Any]] = None, **kwargs: Any
+        self, mode: str = "dynamic", objects: list[Any] | None = None, **kwargs: Any
     ) -> None:
         """
         Update the plot for the objects by transform based on the object's original geometry.
@@ -187,7 +187,7 @@ class EnvPlot:
             self.logger.error("Error: Invalid draw mode")
 
     def draw_components(
-        self, mode: str = "all", objects: Optional[list[Any]] = None, **kwargs: Any
+        self, mode: str = "all", objects: list[Any] | None = None, **kwargs: Any
     ) -> None:
         """
         Draw the components in the environment with global axis.
@@ -209,7 +209,7 @@ class EnvPlot:
             self.logger.error("Error: Invalid draw mode")
 
     def clear_components(
-        self, mode: str = "all", objects: Optional[list[Any]] = None
+        self, mode: str = "all", objects: list[Any] | None = None
     ) -> None:
         """
         Clear the components in the environment.
@@ -244,7 +244,7 @@ class EnvPlot:
             self.dyna_point_list = []
             self.dyna_quiver_list = []
 
-    def draw_grid_map(self, grid_map: Optional[Any] = None, **kwargs: Any) -> None:
+    def draw_grid_map(self, grid_map: Any | None = None, **kwargs: Any) -> None:
         """
         Draw the grid map on the plot.
 
@@ -312,7 +312,7 @@ class EnvPlot:
 
     def draw_points(
         self,
-        points: Optional[list[Any] | np.ndarray],
+        points: list[Any] | np.ndarray | None,
         s: int = 10,
         c: str = "m",
         refresh: bool = True,
@@ -342,7 +342,7 @@ class EnvPlot:
 
     def draw_quiver(
         self,
-        point: Optional[np.ndarray],
+        point: np.ndarray | None,
         refresh: bool = False,
         color: str = "black",
         **kwargs: Any,
@@ -530,7 +530,7 @@ class EnvPlot:
         if rm_fig_path:
             shutil.rmtree(fp)
 
-    def set_ax_viewpoint(self, objects: Optional[list[Any]] = None) -> None:
+    def set_ax_viewpoint(self, objects: list[Any] | None = None) -> None:
         """
         Set the viewpoint of the plot windows by the viewpoint parameter.
 
@@ -656,12 +656,12 @@ def linewidth_from_data_units(
 def draw_patch(
     ax: Any,
     shape: str,
-    state: Optional[np.ndarray] = None,
-    radius: Optional[float] = None,
-    vertices: Optional[np.ndarray] = None,
-    color: Optional[str] = None,
-    zorder: Optional[int] = None,
-    linestyle: Optional[str] = None,
+    state: np.ndarray | None = None,
+    radius: float | None = None,
+    vertices: np.ndarray | None = None,
+    color: str | None = None,
+    zorder: int | None = None,
+    linestyle: str | None = None,
     **kwargs: Any,
 ) -> Any:
     """
@@ -891,7 +891,7 @@ def draw_patch(
 def set_patch_property(
     element: Any,
     ax: Any,
-    state: Optional[np.ndarray] = None,
+    state: np.ndarray | None = None,
     **kwargs: Any,
 ) -> None:
     """

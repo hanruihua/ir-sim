@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -11,7 +11,7 @@ class EnvPlot3D(EnvPlot):
     def __init__(
         self,
         world: Any,
-        objects: Optional[list[Any]] = None,
+        objects: list[Any] | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a 3D plot for the environment.
@@ -35,7 +35,7 @@ class EnvPlot3D(EnvPlot):
 
     def draw_points(
         self,
-        points: Optional[Union[list, np.ndarray]],
+        points: list | np.ndarray | None,
         s: int = 10,
         c: str = "m",
         refresh: bool = True,
@@ -67,7 +67,7 @@ class EnvPlot3D(EnvPlot):
             self.dyna_point_list.append(points)
 
     def draw_quiver(
-        self, point: Optional[np.ndarray], refresh: bool = False, **kwargs: Any
+        self, point: np.ndarray | None, refresh: bool = False, **kwargs: Any
     ) -> None:
         """
         Draw a quiver plot on the plot.
@@ -106,7 +106,7 @@ class EnvPlot3D(EnvPlot):
             self.dyna_point_list.append(ax_point)
 
     def draw_quivers(
-        self, points: Union[list, np.ndarray], refresh: bool = False, **kwargs: Any
+        self, points: list | np.ndarray, refresh: bool = False, **kwargs: Any
     ) -> None:
         """
         Draw a series of quiver plot on the plot.
@@ -121,7 +121,7 @@ class EnvPlot3D(EnvPlot):
 
     def draw_trajectory(
         self,
-        traj: Union[list, np.ndarray],
+        traj: list | np.ndarray,
         traj_type: str = "g-",
         label: str = "trajectory",
         show_direction: bool = False,

@@ -1,0 +1,30 @@
+# Path planning on Perlin noise grid map.
+# obstacle_map generates the occupancy grid at load time; no explicit obstacle list.
+world:
+  height: 20
+  width: 30
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'auto'
+  mdownsample: 1
+  obstacle_map:
+    name: perlin
+    resolution: 0.1   # m/cell; grid size = world size / resolution (20/0.1 = 200 per axis)
+    complexity: 0.08
+    fill: 0.15
+    fractal: 1
+    attenuation: 0.5
+    seed: 56
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2, 2, 0]
+    goal: [24, 16, 0]
+    behavior: {name: 'dash'}
+
+# obstacle:
+#   - shape: {name: 'circle', radius: 1.0}
+#     state: [8, 12, 0]

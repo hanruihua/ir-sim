@@ -6,7 +6,7 @@ Platform: The operating system platform
 
 import platform
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from irsim.world.object_base import ObjectBase
 
@@ -14,8 +14,8 @@ from irsim.world.object_base import ObjectBase
 @dataclass
 class EnvParam:
     objects: list[ObjectBase] = field(default_factory=list)
-    logger: Optional[Any] = None
-    GeometryTree: Optional[Any] = None
+    logger: Any | None = None
+    GeometryTree: Any | None = None
     platform_name: str = field(default_factory=platform.system)
 
 

@@ -1,5 +1,3 @@
-from typing import Optional
-
 import numpy as np
 
 _rng = np.random.default_rng()
@@ -13,7 +11,7 @@ class _RNGProxy:
 rng = _RNGProxy()
 
 
-def set_seed(seed: Optional[int] = None) -> None:
+def set_seed(seed: int | None = None) -> None:
     global _rng
     _rng = (
         np.random.default_rng(seed) if seed is not None else np.random.default_rng()

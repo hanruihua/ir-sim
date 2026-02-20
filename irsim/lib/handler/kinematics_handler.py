@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import numpy as np
 
@@ -15,7 +14,7 @@ class KinematicsHandler(ABC):
     Abstract base class for handling robot kinematics.
     """
 
-    def __init__(self, name, noise: bool = False, alpha: Optional[list] = None):
+    def __init__(self, name, noise: bool = False, alpha: list | None = None):
         """
         Initialize the KinematicsHandler class.
 
@@ -97,7 +96,7 @@ class AckermannKinematics(KinematicsHandler):
         self,
         name,
         noise: bool = False,
-        alpha: Optional[list] = None,
+        alpha: list | None = None,
         mode: str = "steer",
         wheelbase: float = 1.0,
     ):
@@ -146,11 +145,11 @@ class KinematicsFactory:
 
     @staticmethod
     def create_kinematics(
-        name: Optional[str] = None,
+        name: str | None = None,
         noise: bool = False,
-        alpha: Optional[list] = None,
+        alpha: list | None = None,
         mode: str = "steer",
-        wheelbase: Optional[float] = None,
+        wheelbase: float | None = None,
         role: str = "robot",
     ) -> KinematicsHandler:
         name = name.lower() if name else None

@@ -3,7 +3,7 @@ import math
 from collections import deque
 from dataclasses import dataclass
 from math import atan2, cos, inf, pi, sin
-from typing import Any, Optional, Union
+from typing import Any, ClassVar
 
 import matplotlib.transforms as mtransforms
 import numpy as np
@@ -11,7 +11,6 @@ import shapely
 from matplotlib import image
 from matplotlib.patches import Arrow, Circle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
-from shapely.geometry import MultiLineString
 from shapely.geometry.base import BaseGeometry
 
 from irsim.config.path_param import path_manager
@@ -21,6 +20,7 @@ from irsim.util.util import (
     WrapTo2Pi,
     WrapToPi,
     WrapToRegion,
+    check_unknown_kwargs,
     diff_to_omni,
     file_check,
     is_2d_list,
@@ -175,34 +175,67 @@ class ObjectBase:
     vel_shape = (2, 1)
     state_shape = (3, 1)
 
+    _VALID_PARAMS: ClassVar[set[str]] = {
+        "shape",
+        "kinematics",
+        "state",
+        "velocity",
+        "goal",
+        "role",
+        "color",
+        "static",
+        "vel_min",
+        "vel_max",
+        "acce",
+        "angle_range",
+        "behavior",
+        "group_behavior",
+        "goal_threshold",
+        "sensors",
+        "arrive_mode",
+        "description",
+        "group",
+        "group_name",
+        "state_dim",
+        "vel_dim",
+        "unobstructed",
+        "fov",
+        "fov_radius",
+        "name",
+        "plot",
+        # consumed by ObjectFactory before reaching __init__
+        "number",
+        "distribution",
+    }
+
     def __init__(
         self,
-        shape: Optional[dict] = None,
-        kinematics: Optional[dict] = None,
-        state: Optional[list] = None,
-        velocity: Optional[list] = None,
-        goal: Optional[list] = None,
+        shape: dict | None = None,
+        kinematics: dict | None = None,
+        state: list | None = None,
+        velocity: list | None = None,
+        goal: list | None = None,
         role: str = "obstacle",
         color: str = "k",
         static: bool = False,
-        vel_min: Optional[list] = None,
-        vel_max: Optional[list] = None,
-        acce: Optional[list] = None,
-        angle_range: Optional[list] = None,
-        behavior: Optional[dict] = None,
-        group_behavior: Optional[dict] = None,
+        vel_min: list | None = None,
+        vel_max: list | None = None,
+        acce: list | None = None,
+        angle_range: list | None = None,
+        behavior: dict | None = None,
+        group_behavior: dict | None = None,
         goal_threshold: float = 0.1,
-        sensors: Optional[dict] = None,
+        sensors: dict | None = None,
         arrive_mode: str = "position",
-        description: Optional[str] = None,
+        description: str | None = None,
         group: int = 0,
-        group_name: Optional[str] = None,
-        state_dim: Optional[int] = None,
-        vel_dim: Optional[int] = None,
+        group_name: str | None = None,
+        state_dim: int | None = None,
+        vel_dim: int | None = None,
         unobstructed: bool = False,
-        fov: Optional[float] = None,
-        fov_radius: Optional[float] = None,
-        name: Optional[str] = None,
+        fov: float | None = None,
+        fov_radius: float | None = None,
+        name: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -396,6 +429,11 @@ class ObjectBase:
         self.collision_obj = []
         self.plot_trail_list = []
 
+        # validate unknown kwargs
+        check_unknown_kwargs(
+            kwargs, self._VALID_PARAMS, context=f" in '{role}' config"
+        )
+
     def __eq__(self, o: "ObjectBase") -> bool:
         if isinstance(o, ObjectBase):
             return self._id == o._id
@@ -414,7 +452,7 @@ class ObjectBase:
 
     def step(
         self,
-        velocity: Optional[np.ndarray] = None,
+        velocity: np.ndarray | None = None,
         sensor_step: bool = True,
         **kwargs: Any,
     ):
@@ -570,21 +608,11 @@ class ObjectBase:
         """
 
         if obj.shape == "map":
-            # Use grid-based collision detection if grid_map is available
-            if obj.grid_map is not None:
-                return obj.check_grid_collision(self.geometry)
-
-            # Fallback to geometry-based detection using pre-built tree
-            candidate_indices = obj.geometry_tree.query(self.geometry)
-            filtered_lines = [obj.linestrings[i] for i in candidate_indices]
-            if not filtered_lines:
-                return False
-            filtered_multi_line = MultiLineString(filtered_lines)
-            return shapely.intersects(self.geometry, filtered_multi_line)
+            return obj.is_collision(self.geometry)
 
         return shapely.intersects(self.geometry, obj._geometry)
 
-    def gen_behavior_vel(self, velocity: Optional[np.ndarray] = None) -> np.ndarray:
+    def gen_behavior_vel(self, velocity: np.ndarray | None = None) -> np.ndarray:
         """
         Generate behavior-influenced velocity for the object.
 
@@ -768,9 +796,7 @@ class ObjectBase:
             fov_diff <= self.fov / 2 and distance_do - radius_do <= self.fov_radius
         )
 
-    def set_state(
-        self, state: Optional[Union[list, np.ndarray]] = None, init: bool = False
-    ):
+    def set_state(self, state: list | np.ndarray | None = None, init: bool = False):
         """
         Set the current state of the object.
 
@@ -812,7 +838,7 @@ class ObjectBase:
         self._geometry = self.gf.step(self.state)
 
     def set_velocity(
-        self, velocity: Optional[Union[list, np.ndarray]] = None, init: bool = False
+        self, velocity: list | np.ndarray | None = None, init: bool = False
     ) -> None:
         """
         Set the velocity of the object.
@@ -847,7 +873,7 @@ class ObjectBase:
         init: bool = False,
         free: bool = True,
         goal_check_radius: float = 0.2,
-        range_limits: Optional[list] = None,
+        range_limits: list | None = None,
         max_attempts: int = 100,
     ):
         """
@@ -890,9 +916,7 @@ class ObjectBase:
 
         self.set_goal(deque_goals, init=init)
 
-    def set_goal(
-        self, goal: Optional[Union[list, np.ndarray]] = None, init: bool = False
-    ):
+    def set_goal(self, goal: list | np.ndarray | None = None, init: bool = False):
         """
         Set the goal(s) for the object to navigate towards.
 
@@ -967,7 +991,7 @@ class ObjectBase:
 
         self._goal = goal_deque
 
-    def append_goal(self, goal: Union[list, np.ndarray]):
+    def append_goal(self, goal: list | np.ndarray):
         """
         Append a goal to the goal list.
         """
@@ -1024,8 +1048,8 @@ class ObjectBase:
     def plot(
         self,
         ax,
-        state: Optional[np.ndarray] = None,
-        vertices: Optional[np.ndarray] = None,
+        state: np.ndarray | None = None,
+        vertices: np.ndarray | None = None,
         **kwargs,
     ):
         """
@@ -1484,8 +1508,8 @@ class ObjectBase:
     def plot_object(
         self,
         ax,
-        state: Optional[np.ndarray] = None,
-        vertices: Optional[np.ndarray] = None,
+        state: np.ndarray | None = None,
+        vertices: np.ndarray | None = None,
         **kwargs,
     ):
         """
@@ -1542,9 +1566,9 @@ class ObjectBase:
     def plot_object_image(
         self,
         ax,
-        state: Optional[np.ndarray] = None,
-        vertices: Optional[np.ndarray] = None,
-        description: Optional[str] = None,
+        state: np.ndarray | None = None,
+        vertices: np.ndarray | None = None,
+        description: str | None = None,
         **kwargs,
     ):
         """
@@ -1598,7 +1622,7 @@ class ObjectBase:
         self.object_img = robot_img
 
     def plot_trajectory(
-        self, ax, trajectory: Optional[list] = None, keep_traj_length: int = 0, **kwargs
+        self, ax, trajectory: list | None = None, keep_traj_length: int = 0, **kwargs
     ):
         """
         Plot the trajectory path of the object using the specified trajectory data.
@@ -1655,11 +1679,11 @@ class ObjectBase:
     def plot_goal(
         self,
         ax,
-        goal_state: Optional[np.ndarray] = None,
-        vertices: Optional[np.ndarray] = None,
-        goal_color: Optional[str] = None,
-        goal_zorder: Optional[int] = 1,
-        goal_alpha: Optional[float] = 0.5,
+        goal_state: np.ndarray | None = None,
+        vertices: np.ndarray | None = None,
+        goal_color: str | None = None,
+        goal_zorder: int | None = 1,
+        goal_alpha: float | None = 0.5,
         **kwargs,
     ):
         """
@@ -1694,7 +1718,7 @@ class ObjectBase:
 
         self.plot_patch_list.append(self.goal_patch)
 
-    def plot_text(self, ax, state: Optional[np.ndarray] = None, **kwargs):
+    def plot_text(self, ax, state: np.ndarray | None = None, **kwargs):
         """
         Plot the text label of the object at the specified position.
 
@@ -1779,11 +1803,11 @@ class ObjectBase:
     def plot_arrow(
         self,
         ax,
-        state: Optional[np.ndarray] = None,
-        velocity: Optional[np.ndarray] = None,
+        state: np.ndarray | None = None,
+        velocity: np.ndarray | None = None,
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
-        arrow_color: Optional[str] = None,
+        arrow_color: str | None = None,
         arrow_zorder: int = 3,
         **kwargs,
     ):
@@ -1831,8 +1855,8 @@ class ObjectBase:
     def plot_trail(
         self,
         ax,
-        state: Optional[np.ndarray] = None,
-        vertices: Optional[np.ndarray] = None,
+        state: np.ndarray | None = None,
+        vertices: np.ndarray | None = None,
         keep_trail_length: int = 0,
         **kwargs,
     ):
@@ -2159,7 +2183,7 @@ class ObjectBase:
         return self.state[2, 0] if self.state_dim >= 6 else 0
 
     @property
-    def kinematics(self) -> Optional[str]:
+    def kinematics(self) -> str | None:
         """
         Get the kinematics name of the object.
 
@@ -2236,7 +2260,7 @@ class ObjectBase:
         return self._velocity
 
     @property
-    def goal(self) -> Optional[np.ndarray]:
+    def goal(self) -> np.ndarray | None:
         """
         Get the goal of the object.
 

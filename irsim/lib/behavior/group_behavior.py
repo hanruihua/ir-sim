@@ -1,6 +1,6 @@
 import importlib
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from irsim.lib.behavior.behavior_registry import (
     group_behaviors_class_map,
@@ -35,8 +35,8 @@ class GroupBehavior:
         """
         self.members = members
         self.behavior_dict = behavior_dict or {}
-        self.kinematics: Optional[str] = members[0].kinematics if members else None
-        self.name: Optional[str] = self.behavior_dict.get("name")
+        self.kinematics: str | None = members[0].kinematics if members else None
+        self.name: str | None = self.behavior_dict.get("name")
 
         self.load_group_behaviors()
         self._invoke_func = None

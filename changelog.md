@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.1
+
+- Features:
+  - Add Perlin noise and image-based grid map generators, new JPS (Jump Point Search) and Informed RRT* path planners, and refactor existing planners (A*, RRT, RRT*, PRM) to use the `EnvGridMap` protocol. #215 (@KevinLADLee)
+  - Drop Python 3.9 support, add Python 3.14 support. Raise minimum Python version to 3.10, modernize type annotations (`Optional`/`Union` to `X | Y` syntax). #216
+  - Add optional `reload` parameter to `set_random_seed()` that regenerates random obstacles with the new seed when set to `True`. #210
+  - Default animation filename to the world name when not explicitly specified. #221
+
+- Fix:
+  - Add grid-based collision detection for obstacle maps using grid array lookup for faster detection, cache STRtree in `ObstacleMap`. #205
+
+- Refactor:
+  - Add input validation decorators (`validate_shape`, `validate_length`, `ensure_column_vector`, `ensure_numpy`) for kinematics and utility functions. #209
+
+- Docs:
+  - Refine README. #222
+  - Add grid map configuration and path planning documentation. #215
+
 ## 2.9.0
 
 Assistant by claude code, this version adds multi-environment support with instance-based parameters, allowing multiple independent simulation environments to run simultaneously. It also introduces 1D ToF sensor support and keyboard improvements.

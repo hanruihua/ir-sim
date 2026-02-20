@@ -146,7 +146,6 @@ test_animation.mp4
 
 docs/source/api/irsim/
 _build/
-CLAUDE.md
 tests/figure/test_no_ext.png
 .DS_Store
 tests/figure/test_no_ext.png

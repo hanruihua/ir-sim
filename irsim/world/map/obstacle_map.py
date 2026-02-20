@@ -1,7 +1,8 @@
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
-from shapely.geometry import Point
+import shapely
+from shapely.geometry import MultiLineString, Point
 from shapely.strtree import STRtree
 
 from irsim.world.object_base import ObjectBase
@@ -18,12 +19,12 @@ COLLISION_RADIUS_FACTOR = 0.5
 class ObstacleMap(ObjectBase):
     def __init__(
         self,
-        shape: Optional[dict] = None,
+        shape: dict | None = None,
         color: str = "k",
         static: bool = True,
-        grid_map: Optional[np.ndarray] = None,
-        grid_reso: Optional[np.ndarray] = None,
-        world_offset: Optional[list[float]] = None,
+        grid_map: np.ndarray | None = None,
+        grid_reso: np.ndarray | None = None,
+        world_offset: list[float] | None = None,
         **kwargs: Any,
     ) -> None:
         """Create an obstacle map object from a set of line segments.
@@ -53,7 +54,9 @@ class ObstacleMap(ObjectBase):
 
         # Grid-based collision detection data
         self.grid_map = grid_map
-        self.grid_reso = grid_reso if grid_reso is not None else np.array([[1.0], [1.0]])
+        self.grid_reso = (
+            grid_reso if grid_reso is not None else np.array([[1.0], [1.0]])
+        )
         self.world_offset = world_offset if world_offset is not None else [0.0, 0.0]
 
     def check_grid_collision(self, geometry) -> bool:
@@ -105,3 +108,15 @@ class ObstacleMap(ObjectBase):
                         return True
 
         return False
+
+    def is_collision(self, geometry) -> bool:
+        """Check collision against grid (if present) and map geometry."""
+        if self.grid_map is not None and self.check_grid_collision(geometry):
+            return True
+
+        candidate_indices = self.geometry_tree.query(geometry)
+        filtered_lines = [self.linestrings[i] for i in candidate_indices]
+        if not filtered_lines:
+            return False
+        filtered_multi_line = MultiLineString(filtered_lines)
+        return shapely.intersects(geometry, filtered_multi_line)

@@ -156,45 +156,31 @@ def test_rrt_star_edge_methods():
         "test_collision_world.yaml", save_ani=False, full=False, display=False
     )
     env_map = env.get_map()
-    r = RRTStar(env_map=env_map, robot_radius=0.5)
-    # Monkeypatch required attributes/methods
+    r = RRTStar(env_map=env_map, robot=env.robot)
     r.node_list = []
-    r.robot_radius = 0.5
     r.expand_dis = 1.0
 
-    # choose_parent: empty near indices
-    nn = r.Node(0.0, 0.0)
-    assert r.choose_parent(nn, []) is None
+    # _choose_parent: empty near indices returns nearest
+    nearest = r.Node(0.0, 0.0)
+    nearest.cost = 0.0
+    r.node_list = [nearest]
+    nn = r.Node(1.0, 0.0)
+    best_parent, _ = r._choose_parent(nn, nearest, 0, 1.0, [])
+    assert best_parent is nearest
 
-    # choose_parent: all costs inf (steer returns Falsey)
-    r.node_list = [r.Node(0.0, 0.0)]
-    r.steer = lambda *_args, **_kwargs: None  # type: ignore[assignment]
-    r.check_collision = lambda *_args, **_kwargs: False  # type: ignore[assignment]
-    assert r.choose_parent(nn, [0]) is None
+    # _choose_parent: all candidates fail collision returns nearest
+    r.is_collision = lambda *_args, **_kwargs: False  # type: ignore[assignment]
+    best_parent, _ = r._choose_parent(nn, nearest, 0, 1.0, [0])
+    assert best_parent is nearest
 
-    # rewire: edge_node is None path and no improved cost path
+    # _rewire: no cost improvement (candidate cost already lower)
     r.node_list = [r.Node(0.0, 0.0), r.Node(1.0, 0.0)]
-    new_node = r.Node(0.5, 0.0)
-    # First, edge_node None -> continue
-    r.steer = lambda *_args, **_kwargs: None  # type: ignore[assignment]
-    r.rewire(new_node, [0])
-    # Now, edge_node with no improvement
-    tmp_edge = r.Node(0.6, 0.0)
-    tmp_edge.cost = 10.0
-    r.steer = lambda *_args, **_kwargs: tmp_edge  # type: ignore[assignment]
-    r.check_collision = lambda *_args, **_kwargs: True  # type: ignore[assignment]
     r.node_list[0].cost = 0.0
-
-    def _calc_new_cost_stub(_a, _b):
-        return 100.0
-
-    r.calc_new_cost = _calc_new_cost_stub  # type: ignore[assignment]
-    r.rewire(new_node, [0])
-
-    # search_best_goal_node: no safe goals
-    r.calc_dist_to_goal = lambda *_args, **_kwargs: 999.0  # type: ignore[assignment]
-    r.steer = lambda *_args, **_kwargs: r.Node(0.0, 0.0)  # type: ignore[assignment]
-    assert r.search_best_goal_node() is None
+    r.node_list[1].cost = 0.5
+    new_node = r.Node(0.5, 0.0)
+    new_node.cost = 10.0
+    r._rewire(new_node, [1])
+    assert r.node_list[1].parent is None
 
 
 def test_obstacle_acker_instantiation():
@@ -1300,3 +1286,200 @@ class TestLidar2DEnsureMultiLineString:
 
         assert isinstance(result, MultiLineString)
         assert len(result.geoms) == 1  # Only the LineString
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests for lidar2d.py
+# ---------------------------------------------------------------------------
+
+
+class TestLidar2DNoise:
+    """Test Lidar2D with noise=True (line 296)."""
+
+    def test_lidar_with_noise(self):
+        """Lidar2D with noise=True adds noise to range data (line 296)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
+        assert lidar.noise is True
+        # Calculate range with noise
+        lidar.calculate_range()
+        assert lidar.range_data is not None
+
+
+class TestLidar2DScanToPointcloud:
+    """Test scan_to_pointcloud (lines 585-591)."""
+
+    def test_scan_to_pointcloud_with_hits(self):
+        """scan_to_pointcloud with hits returns array (lines 585-586)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        # Set some ranges shorter than range_max to simulate hits
+        lidar.range_data[:5] = 2.0  # Half of beams hit something
+        result = lidar.scan_to_pointcloud()
+        assert result is not None
+        assert result.shape[0] == 2  # 2D points
+        assert result.shape[1] == 5  # 5 hit points
+
+    def test_scan_to_pointcloud_no_hits(self):
+        """scan_to_pointcloud with no hits returns None (line 591)."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        # All ranges at max (no hits)
+        lidar.range_data[:] = 5.0
+        result = lidar.scan_to_pointcloud()
+        assert result is None
+
+
+class TestBehaviorRegistryDuplicate:
+    """Test behavior registry duplicate registration (line 24)."""
+
+    def test_duplicate_behavior_raises(self):
+        """Registering same (kinematics, action) twice raises ValueError."""
+        from irsim.lib.behavior.behavior_registry import _make_register
+
+        target_map = {}
+        register = _make_register(
+            target_map, "Duplicate behavior '{kinematics}/{action}'"
+        )
+
+        @register("test_kin", "test_action")
+        class Beh1:
+            pass
+
+        with pytest.raises(ValueError, match="Duplicate behavior"):
+
+            @register("test_kin", "test_action")
+            class Beh2:
+                pass
+
+
+class TestBehaviorGenVelExternalNone:
+    """Test Behavior.gen_vel with external_objects=None (line 52)."""
+
+    def test_gen_vel_external_none(self):
+        """gen_vel with external_objects=None uses empty list (line 52)."""
+        from irsim.lib.behavior.behavior import Behavior
+
+        beh = Behavior(object_info=None, behavior_dict={})
+        # When behavior_dict is empty and external_objects is None
+        vel = beh.gen_vel(ego_object=None, external_objects=None)
+        assert vel is not None
+
+
+# ---------------------------------------------------------------------------
+# Tests for typo-detection / unknown-kwargs validation
+# ---------------------------------------------------------------------------
+
+
+class TestWorldUnknownKwargs:
+    """Tests for World unknown kwargs validation and logger/env_param properties."""
+
+    def test_world_unknown_kwarg_warns(self):
+        """World.__init__ with unknown kwarg emits a warning via check_unknown_kwargs."""
+        from unittest.mock import MagicMock
+
+        from irsim.world.world import World
+
+        logger = MagicMock()
+        # Patch the logger property to capture the warning
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(World, "logger", property(lambda self: logger))
+            World(name="test", step_tme=0.05)  # typo: step_tme
+
+        logger.warning.assert_called_once()
+        msg = logger.warning.call_args[0][0]
+        assert "step_tme" in msg
+
+    def test_world_env_param_fallback_to_global(self):
+        """World._env_param falls back to global env_param when _env is None."""
+        from irsim.config import env_param as global_ep
+        from irsim.world.world import World
+
+        w = World(name="test")
+        assert w._env is None
+        assert w._env_param is global_ep
+
+    def test_world_env_param_via_env(self):
+        """World._env_param delegates to env._env_param when _env is set."""
+        from unittest.mock import MagicMock
+
+        from irsim.world.world import World
+
+        w = World(name="test")
+        mock_env = MagicMock()
+        mock_env._env_param = MagicMock()
+        w._env = mock_env
+        assert w._env_param is mock_env._env_param
+
+    def test_world_logger_property(self):
+        """World.logger returns the logger from _env_param."""
+        from irsim.world.world import World
+
+        w = World(name="test")
+        assert w.logger is w._env_param.logger
+
+
+class TestEnvConfigInvalidKey:
+    """Tests for EnvConfig.load_yaml invalid key suggestion."""
+
+    def test_invalid_yaml_key_close_match(self, tmp_path):
+        """EnvConfig raises KeyError with suggestion for close typo."""
+        _install_dummy_logger()
+
+        yaml_file = tmp_path / "bad.yaml"
+        yaml_file.write_text("wrold:\n  height: 10\n")
+
+        from irsim.env.env_config import EnvConfig
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+    def test_invalid_yaml_key_no_match(self, tmp_path):
+        """EnvConfig raises KeyError listing valid keys for unrecognised key."""
+        _install_dummy_logger()
+
+        yaml_file = tmp_path / "bad2.yaml"
+        yaml_file.write_text("zzzzz:\n  foo: bar\n")
+
+        from irsim.env.env_config import EnvConfig
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+
+class TestObjectBaseUnknownKwargs:
+    """Tests for ObjectBase unknown kwargs validation."""
+
+    def test_object_base_unknown_kwarg_warns(self):
+        """ObjectBase.__init__ warns about unknown kwargs."""
+        _install_dummy_logger()
+        warnings_collected = []
+        original_logger = env_param.logger
+
+        class CapturingLogger:
+            def info(self, *a, **kw):
+                pass
+
+            def warning(self, msg, *a, **kw):
+                warnings_collected.append(msg)
+
+            def error(self, *a, **kw):
+                pass
+
+            def debug(self, *a, **kw):
+                pass
+
+        env_param.logger = CapturingLogger()
+        try:
+            from irsim.world.object_base import ObjectBase
+
+            ObjectBase(colr="red")  # typo: colr instead of color
+            assert any("colr" in w for w in warnings_collected)
+        finally:
+            env_param.logger = original_logger

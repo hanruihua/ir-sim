@@ -6,6 +6,7 @@ Covers environment creation, object management, state queries, and flags.
 
 import contextlib
 import re
+import warnings
 from unittest.mock import patch
 
 import numpy as np
@@ -124,6 +125,20 @@ class TestObjectManagement:
             ValueError, match=re.escape(f"Object names already exist: {[obs.name]}")
         ):
             env.add_objects([obs])
+
+    def test_duplicate_names_within_new_objects_raises(self, env_factory):
+        """Test that adding objects with duplicate names among themselves raises ValueError."""
+        env = env_factory("test_all_objects.yaml")
+        obs1 = env.create_obstacle(
+            shape={"name": "polygon", "vertices": [[6, 5], [7, 5], [7, 6], [6, 6]]}
+        )
+        obs2 = env.create_obstacle(
+            shape={"name": "polygon", "vertices": [[8, 5], [9, 5], [9, 6], [8, 6]]}
+        )
+        # Force duplicate names
+        obs2._name = obs1.name
+        with pytest.raises(ValueError, match="Duplicate names within new objects"):
+            env.add_objects([obs1, obs2])
 
     def test_validate_unique_names_pass(self, env_factory):
         """Test that unique object names pass validation."""
@@ -915,3 +930,130 @@ class TestParamModuleFunctions:
             # Restore original state
             path_param._instances[:] = original_instances
             path_param._current = original_current
+
+
+# ---------------------------------------------------------------------------
+# Coverage-targeted tests
+# ---------------------------------------------------------------------------
+
+
+class TestWorldGetMapResolutions:
+    """Tests for world.get_map with various resolution values (lines 177-205)."""
+
+    def test_get_map_coarser_resolution(self, env_factory):
+        """Coarser resolution triggers downsample (lines 189-198)."""
+        env = env_factory("test_grid_map.yaml")
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            env_map = env.get_map(resolution=5.0)
+            assert env_map is not None
+            downsample_warnings = [x for x in w if "downsampled" in str(x.message)]
+            assert len(downsample_warnings) >= 1
+
+    def test_get_map_finer_resolution(self, env_factory):
+        """Finer resolution emits warning (lines 199-205)."""
+        env = env_factory("test_grid_map.yaml")
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            env_map = env.get_map(resolution=0.001)
+            assert env_map is not None
+            finer_warnings = [x for x in w if "finer" in str(x.message)]
+            assert len(finer_warnings) >= 1
+
+    def test_get_map_invalid_resolution(self, env_factory):
+        """Invalid resolution falls back to grid resolution (lines 177-183)."""
+        env = env_factory("test_grid_map.yaml")
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            env_map = env.get_map(resolution=-1.0)
+            assert env_map is not None
+            fallback_warnings = [
+                x for x in w if "positive and finite" in str(x.message)
+            ]
+            assert len(fallback_warnings) >= 1
+
+
+class TestObjectsCheckStatus:
+    """Test _objects_check_status method (line 363)."""
+
+    def test_objects_check_status(self, env_factory):
+        """_objects_check_status calls check_status on all objects (line 363)."""
+        env = env_factory("test_collision_world.yaml")
+        env._objects_check_status()
+        # No exception means it works
+
+    def test_object_step_deprecated(self, env_factory):
+        """_object_step with action (line 358)."""
+        env = env_factory("test_collision_world.yaml")
+        action = np.array([[0.5], [0.0]])
+        env._object_step(action, 0)
+
+    def test_object_step_empty_objects(self, env_factory):
+        """_object_step with empty objects returns early (line 355-356)."""
+        env = env_factory("test_collision_world.yaml")
+        for robot in list(env.robot_list):
+            env.delete_object(robot.id)
+        for obs in list(env.obstacle_list):
+            env.delete_object(obs.id)
+        env._object_step(None)
+
+
+class TestEndDisableAllPlot:
+    """Test end() with disable_all_plot=True (line 524)."""
+
+    def test_end_with_disable_all_plot(self):
+        """end() returns early when disable_all_plot is True."""
+        env = irsim.make(
+            "test_collision_world.yaml",
+            save_ani=False,
+            display=False,
+            disable_all_plot=True,
+        )
+        env.step()
+        env.end()  # Should return immediately
+
+
+class TestStatusArrived:
+    """Test 'Arrived' status when all robots at goal (line 634)."""
+
+    def test_arrived_status(self, env_factory):
+        """Status set to 'Arrived' when all robots arrive (line 634)."""
+        from unittest.mock import patch as mock_patch
+
+        from irsim.world.object_base import ObjectBase
+
+        env = env_factory("test_collision_world.yaml")
+        # Force all robots to have arrive_flag=True, collision_flag=False
+        for obj in env.objects:
+            if obj.role == "robot":
+                obj.arrive_flag = True
+                obj.collision_flag = False
+
+        # Patch check_status on base class to prevent collision re-detection
+        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+            env._status_step()
+        assert env.status == "Arrived"
+
+    def test_save_figure_status(self, env_factory):
+        """Status set to 'Save Figure' when save_figure_flag is True (line 642)."""
+        from unittest.mock import patch as mock_patch
+
+        from irsim.world.object_base import ObjectBase
+
+        env = env_factory("test_collision_world.yaml")
+        env.save_figure_flag = True
+        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+            env._status_step()
+        assert env.status == "Save Figure"
+
+    def test_quit_status(self, env_factory):
+        """Status set to 'Quit' when quit_flag is True (line 644)."""
+        from unittest.mock import patch as mock_patch
+
+        from irsim.world.object_base import ObjectBase
+
+        env = env_factory("test_collision_world.yaml")
+        env.quit_flag = True
+        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+            env._status_step()
+        assert env.status == "Quit"

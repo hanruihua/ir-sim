@@ -6,6 +6,7 @@ This module demonstrates two patterns for custom individual behaviors:
 1. Function-based (register_behavior) - for simple stateless behaviors
 2. Class-based (register_behavior_class) - for behaviors with state/initialization
 """
+
 from typing import Any
 
 import numpy as np
@@ -137,12 +138,16 @@ class SmoothDashBehavior:
             diff_angle = np.arctan2(np.sin(diff_angle), np.cos(diff_angle))
 
             linear = max_vel[0, 0] * np.cos(diff_angle)
-            angular = max_vel[1, 0] * np.sign(diff_angle) if abs(diff_angle) > 0.1 else 0
+            angular = (
+                max_vel[1, 0] * np.sign(diff_angle) if abs(diff_angle) > 0.1 else 0
+            )
 
             target_vel = np.array([[linear], [angular]])
 
         # Apply smoothing (exponential moving average)
-        smoothed_vel = self._smoothing * self._prev_vel + (1 - self._smoothing) * target_vel
+        smoothed_vel = (
+            self._smoothing * self._prev_vel + (1 - self._smoothing) * target_vel
+        )
         self._prev_vel = smoothed_vel
 
         return smoothed_vel

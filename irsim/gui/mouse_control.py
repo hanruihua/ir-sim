@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -135,7 +135,7 @@ class MouseControl:
         # Redraw the plot
         ax.figure.canvas.draw()
 
-    def reset_zoom(self, ax: Optional[Axes] = None) -> None:
+    def reset_zoom(self, ax: Axes | None = None) -> None:
         """
         Reset zoom to original view.
 

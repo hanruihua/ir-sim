@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import difflib
 from operator import attrgetter
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
@@ -30,16 +31,16 @@ class EnvConfig:
 
     def __init__(
         self,
-        world_name: Optional[str],
-        env_param_instance: Optional[EnvParam] = None,
-        world_param_instance: Optional[WorldParam] = None,
+        world_name: str | None,
+        env_param_instance: EnvParam | None = None,
+        world_param_instance: WorldParam | None = None,
     ) -> None:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
         self._world_param = world_param_instance
         self.load_yaml(world_name)
 
-    def load_yaml(self, world_name: Optional[str] = None) -> None:
+    def load_yaml(self, world_name: str | None = None) -> None:
         """Parse the YAML file and populate internal configuration state.
 
         Args:
@@ -69,15 +70,26 @@ class EnvConfig:
                     if key in self._kwargs_parse:
                         self._kwargs_parse[key] = com_list[key]
                     else:
-                        self.logger.error(
-                            f"There are invalid key: '{key}' in {self.world_name} file!"
+                        matches = difflib.get_close_matches(
+                            key, self._kwargs_parse.keys(), n=3, cutoff=0.6
                         )
-                        raise KeyError
+                        if matches:
+                            suggestion = f". Did you mean: {', '.join(matches)}?"
+                        else:
+                            suggestion = f". Valid keys: {', '.join(sorted(self._kwargs_parse.keys()))}"
+                        self.logger.error(
+                            f"Invalid key: '{key}' in {self.world_name} file!{suggestion}"
+                        )
+                        raise KeyError(key)
 
         else:
             self.logger.error(
                 f"{self.world_name} YAML File not found!, using default world config as alternative."
             )
+
+    def _world_kwargs(self) -> dict[str, Any]:
+        """World constructor kwargs from the ``world`` section."""
+        return dict(self.parse["world"])
 
     def initialize_objects(self) -> Any:
         """Construct world, objects and plot from the current parsed config.
@@ -93,7 +105,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self.parse["world"],
+            **self._world_kwargs(),
         )
 
         robot_collection = self.object_factory.create_from_parse(
@@ -154,7 +166,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self.parse["world"],
+            **self._world_kwargs(),
         )
 
         robot_collection = self.object_factory.create_from_parse(
