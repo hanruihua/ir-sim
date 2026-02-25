@@ -505,26 +505,22 @@ class EnvPlot:
                 durations[-1] = last_frame_duration
 
             # Write all frames with their specific durations
-            writer = imageio.get_writer(full_name, mode="I", loop=0)
+            with imageio.get_writer(full_name, mode="I", loop=0) as writer:
 
-            for i, image_path in enumerate(images):
-                frame = imageio.imread(str(image_path))
-                writer.append_data(frame, {"duration": durations[i]})
+                for i, image_path in enumerate(images):
+                    frame = imageio.imread(str(image_path))
+                    writer.append_data(frame, {"duration": durations[i]})
 
-            writer.close()
         else:
             # Video format (e.g., .mp4) - use get_writer for streaming
             fps = self.saved_ani_kwargs.pop("fps", 10)
 
             # Use get_writer for memory-efficient streaming writes
-            writer = imageio.get_writer(full_name, fps=fps, **self.saved_ani_kwargs)
+            with imageio.get_writer(full_name, fps=fps, **self.saved_ani_kwargs) as writer:
 
-            for image_path in images:
-                frame = imageio.imread(str(image_path))
-                writer.append_data(frame)
-
-            writer.close()
-
+                for image_path in images:
+                    frame = imageio.imread(str(image_path))
+                    writer.append_data(frame)
         self.logger.info(f"{ani_name} created successfully, saved in {ap}")
 
         if rm_fig_path:
