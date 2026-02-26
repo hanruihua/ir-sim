@@ -539,18 +539,18 @@ class TestSaveAnimate:
         context_manager.__enter__ = Mock(return_value=writer)
         context_manager.__exit__ = Mock(return_value=False)
 
-        imopen_mock = Mock(return_value=context_manager)
+        get_writer_mock = Mock(return_value=context_manager)
         imread_mock = Mock(return_value=np.zeros((4, 4, 3), dtype=np.uint8))
         original_ani_path = env_plot_module.pm.ani_path
         original_ani_buffer_path = env_plot_module.pm.ani_buffer_path
-        original_imopen = env_plot_module.imageio.v3.imopen
-        original_imread = env_plot_module.imageio.v3.imread
+        original_get_writer = env_plot_module.imageio.get_writer
+        original_imread = env_plot_module.imageio.imread
 
         try:
             env_plot_module.pm.ani_path = str(ani_dir)
             env_plot_module.pm.ani_buffer_path = str(buffer_dir)
-            env_plot_module.imageio.v3.imopen = imopen_mock
-            env_plot_module.imageio.v3.imread = imread_mock
+            env_plot_module.imageio.get_writer = get_writer_mock
+            env_plot_module.imageio.imread = imread_mock
 
             plot.save_animate(
                 ani_name="gif_test",
@@ -561,11 +561,11 @@ class TestSaveAnimate:
         finally:
             env_plot_module.pm.ani_path = original_ani_path
             env_plot_module.pm.ani_buffer_path = original_ani_buffer_path
-            env_plot_module.imageio.v3.imopen = original_imopen
-            env_plot_module.imageio.v3.imread = original_imread
+            env_plot_module.imageio.get_writer = original_get_writer
+            env_plot_module.imageio.imread = original_imread
 
-        assert imopen_mock.call_count == 1
-        assert writer.write.call_count == 3
+        assert get_writer_mock.call_count == 1
+        assert writer.append_data.call_count == 3
         assert buffer_dir.exists()
 
     def test_save_animate_mp4(self, dummy_world_2d, dummy_logger, tmp_path):
@@ -592,13 +592,13 @@ class TestSaveAnimate:
         original_ani_path = env_plot_module.pm.ani_path
         original_ani_buffer_path = env_plot_module.pm.ani_buffer_path
         original_get_writer = env_plot_module.imageio.get_writer
-        original_imread = env_plot_module.imageio.v3.imread
+        original_imread = env_plot_module.imageio.imread
 
         try:
             env_plot_module.pm.ani_path = str(ani_dir)
             env_plot_module.pm.ani_buffer_path = str(buffer_dir)
             env_plot_module.imageio.get_writer = get_writer_mock
-            env_plot_module.imageio.v3.imread = imread_mock
+            env_plot_module.imageio.imread = imread_mock
 
             plot.save_animate(
                 ani_name="mp4_test",
@@ -610,7 +610,7 @@ class TestSaveAnimate:
             env_plot_module.pm.ani_path = original_ani_path
             env_plot_module.pm.ani_buffer_path = original_ani_buffer_path
             env_plot_module.imageio.get_writer = original_get_writer
-            env_plot_module.imageio.v3.imread = original_imread
+            env_plot_module.imageio.imread = original_imread
 
         assert get_writer_mock.call_count == 1
         assert writer.append_data.call_count == 2
@@ -629,27 +629,22 @@ class TestSaveAnimate:
         buffer_dir = tmp_path / "buffer"
         buffer_dir.mkdir(parents=True, exist_ok=True)
 
-        imopen_mock = Mock()
         get_writer_mock = Mock()
         original_ani_path = env_plot_module.pm.ani_path
         original_ani_buffer_path = env_plot_module.pm.ani_buffer_path
-        original_imopen = env_plot_module.imageio.v3.imopen
         original_get_writer = env_plot_module.imageio.get_writer
 
         try:
             env_plot_module.pm.ani_path = str(ani_dir)
             env_plot_module.pm.ani_buffer_path = str(buffer_dir)
-            env_plot_module.imageio.v3.imopen = imopen_mock
             env_plot_module.imageio.get_writer = get_writer_mock
 
             plot.save_animate(ani_name="no_images", suffix=".gif")
         finally:
             env_plot_module.pm.ani_path = original_ani_path
             env_plot_module.pm.ani_buffer_path = original_ani_buffer_path
-            env_plot_module.imageio.v3.imopen = original_imopen
             env_plot_module.imageio.get_writer = original_get_writer
 
-        imopen_mock.assert_not_called()
         get_writer_mock.assert_not_called()
 
     def test_save_animate_remove_buffer(self, dummy_world_2d, dummy_logger, tmp_path):
@@ -670,24 +665,24 @@ class TestSaveAnimate:
         context_manager = Mock()
         context_manager.__enter__ = Mock(return_value=writer)
         context_manager.__exit__ = Mock(return_value=False)
-        imopen_mock = Mock(return_value=context_manager)
+        get_writer_mock = Mock(return_value=context_manager)
         imread_mock = Mock(return_value=np.zeros((4, 4, 3), dtype=np.uint8))
         original_ani_path = env_plot_module.pm.ani_path
         original_ani_buffer_path = env_plot_module.pm.ani_buffer_path
-        original_imopen = env_plot_module.imageio.v3.imopen
-        original_imread = env_plot_module.imageio.v3.imread
+        original_get_writer = env_plot_module.imageio.get_writer
+        original_imread = env_plot_module.imageio.imread
 
         try:
             env_plot_module.pm.ani_path = str(ani_dir)
             env_plot_module.pm.ani_buffer_path = str(buffer_dir)
-            env_plot_module.imageio.v3.imopen = imopen_mock
-            env_plot_module.imageio.v3.imread = imread_mock
+            env_plot_module.imageio.get_writer = get_writer_mock
+            env_plot_module.imageio.imread = imread_mock
 
             plot.save_animate(ani_name="cleanup_test", suffix=".gif", rm_fig_path=True)
         finally:
             env_plot_module.pm.ani_path = original_ani_path
             env_plot_module.pm.ani_buffer_path = original_ani_buffer_path
-            env_plot_module.imageio.v3.imopen = original_imopen
-            env_plot_module.imageio.v3.imread = original_imread
+            env_plot_module.imageio.get_writer = original_get_writer
+            env_plot_module.imageio.imread = original_imread
 
         assert not buffer_dir.exists()
