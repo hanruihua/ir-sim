@@ -511,7 +511,7 @@ class EnvPlot:
                 full_name,
                 mode="I",
                 loop=0,
-                duration=[duration_ms / 1000.0 for duration_ms in durations_ms],
+                duration=durations_ms,
                 **gif_kwargs,
             ) as writer:
                 for image_path in images:
