@@ -493,22 +493,30 @@ class EnvPlot:
         num_images = len(images)
 
         if suffix == ".gif":
-            # GIF format: use frame duration in milliseconds
-            frame_duration_ms = 100  # 100ms default per frame
+            # GIF frame timing in milliseconds
+            frame_duration_ms = 100
 
-            # Build a list of durations (one per frame)
+            # Per-frame durations in milliseconds
             durations_ms = [frame_duration_ms] * num_images
 
-            # Extend the last frame duration
+            # Extend the last frame duration (input argument is seconds)
             last_frame_duration_ms = int(last_frame_duration * 1000)
             if num_images > 0 and last_frame_duration_ms > frame_duration_ms:
                 durations_ms[-1] = last_frame_duration_ms
 
-            # Write all frames with their specific durations
-            with imageio.get_writer(full_name, mode="I", loop=0) as writer:
-                for i, image_path in enumerate(images):
+            gif_kwargs = self.saved_ani_kwargs.copy()
+
+            # Convert milliseconds to seconds for imageio writer
+            with imageio.get_writer(
+                full_name,
+                mode="I",
+                loop=0,
+                duration=[duration_ms / 1000.0 for duration_ms in durations_ms],
+                **gif_kwargs,
+            ) as writer:
+                for image_path in images:
                     frame = imageio.imread(str(image_path))
-                    writer.append_data(frame, {"duration": durations_ms[i] * 1000})
+                    writer.append_data(frame)
 
         else:
             # Video format (e.g., .mp4) - stream frames to encoder
