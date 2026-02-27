@@ -13,7 +13,7 @@ from collections.abc import Iterable
 from math import cos, sin
 from typing import Any
 
-import imageio.v3 as imageio
+import imageio
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import mpl_toolkits.mplot3d.art3d as art3d
@@ -460,7 +460,7 @@ class EnvPlot:
         **kwargs: Any,
     ) -> None:
         """
-        Save the animation.
+        Save the animation by streaming frames to avoid loading all images into memory.
 
         Args:
             ani_name (str): Name of the animation. Default is 'animation'.
@@ -468,7 +468,8 @@ class EnvPlot:
             suffix (str): Suffix of the animation file. Default is '.gif'.
             rm_fig_path (bool): Whether to remove the figure path after saving. Default is True.
             kwargs: Additional arguments for saving the animation.
-                See `imageio.imwrite <https://imageio.readthedocs.io/en/stable/_autosummary/imageio.v3.imwrite.html#imageio.v3.imwrite>`_ for details.
+                For GIF: See pillow plugin documentation.
+                For video: See ffmpeg/pyav plugin documentation.
         """
 
         self.saved_ani_kwargs.update(kwargs)
@@ -483,17 +484,50 @@ class EnvPlot:
 
         images = list(glob.glob(fp + "/*.png"))
         images.sort()
-        image_list = [imageio.imread(str(file_name)) for file_name in images]
 
-        if suffix == ".gif":
-            # default arguments for gif
-            durations = [100] * (len(image_list) - 1) + [last_frame_duration * 1000]
-            self.saved_ani_kwargs.update(
-                {"plugin": "pillow", "duration": durations, "loop": 0}
-            )
+        if not images:
+            self.logger.warning("No images found to create animation")
+            return
 
         full_name = ap + "/" + ani_name + suffix
-        imageio.imwrite(full_name, image_list, **self.saved_ani_kwargs)
+        num_images = len(images)
+
+        if suffix == ".gif":
+            # GIF frame timing in milliseconds
+            frame_duration_ms = 100
+
+            # Per-frame durations in milliseconds
+            durations_ms = [frame_duration_ms] * num_images
+
+            # Extend the last frame duration (input argument is seconds)
+            last_frame_duration_ms = int(last_frame_duration * 1000)
+            if num_images > 0 and last_frame_duration_ms > frame_duration_ms:
+                durations_ms[-1] = last_frame_duration_ms
+
+            gif_kwargs = self.saved_ani_kwargs.copy()
+
+            # Convert milliseconds to seconds for imageio writer
+            with imageio.get_writer(
+                full_name,
+                mode="I",
+                loop=0,
+                duration=durations_ms,
+                **gif_kwargs,
+            ) as writer:
+                for image_path in images:
+                    frame = imageio.imread(str(image_path))
+                    writer.append_data(frame)
+
+        else:
+            # Video format (e.g., .mp4) - stream frames to encoder
+            video_kwargs = self.saved_ani_kwargs.copy()
+            fps = video_kwargs.pop("fps", 10)
+
+            # Use get_writer for memory-efficient streaming writes
+            with imageio.get_writer(full_name, fps=fps, **video_kwargs) as writer:
+                for image_path in images:
+                    frame = imageio.imread(str(image_path))
+                    writer.append_data(frame)
 
         self.logger.info(f"{ani_name} created successfully, saved in {ap}")
 
