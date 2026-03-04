@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import deque
 from dataclasses import dataclass
-from math import atan2, cos, inf, pi, sin
+from math import cos, inf, pi, sin
 from typing import Any, ClassVar
 
 import matplotlib.transforms as mtransforms
@@ -21,7 +21,6 @@ from irsim.util.util import (
     WrapToPi,
     WrapToRegion,
     check_unknown_kwargs,
-    diff_to_omni,
     file_check,
     is_2d_list,
     random_point_range,
@@ -260,19 +259,6 @@ class ObjectBase:
                 if input parameters are invalid.
         """
 
-        if angle_range is None:
-            angle_range = [-pi, pi]
-        if acce is None:
-            acce = [inf, inf]
-        if vel_max is None:
-            vel_max = [1, 1]
-        if vel_min is None:
-            vel_min = [-1, -1]
-        if velocity is None:
-            velocity = [0, 0]
-        if state is None:
-            state = [0, 0, 0]
-
         # Environment reference for accessing params (set by EnvBase after creation)
         self._env = None
 
@@ -299,12 +285,28 @@ class ObjectBase:
         else:
             self.G, self.h, self.cone_type, self.convex_flag = None, None, None, None
 
+        # Derive dimensions from handler metadata
+        action_dim = self.kf.action_dim if self.kf else 2
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
             (self.state_dim, 1) if state_dim is not None else self.state_shape
         )
-        self.vel_dim = vel_dim if vel_dim is not None else self.vel_shape[0]
-        self.vel_shape = (self.vel_dim, 1) if vel_dim is not None else self.vel_shape
+        self.vel_dim = vel_dim if vel_dim is not None else action_dim
+        self.vel_shape = (self.vel_dim, 1)
+
+        # Apply handler defaults for unset parameters
+        if angle_range is None:
+            angle_range = [-pi, pi]
+        if acce is None:
+            acce = list(self.kf.default_acce) if self.kf else [inf, inf]
+        if vel_max is None:
+            vel_max = list(self.kf.default_vel_max) if self.kf else [1, 1]
+        if vel_min is None:
+            vel_min = list(self.kf.default_vel_min) if self.kf else [-1, -1]
+        if velocity is None:
+            velocity = [0] * action_dim
+        if state is None:
+            state = [0, 0, 0]
 
         self.role = role
 
@@ -1096,6 +1098,13 @@ class ObjectBase:
         Returns:
             list: Names of plot attributes created (e.g., 'object_patch', 'goal_patch').
         """
+        # Apply handler-derived show_arrow default when not explicitly set
+        if (
+            self.kf is not None
+            and "show_arrow" not in self.plot_kwargs
+            and "show_arrow" not in kwargs
+        ):
+            kwargs.setdefault("show_arrow", self.kf.show_arrow)
         return self._plot(
             ax, self.original_state, self.original_vertices, initial=True, **kwargs
         )
@@ -1389,11 +1398,7 @@ class ObjectBase:
                     # Update arrow patch using set_element_property
                     if isinstance(element, Arrow):
                         # Calculate orientation for arrow direction
-                        theta = (
-                            atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
-                            if self.kinematics == "omni"
-                            else r_phi
-                        )
+                        theta = self.heading
 
                         arrow_state = np.array([[x], [y], [theta]])
 
@@ -1859,11 +1864,7 @@ class ObjectBase:
         if arrow_color is None:
             arrow_color = "gold"
 
-        theta = (
-            atan2(velocity[1, 0], velocity[0, 0])
-            if self.kinematics == "omni" and velocity is not None
-            else state[2, 0]
-        )
+        theta = self.heading
 
         self.arrow_patch = draw_patch(
             ax,
@@ -2616,10 +2617,8 @@ class ObjectBase:
         Returns:
             (2*1) np.ndarray: Velocity [vx, vy].
         """
-        if self.kinematics == "omni":
-            return self.velocity
-        if self.kinematics == "diff" or self.kinematics == "acker":
-            return diff_to_omni(self.state[2, 0], self.velocity)
+        if self.kf is not None:
+            return self.kf.velocity_to_xy(self.state, self.velocity)
         return np.zeros((2, 1))
 
     @property
@@ -2630,15 +2629,8 @@ class ObjectBase:
         Returns:
             float: The maximum speed of the object.
         """
-
-        if self.kinematics == "omni":
-            return np.linalg.norm(self.vel_max)
-        if self.kinematics == "diff" or self.kinematics == "acker":
-            return self.vel_max[0, 0]
-
-        self.logger.warning(
-            f"The kinematics of the object {self.name} is not supported."
-        )
+        if self.kf is not None:
+            return self.kf.compute_max_speed(self.vel_max)
         return 0
 
     @property
@@ -2720,17 +2712,11 @@ class ObjectBase:
         Returns:
             float: The heading of the object.
         """
-
-        if self.kinematics == "omni":
-            heading = atan2(self.velocity[1, 0], self.velocity[0, 0])
-        elif self.kinematics == "diff" or self.kinematics == "acker":
-            heading = self.state[2, 0]
-        else:
-            self.logger.warning(
-                f"The kinematics of the object {self.name} is not supported."
-            )
-
-        return heading
+        if self.kf is not None:
+            return self.kf.compute_heading(self.state, self.velocity)
+        if self.state.shape[0] > 2:
+            return self.state[2, 0]
+        return 0.0
 
     @property
     def orientation(self):

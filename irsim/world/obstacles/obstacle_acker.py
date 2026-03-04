@@ -1,13 +1,20 @@
+import warnings
+
 from irsim.world.object_base import ObjectBase
 
 
 class ObstacleAcker(ObjectBase):
-    def __init__(self, color="k", state_dim=4, **kwargs):
-        """Create an Ackermann-steered obstacle.
+    """Ackermann-steered obstacle.
 
-        Args:
-            color (str): Display color. Default "k".
-            state_dim (int): State vector dimension (>=4).
-            **kwargs: Forwarded to ``ObjectBase``.
-        """
+    .. deprecated::
+        Use ``ObjectBase`` with ``kinematics={name: 'acker'}, role='obstacle'`` directly.
+        This subclass will be removed in a future version.
+    """
+
+    def __init__(self, color="k", state_dim=4, **kwargs):
+        warnings.warn(
+            "ObstacleAcker is deprecated. Use ObjectBase with kinematics={'name': 'acker'} directly.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(color=color, role="obstacle", state_dim=state_dim, **kwargs)
