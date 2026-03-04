@@ -113,7 +113,9 @@ class KinematicsHandler(ABC):
         Returns:
             np.ndarray: (2, 1) array of [vx, vy].
         """
-        return np.zeros((2, 1))
+        raise NotImplementedError(
+            "KinematicsHandler.velocity_to_xy must be implemented in subclasses."
+        )
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         """Compute the scalar maximum speed from the vel_max vector.
