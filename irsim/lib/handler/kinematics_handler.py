@@ -124,7 +124,10 @@ class KinematicsHandler(ABC):
         Returns:
             float: Scalar maximum speed.
         """
-        return 0.0
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.compute_max_speed() must be implemented "
+            "by subclasses."
+        )
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
         """Compute the heading angle.
