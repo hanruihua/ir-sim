@@ -27,8 +27,20 @@ def register_kinematics(name: str):
         Callable: Class decorator that registers and returns the class unchanged.
     """
 
+    # Normalize registry key to ensure consistency with lookup, which
+    # lowercases names (see KinematicsFactory usage).
+    normalized_name = name.lower()
+
     def decorator(cls):
-        _kinematics_registry[name] = cls
+        # Prevent accidental overrides when the same (normalized) name is
+        # registered for multiple different handler classes.
+        existing = _kinematics_registry.get(normalized_name)
+        if existing is not None and existing is not cls:
+            raise ValueError(
+                f"Kinematics handler '{normalized_name}' is already registered "
+                f"for class {existing.__name__}"
+            )
+        _kinematics_registry[normalized_name] = cls
         return cls
 
     return decorator
