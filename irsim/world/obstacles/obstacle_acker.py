@@ -7,7 +7,7 @@ class ObstacleAcker(ObjectBase):
     """Ackermann-steered obstacle.
 
     .. deprecated::
-        Use ``ObjectBase`` with ``kinematics={name: 'acker'}, role='obstacle'`` directly.
+        Use ``ObjectBase`` with ``kinematics={'name': 'acker'}, role='obstacle'`` directly.
         This subclass will be removed in a future version.
     """
 
