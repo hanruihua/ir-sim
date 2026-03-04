@@ -220,7 +220,7 @@ class ObjectFactory:
         handler_cls = KinematicsFactory.get_handler_class(kinematics_name)
         if handler_cls is None:
             raise NotImplementedError(
-                f"Robot kinematics {kinematics_name} not implemented"
+                f"Obstacle kinematics {kinematics_name} not implemented"
             )
 
         kwargs.setdefault("color", handler_cls.default_obstacle_color)
