@@ -4,7 +4,6 @@ Tests for object-related functionality.
 Covers ObjectBase, ObjectGroup, ObjectFactory, and obstacle types.
 """
 
-import warnings
 from unittest.mock import Mock
 
 import numpy as np
@@ -192,7 +191,7 @@ class TestObstacleAcker:
 
     def test_instantiation(self):
         """Test ObstacleAcker instantiation emits deprecation warning."""
-        with pytest.warns(DeprecationWarning):
+        with pytest.warns(DeprecationWarning, match="ObstacleAcker is deprecated"):
             obstacle = ObstacleAcker()
         assert obstacle is not None
 
