@@ -8,7 +8,7 @@ class RobotOmni(ObjectBase):
     """Omnidirectional robot.
 
     .. deprecated::
-        Use ``ObjectBase`` with ``kinematics={name: 'omni'}`` directly.
+        Use ``ObjectBase`` with ``kinematics={'name': 'omni'}`` directly.
         This subclass will be removed in a future version.
     """
 
