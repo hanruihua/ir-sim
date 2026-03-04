@@ -8,7 +8,7 @@ class RobotDiff(ObjectBase):
     """Differential-drive robot.
 
     .. deprecated::
-        Use ``ObjectBase`` with ``kinematics={name: 'diff'}`` directly.
+        Use ``ObjectBase`` with ``kinematics={'name': 'diff'}`` directly.
         This subclass will be removed in a future version.
     """
 
