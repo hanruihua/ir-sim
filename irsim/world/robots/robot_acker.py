@@ -8,7 +8,7 @@ class RobotAcker(ObjectBase):
     """Ackermann-steered robot.
 
     .. deprecated::
-        Use ``ObjectBase`` with ``kinematics={name: 'acker'}`` directly.
+        Use ``ObjectBase`` with ``kinematics={'name': 'acker'}`` directly.
         This subclass will be removed in a future version.
     """
 
