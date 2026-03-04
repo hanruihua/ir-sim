@@ -192,8 +192,7 @@ class TestObstacleAcker:
 
     def test_instantiation(self):
         """Test ObstacleAcker instantiation emits deprecation warning."""
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
+        with pytest.warns(DeprecationWarning):
             obstacle = ObstacleAcker()
         assert obstacle is not None
 
