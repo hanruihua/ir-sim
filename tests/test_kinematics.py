@@ -150,6 +150,17 @@ class TestKinematicsRegistry:
             min_state_dim = 5
             default_state_dim = 5
 
+            def velocity_to_xy(self, velocity, heading):
+                """Simple stub: return a zero XY velocity vector."""
+                return np.zeros(2, dtype=float)
+
+            def compute_max_speed(self, velocity):
+                """Simple stub: return a placeholder scalar speed."""
+                return float(0.0)
+
+            def compute_heading(self, state):
+                """Simple stub: return a placeholder heading angle."""
+                return float(0.0)
             def step(self, state, velocity, step_time):
                 return state
 
