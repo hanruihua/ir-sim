@@ -7,7 +7,7 @@ class ObstacleOmni(ObjectBase):
     """Omnidirectional obstacle.
 
     .. deprecated::
-        Use ``ObjectBase`` with ``kinematics={name: 'omni'}, role='obstacle'`` directly.
+        Use ``ObjectBase`` with ``kinematics={'name': 'omni'}, role='obstacle'`` directly.
         This subclass will be removed in a future version.
     """
 
