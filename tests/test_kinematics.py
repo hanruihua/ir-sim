@@ -278,3 +278,84 @@ class TestComputeHeading:
         state = np.array([[0], [0], [2.0], [0]])
         velocity = np.array([[1], [0]])
         assert handler.compute_heading(state, velocity) == pytest.approx(2.0)
+
+
+# ---------------------------------------------------------------------------
+# Coverage: edge cases for base class and zero-shape branches
+# ---------------------------------------------------------------------------
+
+
+class TestRegistryDuplicateRaises:
+    """Registering the same name for a different class raises ValueError."""
+
+    def test_duplicate_registration(self):
+        with pytest.raises(ValueError, match="already registered"):
+
+            @register_kinematics("diff")
+            class AnotherDiff(KinematicsHandler):
+                def step(self, state, velocity, step_time):
+                    return state
+
+                def velocity_to_xy(self, state, velocity):
+                    return np.zeros((2, 1))
+
+                def compute_max_speed(self, vel_max):
+                    return 0.0
+
+                def compute_heading(self, state, velocity):
+                    return 0.0
+
+
+class TestBaseClassNotImplemented:
+    """Base class methods raise NotImplementedError."""
+
+    def _make_bare_handler(self):
+        """Create a minimal concrete subclass that only implements step()."""
+
+        class BareHandler(KinematicsHandler):
+            def step(self, state, velocity, step_time):
+                return state
+
+        return BareHandler("bare", False, None)
+
+    def test_velocity_to_xy_not_implemented(self):
+        handler = self._make_bare_handler()
+        with pytest.raises(NotImplementedError):
+            handler.velocity_to_xy(np.zeros((3, 1)), np.zeros((2, 1)))
+
+    def test_compute_max_speed_not_implemented(self):
+        handler = self._make_bare_handler()
+        with pytest.raises(NotImplementedError):
+            handler.compute_max_speed(np.zeros((2, 1)))
+
+    def test_compute_heading_fallback(self):
+        """Base compute_heading returns state[2,0] when state has 3+ rows."""
+        handler = self._make_bare_handler()
+        state = np.array([[1], [2], [0.7]])
+        velocity = np.zeros((2, 1))
+        assert handler.compute_heading(state, velocity) == pytest.approx(0.7)
+
+    def test_compute_heading_fallback_short_state(self):
+        """Base compute_heading returns 0.0 when state has < 3 rows."""
+        handler = self._make_bare_handler()
+        state = np.array([[1], [2]])
+        velocity = np.zeros((2, 1))
+        assert handler.compute_heading(state, velocity) == 0.0
+
+
+class TestVelocityToXYZeroShape:
+    """Cover zero-shape velocity branches in diff/acker handlers."""
+
+    def test_diff_zero_shape(self):
+        handler = DifferentialKinematics("diff", False, None)
+        state = np.array([[0], [0], [0]])
+        velocity = np.float64(0.0)  # ndim == 0
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_array_equal(result, np.zeros((2, 1)))
+
+    def test_acker_zero_shape(self):
+        handler = AckermannKinematics("acker", False, None)
+        state = np.array([[0], [0], [0], [0]])
+        velocity = np.float64(0.0)  # ndim == 0
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_array_equal(result, np.zeros((2, 1)))
