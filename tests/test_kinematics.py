@@ -161,11 +161,23 @@ class TestKinematicsRegistry:
             def compute_heading(self, state):
                 """Simple stub: return a placeholder heading angle."""
                 return 0.0
+
             def step(self, state, velocity, step_time):
                 return state
 
         assert _kinematics_registry["test_custom"] is CustomKinematics
         assert KinematicsFactory.get_handler_class("test_custom") is CustomKinematics
+
+        # Exercise the stub methods to ensure coverage
+        handler = CustomKinematics("test_custom", False, None)
+        np.testing.assert_array_equal(
+            handler.velocity_to_xy(np.zeros(2), 0.0), np.zeros(2)
+        )
+        assert handler.compute_max_speed(np.zeros(2)) == 0.0
+        assert handler.compute_heading(np.zeros(3)) == 0.0
+        np.testing.assert_array_equal(
+            handler.step(np.zeros(3), np.zeros(2), 0.1), np.zeros(3)
+        )
 
         # Clean up
         del _kinematics_registry["test_custom"]
@@ -293,16 +305,16 @@ class TestRegistryDuplicateRaises:
 
             @register_kinematics("diff")
             class AnotherDiff(KinematicsHandler):
-                def step(self, state, velocity, step_time):
+                def step(self, state, velocity, step_time):  # pragma: no cover
                     return state
 
-                def velocity_to_xy(self, state, velocity):
+                def velocity_to_xy(self, state, velocity):  # pragma: no cover
                     return np.zeros((2, 1))
 
-                def compute_max_speed(self, vel_max):
+                def compute_max_speed(self, vel_max):  # pragma: no cover
                     return 0.0
 
-                def compute_heading(self, state, velocity):
+                def compute_heading(self, state, velocity):  # pragma: no cover
                     return 0.0
 
 
@@ -313,7 +325,7 @@ class TestBaseClassNotImplemented:
         """Create a minimal concrete subclass that only implements step()."""
 
         class BareHandler(KinematicsHandler):
-            def step(self, state, velocity, step_time):
+            def step(self, state, velocity, step_time):  # pragma: no cover
                 return state
 
         return BareHandler("bare", False, None)
