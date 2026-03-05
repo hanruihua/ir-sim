@@ -2175,8 +2175,15 @@ msgid "**Text Label Visualization:**"
 msgstr "**文本标签可视化：**"
 
 #: ../../source/yaml_config/configuration.md:862
-msgid "`show_text` (bool/`False`): Whether to show text information."
-msgstr "`show_text`（bool）：是否显示文本信息，默认 False。"
+msgid ""
+"`show_text` (bool/`False`): Whether to show text information. By default, "
+"the object's abbreviation (e.g., `r0`, `o1`) is displayed. Custom text can "
+"be set at runtime via `object.set_text(\"custom label\")`. Pass `None` to "
+"reset to the default abbreviation."
+msgstr ""
+"`show_text`（bool）：是否显示文本信息，默认 False。默认显示对象缩写（如 "
+"`r0`、`o1`）。可在运行时通过 `object.set_text(\"自定义文本\")` 设置自定义文本"
+"。传入 `None` 可重置为默认缩写。"
 
 #: ../../source/yaml_config/configuration.md:863
 msgid "`text_color` (str): Color of the text. Default is 'k' (black)."
@@ -2199,6 +2206,13 @@ msgid ""
 "`text_position` (list/`[-radius-0.1, radius+0.1]`): Position offset from "
 "object center [dx, dy]."
 msgstr "`text_position`（列表）：相对对象中心的偏移 `[dx, dy]`，默认 `[-radius-0.1, radius+0.1]`。"
+
+#: ../../source/yaml_config/configuration.md:868
+msgid ""
+"Similarly, goal text can be customized via "
+"`object.set_goal_text(\"custom goal label\")`."
+msgstr ""
+"同样，目标文本可通过 `object.set_goal_text(\"自定义目标文本\")` 进行自定义。"
 
 #: ../../source/yaml_config/configuration.md:869
 msgid "**Velocity Arrow Visualization:**"

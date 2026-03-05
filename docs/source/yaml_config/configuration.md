@@ -872,12 +872,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   - `show_goal_text` (bool/`False`): Whether to show the goal text.
 
   **Text Label Visualization:**
-  - `show_text` (bool/`False`): Whether to show text information.
+  - `show_text` (bool/`False`): Whether to show text information. By default, the object's abbreviation (e.g., `r0`, `o1`) is displayed. Custom text can be set at runtime via `object.set_text("custom label")`. Pass `None` to reset to the default abbreviation.
     - `text_color` (str): Color of the text. Default is 'k' (black).
     - `text_size` (int/`10`): Font size of the text.
     - `text_alpha` (float/`1.0`): Transparency of the text (0.0 to 1.0).
     - `text_zorder` (int/`2`): Z-order of the text.
     - `text_position` (list/`[-radius-0.1, radius+0.1]`): Position offset from object center [dx, dy].
+
+  Similarly, goal text can be customized via `object.set_goal_text("custom goal label")`.
 
   **Velocity Arrow Visualization:**
   - `show_arrow` (bool/`False`): Whether to show the velocity arrow.

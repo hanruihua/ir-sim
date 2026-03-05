@@ -296,14 +296,14 @@ class TestDrawPatch:
 class TestGoalText:
     """Tests for goal abbreviation text rendering."""
 
-    def test_goal_abbr_text_update(self, env_factory):
+    def test__goal_text_update(self, env_factory):
         """Test goal abbreviation text position and property updates."""
         env = env_factory("test_all_objects.yaml")
         robot = env.robot
         robot.set_goal([8, 8, 0])
 
         mock_text = Mock()
-        robot.goal_abbr_text = mock_text
+        robot._goal_text = mock_text
 
         robot._step_plot(text_color="red", text_size=12, text_alpha=0.8, text_zorder=10)
 
@@ -313,7 +313,7 @@ class TestGoalText:
         mock_text.set_alpha.assert_called_with(0.8)
         mock_text.set_zorder.assert_called_with(10)
 
-    def test_goal_abbr_text_creation(self, env_factory):
+    def test__goal_text_creation(self, env_factory):
         """Test goal abbreviation text is created during plot_object."""
         env = env_factory("test_all_objects.yaml")
         robot = env.robot
@@ -327,8 +327,8 @@ class TestGoalText:
             ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
         )
 
-        assert hasattr(robot, "goal_abbr_text")
-        assert robot.goal_abbr_text is not None
+        assert hasattr(robot, "_goal_text")
+        assert robot._goal_text is not None
         plt.close(fig)
 
 
