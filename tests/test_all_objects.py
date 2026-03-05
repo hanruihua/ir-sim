@@ -997,5 +997,77 @@ def test__goal_text_creation():
     env.end()
 
 
+def test_set_text():
+    """Test set_text and _get_text on ObjectBase."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    # Default text is abbreviation
+    assert robot._get_text() == robot.abbr
+
+    # Set custom text
+    robot.set_text("hello")
+    assert robot._get_text() == "hello"
+
+    # Reset to default
+    robot.set_text(None)
+    assert robot._get_text() == robot.abbr
+
+    env.end()
+
+
+def test_set_text_updates_artist():
+    """Test set_text updates the matplotlib text artist when it exists."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    mock_text = Mock()
+    robot._text = mock_text
+
+    robot.set_text("custom")
+    mock_text.set_text.assert_called_with("custom")
+
+    robot.set_text(None)
+    mock_text.set_text.assert_called_with(robot.abbr)
+
+    env.end()
+
+
+def test_set_goal_text():
+    """Test set_goal_text and _get_goal_text on ObjectBase."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    # Default goal text is goal abbreviation
+    assert robot._get_goal_text() == robot.goal_abbr
+
+    # Set custom goal text
+    robot.set_goal_text("target")
+    assert robot._get_goal_text() == "target"
+
+    # Reset to default
+    robot.set_goal_text(None)
+    assert robot._get_goal_text() == robot.goal_abbr
+
+    env.end()
+
+
+def test_set_goal_text_updates_artist():
+    """Test set_goal_text updates the matplotlib text artist when it exists."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    mock_text = Mock()
+    robot._goal_text = mock_text
+
+    robot.set_goal_text("my goal")
+    mock_text.set_text.assert_called_with("my goal")
+
+    robot.set_goal_text(None)
+    mock_text.set_text.assert_called_with(robot.goal_abbr)
+
+    env.end()
+
+
 if __name__ == "__main__":
     pytest.main(["--cov=.", "--cov-report", "html", "-v", __file__])
