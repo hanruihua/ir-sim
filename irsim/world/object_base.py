@@ -426,13 +426,13 @@ class ObjectBase:
         self.plot_patch_list = []
         self.plot_line_list = []
         self.plot_text_list = []
+        self._custom_text: str | None = None
+        self._custom_goal_text: str | None = None
         self.collision_obj = []
         self.plot_trail_list = []
 
         # validate unknown kwargs
-        check_unknown_kwargs(
-            kwargs, self._VALID_PARAMS, context=f" in '{role}' config"
-        )
+        check_unknown_kwargs(kwargs, self._VALID_PARAMS, context=f" in '{role}' config")
 
     def __eq__(self, o: "ObjectBase") -> bool:
         if isinstance(o, ObjectBase):
@@ -1134,8 +1134,8 @@ class ObjectBase:
             - object_line: Object outline for linestring shapes (line)
             - object_img: Object image for description-based visualization
             - goal_patch: Goal position marker (patch)
-            - abbr_text: Object abbreviation text label
-            - goal_abbr_text: Goal abbreviation text label
+            - _text: Object text label
+            - _goal_text: Goal text label
             - arrow_patch: Velocity direction arrow (patch)
             - trajectory_line: Trajectory path visualization (line)
             - fov_patch: Field of view visualization (patch)
@@ -1149,8 +1149,8 @@ class ObjectBase:
             "object_line",
             "object_img",
             "goal_patch",
-            "abbr_text",
-            "goal_abbr_text",
+            "_text",
+            "_goal_text",
             "arrow_patch",
             "trajectory_line",
             "fov_patch",
@@ -1214,7 +1214,7 @@ class ObjectBase:
         Update methods by element type:
         - Patches (object_patch, goal_patch, arrow_patch, fov_patch): Updated using matplotlib transforms
         - Lines (object_line, trajectory_line): Updated using set_data method
-        - Text (abbr_text): Updated using set_position method
+        - Text (_text): Updated using set_position method
         - Images (object_img): Updated using extent and transform methods
 
         Args:
@@ -1441,8 +1441,8 @@ class ObjectBase:
                         )
 
         # Update text position using set_position (works for both 2D and 3D)
-        if hasattr(self, "abbr_text"):
-            text = self.abbr_text
+        if hasattr(self, "_text"):
+            text = self._text
             # Prefer runtime kwargs, then initial plot kwargs, fallback to default
             default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
             text_position = kwargs.get(
@@ -1451,6 +1451,9 @@ class ObjectBase:
             )
 
             text.set_position((x + text_position[0], y + text_position[1]))
+
+            # Sync display text (may have been changed via set_text)
+            text.set_text(self._get_text())
 
             # Update text properties
             if "text_color" in kwargs:
@@ -1469,8 +1472,8 @@ class ObjectBase:
         if self.goal is not None:
             goal_x = self.goal[0, 0]
             goal_y = self.goal[1, 0]
-            if hasattr(self, "goal_abbr_text"):
-                goal_text = self.goal_abbr_text
+            if hasattr(self, "_goal_text"):
+                goal_text = self._goal_text
                 # Prefer runtime kwargs, then initial plot kwargs, fallback to default
                 default_text_pos = [-self.radius - 0.1, self.radius + 0.1]
                 text_position = kwargs.get(
@@ -1481,6 +1484,9 @@ class ObjectBase:
                 goal_text.set_position(
                     (goal_x + text_position[0], goal_y + text_position[1])
                 )
+
+                # Sync goal display text (may have been changed via set_goal_text)
+                goal_text.set_text(self._get_goal_text())
 
                 # Update text properties
                 if "text_color" in kwargs:
@@ -1753,52 +1759,52 @@ class ObjectBase:
         x, y = state[0, 0], state[1, 0]
 
         if isinstance(ax, Axes3D):
-            self.abbr_text = ax.text(
+            self._text = ax.text(
                 x + text_position[0],
                 y + text_position[1],
                 self.z,
-                self.abbr,
+                self._get_text(),
                 fontsize=text_size,
                 color=text_color,
                 zorder=text_zorder,
                 alpha=text_alpha,
             )
         else:
-            self.abbr_text = ax.text(
+            self._text = ax.text(
                 x + text_position[0],
                 y + text_position[1],
-                self.abbr,
+                self._get_text(),
                 fontsize=text_size,
                 color=text_color,
                 zorder=text_zorder,
                 alpha=text_alpha,
             )
-        self.plot_text_list.append(self.abbr_text)
+        self.plot_text_list.append(self._text)
 
         if self.show_goal and self.show_goal_text:
             goal_x, goal_y = self.goal[0, 0], self.goal[1, 0]
             if isinstance(ax, Axes3D):
-                self.goal_abbr_text = ax.text(
+                self._goal_text = ax.text(
                     goal_x + text_position[0],
                     goal_y + text_position[1],
                     self.z,
-                    self.goal_abbr,
+                    self._get_goal_text(),
                     fontsize=text_size,
                     color=text_color,
                     zorder=text_zorder,
                     alpha=text_alpha,
                 )
             else:
-                self.goal_abbr_text = ax.text(
+                self._goal_text = ax.text(
                     goal_x + text_position[0],
                     goal_y + text_position[1],
-                    self.goal_abbr,
+                    self._get_goal_text(),
                     fontsize=text_size,
                     color=text_color,
                     zorder=text_zorder,
                     alpha=text_alpha,
                 )
-            self.plot_text_list.append(self.goal_abbr_text)
+            self.plot_text_list.append(self._goal_text)
 
     def plot_arrow(
         self,
@@ -2159,6 +2165,46 @@ class ObjectBase:
         """
 
         return "G" + "-" + self.role[0] + str(self.id)
+
+    def _get_text(self) -> str:
+        """Return custom text if set, otherwise the default abbreviation."""
+        return self._custom_text if self._custom_text is not None else self.abbr
+
+    def set_text(self, text: str | None) -> None:
+        """
+        Set custom display text for this object.
+
+        The text will be shown on the next render when ``show_text`` is enabled.
+        Pass ``None`` to reset back to the default abbreviation.
+
+        Args:
+            text: The text string to display, or ``None`` to reset.
+        """
+        self._custom_text = text
+        if hasattr(self, "_text"):
+            self._text.set_text(self._get_text())
+
+    def _get_goal_text(self) -> str:
+        """Return custom goal text if set, otherwise the default goal abbreviation."""
+        return (
+            self._custom_goal_text
+            if self._custom_goal_text is not None
+            else self.goal_abbr
+        )
+
+    def set_goal_text(self, text: str | None) -> None:
+        """
+        Set custom display text for this object's goal.
+
+        The text will be shown on the next render when ``show_goal_text`` is enabled.
+        Pass ``None`` to reset back to the default goal abbreviation.
+
+        Args:
+            text: The text string to display, or ``None`` to reset.
+        """
+        self._custom_goal_text = text
+        if hasattr(self, "_goal_text"):
+            self._goal_text.set_text(self._get_goal_text())
 
     @property
     def shape(self) -> str:

@@ -951,15 +951,15 @@ def test_envbase_empty_yaml_path_logs(capsys):
     assert "YAML Configuration load failed" in out or "YAML File not found" in out
 
 
-def test_goal_abbr_text_update():
+def test__goal_text_update():
     """Test goal abbreviation text position and property updates during step_plot"""
     env = irsim.make("test_all_objects.yaml", display=False)
     robot = env.robot
     robot.set_goal([8, 8, 0])
 
-    # Mock goal_abbr_text
+    # Mock _goal_text
     mock_text = Mock()
-    robot.goal_abbr_text = mock_text
+    robot._goal_text = mock_text
 
     # Test with all text properties
     robot._step_plot(text_color="red", text_size=12, text_alpha=0.8, text_zorder=10)
@@ -973,7 +973,7 @@ def test_goal_abbr_text_update():
     env.end()
 
 
-def test_goal_abbr_text_creation():
+def test__goal_text_creation():
     """Test goal abbreviation text is created during plot_object"""
     env = irsim.make("test_all_objects.yaml", display=False)
     robot = env.robot
@@ -989,11 +989,83 @@ def test_goal_abbr_text_creation():
         ax, text_color="blue", text_size=10, text_alpha=0.5, text_zorder=5
     )
 
-    # Verify goal_abbr_text was created
-    assert hasattr(robot, "goal_abbr_text")
-    assert robot.goal_abbr_text is not None
+    # Verify _goal_text was created
+    assert hasattr(robot, "_goal_text")
+    assert robot._goal_text is not None
 
     plt.close(fig)
+    env.end()
+
+
+def test_set_text():
+    """Test set_text and _get_text on ObjectBase."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    # Default text is abbreviation
+    assert robot._get_text() == robot.abbr
+
+    # Set custom text
+    robot.set_text("hello")
+    assert robot._get_text() == "hello"
+
+    # Reset to default
+    robot.set_text(None)
+    assert robot._get_text() == robot.abbr
+
+    env.end()
+
+
+def test_set_text_updates_artist():
+    """Test set_text updates the matplotlib text artist when it exists."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    mock_text = Mock()
+    robot._text = mock_text
+
+    robot.set_text("custom")
+    mock_text.set_text.assert_called_with("custom")
+
+    robot.set_text(None)
+    mock_text.set_text.assert_called_with(robot.abbr)
+
+    env.end()
+
+
+def test_set_goal_text():
+    """Test set_goal_text and _get_goal_text on ObjectBase."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    # Default goal text is goal abbreviation
+    assert robot._get_goal_text() == robot.goal_abbr
+
+    # Set custom goal text
+    robot.set_goal_text("target")
+    assert robot._get_goal_text() == "target"
+
+    # Reset to default
+    robot.set_goal_text(None)
+    assert robot._get_goal_text() == robot.goal_abbr
+
+    env.end()
+
+
+def test_set_goal_text_updates_artist():
+    """Test set_goal_text updates the matplotlib text artist when it exists."""
+    env = irsim.make("test_all_objects.yaml", display=False)
+    robot = env.robot
+
+    mock_text = Mock()
+    robot._goal_text = mock_text
+
+    robot.set_goal_text("my goal")
+    mock_text.set_text.assert_called_with("my goal")
+
+    robot.set_goal_text(None)
+    mock_text.set_text.assert_called_with(robot.goal_abbr)
+
     env.end()
 
 
