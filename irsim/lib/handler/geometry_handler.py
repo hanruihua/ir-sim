@@ -4,6 +4,7 @@ import numpy as np
 from shapely import (
     LineString,
     MultiPoint,
+    MultiPolygon,
     Point,
     Polygon,
     bounds,
@@ -12,7 +13,7 @@ from shapely import (
     make_valid,
     minimum_bounding_radius,
 )
-from shapely.ops import transform
+from shapely.ops import transform, unary_union
 
 from irsim.lib import random_generate_polygon
 from irsim.util.random import rng
@@ -103,6 +104,13 @@ class geometry_handler(ABC):
                 kwargs.get("center"), kwargs.get("radius")
             )
 
+        elif self.name == "multipolygon":
+            # MultiPolygon is treated as non-convex by default
+            G, h, cone_type, convex_flag = None, None, None, False
+
+        else:
+            G, h, cone_type, convex_flag = None, None, None, None
+
         return G, h, cone_type, convex_flag
 
     def get_polygon_Gh(self, vertices: np.ndarray | None = None):
@@ -167,12 +175,31 @@ class geometry_handler(ABC):
 
         return length, width
 
+    def _get_multipolygon_vertices(self, geometry) -> np.ndarray:
+        """
+        Extract combined vertices from a MultiPolygon geometry.
+
+        Args:
+            geometry: A Shapely MultiPolygon geometry object.
+
+        Returns:
+            np.ndarray: Combined vertices array of shape (2, N) where N is total vertex count.
+        """
+        all_vertices = []
+        for geom in geometry.geoms:
+            coords = geom.exterior.coords._coords[:-1]  # Exclude repeated last point
+            all_vertices.append(coords)
+        combined = np.vstack(all_vertices)
+        return combined.T
+
     @property
     def vertices(self):
         if self.name == "linestring":
             x = self.geometry.xy[0]
             y = self.geometry.xy[1]
             return np.c_[x, y].T
+        if self.name == "multipolygon":
+            return self._get_multipolygon_vertices(self.geometry)
         return self.geometry.exterior.coords._coords.T[:, :-1]
 
     @property
@@ -195,6 +222,10 @@ class geometry_handler(ABC):
 
         if self.name == "map":
             return None
+
+        if self.name == "multipolygon":
+            return self._get_multipolygon_vertices(self._original_geometry)
+
         return self._original_geometry.exterior.coords._coords.T[:, :-1]
 
     @property
@@ -323,6 +354,109 @@ class RectangleGeometry(geometry_handler):
         return Polygon(vertices)
 
 
+class MultiPolygonGeometry(geometry_handler):
+    """
+    Geometry handler for complex shapes comprised of multiple rectangles or polygons.
+
+    This class supports robots with complex shapes that can be defined as a collection
+    of multiple rectangles (or arbitrary polygons), each with their own offset position.
+    Overlapping components are automatically merged using unary_union for valid geometry.
+    """
+
+    def __init__(self, name: str = "multipolygon", **kwargs):
+        super().__init__(name, **kwargs)
+
+    def construct_original_geometry(
+        self,
+        components: Optional[list] = None,
+        **kwargs,
+    ):
+        """
+        Construct a MultiPolygon or Polygon geometry from multiple rectangular/polygon components.
+
+        Args:
+            components: List of component dictionaries, each defining a rectangle or polygon.
+                For rectangles: {"type": "rectangle", "length": float, "width": float,
+                                 "offset": [x, y], "rotation": float (optional, in radians)}
+                For polygons: {"type": "polygon", "vertices": [[x1,y1], [x2,y2], ...]}
+
+                If "type" is not specified, "rectangle" is assumed for backward compatibility
+                with simple rectangle definitions like:
+                [{"length": 1.0, "width": 0.5, "offset": [0, 0]}, ...]
+
+        Returns:
+            Shapely Polygon or MultiPolygon (merged if components overlap)
+
+        Example:
+            # L-shaped robot from two rectangles
+            components = [
+                {"length": 2.0, "width": 0.5, "offset": [0, 0]},       # horizontal bar
+                {"length": 0.5, "width": 1.5, "offset": [-0.75, 0.5]}, # vertical bar
+            ]
+        """
+        if components is None:
+            print("No components provided for multipolygon. Using default single rectangle")
+            components = [{"length": 1.0, "width": 1.0, "offset": [0, 0]}]
+
+        polygons = []
+        for comp in components:
+            comp_type = comp.get("type", "rectangle")
+
+            if comp_type == "rectangle":
+                length = comp.get("length", 1.0)
+                width = comp.get("width", 1.0)
+                offset = comp.get("offset", [0, 0])
+                rotation = comp.get("rotation", 0.0)
+
+                # Create rectangle vertices centered at offset
+                half_l = length / 2
+                half_w = width / 2
+                vertices = [
+                    (-half_l, -half_w),
+                    (half_l, -half_w),
+                    (half_l, half_w),
+                    (-half_l, half_w),
+                ]
+
+                # Apply rotation if specified
+                if rotation != 0.0:
+                    cos_r = np.cos(rotation)
+                    sin_r = np.sin(rotation)
+                    vertices = [
+                        (x * cos_r - y * sin_r, x * sin_r + y * cos_r)
+                        for x, y in vertices
+                    ]
+
+                # Apply offset
+                vertices = [(x + offset[0], y + offset[1]) for x, y in vertices]
+                polygons.append(Polygon(vertices))
+
+            elif comp_type == "polygon":
+                poly_vertices = comp.get("vertices")
+                if poly_vertices is None:
+                    raise ValueError("Polygon component requires 'vertices' parameter")
+                offset = comp.get("offset", [0, 0])
+                # Apply offset to vertices
+                shifted_vertices = [
+                    (v[0] + offset[0], v[1] + offset[1]) for v in poly_vertices
+                ]
+                polygons.append(Polygon(shifted_vertices))
+
+            else:
+                raise ValueError(f"Unknown component type: {comp_type}")
+
+        # Use unary_union to merge overlapping polygons into valid geometry
+        # This handles overlapping components as recommended in the issue
+        merged = unary_union(polygons)
+
+        # If the result is a single Polygon (after merging), convert to MultiPolygon
+        # to maintain consistent handling
+        if isinstance(merged, Polygon):
+            return MultiPolygon([merged])
+
+        return merged
+
+
 class LinestringGeometry(geometry_handler):
     def __init__(self, name: str = "linestring", **kwargs):
         super().__init__(name, **kwargs)
@@ -427,6 +561,9 @@ class GeometryFactory:
 
         if name == "rectangle":
             return RectangleGeometry(name, **kwargs)
+
+        if name == "multipolygon":
+            return MultiPolygonGeometry(name, **kwargs)
 
         if name == "linestring":
             return LinestringGeometry(name, **kwargs)
