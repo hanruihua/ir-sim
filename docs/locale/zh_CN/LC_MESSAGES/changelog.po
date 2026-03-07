@@ -2,7 +2,6 @@
 # Copyright (C) 2024, Ruihua Han
 # This file is distributed under the same license as the IR-SIM package.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
