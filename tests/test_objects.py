@@ -13,6 +13,11 @@ from irsim.world.object_base import ObjectBase
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.object_group import ObjectGroup
 from irsim.world.obstacles.obstacle_acker import ObstacleAcker
+from irsim.world.obstacles.obstacle_diff import ObstacleDiff
+from irsim.world.obstacles.obstacle_omni import ObstacleOmni
+from irsim.world.robots.robot_acker import RobotAcker
+from irsim.world.robots.robot_diff import RobotDiff
+from irsim.world.robots.robot_omni import RobotOmni
 
 
 class TestObjectGroup:
@@ -190,9 +195,14 @@ class TestObstacleAcker:
     """Tests for ObstacleAcker class."""
 
     def test_instantiation(self):
-        """Test ObstacleAcker instantiation."""
-        obstacle = ObstacleAcker()
+        """Test ObstacleAcker instantiation emits deprecation warning."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="ObstacleAcker is deprecated"):
+            obstacle = ObstacleAcker()
         assert obstacle is not None
+        env.end()
 
 
 # ---------------------------------------------------------------------------
@@ -285,4 +295,101 @@ class TestObjectFactoryKinematics:
         factory = ObjectFactory()
         with pytest.raises(NotImplementedError, match="not implemented"):
             factory.create_obstacle(kinematics={"name": "nonexistent_kin"})
+        env.end()
+
+
+# ---------------------------------------------------------------------------
+# Deprecated subclass deprecation-warning tests
+# ---------------------------------------------------------------------------
+
+
+class TestDeprecatedSubclasses:
+    """Ensure deprecated robot/obstacle subclasses emit DeprecationWarning."""
+
+    def test_robot_diff_deprecation(self):
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="RobotDiff is deprecated"):
+            robot = RobotDiff(kinematics={"name": "diff"})
+        assert robot is not None
+        env.end()
+
+    def test_robot_omni_deprecation(self):
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="RobotOmni is deprecated"):
+            robot = RobotOmni(kinematics={"name": "omni"})
+        assert robot is not None
+        env.end()
+
+    def test_robot_acker_deprecation(self):
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="RobotAcker is deprecated"):
+            robot = RobotAcker(kinematics={"name": "acker"})
+        assert robot is not None
+        env.end()
+
+    def test_obstacle_diff_deprecation(self):
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="ObstacleDiff is deprecated"):
+            obs = ObstacleDiff(kinematics={"name": "diff"})
+        assert obs is not None
+        env.end()
+
+    def test_obstacle_omni_deprecation(self):
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        with pytest.warns(DeprecationWarning, match="ObstacleOmni is deprecated"):
+            obs = ObstacleOmni(kinematics={"name": "omni"})
+        assert obs is not None
+        env.end()
+
+
+# ---------------------------------------------------------------------------
+# ObjectBase fallback property tests (kf is None)
+# ---------------------------------------------------------------------------
+
+
+class TestObjectBaseNoKinematics:
+    """Cover fallback paths in ObjectBase properties when kf is None."""
+
+    def _make_no_kf_object(self):
+        """Create an ObjectBase with kf=None by passing kinematics=None."""
+        obj = ObjectBase(role="obstacle", state=[1, 2, 0.5])
+        assert obj.kf is None
+        return obj
+
+    def test_velocity_xy_no_kf(self):
+        """velocity_xy returns zeros when kf is None."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        obj = self._make_no_kf_object()
+        result = obj.velocity_xy
+        np.testing.assert_array_equal(result, np.zeros((2, 1)))
+        env.end()
+
+    def test_max_speed_no_kf(self):
+        """max_speed returns 0 when kf is None."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        obj = self._make_no_kf_object()
+        assert obj.max_speed == 0
+        env.end()
+
+    def test_heading_no_kf(self):
+        """heading falls back to state[2,0] when kf is None."""
+        import irsim
+
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
+        obj = self._make_no_kf_object()
+        assert obj.heading == pytest.approx(0.5)
         env.end()

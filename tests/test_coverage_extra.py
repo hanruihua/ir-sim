@@ -185,7 +185,11 @@ def test_rrt_star_edge_methods():
 
 def test_obstacle_acker_instantiation():
     # Covers its __init__ path
-    _ = ObstacleAcker()
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        _ = ObstacleAcker()
 
 
 def test_draw_patch_variants():
