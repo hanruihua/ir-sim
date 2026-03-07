@@ -583,6 +583,11 @@ class ObjectBase:
             diff = np.linalg.norm(self.state[:3] - goal[:3])
         elif self.arrive_mode == "position":
             diff = np.linalg.norm(self.state[:2] - goal[:2])
+        else:
+            raise ValueError(
+                f"Unsupported arrive_mode '{self.arrive_mode}'. "
+                "Supported modes are 'state' and 'position'."
+            )
 
         return diff < threshold
 
