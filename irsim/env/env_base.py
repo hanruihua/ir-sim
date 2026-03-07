@@ -896,6 +896,7 @@ class EnvBase:
             raise ValueError(f"Object name '{obj.name}' already exists.")
         obj._env = self
         self._objects.append(obj)
+        obj._init_plot(self._env_plot.ax)
         self.build_tree()
 
     def add_objects(self, objs: list[ObjectBase]) -> None:
@@ -916,6 +917,7 @@ class EnvBase:
             raise ValueError(f"Object names already exist: {conflicts}")
         for obj in objs:
             obj._env = self
+            obj._init_plot(self._env_plot.ax)
         self._objects.extend(objs)
         self.build_tree()
 
