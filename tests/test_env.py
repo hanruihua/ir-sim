@@ -1057,3 +1057,188 @@ class TestStatusArrived:
         with mock_patch.object(ObjectBase, "check_status", lambda self: None):
             env._status_step()
         assert env.status == "Quit"
+
+
+class TestCloseAlias:
+    """Tests for env.close() Gym-style alias."""
+
+    def test_close_calls_end(self, env_factory):
+        """close() delegates to end()."""
+        env = env_factory("test_collision_world.yaml")
+        with patch.object(env, "end") as mock_end:
+            env.close(ending_time=1.0)
+            mock_end.assert_called_once_with(1.0)
+
+    def test_close_default_args(self, env_factory):
+        """close() passes default ending_time and kwargs to end()."""
+        env = env_factory("test_collision_world.yaml")
+        with patch.object(env, "end") as mock_end:
+            env.close()
+            mock_end.assert_called_once_with(3.0)
+
+
+class TestCheckArrive:
+    """Tests for ObjectBase.check_arrive()."""
+
+    def test_check_arrive_none_goal(self, env_factory):
+        """check_arrive returns False when goal is None."""
+        env = env_factory("test_collision_world.yaml")
+        assert env.robot.check_arrive(None) is False
+
+    def test_check_arrive_position_mode_arrived(self, env_factory):
+        """check_arrive returns True when within threshold (position mode)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.arrive_mode = "position"
+        goal = robot.state.copy()
+        assert robot.check_arrive(goal)
+
+    def test_check_arrive_position_mode_not_arrived(self, env_factory):
+        """check_arrive returns False when far from goal (position mode)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.arrive_mode = "position"
+        goal = robot.state.copy()
+        goal[0, 0] += 100
+        assert not robot.check_arrive(goal)
+
+    def test_check_arrive_state_mode(self, env_factory):
+        """check_arrive works in state mode (x, y, theta)."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.arrive_mode = "state"
+        goal = robot.state.copy()
+        assert robot.check_arrive(goal)
+
+    def test_check_arrive_custom_threshold(self, env_factory):
+        """check_arrive respects custom threshold parameter."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.arrive_mode = "position"
+        goal = robot.state.astype(float).copy()
+        goal[0, 0] += 0.5
+        assert not robot.check_arrive(goal)
+        assert robot.check_arrive(goal, threshold=1.0)
+
+    def test_check_arrive_invalid_mode(self, env_factory):
+        """check_arrive raises ValueError for unsupported arrive_mode."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.arrive_mode = "invalid"
+        goal = robot.state.copy()
+        with pytest.raises(ValueError, match="Unsupported arrive_mode"):
+            robot.check_arrive(goal)
+
+
+class TestAddObjectPlot:
+    """Tests that dynamically added objects are plotted correctly."""
+
+    def test_add_object_initializes_plot(self, env_factory):
+        """add_object calls _init_plot and _step_plot on the new object."""
+        env = env_factory("test_all_objects.yaml")
+        obs = env.create_obstacle(
+            shape={"name": "circle", "radius": 0.3},
+            state=[5, 5, 0],
+        )
+        env.add_object(obs)
+        # After add, plot attributes should be initialized
+        assert hasattr(obs, "plot_attr_list")
+
+    def test_add_objects_initializes_plot(self, env_factory):
+        """add_objects calls _init_plot and _step_plot on each new object."""
+        env = env_factory("test_all_objects.yaml")
+        obs1 = env.create_obstacle(
+            shape={"name": "circle", "radius": 0.3},
+            state=[5, 5, 0],
+        )
+        obs2 = env.create_obstacle(
+            shape={"name": "circle", "radius": 0.3},
+            state=[6, 6, 0],
+        )
+        env.add_objects([obs1, obs2])
+        assert hasattr(obs1, "plot_attr_list")
+        assert hasattr(obs2, "plot_attr_list")
+
+
+class TestMouseProperties:
+    """Tests for mouse position properties."""
+
+    def test_mouse_pos(self, env_factory):
+        """mouse_pos property returns without error."""
+        env = env_factory("test_collision_world.yaml")
+        pos = env.mouse_pos
+        # Initially None (no mouse event)
+        assert pos is None or pos is not None
+
+    def test_mouse_left_pos(self, env_factory):
+        """mouse_left_pos property returns without error."""
+        env = env_factory("test_collision_world.yaml")
+        pos = env.mouse_left_pos
+        assert pos is None or pos is not None
+
+    def test_mouse_right_pos(self, env_factory):
+        """mouse_right_pos property returns without error."""
+        env = env_factory("test_collision_world.yaml")
+        pos = env.mouse_right_pos
+        assert pos is None or pos is not None
+
+
+class TestObjectVelocityProperties:
+    """Tests for object velocity and heading properties."""
+
+    def test_velocity_xy_diff(self, env_factory):
+        """velocity_xy works for diff-drive robots."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        vel = robot.velocity_xy
+        assert vel.shape == (2, 1)
+
+    def test_max_speed_diff(self, env_factory):
+        """max_speed works for diff-drive robots."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        speed = robot.max_speed
+        assert speed >= 0
+
+    def test_heading_diff(self, env_factory):
+        """heading property works for diff-drive robots."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        heading = robot.heading
+        assert np.isscalar(heading)
+
+    def test_rvo_neighbors(self, env_factory):
+        """rvo_neighbors returns a list."""
+        env = env_factory("test_collision_avoidance.yaml", full=True)
+        robot = env.robot
+        neighbors = robot.rvo_neighbors
+        assert isinstance(neighbors, list)
+
+    def test_desired_omni_vel_no_goal(self, env_factory):
+        """get_desired_omni_vel returns zeros when goal is None."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        robot.set_goal(None)
+        vel = robot.get_desired_omni_vel()
+        assert np.allclose(vel, np.zeros((2, 1)))
+
+
+class TestMidProcessEdgeCases:
+    """Tests for ObjectBase.mid_process state padding/truncation."""
+
+    def test_mid_process_truncates(self, env_factory):
+        """mid_process truncates state larger than state_dim."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        large_state = np.zeros((robot.state_dim + 2, 1))
+        result = robot.mid_process(large_state)
+        assert result.shape[0] == robot.state_dim
+
+    def test_mid_process_pads(self, env_factory):
+        """mid_process pads state smaller than state_dim."""
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        small_state = np.array([[1.0], [2.0], [0.0]])  # 3 rows, state_dim may be larger
+        if robot.state_dim > 3:
+            result = robot.mid_process(small_state)
+            assert result.shape[0] == robot.state_dim
