@@ -154,31 +154,15 @@ msgstr "群组行为"
 #: ../../source/usage/configure_behavior.md:99
 msgid ""
 "While `behavior` controls individual object movement, **`group_behavior`** "
-"enables coordinated behavior for all objects within the same group. This is "
-"particularly useful for:"
+"enables coordinated behavior for all objects within the same group. Group "
+"behavior computes actions for all members in a single step, making it more "
+"efficient than individual behaviors for coordinated scenarios."
 msgstr ""
 "`behavior` 控制单个对象的运动，而 **`group_behavior`** "
-"则用于协调同一群组内所有对象的行为。这在以下场景特别有用："
+"则用于协调同一群组内所有对象的行为。群组行为在单步计算中为所有成员生成动作，"
+"比逐个计算个体行为更高效。"
 
 #: ../../source/usage/configure_behavior.md:101
-msgid "**Swarm simulations**: Multiple agents moving together with collision avoidance"
-msgstr "**集群仿真**：多智能体协同运动并避免碰撞"
-
-#: ../../source/usage/configure_behavior.md:102
-msgid "**Crowd simulation**: Large numbers of agents navigating shared spaces"
-msgstr "**人群仿真**：大量智能体在共享空间中导航"
-
-#: ../../source/usage/configure_behavior.md:103
-msgid "**Multi-robot coordination**: Teams of robots working together"
-msgstr "**多机器人协调**：机器人团队协同工作"
-
-#: ../../source/usage/configure_behavior.md:105
-msgid ""
-"Group behavior computes actions for all members in a single step, making it "
-"more efficient than individual behaviors for coordinated scenarios."
-msgstr "群组行为在单步计算中为所有成员生成动作，比逐个计算个体行为更高效。"
-
-#: ../../source/usage/configure_behavior.md:107
 msgid "Behavior vs Group Behavior"
 msgstr "行为与群组行为对比"
 
@@ -230,17 +214,20 @@ msgstr "可用行为"
 msgid "ORCA (Optimal Reciprocal Collision Avoidance)"
 msgstr "ORCA（最优互惠碰撞避免）"
 
-#: ../../source/usage/configure_behavior.md:118
+#: ../../source/usage/configure_behavior.md:112
 msgid ""
-"ORCA is a group-level collision avoidance algorithm that computes optimal "
-"velocities for multiple agents simultaneously. It ensures smooth, "
-"collision-free navigation even with hundreds of agents."
+"ORCA is a classical built-in group-level collision avoidance algorithm that "
+"computes optimal velocities for multiple agents simultaneously. It ensures "
+"smooth, collision-free navigation even with hundreds of agents."
 msgstr ""
-"ORCA 是一种群组级碰撞避免算法，可同时为多个智能体计算最优速度。即使有数百个智能体，也能确保平滑无碰撞的导航。"
+"ORCA 是一种经典的内置群组级碰撞避免算法，可同时为多个智能体计算最优速度。"
+"即使有数百个智能体，也能确保平滑无碰撞的导航。"
 
-#: ../../source/usage/configure_behavior.md:120
-msgid "ORCA requires the `pyrvo` library. Install it using:"
-msgstr "ORCA 需要 `pyrvo` 库。使用以下命令安装："
+#: ../../source/usage/configure_behavior.md:115
+msgid ""
+"ORCA requires the `pyrvo` library, which is a python binding for the ORCA "
+"C++ algorithm. Install it using:"
+msgstr "ORCA 需要 `pyrvo` 库，它是 ORCA C++ 算法的 Python 绑定。使用以下命令安装："
 
 #: ../../source/usage/configure_behavior.md:127
 msgid "Basic ORCA Configuration"
@@ -322,17 +309,7 @@ msgstr "用于智能体到达目标后继续移动的持续仿真："
 msgid "ORCA Random Wandering"
 msgstr "ORCA 随机漫游"
 
-#: ../../source/usage/configure_behavior.md:267
-msgid "Manual ORCA Integration"
-msgstr "手动 ORCA 集成"
-
-#: ../../source/usage/configure_behavior.md:242
-msgid ""
-"For advanced use cases where you need direct control over the ORCA algorithm, "
-"you can use the `pyrvo` library directly:"
-msgstr "对于需要直接控制 ORCA 算法的高级用例，可以直接使用 `pyrvo` 库："
-
-#: ../../source/usage/configure_behavior.md:323
+#: ../../source/usage/configure_behavior.md:277
 msgid ""
 "Use `group_behavior` in YAML for most cases as it handles initialization "
 "automatically. Use the manual approach only when you need custom ORCA logic "

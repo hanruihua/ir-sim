@@ -21,18 +21,13 @@ msgstr ""
 msgid "YAML Configuration Syntax"
 msgstr "YAML配置语法"
 
-# msgid ""
-# "The configuration file is a YAML file to initialize the environment. It "
-# "contains the configuration parameters to simulate and visualize the "
-# "world, obstacle, and robot. You can customize the scenario and define the"
-# " behavior of the objects simply by using the parameters."
 #: ../../source/yaml_config/configuration.md:3
 msgid ""
 "The configuration file is a YAML file to initialize the environment. It "
 "contains the configuration parameters to simulate and visualize the "
 "world, obstacle, and robot. You can customize the scenario and define the"
 " behavior of the objects simply by using the parameters."
-
+msgstr ""
 "配置文件是一个用于初始化环境的 YAML "
 "文件。它包含用于模拟和可视化世界、障碍物和机器人的配置参数。使用者可以通过使用这些参数简单地自定义场景并定义对象的行为。"
 
@@ -2678,112 +2673,3 @@ msgid ""
 "located in the object configuration. If it is located in the root of the "
 "object configuration, it will be applied to all objects."
 msgstr "**绘图选项**：若 `plot` 位于对象配置内部，可为单个对象定制可视化；若位于对象配置的根级，则应用于所有对象。"
-
-#~ msgid "**场景中对象参数**"
-#~ msgstr ""
-
-#~ msgid "`w`"
-#~ msgstr "`0`"
-
-#~ msgid "Forward"
-#~ msgstr ""
-
-#~ msgid "`s`"
-#~ msgstr "`0`"
-
-#~ msgid "Backward"
-#~ msgstr ""
-
-#~ msgid "`a`"
-#~ msgstr "`goal`"
-
-#~ msgid "Turn Left"
-#~ msgstr ""
-
-#~ msgid "`d`"
-#~ msgstr "`0`"
-
-#~ msgid "Turn Right"
-#~ msgstr ""
-
-#~ msgid "`q`"
-#~ msgstr "`0`"
-
-#~ msgid "Decrease Linear Velocity"
-#~ msgstr ""
-
-#~ msgid "`e`"
-#~ msgstr "`role`"
-
-#~ msgid "Increase Linear Velocity"
-#~ msgstr ""
-
-#~ msgid "`z`"
-#~ msgstr "`0`"
-
-#~ msgid "Decrease Angular Velocity"
-#~ msgstr ""
-
-#~ msgid "`c`"
-#~ msgstr "`acce`"
-
-#~ msgid "Increase Angular Velocity"
-#~ msgstr ""
-
-#~ msgid "`alt+num`"
-#~ msgstr ""
-
-#~ msgid "Change Current Control Robot ID"
-#~ msgstr ""
-
-#~ msgid "`r`"
-#~ msgstr "`role`"
-
-#~ msgid "Reset the Environment"
-#~ msgstr ""
-
-#~ msgid "`space`"
-#~ msgstr "`acce`"
-
-#~ msgid "Toggle Pause/Resume Environment"
-#~ msgstr ""
-
-#~ msgid "`esc`"
-#~ msgstr "`static`"
-
-#~ msgid "Quit the Environment (sets quit flag)"
-#~ msgstr ""
-
-#~ msgid "`x`"
-#~ msgstr "`0`"
-
-#~ msgid "Switch Keyboard/Auto Control"
-#~ msgstr ""
-
-#~ msgid "`l`"
-#~ msgstr "`role`"
-
-#~ msgid "Reload the Environment"
-#~ msgstr ""
-
-#~ msgid "`F5`"
-#~ msgstr "`fov`"
-
-#~ msgid "Debug the Environment (fn+f5 for mac)"
-#~ msgstr ""
-
-#~ msgid "`v`"
-#~ msgstr "`fov`"
-
-#~ msgid "Save the current figure"
-#~ msgstr ""
-
-#~ msgid "`behavior`, `role`, `static`,"
-#~ msgstr ""
-
-#~ msgid "**`dash`** — Direct movement to goal"
-#~ msgstr "**`dash`** — 直接朝目标移动"
-
-#~ msgid "**`rvo`** — Collision avoidance algorithm"
-#~ msgstr "**`rvo`** — 碰撞避让算法"
-
