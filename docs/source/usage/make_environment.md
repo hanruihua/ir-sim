@@ -120,6 +120,7 @@ env.end()  # Clean up resources
 - **`env.render(interval)`**: Updates the visualization with specified time interval between frames
 - **`env.done()`**: Returns `True` if simulation completion conditions are met
 - **`env.end()`**: Properly closes the environment and releases resources
+- **`env.close()`**: Alias for `env.end()`, provided for [Gym](https://gymnasium.farama.org/)-style API compatibility
 
 ::::{tip}
 Update order

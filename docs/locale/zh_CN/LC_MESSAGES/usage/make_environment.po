@@ -257,6 +257,14 @@ msgstr "**`env.done()`**：当满足结束条件时返回 `True`"
 msgid "**`env.end()`**: Properly closes the environment and releases resources"
 msgstr "**`env.end()`**：正确关闭环境并释放资源"
 
+#: ../../source/usage/make_environment.md:123
+msgid ""
+"**`env.close()`**: Alias for `env.end()`, provided for "
+"[Gym](https://gymnasium.farama.org/)-style API compatibility"
+msgstr ""
+"**`env.close()`**：`env.end()` 的别名，提供 "
+"[Gym](https://gymnasium.farama.org/) 风格的 API 兼容性"
+
 #: ../../source/usage/make_environment.md:125
 msgid "Update order"
 msgstr "更新顺序"

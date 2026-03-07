@@ -552,24 +552,44 @@ class ObjectBase:
         Updates the arrive_flag and handles multiple goals by removing completed ones.
         """
 
-        if self.goal is None:
-            self.arrive_flag = False
-            return
-
-        if self.arrive_mode == "state":
-            diff = np.linalg.norm(self.state[:3] - self.goal[:3])
-        elif self.arrive_mode == "position":
-            diff = np.linalg.norm(self.state[:2] - self.goal[:2])
-
-        if diff < self.goal_threshold:
+        if self.check_arrive(self.goal):
             if len(self._goal) == 1:
                 self.arrive_flag = True
-
             else:
                 self._goal.popleft()
                 self.arrive_flag = False
         else:
             self.arrive_flag = False
+
+    def check_arrive(self, goal, threshold=None):
+        """
+        Check if the object has arrived at a given goal.
+
+        Args:
+            goal (np.ndarray): Goal state to check arrival against.
+            threshold (float, optional): Distance threshold for arrival.
+                Defaults to self.goal_threshold if not provided.
+
+        Returns:
+            bool: True if the object is within the threshold, False otherwise.
+        """
+        if goal is None:
+            return False
+
+        if threshold is None:
+            threshold = self.goal_threshold
+
+        if self.arrive_mode == "state":
+            diff = np.linalg.norm(self.state[:3] - goal[:3])
+        elif self.arrive_mode == "position":
+            diff = np.linalg.norm(self.state[:2] - goal[:2])
+        else:
+            raise ValueError(
+                f"Unsupported arrive_mode '{self.arrive_mode}'. "
+                "Supported modes are 'state' and 'position'."
+            )
+
+        return diff < threshold
 
     def check_collision_status(self):
         """

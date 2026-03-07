@@ -560,6 +560,10 @@ class EnvBase:
             f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."
         )
 
+    def close(self, ending_time: float = 3.0, **kwargs: Any) -> None:
+        """Alias for :py:meth:`end` for Gym-style API compatibility."""
+        self.end(ending_time, **kwargs)
+
     def quit(self) -> None:
         """
         Quit the environment.
@@ -896,6 +900,9 @@ class EnvBase:
             raise ValueError(f"Object name '{obj.name}' already exists.")
         obj._env = self
         self._objects.append(obj)
+        if not self.disable_all_plot:
+            obj._init_plot(self._env_plot.ax)
+            obj._step_plot()
         self.build_tree()
 
     def add_objects(self, objs: list[ObjectBase]) -> None:
@@ -916,6 +923,9 @@ class EnvBase:
             raise ValueError(f"Object names already exist: {conflicts}")
         for obj in objs:
             obj._env = self
+            if not self.disable_all_plot:
+                obj._init_plot(self._env_plot.ax)
+                obj._step_plot()
         self._objects.extend(objs)
         self.build_tree()
 
