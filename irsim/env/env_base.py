@@ -560,6 +560,10 @@ class EnvBase:
             f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."
         )
 
+    def close(self, ending_time: float = 3.0, **kwargs: Any) -> None:
+        """Alias for :py:meth:`end` for Gym-style API compatibility."""
+        self.end(ending_time, **kwargs)
+
     def quit(self) -> None:
         """
         Quit the environment.
