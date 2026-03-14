@@ -14,7 +14,11 @@ from irsim.lib.behavior.behavior_registry import (
     register_group_behavior,
 )
 from irsim.lib.handler.geometry_handler import GeometryFactory
-from irsim.lib.handler.kinematics_handler import KinematicsFactory
+from irsim.lib.handler.kinematics_handler import (
+    KinematicsFactory,
+    KinematicsHandler,
+    register_kinematics,
+)
 
 kinematics_factory: dict[str, Callable[..., Any]] = {
     "diff": differential_kinematics,
