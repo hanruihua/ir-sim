@@ -259,12 +259,17 @@ class ObjectBase:
                 if input parameters are invalid.
         """
 
-        # Environment reference for accessing params (set by EnvBase after creation)
+        # --- 1. Identity ---
         self._env = None
-
         self._id = next(ObjectBase.id_iter)
+        self._name = name
+        self.role = role
+        self.group = group
+        self._group_name = group_name
+        self.description = description
+        self.color = color
 
-        # handlers
+        # --- 2. Geometry & kinematics handlers ---
         if shape is None:
             self.logger.warning(
                 f"No shape provided for object {self._id}, using default circle"
@@ -285,7 +290,7 @@ class ObjectBase:
         else:
             self.G, self.h, self.cone_type, self.convex_flag = None, None, None, None
 
-        # Derive dimensions from handler metadata
+        # --- 3. Dimensions (derived from handlers) ---
         action_dim = self.kf.action_dim if self.kf else 2
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
@@ -294,7 +299,7 @@ class ObjectBase:
         self.vel_dim = vel_dim if vel_dim is not None else action_dim
         self.vel_shape = (self.vel_dim, 1)
 
-        # Apply handler defaults for unset parameters
+        # --- 4. Resolve defaults from kf ---
         if angle_range is None:
             angle_range = [-pi, pi]
 
@@ -307,13 +312,11 @@ class ObjectBase:
             vel_max = vel_max or [1, 1]
             vel_min = vel_min or [-1, -1]
 
-        self.vel_max = np.c_[vel_max]
-        if velocity is None:
-            velocity = [0] * action_dim
+        # --- 5. State & velocity ---
         if state is None:
             state = [0, 0, 0]
-
-        self.role = role
+        if velocity is None:
+            velocity = [0] * action_dim
 
         state = self.input_state_check(state, self.state_dim)
         self._state = np.c_[state]
@@ -322,9 +325,11 @@ class ObjectBase:
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
 
-        self._name = name
+        self.vel_min = np.c_[vel_min]
+        self.vel_max = np.c_[vel_max]
+        self.static = static if self.kf is not None else True
 
-        # Set goal points
+        # --- 6. Goal ---
         self._goal = (
             deque(goal)
             if goal is not None and is_2d_list(goal)
@@ -341,23 +346,13 @@ class ObjectBase:
         self._init_goal_vertices = (
             self._goal_vertices.copy() if self._goal_vertices is not None else None
         )
+        self.goal_threshold = goal_threshold
+        self.arrive_mode = arrive_mode
 
+        # --- 7. Geometry instance ---
         self._geometry = self.gf.step(self.state) if self.gf is not None else None
-        self.group = group
-        self._group_name = group_name
 
-        # flag
-        self.stop_flag = False
-        self.arrive_flag = False
-        self.collision_flag = False
-        self.unobstructed = unobstructed
-
-        # information
-        self.static = static if self.kf is not None else True
-        self.vel_min = np.c_[vel_min]
-        self.vel_max = np.c_[vel_max]
-        self.color = color
-
+        # --- 8. ObjectInfo ---
         self.info = ObjectInfo(
             self._id,
             self.shape,
@@ -378,18 +373,10 @@ class ObjectBase:
             self.convex_flag,
             self.name,
         )
-
         self.obstacle_info = None
-
         self.trajectory = []
 
-        self.description = description
-
-        # arrive judgement
-        self.goal_threshold = goal_threshold
-        self.arrive_mode = arrive_mode
-
-        # sensor
+        # --- 9. Sensors ---
         sf = SensorFactory()
         self.lidar = None
         if sensors is not None:
@@ -397,7 +384,6 @@ class ObjectBase:
                 sf.create_sensor(self._state[0:3], self._id, **sensor_kwargs)
                 for sensor_kwargs in sensors
             ]
-            # Set parent reference for sensors to access env_param
             for sensor in self.sensors:
                 sensor.parent = self
 
@@ -417,7 +403,7 @@ class ObjectBase:
             self.fov = WrapTo2Pi(fov)
             self.fov_radius = fov_radius
 
-        # behavior
+        # --- 10. Behavior ---
         self.obj_behavior = Behavior(self.info, behavior)
         self.group_behavior_dict = group_behavior if group_behavior is not None else {}
 
@@ -428,7 +414,13 @@ class ObjectBase:
         if self.wander:
             self._goal = deque([random_point_range(self.rl, self.rh)])
 
-        # plot
+        # --- 11. Flags ---
+        self.stop_flag = False
+        self.arrive_flag = False
+        self.collision_flag = False
+        self.unobstructed = unobstructed
+
+        # --- 12. Plot state ---
         self.plot_kwargs = kwargs.get("plot", {})
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -438,7 +430,7 @@ class ObjectBase:
         self.collision_obj = []
         self.plot_trail_list = []
 
-        # validate unknown kwargs
+        # --- 13. Validate kwargs ---
         check_unknown_kwargs(kwargs, self._VALID_PARAMS, context=f" in '{role}' config")
 
     def __eq__(self, o: "ObjectBase") -> bool:
