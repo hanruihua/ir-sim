@@ -101,10 +101,14 @@ class KinematicsHandler(ABC):
         Returns:
             np.ndarray: Next state.
         """
-        pass
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
         """Convert velocity to [vx, vy] in world frame.
+
+        The default implementation follows differential-drive conventions:
+        ``velocity[0]`` is the linear speed projected through the heading
+        angle ``state[2]``. Subclasses with different velocity semantics
+        (e.g. omnidirectional) should override this.
 
         Args:
             state (np.ndarray): Current state vector.
@@ -113,12 +117,21 @@ class KinematicsHandler(ABC):
         Returns:
             np.ndarray: (2, 1) array of [vx, vy].
         """
-        raise NotImplementedError(
-            "KinematicsHandler.velocity_to_xy must be implemented in subclasses."
-        )
+        if len(velocity.shape) == 0:
+            return np.zeros((2, 1))
+        vel_linear = velocity[0, 0]
+        theta = state[2, 0]
+        vx = vel_linear * cos(theta)
+        vy = vel_linear * sin(theta)
+        return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         """Compute the scalar maximum speed from the vel_max vector.
+
+        The default implementation follows differential-drive conventions:
+        the first component ``vel_max[0, 0]`` is the translational speed
+        limit. Subclasses where max speed is derived differently (e.g.
+        omnidirectional using the L2 norm) should override this.
 
         Args:
             vel_max (np.ndarray): Maximum velocity vector.
@@ -126,13 +139,14 @@ class KinematicsHandler(ABC):
         Returns:
             float: Scalar maximum speed.
         """
-        raise NotImplementedError(
-            f"{self.__class__.__name__}.compute_max_speed() must be implemented "
-            "by subclasses."
-        )
+        return float(vel_max[0, 0])
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
         """Compute the heading angle.
+
+        The default implementation follows differential-drive conventions:
+        heading is ``state[2]`` (the orientation component). Returns 0.0
+        if the state has fewer than 3 rows.
 
         Args:
             state (np.ndarray): Current state vector.
@@ -226,21 +240,6 @@ class DifferentialKinematics(KinematicsHandler):
             state, velocity, step_time, self.noise, self.alpha
         )
 
-    def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        if len(velocity.shape) == 0:
-            return np.zeros((2, 1))
-        vel_linear = velocity[0, 0]
-        theta = state[2, 0]
-        vx = vel_linear * cos(theta)
-        vy = vel_linear * sin(theta)
-        return np.array([[vx], [vy]])
-
-    def compute_max_speed(self, vel_max: np.ndarray) -> float:
-        return float(vel_max[0, 0])
-
-    def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
-        return float(state[2, 0])
-
 
 @register_kinematics("acker")
 class AckermannKinematics(KinematicsHandler):
@@ -289,31 +288,6 @@ class AckermannKinematics(KinematicsHandler):
             self.mode,
             self.wheelbase,
         )
-
-    def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        if len(velocity.shape) == 0:
-            return np.zeros((2, 1))
-        vel_linear = velocity[0, 0]
-        theta = state[2, 0]
-        vx = vel_linear * cos(theta)
-        vy = vel_linear * sin(theta)
-        return np.array([[vx], [vy]])
-
-    def compute_max_speed(self, vel_max: np.ndarray) -> float:
-        return float(vel_max[0, 0])
-
-    def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
-        return float(state[2, 0])
-
-
-# class Rigid3DKinematics(KinematicsHandler):
-
-#     def __init__(self, name, noise, alpha):
-#         super().__init__(name, noise, alpha)
-
-#     def step(self, state: np.ndarray, velocity: np.ndarray, step_time: float) -> np.ndarray:
-#         next_state = rigid3d_kinematics(state, velocity, step_time, self.noise, self.alpha)
-#         return next_state
 
 
 class KinematicsFactory:

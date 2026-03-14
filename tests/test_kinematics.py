@@ -318,8 +318,8 @@ class TestRegistryDuplicateRaises:
                     return 0.0
 
 
-class TestBaseClassNotImplemented:
-    """Base class methods raise NotImplementedError."""
+class TestBaseClassDefaults:
+    """Base class provides differential-drive defaults for non-abstract methods."""
 
     def _make_bare_handler(self):
         """Create a minimal concrete subclass that only implements step()."""
@@ -330,15 +330,27 @@ class TestBaseClassNotImplemented:
 
         return BareHandler("bare", False, None)
 
-    def test_velocity_to_xy_not_implemented(self):
+    def test_velocity_to_xy_default(self):
+        """Default velocity_to_xy projects linear speed through heading."""
         handler = self._make_bare_handler()
-        with pytest.raises(NotImplementedError):
-            handler.velocity_to_xy(np.zeros((3, 1)), np.zeros((2, 1)))
+        state = np.array([[0.0], [0.0], [0.0]])  # heading = 0
+        velocity = np.array([[2.0], [0.5]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[2.0], [0.0]]), atol=1e-10)
 
-    def test_compute_max_speed_not_implemented(self):
+    def test_velocity_to_xy_zero_shape(self):
+        """Default velocity_to_xy returns zeros for scalar velocity."""
         handler = self._make_bare_handler()
-        with pytest.raises(NotImplementedError):
-            handler.compute_max_speed(np.zeros((2, 1)))
+        state = np.array([[0.0], [0.0], [0.0]])
+        velocity = np.float64(0.0)  # ndim == 0
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_array_equal(result, np.zeros((2, 1)))
+
+    def test_compute_max_speed_default(self):
+        """Default compute_max_speed returns first component of vel_max."""
+        handler = self._make_bare_handler()
+        vel_max = np.array([[3.0], [4.0]])
+        assert handler.compute_max_speed(vel_max) == pytest.approx(3.0)
 
     def test_compute_heading_fallback(self):
         """Base compute_heading returns state[2,0] when state has 3+ rows."""
