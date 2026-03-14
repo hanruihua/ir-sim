@@ -1210,7 +1210,8 @@ class ObjectBase:
 
         if show_arrow:
             current_velocity = self.velocity_xy if np.any(state) else np.zeros((2, 1))
-            self.plot_arrow(ax, state, current_velocity, **self.plot_kwargs)
+            arrow_theta = 0.0 if initial else self.heading
+            self.plot_arrow(ax, state, current_velocity, arrow_theta, **self.plot_kwargs)
 
         if show_trajectory:
             trajectory_data = self.trajectory if np.any(state) else []
@@ -1833,6 +1834,7 @@ class ObjectBase:
         ax,
         state: np.ndarray | None = None,
         velocity: np.ndarray | None = None,
+        arrow_theta: float | None = 0.0,
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
         arrow_color: str | None = None,
@@ -1861,8 +1863,6 @@ class ObjectBase:
         if arrow_color is None:
             arrow_color = "gold"
 
-        theta = self.heading
-
         self.arrow_patch = draw_patch(
             ax,
             shape="arrow",
@@ -1871,7 +1871,7 @@ class ObjectBase:
             zorder=arrow_zorder,
             arrow_length=arrow_length,
             arrow_width=arrow_width,
-            theta=theta,
+            theta=arrow_theta,
         )
 
         self.plot_patch_list.append(self.arrow_patch)
