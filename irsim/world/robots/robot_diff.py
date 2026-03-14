@@ -1,17 +1,23 @@
+import warnings
 from typing import Any
 
 from irsim.world.object_base import ObjectBase
 
 
 class RobotDiff(ObjectBase):
-    def __init__(self, color: str = "g", state_dim: int = 3, **kwargs: Any) -> None:
-        """Create a differential-drive robot.
+    """Differential-drive robot.
 
-        Args:
-            color (str): Display color. Default "g".
-            state_dim (int): State vector dimension (>=3 for [x,y,theta]).
-            **kwargs: Forwarded to ``ObjectBase`` (e.g., kinematics, sensors, goal).
-        """
+    .. deprecated::
+        Use ``ObjectBase`` with ``kinematics={'name': 'diff'}`` directly.
+        This subclass will be removed in a future version.
+    """
+
+    def __init__(self, color: str = "g", state_dim: int = 3, **kwargs: Any) -> None:
+        warnings.warn(
+            "RobotDiff is deprecated. Use ObjectBase with kinematics={'name': 'diff'} directly.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         super().__init__(
             role="robot",
             color=color,
@@ -24,12 +30,6 @@ class RobotDiff(ObjectBase):
         )
 
     def _init_plot(self, ax: Any, **kwargs: Any) -> None:
-        """Initialize matplotlib artists for this robot.
-
-        Args:
-            ax: Matplotlib axes.
-            **kwargs: Extra plotting options.
-        """
         show_goal = self.plot_kwargs.get("show_goal", True)
         show_arrow = self.plot_kwargs.get("show_arrow", True)
 

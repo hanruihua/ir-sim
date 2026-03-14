@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import deque
 from dataclasses import dataclass
-from math import atan2, cos, inf, pi, sin
+from math import cos, pi, sin
 from typing import Any, ClassVar
 
 import matplotlib.transforms as mtransforms
@@ -21,7 +21,6 @@ from irsim.util.util import (
     WrapToPi,
     WrapToRegion,
     check_unknown_kwargs,
-    diff_to_omni,
     file_check,
     is_2d_list,
     random_point_range,
@@ -260,25 +259,17 @@ class ObjectBase:
                 if input parameters are invalid.
         """
 
-        if angle_range is None:
-            angle_range = [-pi, pi]
-        if acce is None:
-            acce = [inf, inf]
-        if vel_max is None:
-            vel_max = [1, 1]
-        if vel_min is None:
-            vel_min = [-1, -1]
-        if velocity is None:
-            velocity = [0, 0]
-        if state is None:
-            state = [0, 0, 0]
-
-        # Environment reference for accessing params (set by EnvBase after creation)
+        # --- 1. Identity ---
         self._env = None
-
         self._id = next(ObjectBase.id_iter)
+        self._name = name
+        self.role = role
+        self.group = group
+        self._group_name = group_name
+        self.description = description
+        self.color = color
 
-        # handlers
+        # --- 2. Geometry & kinematics handlers ---
         if shape is None:
             self.logger.warning(
                 f"No shape provided for object {self._id}, using default circle"
@@ -299,14 +290,33 @@ class ObjectBase:
         else:
             self.G, self.h, self.cone_type, self.convex_flag = None, None, None, None
 
+        # --- 3. Dimensions (derived from handlers) ---
+        action_dim = self.kf.action_dim if self.kf else 2
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
             (self.state_dim, 1) if state_dim is not None else self.state_shape
         )
-        self.vel_dim = vel_dim if vel_dim is not None else self.vel_shape[0]
-        self.vel_shape = (self.vel_dim, 1) if vel_dim is not None else self.vel_shape
+        self.vel_dim = vel_dim if vel_dim is not None else action_dim
+        self.vel_shape = (self.vel_dim, 1)
 
-        self.role = role
+        # --- 4. Resolve defaults from kf ---
+        if angle_range is None:
+            angle_range = [-pi, pi]
+
+        if self.kf is not None:
+            acce = self.kf.acce if acce is None else acce
+            vel_max = self.kf.vel_max if vel_max is None else vel_max
+            vel_min = self.kf.vel_min if vel_min is None else vel_min
+        else:
+            acce = acce or [float("inf"), float("inf")]
+            vel_max = vel_max or [1, 1]
+            vel_min = vel_min or [-1, -1]
+
+        # --- 5. State & velocity ---
+        if state is None:
+            state = [0, 0, 0]
+        if velocity is None:
+            velocity = [0] * action_dim
 
         state = self.input_state_check(state, self.state_dim)
         self._state = np.c_[state]
@@ -315,9 +325,11 @@ class ObjectBase:
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
 
-        self._name = name
+        self.vel_min = np.c_[vel_min]
+        self.vel_max = np.c_[vel_max]
+        self.static = static if self.kf is not None else True
 
-        # Set goal points
+        # --- 6. Goal ---
         self._goal = (
             deque(goal)
             if goal is not None and is_2d_list(goal)
@@ -334,23 +346,13 @@ class ObjectBase:
         self._init_goal_vertices = (
             self._goal_vertices.copy() if self._goal_vertices is not None else None
         )
+        self.goal_threshold = goal_threshold
+        self.arrive_mode = arrive_mode
 
+        # --- 7. Geometry instance ---
         self._geometry = self.gf.step(self.state) if self.gf is not None else None
-        self.group = group
-        self._group_name = group_name
 
-        # flag
-        self.stop_flag = False
-        self.arrive_flag = False
-        self.collision_flag = False
-        self.unobstructed = unobstructed
-
-        # information
-        self.static = static if self.kf is not None else True
-        self.vel_min = np.c_[vel_min]
-        self.vel_max = np.c_[vel_max]
-        self.color = color
-
+        # --- 8. ObjectInfo ---
         self.info = ObjectInfo(
             self._id,
             self.shape,
@@ -359,8 +361,8 @@ class ObjectBase:
             color,
             static,
             np.c_[goal],
-            np.c_[vel_min],
-            np.c_[vel_max],
+            self.vel_min,
+            self.vel_max,
             np.c_[acce],
             np.c_[angle_range],
             goal_threshold,
@@ -371,18 +373,10 @@ class ObjectBase:
             self.convex_flag,
             self.name,
         )
-
         self.obstacle_info = None
-
         self.trajectory = []
 
-        self.description = description
-
-        # arrive judgement
-        self.goal_threshold = goal_threshold
-        self.arrive_mode = arrive_mode
-
-        # sensor
+        # --- 9. Sensors ---
         sf = SensorFactory()
         self.lidar = None
         if sensors is not None:
@@ -390,7 +384,6 @@ class ObjectBase:
                 sf.create_sensor(self._state[0:3], self._id, **sensor_kwargs)
                 for sensor_kwargs in sensors
             ]
-            # Set parent reference for sensors to access env_param
             for sensor in self.sensors:
                 sensor.parent = self
 
@@ -410,7 +403,7 @@ class ObjectBase:
             self.fov = WrapTo2Pi(fov)
             self.fov_radius = fov_radius
 
-        # behavior
+        # --- 10. Behavior ---
         self.obj_behavior = Behavior(self.info, behavior)
         self.group_behavior_dict = group_behavior if group_behavior is not None else {}
 
@@ -421,7 +414,13 @@ class ObjectBase:
         if self.wander:
             self._goal = deque([random_point_range(self.rl, self.rh)])
 
-        # plot
+        # --- 11. Flags ---
+        self.stop_flag = False
+        self.arrive_flag = False
+        self.collision_flag = False
+        self.unobstructed = unobstructed
+
+        # --- 12. Plot state ---
         self.plot_kwargs = kwargs.get("plot", {})
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -431,7 +430,7 @@ class ObjectBase:
         self.collision_obj = []
         self.plot_trail_list = []
 
-        # validate unknown kwargs
+        # --- 13. Validate kwargs ---
         check_unknown_kwargs(kwargs, self._VALID_PARAMS, context=f" in '{role}' config")
 
     def __eq__(self, o: "ObjectBase") -> bool:
@@ -1096,6 +1095,13 @@ class ObjectBase:
         Returns:
             list: Names of plot attributes created (e.g., 'object_patch', 'goal_patch').
         """
+        # Apply handler-derived show_arrow default when not explicitly set
+        if (
+            self.kf is not None
+            and "show_arrow" not in self.plot_kwargs
+            and "show_arrow" not in kwargs
+        ):
+            kwargs.setdefault("show_arrow", self.kf.show_arrow)
         return self._plot(
             ax, self.original_state, self.original_vertices, initial=True, **kwargs
         )
@@ -1204,7 +1210,8 @@ class ObjectBase:
 
         if show_arrow:
             current_velocity = self.velocity_xy if np.any(state) else np.zeros((2, 1))
-            self.plot_arrow(ax, state, current_velocity, **self.plot_kwargs)
+            arrow_theta = 0.0 if initial else self.heading
+            self.plot_arrow(ax, state, current_velocity, arrow_theta, **self.plot_kwargs)
 
         if show_trajectory:
             trajectory_data = self.trajectory if np.any(state) else []
@@ -1389,11 +1396,7 @@ class ObjectBase:
                     # Update arrow patch using set_element_property
                     if isinstance(element, Arrow):
                         # Calculate orientation for arrow direction
-                        theta = (
-                            atan2(self.velocity_xy[1, 0], self.velocity_xy[0, 0])
-                            if self.kinematics == "omni"
-                            else r_phi
-                        )
+                        theta = self.heading
 
                         arrow_state = np.array([[x], [y], [theta]])
 
@@ -1831,6 +1834,7 @@ class ObjectBase:
         ax,
         state: np.ndarray | None = None,
         velocity: np.ndarray | None = None,
+        arrow_theta: float | None = 0.0,
         arrow_length: float = 0.4,
         arrow_width: float = 0.6,
         arrow_color: str | None = None,
@@ -1859,12 +1863,6 @@ class ObjectBase:
         if arrow_color is None:
             arrow_color = "gold"
 
-        theta = (
-            atan2(velocity[1, 0], velocity[0, 0])
-            if self.kinematics == "omni" and velocity is not None
-            else state[2, 0]
-        )
-
         self.arrow_patch = draw_patch(
             ax,
             shape="arrow",
@@ -1873,7 +1871,7 @@ class ObjectBase:
             zorder=arrow_zorder,
             arrow_length=arrow_length,
             arrow_width=arrow_width,
-            theta=theta,
+            theta=arrow_theta,
         )
 
         self.plot_patch_list.append(self.arrow_patch)
@@ -2616,10 +2614,8 @@ class ObjectBase:
         Returns:
             (2*1) np.ndarray: Velocity [vx, vy].
         """
-        if self.kinematics == "omni":
-            return self.velocity
-        if self.kinematics == "diff" or self.kinematics == "acker":
-            return diff_to_omni(self.state[2, 0], self.velocity)
+        if self.kf is not None:
+            return self.kf.velocity_to_xy(self.state, self.velocity)
         return np.zeros((2, 1))
 
     @property
@@ -2630,15 +2626,8 @@ class ObjectBase:
         Returns:
             float: The maximum speed of the object.
         """
-
-        if self.kinematics == "omni":
-            return np.linalg.norm(self.vel_max)
-        if self.kinematics == "diff" or self.kinematics == "acker":
-            return self.vel_max[0, 0]
-
-        self.logger.warning(
-            f"The kinematics of the object {self.name} is not supported."
-        )
+        if self.kf is not None:
+            return self.kf.compute_max_speed(self.vel_max)
         return 0
 
     @property
@@ -2720,17 +2709,11 @@ class ObjectBase:
         Returns:
             float: The heading of the object.
         """
-
-        if self.kinematics == "omni":
-            heading = atan2(self.velocity[1, 0], self.velocity[0, 0])
-        elif self.kinematics == "diff" or self.kinematics == "acker":
-            heading = self.state[2, 0]
-        else:
-            self.logger.warning(
-                f"The kinematics of the object {self.name} is not supported."
-            )
-
-        return heading
+        if self.kf is not None:
+            return self.kf.compute_heading(self.state, self.velocity)
+        if self.state.shape[0] > 2:
+            return self.state[2, 0]
+        return 0.0
 
     @property
     def orientation(self):

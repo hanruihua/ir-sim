@@ -27,7 +27,7 @@ msgid ""
 "contains the configuration parameters to simulate and visualize the "
 "world, obstacle, and robot. You can customize the scenario and define the"
 " behavior of the objects simply by using the parameters."
-msgstr ""
+
 "配置文件是一个用于初始化环境的 YAML "
 "文件。它包含用于模拟和可视化世界、障碍物和机器人的配置参数。使用者可以通过使用这些参数简单地自定义场景并定义对象的行为。"
 
