@@ -186,10 +186,10 @@ class ObjectFactory:
                 f"Robot kinematics {kinematics_name} not implemented"
             )
 
-        kwargs.setdefault("color", handler_cls.default_color)
-        kwargs.setdefault("state_dim", handler_cls.default_state_dim)
-        if handler_cls.default_description is not None:
-            kwargs.setdefault("description", handler_cls.default_description)
+        kwargs.setdefault("color", handler_cls.color)
+        kwargs.setdefault("state_dim", handler_cls.state_dim)
+        if handler_cls.description is not None:
+            kwargs.setdefault("description", handler_cls.description)
 
         return ObjectBase(kinematics=kinematics, role="robot", **kwargs)
 
@@ -223,8 +223,8 @@ class ObjectFactory:
                 f"Obstacle kinematics {kinematics_name} not implemented"
             )
 
-        kwargs.setdefault("color", handler_cls.default_obstacle_color)
-        kwargs.setdefault("state_dim", handler_cls.default_state_dim)
+        kwargs.setdefault("color", handler_cls.obstacle_color)
+        kwargs.setdefault("state_dim", handler_cls.state_dim)
 
         return ObjectBase(kinematics=kinematics, role="obstacle", **kwargs)
 

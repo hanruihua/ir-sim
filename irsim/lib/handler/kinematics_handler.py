@@ -63,13 +63,13 @@ class KinematicsHandler(ABC):
     # -- Metadata (override in subclasses) --
     action_dim: int = 2
     min_state_dim: int = 3
-    default_state_dim: int = 3
-    default_vel_max: ClassVar[list[float]] = [1, 1]
-    default_vel_min: ClassVar[list[float]] = [-1, -1]
-    default_acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    default_color: str = "g"
-    default_obstacle_color: str = "k"
-    default_description: str | None = None
+    state_dim: int = 3
+    vel_max: ClassVar[list[float]] = [1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf")]
+    color: str = "g"
+    obstacle_color: str = "k"
+    description: str | None = None
     show_arrow: bool = True
 
     def __init__(self, name, noise: bool = False, alpha: list | None = None):
@@ -167,13 +167,13 @@ class KinematicsHandler(ABC):
 class OmniKinematics(KinematicsHandler):
     action_dim = 2
     min_state_dim = 2
-    default_state_dim = 3
-    default_vel_max: ClassVar[list[float]] = [1, 1]
-    default_vel_min: ClassVar[list[float]] = [-1, -1]
-    default_acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    default_color = "g"
-    default_obstacle_color = "k"
-    default_description = None
+    state_dim = 3
+    vel_max: ClassVar[list[float]] = [1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf")]
+    color = "g"
+    obstacle_color = "k"
+    description = None
     show_arrow = False
 
     def __init__(self, name, noise, alpha):
@@ -211,13 +211,13 @@ class OmniKinematics(KinematicsHandler):
 class DifferentialKinematics(KinematicsHandler):
     action_dim = 2
     min_state_dim = 3
-    default_state_dim = 3
-    default_vel_max: ClassVar[list[float]] = [1, 1]
-    default_vel_min: ClassVar[list[float]] = [-1, -1]
-    default_acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    default_color = "g"
-    default_obstacle_color = "k"
-    default_description = None
+    state_dim = 3
+    vel_max: ClassVar[list[float]] = [1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf")]
+    color = "g"
+    obstacle_color = "k"
+    description = None
     show_arrow = True
 
     def __init__(self, name, noise, alpha):
@@ -245,13 +245,13 @@ class DifferentialKinematics(KinematicsHandler):
 class AckermannKinematics(KinematicsHandler):
     action_dim = 2
     min_state_dim = 4
-    default_state_dim = 4
-    default_vel_max: ClassVar[list[float]] = [1, 1]
-    default_vel_min: ClassVar[list[float]] = [-1, -1]
-    default_acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    default_color = "y"
-    default_obstacle_color = "k"
-    default_description = "car_green.png"
+    state_dim = 4
+    vel_max: ClassVar[list[float]] = [1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf")]
+    color = "y"
+    obstacle_color = "k"
+    description = "car_green.png"
     show_arrow = True
 
     def __init__(

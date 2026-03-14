@@ -148,7 +148,7 @@ class TestKinematicsRegistry:
         class CustomKinematics(KinematicsHandler):
             action_dim = 3
             min_state_dim = 5
-            default_state_dim = 5
+            state_dim = 5
 
             def velocity_to_xy(self, velocity, heading):
                 """Simple stub: return a zero XY velocity vector."""
@@ -194,22 +194,22 @@ class TestHandlerMetadata:
     def test_omni_metadata(self):
         assert OmniKinematics.action_dim == 2
         assert OmniKinematics.min_state_dim == 2
-        assert OmniKinematics.default_state_dim == 3
+        assert OmniKinematics.state_dim == 3
         assert OmniKinematics.show_arrow is False
 
     def test_diff_metadata(self):
         assert DifferentialKinematics.action_dim == 2
         assert DifferentialKinematics.min_state_dim == 3
-        assert DifferentialKinematics.default_state_dim == 3
+        assert DifferentialKinematics.state_dim == 3
         assert DifferentialKinematics.show_arrow is True
-        assert DifferentialKinematics.default_color == "g"
+        assert DifferentialKinematics.color == "g"
 
     def test_acker_metadata(self):
         assert AckermannKinematics.action_dim == 2
         assert AckermannKinematics.min_state_dim == 4
-        assert AckermannKinematics.default_state_dim == 4
-        assert AckermannKinematics.default_color == "y"
-        assert AckermannKinematics.default_description == "car_green.png"
+        assert AckermannKinematics.state_dim == 4
+        assert AckermannKinematics.color == "y"
+        assert AckermannKinematics.description == "car_green.png"
         assert AckermannKinematics.show_arrow is True
 
 

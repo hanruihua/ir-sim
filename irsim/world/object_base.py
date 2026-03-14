@@ -2,7 +2,7 @@ import itertools
 import math
 from collections import deque
 from dataclasses import dataclass
-from math import cos, inf, pi, sin
+from math import cos, pi, sin
 from typing import Any, ClassVar
 
 import matplotlib.transforms as mtransforms
@@ -297,12 +297,17 @@ class ObjectBase:
         # Apply handler defaults for unset parameters
         if angle_range is None:
             angle_range = [-pi, pi]
-        if acce is None:
-            acce = list(self.kf.default_acce) if self.kf else [inf, inf]
-        if vel_max is None:
-            vel_max = list(self.kf.default_vel_max) if self.kf else [1, 1]
-        if vel_min is None:
-            vel_min = list(self.kf.default_vel_min) if self.kf else [-1, -1]
+
+        if self.kf is not None:
+            acce = self.kf.acce if acce is None else acce
+            vel_max = self.kf.vel_max if vel_max is None else vel_max
+            vel_min = self.kf.vel_min if vel_min is None else vel_min
+        else:
+            acce = acce or [float("inf"), float("inf")]
+            vel_max = vel_max or [1, 1]
+            vel_min = vel_min or [-1, -1]
+
+        self.vel_max = np.c_[vel_max]
         if velocity is None:
             velocity = [0] * action_dim
         if state is None:
@@ -361,8 +366,8 @@ class ObjectBase:
             color,
             static,
             np.c_[goal],
-            np.c_[vel_min],
-            np.c_[vel_max],
+            self.vel_min,
+            self.vel_max,
             np.c_[acce],
             np.c_[angle_range],
             goal_threshold,
