@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.2
+
+- Features:
+  - Add `env.create_robot()` and `env.create_obstacle()` for programmatic object creation, and `env.add_object()` / `env.add_objects()` for adding them at runtime. ([#251](https://github.com/hanruihua/ir-sim/pull/251))
+  - Add `check_arrive()` method to check if an object has reached a given goal, and initialize plot for dynamically added objects. ([#240](https://github.com/hanruihua/ir-sim/pull/240))
+  - Add `set_text()` and `set_goal_text()` API for setting custom text on objects and goals. ([#239](https://github.com/hanruihua/ir-sim/pull/239))
+  - Add typo detection and suggestions for invalid YAML configuration keys. ([#227](https://github.com/hanruihua/ir-sim/pull/227))
+
+- Refactor:
+  - Centralize kinematics metadata (default color, state_dim, description) in the handler registry to make the kinematics be added more easily. ([#237](https://github.com/hanruihua/ir-sim/pull/237))
+
+- Fix:
+  - Improve robustness of save animation by reading and saving frames one by one instead of loading all images into memory. ([#230](https://github.com/hanruihua/ir-sim/pull/230)) (@williamleong)
+
+- Docs:
+  - Add "Dynamic Object Management" section to the Make Environment documentation. ([#251](https://github.com/hanruihua/ir-sim/pull/251))
+  - Fix and update Chinese translations.
+
 ## 2.9.1
 
 - Features:
