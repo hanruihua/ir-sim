@@ -85,6 +85,19 @@ class TestObjectManagement:
         env.delete_object(obs.id)
         assert len(env.obstacle_list) == initial_count
 
+    def test_create_and_add_robot(self, env_factory):
+        """Test creating and adding a robot via env.create_robot()."""
+        env = env_factory("test_all_objects.yaml")
+        robot = env.create_robot(
+            kinematics={"name": "diff"},
+            shape={"name": "circle", "radius": 0.2},
+            state=[1, 1, 0],
+            goal=[8, 8, 0],
+        )
+        initial_count = len(env.robot_list)
+        env.add_object(robot)
+        assert len(env.robot_list) == initial_count + 1
+
     def test_add_multiple_objects(self, env_factory):
         """Test adding multiple objects at once."""
         env = env_factory("test_all_objects.yaml")
