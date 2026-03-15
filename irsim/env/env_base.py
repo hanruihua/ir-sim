@@ -889,6 +889,20 @@ class EnvBase:
 
         return self.object_factory.create_obstacle(**kwargs)
 
+    def create_robot(self, **kwargs: Any):
+        """
+        Create a robot in the environment.
+
+        Args:
+            **kwargs: Additional parameters for robot creation.
+                see ObjectFactory.create_robot for detail
+
+        Returns:
+            Robot: An instance of a robot.
+        """
+
+        return self.object_factory.create_robot(**kwargs)
+
     def add_object(self, obj: ObjectBase) -> None:
         """
         Add the object to the environment, enforcing unique names.
