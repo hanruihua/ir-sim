@@ -223,6 +223,62 @@ world:
 ::::
 
 
+## Dynamic Object Management
+
+In addition to defining objects in YAML configuration files, you can create and add objects programmatically at runtime. This is useful for spawning objects dynamically during simulation, such as generating random obstacles or adding robots on-the-fly.
+
+### Creating Objects Programmatically
+
+Use `env.create_robot()` and `env.create_obstacle()` to create objects with keyword arguments:
+
+```python
+import irsim
+
+env = irsim.make('empty_world.yaml')
+
+# Create a differential-drive robot
+robot = env.create_robot(
+    kinematics={"name": "diff"},
+    shape={"name": "circle", "radius": 0.2},
+    state=[1, 1, 0],
+    goal=[8, 8, 0],
+    name="robot_0",
+)
+
+# Create a static circular obstacle
+obstacle = env.create_obstacle(
+    shape={"name": "circle", "radius": 0.5},
+    state=[5, 5, 0],
+    name="obs_0",
+)
+```
+
+Common keyword arguments include:
+
+- **`kinematics`** (dict): Kinematics model, e.g. `{"name": "diff"}`, `{"name": "omni"}`, `{"name": "acker"}`. Omit or use `{"name": "static"}` for static objects.
+- **`shape`** (dict): Shape definition, e.g. `{"name": "circle", "radius": 0.5}` or `{"name": "polygon", "vertices": [[0,0],[1,0],[0,1]]}`.
+- **`state`** (list): Initial state `[x, y, theta, ...]`.
+- **`goal`** (list): Goal state `[x, y, theta, ...]`.
+- **`color`** (str): Object color (default varies by kinematics type).
+- **`name`** (str): Unique object name. Must not conflict with existing objects.
+- **`goal_threshold`** (float): Distance threshold for arrival detection (default: 0.1).
+
+For the full list of parameters, see the [ObjectBase](#irsim.world.object_base.ObjectBase) class documentation.
+
+### Adding Objects to the Environment
+
+After creating objects, add them to the environment with `env.add_object()` or `env.add_objects()`:
+
+```python
+# Add a single object
+env.add_object(robot)
+
+# Add multiple objects at once
+env.add_objects([obstacle])
+```
+
+Each object must have a unique name. Adding an object with a duplicate name raises a `ValueError`.
+
 ## Multiple Environments
 
 IR-SIM supports creating and running multiple environments simultaneously. Each environment maintains its own isolated state, including world parameters, objects, and simulation time. This is useful for:

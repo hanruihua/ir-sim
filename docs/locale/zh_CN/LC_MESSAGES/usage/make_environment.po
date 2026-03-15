@@ -357,7 +357,99 @@ msgstr "自定义标题配置"
 msgid "Enable/Disable Title Display"
 msgstr "启用/禁用标题显示"
 
-#: ../../source/usage/make_environment.md:225
+#: ../../source/usage/make_environment.md:226
+msgid "Dynamic Object Management"
+msgstr "动态对象管理"
+
+#: ../../source/usage/make_environment.md:228
+msgid ""
+"In addition to defining objects in YAML configuration files, you can create "
+"and add objects programmatically at runtime. This is useful for spawning "
+"objects dynamically during simulation, such as generating random obstacles or "
+"adding robots on-the-fly."
+msgstr ""
+"除了在 YAML 配置文件中定义对象外，还可以在运行时通过代码动态创建和添加对象。这适用于在仿真过程中动态生成对象，"
+"例如随机生成障碍物或动态添加机器人。"
+
+#: ../../source/usage/make_environment.md:230
+msgid "Creating Objects Programmatically"
+msgstr "通过代码创建对象"
+
+#: ../../source/usage/make_environment.md:232
+msgid ""
+"Use `env.create_robot()` and `env.create_obstacle()` to "
+"create objects with keyword arguments:"
+msgstr "使用 `env.create_robot()` 和 `env.create_obstacle()` 通过关键字参数创建对象："
+
+#: ../../source/usage/make_environment.md:249
+msgid "Common keyword arguments include:"
+msgstr "常用关键字参数包括："
+
+#: ../../source/usage/make_environment.md:251
+msgid ""
+"**`kinematics`** (dict): Kinematics model, e.g. `{\"name\": \"diff\"}`, "
+"`{\"name\": \"omni\"}`, `{\"name\": \"acker\"}`. Omit or use "
+"`{\"name\": \"static\"}` for static objects."
+msgstr ""
+"**`kinematics`**（dict）：运动学模型，如 `{\"name\": \"diff\"}`、"
+"`{\"name\": \"omni\"}`、`{\"name\": \"acker\"}`。省略或使用 `{\"name\": \"static\"}` 表示静态对象。"
+
+#: ../../source/usage/make_environment.md:252
+msgid ""
+"**`shape`** (dict): Shape definition, e.g. "
+"`{\"name\": \"circle\", \"radius\": 0.5}` or "
+"`{\"name\": \"polygon\", \"vertices\": [[0,0],[1,0],[0,1]]}`."
+msgstr ""
+"**`shape`**（dict）：形状定义，如 "
+"`{\"name\": \"circle\", \"radius\": 0.5}` 或 "
+"`{\"name\": \"polygon\", \"vertices\": [[0,0],[1,0],[0,1]]}`。"
+
+#: ../../source/usage/make_environment.md:253
+msgid "**`state`** (list): Initial state `[x, y, theta, ...]`."
+msgstr "**`state`**（list）：初始状态 `[x, y, theta, ...]`。"
+
+#: ../../source/usage/make_environment.md:254
+msgid "**`goal`** (list): Goal state `[x, y, theta, ...]`."
+msgstr "**`goal`**（list）：目标状态 `[x, y, theta, ...]`。"
+
+#: ../../source/usage/make_environment.md:255
+msgid "**`color`** (str): Object color (default varies by kinematics type)."
+msgstr "**`color`**（str）：对象颜色（默认值因运动学类型而异）。"
+
+#: ../../source/usage/make_environment.md:256
+msgid ""
+"**`name`** (str): Unique object name. Must not conflict with existing objects."
+msgstr "**`name`**（str）：唯一对象名称，不能与已有对象重名。"
+
+#: ../../source/usage/make_environment.md:257
+msgid ""
+"**`goal_threshold`** (float): Distance threshold for arrival detection "
+"(default: 0.1)."
+msgstr "**`goal_threshold`**（float）：到达检测的距离阈值（默认 0.1）。"
+
+#: ../../source/usage/make_environment.md:259
+msgid ""
+"For the full list of parameters, see the "
+"[ObjectBase](#irsim.world.object_base.ObjectBase) class documentation."
+msgstr "完整参数列表参见 [ObjectBase](#irsim.world.object_base.ObjectBase) 类文档。"
+
+#: ../../source/usage/make_environment.md:261
+msgid "Adding Objects to the Environment"
+msgstr "向环境添加对象"
+
+#: ../../source/usage/make_environment.md:263
+msgid ""
+"After creating objects, add them to the environment with `env.add_object()` "
+"or `env.add_objects()`:"
+msgstr "创建对象后，使用 `env.add_object()` 或 `env.add_objects()` 将其添加到环境中："
+
+#: ../../source/usage/make_environment.md:271
+msgid ""
+"Each object must have a unique name. Adding an object with a duplicate name "
+"raises a `ValueError`."
+msgstr "每个对象必须有唯一名称。添加重名对象会引发 `ValueError`。"
+
+#: ../../source/usage/make_environment.md
 msgid "Multiple Environments"
 msgstr "多环境"
 
