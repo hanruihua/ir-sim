@@ -351,6 +351,9 @@ class ObjectBase:
 
         # --- 7. Geometry instance ---
         self._geometry = self.gf.step(self.state) if self.gf is not None else None
+        self._geometry_valid = (
+            shapely.is_valid(self._geometry) if self._geometry is not None else False
+        )
 
         # --- 8. ObjectInfo ---
         self.info = ObjectInfo(
@@ -494,6 +497,7 @@ class ObjectBase:
         self._state = next_state
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
+        self._geometry_valid = shapely.is_valid(self._geometry)
 
         if sensor_step:
             self.sensor_step()
@@ -855,6 +859,7 @@ class ObjectBase:
 
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
+        self._geometry_valid = shapely.is_valid(self._geometry)
 
     def set_velocity(
         self, velocity: list | np.ndarray | None = None, init: bool = False
@@ -1211,7 +1216,9 @@ class ObjectBase:
         if show_arrow:
             current_velocity = self.velocity_xy if np.any(state) else np.zeros((2, 1))
             arrow_theta = 0.0 if initial else self.heading
-            self.plot_arrow(ax, state, current_velocity, arrow_theta, **self.plot_kwargs)
+            self.plot_arrow(
+                ax, state, current_velocity, arrow_theta, **self.plot_kwargs
+            )
 
         if show_trajectory:
             trajectory_data = self.trajectory if np.any(state) else []
@@ -1450,7 +1457,7 @@ class ObjectBase:
 
                 elif attr == "fov_patch":
                     # Update FOV patch using set_element_property
-                    if isinstance(element, (Wedge, Circle)):
+                    if isinstance(element, Wedge | Circle):
                         direction = r_phi if self.state_dim >= 3 else 0
                         fov_state = np.array([[x], [y], [direction]])
 
