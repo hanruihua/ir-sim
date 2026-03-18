@@ -260,11 +260,11 @@ class Lidar2D:
                 continue
 
             if obj.shape == "map":
-                potential_intersections = obj.geometry_tree.query(lidar_geometry)
-                if len(potential_intersections) > 0:
-                    filtered_lines = [
-                        obj.linestrings[i] for i in potential_intersections
-                    ]
+                intersecting_indices = obj.geometry_tree.query(
+                    lidar_geometry, predicate="intersects"
+                )
+                if len(intersecting_indices) > 0:
+                    filtered_lines = [obj.linestrings[i] for i in intersecting_indices]
                     geometries_to_subtract.extend(filtered_lines)
                     intersect_indices.append(geom_index)
 
