@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from shapely import MultiLineString, Point, is_valid, prepare
+from shapely import MultiLineString, Point, prepare
 from shapely.ops import unary_union
 
 from irsim.util.random import rng
@@ -256,21 +256,16 @@ class Lidar2D:
             geo = geometries[geom_index]
             obj = objects[geom_index]
 
-            if (
-                obj._id == self.obj_id
-                or not is_valid(obj._geometry)
-                or obj.unobstructed
-            ):
+            if obj._id == self.obj_id or not obj._geometry_valid or obj.unobstructed:
                 continue
 
             if obj.shape == "map":
                 potential_intersections = obj.geometry_tree.query(lidar_geometry)
-                filtered_lines = [obj.linestrings[i] for i in potential_intersections]
-                filtered_multi_lines = MultiLineString(filtered_lines)
-                # prepare(filtered_multi_lines)
-
-                if lidar_geometry.intersects(filtered_multi_lines):
-                    geometries_to_subtract.append(filtered_multi_lines)
+                if len(potential_intersections) > 0:
+                    filtered_lines = [
+                        obj.linestrings[i] for i in potential_intersections
+                    ]
+                    geometries_to_subtract.extend(filtered_lines)
                     intersect_indices.append(geom_index)
 
             else:
@@ -279,7 +274,11 @@ class Lidar2D:
                     intersect_indices.append(geom_index)
 
         if geometries_to_subtract:
-            merged_geometry = unary_union(geometries_to_subtract)
+            merged_geometry = (
+                geometries_to_subtract[0]
+                if len(geometries_to_subtract) == 1
+                else unary_union(geometries_to_subtract)
+            )
             lidar_geometry = lidar_geometry.difference(merged_geometry)
             # Ensure result is always a MultiLineString
             lidar_geometry = self._ensure_multi_linestring(lidar_geometry)
