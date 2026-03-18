@@ -47,11 +47,11 @@ def file_check(file_name: str | None, root_path: str | None = None) -> str | Non
 
     for abs_file_name in paths_to_check:
         if os.path.exists(abs_file_name):
-            return abs_file_name
+            return os.path.abspath(abs_file_name)
 
     found = find_file(root_path, file_name) if root_path else None
     if found and os.path.exists(found):
-        return found
+        return os.path.abspath(found)
 
     logger = getattr(env_param, "logger", None)
     if logger is not None:
@@ -77,7 +77,7 @@ def find_file(root_path: str | None, target_filename: str) -> str | None:
 
     for dirpath, _dirnames, filenames in os.walk(root_path):
         if target_filename in filenames:
-            return os.path.join(dirpath, target_filename)
+            return os.path.abspath(os.path.join(dirpath, target_filename))
     return None
 
 
