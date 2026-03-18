@@ -45,13 +45,13 @@ def file_check(file_name: str | None, root_path: str | None = None) -> str | Non
         os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), file_name),
     ]
 
-    for abs_file_name in paths_to_check:
-        if os.path.exists(abs_file_name):
-            return os.path.abspath(abs_file_name)
+    for candidate_path in paths_to_check:
+        if os.path.isfile(candidate_path):
+            return os.path.abspath(candidate_path)
 
     found = find_file(root_path, file_name) if root_path else None
-    if found and os.path.exists(found):
-        return os.path.abspath(found)
+    if found:
+        return found
 
     logger = getattr(env_param, "logger", None)
     if logger is not None:
