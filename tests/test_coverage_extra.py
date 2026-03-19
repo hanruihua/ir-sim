@@ -1311,6 +1311,15 @@ class TestLidar2DNoise:
         lidar.calculate_range()
         assert lidar.range_data is not None
 
+    def test_lidar_calculate_range_vel_with_noise(self):
+        """calculate_range_vel with noise=True adds noise to range data."""
+        from irsim.world.sensors.lidar2d import Lidar2D
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
+        lidar.calculate_range_vel(intersect_index=[])
+        assert lidar.range_data is not None
+
 
 class TestLidar2DScanToPointcloud:
     """Test scan_to_pointcloud (lines 585-591)."""
