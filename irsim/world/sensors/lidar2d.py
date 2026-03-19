@@ -286,7 +286,11 @@ class Lidar2D:
         """
         Calculate the range data from the current geometry.
         """
-        lengths = shapely.length(shapely.get_parts(self._geometry))
+        # Reset all beams to the default maximum range to avoid stale values
+        self.range_data[:] = self.range_max
+
+        parts = shapely.get_parts(self._geometry)
+        lengths = shapely.length(parts)
         if self.noise:
             self.range_data[: len(lengths)] = lengths + rng.normal(
                 0, self.std, len(lengths)
@@ -311,6 +315,8 @@ class Lidar2D:
             self.range_data[: len(lengths)] = lengths
 
         if self.has_velocity:
+            # Reset all beam velocities to avoid carrying over stale values
+            self.velocity[:] = 0.0
             for index, (line, length) in enumerate(zip(parts, lengths, strict=True)):
                 if length < self.range_max - 0.02:
                     for index_obj in intersect_index:
