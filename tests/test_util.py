@@ -1,4 +1,5 @@
 import math
+import os
 import time
 
 import numpy as np
@@ -595,3 +596,69 @@ def test_check_unknown_kwargs_context():
     msgs = util.check_unknown_kwargs({"alph": 1}, valid, context=" in 'world' config")
     assert len(msgs) == 1
     assert "in 'world' config" in msgs[0]
+
+
+# ---------------------------------------------------------------------------
+# file_check / find_file tests
+# ---------------------------------------------------------------------------
+
+
+def test_file_check_direct_path(tmp_path):
+    """file_check returns absolute path for a file given directly."""
+    f = tmp_path / "hello.yaml"
+    f.write_text("test")
+    result = util.file_check(str(f))
+    assert result == str(f)
+    assert os.path.isabs(result)
+
+
+def test_file_check_relative_to_cwd(tmp_path, monkeypatch):
+    """file_check finds a file relative to cwd."""
+    f = tmp_path / "config.yaml"
+    f.write_text("test")
+    monkeypatch.chdir(tmp_path)
+    result = util.file_check("config.yaml")
+    assert result is not None
+    assert os.path.isabs(result)
+    assert result == str(f)
+
+
+def test_file_check_root_path_fallback(tmp_path):
+    """file_check falls back to recursive search under root_path."""
+    sub = tmp_path / "a" / "b"
+    sub.mkdir(parents=True)
+    f = sub / "deep.yaml"
+    f.write_text("test")
+    result = util.file_check("deep.yaml", root_path=str(tmp_path))
+    assert result is not None
+    assert os.path.isabs(result)
+    assert result == str(f)
+
+
+def test_file_check_not_found_returns_none(tmp_path):
+    """file_check returns None when file does not exist anywhere."""
+    result = util.file_check("nonexistent_file_12345.yaml", root_path=str(tmp_path))
+    assert result is None
+
+
+def test_file_check_ignores_directories(tmp_path, monkeypatch):
+    """file_check does not return a directory even if the name matches."""
+    d = tmp_path / "config.yaml"
+    d.mkdir()
+    monkeypatch.chdir(tmp_path)
+    result = util.file_check("config.yaml")
+    assert result is None
+
+
+def test_find_file_none_root():
+    """find_file returns None when root_path is None."""
+    assert util.find_file(None, "anything.txt") is None
+
+
+def test_find_file_returns_absolute(tmp_path):
+    """find_file returns an absolute path."""
+    f = tmp_path / "target.txt"
+    f.write_text("test")
+    result = util.find_file(str(tmp_path), "target.txt")
+    assert result is not None
+    assert os.path.isabs(result)

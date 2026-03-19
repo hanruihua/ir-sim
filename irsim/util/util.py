@@ -20,51 +20,65 @@ def file_check(file_name: str | None, root_path: str | None = None) -> str | Non
     """
     Check whether a file exists and return its absolute path.
 
+    Searches in the following order:
+    1. The given path directly
+    2. Relative to sys.path[0]
+    3. Relative to the current working directory
+    4. Relative to the script directory
+    5. Recursively under root_path (lazy fallback)
+
     Args:
-        file_name (str): Name of the file to check.
-        root_path (str, optional): Root path to use if the file is not found.
+        file_name (str | None): Name or relative path of the file to check.
+            Returns None immediately if None.
+        root_path (str | None): Root directory for recursive search fallback.
 
     Returns:
-        str: Absolute path of the file if found.
-
-    Raises:
-        FileNotFoundError: If the file is not found.
+        str | None: Absolute path of the file if found, None otherwise.
     """
     if file_name is None:
         return None
 
-    if os.path.exists(file_name):
-        abs_file_name = file_name
-    elif os.path.exists(sys.path[0] + "/" + file_name):
-        abs_file_name = sys.path[0] + "/" + file_name
-    elif os.path.exists(os.getcwd() + "/" + file_name):
-        abs_file_name = os.getcwd() + "/" + file_name
-    else:
-        if root_path is None:
-            # raise FileNotFoundError("File not found: " + file_name)
-            logger = getattr(env_param, "logger", None)
-            if logger is not None:
-                logger.warning(f"{file_name} not found")
-            return None
-        # root_file_name = root_path + "/" + file_name
-        root_file_name = find_file(root_path, file_name)
-        if os.path.exists(root_file_name):
-            abs_file_name = root_file_name
-        else:
-            # raise FileNotFoundError("File not found: " + root_file_name)
-            logger = getattr(env_param, "logger", None)
-            if logger is not None:
-                logger.warning(f"{root_file_name} not found")
-            return None
+    paths_to_check = [
+        file_name,
+        os.path.join(sys.path[0], file_name),
+        os.path.join(os.getcwd(), file_name),
+        os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), file_name),
+    ]
 
-    return abs_file_name
+    for candidate_path in paths_to_check:
+        if os.path.isfile(candidate_path):
+            return os.path.abspath(candidate_path)
+
+    found = find_file(root_path, file_name) if root_path else None
+    if found:
+        return found
+
+    logger = getattr(env_param, "logger", None)
+    if logger is not None:
+        logger.warning(f"{file_name} not found")
+
+    return None
 
 
-def find_file(root_path: str, target_filename: str) -> str:
+def find_file(root_path: str | None, target_filename: str) -> str | None:
+    """
+    Recursively search for a file under root_path.
+
+    Args:
+        root_path (str | None): Directory to search under. Returns None if None.
+        target_filename (str): Name of the file to find.
+
+    Returns:
+        str | None: Absolute path if found, None otherwise.
+    """
+
+    if root_path is None:
+        return None
+
     for dirpath, _dirnames, filenames in os.walk(root_path):
         if target_filename in filenames:
-            return os.path.join(dirpath, target_filename)
-    return target_filename
+            return os.path.abspath(os.path.join(dirpath, target_filename))
+    return None
 
 
 def WrapToPi(rad: float, positive: bool = False) -> float:
