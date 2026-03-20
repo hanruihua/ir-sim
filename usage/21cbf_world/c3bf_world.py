@@ -1,0 +1,30 @@
+from pathlib import Path
+import sys
+
+import irsim
+from c3bf_qp import CollisionConeCBFController
+
+scene_name = sys.argv[1] if len(sys.argv) > 1 else "cbf_world.yaml"
+scene_path = Path(scene_name)
+if not scene_path.is_absolute():
+    workspace_scene_path = (Path.cwd() / scene_path).resolve()
+    local_scene_path = (Path(__file__).parent / scene_path).resolve()
+    scene_path = workspace_scene_path if workspace_scene_path.exists() else local_scene_path
+
+env = irsim.make(str(scene_path), save_ani=True, display=True)
+env.path_param.ani_path = str(scene_path.parent)
+env.path_param.ani_buffer_path = str(scene_path.parent / f"{scene_path.stem}_buffer")
+controller = CollisionConeCBFController(
+    robot_type=env.robot.kinematics,
+    safety_margin=0.15,
+    goal_gain=0.8,
+)
+
+for _ in range(400):
+    action = controller.get_action(env.robot, env.obstacle_list)
+    env.step(action)
+    env.render(0.01)
+    if env.done():
+        break
+
+env.end(ani_name=f"{scene_path.stem}_c3bf", suffix=".gif")

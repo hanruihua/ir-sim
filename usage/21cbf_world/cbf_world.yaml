@@ -1,0 +1,31 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: "stop"
+  control_mode: "auto"
+  plot:
+    no_axis: true
+    viewpoint: null
+
+robot:
+  kinematics: {name: "diff"}
+  shape: {name: "circle", radius: 0.2}
+  state: [1.0, 1.0, 0.0]
+  goal: [9.0, 9.0, 0.0]
+  vel_min: [-0.8, -0.8]
+  vel_max: [0.8, 0.8]
+  goal_threshold: 0.2
+  color: "royalblue"
+  plot:
+    show_trajectory: true
+    show_goal: true
+    show_goal_text: true
+    show_text: true
+
+obstacle:
+  - shape: {name: "circle", radius: 1.8}
+    state: [5.2, 5.8, 0.0]
+    color: "black"
