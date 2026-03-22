@@ -51,28 +51,28 @@ def test_convert_list_length_dict():
 
 
 def test_is_list_of_dicts():
-    assert util.is_list_of_dicts([{"a": 1}, {"b": 2}])
-    assert not util.is_list_of_dicts([{"a": 1}, 2])
-    assert not util.is_list_of_dicts([1, 2])
-    assert not util.is_list_of_dicts("notalist")
+    assert util._is_list_of_dicts([{"a": 1}, {"b": 2}])
+    assert not util._is_list_of_dicts([{"a": 1}, 2])
+    assert not util._is_list_of_dicts([1, 2])
+    assert not util._is_list_of_dicts("notalist")
 
 
 def test_is_list_of_numbers():
-    assert util.is_list_of_numbers([1, 2, 3.5])
-    assert not util.is_list_of_numbers([1, "a"])
-    assert not util.is_list_of_numbers("notalist")
+    assert util._is_list_of_numbers([1, 2, 3.5])
+    assert not util._is_list_of_numbers([1, "a"])
+    assert not util._is_list_of_numbers("notalist")
 
 
 def test_is_list_of_lists():
-    assert util.is_list_of_lists([[1], [2]])
-    assert not util.is_list_of_lists([1, 2])
-    assert not util.is_list_of_lists("notalist")
+    assert util._is_list_of_lists([[1], [2]])
+    assert not util._is_list_of_lists([1, 2])
+    assert not util._is_list_of_lists("notalist")
 
 
 def test_is_list_not_list_of_lists():
-    assert util.is_list_not_list_of_lists([1, 2, 3])
-    assert not util.is_list_not_list_of_lists([[1], [2]])
-    assert not util.is_list_not_list_of_lists("notalist")
+    assert util._is_list_not_list_of_lists([1, 2, 3])
+    assert not util._is_list_not_list_of_lists([[1], [2]])
+    assert not util._is_list_not_list_of_lists("notalist")
 
 
 def test_distance():

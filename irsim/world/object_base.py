@@ -1,5 +1,6 @@
 import itertools
 import math
+import warnings
 from collections import deque
 from dataclasses import dataclass
 from math import cos, pi, sin
@@ -318,7 +319,7 @@ class ObjectBase:
         if velocity is None:
             velocity = [0] * action_dim
 
-        state = self.input_state_check(state, self.state_dim)
+        state = self._input_state_check(state, self.state_dim)
         self._state = np.c_[state]
         self._init_state = np.c_[state]
 
@@ -489,10 +490,10 @@ class ObjectBase:
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
             return self.state
-        self.pre_process()
+        self._pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
         new_state = self.kf.step(self.state, behavior_vel, self._world_param.step_time)
-        next_state = self.mid_process(new_state)
+        next_state = self._mid_process(new_state)
 
         self._state = next_state
         self._velocity = behavior_vel
@@ -502,7 +503,7 @@ class ObjectBase:
         if sensor_step:
             self.sensor_step()
 
-        self.post_process()
+        self._post_process()
         self.trajectory.append(self.state.copy())
         return next_state
 
@@ -520,8 +521,8 @@ class ObjectBase:
         It also handles different collision modes like 'stop', 'reactive', 'unobstructed',
         and 'unobstructed_obstacles'.
         """
-        self.check_arrive_status()
-        self.check_collision_status()
+        self._check_arrive_status()
+        self._check_collision_status()
 
         if self._world_param.collision_mode == "stop":
             self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
@@ -544,7 +545,7 @@ class ObjectBase:
                     f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
                 )
 
-    def check_arrive_status(self):
+    def _check_arrive_status(self):
         """
         Check if the object has arrived at its goal position.
 
@@ -563,6 +564,15 @@ class ObjectBase:
                 self.arrive_flag = False
         else:
             self.arrive_flag = False
+
+    def check_arrive_status(self):
+        """Deprecated: use _check_arrive_status() instead."""
+        warnings.warn(
+            "check_arrive_status() is deprecated. Override _check_arrive_status() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._check_arrive_status()
 
     def check_arrive(self, goal, threshold=None):
         """
@@ -594,7 +604,7 @@ class ObjectBase:
 
         return diff < threshold
 
-    def check_collision_status(self):
+    def _check_collision_status(self):
         """
         Check if the object is in collision with other objects in the environment.
 
@@ -618,6 +628,15 @@ class ObjectBase:
                 collision_flags.append(False)
 
         self.collision_flag = any(collision_flags)
+
+    def check_collision_status(self):
+        """Deprecated: use _check_collision_status() instead."""
+        warnings.warn(
+            "check_collision_status() is deprecated. Override _check_collision_status() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._check_collision_status()
 
     def check_collision(self, obj):
         """
@@ -689,7 +708,7 @@ class ObjectBase:
 
         return np.clip(behavior_vel, min_vel, max_vel)
 
-    def pre_process(self):
+    def _pre_process(self):
         """
         Perform pre-processing before stepping the object.
 
@@ -705,7 +724,16 @@ class ObjectBase:
             self._goal = deque([random_point_range(self.rl, self.rh)])
             self.arrive_flag = False
 
-    def post_process(self):
+    def pre_process(self):
+        """Deprecated: use _pre_process() instead."""
+        warnings.warn(
+            "pre_process() is deprecated. Override _pre_process() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._pre_process()
+
+    def _post_process(self):
         """
         Perform post-processing after stepping the object.
 
@@ -714,7 +742,16 @@ class ObjectBase:
         """
         pass
 
-    def mid_process(self, state: np.ndarray):
+    def post_process(self):
+        """Deprecated: use _post_process() instead."""
+        warnings.warn(
+            "post_process() is deprecated. Override _post_process() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._post_process()
+
+    def _mid_process(self, state: np.ndarray):
         """
         Process state in the middle of a step. Make sure the state is within the desired dimension.
 
@@ -745,6 +782,15 @@ class ObjectBase:
             state = state[: self.state_dim]
 
         return state
+
+    def mid_process(self, state: np.ndarray):
+        """Deprecated: use _mid_process() instead."""
+        warnings.warn(
+            "mid_process() is deprecated. Override _mid_process() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._mid_process(state)
 
     def get_lidar_scan(self):
         """
@@ -1043,7 +1089,7 @@ class ObjectBase:
         else:
             self.logger.warning("No lidar sensor found for this object.")
 
-    def input_state_check(self, state: list, dim: int = 3):
+    def _input_state_check(self, state: list, dim: int = 3):
         """
         Check and adjust the state to match the desired dimension.
 
@@ -1068,6 +1114,15 @@ class ObjectBase:
                 )
             return state + [0] * (dim - len(state))
         return state
+
+    def input_state_check(self, state: list, dim: int = 3):
+        """Deprecated: use _input_state_check() instead."""
+        warnings.warn(
+            "input_state_check() is deprecated. Use _input_state_check() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._input_state_check(state, dim)
 
     def plot(
         self,
@@ -1110,6 +1165,10 @@ class ObjectBase:
         return self._plot(
             ax, self.original_state, self.original_vertices, initial=True, **kwargs
         )
+
+    def init_plot(self, ax, **kwargs):
+        """Public alias for :meth:`_init_plot`."""
+        return self._init_plot(ax, **kwargs)
 
     def _plot(self, ax, state, vertices, initial: bool = False, **kwargs):
         """
@@ -1540,6 +1599,10 @@ class ObjectBase:
         # Update sensors
         if self.show_sensor:
             [sensor.step_plot() for sensor in self.sensors]
+
+    def step_plot(self, **kwargs):
+        """Public alias for :meth:`_step_plot`."""
+        return self._step_plot(**kwargs)
 
     def plot_object(
         self,

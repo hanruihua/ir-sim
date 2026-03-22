@@ -131,6 +131,15 @@ class EnvPlot:
         if world.plot_parse.get("tight", True):
             self.fig.tight_layout()
 
+    def init_plot(
+        self,
+        world: Any,
+        objects: list[Any],
+        **kwargs: Any,
+    ) -> None:
+        """Public alias for :meth:`_init_plot`."""
+        return self._init_plot(world, objects, **kwargs)
+
     def step(
         self, mode: str = "dynamic", objects: list[Any] | None = None, **kwargs: Any
     ) -> None:

@@ -73,19 +73,19 @@ class reciprocal_vel_obs:
         else:
             print("wrong method mode, pleas input vo, rvo or hrvo")
 
-        vo_outside, vo_inside = self.vel_candidate(rvo_list)
-        return self.vel_select(vo_outside, vo_inside)
+        vo_outside, vo_inside = self._vel_candidate(rvo_list)
+        return self._vel_select(vo_outside, vo_inside)
 
     def config_rvo(self):
         rvo_list = []
 
         for obstacle in self.obs_state_list:
-            rvo = self.config_rvo_mode(obstacle)
+            rvo = self._config_rvo_mode(obstacle)
             rvo_list.append(rvo)
 
         return rvo_list
 
-    def config_rvo_mode(self, obstacle):
+    def _config_rvo_mode(self, obstacle):
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -144,12 +144,12 @@ class reciprocal_vel_obs:
 
         for obstacle in self.obs_state_list:
             # for circular: [x, y, radius]
-            hrvo = self.config_hrvo_mode(obstacle)
+            hrvo = self._config_hrvo_mode(obstacle)
             hrvo_list.append(hrvo)
 
         return hrvo_list
 
-    def config_hrvo_mode(self, obstacle):
+    def _config_hrvo_mode(self, obstacle):
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -210,7 +210,7 @@ class reciprocal_vel_obs:
 
             dis_diff = dis_rv * sin(diff) / sin(temp)
 
-            if reciprocal_vel_obs.cross_product(cl_vector, cur_v) <= 0:
+            if reciprocal_vel_obs._cross_product(cl_vector, cur_v) <= 0:
                 hrvo_apex = [
                     rvo_apex[0] - dis_diff * cos(line_right_ori),
                     rvo_apex[1] - dis_diff * sin(line_right_ori),
@@ -231,12 +231,12 @@ class reciprocal_vel_obs:
         vo_list = []
 
         for obstacle in self.obs_state_list:
-            vo = self.config_vo_mode(obstacle)
+            vo = self._config_vo_mode(obstacle)
             vo_list.append(vo)
 
         return vo_list
 
-    def config_vo_mode(self, obstacle):
+    def _config_vo_mode(self, obstacle):
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -285,7 +285,7 @@ class reciprocal_vel_obs:
 
         return [vo_apex, line_left_vector, line_right_vector]
 
-    def vel_candidate(self, rvo_list):
+    def _vel_candidate(self, rvo_list):
         vo_outside = []
         vo_inside = []
 
@@ -300,7 +300,7 @@ class reciprocal_vel_obs:
 
         for new_vx in np.arange(cur_vx_min, cur_vx_max, 0.05):
             for new_vy in np.arange(cur_vy_min, cur_vy_max, 0.05):
-                if self.vo_out(new_vx, new_vy, rvo_list):
+                if self._vo_out(new_vx, new_vy, rvo_list):
                     vo_outside.append([new_vx, new_vy])
 
                 else:
@@ -308,7 +308,7 @@ class reciprocal_vel_obs:
 
         return vo_outside, vo_inside
 
-    def vo_out(self, vx, vy, rvo_list):
+    def _vo_out(self, vx, vy, rvo_list):
         for rvo in rvo_list:
             rel_vx = vx - rvo[0][0]
             rel_vy = vy - rvo[0][1]
@@ -316,12 +316,12 @@ class reciprocal_vel_obs:
             # rel_radians = atan2(rel_vy, rel_vx)
             rel_vector = [rel_vx, rel_vy]
 
-            if reciprocal_vel_obs.between_vector(rvo[1], rvo[2], rel_vector):
+            if reciprocal_vel_obs._between_vector(rvo[1], rvo[2], rel_vector):
                 return False
 
         return True
 
-    def vel_select(self, vo_outside, vo_inside):
+    def _vel_select(self, vo_outside, vo_inside):
         vel_des = [self.state[5], self.state[6]]
 
         if len(vo_outside) != 0:
@@ -329,9 +329,9 @@ class reciprocal_vel_obs:
                 vo_outside, key=lambda v: dist_hypot(v[0], v[1], vel_des[0], vel_des[1])
             )
 
-        return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
+        return min(vo_inside, key=lambda v: self._penalty(v, vel_des, self.factor))
 
-    def penalty(self, vel, vel_des, factor):
+    def _penalty(self, vel, vel_des, factor):
         tc_list = []
 
         for moving in self.obs_state_list:
@@ -363,12 +363,12 @@ class reciprocal_vel_obs:
 
     # judge the direction by vector
     @staticmethod
-    def between_vector(line_left_vector, line_right_vector, line_vector):
+    def _between_vector(line_left_vector, line_right_vector, line_vector):
         return bool(
-            reciprocal_vel_obs.cross_product(line_left_vector, line_vector) <= 0
-            and reciprocal_vel_obs.cross_product(line_right_vector, line_vector) >= 0
+            reciprocal_vel_obs._cross_product(line_left_vector, line_vector) <= 0
+            and reciprocal_vel_obs._cross_product(line_right_vector, line_vector) >= 0
         )
 
     @staticmethod
-    def cross_product(vector1, vector2):
+    def _cross_product(vector1, vector2):
         return float(vector1[0] * vector2[1] - vector2[0] * vector1[1])

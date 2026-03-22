@@ -7,6 +7,7 @@ import numpy as np
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 
@@ -205,6 +206,50 @@ class OmniKinematics(KinematicsHandler):
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
         return float(atan2(velocity[1, 0], velocity[0, 0]))
+
+
+@register_kinematics("omni_angular")
+class OmniAngularKinematics(KinematicsHandler):
+    action_dim = 3
+    min_state_dim = 3
+    state_dim = 3
+    vel_max: ClassVar[list[float]] = [1, 1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf"), float("inf")]
+    color = "g"
+    obstacle_color = "k"
+    description = None
+    show_arrow = True
+
+    def __init__(self, name, noise, alpha):
+        super().__init__(name, noise, alpha)
+
+    def step(
+        self, state: np.ndarray, velocity: np.ndarray, step_time: float
+    ) -> np.ndarray:
+        """Advance omnidirectional angular state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta, ...].
+            velocity (np.ndarray): Velocity [vx, vy, angular].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: New state (x, y, theta updated; rest preserved).
+        """
+        next_state = omni_angular_kinematics(
+            state[0:3], velocity, step_time, self.noise, self.alpha
+        )
+        return np.concatenate((next_state, state[3:]))
+
+    def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
+        return velocity[0:2]
+
+    def compute_max_speed(self, vel_max: np.ndarray) -> float:
+        return float(np.linalg.norm(vel_max[0:2]))
+
+    def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
+        return float(state[2, 0])
 
 
 @register_kinematics("diff")

@@ -25,7 +25,7 @@ class TestGeometryFactory:
         circle = GeometryFactory.create_geometry(
             "circle", center=[0.0, 0.0], radius=1.0
         )
-        G, h, cone, convex = circle.get_circle_Gh(np.array([[0.0], [0.0]]), 1.0)
+        G, h, cone, convex = circle._get_circle_Gh(np.array([[0.0], [0.0]]), 1.0)
         assert G.shape == (3, 2)
         assert h.shape == (3, 1)
         assert cone == "norm2"
@@ -43,7 +43,7 @@ class TestGeometryFactory:
         polygon = GeometryFactory.create_geometry(
             "polygon", vertices=[(0, 0), (1, 0), (0, 1)]
         )
-        G, h, cone, convex = polygon.get_polygon_Gh(None)
+        G, h, cone, convex = polygon._get_polygon_Gh(None)
         assert G is None
         assert h is None
         assert cone is None
@@ -107,7 +107,7 @@ class TestGeometryHandlerCoverage:
         assert convex is True
 
     def test_get_polygon_gh_non_convex(self):
-        """Test get_polygon_Gh with non-convex polygon (lines 127-137)."""
+        """Test _get_polygon_Gh with non-convex polygon (lines 127-137)."""
         polygon = GeometryFactory.create_geometry(
             "polygon",
             vertices=[
@@ -124,16 +124,16 @@ class TestGeometryHandlerCoverage:
         non_convex_vertices = np.array(
             [[0, 1, 2, 1.5, 2, 1, 0, 0.5], [0, 0.5, 0, 1, 2, 1.5, 2, 1]]
         )
-        G, h, cone, convex = polygon.get_polygon_Gh(non_convex_vertices)
+        G, h, cone, convex = polygon._get_polygon_Gh(non_convex_vertices)
         assert convex is False
         assert G is None
         assert h is None
         assert cone is None
 
     def test_get_polygon_gh_not_polygon_type(self):
-        """Test get_polygon_Gh when geometry type is not polygon (lines 134-137).
+        """Test _get_polygon_Gh when geometry type is not polygon (lines 134-137).
 
-        Note: There's a bug in get_polygon_Gh where convex_flag is not set in else branch.
+        Note: There's a bug in _get_polygon_Gh where convex_flag is not set in else branch.
         This test verifies the code path is exercised.
         """
         # Skip this test due to bug in source code

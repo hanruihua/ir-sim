@@ -12,13 +12,13 @@ import irsim
 from irsim.gui.mouse_control import MouseControl
 from irsim.util.util import (
     WrapToRegion,
+    _is_list_not_list_of_lists,
+    _is_list_of_lists,
     convert_list_length_dict,
     distance,
     file_check,
     get_affine_transform,
     get_transform,
-    is_list_not_list_of_lists,
-    is_list_of_lists,
     time_it2,
 )
 
@@ -114,8 +114,8 @@ def test_collision_avoidance():
     WrapToRegion(4, [-pi, pi])
     WrapToRegion(-4, [-pi, pi])
     convert_list_length_dict([1, 2, 3], 1)
-    is_list_not_list_of_lists([1, 2, 3])
-    is_list_of_lists([[1, 2, 3]])
+    _is_list_not_list_of_lists([1, 2, 3])
+    _is_list_of_lists([[1, 2, 3]])
     get_transform(np.array([1, 2]).reshape(2, 1))
     get_affine_transform(np.array([1, 2, 3]).reshape(3, 1))
     distance(np.array([1, 2]).reshape(2, 1), np.array([3, 4]).reshape(2, 1))

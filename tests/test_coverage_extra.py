@@ -113,17 +113,17 @@ def test_env_plot3d_branches():
 def test_geometry_factory_and_Gh_edges():
     # Circle G/h
     circle = GeometryFactory.create_geometry("circle", center=[0.0, 0.0], radius=1.0)
-    G, h, cone, convex = circle.get_circle_Gh(np.array([[0.0], [0.0]]), 1.0)
+    G, h, cone, convex = circle._get_circle_Gh(np.array([[0.0], [0.0]]), 1.0)
     assert G.shape == (3, 2)
     assert h.shape == (3, 1)
     assert cone == "norm2"
     assert convex is True
 
-    # Polygon get_polygon_Gh with None
+    # Polygon _get_polygon_Gh with None
     polygon = GeometryFactory.create_geometry(
         "polygon", vertices=[(0, 0), (1, 0), (0, 1)]
     )
-    G2, h2, cone2, convex2 = polygon.get_polygon_Gh(None)
+    G2, h2, cone2, convex2 = polygon._get_polygon_Gh(None)
     assert G2 is None
     assert h2 is None
     assert cone2 is None

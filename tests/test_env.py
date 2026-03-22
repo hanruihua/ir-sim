@@ -1235,21 +1235,21 @@ class TestObjectVelocityProperties:
 
 
 class TestMidProcessEdgeCases:
-    """Tests for ObjectBase.mid_process state padding/truncation."""
+    """Tests for ObjectBase._mid_process state padding/truncation."""
 
     def test_mid_process_truncates(self, env_factory):
-        """mid_process truncates state larger than state_dim."""
+        """_mid_process truncates state larger than state_dim."""
         env = env_factory("test_collision_world.yaml")
         robot = env.robot
         large_state = np.zeros((robot.state_dim + 2, 1))
-        result = robot.mid_process(large_state)
+        result = robot._mid_process(large_state)
         assert result.shape[0] == robot.state_dim
 
     def test_mid_process_pads(self, env_factory):
-        """mid_process pads state smaller than state_dim."""
+        """_mid_process pads state smaller than state_dim."""
         env = env_factory("test_collision_world.yaml")
         robot = env.robot
         small_state = np.array([[1.0], [2.0], [0.0]])  # 3 rows, state_dim may be larger
         if robot.state_dim > 3:
-            result = robot.mid_process(small_state)
+            result = robot._mid_process(small_state)
             assert result.shape[0] == robot.state_dim

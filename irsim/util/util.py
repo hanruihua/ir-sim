@@ -156,7 +156,7 @@ def convert_list_length(input_data: list[Any], number: int = 0) -> list[Any]:
     """
     if number == 0:
         return []
-    if not isinstance(input_data, list) or is_list_of_numbers(input_data):
+    if not isinstance(input_data, list) or _is_list_of_numbers(input_data):
         return [input_data] * number
     if len(input_data) <= number:
         input_data.extend([input_data[-1]] * (number - len(input_data)))
@@ -178,7 +178,7 @@ def convert_list_length_dict(input_data: list[Any], number: int = 0) -> list[Any
     """
     if number == 0:
         return []
-    if not isinstance(input_data, list) or is_list_of_dicts(input_data):
+    if not isinstance(input_data, list) or _is_list_of_dicts(input_data):
         return [input_data] * number
     if len(input_data) <= number:
         input_data.extend([input_data[-1]] * (number - len(input_data)))
@@ -187,7 +187,7 @@ def convert_list_length_dict(input_data: list[Any], number: int = 0) -> list[Any
     return input_data
 
 
-def is_list_of_dicts(lst: Any) -> bool:
+def _is_list_of_dicts(lst: Any) -> bool:
     """
     Check if a list contains only dictionaries.
 
@@ -200,7 +200,7 @@ def is_list_of_dicts(lst: Any) -> bool:
     return isinstance(lst, list) and all(isinstance(sub, dict) for sub in lst)
 
 
-def is_list_of_numbers(lst: Any) -> bool:
+def _is_list_of_numbers(lst: Any) -> bool:
     """
     Check if a list contains only numbers.
 
@@ -213,7 +213,7 @@ def is_list_of_numbers(lst: Any) -> bool:
     return isinstance(lst, list) and all(isinstance(sub, (int, float)) for sub in lst)
 
 
-def is_list_of_lists(lst: Any) -> bool:
+def _is_list_of_lists(lst: Any) -> bool:
     """
     Check if a list contains lists.
 
@@ -226,7 +226,7 @@ def is_list_of_lists(lst: Any) -> bool:
     return isinstance(lst, list) and any(isinstance(sub, list) for sub in lst)
 
 
-def is_list_not_list_of_lists(lst: Any) -> bool:
+def _is_list_not_list_of_lists(lst: Any) -> bool:
     """
     Check if a list does not contain lists.
 

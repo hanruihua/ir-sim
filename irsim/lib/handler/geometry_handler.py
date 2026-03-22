@@ -31,13 +31,13 @@ class geometry_handler(ABC):
 
     def __init__(self, name: str, **kwargs):
         self.name = name
-        self._original_geometry = self.construct_original_geometry(**kwargs)
+        self._original_geometry = self._construct_original_geometry(**kwargs)
         self.geometry = self._original_geometry
         self.wheelbase = kwargs.get("wheelbase")
-        self.length, self.width = self.cal_length_width(self._original_geometry)
+        self.length, self.width = self._cal_length_width(self._original_geometry)
 
     @abstractmethod
-    def construct_original_geometry(self, **kwargs):
+    def _construct_original_geometry(self, **kwargs):
         """
         Construct the original geometry of the object when the state is in the origin of coordinates.
 
@@ -96,16 +96,16 @@ class geometry_handler(ABC):
 
     def get_Gh(self, **kwargs):
         if self.name == "polygon" or self.name == "rectangle":
-            G, h, cone_type, convex_flag = self.get_polygon_Gh(kwargs.get("vertices"))
+            G, h, cone_type, convex_flag = self._get_polygon_Gh(kwargs.get("vertices"))
 
         elif self.name == "circle":
-            G, h, cone_type, convex_flag = self.get_circle_Gh(
+            G, h, cone_type, convex_flag = self._get_circle_Gh(
                 kwargs.get("center"), kwargs.get("radius")
             )
 
         return G, h, cone_type, convex_flag
 
-    def get_polygon_Gh(self, vertices: np.ndarray | None = None):
+    def _get_polygon_Gh(self, vertices: np.ndarray | None = None):
         """
         Generate G and h for convex polygon.
 
@@ -135,7 +135,7 @@ class geometry_handler(ABC):
 
         return G, h, cone_type, convex_flag
 
-    def get_circle_Gh(self, center: np.ndarray, radius: float):
+    def _get_circle_Gh(self, center: np.ndarray, radius: float):
         """
         Generate G and h for circle.
 
@@ -160,7 +160,7 @@ class geometry_handler(ABC):
 
         return G, h, cone_type, convex_flag
 
-    def cal_length_width(self, geometry):
+    def _cal_length_width(self, geometry):
         min_x, min_y, max_x, max_y = bounds(geometry).tolist()
         length = max_x - min_x
         width = max_y - min_y
@@ -216,7 +216,7 @@ class CircleGeometry(geometry_handler):
     def __init__(self, name: str = "circle", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(
+    def _construct_original_geometry(
         self,
         radius: float = 0.2,
         center: list | None = None,
@@ -240,7 +240,7 @@ class PolygonGeometry(geometry_handler):
     def __init__(self, name: str = "polygon", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(
+    def _construct_original_geometry(
         self,
         vertices=None,
         random_shape: bool = False,
@@ -292,7 +292,7 @@ class RectangleGeometry(geometry_handler):
     def __init__(self, name: str = "rectangle", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(
+    def _construct_original_geometry(
         self, length: float = 1.0, width: float = 1.0, wheelbase: float | None = None
     ):
         """
@@ -327,7 +327,7 @@ class LinestringGeometry(geometry_handler):
     def __init__(self, name: str = "linestring", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(
+    def _construct_original_geometry(
         self, vertices, random_shape: bool = False, is_convex: bool = True, **kwargs
     ):
         """
@@ -356,7 +356,7 @@ class PointsGeometry(geometry_handler):
     def __init__(self, name: str = "map", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(self, points: np.ndarray, reso: float = 0.1):
+    def _construct_original_geometry(self, points: np.ndarray, reso: float = 0.1):
         """
         Args:
             points: (2, N) array of points
@@ -376,15 +376,15 @@ class geometry_handler3d(ABC):
 
     def __init__(self, name: str, **kwargs):
         self.name = name
-        self._original_geometry = self.construct_original_geometry(**kwargs)
+        self._original_geometry = self._construct_original_geometry(**kwargs)
         self.geometry = self._original_geometry
         self.wheelbase = kwargs.get("wheelbase")
-        self.length, self.width, self.depth = self.cal_length_width(
+        self.length, self.width, self.depth = self._cal_length_width(
             self._original_geometry
         )
 
     @abstractmethod
-    def construct_original_geometry(self, **kwargs):
+    def _construct_original_geometry(self, **kwargs):
         pass
 
     def step(self, state):

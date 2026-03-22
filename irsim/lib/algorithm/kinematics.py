@@ -158,3 +158,62 @@ def omni_kinematics(
         real_velocity = velocity
 
     return state[0:2] + real_velocity * step_time
+
+
+@validate_shape(state=3, velocity=3)
+def omni_angular_kinematics(
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: list[float] | None = None,
+) -> np.ndarray:
+    """
+    Calculate the next state for an omnidirectional robot with angular velocity.
+
+    Compared to :func:`omni_kinematics`, this function also tracks and updates
+    the orientation of the robot using the angular velocity component.
+
+    Args:
+        state: A 3x1 vector [x, y, theta] representing the current position and orientation.
+        velocity: A 3x1 vector [vx, vy, angular] representing the current velocities.
+        step_time: The time step for the simulation.
+        noise: Boolean indicating whether to add noise to the velocity (default False).
+        alpha: List of noise parameters for the velocity model
+            (default [0.03, 0, 0, 0, 0, 0.03, 0, 0, 0.03]).
+            A 3x3 diagonal structure: alpha[0] for vx, alpha[5] for vy, alpha[8] for angular.
+
+    Returns:
+        next_state: A 3x1 vector [x, y, theta] representing the next state.
+    """
+    if alpha is None:
+        alpha = [0.03, 0, 0, 0, 0, 0.03, 0, 0, 0.03]
+
+    if noise:
+        if len(alpha) < 9:
+            raise ValueError("Parameter 'alpha' must have length >= 9 when noise=True")
+        std_vx = np.sqrt(
+            alpha[0] * (velocity[0, 0] ** 2)
+            + alpha[1] * (velocity[1, 0] ** 2)
+            + alpha[2] * (velocity[2, 0] ** 2)
+        )
+        std_vy = np.sqrt(
+            alpha[3] * (velocity[0, 0] ** 2)
+            + alpha[4] * (velocity[1, 0] ** 2)
+            + alpha[5] * (velocity[2, 0] ** 2)
+        )
+        std_angular = np.sqrt(
+            alpha[6] * (velocity[0, 0] ** 2)
+            + alpha[7] * (velocity[1, 0] ** 2)
+            + alpha[8] * (velocity[2, 0] ** 2)
+        )
+        real_velocity = velocity + rng.normal(
+            [[0], [0], [0]], scale=[[std_vx], [std_vy], [std_angular]]
+        )
+    else:
+        real_velocity = velocity
+
+    next_state = state + real_velocity * step_time
+    next_state[2, 0] = WrapToPi(next_state[2, 0])
+
+    return next_state

@@ -153,7 +153,7 @@ class EnvConfig:
             object_groups,
         )
 
-    def reload_objects(self) -> Any:
+    def _reload_objects(self) -> Any:
         """Rebuild world/objects and update the current figure in-place.
 
         This method reuses the existing ``EnvPlot`` instance and its figure/axes,
@@ -213,7 +213,7 @@ class EnvConfig:
     def reload_yaml_objects(self, world_name) -> Any:
         """Reload YAML and update the scene using the existing figure.
 
-        This re-parses the YAML and then calls :py:meth:`reload_objects` to
+        This re-parses the YAML and then calls :py:meth:`_reload_objects` to
         apply the new configuration without creating a new figure window.
 
         Args:
@@ -234,7 +234,7 @@ class EnvConfig:
             obstacle_collection,
             map_collection,
             object_groups,
-        ) = self.reload_objects()
+        ) = self._reload_objects()
 
         return (
             world,
