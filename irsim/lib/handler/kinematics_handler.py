@@ -7,6 +7,7 @@ import numpy as np
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 
@@ -205,6 +206,55 @@ class OmniKinematics(KinematicsHandler):
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
         return float(atan2(velocity[1, 0], velocity[0, 0]))
+
+
+@register_kinematics("omni_angular")
+class OmniAngularKinematics(KinematicsHandler):
+    """Omnidirectional kinematics with angular velocity control.
+
+    Velocity is ``[vx, vy, yaw_rate]``.  The translational components
+    ``[vx, vy]`` are world-frame, same as :class:`OmniKinematics`.  The
+    third component ``yaw_rate`` integrates orientation (theta) natively
+    so that no external post-step hack is needed.
+    """
+
+    action_dim = 3
+    min_state_dim = 3
+    state_dim = 3
+    vel_max: ClassVar[list[float]] = [1, 1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf"), float("inf")]
+    color = "g"
+    obstacle_color = "k"
+    description = None
+    show_arrow = True
+
+    def __init__(self, name, noise, alpha):
+        super().__init__(name, noise, alpha)
+
+    def step(
+        self, state: np.ndarray, velocity: np.ndarray, step_time: float
+    ) -> np.ndarray:
+        """Advance omnidirectional-angular state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta, ...].
+            velocity (np.ndarray): Velocity [vx, vy, yaw_rate].
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: New state (x, y, theta updated; rest preserved).
+        """
+        next_core = omni_angular_kinematics(
+            state[0:3], velocity, step_time, self.noise, self.alpha
+        )
+        return np.concatenate((next_core, state[3:]))
+
+    def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
+        return velocity[0:2]
+
+    def compute_max_speed(self, vel_max: np.ndarray) -> float:
+        return float(np.linalg.norm(vel_max[0:2]))
 
 
 @register_kinematics("diff")
