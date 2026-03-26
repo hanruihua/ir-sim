@@ -1,0 +1,197 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: "unobstructed_obstacles"
+  control_mode: "auto"
+  plot:
+    no_axis: true
+    viewpoint: null
+
+robot:
+  kinematics: {name: "diff"}
+  shape: {name: "circle", radius: 0.2}
+  state: [1.0, 1.0, 0.0]
+  goal: [9.0, 9.0, 0.0]
+  vel_min: [0.0, -1.5]
+  vel_max: [0.8, 1.5]
+  goal_threshold: 0.2
+  color: "royalblue"
+  plot:
+    show_trajectory: true
+    show_goal: true
+    show_goal_text: true
+    show_text: true
+
+obstacle:
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.55}
+    state: [8.2, 2.2, 0.0]
+    goal: [2.2, 8.2, 0.0]
+    vel_min: [-0.35, -0.35]
+    vel_max: [0.35, 0.35]
+    goal_threshold: 0.15
+    color: "black"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.5}
+    state: [6.8, 2.6, 0.0]
+    goal: [3.0, 7.2, 0.0]
+    vel_min: [-0.3, -0.3]
+    vel_max: [0.3, 0.3]
+    goal_threshold: 0.15
+    color: "dimgray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.45}
+    state: [7.8, 4.8, 0.0]
+    goal: [2.6, 5.6, 0.0]
+    vel_min: [-0.28, -0.28]
+    vel_max: [0.28, 0.28]
+    goal_threshold: 0.15
+    color: "gray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.42}
+    state: [8.6, 6.8, 0.0]
+    goal: [2.0, 3.2, 0.0]
+    vel_min: [-0.26, -0.26]
+    vel_max: [0.26, 0.26]
+    goal_threshold: 0.15
+    color: "slategray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.38}
+    state: [7.2, 7.8, 0.0]
+    goal: [2.2, 2.8, 0.0]
+    vel_min: [-0.24, -0.24]
+    vel_max: [0.24, 0.24]
+    goal_threshold: 0.15
+    color: "silver"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.6}
+    state: [5.8, 8.4, 0.0]
+    goal: [3.2, 1.8, 0.0]
+    vel_min: [-0.32, -0.32]
+    vel_max: [0.32, 0.32]
+    goal_threshold: 0.15
+    color: "black"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.48}
+    state: [4.4, 8.6, 0.0]
+    goal: [4.0, 1.6, 0.0]
+    vel_min: [-0.3, -0.3]
+    vel_max: [0.3, 0.3]
+    goal_threshold: 0.15
+    color: "dimgray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.36}
+    state: [2.6, 8.0, 0.0]
+    goal: [6.8, 2.0, 0.0]
+    vel_min: [-0.22, -0.22]
+    vel_max: [0.22, 0.22]
+    goal_threshold: 0.15
+    color: "gray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.52}
+    state: [1.8, 6.6, 0.0]
+    goal: [8.2, 3.4, 0.0]
+    vel_min: [-0.31, -0.31]
+    vel_max: [0.31, 0.31]
+    goal_threshold: 0.15
+    color: "darkgray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.4}
+    state: [1.6, 4.8, 0.0]
+    goal: [8.0, 5.4, 0.0]
+    vel_min: [-0.27, -0.27]
+    vel_max: [0.27, 0.27]
+    goal_threshold: 0.15
+    color: "lightgray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.44}
+    state: [2.0, 3.0, 0.0]
+    goal: [7.6, 6.8, 0.0]
+    vel_min: [-0.25, -0.25]
+    vel_max: [0.25, 0.25]
+    goal_threshold: 0.15
+    color: "black"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.34}
+    state: [3.0, 2.0, 0.0]
+    goal: [7.2, 7.8, 0.0]
+    vel_min: [-0.2, -0.2]
+    vel_max: [0.2, 0.2]
+    goal_threshold: 0.15
+    color: "dimgray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.58}
+    state: [4.8, 1.6, 0.0]
+    goal: [5.8, 8.6, 0.0]
+    vel_min: [-0.34, -0.34]
+    vel_max: [0.34, 0.34]
+    goal_threshold: 0.15
+    color: "gray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.46}
+    state: [6.4, 1.8, 0.0]
+    goal: [4.2, 8.2, 0.0]
+    vel_min: [-0.29, -0.29]
+    vel_max: [0.29, 0.29]
+    goal_threshold: 0.15
+    color: "slategray"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.37}
+    state: [7.6, 1.6, 0.0]
+    goal: [3.4, 7.6, 0.0]
+    vel_min: [-0.23, -0.23]
+    vel_max: [0.23, 0.23]
+    goal_threshold: 0.15
+    color: "silver"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.5}
+    state: [8.4, 4.0, 0.0]
+    goal: [1.8, 6.2, 0.0]
+    vel_min: [-0.33, -0.33]
+    vel_max: [0.33, 0.33]
+    goal_threshold: 0.15
+    color: "black"
+
+  - kinematics: {name: "omni"}
+    behavior: {name: "dash"}
+    shape: {name: "circle", radius: 0.43}
+    state: [8.0, 5.8, 0.0]
+    goal: [2.4, 4.0, 0.0]
+    vel_min: [-0.27, -0.27]
+    vel_max: [0.27, 0.27]
+    goal_threshold: 0.15
+    color: "dimgray"
