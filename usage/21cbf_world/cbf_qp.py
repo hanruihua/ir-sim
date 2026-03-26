@@ -12,8 +12,8 @@ For the two demo modes:
 
 import math
 
-import numpy as np
 import cvxpy as cp
+import numpy as np
 
 
 class CBFQPController:
@@ -134,10 +134,9 @@ class CBFQPController:
 
         if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
             return np.asarray(u.value, dtype=float).reshape(-1)
-        else:
-            # import pdb; pdb.set_trace()
-            print(f"CBF-QP infeasible: {problem.status}")
-            return np.zeros_like(u_nom, dtype=float)
+        # import pdb; pdb.set_trace()
+        print(f"CBF-QP infeasible: {problem.status}")
+        return np.zeros_like(u_nom, dtype=float)
 
     def _solve_unicycle_qp(
         self,
@@ -192,9 +191,8 @@ class CBFQPController:
 
         if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
             return np.asarray(u.value, dtype=float).reshape(-1)
-        else:
-            print(f"CBF-QP infeasible: {problem.status}")
-            return np.zeros(2, dtype=float)
+        print(f"CBF-QP infeasible: {problem.status}")
+        return np.zeros(2, dtype=float)
 
     def get_action(self, robot, obstacles) -> np.ndarray:
         """Compute one safe velocity command for the current simulator step."""

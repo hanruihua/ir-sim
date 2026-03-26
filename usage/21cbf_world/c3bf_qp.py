@@ -252,9 +252,8 @@ class CollisionConeCBFController:
 
         if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
             return np.asarray(u.value, dtype=float).reshape(-1)
-        else:
-            print(f"C3BF-QP infeasible: {problem.status}")
-            return np.zeros(2, dtype=float)
+        print(f"C3BF-QP infeasible: {problem.status}")
+        return np.zeros(2, dtype=float)
 
     def _solve_diff_qp(
         self,
@@ -295,9 +294,8 @@ class CollisionConeCBFController:
 
         if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
             return np.asarray(u.value, dtype=float).reshape(-1)
-        else:
-            print(f"C3BF-QP infeasible: {problem.status}")
-            return np.zeros(2, dtype=float)
+        print(f"C3BF-QP infeasible: {problem.status}")
+        return np.zeros(2, dtype=float)
 
     def get_action(self, robot, obstacles) -> np.ndarray:
         lower = robot.vel_min[:, 0]
