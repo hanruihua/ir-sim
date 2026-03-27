@@ -300,7 +300,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `name`           | `str` or `list` of `str`                         | `None`           | Unique identifier for the object. If omitted, auto-assigned as `"<role>_<id>"`. Supports a list when `number > 1`. |
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
-| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                                               |
+| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`, `omni_angular`                               |
 | `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`                               |
 | `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                                                |
 | `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                                           |
@@ -505,6 +505,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 :class-card: sd-bg-light sd-rounded-3
 - **`diff`** — Differential drive, controlled by linear speed and angular velocity (`[v, omega]`)
 - **`omni`** — Omnidirectional, controlled by linear speed along the x and y axes (`[vx, vy]`)
+- **`omni_angular`** — Omnidirectional with angular control, controlled by linear speeds and yaw rate (`[vx, vy, yaw_rate]`)
 - **`acker`** — Ackermann steering, controlled by linear speed and steering angle (`[v, phi]`)
 ```
 
@@ -529,7 +530,16 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     # Example usage
     kinematics: {name: 'omni', noise: True, alpha: [0.03, 0, 0, 0.03]}
     ```
-   
+
+  - `'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta) natively. This type of robot is controlled by velocities along the x and y axes and a yaw rate. Optional parameters:
+    - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
+    - `alpha` (list): noise parameters for velocity commands `[alpha_vx, alpha_vy, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`.
+
+    ```yaml
+    # Example usage
+    kinematics: {name: 'omni_angular', noise: True, alpha: [0.03, 0.03, 0.03]}
+    ```
+
   - `'acker'`: Ackermann steering, typical for car-like vehicles requiring a turning radius.
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
     - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.  
