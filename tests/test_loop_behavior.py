@@ -1,7 +1,5 @@
 """Tests for loop behavior functionality."""
 
-import pytest
-
 import irsim
 
 
