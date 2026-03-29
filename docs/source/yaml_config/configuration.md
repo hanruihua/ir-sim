@@ -669,11 +669,12 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   **Options:**
   - `'dash'`: Moves directly toward the goal at maximum allowable speed.
     - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
+    - `loop` (bool/`False`): Whether to loop through waypoints continuously. If `True`, the object will restart from the first waypoint after reaching the last one.
     - `target_roles` (str/`all`): Only the objects with the target role will be applied to the behavior. Currently, you can set the target role as `robot` or `obstacle`.
-    - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering. 
-    - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering. 
-    - `angle_tolerance` (float/`0.1`): Tolerance for orientation alignment with `diff` and `acker` kinematics. 
-  
+    - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
+    - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
+    - `angle_tolerance` (float/`0.1`): Tolerance for orientation alignment with `diff` and `acker` kinematics.
+
     **Example:**
     ```yaml
     behavior: {name: 'dash', wander: True, range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], angle_tolerance: 0.1}
@@ -681,6 +682,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   - `'rvo'`: Implements Reciprocal Velocity Obstacles for collision avoidance among multiple moving objects. Support kinematics are `diff` and `omni`.
     - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
+    - `loop` (bool/`False`): Whether to loop through waypoints continuously. If `True`, the object will restart from the first waypoint after reaching the last one.
     - `target_roles` (str/`all`): Only the objects with the target role will be applied to the behavior. Currently, you can set the target role as `robot` or `obstacle`.
     - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
     - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
