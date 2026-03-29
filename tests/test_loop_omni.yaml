@@ -3,7 +3,7 @@ world:
   height: 10
 
 robot:
-  kinematics: omni
+  kinematics: {name: omni}
   state: [1, 1, 0]
   goal: [[3, 3], [5, 5]]
   behavior:

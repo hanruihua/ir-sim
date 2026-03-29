@@ -3,7 +3,7 @@ world:
   height: 10
 
 robot:
-  kinematics: diff
+  kinematics: {name: diff}
   state: [1, 1, 0]
   goal: [5, 5]
   behavior:
