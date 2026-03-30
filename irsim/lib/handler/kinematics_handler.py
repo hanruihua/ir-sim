@@ -179,6 +179,8 @@ class OmniKinematics(KinematicsHandler):
 
     def __init__(self, name, noise, alpha):
         super().__init__(name, noise, alpha)
+        if alpha is None:
+            self.alpha = [0.03, 0.03]
 
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
@@ -230,6 +232,8 @@ class OmniAngularKinematics(KinematicsHandler):
 
     def __init__(self, name, noise, alpha):
         super().__init__(name, noise, alpha)
+        if alpha is None:
+            self.alpha = [0.03, 0.03, 0.03]
 
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
