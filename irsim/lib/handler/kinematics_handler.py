@@ -214,8 +214,7 @@ class OmniAngularKinematics(KinematicsHandler):
 
     Velocity is ``[vx, vy, yaw_rate]``.  The translational components
     ``[vx, vy]`` are world-frame, same as :class:`OmniKinematics`.  The
-    third component ``yaw_rate`` integrates orientation (theta) natively
-    so that no external post-step hack is needed.
+    third component ``yaw_rate`` integrates orientation (theta)
     """
 
     action_dim = 3
@@ -238,17 +237,17 @@ class OmniAngularKinematics(KinematicsHandler):
         """Advance omnidirectional-angular state one step.
 
         Args:
-            state (np.ndarray): Current state [x, y, theta, ...].
+            state (np.ndarray): Current state [x, y, theta].
             velocity (np.ndarray): Velocity [vx, vy, yaw_rate].
             step_time (float): Time step.
 
         Returns:
-            np.ndarray: New state (x, y, theta updated; rest preserved).
+            np.ndarray: New state [x, y, theta].
         """
-        next_core = omni_angular_kinematics(
+
+        return omni_angular_kinematics(
             state[0:3], velocity, step_time, self.noise, self.alpha
         )
-        return np.concatenate((next_core, state[3:]))
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
         return velocity[0:2]
