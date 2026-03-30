@@ -158,7 +158,7 @@ class TestKinematicsRegistry:
     """Tests for the kinematics registry and @register_kinematics decorator."""
 
     def test_builtin_types_registered(self):
-        """All three built-in kinematics types are in the registry."""
+        """All four built-in kinematics types are in the registry."""
         assert "diff" in _kinematics_registry
         assert "omni" in _kinematics_registry
         assert "omni_angular" in _kinematics_registry
