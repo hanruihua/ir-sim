@@ -158,3 +158,49 @@ def omni_kinematics(
         real_velocity = velocity
 
     return state[0:2] + real_velocity * step_time
+
+
+@validate_shape(state=3, velocity=3)
+def omni_angular_kinematics(
+    state: np.ndarray,
+    velocity: np.ndarray,
+    step_time: float,
+    noise: bool = False,
+    alpha: list[float] | None = None,
+) -> np.ndarray:
+    """
+    Calculate the next state for an omnidirectional robot with angular velocity.
+
+    Extends omni_kinematics by adding a yaw_rate channel that integrates
+    orientation (theta) alongside the translational [x, y] update.
+
+    Args:
+        state: A 3x1 vector [x, y, theta] representing the current position and orientation.
+        velocity: A 3x1 vector [vx, vy, yaw_rate] representing the current velocities.
+        step_time: The time step for the simulation.
+        noise: Boolean indicating whether to add noise to the velocity (default False).
+        alpha: List of noise parameters [alpha_vx, alpha_vy, alpha_yaw] (default [0.03, 0.03, 0.03]).
+            Each value scales the standard deviation for the corresponding velocity channel.
+
+    Returns:
+        next_state: A 3x1 vector [x, y, theta] representing the next state.
+    """
+    if alpha is None:
+        alpha = [0.03, 0.03, 0.03]
+
+    if noise:
+        if len(alpha) < 3:
+            raise ValueError("Parameter 'alpha' must have length >= 3 when noise=True")
+        std_vx = np.sqrt(alpha[0])
+        std_vy = np.sqrt(alpha[1])
+        std_yaw = np.sqrt(alpha[2])
+        real_velocity = velocity + rng.normal(
+            [[0], [0], [0]], scale=[[std_vx], [std_vy], [std_yaw]]
+        )
+    else:
+        real_velocity = velocity
+
+    next_state = state[0:3] + real_velocity * step_time
+    next_state[2, 0] = WrapToPi(next_state[2, 0])
+
+    return next_state

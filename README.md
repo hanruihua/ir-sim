@@ -124,7 +124,7 @@ world:
   offset: [0, 0] # the offset of the world on x and y
 
 robot:
-  kinematics: {name: 'diff'}  # omni, diff, acker
+  kinematics: {name: 'diff'}  # omni, omni_angular, diff, acker
   shape: {name: 'circle', radius: 0.2}  # radius
   state: [1, 1, 0]  # x, y, theta
   goal: [9, 9, 0]  # x, y, theta
@@ -138,7 +138,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 
 | **Category**     | **Features**                                                                                                                                                                            |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Kinematics**   | Differential Drive mobile Robot · Omnidirectional mobile Robot · Ackermann Steering mobile Robot                                                                                        |
+| **Kinematics**   | Differential Drive mobile Robot · Omnidirectional mobile Robot · Omnidirectional with Angular control · Ackermann Steering mobile Robot                                                 |
 | **Sensors**      | 2D LiDAR · FOV Detector                                                                                                                                                                |
 | **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map                                                                                                                             |
 | **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance)                                                                   |
