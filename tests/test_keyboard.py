@@ -93,15 +93,18 @@ class TestKeyboardControlPynput:
         env.keyboard._on_pynput_release(XKeyMock())
         assert env._world_param.control_mode == mode0
 
-    def test_qe_adjust_lv_max(self, env_factory, mock_keyboard_key):
-        """Test 'q'/'e' keys adjust linear velocity max."""
+    def test_qe_rotate(self, env_factory, mock_keyboard_key):
+        """Test 'q'/'e' keys control angular velocity."""
         env = env_factory("test_keyboard_control.yaml")
         env.keyboard._active_only = False  # Allow testing without focus
-        prev_lv_max = env.keyboard.key_lv_max
-        env.keyboard._on_pynput_release(mock_keyboard_key("e"))
-        assert env.keyboard.key_lv_max > prev_lv_max
+        env.keyboard._on_pynput_press(mock_keyboard_key("q"))
+        assert env.keyboard.key_ang == env.keyboard.key_ang_max
         env.keyboard._on_pynput_release(mock_keyboard_key("q"))
-        assert env.keyboard.key_lv_max < prev_lv_max + 0.2
+        assert env.keyboard.key_ang == 0
+        env.keyboard._on_pynput_press(mock_keyboard_key("e"))
+        assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+        env.keyboard._on_pynput_release(mock_keyboard_key("e"))
+        assert env.keyboard.key_ang == 0
 
     def test_zc_adjust_ang_max(self, env_factory, mock_keyboard_key):
         """Test 'z'/'c' keys adjust angular velocity max."""
@@ -292,24 +295,19 @@ class TestKeyboardControlMpl:
         mpl_kb._on_mpl_press(mock_mpl_event("alt+9"))
         assert mpl_kb.key_id == 9
 
-    def test_lv_max_adjustment(self, env_factory, mock_mpl_event):
-        """Test linear velocity max adjustment with e/q keys."""
+    def test_qe_rotate_mpl(self, env_factory, mock_mpl_event):
+        """Test q/e keys control angular velocity in mpl backend."""
         env = env_factory("test_keyboard_control2.yaml")
 
-        prev_lv_max = env.keyboard.key_lv_max
-        env.keyboard._on_mpl_release(mock_mpl_event("e"))
-        assert env.keyboard.key_lv_max > prev_lv_max
-
-        env.keyboard._on_mpl_press(mock_mpl_event("w"))
-        env.step()
-        v = env.robot.velocity.reshape(-1)
-        assert pytest.approx(v[0], rel=1e-9, abs=1e-9) == env.keyboard.key_lv_max
-        env.keyboard._on_mpl_release(mock_mpl_event("w"))
-        env.step()
-
-        prev_lv_max = env.keyboard.key_lv_max
+        env.keyboard._on_mpl_press(mock_mpl_event("q"))
+        assert env.keyboard.key_ang == env.keyboard.key_ang_max
         env.keyboard._on_mpl_release(mock_mpl_event("q"))
-        assert env.keyboard.key_lv_max < prev_lv_max
+        assert env.keyboard.key_ang == 0
+
+        env.keyboard._on_mpl_press(mock_mpl_event("e"))
+        assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+        env.keyboard._on_mpl_release(mock_mpl_event("e"))
+        assert env.keyboard.key_ang == 0
 
     def test_ang_max_adjustment(self, env_factory, mock_mpl_event):
         """Test angular velocity max adjustment with c/z keys."""

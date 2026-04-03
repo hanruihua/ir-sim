@@ -366,12 +366,11 @@ def test_keyboard_control():
     env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
-    # q/e adjust key_lv_max (pynput backend)
-    prev_lv_max = env.keyboard.key_lv_max
-    env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="e"))
-    assert env.keyboard.key_lv_max > prev_lv_max
+    # q/e control angular velocity (pynput backend)
+    env.keyboard._on_pynput_press(Mock(spec=keyboard.Key, char="q"))
+    assert env.keyboard.key_ang == env.keyboard.key_ang_max
     env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="q"))
-    assert env.keyboard.key_lv_max < prev_lv_max + 0.2  # net change <= 0
+    assert env.keyboard.key_ang == 0
 
     # z/c adjust key_ang_max (pynput backend)
     prev_ang_max = env.keyboard.key_ang_max
@@ -599,27 +598,15 @@ def test_keyboard_control_mpl_backend():
     v = env.robot.velocity.reshape(-1)
     assert abs(v[1]) <= 1e-9
 
-    # Increase linear max with 'e', press 'w' should reflect new max
-    prev_lv_max = env.keyboard.key_lv_max
-    env.keyboard._on_mpl_release(E("e"))
-    assert env.keyboard.key_lv_max > prev_lv_max
-    env.keyboard._on_mpl_press(E("w"))
-    env.step()
-    v = env.robot.velocity.reshape(-1)
-    assert pytest.approx(v[0], rel=1e-9, abs=1e-9) == env.keyboard.key_lv_max
-    env.keyboard._on_mpl_release(E("w"))
-    env.step()
-
-    # Decrease linear max with 'q', press 'w' should reflect decreased max
-    prev_lv_max = env.keyboard.key_lv_max
+    # q/e control angular velocity (mpl backend)
+    env.keyboard._on_mpl_press(E("q"))
+    assert env.keyboard.key_ang == env.keyboard.key_ang_max
     env.keyboard._on_mpl_release(E("q"))
-    assert env.keyboard.key_lv_max < prev_lv_max
-    env.keyboard._on_mpl_press(E("w"))
-    env.step()
-    v = env.robot.velocity.reshape(-1)
-    assert pytest.approx(v[0], rel=1e-9, abs=1e-9) == env.keyboard.key_lv_max
-    env.keyboard._on_mpl_release(E("w"))
-    env.step()
+    assert env.keyboard.key_ang == 0
+    env.keyboard._on_mpl_press(E("e"))
+    assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+    env.keyboard._on_mpl_release(E("e"))
+    assert env.keyboard.key_ang == 0
 
     # Increase angular max with 'c', press 'a' should match new max
     prev_ang_max = env.keyboard.key_ang_max

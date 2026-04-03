@@ -68,45 +68,78 @@ def test_ackermann_kinematics():
 
 
 def test_omni_kinematics():
-    """Test omnidirectional robot kinematics"""
-    # Test basic movement
-    state = np.array([[0], [0]])  # x, y
-    velocity = np.array([[1], [0]])  # vx, vy
+    """Test omnidirectional robot kinematics with body-frame velocity."""
+    # Test forward movement at theta=0 (forward = +x in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0]])  # forward, lateral
     next_state = omni_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state, np.array([[1], [0]]))
+    assert np.allclose(next_state, np.array([[1], [0], [0]]))
 
-    # Test diagonal movement
-    velocity = np.array([[1], [1]])  # vx, vy
+    # Test forward movement at theta=pi/2 (forward = +y in world)
+    state = np.array([[0], [0], [np.pi / 2]])
+    velocity = np.array([[1], [0]])
     next_state = omni_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state, np.array([[1], [1]]))
+    assert np.allclose(next_state, np.array([[0], [1], [np.pi / 2]]), atol=1e-10)
+
+    # Test lateral movement at theta=0 (lateral = +y in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[0], [1]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [0]]), atol=1e-10)
+
+    # Test combined forward+lateral at theta=0
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [1]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [1], [0]]))
+
+    # Test theta is preserved
+    state = np.array([[0], [0], [1.5]])
+    velocity = np.array([[1], [0]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state[2, 0], 1.5)
 
     # Test with noise
     next_state_noisy = omni_kinematics(state, velocity, 1.0, noise=True)
-    assert next_state_noisy.shape == (2, 1)
+    assert next_state_noisy.shape == (3, 1)
 
 
 def test_omni_angular_kinematics():
-    """Test omnidirectional robot kinematics with angular velocity."""
-    # Test basic translational movement (no rotation)
-    state = np.array([[0], [0], [0]])  # x, y, theta
-    velocity = np.array([[1], [0], [0]])  # vx, vy, yaw_rate
+    """Test omnidirectional robot kinematics with body-frame velocity."""
+    # Test forward movement at theta=0 (forward = +x in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0], [0]])  # forward, lateral, yaw_rate
     next_state = omni_angular_kinematics(state, velocity, 1.0)
     assert np.allclose(next_state, np.array([[1], [0], [0]]))
 
+    # Test forward movement at theta=pi/2 (forward = +y in world)
+    state = np.array([[0], [0], [np.pi / 2]])
+    velocity = np.array([[1], [0], [0]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [np.pi / 2]]), atol=1e-10)
+
+    # Test lateral movement at theta=0 (lateral = -y in world... no, +y)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[0], [1], [0]])  # pure lateral
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [0]]), atol=1e-10)
+
     # Test pure rotation
     state = np.array([[0], [0], [0]])
-    velocity = np.array([[0], [0], [1]])  # yaw_rate = 1 rad/s
+    velocity = np.array([[0], [0], [1]])
     next_state = omni_angular_kinematics(state, velocity, 1.0)
     assert np.allclose(next_state, np.array([[0], [0], [1]]))
 
-    # Test combined translation and rotation
+    # Test combined forward and rotation
     state = np.array([[0], [0], [0]])
-    velocity = np.array([[1], [1], [0.5]])
+    velocity = np.array([[1], [0], [0.5]])
     next_state = omni_angular_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state, np.array([[1], [1], [0.5]]))
+    assert np.allclose(next_state, np.array([[1], [0], [0.5]]))
 
     # Test with noise
-    next_state_noisy = omni_angular_kinematics(state, velocity, 1.0, noise=True)
+    next_state_noisy = omni_angular_kinematics(
+        state, np.array([[1], [1], [0.5]]), 1.0, noise=True
+    )
     assert next_state_noisy.shape == (3, 1)
 
     # Test angle wrapping
@@ -281,10 +314,17 @@ class TestVelocityToXY:
 
     def test_omni(self):
         handler = OmniKinematics("omni", False, None)
-        state = np.array([[1], [2], [0.5]])
-        velocity = np.array([[3], [4]])
+        # At theta=0, forward=3 lateral=0 -> world vx=3, vy=0
+        state = np.array([[0], [0], [0]])
+        velocity = np.array([[3], [0]])
         result = handler.velocity_to_xy(state, velocity)
-        np.testing.assert_array_equal(result, velocity)
+        np.testing.assert_allclose(result, np.array([[3], [0]]), atol=1e-10)
+
+        # At theta=pi/2, forward=1 lateral=0 -> world vx=0, vy=1
+        state = np.array([[0], [0], [np.pi / 2]])
+        velocity = np.array([[1], [0]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[0], [1]]), atol=1e-10)
 
     def test_diff(self):
         handler = DifferentialKinematics("diff", False, None)
@@ -309,10 +349,17 @@ class TestVelocityToXY:
 
     def test_omni_angular(self):
         handler = OmniAngularKinematics("omni_angular", False, None)
-        state = np.array([[1], [2], [0.5]])
-        velocity = np.array([[3], [4], [1.0]])
+        # At theta=0, forward=3 lateral=0 -> world vx=3, vy=0
+        state = np.array([[0], [0], [0]])
+        velocity = np.array([[3], [0], [1.0]])
         result = handler.velocity_to_xy(state, velocity)
-        np.testing.assert_array_equal(result, np.array([[3], [4]]))
+        np.testing.assert_allclose(result, np.array([[3], [0]]), atol=1e-10)
+
+        # At theta=pi/2, forward=1 lateral=0 -> world vx=0, vy=1
+        state = np.array([[0], [0], [np.pi / 2]])
+        velocity = np.array([[1], [0], [0.5]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[0], [1]]), atol=1e-10)
 
 
 class TestComputeMaxSpeed:
