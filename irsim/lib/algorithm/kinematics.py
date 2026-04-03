@@ -124,7 +124,7 @@ def ackermann_kinematics(
     return new_state
 
 
-@validate_shape(state=2, velocity=2)
+@validate_shape(state=3, velocity=2)
 def omni_kinematics(
     state: np.ndarray,
     velocity: np.ndarray,
@@ -135,29 +135,45 @@ def omni_kinematics(
     """
     Calculate the next position for an omnidirectional robot.
 
+    Uses body-frame velocity: the two components are forward and lateral
+    speeds relative to the robot heading (theta). Since omni robots have
+    no yaw control, theta remains unchanged.
+
     Args:
-        state: A 2x1 vector [x, y] representing the current position.
-        velocity: A 2x1 vector [vx, vy] representing the current velocities.
+        state: A 3x1 vector [x, y, theta] representing the current state.
+        velocity: A 2x1 vector [forward, lateral] in body frame.
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
-        alpha: List of noise parameters for the velocity model (default [0.03, 0.03]). alpha[0] is for x velocity, alpha[1] is for y velocity.
+        alpha: List of noise parameters for the velocity model (default [0.03, 0.03]).
 
     Returns:
-        new_position: A 2x1 vector [x, y] representing the next position.
+        next_state: A 3x1 vector [x, y, theta] representing the next state.
+            Theta is preserved unchanged.
     """
     if alpha is None:
-        alpha = [0.03, 0, 0, 0.03]
+        alpha = [0.03, 0.03]
 
     if noise:
         if len(alpha) < 2:
             raise ValueError("Parameter 'alpha' must have length >= 2 when noise=True")
-        std_vx = np.sqrt(alpha[0])
-        std_vy = np.sqrt(alpha[-1])
-        real_velocity = velocity + rng.normal([[0], [0]], scale=[[std_vx], [std_vy]])
+        std_fwd = np.sqrt(alpha[0])
+        std_lat = np.sqrt(alpha[1])
+        real_velocity = velocity + rng.normal([[0], [0]], scale=[[std_fwd], [std_lat]])
     else:
         real_velocity = velocity
 
-    return state[0:2] + real_velocity * step_time
+    theta = state[2, 0]
+    cos_t, sin_t = np.cos(theta), np.sin(theta)
+    fwd = real_velocity[0, 0]
+    lat = real_velocity[1, 0]
+
+    dx = fwd * cos_t - lat * sin_t
+    dy = fwd * sin_t + lat * cos_t
+
+    next_state = state[0:3].astype(float)
+    next_state[0:2] += np.array([[dx], [dy]]) * step_time
+
+    return next_state
 
 
 @validate_shape(state=3, velocity=3)
@@ -171,15 +187,15 @@ def omni_angular_kinematics(
     """
     Calculate the next state for an omnidirectional robot with angular velocity.
 
-    Extends omni_kinematics by adding a yaw_rate channel that integrates
-    orientation (theta) alongside the translational [x, y] update.
+    Uses body-frame velocity: the first two components are forward and lateral
+    speeds relative to the robot heading, and the third is yaw rate.
 
     Args:
         state: A 3x1 vector [x, y, theta] representing the current position and orientation.
-        velocity: A 3x1 vector [vx, vy, yaw_rate] representing the current velocities.
+        velocity: A 3x1 vector [forward, lateral, yaw_rate] in body frame.
         step_time: The time step for the simulation.
         noise: Boolean indicating whether to add noise to the velocity (default False).
-        alpha: List of noise parameters [alpha_vx, alpha_vy, alpha_yaw] (default [0.03, 0.03, 0.03]).
+        alpha: List of noise parameters [alpha_fwd, alpha_lat, alpha_yaw] (default [0.03, 0.03, 0.03]).
             Each value scales the standard deviation for the corresponding velocity channel.
 
     Returns:
@@ -191,16 +207,25 @@ def omni_angular_kinematics(
     if noise:
         if len(alpha) < 3:
             raise ValueError("Parameter 'alpha' must have length >= 3 when noise=True")
-        std_vx = np.sqrt(alpha[0])
-        std_vy = np.sqrt(alpha[1])
+        std_fwd = np.sqrt(alpha[0])
+        std_lat = np.sqrt(alpha[1])
         std_yaw = np.sqrt(alpha[2])
         real_velocity = velocity + rng.normal(
-            [[0], [0], [0]], scale=[[std_vx], [std_vy], [std_yaw]]
+            [[0], [0], [0]], scale=[[std_fwd], [std_lat], [std_yaw]]
         )
     else:
         real_velocity = velocity
 
-    next_state = state[0:3] + real_velocity * step_time
+    theta = state[2, 0]
+    cos_t, sin_t = np.cos(theta), np.sin(theta)
+    fwd = real_velocity[0, 0]
+    lat = real_velocity[1, 0]
+
+    dx = fwd * cos_t - lat * sin_t
+    dy = fwd * sin_t + lat * cos_t
+    dtheta = real_velocity[2, 0]
+
+    next_state = state[0:3] + np.array([[dx], [dy], [dtheta]]) * step_time
     next_state[2, 0] = WrapToPi(next_state[2, 0])
 
     return next_state

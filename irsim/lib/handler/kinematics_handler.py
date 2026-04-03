@@ -188,35 +188,40 @@ class OmniKinematics(KinematicsHandler):
         """Advance omnidirectional state one step.
 
         Args:
-            state (np.ndarray): Current state [x, y, theta, ...].
-            velocity (np.ndarray): Velocity [vx, vy].
+            state (np.ndarray): Current state [x, y, theta].
+            velocity (np.ndarray): Velocity [forward, lateral] in body frame.
             step_time (float): Time step.
 
         Returns:
-            np.ndarray: New state (x, y updated; rest preserved).
+            np.ndarray: New state [x, y, theta] (theta preserved).
         """
-        next_position = omni_kinematics(
-            state[0:2], velocity, step_time, self.noise, self.alpha
+        return omni_kinematics(
+            state[0:3], velocity, step_time, self.noise, self.alpha
         )
-        return np.concatenate((next_position, state[2:]))
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        return velocity
+        theta = state[2, 0] if state.shape[0] > 2 else 0.0
+        cos_t, sin_t = np.cos(theta), np.sin(theta)
+        fwd = velocity[0, 0]
+        lat = velocity[1, 0]
+        vx = fwd * cos_t - lat * sin_t
+        vy = fwd * sin_t + lat * cos_t
+        return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         return float(np.linalg.norm(vel_max))
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
-        return float(atan2(velocity[1, 0], velocity[0, 0]))
+        theta = state[2, 0] if state.shape[0] > 2 else 0.0
+        return float(atan2(velocity[1, 0], velocity[0, 0])) + theta
 
 
 @register_kinematics("omni_angular")
 class OmniAngularKinematics(KinematicsHandler):
     """Omnidirectional kinematics with angular velocity control.
 
-    Velocity is ``[vx, vy, yaw_rate]``.  The translational components
-    ``[vx, vy]`` are world-frame, same as :class:`OmniKinematics`.  The
-    third component ``yaw_rate`` integrates orientation (theta)
+    Velocity is ``[forward, lateral, yaw_rate]`` in body frame.
+    The kinematics function converts to world-frame internally.
     """
 
     action_dim = 3
@@ -242,7 +247,7 @@ class OmniAngularKinematics(KinematicsHandler):
 
         Args:
             state (np.ndarray): Current state [x, y, theta].
-            velocity (np.ndarray): Velocity [vx, vy, yaw_rate].
+            velocity (np.ndarray): Velocity [forward, lateral, yaw_rate] in body frame.
             step_time (float): Time step.
 
         Returns:
@@ -254,7 +259,13 @@ class OmniAngularKinematics(KinematicsHandler):
         )
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        return velocity[0:2]
+        theta = state[2, 0]
+        cos_t, sin_t = np.cos(theta), np.sin(theta)
+        fwd = velocity[0, 0]
+        lat = velocity[1, 0]
+        vx = fwd * cos_t - lat * sin_t
+        vy = fwd * sin_t + lat * cos_t
+        return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         return float(np.linalg.norm(vel_max[0:2]))

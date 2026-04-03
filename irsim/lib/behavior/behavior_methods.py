@@ -389,27 +389,29 @@ def OmniDash(
     goal_threshold: float = 0.1,
 ) -> np.ndarray:
     """
-    Calculate the omnidirectional velocity to reach a goal.
+    Calculate the body-frame velocity to reach a goal.
 
     Args:
-        state (np.array): Current state [x, y] (2x1).
+        state (np.array): Current state [x, y, theta] (3x1 or 2x1).
         goal (np.array): Goal position [x, y] (2x1).
-        max_vel (np.array): Maximum velocity [vx, vy] (2x1).
+        max_vel (np.array): Maximum velocity [forward, lateral] (2x1).
         goal_threshold (float): Distance threshold to consider goal reached (default 0.1).
 
     Returns:
-        np.array: Velocity [vx, vy] (2x1).
+        np.array: Body-frame velocity [forward, lateral] (2x1).
     """
     distance, radian = relative_position(state, goal)
+    theta = state[2, 0] if state.shape[0] > 2 else 0.0
 
     if distance > goal_threshold:
-        vx = max_vel[0, 0] * cos(radian)
-        vy = max_vel[1, 0] * sin(radian)
+        diff_angle = WrapToPi(radian - theta)
+        forward = max_vel[0, 0] * cos(diff_angle)
+        lateral = max_vel[1, 0] * sin(diff_angle)
     else:
-        vx = 0
-        vy = 0
+        forward = 0
+        lateral = 0
 
-    return np.array([[vx], [vy]])
+    return np.array([[forward], [lateral]])
 
 
 def OmniAngularDash(
@@ -420,39 +422,42 @@ def OmniAngularDash(
     angle_tolerance: float = 0.1,
 ) -> np.ndarray:
     """
-    Calculate the omnidirectional-angular velocity to reach a goal.
+    Calculate body-frame velocity to reach a goal.
 
-    Translational components move toward the goal position, and the yaw_rate
-    channel steers orientation toward the goal heading.
+    Drives forward and strafes laterally toward the goal while turning
+    to face it. After arriving at the goal position, rotates in place
+    to match the goal orientation.
 
     Args:
         state (np.array): Current state [x, y, theta] (3x1).
         goal (np.array): Goal state [x, y, theta] (3x1).
-        max_vel (np.array): Maximum velocity [vx, vy, yaw_rate] (3x1).
-        goal_threshold (float): Distance threshold to consider goal reached (default 0.1).
+        max_vel (np.array): Maximum velocity [forward, lateral, yaw_rate] (3x1).
+        goal_threshold (float): Distance threshold to consider goal reached (default 0.3).
         angle_tolerance (float): Allowable angular deviation (default 0.1).
 
     Returns:
-        np.array: Velocity [vx, vy, yaw_rate] (3x1).
+        np.array: Body-frame velocity [forward, lateral, yaw_rate] (3x1).
     """
     distance, radian = relative_position(state, goal)
+    theta = state[2, 0]
 
     if distance > goal_threshold:
-        vx = max_vel[0, 0] * cos(radian)
-        vy = max_vel[1, 0] * sin(radian)
+        diff_angle = WrapToPi(radian - theta)
+        forward = max_vel[0, 0] * cos(diff_angle)
+        lateral = max_vel[1, 0] * sin(diff_angle)
         target_angle = radian
     else:
-        vx = 0
-        vy = 0
-        target_angle = goal[2, 0] if goal.shape[0] > 2 else state[2, 0]
+        forward = 0
+        lateral = 0
+        target_angle = goal[2, 0] if goal.shape[0] > 2 else theta
 
-    diff_angle = WrapToPi(target_angle - state[2, 0])
+    diff_angle = WrapToPi(target_angle - theta)
     if abs(diff_angle) > angle_tolerance:
         yaw_rate = max_vel[2, 0] * np.sign(diff_angle)
     else:
         yaw_rate = 0
 
-    return np.array([[vx], [vy], [yaw_rate]])
+    return np.array([[forward], [lateral], [yaw_rate]])
 
 
 def DiffDash(
