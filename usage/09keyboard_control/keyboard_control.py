@@ -10,5 +10,5 @@ for _i in range(1000):
 
     if env.done():
         break
-w
+
 env.end(3)
