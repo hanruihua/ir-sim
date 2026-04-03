@@ -1248,8 +1248,8 @@ msgid "For `'omni'`: `[forward, lateral]`, body-frame velocities (forward and la
 msgstr "`'omni'`模型参数由`[forward, lateral]`构成，为机体坐标系下的速度（相对于朝向的前进和横向速度）。"
 
 #: ../../source/yaml_config/configuration.md:390
-msgid "For `'omni_angular'`: `[vx, vy, yaw_rate]`, velocities along the x and y axes plus yaw rate."
-msgstr "`'omni_angular'`模型参数由`[vx, vy, yaw_rate]`构成，其中`vx`和`vy`分别是x和y轴方向上的速度，`yaw_rate`是偏航角速度。"
+msgid "For `'omni_angular'`: `[forward, lateral, yaw_rate]`, body-frame velocities plus yaw rate."
+msgstr "`'omni_angular'`模型参数由`[forward, lateral, yaw_rate]`构成，为机体坐标系下的速度加偏航角速度。"
 
 #: ../../source/yaml_config/configuration.md:391
 msgid ""
@@ -1323,8 +1323,8 @@ msgid "`2`: For differential drive `[v, omega]` or omnidirectional `[forward, la
 msgstr "`2`：对于差速驱动`[v, omega]`或全向 `[forward, lateral]`"
 
 #: ../../source/yaml_config/configuration.md:430
-msgid "`3`: For omnidirectional with angular control `[vx, vy, yaw_rate]`"
-msgstr "`3`：对于带角速度控制的全向模型 `[vx, vy, yaw_rate]`"
+msgid "`3`: For omnidirectional with angular control `[forward, lateral, yaw_rate]`"
+msgstr "`3`：对于带角速度控制的全向模型 `[forward, lateral, yaw_rate]`"
 
 #: ../../source/yaml_config/configuration.md:430
 msgid "Additional dimensions may be used for more complex kinematics"
@@ -1427,8 +1427,8 @@ msgstr "**`omni`** — 全向移动，由机体坐标系下的前进和横向速
 
 #: ../../source/yaml_config/configuration.md:495
 msgid ""
-"**`omni_angular`** — Omnidirectional with angular control, controlled by linear speeds and yaw rate (`[vx, vy, yaw_rate]`)"
-msgstr "**`omni_angular`** — 带角速度控制的全向移动，由 x 和 y 轴方向的线速度和偏航角速度控制（`[vx, vy, yaw_rate]`）"
+"**`omni_angular`** — Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)"
+msgstr "**`omni_angular`** — 带角速度控制的全向移动，由机体坐标系下的速度和偏航角速度控制（`[forward, lateral, yaw_rate]`）"
 
 #: ../../source/yaml_config/configuration.md:496
 msgid ""
@@ -1460,24 +1460,28 @@ msgid ""
 msgstr "`noise`（bool）：是否给速度命令添加噪声。默认为 `False`。"
 
 #: ../../source/yaml_config/configuration.md:504
-#: ../../source/yaml_config/configuration.md:513
 #: ../../source/yaml_config/configuration.md:522
 msgid ""
 "`alpha` (list): noise parameters for velocity commands. Default is "
 "`[0.03, 0, 0, 0.03]`."
 msgstr "`alpha`（列表）：速度命令的噪声参数。默认值为 `[0.03, 0, 0, 0.03]`。"
 
+#: ../../source/yaml_config/configuration.md:513
+msgid ""
+"`alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral]`. Default is `[0.03, 0.03]`."
+msgstr "`alpha`（列表）：速度命令的噪声参数 `[alpha_forward, alpha_lateral]`。默认值为 `[0.03, 0.03]`。"
+
 #: ../../source/yaml_config/configuration.md:511
 msgid ""
 "`'omni'`: Omnidirectional movement, allowing movement in any direction "
 "without changing orientation. This type of robot is controlled by "
-"velocities along the x and y axes. Optional parameters:"
-msgstr "`'omni'`：全向运动，允许在任意方向移动而无需改变朝向。此类机器人通过沿 x 和 y 轴的速度控制。可选参数："
+"body-frame velocities `[forward, lateral]`. Orientation (theta) is preserved but not updated. Optional parameters:"
+msgstr "`'omni'`：全向运动，允许在任意方向移动而不改变朝向。此类机器人通过机体坐标系速度 `[forward, lateral]` 控制。朝向角（theta）保持不变。可选参数："
 
 #: ../../source/yaml_config/configuration.md:520
 msgid ""
-"`'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta) natively. This type of robot is controlled by velocities along the x and y axes and a yaw rate. Optional parameters:"
-msgstr "`'omni_angular'`：带角速度控制的全向运动。在 `omni` 基础上增加偏航角速度通道，可原生地积分朝向角（theta）。此类机器人通过沿 x 和 y 轴的速度和偏航角速度控制。可选参数："
+"`'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta). This type of robot is controlled by body-frame velocities `[forward, lateral, yaw_rate]`. Optional parameters:"
+msgstr "`'omni_angular'`：带角速度控制的全向运动。在 `omni` 基础上增加偏航角速度通道以积分朝向角（theta）。此类机器人通过机体坐标系速度 `[forward, lateral, yaw_rate]` 控制。可选参数："
 
 #: ../../source/yaml_config/configuration.md:521
 msgid ""
@@ -1487,8 +1491,8 @@ msgstr "`noise`（bool）：是否给速度命令添加噪声。默认为 `False
 
 #: ../../source/yaml_config/configuration.md:522
 msgid ""
-"`alpha` (list): noise parameters for velocity commands `[alpha_vx, alpha_vy, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`."
-msgstr "`alpha`（列表）：速度命令的噪声参数 `[alpha_vx, alpha_vy, alpha_yaw]`。默认值为 `[0.03, 0.03, 0.03]`。"
+"`alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`."
+msgstr "`alpha`（列表）：速度命令的噪声参数 `[alpha_forward, alpha_lateral, alpha_yaw]`。默认值为 `[0.03, 0.03, 0.03]`。"
 
 #: ../../source/yaml_config/configuration.md:528
 msgid ""

@@ -34,7 +34,7 @@ world:
   offset: [0, 0] # the offset of the world on x and y 
 
 robot:
-  kinematics: {name: 'diff'}  # kinematics of the robot, current name should be one of omni, diff, acker. If not set, this object will be static
+  kinematics: {name: 'diff'}  # kinematics of the robot, current name should be one of omni, omni_angular, diff, acker. If not set, this object will be static
   shape: {name: 'circle', radius: 0.2}  # radius for circle shape
   state: [1, 1, 0]  # x, y, theta, 2d position and orientation
   goal: [9, 9, 0]  # x, y, theta, 2d position and orientation

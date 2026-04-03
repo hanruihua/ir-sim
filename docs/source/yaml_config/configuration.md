@@ -522,18 +522,18 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     kinematics: {name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}
     ```
 
-  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation. This type of robot is controlled by velocities along the x and y axes. Optional parameters:
+  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation. This type of robot is controlled by body-frame velocities `[forward, lateral]`. Orientation (theta) is preserved but not updated. Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
-    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.   
+    - `alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral]`. Default is `[0.03, 0.03]`.   
 
     ```yaml
     # Example usage
-    kinematics: {name: 'omni', noise: True, alpha: [0.03, 0, 0, 0.03]}
+    kinematics: {name: 'omni', noise: True, alpha: [0.03, 0.03]}
     ```
 
-  - `'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta) natively. This type of robot is controlled by velocities along the x and y axes and a yaw rate. Optional parameters:
+  - `'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta). This type of robot is controlled by body-frame velocities `[forward, lateral, yaw_rate]`. Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
-    - `alpha` (list): noise parameters for velocity commands `[alpha_vx, alpha_vy, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`.
+    - `alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`.
 
     ```yaml
     # Example usage
