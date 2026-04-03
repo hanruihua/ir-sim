@@ -43,9 +43,10 @@ class KeyboardControl:
 
     Key mappings (both backends):
         - w/s: Increase/decrease linear velocity (forward/backward)
-        - a/d: Increase/decrease angular velocity (turn left/right)
-        - q/e: Decrease/increase maximum linear velocity (key_lv_max)
+        - a/d: Increase/decrease lateral velocity (strafe left/right)
+        - q/e: Rotate left/right (angular velocity)
         - z/c: Decrease/increase maximum angular velocity (key_ang_max)
+        - shift+z/c: Decrease/increase maximum linear velocity (key_lv_max)
         - alt + number: Change current controlled robot id
         - r: Reset the environment (if ``env_ref`` provided)
         - space: Toggle pause/resume
@@ -80,10 +81,12 @@ class KeyboardControl:
         Keyboard mappings (both backends):
             - w: Move forward
             - s: Move backward
-            - a: Turn left
-            - d: Turn right
-            - q/e: Decrease/Increase linear velocity
-            - z/c: Decrease/Increase angular velocity
+            - a: Strafe left
+            - d: Strafe right
+            - q: Rotate left
+            - e: Rotate right
+            - z/c: Decrease/Increase max angular velocity
+            - shift+z/c: Decrease/Increase max linear velocity
             - alt + number: Change current control robot id
             - r: Reset the environment (if ``env_ref`` provided)
             - space: Pause/Resume the environment
@@ -100,6 +103,7 @@ class KeyboardControl:
         self.key_lv_max = keyboard_kwargs.get("key_lv_max", 3.0)
         self.key_ang_max = keyboard_kwargs.get("key_ang_max", 1.0)
         self.key_lv = keyboard_kwargs.get("key_lv", 0.0)
+        self.key_lat = keyboard_kwargs.get("key_lat", 0.0)
         self.key_ang = keyboard_kwargs.get("key_ang", 0.0)
         self.key_id = keyboard_kwargs.get("key_id", 0)
         self.alt_flag = 0
@@ -129,7 +133,7 @@ class KeyboardControl:
         if "L" in plt.rcParams["keymap.xscale"]:
             plt.rcParams["keymap.xscale"].remove("L")
 
-        self.key_vel = np.zeros((2, 1))
+        self.key_vel = np.zeros((3, 1))
 
         if self._world_param.control_mode == "keyboard":
             self.logger.info("start to keyboard control")
@@ -137,10 +141,12 @@ class KeyboardControl:
             commands = [
                 ["w", "forward"],
                 ["s", "backward"],
-                ["a", "turn left"],
-                ["d", "turn right"],
-                ["q", "decrease linear velocity"],
-                ["e", "increase linear velocity"],
+                ["a", "strafe left"],
+                ["d", "strafe right"],
+                ["q", "rotate left"],
+                ["e", "rotate right"],
+                ["shift+z", "decrease linear velocity"],
+                ["shift+c", "increase linear velocity"],
                 ["z", "decrease angular velocity"],
                 ["c", "increase angular velocity"],
                 ["alt+num", "change current control robot id"],
@@ -241,11 +247,15 @@ class KeyboardControl:
                 if key.char == "s":
                     self.key_lv = -self.key_lv_max
                 if key.char == "a":
-                    self.key_ang = self.key_ang_max
+                    self.key_lat = self.key_lv_max
                 if key.char == "d":
+                    self.key_lat = -self.key_lv_max
+                if key.char == "q":
+                    self.key_ang = self.key_ang_max
+                if key.char == "e":
                     self.key_ang = -self.key_ang_max
 
-                self.key_vel = np.array([[self.key_lv], [self.key_ang]])
+                self.key_vel = np.array([[self.key_lv], [self.key_lat], [self.key_ang]])
 
         except AttributeError:
             # Handle other special keys that don't have char attribute
@@ -269,15 +279,13 @@ class KeyboardControl:
             if key.char == "s":
                 self.key_lv = 0
             if key.char == "a":
-                self.key_ang = 0
+                self.key_lat = 0
             if key.char == "d":
-                self.key_ang = 0
+                self.key_lat = 0
             if key.char == "q":
-                self.key_lv_max = self.key_lv_max - 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
+                self.key_ang = 0
             if key.char == "e":
-                self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
+                self.key_ang = 0
 
             if key.char == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
@@ -285,6 +293,12 @@ class KeyboardControl:
             if key.char == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
                 self.logger.info(f"current angular velocity: {self.key_ang_max}")
+            if key.char == "Z":
+                self.key_lv_max = self.key_lv_max - 0.2
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
+            if key.char == "C":
+                self.key_lv_max = self.key_lv_max + 0.2
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
 
             if key.char == "r":
                 self.logger.info("reset the environment")
@@ -315,7 +329,7 @@ class KeyboardControl:
                 state = "on" if self.env_ref.display else "off"
                 self.logger.info(f"toggle display: {state}")
 
-            self.key_vel = np.array([[self.key_lv], [self.key_ang]])
+            self.key_vel = np.array([[self.key_lv], [self.key_lat], [self.key_ang]])
 
         except AttributeError:
             if "alt" in key.name:
@@ -374,11 +388,15 @@ class KeyboardControl:
             if base == "s":
                 self.key_lv = -self.key_lv_max
             if base == "a":
-                self.key_ang = self.key_ang_max
+                self.key_lat = self.key_lv_max
             if base == "d":
+                self.key_lat = -self.key_lv_max
+            if base == "q":
+                self.key_ang = self.key_ang_max
+            if base == "e":
                 self.key_ang = -self.key_ang_max
 
-            self.key_vel = np.array([[self.key_lv], [self.key_ang]])
+            self.key_vel = np.array([[self.key_lv], [self.key_lat], [self.key_ang]])
 
     def _on_mpl_release(self, event: Any) -> None:
         """
@@ -388,6 +406,7 @@ class KeyboardControl:
             event: Matplotlib key release event with ``event.key`` string.
         """
         key = (event.key or "").lower()
+        has_shift = "shift+" in key
         base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
 
         if self._world_param.control_mode == "keyboard":
@@ -396,19 +415,23 @@ class KeyboardControl:
             if base == "s":
                 self.key_lv = 0
             if base == "a":
-                self.key_ang = 0
+                self.key_lat = 0
             if base == "d":
-                self.key_ang = 0
+                self.key_lat = 0
             if base == "q":
+                self.key_ang = 0
+            if base == "e":
+                self.key_ang = 0
+            if base == "z" and has_shift:
                 self.key_lv_max = self.key_lv_max - 0.2
                 self.logger.info(f"current linear velocity: {self.key_lv_max}")
-            if base == "e":
-                self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
-            if base == "z":
+            elif base == "z":
                 self.key_ang_max = self.key_ang_max - 0.2
                 self.logger.info(f"current angular velocity: {self.key_ang_max}")
-            if base == "c":
+            if base == "c" and has_shift:
+                self.key_lv_max = self.key_lv_max + 0.2
+                self.logger.info(f"current linear velocity: {self.key_lv_max}")
+            elif base == "c":
                 self.key_ang_max = self.key_ang_max + 0.2
                 self.logger.info(f"current angular velocity: {self.key_ang_max}")
 
@@ -462,7 +485,7 @@ class KeyboardControl:
         if base in ("escape", "esc"):
             self.env_ref.quit_flag = True
 
-        self.key_vel = np.array([[self.key_lv], [self.key_ang]])
+        self.key_vel = np.array([[self.key_lv], [self.key_lat], [self.key_ang]])
 
     # Minimal grid table formatter to avoid external dependency
     def _format_grid_table(self, headers: list[str], rows: list[list[Any]]) -> str:
