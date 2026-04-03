@@ -383,18 +383,19 @@ class EnvBase:
             robot = self.robot_list[self.key_id]
             kf_name = robot.kf.name if robot.kf else None
             lv = float(key_vel[0, 0])
-            lat = float(key_vel[1, 0])
-            av = float(key_vel[2, 0])
+            ang = float(key_vel[1, 0])
+            rot = float(key_vel[2, 0])
 
             if kf_name == "omni":
-                # Body-frame: [forward, lateral]
-                key_vel = np.array([[lv], [lat]])
+                # Body-frame: [forward, lateral] — A/D (ang) acts as lateral
+                key_vel = np.array([[lv], [ang]])
             elif kf_name == "omni_angular":
                 # Body-frame: [forward, lateral, yaw_rate]
-                key_vel = np.array([[lv], [lat], [av]])
+                # A/D (ang) = lateral, Q/E (rot) = yaw_rate
+                key_vel = np.array([[lv], [ang], [rot]])
             else:
-                # diff/acker: lateral acts as angular for convenience
-                key_vel = np.array([[lv], [lat + av]])
+                # diff/acker: A/D (ang) = angular/steering
+                key_vel = np.array([[lv], [ang]])
 
             action[self.key_id] = key_vel
 

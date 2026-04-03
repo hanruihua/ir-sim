@@ -366,11 +366,11 @@ def test_keyboard_control():
     env.keyboard._on_pynput_release(XKeyMock())
     assert wp.control_mode == mode0
 
-    # q/e control angular velocity (pynput backend)
+    # q/e control rotation velocity (pynput backend)
     env.keyboard._on_pynput_press(Mock(spec=keyboard.Key, char="q"))
-    assert env.keyboard.key_ang == env.keyboard.key_ang_max
+    assert env.keyboard.key_rot == env.keyboard.key_ang_max
     env.keyboard._on_pynput_release(Mock(spec=keyboard.Key, char="q"))
-    assert env.keyboard.key_ang == 0
+    assert env.keyboard.key_rot == 0
 
     # z/c adjust key_ang_max (pynput backend)
     prev_ang_max = env.keyboard.key_ang_max
@@ -598,15 +598,15 @@ def test_keyboard_control_mpl_backend():
     v = env.robot.velocity.reshape(-1)
     assert abs(v[1]) <= 1e-9
 
-    # q/e control angular velocity (mpl backend)
+    # q/e control rotation velocity (mpl backend)
     env.keyboard._on_mpl_press(E("q"))
-    assert env.keyboard.key_ang == env.keyboard.key_ang_max
+    assert env.keyboard.key_rot == env.keyboard.key_ang_max
     env.keyboard._on_mpl_release(E("q"))
-    assert env.keyboard.key_ang == 0
+    assert env.keyboard.key_rot == 0
     env.keyboard._on_mpl_press(E("e"))
-    assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+    assert env.keyboard.key_rot == -env.keyboard.key_ang_max
     env.keyboard._on_mpl_release(E("e"))
-    assert env.keyboard.key_ang == 0
+    assert env.keyboard.key_rot == 0
 
     # Increase angular max with 'c', press 'a' should match new max
     prev_ang_max = env.keyboard.key_ang_max

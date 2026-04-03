@@ -94,17 +94,17 @@ class TestKeyboardControlPynput:
         assert env._world_param.control_mode == mode0
 
     def test_qe_rotate(self, env_factory, mock_keyboard_key):
-        """Test 'q'/'e' keys control angular velocity."""
+        """Test 'q'/'e' keys control rotation velocity."""
         env = env_factory("test_keyboard_control.yaml")
         env.keyboard._active_only = False  # Allow testing without focus
         env.keyboard._on_pynput_press(mock_keyboard_key("q"))
-        assert env.keyboard.key_ang == env.keyboard.key_ang_max
+        assert env.keyboard.key_rot == env.keyboard.key_ang_max
         env.keyboard._on_pynput_release(mock_keyboard_key("q"))
-        assert env.keyboard.key_ang == 0
+        assert env.keyboard.key_rot == 0
         env.keyboard._on_pynput_press(mock_keyboard_key("e"))
-        assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+        assert env.keyboard.key_rot == -env.keyboard.key_ang_max
         env.keyboard._on_pynput_release(mock_keyboard_key("e"))
-        assert env.keyboard.key_ang == 0
+        assert env.keyboard.key_rot == 0
 
     def test_zc_adjust_ang_max(self, env_factory, mock_keyboard_key):
         """Test 'z'/'c' keys adjust angular velocity max."""
@@ -296,18 +296,18 @@ class TestKeyboardControlMpl:
         assert mpl_kb.key_id == 9
 
     def test_qe_rotate_mpl(self, env_factory, mock_mpl_event):
-        """Test q/e keys control angular velocity in mpl backend."""
+        """Test q/e keys control rotation velocity in mpl backend."""
         env = env_factory("test_keyboard_control2.yaml")
 
         env.keyboard._on_mpl_press(mock_mpl_event("q"))
-        assert env.keyboard.key_ang == env.keyboard.key_ang_max
+        assert env.keyboard.key_rot == env.keyboard.key_ang_max
         env.keyboard._on_mpl_release(mock_mpl_event("q"))
-        assert env.keyboard.key_ang == 0
+        assert env.keyboard.key_rot == 0
 
         env.keyboard._on_mpl_press(mock_mpl_event("e"))
-        assert env.keyboard.key_ang == -env.keyboard.key_ang_max
+        assert env.keyboard.key_rot == -env.keyboard.key_ang_max
         env.keyboard._on_mpl_release(mock_mpl_event("e"))
-        assert env.keyboard.key_ang == 0
+        assert env.keyboard.key_rot == 0
 
     def test_ang_max_adjustment(self, env_factory, mock_mpl_event):
         """Test angular velocity max adjustment with c/z keys."""
