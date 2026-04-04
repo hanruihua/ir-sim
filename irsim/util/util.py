@@ -94,10 +94,10 @@ def WrapToPi(rad: float, positive: bool = False) -> float:
         The function `WrapToPi(rad)` returns the angle `rad` wrapped to the range [-pi, pi].
 
     """
-    while rad > pi:
-        rad = rad - 2 * pi
-    while rad < -pi:
-        rad = rad + 2 * pi
+    if not np.isfinite(rad):
+        return 0.0
+
+    rad = (rad + pi) % (2 * pi) - pi
 
     return rad if not positive else abs(rad)
 
@@ -114,12 +114,10 @@ def WrapTo2Pi(rad: float) -> float:
         The function `WrapTo2Pi(rad)` returns the angle `rad` wrapped to the range [0, 2pi].
 
     """
-    while rad > 2 * pi:
-        rad = rad - 2 * pi
-    while rad < 0:
-        rad = rad + 2 * pi
+    if not np.isfinite(rad):
+        return 0.0
 
-    return rad
+    return rad % (2 * pi)
 
 
 def WrapToRegion(rad: float, range: list[float]) -> float:

@@ -62,7 +62,7 @@ def test_ackermann_kinematics():
     state = np.array([[0], [0], [np.pi], [0]])
     velocity = np.array([[0], [np.pi]])
     next_state = ackermann_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state[2], np.pi)
+    assert np.allclose(abs(next_state[2]), np.pi)
 
 
 def test_omni_kinematics():
