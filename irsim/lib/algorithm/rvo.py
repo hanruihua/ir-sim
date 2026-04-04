@@ -6,7 +6,7 @@ Author: Ruihua Han
 reference: https://github.com/MengGuo/RVO_Py_MAS
 """
 
-from math import asin, atan2, cos, pi, sin
+from math import asin, atan2, cos, pi, sin, sqrt
 
 import numpy as np
 
@@ -25,6 +25,7 @@ class reciprocal_vel_obs:
         vymax (float): Maximum velocity in the y direction.
         acce (float): Acceleration limit.
         factor (float): Penalty weighting factor for velocity selection.
+        line_obs_list (list): List of line segments [[x1, y1, x2, y2], ...].
     """
 
     def __init__(
@@ -35,19 +36,24 @@ class reciprocal_vel_obs:
         vymax=1.5,
         acce=0.5,
         factor=1.0,
+        line_obs_list=None,
     ):
         if obs_state_list is None:
             obs_state_list = []
+        if line_obs_list is None:
+            line_obs_list = []
         self.state = state
         self.obs_state_list = obs_state_list
+        self.line_obs_list = line_obs_list
         self.vxmax = vxmax
         self.vymax = vymax
         self.acce = acce
         self.factor = factor
 
-    def update(self, state, obs_state_list):
+    def update(self, state, obs_state_list, line_obs_list=None):
         self.state = state
         self.obs_state_list = obs_state_list
+        self.line_obs_list = line_obs_list if line_obs_list is not None else []
 
     def cal_vel(self, mode="rvo"):
         """
@@ -82,6 +88,8 @@ class reciprocal_vel_obs:
         for obstacle in self.obs_state_list:
             rvo = self.config_rvo_mode(obstacle)
             rvo_list.append(rvo)
+
+        rvo_list.extend(self.config_vo_lines())
 
         return rvo_list
 
@@ -146,6 +154,8 @@ class reciprocal_vel_obs:
             # for circular: [x, y, radius]
             hrvo = self.config_hrvo_mode(obstacle)
             hrvo_list.append(hrvo)
+
+        hrvo_list.extend(self.config_vo_lines())
 
         return hrvo_list
 
@@ -234,6 +244,8 @@ class reciprocal_vel_obs:
             vo = self.config_vo_mode(obstacle)
             vo_list.append(vo)
 
+        vo_list.extend(self.config_vo_lines())
+
         return vo_list
 
     def config_vo_mode(self, obstacle):
@@ -284,6 +296,69 @@ class reciprocal_vel_obs:
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
 
         return [vo_apex, line_left_vector, line_right_vector]
+
+    def config_vo_lines(self):
+        """Compute VO cones for line segment obstacles.
+
+        For each segment, compute the angular span as seen from the agent,
+        expanded by asin(r / dist) on each side to account for the agent radius.
+        The apex is [0, 0] since line obstacles are static.
+        """
+        vo_list = []
+        x = self.state[0]
+        y = self.state[1]
+        r = self.state[4]
+
+        for seg in self.line_obs_list:
+            x1, y1, x2, y2 = seg
+
+            # Closest point on segment to agent
+            dx_seg = x2 - x1
+            dy_seg = y2 - y1
+            seg_len_sq = dx_seg * dx_seg + dy_seg * dy_seg
+
+            if seg_len_sq < 1e-12:
+                continue
+
+            t = ((x - x1) * dx_seg + (y - y1) * dy_seg) / seg_len_sq
+            t = max(0.0, min(1.0, t))
+            cx = x1 + t * dx_seg
+            cy = y1 + t * dy_seg
+            dist_closest = sqrt((x - cx) ** 2 + (y - cy) ** 2)
+
+            if dist_closest < 1e-6:
+                dist_closest = 1e-6
+
+            # Angles from agent to each endpoint
+            angle1 = atan2(y1 - y, x1 - x)
+            angle2 = atan2(y2 - y, x2 - x)
+
+            # Expand by agent radius at each endpoint
+            dist1 = sqrt((x1 - x) ** 2 + (y1 - y) ** 2)
+            dist2 = sqrt((x2 - x) ** 2 + (y2 - y) ** 2)
+
+            expand1 = asin(min(1.0, r / max(dist1, r))) if dist1 > 1e-6 else pi / 2
+            expand2 = asin(min(1.0, r / max(dist2, r))) if dist2 > 1e-6 else pi / 2
+
+            # Determine which endpoint is "left" and which is "right"
+            # by checking the angular difference
+            diff = atan2(sin(angle2 - angle1), cos(angle2 - angle1))
+
+            if diff >= 0:
+                # angle2 is to the left of angle1
+                left_angle = angle2 + expand2
+                right_angle = angle1 - expand1
+            else:
+                # angle1 is to the left of angle2
+                left_angle = angle1 + expand1
+                right_angle = angle2 - expand2
+
+            line_left_vector = [cos(left_angle), sin(left_angle)]
+            line_right_vector = [cos(right_angle), sin(right_angle)]
+
+            vo_list.append([[0, 0], line_left_vector, line_right_vector])
+
+        return vo_list
 
     def vel_candidate(self, rvo_list):
         vo_outside = []
@@ -352,6 +427,18 @@ class reciprocal_vel_obs:
 
             tc_list.append(tc)
 
+        # Time-to-collision with line segments
+        x = self.state[0]
+        y = self.state[1]
+        r = self.state[4]
+
+        for seg in self.line_obs_list:
+            tc = self._tc_line_segment(x, y, r, vel, seg)
+            tc_list.append(tc)
+
+        if not tc_list:
+            return dist_hypot(vel_des[0], vel_des[1], vel[0], vel[1])
+
         tc_min = min(tc_list)
 
         if tc_min == 0:
@@ -360,6 +447,58 @@ class reciprocal_vel_obs:
         return factor * (1 / tc_min) + dist_hypot(
             vel_des[0], vel_des[1], vel[0], vel[1]
         )
+
+    @staticmethod
+    def _tc_line_segment(x, y, r, vel, seg):
+        """Compute time-to-collision between agent and a line segment.
+
+        Uses ray-segment intersection with the segment expanded by agent radius.
+        """
+        x1, y1, x2, y2 = seg
+        # Segment direction and normal
+        dx_seg = x2 - x1
+        dy_seg = y2 - y1
+        seg_len = sqrt(dx_seg * dx_seg + dy_seg * dy_seg)
+
+        if seg_len < 1e-12:
+            return 1e6
+
+        # Outward normal (toward agent side)
+        nx = -dy_seg / seg_len
+        ny = dx_seg / seg_len
+
+        # Make sure normal points toward agent
+        if nx * (x - x1) + ny * (y - y1) < 0:
+            nx, ny = -nx, -ny
+
+        # Perpendicular distance from agent to segment line
+        perp_dist = nx * (x - x1) + ny * (y - y1)
+
+        # Velocity component toward the segment
+        vel_toward = -(nx * vel[0] + ny * vel[1])
+
+        if vel_toward <= 1e-7:
+            # Moving away or parallel — no collision
+            return 1e6
+
+        # Time to reach the expanded segment (offset by radius)
+        tc = (perp_dist - r) / vel_toward
+
+        if tc < 0:
+            tc = 0
+
+        # Check if the collision point is within the segment bounds
+        # Project collision point onto segment axis
+        col_x = x + vel[0] * tc
+        col_y = y + vel[1] * tc
+        t_proj = ((col_x - x1) * dx_seg + (col_y - y1) * dy_seg) / (seg_len * seg_len)
+
+        # Allow some margin beyond endpoints for the agent radius
+        margin = r / seg_len
+        if t_proj < -margin or t_proj > 1 + margin:
+            return 1e6
+
+        return tc
 
     # judge the direction by vector
     @staticmethod

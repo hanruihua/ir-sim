@@ -62,7 +62,14 @@ def beh_diff_rvo(
             )
         return np.zeros((2, 1))
 
-    rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
+    rvo_neighbor = []
+    line_segments = []
+    for obj in external_objects:
+        segs = obj.rvo_line_segments
+        if segs:
+            line_segments.extend(segs)
+        else:
+            rvo_neighbor.append(obj.rvo_neighbor_state)
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
@@ -71,7 +78,8 @@ def beh_diff_rvo(
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
     return DiffRVO(
-        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
+        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold,
+        line_segments=line_segments,
     )
 
 
@@ -168,7 +176,14 @@ def beh_omni_rvo(
             )
         return np.zeros((2, 1))
 
-    rvo_neighbor = [obj.rvo_neighbor_state for obj in external_objects]
+    rvo_neighbor = []
+    line_segments = []
+    for obj in external_objects:
+        segs = obj.rvo_line_segments
+        if segs:
+            line_segments.extend(segs)
+        else:
+            rvo_neighbor.append(obj.rvo_neighbor_state)
     rvo_state = ego_object.rvo_state
     vxmax = kwargs.get("vxmax", 1.5)
     vymax = kwargs.get("vymax", 1.5)
@@ -177,7 +192,8 @@ def beh_omni_rvo(
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
     return OmniRVO(
-        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold
+        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold,
+        line_segments=line_segments,
     )
 
 
@@ -223,6 +239,7 @@ def OmniRVO(
     factor: float = 1.0,
     mode: str = "rvo",
     neighbor_threshold: float = 3.0,
+    line_segments: list[list[float]] | None = None,
 ) -> np.ndarray:
     """
     Calculate the omnidirectional velocity using RVO.
@@ -236,6 +253,7 @@ def OmniRVO(
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
         neighbor_threshold (float): Neighbor threshold (default 3.0).
+        line_segments (list): Line segments [[x1, y1, x2, y2], ...] (default None).
 
     Returns:
         np.array: Velocity [vx, vy] (2x1).
@@ -253,7 +271,8 @@ def OmniRVO(
     ]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
+        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor,
+        line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
 
@@ -269,6 +288,7 @@ def DiffRVO(
     factor: float = 1.0,
     mode: str = "rvo",
     neighbor_threshold: float = 3.0,
+    line_segments: list[list[float]] | None = None,
 ) -> np.ndarray:
     """
     Calculate the differential drive velocity using RVO.
@@ -282,6 +302,7 @@ def DiffRVO(
         factor (float): Additional scaling factor (default 1.0).
         mode (str): RVO calculation mode (default "rvo").
         neighbor_threshold (float): Neighbor threshold (default 3.0).
+        line_segments (list): Line segments [[x1, y1, x2, y2], ...] (default None).
 
     Returns:
         np.array: Velocity [linear, angular] (2x1).
@@ -298,7 +319,8 @@ def DiffRVO(
     ]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor
+        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor,
+        line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
     return omni_to_diff(state_tuple[-1], rvo_vel)
