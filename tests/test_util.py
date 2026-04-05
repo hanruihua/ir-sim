@@ -10,20 +10,31 @@ from irsim.util import util
 
 def test_WrapToPi():
     assert util.WrapToPi(0) == 0
-    assert util.WrapToPi(math.pi) == math.pi
-    assert util.WrapToPi(-math.pi) == -math.pi
-    assert util.WrapToPi(3 * math.pi) == math.pi
-    assert util.WrapToPi(-3 * math.pi) == -math.pi
-    assert util.WrapToPi(math.pi, positive=True) == math.pi
-    assert util.WrapToPi(-math.pi, positive=True) == math.pi
+    # pi and -pi are equivalent; modulo maps both to -pi
+    assert abs(util.WrapToPi(math.pi)) == pytest.approx(math.pi)
+    assert abs(util.WrapToPi(-math.pi)) == pytest.approx(math.pi)
+    assert abs(util.WrapToPi(3 * math.pi)) == pytest.approx(math.pi)
+    assert abs(util.WrapToPi(-3 * math.pi)) == pytest.approx(math.pi)
+    assert util.WrapToPi(math.pi, positive=True) == pytest.approx(math.pi)
+    assert util.WrapToPi(-math.pi, positive=True) == pytest.approx(math.pi)
+    # Non-finite inputs return 0
+    assert util.WrapToPi(float("inf")) == 0.0
+    assert util.WrapToPi(float("-inf")) == 0.0
+    assert util.WrapToPi(float("nan")) == 0.0
+    # Large values (would hang with while-loop)
+    assert abs(util.WrapToPi(1e15)) <= math.pi
 
 
 def test_WrapTo2Pi():
     assert util.WrapTo2Pi(0) == 0
-    assert util.WrapTo2Pi(math.pi) == math.pi
-    assert util.WrapTo2Pi(-math.pi) == math.pi
-    assert util.WrapTo2Pi(3 * math.pi) == math.pi
-    assert util.WrapTo2Pi(-3 * math.pi) == math.pi
+    assert util.WrapTo2Pi(math.pi) == pytest.approx(math.pi)
+    assert util.WrapTo2Pi(-math.pi) == pytest.approx(math.pi)
+    assert util.WrapTo2Pi(3 * math.pi) == pytest.approx(math.pi)
+    assert util.WrapTo2Pi(-3 * math.pi) == pytest.approx(math.pi)
+    # Non-finite inputs return 0
+    assert util.WrapTo2Pi(float("inf")) == 0.0
+    assert util.WrapTo2Pi(float("-inf")) == 0.0
+    assert util.WrapTo2Pi(float("nan")) == 0.0
 
 
 def test_WrapToRegion():
