@@ -1,0 +1,14 @@
+world:
+  width: 10
+  height: 10
+
+robot:
+  kinematics: {name: diff}
+  state: [1, 1, 0]
+  goal: [[3, 3], [5, 5]]
+  behavior:
+    name: dash
+    loop: true
+    wander: true
+    range_low: [0, 0, -3.14]
+    range_high: [10, 10, 3.14]

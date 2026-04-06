@@ -1,0 +1,10 @@
+world:
+  width: 10
+  height: 10
+
+robot:
+  kinematics: {name: diff}
+  state: [1, 1, 0]
+  goal: [[3, 3], [5, 5]]
+  behavior:
+    name: dash

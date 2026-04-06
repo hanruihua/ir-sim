@@ -413,6 +413,14 @@ class ObjectBase:
         self.rl = self.beh_config.get("range_low", [0, 0, -pi])
         self.rh = self.beh_config.get("range_high", [10, 10, pi])
         self.wander = self.beh_config.get("wander", False)
+        self.loop = self.beh_config.get("loop", False)
+
+        if self.wander and self.loop:
+            self.logger.warning(
+                f"Object {self.id}: Both 'wander' and 'loop' are enabled. "
+                "'wander' takes priority, 'loop' will be disabled."
+            )
+            self.loop = False
 
         if self.wander:
             self._goal = deque([random_point_range(self.rl, self.rh)])
@@ -699,10 +707,22 @@ class ObjectBase:
         Default behavior:
             - If `wander` is enabled and the object has just arrived (`arrive_flag`),
               sample a new random goal within [`rl`, `rh`] and clear `arrive_flag`.
+            - If `loop` is enabled and the object has just arrived (`arrive_flag`),
+              reset goals to initial waypoints and clear `arrive_flag`.
         """
 
         if self.wander and self.arrive_flag:
             self._goal = deque([random_point_range(self.rl, self.rh)])
+            self.arrive_flag = False
+
+        if self.loop and self.arrive_flag and self._init_goal:
+            if len(self._init_goal) > 1:
+                self._goal = self._init_goal.copy()
+            else:
+                # Single goal: cycle between start position and goal
+                start_pos = self._init_state[0:2, 0].tolist()
+                goal_pos = self._init_goal[0][0:2]
+                self._goal = deque([goal_pos, start_pos])
             self.arrive_flag = False
 
     def post_process(self):

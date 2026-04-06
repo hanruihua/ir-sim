@@ -79,6 +79,7 @@ robot:
 **Common Parameters:**
 - **`name`:** Behavior type (`'dash'`, `'rvo'`, or custom name)
 - **`wander`:** Random goal generation after reaching current goal (default: `False`)
+- **`loop`:** Loop through waypoints continuously when reaching the last goal (default: `False`)
 - **`target_roles`:** Filter objects for behavior (`'all'`, `'robot'`, `'obstacle'`)
 
 **RVO-specific Parameters:**
@@ -198,6 +199,7 @@ robot:
 | `safe_radius` | `float` | `0.1` | Additional safety margin added to agent radius |
 | `maxSpeed` | `float` | `None` | Maximum speed override (uses robot's `max_speed` if not set) |
 | `wander` | `bool` | `False` | Generate random goals when current goal is reached |
+| `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 | `range_low` | `list` | - | Lower bounds for random goal generation `[x, y, theta]` |
 | `range_high` | `list` | - | Upper bounds for random goal generation `[x, y, theta]` |
 
@@ -273,6 +275,21 @@ robot:
 :::
 
 ::::
+
+#### Waypoint Loop Navigation
+
+For patrol scenarios where robots continuously navigate through predefined waypoints:
+
+```yaml
+robot:
+  kinematics: diff
+  goal: [[1, 1], [5, 1], [5, 5], [1, 5]]
+  behavior:
+    name: dash
+    loop: true
+```
+
+When `loop: true`, the robot will navigate through all waypoints and restart from the first waypoint upon reaching the last one.
 
 :::{tip}
 Use `group_behavior` in YAML for most cases as it handles initialization automatically. Use the manual approach only when you need custom ORCA logic or integration with external planners.

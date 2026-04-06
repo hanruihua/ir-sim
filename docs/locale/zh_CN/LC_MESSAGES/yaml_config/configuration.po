@@ -1736,6 +1736,12 @@ msgid ""
 " If `True`, the object will have a random goal when reach current goal."
 msgstr "`wander`（bool/`False`）：是否加入随机游走。若为 `True`，对象到达当前目标后会随机分配新目标。"
 
+#: ../../source/yaml_config/configuration.md:658
+msgid ""
+"`loop` (bool/`False`): Whether to loop through waypoints continuously. "
+"If `True`, the object will restart from the first waypoint after reaching the last one."
+msgstr "`loop`（bool/`False`）：是否循环导航路径点。若为 `True`，对象到达最后一个路径点后会从第一个路径点重新开始。"
+
 #: ../../source/yaml_config/configuration.md:659
 #: ../../source/yaml_config/configuration.md:671
 msgid ""

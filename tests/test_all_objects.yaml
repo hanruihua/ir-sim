@@ -72,8 +72,20 @@ obstacle:
     behavior: {name: 'dash', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], wander: True}
   
   - shape: {name: 'polygon', vertices: [[6, 5], [7, 5], [7, 6], [6, 6]]}  # radius
-    state: [6, 5, 1] 
+    state: [6, 5, 1]
     behavior: {name: 'dash', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14], wander: True}
+
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.15}
+    state: [2, 8, 0]
+    goal: [[4, 8], [6, 8], [4, 6]]
+    behavior: {name: 'dash', loop: True}
+
+  - kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.15}
+    state: [8, 2, 0]
+    goal: [8, 4]
+    behavior: {name: 'rvo', loop: True}
 
   - shape: {name: 'linestring', vertices: [[5, 5], [4, 0], [1, 6]] }  # vertices
     state: [0, 0, 0] 
