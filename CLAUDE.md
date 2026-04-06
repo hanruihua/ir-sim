@@ -125,8 +125,8 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (20 test files)
-usage/                  # Example YAML configs and scripts (20 examples)
+tests/                  # Pytest test suite (21 test files)
+usage/                  # Example YAML configs and scripts (21 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 
@@ -207,3 +207,20 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 ## Note
 
 - You can try to use the uv virtual environment for testing and development: ir-sim/.venv/bin/python
+
+## Release Checklist
+
+When releasing a new version, follow these steps in order:
+
+1. Update the version number in `pyproject.toml`
+2. Add a new entry to `docs/source/_static/switcher.json` (mark the new version as `(stable)`, remove that label from the previous one)
+3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`)
+   - Only include changes that are merged into `main`; do not list work still on feature branches
+   - For PRs not authored by hanruihua, append the contributor's GitHub handle (e.g., `(@username)`)
+   - For performance improvements, include the measured speedup (e.g., "~48% faster lidar step")
+4. Run `uv lock` to update `uv.lock`
+5. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit
+6. Commit the version bump. Confirm with the user before committing
+   - Must be on the `main` branch
+   - Commit message format: `version bump to v<version>`
+7. Create a git tag: `git tag v<version>`

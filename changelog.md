@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.3
+
+- Features:
+  - Add loop mode for waypoint navigation behavior. ([#266](https://github.com/hanruihua/ir-sim/pull/266))
+  - Add line obstacle support to RVO algorithm. ([#250](https://github.com/hanruihua/ir-sim/pull/250))
+  - Add CBF-QP and collision-cone usage examples. ([#258](https://github.com/hanruihua/ir-sim/pull/258)) (@Lawliet9666)
+
+- Performance:
+  - Vectorize lidar range/origin filter and skip `union_all`, ~48% faster lidar step on map-based arenas. ([#257](https://github.com/hanruihua/ir-sim/pull/257)) (@williamleong)
+  - Use STRtree intersects predicate for lidar map segment filtering, ~26% faster lidar step on PNG-map arenas. ([#255](https://github.com/hanruihua/ir-sim/pull/255)) (@williamleong)
+  - Cache geometry validity and streamline lidar map ray intersection, ~18% faster lidar step on PNG-map arenas. ([#254](https://github.com/hanruihua/ir-sim/pull/254)) (@williamleong)
+
+- Fix:
+  - Prevent infinite loop in `WrapToPi`/`WrapTo2Pi` for non-finite inputs. ([#269](https://github.com/hanruihua/ir-sim/pull/269))
+
+- Refactor:
+  - Simplify `file_check` and `find_file` in util. ([#256](https://github.com/hanruihua/ir-sim/pull/256))
+
 ## 2.9.2
 
 - Features:
