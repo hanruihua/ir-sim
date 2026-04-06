@@ -116,6 +116,16 @@ class TestKeyboardControlPynput:
         env.keyboard._on_pynput_release(mock_keyboard_key("z"))
         assert env.keyboard.key_ang_max < prev_ang_max + 0.2
 
+    def test_shift_zc_adjust_lv_max(self, env_factory, mock_keyboard_key):
+        """Test Shift+Z/C (uppercase) keys adjust linear velocity max."""
+        env = env_factory("test_keyboard_control.yaml")
+        env.keyboard._active_only = False
+        prev_lv_max = env.keyboard.key_lv_max
+        env.keyboard._on_pynput_release(mock_keyboard_key("C"))
+        assert env.keyboard.key_lv_max == pytest.approx(prev_lv_max + 0.2)
+        env.keyboard._on_pynput_release(mock_keyboard_key("Z"))
+        assert env.keyboard.key_lv_max == pytest.approx(prev_lv_max)
+
     def test_r_key_sets_reset_flag(self, env_factory, mock_keyboard_key):
         """Test 'r' key sets reset flag."""
         env = env_factory("test_keyboard_control.yaml")
@@ -319,6 +329,17 @@ class TestKeyboardControlMpl:
 
         env.keyboard._on_mpl_release(mock_mpl_event("z"))
         assert env.keyboard.key_ang_max < prev_ang_max + 0.2
+
+    def test_shift_zc_lv_max_adjustment(self, env_factory, mock_mpl_event):
+        """Test Shift+Z/C keys adjust linear velocity max in mpl backend."""
+        env = env_factory("test_keyboard_control2.yaml")
+
+        prev_lv_max = env.keyboard.key_lv_max
+        env.keyboard._on_mpl_release(mock_mpl_event("shift+c"))
+        assert env.keyboard.key_lv_max == pytest.approx(prev_lv_max + 0.2)
+
+        env.keyboard._on_mpl_release(mock_mpl_event("shift+z"))
+        assert env.keyboard.key_lv_max == pytest.approx(prev_lv_max)
 
     def test_space_pause_resume(self, env_factory, mock_mpl_event):
         """Test space key toggles pause/resume in mpl backend."""
