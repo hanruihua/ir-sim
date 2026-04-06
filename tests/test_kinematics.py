@@ -277,7 +277,7 @@ class TestHandlerMetadata:
 
     def test_omni_metadata(self):
         assert OmniKinematics.action_dim == 2
-        assert OmniKinematics.min_state_dim == 2
+        assert OmniKinematics.min_state_dim == 3
         assert OmniKinematics.state_dim == 3
         assert OmniKinematics.show_arrow is False
 

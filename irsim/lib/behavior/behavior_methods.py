@@ -225,7 +225,7 @@ def beh_omni_angular_dash(
             - angle_tolerance (float): Allowable angular deviation, default 0.1.
 
     Returns:
-        np.array: Velocity [vx, vy, yaw_rate] (3x1) for omnidirectional-angular drive.
+        np.array: Velocity [forward, lateral, yaw_rate] (3x1) in body frame.
     """
 
     if ego_object.goal is None:
@@ -263,7 +263,7 @@ def beh_acker_dash(
     if ego_object.goal is None:
         if ego_object._world_param.count % 10 == 0:
             ego_object.logger.warning(
-                "Goal is currently None. This rvo behavior is waiting for goal configuration"
+                "Goal is currently None. This dash behavior is waiting for goal configuration"
             )
         return np.zeros((2, 1))
 
