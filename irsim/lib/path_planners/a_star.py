@@ -133,8 +133,9 @@ class AStarPlanner:
 
             c_id = min(
                 open_set,
-                key=lambda o: open_set[o].cost
-                + self.calc_heuristic(goal_node, open_set[o]),
+                key=lambda o: (
+                    open_set[o].cost + self.calc_heuristic(goal_node, open_set[o])
+                ),
             )
             current = open_set[c_id]
 
@@ -148,9 +149,11 @@ class AStarPlanner:
                 # for stopping simulation with the esc key.
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: plt.close(event.canvas.figure)
-                    if event.key == "escape"
-                    else None,
+                    lambda event: (
+                        plt.close(event.canvas.figure)
+                        if event.key == "escape"
+                        else None
+                    ),
                 )
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)

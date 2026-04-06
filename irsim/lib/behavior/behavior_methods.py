@@ -78,7 +78,14 @@ def beh_diff_rvo(
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
     return DiffRVO(
-        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold,
+        rvo_state,
+        rvo_neighbor,
+        vxmax,
+        vymax,
+        acce,
+        factor,
+        mode,
+        neighbor_threshold,
         line_segments=line_segments,
     )
 
@@ -192,7 +199,14 @@ def beh_omni_rvo(
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
     return OmniRVO(
-        rvo_state, rvo_neighbor, vxmax, vymax, acce, factor, mode, neighbor_threshold,
+        rvo_state,
+        rvo_neighbor,
+        vxmax,
+        vymax,
+        acce,
+        factor,
+        mode,
+        neighbor_threshold,
         line_segments=line_segments,
     )
 
@@ -271,7 +285,12 @@ def OmniRVO(
     ]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor,
+        state_tuple,
+        filtered_neighbor_list,
+        vxmax,
+        vymax,
+        acce,
+        factor,
         line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
@@ -319,7 +338,12 @@ def DiffRVO(
     ]
 
     rvo_behavior = reciprocal_vel_obs(
-        state_tuple, filtered_neighbor_list, vxmax, vymax, acce, factor,
+        state_tuple,
+        filtered_neighbor_list,
+        vxmax,
+        vymax,
+        acce,
+        factor,
         line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)

@@ -2,7 +2,7 @@ from cbf_qp import CBFQPController
 
 import irsim
 
-env = irsim.make('cbf_world_dynamic_diff.yaml', save_ani=False, display=True)
+env = irsim.make("cbf_world_dynamic_diff.yaml", save_ani=False, display=True)
 
 controller = CBFQPController(
     robot_type=env.robot.kinematics,

@@ -328,9 +328,9 @@ class InformedRRTStar(RRTStar):
         if not self._vis_setup_done:
             ax.figure.canvas.mpl_connect(
                 "key_release_event",
-                lambda event: plt.close(event.canvas.figure)
-                if event.key == "escape"
-                else None,
+                lambda event: (
+                    plt.close(event.canvas.figure) if event.key == "escape" else None
+                ),
             )
             (self._start_marker,) = ax.plot(
                 self.start.x,

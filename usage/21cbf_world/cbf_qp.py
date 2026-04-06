@@ -68,8 +68,10 @@ class CBFQPController:
         )
 
         v_max = float(robot.vel_max[0, 0])
-        speed = self.goal_gain * np.linalg.norm(goal_error) * max(
-            0.0, math.cos(heading_error)
+        speed = (
+            self.goal_gain
+            * np.linalg.norm(goal_error)
+            * max(0.0, math.cos(heading_error))
         )
         speed = min(speed, v_max)
 
@@ -93,9 +95,7 @@ class CBFQPController:
             else np.zeros(2, dtype=float)
         )
         cbf_lhs_row = 2.0 * rel_pos
-        cbf_rhs_bound = -self.alpha * h_val + 2.0 * float(
-            rel_pos @ obstacle_velocity
-        )
+        cbf_rhs_bound = -self.alpha * h_val + 2.0 * float(rel_pos @ obstacle_velocity)
         return cbf_lhs_row, cbf_rhs_bound
 
     def _solve_qp(
@@ -131,8 +131,10 @@ class CBFQPController:
         except Exception:
             problem.solve()
 
-
-        if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
+        if (
+            problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
+            and u.value is not None
+        ):
             return np.asarray(u.value, dtype=float).reshape(-1)
         # import pdb; pdb.set_trace()
         print(f"CBF-QP infeasible: {problem.status}")
@@ -189,7 +191,10 @@ class CBFQPController:
         except Exception:
             problem.solve()
 
-        if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
+        if (
+            problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
+            and u.value is not None
+        ):
             return np.asarray(u.value, dtype=float).reshape(-1)
         print(f"CBF-QP infeasible: {problem.status}")
         return np.zeros(2, dtype=float)
@@ -204,9 +209,7 @@ class CBFQPController:
             cbf_lhs_rows = []
             cbf_rhs_bounds = []
             for obstacle in obstacles:
-                cbf_lhs_row, cbf_rhs_bound = self._dist_barrier_cbf(
-                    robot, obstacle
-                )
+                cbf_lhs_row, cbf_rhs_bound = self._dist_barrier_cbf(robot, obstacle)
                 cbf_lhs_rows.append(cbf_lhs_row)
                 cbf_rhs_bounds.append(cbf_rhs_bound)
 
@@ -258,5 +261,3 @@ class CBFQPController:
             )
 
         raise ValueError(f"Unsupported robot_type: {self.robot_type}")
-
-

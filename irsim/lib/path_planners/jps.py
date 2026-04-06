@@ -208,9 +208,11 @@ class JPSPlanner:
         while open_set:
             c_id = min(
                 open_set,
-                key=lambda o: open_set[o].cost
-                + self._heuristic(
-                    goal_node.x, goal_node.y, open_set[o].x, open_set[o].y
+                key=lambda o: (
+                    open_set[o].cost
+                    + self._heuristic(
+                        goal_node.x, goal_node.y, open_set[o].x, open_set[o].y
+                    )
                 ),
             )
             current = open_set[c_id]
@@ -223,9 +225,11 @@ class JPSPlanner:
                 )
                 plt.gcf().canvas.mpl_connect(
                     "key_release_event",
-                    lambda event: plt.close(event.canvas.figure)
-                    if event.key == "escape"
-                    else None,
+                    lambda event: (
+                        plt.close(event.canvas.figure)
+                        if event.key == "escape"
+                        else None
+                    ),
                 )
                 if len(closed_set) % 10 == 0:
                     plt.pause(0.01)

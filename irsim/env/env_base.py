@@ -713,7 +713,7 @@ class EnvBase:
         """
 
         self._reset_all()
-        self.step(action=[np.zeros((2, 1))]* self.robot_number)
+        self.step(action=[np.zeros((2, 1))] * self.robot_number)
         self._world.reset()
         self.reset_plot()
         self.set_status("Reset")

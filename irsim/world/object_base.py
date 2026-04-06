@@ -2627,7 +2627,9 @@ class ObjectBase:
         verts = self.vertices  # 2xN array
         segments = []
         for i in range(verts.shape[1] - 1):
-            segments.append([verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]])
+            segments.append(
+                [verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]]
+            )
         return segments
 
     @property

@@ -127,9 +127,7 @@ class TestConfigVOLines:
         # Velocity toward wall: (0, 1)
         rel_vx = 0 - cone[0][0]
         rel_vy = 1 - cone[0][1]
-        inside = reciprocal_vel_obs.between_vector(
-            cone[1], cone[2], [rel_vx, rel_vy]
-        )
+        inside = reciprocal_vel_obs.between_vector(cone[1], cone[2], [rel_vx, rel_vy])
         assert inside
 
     def test_cone_allows_velocity_parallel_to_wall(self):
@@ -190,48 +188,34 @@ class TestConfigModesIncludeLines:
 class TestTCLineSegment:
     def test_moving_toward_wall(self):
         # Agent at (0,0), wall at y=3, velocity (0,1)
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [0, 1], [-5, 3, 5, 3]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [-5, 3, 5, 3])
         assert tc == pytest.approx(2.7, abs=0.01)  # (3 - 0.3) / 1
 
     def test_moving_away_from_wall(self):
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [0, -1], [-5, 3, 5, 3]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, -1], [-5, 3, 5, 3])
         assert tc == 1e6
 
     def test_moving_parallel(self):
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [1, 0], [-5, 3, 5, 3]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [1, 0], [-5, 3, 5, 3])
         assert tc == 1e6
 
     def test_degenerate_segment(self):
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [0, 1], [2, 2, 2, 2]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [2, 2, 2, 2])
         assert tc == 1e6
 
     def test_collision_point_outside_segment(self):
         # Short wall segment far to the right, agent heading up
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [0, 1], [10, 3, 15, 3]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [10, 3, 15, 3])
         assert tc == 1e6
 
     def test_already_inside_wall(self):
         # Agent overlapping the wall — tc should be 0
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.5, [0, 1], [-5, 0.2, 5, 0.2]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.5, [0, 1], [-5, 0.2, 5, 0.2])
         assert tc == 0
 
     def test_diagonal_approach(self):
         # Agent at (0,0), wall at y=4, velocity (1,1)
-        tc = reciprocal_vel_obs._tc_line_segment(
-            0, 0, 0.3, [1, 1], [-10, 4, 10, 4]
-        )
+        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [1, 1], [-10, 4, 10, 4])
         # Perpendicular distance = 4, vel component toward wall = 1
         expected = (4 - 0.3) / 1.0
         assert tc == pytest.approx(expected, abs=0.01)
@@ -279,7 +263,11 @@ class TestCalVelWithLines:
         # Agent at origin, desired velocity toward +x, wall at y=1
         state = _agent_state(x=0, y=0, vx=0, vy=0, r=0.3, vx_des=1.0, vy_des=0.0)
         return reciprocal_vel_obs(
-            state, [], vxmax=1.5, vymax=1.5, acce=1.0,
+            state,
+            [],
+            vxmax=1.5,
+            vymax=1.5,
+            acce=1.0,
             line_obs_list=[[-5, 1, 5, 1]],
         )
 
@@ -354,9 +342,7 @@ class TestBehaviorFunctionsWithLines:
 
         state = (0.0, 0.0, 0.0, 0.0, 0.3, 1.0, 0.0)
         neighbors = [[3, 0, 0, 0, 0.3]]
-        result = OmniRVO(
-            state, neighbor_list=neighbors, line_segments=[[-5, 2, 5, 2]]
-        )
+        result = OmniRVO(state, neighbor_list=neighbors, line_segments=[[-5, 2, 5, 2]])
         assert result.shape == (2, 1)
 
 

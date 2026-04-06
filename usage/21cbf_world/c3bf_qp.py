@@ -72,9 +72,13 @@ class CollisionConeCBFController:
             math.cos(target_heading - theta),
         )
 
-        speed = self.goal_gain * np.linalg.norm(goal_error) * max(
-            0.0,
-            math.cos(heading_error),
+        speed = (
+            self.goal_gain
+            * np.linalg.norm(goal_error)
+            * max(
+                0.0,
+                math.cos(heading_error),
+            )
         )
         desired_omega = self.angle_gain * heading_error
         if abs(desired_omega) < self.angle_tolerance:
@@ -158,9 +162,13 @@ class CollisionConeCBFController:
         rel_velocity = u_linearize - obstacle_velocity
         rel_speed = float(np.linalg.norm(rel_velocity))
         if rel_speed < self.linearization_eps:
-            rel_velocity = -self.linearization_eps * rel_pos / max(
-                np.linalg.norm(rel_pos),
-                self.linearization_eps,
+            rel_velocity = (
+                -self.linearization_eps
+                * rel_pos
+                / max(
+                    np.linalg.norm(rel_pos),
+                    self.linearization_eps,
+                )
             )
             rel_speed = float(np.linalg.norm(rel_velocity))
 
@@ -204,9 +212,13 @@ class CollisionConeCBFController:
         rel_velocity = point_jacobian @ u_linearize - obstacle_velocity
         rel_speed = float(np.linalg.norm(rel_velocity))
         if rel_speed < self.linearization_eps:
-            rel_velocity = -self.linearization_eps * rel_pos / max(
-                np.linalg.norm(rel_pos),
-                self.linearization_eps,
+            rel_velocity = (
+                -self.linearization_eps
+                * rel_pos
+                / max(
+                    np.linalg.norm(rel_pos),
+                    self.linearization_eps,
+                )
             )
             rel_speed = float(np.linalg.norm(rel_velocity))
 
@@ -250,7 +262,10 @@ class CollisionConeCBFController:
         except Exception:
             problem.solve()
 
-        if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
+        if (
+            problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
+            and u.value is not None
+        ):
             return np.asarray(u.value, dtype=float).reshape(-1)
         print(f"C3BF-QP infeasible: {problem.status}")
         return np.zeros(2, dtype=float)
@@ -292,7 +307,10 @@ class CollisionConeCBFController:
         except Exception:
             problem.solve()
 
-        if problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE} and u.value is not None:
+        if (
+            problem.status in {cp.OPTIMAL, cp.OPTIMAL_INACCURATE}
+            and u.value is not None
+        ):
             return np.asarray(u.value, dtype=float).reshape(-1)
         print(f"C3BF-QP infeasible: {problem.status}")
         return np.zeros(2, dtype=float)

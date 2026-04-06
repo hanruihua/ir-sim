@@ -276,6 +276,7 @@ class World:
         if env is not None:
             return env._env_param
         from irsim.config import env_param
+
         return env_param
 
     @property

@@ -2,7 +2,7 @@ from c3bf_qp import CollisionConeCBFController
 
 import irsim
 
-env = irsim.make('cbf_world.yaml', save_ani=False, display=True)
+env = irsim.make("cbf_world.yaml", save_ani=False, display=True)
 controller = CollisionConeCBFController(
     robot_type=env.robot.kinematics,
     safety_margin=0.15,

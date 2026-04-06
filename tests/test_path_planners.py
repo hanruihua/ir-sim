@@ -86,9 +86,7 @@ class TestRRTStarEdgeMethods:
 
         rrt_star.is_collision = always_fail_collision
         new_node = rrt_star.Node(1.0, 0.0)
-        best_parent, _ = rrt_star._choose_parent(
-            new_node, nearest, 0, 1.0, [0, 1]
-        )
+        best_parent, _ = rrt_star._choose_parent(new_node, nearest, 0, 1.0, [0, 1])
         assert best_parent is nearest
         assert calls["count"] == 1
 
@@ -195,9 +193,7 @@ class TestPathPlannersWithGridMap:
 
         if planner_class in (AStarPlanner, JPSPlanner):
             planner = planner_class(env_map)
-            trajectory = planner.planning(
-                robot_state, goal_pose, show_animation=False
-            )
+            trajectory = planner.planning(robot_state, goal_pose, show_animation=False)
         elif planner_class is RRT:
             # RRT is sampling-based; evaluate a bounded set of seeds to
             # keep coverage while avoiding single-seed flakiness.
@@ -212,9 +208,7 @@ class TestPathPlannersWithGridMap:
                     break
         else:
             planner = planner_class(env_map, robot=env.robot)
-            trajectory = planner.planning(
-                robot_state, goal_pose, show_animation=False
-            )
+            trajectory = planner.planning(robot_state, goal_pose, show_animation=False)
 
         if planner_class is RRT:
             # Sampling-based planners may fail within a finite iteration budget.

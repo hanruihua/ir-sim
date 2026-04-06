@@ -467,9 +467,9 @@ class RRT:
         if not self._vis_setup_done:
             ax.figure.canvas.mpl_connect(
                 "key_release_event",
-                lambda event: plt.close(event.canvas.figure)
-                if event.key == "escape"
-                else None,
+                lambda event: (
+                    plt.close(event.canvas.figure) if event.key == "escape" else None
+                ),
             )
             ax.plot(self.start.x, self.start.y, "xr", markersize=8, zorder=5)
             ax.plot(self.end.x, self.end.y, "xr", markersize=8, zorder=5)
