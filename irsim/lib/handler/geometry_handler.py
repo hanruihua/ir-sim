@@ -4,6 +4,7 @@ import numpy as np
 import shapely as shp
 from shapely import (
     LineString,
+    MultiLineString,
     Point,
     Polygon,
     bounds,
@@ -375,7 +376,10 @@ class PointsGeometry(geometry_handler):
             points[0] - half_x, points[1] - half_y,
             points[0] + half_x, points[1] + half_y,
         )
-        return unary_union(boxes).boundary
+        boundary = unary_union(boxes).boundary
+        if hasattr(boundary, "geoms"):
+            return boundary
+        return MultiLineString([LineString(boundary.coords)])
 
 
 ########################################3D Geometry Handler #############################################################

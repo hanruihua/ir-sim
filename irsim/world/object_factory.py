@@ -81,7 +81,7 @@ class ObjectFactory:
         Returns:
             list: List of ObstacleMap objects.
         """
-        if points is None:
+        if points is None or points.size == 0:
             return []
         return [
             ObstacleMap(
