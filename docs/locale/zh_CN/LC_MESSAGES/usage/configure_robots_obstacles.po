@@ -176,11 +176,11 @@ msgstr "**`goal`：** 指定机器人的目标位置与朝向。"
 #: ../../source/usage/configure_robots_obstacles.md:74
 msgid ""
 "**`plot`** (optional): Specifies the visualization settings for the "
-"robot. See [object.plot](#irsim.world.object_base.ObjectBase.plot) for "
+"robot. See {py:meth}`~irsim.world.object_base.ObjectBase.plot` for "
 "more details."
 msgstr ""
 "**`plot`**（可选）：设置机器人的可视化样式。参见 "
-"[object.plot](#irsim.world.object_base.ObjectBase.plot)。"
+"{py:meth}`~irsim.world.object_base.ObjectBase.plot`。"
 
 #: ../../source/usage/configure_robots_obstacles.md:77
 msgid ""

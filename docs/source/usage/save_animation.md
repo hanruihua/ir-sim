@@ -3,11 +3,11 @@ Render and Save Animation
 
 ## Render the environment
 
-You can render the environment by calling the [env.render()](#irsim.env.env_base.EnvBase.render) function and change the arguments of this function to control the rendering of each frame. The main parameters are:
+You can render the environment by calling the {py:meth}`~irsim.env.env_base.EnvBase.render` function and change the arguments of this function to control the rendering of each frame. The main parameters are:
 
 - **`interval`:** The time interval between frames. Default 0.05. This parameter is used to control the speed of visualization.
 - **`figure_kwargs`:** The parameters of the figures. Such as the transparent, bbox_inches, dpi, etc. Default {}. See [savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html) for more details.
-- **`kwargs`:** These additional parameters are passed to the all the [object.plot](#irsim.world.object_base.ObjectBase.plot) function for default settings. 
+- **`kwargs`:** These additional parameters are passed to the all the {py:meth}`~irsim.world.object_base.ObjectBase.plot` function for default settings. 
 
 ## Save the animation as GIF file
 
@@ -94,7 +94,7 @@ obstacle:
 ::::
 
 
-`ending_time` denotes how long the figure will be closed. The animation generation is also performed in this `env.end()` function. You can set the additional arguments in this function to control the animation generation. Details of the parameters can be found in the [env.end()](#irsim.env.env_base.EnvBase.end). 
+`ending_time` denotes how long the figure will be closed. The animation generation is also performed in this `env.end()` function. You can set the additional arguments in this function to control the animation generation. Details of the parameters can be found in the {py:meth}`~irsim.env.env_base.EnvBase.end`. 
 
 Some common parameters for `GIF` format you may use are: 
 
@@ -109,7 +109,7 @@ The principle of the animation generation is to save the images of each frame an
 
 ## Save the animation as a video
 
-You can save the animation of the simulation as a video file such as mp4 file by setting the suffix of the file to `.mp4` in the [env.end()](#irsim.env.env_base.EnvBase.end) function. Please make sure you have the `ffmpeg` installed in your system by `pip install imageio[ffmpeg]`. The example is shown below:
+You can save the animation of the simulation as a video file such as mp4 file by setting the suffix of the file to `.mp4` in the {py:meth}`~irsim.env.env_base.EnvBase.end` function. Please make sure you have the `ffmpeg` installed in your system by `pip install imageio[ffmpeg]`. The example is shown below:
 
 ```python 
 

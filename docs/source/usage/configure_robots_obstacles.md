@@ -60,7 +60,8 @@ robot:
 
 | Kinematics | Control Input | Typical Use | Can Rotate in Place? |
 |------------|---------------|-------------|----------------------|
-| `omni`     | `[vx, vy]` - velocity in x,y | Holonomic robots, drones | ✓ Yes |
+| `omni`     | `[forward, lateral]` - body-frame velocity | Holonomic robots, drones | ✗ No (heading fixed) |
+| `omni_angular` | `[forward, lateral, yaw_rate]` - body-frame velocity + yaw | Holonomic robots with rotation | ✓ Yes |
 | `diff`     | `[v, ω]` - linear & angular velocity | Two-wheeled robots | ✓ Yes |
 | `acker`    | `[v, φ]` - linear velocity & steering angle | Cars, car-like robots | ✗ No |
 - **`shape`:** Specifies the physical shape and size of the robot. Name options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`.
@@ -71,17 +72,17 @@ robot:
  
 - **`state`:** Defines the initial position and orientation of the robot in the environment.
 - **`goal`:** Specifies the target position and orientation for the robot.
-- **`plot`** (optional): Specifies the visualization settings for the robot. See [object.plot](#irsim.world.object_base.ObjectBase.plot) for more details.
+- **`plot`** (optional): Specifies the visualization settings for the robot. See {py:meth}`~irsim.world.object_base.ObjectBase.plot` for more details.
 
 
 The robot has a default behavior of moving from its initial position to the goal position directly (`dash`) if the `kinematics` is set. 
 
 ### Explanation
 
-- **`env.step()`:** Advances the simulation by one time step. You can input your control commands here by `env.step(velocity)` to run your own control algorithm. `velocity` is associated with the `kinematics` of the robot. See [env.step](#irsim.env.env_base.EnvBase.step) for more details. 
-- **`env.render(0.05)`:** Renders the current state of the environment with a 0.05-second delay between frames. See [env.render](#irsim.env.env_base.EnvBase.render) for more details.
-- **`env.done()`:** Checks whether the simulation conditions to terminate have been met. Such as reaching the goal or a collision. See [env.done](#irsim.env.env_base.EnvBase.done) for more details.
-- **`env.end()`:** Ensures that the simulation is terminated gracefully, releasing any resources or handles. Provides a clean exit. See [env.end](#irsim.env.env_base.EnvBase.end) for more details.
+- **`env.step()`:** Advances the simulation by one time step. You can input your control commands here by `env.step(velocity)` to run your own control algorithm. `velocity` is associated with the `kinematics` of the robot. See {py:meth}`~irsim.env.env_base.EnvBase.step` for more details. 
+- **`env.render(0.05)`:** Renders the current state of the environment with a 0.05-second delay between frames. See {py:meth}`~irsim.env.env_base.EnvBase.render` for more details.
+- **`env.done()`:** Checks whether the simulation conditions to terminate have been met. Such as reaching the goal or a collision. See {py:meth}`~irsim.env.env_base.EnvBase.done` for more details.
+- **`env.end()`:** Ensures that the simulation is terminated gracefully, releasing any resources or handles. Provides a clean exit. See {py:meth}`~irsim.env.env_base.EnvBase.end` for more details.
 
 :::{Note}
 The [rda_planner](https://github.com/hanruihua/RDA-planner) is a case of using the `env.step(velocity)` to run your own control algorithm.

@@ -338,7 +338,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`distribution`** — Object placement (`manual`, `random`, `circle`)
 - **`state`** — Initial position (`[x, y, θ]`)
 - **`goal`** — Target destination (`[x, y, θ]`)
-- **`velocity`** — Initial speed (`[v, ω]`, `[vx, vy]`, `[v, φ]`)
+- **`velocity`** — Initial speed (`[v, ω]`, `[forward, lateral]`, `[v, φ]`)
 - **`state_dim`** — State vector size (auto: 3 or 4)
 - **`vel_dim`** — Velocity vector size (auto: 2)
 - **`name`** — Unique identifier for the object.
@@ -399,7 +399,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   **Format by Kinematics:**
   - For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is angular velocity.
-  - For `'omni'`: `[vx, vy]`, velocities along the x and y axes.
+  - For `'omni'`: `[forward, lateral]`, body-frame velocities (forward and lateral relative to heading).
   - For `'acker'`: Typically `[v, phi]`, where `v` is linear velocity and `phi` is steering angle.
 
   ```yaml
@@ -439,8 +439,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 : Explicitly defines the dimension of the velocity vector. When not specified, this is automatically inferred from the kinematics model. The velocity dimension depends on the control inputs for the specific kinematics.
 
   **Common Values:**
-  - `2`: For differential drive `[v, omega]` or omnidirectional `[vx, vy]`
-  - Additional dimensions may be used for more complex kinematics
+  - `2`: For differential drive `[v, omega]` or omnidirectional `[forward, lateral]`
+  - `3`: For omnidirectional with angular control `[forward, lateral, yaw_rate]`
 
   ```yaml
   # Example usage
@@ -504,7 +504,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 ```{card} Kinematics Models
 :class-card: sd-bg-light sd-rounded-3
 - **`diff`** — Differential drive, controlled by linear speed and angular velocity (`[v, omega]`)
-- **`omni`** — Omnidirectional, controlled by linear speed along the x and y axes (`[vx, vy]`)
+- **`omni`** — Omnidirectional, controlled by body-frame forward and lateral speed (`[forward, lateral]`)
+- **`omni_angular`** — Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)
 - **`acker`** — Ackermann steering, controlled by linear speed and steering angle (`[v, phi]`)
 ```
 
@@ -610,7 +611,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the polygon in the format `[[x1, y1], [x2, y2], ...]`, if not provided, a random polygon will be generated.
     - **`random_shape`** (`bool`): Whether to generate a series of random polygons. Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex polygons. Default is `False`.
-    - parameters for random polygon generation, see [random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+    - parameters for random polygon generation, see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
       
     ```yaml
     # Example usage
@@ -633,7 +634,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
     - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `False`.
-    - parameters for random line string generation (polygon), see [random_generate_polygon](#irsim.lib.algorithm.generation.random_generate_polygon) for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
+    - parameters for random line string generation (polygon), see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
 
     ```yaml
     # Example usage
@@ -1209,7 +1210,7 @@ robot:
 - **Multiple Objects**: When configuring multiple objects, use the `number` and `distribution` parameters to efficiently generate them. For instance, setting `number: 10` with a `distribution` of `'random'` can quickly populate the simulation with randomly placed objects. 
 - **Dictionary Parameters**: All dictionary-type parameters (e.g., `distribution`, `shape`, `kinematics`, `behavior`) must include a `'name'` key to specify their type. Omitting the `'name'` key will result in default values or errors.
 - **Group Configurations**: By default, objects within the same group share configurations. To customize individual objects within a group, add sub-parameters using `-`. Unspecified objects will inherit the last defined configuration within the group.
-- **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) should have velocities in `[v, omega]`, while an omnidirectional robot (`'omni'`) uses `[vx, vy]`.
+- **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) uses `[v, omega]`, an omnidirectional robot (`'omni'`) uses body-frame `[forward, lateral]`, and `'omni_angular'` uses `[forward, lateral, yaw_rate]`.
 - **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter for each object if the `plot` section is located in the object configuration. If it is located in the root of the object configuration, it will be applied to all objects.
 ````
 

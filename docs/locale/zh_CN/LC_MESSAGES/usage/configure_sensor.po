@@ -100,8 +100,8 @@ msgstr "**alpha**：激光束透明度。"
 #: ../../source/usage/configure_sensor.md:95
 msgid ""
 "A full list of parameters can be found in the [YAML "
-"Configuration](#../yaml_config/configuration/)."
-msgstr "完整参数列表见 [YAML 配置](#../yaml_config/configuration/)。"
+"Configuration](../yaml_config/configuration)."
+msgstr "完整参数列表见 [YAML 配置](../yaml_config/configuration)。"
 
 #: ../../source/usage/configure_sensor.md:98
 msgid "Advanced Lidar Configuration with noise"
