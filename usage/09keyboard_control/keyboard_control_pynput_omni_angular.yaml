@@ -12,10 +12,10 @@ world:
 robot:
   - kinematics: {name: 'omni_angular'}  # omni, diff, acker
     shape: {name: 'rectangle', length: 4.6, width: 1.6, wheelbase: 3}
-    state: [5, 5, 1, 0]
+    state: [5, 5, 1]
     goal: [40, 40, 0]
-    vel_max: [3.0, 3.0, 3.0]  # [v_x, v_y, angular] 
-    vel_min: [-3.0, -3.0, -3.0]  # [v_x, v_y, angular] 
+    vel_max: [3.0, 3.0, 3.0]  # [forward, lateral, yaw_rate] in body frame
+    vel_min: [-3.0, -3.0, -3.0]  # [forward, lateral, yaw_rate] in body frame
     behavior: {name: 'dash'} # move toward to the goal directly
     plot:
       show_trail: True
