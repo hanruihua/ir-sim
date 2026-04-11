@@ -144,6 +144,9 @@ class EnvBase:
         log_level: str = "INFO",
         seed: int | None = None,
     ) -> None:
+        # Reset object ID counter so each environment starts from 0
+        ObjectBase.reset_id_iter()
+
         # Bind per-instance config objects
         self._env_param = EnvParam()
         self._world_param = WorldParam()
