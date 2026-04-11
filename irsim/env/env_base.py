@@ -386,6 +386,14 @@ class EnvBase:
             axis2 = float(key_vel[1, 0])  # A/D: angular (diff/acker) or lateral (omni)
             rot = float(key_vel[2, 0])  # Q/E: yaw rate (omni_angular only)
 
+            if kf_name in ("omni", "omni_angular"):
+                # A/D controls lateral strafe (linear velocity, not angular).
+                # Rescale from key_ang_max to key_lv_max so that the lateral
+                # speed matches the forward speed range.
+                ang_max = self.keyboard.key_ang_max
+                if ang_max != 0:
+                    axis2 = axis2 / ang_max * self.keyboard.key_lv_max
+
             if kf_name == "omni":
                 key_vel = np.array([[fwd], [axis2]])
             elif kf_name == "omni_angular":

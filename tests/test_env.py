@@ -1257,7 +1257,9 @@ class TestAssignKeyboardAction:
         vel = result[env.key_id]
         assert vel.shape == (3, 1)
         assert vel[0, 0] == pytest.approx(1.0)
-        assert vel[1, 0] == pytest.approx(0.5)
+        # axis2 is rescaled from key_ang_max to key_lv_max for omni robots
+        expected_lat = 0.5 / env.keyboard.key_ang_max * env.keyboard.key_lv_max
+        assert vel[1, 0] == pytest.approx(expected_lat)
         assert vel[2, 0] == pytest.approx(0.3)
 
         # Test omni
