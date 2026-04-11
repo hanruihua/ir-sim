@@ -172,7 +172,10 @@ class World:
             y_reso = self.height / grid_map.shape[1]
             self.reso = np.array([[x_reso], [y_reso]])
             obstacle_index = np.array(np.where(grid_map > 50))
-            obstacle_positions = obstacle_index * self.reso
+            obstacle_positions = (
+                np.array([[self.offset[0]], [self.offset[1]]])
+                + (obstacle_index + 0.5) * self.reso
+            )
         else:
             obstacle_index = None
             obstacle_positions = None
@@ -253,16 +256,6 @@ class World:
             float: Current time based on steps and step_time.
         """
         return round(self.count * self.step_time, 2)
-
-    @property
-    def buffer_reso(self) -> float:
-        """
-        Get the maximum resolution of the world.
-
-        Returns:
-            float: Maximum resolution.
-        """
-        return np.max(self.reso)
 
     @property
     def _env_param(self):

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+import shapely as shp
 from shapely import (
     LineString,
-    MultiPoint,
     Point,
     Polygon,
     bounds,
@@ -12,7 +12,7 @@ from shapely import (
     make_valid,
     minimum_bounding_radius,
 )
-from shapely.ops import transform
+from shapely.ops import transform, unary_union
 
 from irsim.lib import random_generate_polygon
 from irsim.util.random import rng
@@ -356,14 +356,26 @@ class PointsGeometry(geometry_handler):
     def __init__(self, name: str = "map", **kwargs):
         super().__init__(name, **kwargs)
 
-    def construct_original_geometry(self, points: np.ndarray, reso: float = 0.1):
+    def construct_original_geometry(
+        self,
+        points: np.ndarray,
+        reso: np.ndarray | float = 0.1,
+        **kwargs,
+    ):
         """
         Args:
             points: (2, N) array of points
-            reso: resolution for the buffer
+            reso: resolution — either a (2, 1) array [x_reso, y_reso]
+                or a scalar applied to both axes
         """
-
-        return MultiPoint(points.T).buffer(reso / 2).boundary
+        reso = np.atleast_2d(reso)
+        half_x = float(reso[0, 0]) / 2
+        half_y = float(reso[-1, -1]) / 2
+        boxes = shp.box(
+            points[0] - half_x, points[1] - half_y,
+            points[0] + half_x, points[1] + half_y,
+        )
+        return unary_union(boxes).boundary
 
 
 ########################################3D Geometry Handler #############################################################
