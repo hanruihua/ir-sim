@@ -92,9 +92,9 @@ msgstr ""
 
 #: ../../source/usage/make_environment.md:32
 msgid ""
-"For more details, see the [EnvBase](#irsim.env.env_base.EnvBase) class "
+"For more details, see the {py:class}`~irsim.env.env_base.EnvBase` class "
 "documentation."
-msgstr "更多信息见 [EnvBase](#irsim.env.env_base.EnvBase) 类文档。"
+msgstr "更多信息见 {py:class}`~irsim.env.env_base.EnvBase` 类文档。"
 
 #: ../../source/usage/make_environment.md
 msgid "YAML Configuration"
@@ -205,8 +205,8 @@ msgstr "可以通过 `sample_time` 控制渲染频率、提升仿真速度。默
 #: ../../source/usage/make_environment.md:82
 msgid ""
 "For more detailed parameter information, see the [YAML "
-"Configuration](../yaml_config/index.rst) reference."
-msgstr "更详细的参数说明参见 [YAML 配置](../yaml_config/index.rst) 参考。"
+"Configuration](../yaml_config/index) reference."
+msgstr "更详细的参数说明参见 [YAML 配置](../yaml_config/index) 参考。"
 
 #: ../../source/usage/make_environment.md:85
 msgid ""
@@ -430,8 +430,8 @@ msgstr "**`goal_threshold`**（float）：到达检测的距离阈值（默认 0
 #: ../../source/usage/make_environment.md:259
 msgid ""
 "For the full list of parameters, see the "
-"[ObjectBase](#irsim.world.object_base.ObjectBase) class documentation."
-msgstr "完整参数列表参见 [ObjectBase](#irsim.world.object_base.ObjectBase) 类文档。"
+"{py:class}`~irsim.world.object_base.ObjectBase` class documentation."
+msgstr "完整参数列表参见 {py:class}`~irsim.world.object_base.ObjectBase` 类文档。"
 
 #: ../../source/usage/make_environment.md:261
 msgid "Adding Objects to the Environment"

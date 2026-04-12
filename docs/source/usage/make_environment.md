@@ -28,7 +28,7 @@ The `make` function creates an environment from a configuration file. Supported 
   ``np.random`` or Python ``random`` should either switch to IR-SIM's RNG or be
   seeded separately.
 
-For more details, see the [EnvBase](#irsim.env.env_base.EnvBase) class documentation.
+For more details, see the {py:class}`~irsim.env.env_base.EnvBase` class documentation.
 :::
 
 :::{tab-item} YAML Configuration
@@ -79,7 +79,7 @@ The configuration file is a YAML file that specifies the properties of the envir
 You can use `sample_time` to control the rendering frequency and accelerate the simulation speed. The default value of `sample_time` is the same as `step_time`.
 ```
 
-For more detailed parameter information, see the [YAML Configuration](../yaml_config/index.rst) reference.
+For more detailed parameter information, see the [YAML Configuration](../yaml_config/index) reference.
 
 :::{tip}
 **Automatic Configuration Detection**: The default YAML configuration file has the same name as your Python script. For example, if you create a script named `test.py`, IR-SIM automatically looks for `test.yaml` in the same directory.
@@ -263,7 +263,7 @@ Common keyword arguments include:
 - **`name`** (str): Unique object name. Must not conflict with existing objects.
 - **`goal_threshold`** (float): Distance threshold for arrival detection (default: 0.1).
 
-For the full list of parameters, see the [ObjectBase](#irsim.world.object_base.ObjectBase) class documentation.
+For the full list of parameters, see the {py:class}`~irsim.world.object_base.ObjectBase` class documentation.
 
 ### Adding Objects to the Environment
 
