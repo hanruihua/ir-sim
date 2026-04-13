@@ -331,3 +331,44 @@ class TestGeometryHandlerCoverage:
         assert h is None
         assert cone is None
         assert convex is None
+
+
+class TestPointsGeometry:
+    """Tests for PointsGeometry (box-union map geometry)."""
+
+    def test_single_contiguous_region(self):
+        """Adjacent boxes merge into a single polygon with MultiLineString boundary."""
+        from shapely import MultiLineString
+
+        from irsim.lib.handler.geometry_handler import PointsGeometry
+
+        # Adjacent points → boxes merge into one polygon → single boundary
+        points = np.array([[0.0, 0.1], [0.0, 0.0]])
+        pg = PointsGeometry(points=points, reso=0.1)
+        assert isinstance(pg.geometry, MultiLineString)
+
+    def test_disjoint_regions(self):
+        """Disjoint boxes produce a multi-component boundary."""
+        from irsim.lib.handler.geometry_handler import PointsGeometry
+
+        # Far-apart points → disjoint polygons → multiple boundary components
+        points = np.array([[0.0, 10.0], [0.0, 10.0]])
+        pg = PointsGeometry(points=points, reso=0.1)
+        assert hasattr(pg.geometry, "geoms")
+        assert len(pg.geometry.geoms) > 1
+
+    def test_scalar_reso(self):
+        """Scalar resolution is handled correctly."""
+        from irsim.lib.handler.geometry_handler import PointsGeometry
+
+        points = np.array([[0.0], [0.0]])
+        pg = PointsGeometry(points=points, reso=0.5)
+        assert pg.geometry is not None
+
+    def test_array_reso(self):
+        """Array resolution with different x/y sizes."""
+        from irsim.lib.handler.geometry_handler import PointsGeometry
+
+        points = np.array([[0.0], [0.0]])
+        pg = PointsGeometry(points=points, reso=np.array([[0.2], [0.3]]))
+        assert pg.geometry is not None

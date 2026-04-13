@@ -40,9 +40,8 @@ class EnvBase3D(EnvBase):
         )
         self._map_collection = object_factory.create_from_map(
             self._world.obstacle_positions,
-            self._world.buffer_reso,
+            self._world.reso,
             grid_map=self._world.grid_map,
-            grid_reso=self._world.reso,
             world_offset=self._world.offset[:2],
         )
 
