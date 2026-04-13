@@ -126,6 +126,11 @@ class TestObjectFactory:
         result = factory.create_from_map(None)
         assert result == []
 
+    def test_create_from_map_empty(self, factory):
+        """Test create_from_map with empty array."""
+        result = factory.create_from_map(np.array([]))
+        assert result == []
+
     def test_create_from_map_points(self, factory):
         """Test create_from_map with valid points."""
         points = np.array([[0, 1], [0, 1]])
