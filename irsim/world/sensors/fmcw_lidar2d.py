@@ -1,3 +1,5 @@
+"""Simplified 2D FMCW LiDAR with per-beam radial Doppler velocity."""
+
 from math import cos, sin
 
 import numpy as np
@@ -11,7 +13,37 @@ from irsim.world.sensors.lidar2d import Lidar2D
 
 
 class FMCWLidar2D(Lidar2D):
-    """A simplified 2D FMCW LiDAR model with radial Doppler velocity."""
+    """Simulate a 2D FMCW LiDAR using ray intersections plus Doppler projection.
+
+    This sensor keeps the geometric scanning model of :class:`Lidar2D` but replaces
+    the optional Cartesian target velocity output with a scalar radial velocity for
+    each beam. The radial velocity is defined along the beam direction and can be
+    reported either in the sensor-relative frame or motion-compensated to the world
+    frame.
+
+    In addition to scan geometry parameters inherited from ``Lidar2D``, this sensor
+    accepts:
+
+    Args:
+        motion_compensate (bool): When ``False``, report target velocity relative to
+            the sensor motion. When ``True``, remove the ego sensor motion and report
+            world-frame radial target velocity.
+        velocity_noise_std (float): Standard deviation of Gaussian noise applied to
+            radial velocity measurements.
+        velocity_color (bool): Whether to color beams by radial velocity when
+            plotting.
+        velocity_color_max (float): Magnitude at which the plotting color saturates.
+        velocity_linewidth (float): Line width for valid Doppler beams.
+        no_hit_linewidth (float): Line width for beams without valid returns.
+        no_hit_alpha (float): Alpha for invalid beams in plots.
+        show_velocity_markers (bool): Whether to draw colored endpoint markers for
+            valid returns.
+        velocity_marker_size (float): Scatter marker size for valid endpoints.
+        zero_velocity_color (str): Plot color used near zero radial velocity.
+        positive_velocity_color (str): Plot color used for positive radial velocity.
+        negative_velocity_color (str): Plot color used for negative radial velocity.
+        no_hit_color (str): Plot color used for invalid beams.
+    """
 
     def __init__(
         self,
@@ -50,7 +82,7 @@ class FMCWLidar2D(Lidar2D):
         self.valid = np.zeros(self.number, dtype=bool)
 
     def step(self, state):
-        """Update ranges and radial velocities for every beam."""
+        """Update ranges, validity flags, and radial velocities for every beam."""
         self._state = state
         self.lidar_origin = transform_point_with_state(self.offset, self._state)
 
@@ -65,6 +97,8 @@ class FMCWLidar2D(Lidar2D):
 
         segments = []
         for index, beam_angle in enumerate(self.angle_list):
+            # Cast each beam independently so the sensor can keep the closest hit
+            # object and project that object's motion onto the beam direction.
             world_angle = sensor_theta + beam_angle
             direction = np.array([cos(world_angle), sin(world_angle)])
             ray_end = origin_xy + self.range_max * direction
@@ -104,7 +138,7 @@ class FMCWLidar2D(Lidar2D):
         self._update_velocity_markers()
 
     def _find_nearest_hit(self, ray: LineString, origin_xy: np.ndarray):
-        """Return the closest hit distance and object for a beam."""
+        """Return the nearest intersected object and hit distance for one beam."""
         object_tree = self._env_param.GeometryTree
         objects = self._env_param.objects
 
@@ -135,7 +169,7 @@ class FMCWLidar2D(Lidar2D):
         return best_distance, best_object
 
     def _get_candidate_geometry(self, obj, ray: LineString):
-        """Return the geometry subset to intersect against a ray."""
+        """Return the geometry subset that should be tested against a beam ray."""
         if obj.shape == "map":
             intersecting_indices = obj.geometry_tree.query(ray, predicate="intersects")
             if len(intersecting_indices) == 0:
@@ -152,7 +186,7 @@ class FMCWLidar2D(Lidar2D):
         geometry,
         origin_point: Point,
     ) -> float | None:
-        """Return the closest intersection distance along a ray."""
+        """Return the closest intersection distance along a beam ray."""
         intersection = ray.intersection(geometry)
 
         best_distance = None
@@ -190,7 +224,7 @@ class FMCWLidar2D(Lidar2D):
                 yield from self._iter_intersection_points(part)
 
     def _compute_radial_velocity(self, obj, direction: np.ndarray) -> float:
-        """Project relative target motion onto the ray direction."""
+        """Project the target motion onto the beam direction."""
         target_velocity = np.asarray(obj.velocity_xy, dtype=float).reshape(-1)[:2]
         if self.motion_compensate:
             relative_velocity = target_velocity
@@ -308,7 +342,12 @@ class FMCWLidar2D(Lidar2D):
         return np.asarray(points), np.asarray(point_colors)
 
     def get_scan(self):
-        """Get the FMCW scan with radial velocity per beam."""
+        """Get the FMCW scan with radial velocity and validity per beam.
+
+        Returns:
+            dict: Scan dictionary containing the standard LiDAR angular metadata plus
+                ``ranges``, ``radial_velocity``, ``valid``, and ``intensities=None``.
+        """
         scan_data = super().get_scan()
         scan_data.pop("velocity", None)
         scan_data["intensities"] = None

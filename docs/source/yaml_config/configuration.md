@@ -315,7 +315,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `acce`           | `list` of `float`                                | `[inf, inf]`     | Acceleration limits.                                                                                               |
 | `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                                            |
 | `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                                                      |
-| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`                                      |
+| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`, `fmcw_lidar2d`                     |
 | `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                                                        |
 | `description`    | `str`                                            | `None`           | Image description or label for the object.                                                                         |
 | `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.                                      |
@@ -743,6 +743,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
 - **`lidar2d`** — 2D laser scanner (`range_min/max`, `angle_range`, `noise`)
+- **`fmcw_lidar2d`** — 2D FMCW LiDAR (`range/radial_velocity`, `motion_compensate`, Doppler visualization)
 - **`fov`** — Field of view angle (radians)
 - **`fov_radius`** — Maximum detection distance
 ```
@@ -777,6 +778,37 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
         angle_std: 0.2
         offset: [0, 0, 0]
         alpha: 0.3
+    ```
+
+  - `fmcw_lidar2d`: Simplified 2D FMCW LiDAR for range and radial Doppler measurements. It reuses the beam geometry of `lidar2d` and adds:
+    - `motion_compensate` (bool/`False`): Whether to remove ego-motion from the measured radial velocity.
+    - `velocity_noise_std` (float/`0.0`): Standard deviation of Gaussian noise on radial velocity.
+    - `velocity_color` (bool/`True`): Whether to color valid beams by radial velocity.
+    - `velocity_color_max` (float/`2.0`): Velocity magnitude where the plotting color saturates.
+    - `velocity_linewidth` (float/`2.5`): Plot line width for valid returns.
+    - `no_hit_linewidth` (float/`0.8`): Plot line width for invalid beams.
+    - `no_hit_alpha` (float/`0.03`): Plot transparency for invalid beams.
+    - `show_velocity_markers` (bool/`True`): Whether to draw colored hit markers at valid endpoints.
+    - `velocity_marker_size` (float/`36`): Plot marker size for valid endpoints.
+    - `zero_velocity_color` (str/`cyan`): Plot color used for near-zero radial velocity.
+    - `positive_velocity_color` (str/`crimson`): Plot color used for positive radial velocity.
+    - `negative_velocity_color` (str/`royalblue`): Plot color used for negative radial velocity.
+    - `no_hit_color` (str/`lightgray`): Plot color used for invalid beams.
+
+    The scan output adds `radial_velocity` and `valid` arrays on top of the standard LiDAR angular metadata.
+
+    **Example:**
+    ```yaml
+    sensors:
+      - type: 'fmcw_lidar2d'
+        range_min: 0.0
+        range_max: 8.0
+        angle_range: 2.0944
+        number: 121
+        motion_compensate: True
+        velocity_color: True
+        velocity_linewidth: 2.0
+        velocity_marker_size: 45
     ```
 
 **`fov`** and **`fov_radius`**:
@@ -1213,7 +1245,6 @@ robot:
 - **Kinematics and Velocities**: Ensure that the `velocity` and `vel_max` parameters match the kinematics model. For example, a differential drive robot (`'diff'`) uses `[v, omega]`, an omnidirectional robot (`'omni'`) uses body-frame `[forward, lateral]`, and `'omni_angular'` uses `[forward, lateral, yaw_rate]`.
 - **Plotting Options**: Customize the visualization of your simulation through the `plot` parameter for each object if the `plot` section is located in the object configuration. If it is located in the root of the object configuration, it will be applied to all objects.
 ````
-
 
 
 
