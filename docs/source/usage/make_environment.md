@@ -119,6 +119,8 @@ env.end()  # Clean up resources
 - **`env.step()`**: Advances the simulation by one time step
 - **`env.render(interval)`**: Updates the visualization with specified time interval between frames
 - **`env.done()`**: Returns `True` if simulation completion conditions are met
+- **`env.reset(random=False)`**: Restores objects to their initial states. With `random=True`, rebuilds the world from the cached YAML parse so any randomized elements (e.g. `distribution: random`, random shape generators) are re-sampled from the current RNG state — use together with `irsim.util.random.set_seed(seed)` for reproducible fresh scenes. The YAML file on disk is **not** re-read; to pick up on-disk edits, use `env.reload()` instead.
+- **`env.reload(world_name=None)`**: Re-parses the YAML file (optionally a different one) and rebuilds world/objects.
 - **`env.end()`**: Properly closes the environment and releases resources
 - **`env.close()`**: Alias for `env.end()`, provided for [Gym](https://gymnasium.farama.org/)-style API compatibility
 

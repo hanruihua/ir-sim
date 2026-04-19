@@ -200,6 +200,9 @@ class EnvConfig:
         self._env_plot.clear_components("all", self._objects)
         self._env_plot._init_plot(world, objects)
 
+        # Refresh cached objects so subsequent reloads clear the right set
+        self._objects = objects
+
         return (
             world,
             objects,
