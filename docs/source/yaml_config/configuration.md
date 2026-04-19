@@ -368,18 +368,19 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     goal: [[9, 9, 0], [8, 8, 0], [7, 7, 0]]
     ```
 
-  - `'random'`: Randomly distribute objects within specified ranges. Optional parameters:
-    - `range_low` (list): Lower bounds for random distribution. Default is `[0, 0, -3.14]`.
-    - `range_high` (list): Upper bounds for random distribution. Default is `[10, 10, 3.14]`. 
+  - `'random'`: Randomly distribute objects within specified ranges. Points are rejection-sampled so every pair is at least `min_distance` apart in the xy plane. Optional parameters:
+    - `range_low` (list): Lower bounds `[x, y, theta]` for random distribution. Defaults to the world bounds inset by `0.5`, i.e. `[offset_x + 0.5, offset_y + 0.5, -pi]`.
+    - `range_high` (list): Upper bounds `[x, y, theta]` for random distribution. Defaults to `[offset_x + width - 0.5, offset_y + height - 0.5, pi]`.
+    - `min_distance` (float): Minimum pairwise xy distance between sampled points. Default is `1.0`.
 
     ```yaml
     # Example usage
-    distribution: {name: 'random', range_low: [0, 0, -3.14], range_high: [10, 10, 3.14]}
+    distribution: {name: 'random', range_low: [0.5, 0.5, -3.14], range_high: [9.5, 9.5, 3.14], min_distance: 1.0}
     ```
 
   - `'circle'`: Arrange objects in a circular formation around a specified center. Optional parameters:
-    - `center` (list): Center coordinates of the circle. Default is `[5, 5, 0]`.
-    - `radius` (float): Radius of the circle. Default is `4.0`.  
+    - `center` (list): Center coordinates `[x, y, theta]` of the circle. Defaults to the world center `[offset_x + width / 2, offset_y + height / 2, 0]`.
+    - `radius` (float): Radius of the circle. Defaults to `min(width, height) / 2 - 0.5` so the circle sits inside the world with a small margin.
 
     ```yaml
     # Example usage

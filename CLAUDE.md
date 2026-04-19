@@ -104,6 +104,7 @@ cd docs && make html
 - **Factory Pattern**: Objects created via `object_factory.py` from YAML specs
 - **Registry Pattern**: Behaviors and sensors registered via decorators for extensibility
 - **Geometry via Shapely**: Collision detection uses Shapely library (>=2.1.2)
+- **Centralized RNG**: All randomness routes through `irsim.util.random.rng` (a proxy over `numpy.random.Generator`); call `set_seed(seed)` to make runs reproducible
 
 ### Directory Structure
 

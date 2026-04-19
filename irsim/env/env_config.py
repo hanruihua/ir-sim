@@ -107,6 +107,7 @@ class EnvConfig:
             world_param_instance=self._world_param,
             **self._world_kwargs(),
         )
+        self.object_factory.world = world
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
@@ -167,6 +168,7 @@ class EnvConfig:
             world_param_instance=self._world_param,
             **self._world_kwargs(),
         )
+        self.object_factory.world = world
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
