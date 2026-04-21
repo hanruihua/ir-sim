@@ -300,19 +300,19 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `name`           | `str` or `list` of `str`                         | `None`           | Unique identifier for the object. If omitted, auto-assigned as `"<role>_<id>"`. Supports a list when `number > 1`. |
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
-| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`                                               |
+| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`, `omni_angular`                               |
 | `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`                               |
 | `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                                                |
-| `velocity`       | `list` of `float`                                | `[0, 0]`         | Initial velocity vector.                                                                                           |
+| `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `None`           | Goal state(s) vector.                                                                                              |
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`                                      |
 | `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`                                           |
 | `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                                              |
 | `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                                               |
 | `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                                                 |
-| `vel_min`        | `list` of `float`                                | `[-1, -1]`       | Minimum velocity limits for each control dimension.                                                                |
-| `vel_max`        | `list` of `float`                                | `[1, 1]`         | Maximum velocity limits for each control dimension.                                                                |
-| `acce`           | `list` of `float`                                | `[inf, inf]`     | Acceleration limits.                                                                                               |
+| `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
+| `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
+| `acce`           | `list` of `float`                                | `[inf] * action_dim` | Acceleration limits. Length matches the kinematics action dimension.                                               |
 | `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                                            |
 | `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                                                      |
 | `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`                                      |
@@ -394,8 +394,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   state: [1.0, 1.0, 0.2]
   ```
 
-**`velocity`** (`list` of `float`, default: `[0, 0]`)
-: Specifies the initial velocity (list) of the object. The format depends on the kinematics model:
+**`velocity`** (`list` of `float`, default: `[0] * action_dim`)
+: Specifies the initial velocity (list) of the object. The length must match the kinematics action dimension. The format depends on the kinematics model:
 
   **Format by Kinematics:**
   - For `'diff'`: `[v, omega]`, where `v` is linear velocity and `omega` is angular velocity.
@@ -522,15 +522,24 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     kinematics: {name: 'diff', noise: True, alpha: [0.03, 0, 0, 0.03]}
     ```
 
-  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation. This type of robot is controlled by velocities along the x and y axes. Optional parameters:
+  - `'omni'`: Omnidirectional movement, allowing movement in any direction without changing orientation. This type of robot is controlled by body-frame velocities `[forward, lateral]`. Orientation (theta) is preserved but not updated. Optional parameters:
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
-    - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.   
+    - `alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral]`. Default is `[0.03, 0.03]`.   
 
     ```yaml
     # Example usage
-    kinematics: {name: 'omni', noise: True, alpha: [0.03, 0, 0, 0.03]}
+    kinematics: {name: 'omni', noise: True, alpha: [0.03, 0.03]}
     ```
-   
+
+  - `'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta). This type of robot is controlled by body-frame velocities `[forward, lateral, yaw_rate]`. Optional parameters:
+    - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
+    - `alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`.
+
+    ```yaml
+    # Example usage
+    kinematics: {name: 'omni_angular', noise: True, alpha: [0.03, 0.03, 0.03]}
+    ```
+
   - `'acker'`: Ackermann steering, typical for car-like vehicles requiring a turning radius.
     - `noise` (bool): whether to add noise to the velocity commands. Default is `False`.
     - `alpha` (list): noise parameters for velocity commands. Default is `[0.03, 0, 0, 0.03]`.  
@@ -1171,6 +1180,22 @@ robot:
     state: [1, 1, 0, 0]
     goal: [40, 40, 0]
     vel_max: [4, 1]
+    behavior: {name: 'dash'}
+    plot:
+      show_trajectory: True
+```
+:::
+
+:::{tab-item} Omni Angular Robot
+```yaml
+robot:
+  - kinematics: {name: 'omni_angular'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2, 2, 0]
+    goal: [8, 8, 0]
+    velocity: [0, 0, 0]
+    vel_min: [-1, -1, -1]
+    vel_max: [1, 1, 1]
     behavior: {name: 'dash'}
     plot:
       show_trajectory: True

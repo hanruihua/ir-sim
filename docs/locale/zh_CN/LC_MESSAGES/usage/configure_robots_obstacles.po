@@ -58,12 +58,16 @@ msgstr "关键参数说明"
 #: ../../source/usage/configure_robots_obstacles.md:54
 msgid ""
 "**`kinematics`:** Defines the movement model of the robot. Name options "
-"include `'omni'`, `'diff'`, and `'acker'`."
-msgstr "**`kinematics`：** 定义机器人的运动学模型，可选 `'omni'`、`'diff'`、`'acker'`。"
+"include `'omni'`, `'omni_angular'`, `'diff'`, and `'acker'`."
+msgstr "**`kinematics`：** 定义机器人的运动学模型，可选 `'omni'`、`'omni_angular'`、`'diff'`、`'acker'`。"
 
 #: ../../source/usage/configure_robots_obstacles.md:55
-msgid "`'omni'`: Omnidirectional wheels allowing movement in all directions."
-msgstr "`'omni'`：全向轮，可向任意方向移动。"
+msgid "`'omni'`: Omnidirectional wheels allowing movement in all directions (no orientation control)."
+msgstr "`'omni'`：全向轮，可向任意方向移动（无朝向控制）。"
+
+#: ../../source/usage/configure_robots_obstacles.md:56
+msgid "`'omni_angular'`: Omnidirectional with yaw rate control (can translate and rotate independently)."
+msgstr "`'omni_angular'`：带偏航角速度控制的全向移动（可独立平移和旋转）。"
 
 #: ../../source/usage/configure_robots_obstacles.md:56
 msgid ""
@@ -100,12 +104,28 @@ msgid "`omni`"
 msgstr "`omni`"
 
 #: ../../source/usage/configure_robots_obstacles.md:33
-msgid "`[vx, vy]` - velocity in x,y"
-msgstr "`[vx, vy]` —— x/y 方向速度"
+msgid "`[forward, lateral]` - body-frame velocity"
+msgstr "`[forward, lateral]` —— 机体坐标系速度"
 
 #: ../../source/usage/configure_robots_obstacles.md:33
 msgid "Holonomic robots, drones"
 msgstr "全向机器人、无人机"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "✗ No orientation control"
+msgstr "✗ 无朝向控制"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`omni_angular`"
+msgstr "`omni_angular`"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "`[forward, lateral, yaw_rate]` - body-frame velocity + yaw rate"
+msgstr "`[forward, lateral, yaw_rate]` —— 机体坐标系速度 + 偏航角速度"
+
+#: ../../source/usage/configure_robots_obstacles.md:33
+msgid "Holonomic robots with heading"
+msgstr "带朝向的全向机器人"
 
 #: ../../source/usage/configure_robots_obstacles.md:33
 msgid "✓ Yes"

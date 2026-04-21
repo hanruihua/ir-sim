@@ -1234,6 +1234,48 @@ class TestObjectVelocityProperties:
         assert np.allclose(vel, np.zeros((2, 1)))
 
 
+class TestAssignKeyboardAction:
+    """Tests for _assign_keyboard_action with different kinematics."""
+
+    def test_omni_angular_keyboard_action(self, env_factory):
+        """Test keyboard action conversion for omni_angular robot."""
+        env = env_factory("test_keyboard_control2.yaml")
+        # Temporarily set control mode to keyboard
+        original_mode = env._world_param.control_mode
+        env._world_param.control_mode = "keyboard"
+        env.keyboard.key_vel = np.array([[1.0], [0.5], [0.3]])
+
+        # Mock robot kinematics name
+        robot = env.robot_list[env.key_id]
+        original_kf_name = robot.kf.name if robot.kf else None
+
+        # Test omni_angular
+        if robot.kf:
+            robot.kf.name = "omni_angular"
+        action = [np.zeros((3, 1)) for _ in range(len(env.robot_list))]
+        result = env._assign_keyboard_action(action)
+        vel = result[env.key_id]
+        assert vel.shape == (3, 1)
+        assert vel[0, 0] == pytest.approx(1.0)
+        # axis2 is rescaled from key_ang_max to key_lv_max for omni robots
+        expected_lat = 0.5 / env.keyboard.key_ang_max * env.keyboard.key_lv_max
+        assert vel[1, 0] == pytest.approx(expected_lat)
+        assert vel[2, 0] == pytest.approx(0.3)
+
+        # Test omni
+        if robot.kf:
+            robot.kf.name = "omni"
+        action = [np.zeros((2, 1)) for _ in range(len(env.robot_list))]
+        result = env._assign_keyboard_action(action)
+        vel = result[env.key_id]
+        assert vel.shape == (2, 1)
+
+        # Restore
+        if robot.kf:
+            robot.kf.name = original_kf_name
+        env._world_param.control_mode = original_mode
+
+
 class TestMidProcessEdgeCases:
     """Tests for ObjectBase.mid_process state padding/truncation."""
 

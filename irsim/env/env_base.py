@@ -368,10 +368,40 @@ class EnvBase:
     def _assign_keyboard_action(self, action: list[Any]) -> list[Any]:
         """
         Assign the keyboard action to the action list.
+
+        The keyboard produces a ``[linear, lateral, angular]`` (3x1) vector.
+        For kinematics that expect a different layout the velocity is
+        converted here so that the keyboard works regardless of robot type.
         """
 
-        if self._world_param.control_mode == "keyboard" and self.key_id < len(action):
-            action[self.key_id] = self.key_vel
+        if (
+            self._world_param.control_mode == "keyboard"
+            and self.key_id < len(action)
+            and self.key_id < len(self.robot_list)
+        ):
+            key_vel = self.key_vel
+            robot = self.robot_list[self.key_id]
+            kf_name = robot.kf.name if robot.kf else None
+            fwd = float(key_vel[0, 0])  # W/S: forward/backward
+            axis2 = float(key_vel[1, 0])  # A/D: angular (diff/acker) or lateral (omni)
+            rot = float(key_vel[2, 0])  # Q/E: yaw rate (omni_angular only)
+
+            if kf_name in ("omni", "omni_angular"):
+                # A/D controls lateral strafe (linear velocity, not angular).
+                # Rescale from key_ang_max to key_lv_max so that the lateral
+                # speed matches the forward speed range.
+                ang_max = self.keyboard.key_ang_max
+                if ang_max != 0:
+                    axis2 = axis2 / ang_max * self.keyboard.key_lv_max
+
+            if kf_name == "omni":
+                key_vel = np.array([[fwd], [axis2]])
+            elif kf_name == "omni_angular":
+                key_vel = np.array([[fwd], [axis2], [rot]])
+            else:
+                key_vel = np.array([[fwd], [axis2]])
+
+            action[self.key_id] = key_vel
 
         return action
 
@@ -1358,7 +1388,7 @@ class EnvBase:
         """Get current keyboard velocity command.
 
         Returns:
-            Any: A 2x1 vector ``[[linear], [angular]]`` from keyboard input.
+            Any: A 3x1 vector ``[[linear], [lateral], [angular]]`` from keyboard input.
         """
         return self.keyboard.key_vel
 

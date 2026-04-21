@@ -51,8 +51,9 @@ robot:
 
 ### Important Parameters Explained
 
-- **`kinematics`:** Defines the movement model of the robot. Name options include `'omni'`, `'diff'`, and `'acker'`. 
-  - `'omni'`: Omnidirectional wheels allowing movement in all directions.
+- **`kinematics`:** Defines the movement model of the robot. Name options include `'omni'`, `'omni_angular'`, `'diff'`, and `'acker'`. 
+  - `'omni'`: Omnidirectional wheels allowing movement in all directions (no orientation control).
+  - `'omni_angular'`: Omnidirectional with yaw rate control (can translate and rotate independently).
   - `'diff'`: Differential drive allowing movement forward/backward and rotation.
   - `'acker'`: Ackermann steering, typical for car-like robots.
 

@@ -833,8 +833,8 @@ msgid "`kinematics`"
 
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Kinematic model of the object. Support name: `diff`, `acker`, `omni`"
-msgstr "对象的运动学模型。支持的模型有`diff`, `acker`, `omni`。"
+msgid "Kinematic model of the object. Support name: `diff`, `acker`, `omni`, `omni_angular`"
+msgstr "对象的运动学模型。支持的模型有`diff`、`acker`、`omni`、`omni_angular`。"
 
 #: ../../source/yaml_config/configuration.md:271
 #, python-brace-format
@@ -864,8 +864,8 @@ msgid "`velocity`"
 msgstr "`velocity`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Initial velocity vector."
-msgstr "初始速度向量。"
+msgid "Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`)."
+msgstr "初始速度向量。长度与运动学动作维度匹配（`diff`/`omni`/`acker` 为 2，`omni_angular` 为 3）。"
 
 #: ../../source/yaml_config/configuration.md:271
 msgid "`goal`"
@@ -942,36 +942,36 @@ msgid "`vel_min`"
 msgstr "`vel_min`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "`[-1, -1]`"
-msgstr "`[-1, -1]`"
+msgid "`[-1] * action_dim`"
+msgstr "`[-1] * action_dim`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Minimum velocity limits for each control dimension."
-msgstr "各控制维度的最小速度限制。"
+msgid "Minimum velocity limits for each control dimension. Length matches the kinematics action dimension."
+msgstr "各控制维度的最小速度限制。长度与运动学动作维度匹配。"
 
 #: ../../source/yaml_config/configuration.md:271
 msgid "`vel_max`"
 msgstr "`vel_max`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "`[1, 1]`"
-msgstr "`[1, 1]`"
+msgid "`[1] * action_dim`"
+msgstr "`[1] * action_dim`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Maximum velocity limits for each control dimension."
-msgstr "各控制维度的最大速度限制。"
+msgid "Maximum velocity limits for each control dimension. Length matches the kinematics action dimension."
+msgstr "各控制维度的最大速度限制。长度与运动学动作维度匹配。"
 
 #: ../../source/yaml_config/configuration.md:271
 msgid "`acce`"
 msgstr "`acce`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "`[inf, inf]`"
-msgstr "`[inf, inf]`"
+msgid "`[inf] * action_dim`"
+msgstr "`[inf] * action_dim`"
 
 #: ../../source/yaml_config/configuration.md:271
-msgid "Acceleration limits."
-msgstr "加速度限制。"
+msgid "Acceleration limits. Length matches the kinematics action dimension."
+msgstr "加速度限制。长度与运动学动作维度匹配。"
 
 #: ../../source/yaml_config/configuration.md:271
 msgid "`angle_range`"
@@ -1224,14 +1224,14 @@ msgid ""
 "theta]`，其中`theta`表示方向角（弧度）。如果提供的状态元素多于所需，则多余部分会被截断；如果少于所需，缺失值用零填充。"
 
 #: ../../source/yaml_config/configuration.md:384
-msgid "**`velocity`** (`list` of `float`, default: `[0, 0]`)"
-msgstr "**`velocity`** (由`float`组成的列表, 默认值为`[0, 0]`)"
+msgid "**`velocity`** (`list` of `float`, default: `[0] * action_dim`)"
+msgstr "**`velocity`**（`float` 列表，默认：`[0] * action_dim`）"
 
 #: ../../source/yaml_config/configuration.md:385
 msgid ""
-"Specifies the initial velocity (list) of the object. The format depends "
+"Specifies the initial velocity (list) of the object. The length must match the kinematics action dimension. The format depends "
 "on the kinematics model:"
-msgstr "指定对象的初始速度（列表）。格式取决于运动学模型："
+msgstr "指定对象的初始速度（列表）。长度须与运动学动作维度匹配。格式取决于运动学模型："
 
 #: ../../source/yaml_config/configuration.md:387
 msgid "**Format by Kinematics:**"
@@ -1248,6 +1248,10 @@ msgid "For `'omni'`: `[forward, lateral]`, body-frame velocities (forward and la
 msgstr "`'omni'`模型参数由`[forward, lateral]`构成，为机体坐标系下的速度（相对于朝向的前进和横向速度）。"
 
 #: ../../source/yaml_config/configuration.md:390
+msgid "For `'omni_angular'`: `[forward, lateral, yaw_rate]`, body-frame velocities plus yaw rate."
+msgstr "`'omni_angular'`模型参数由`[forward, lateral, yaw_rate]`构成，为机体坐标系下的速度加偏航角速度。"
+
+#: ../../source/yaml_config/configuration.md:391
 msgid ""
 "For `'acker'`: Typically `[v, phi]`, where `v` is linear velocity and "
 "`phi` is steering angle."
@@ -1317,6 +1321,10 @@ msgstr "显式定义速度向量的维度。若未指定，则自动从运动学
 #: ../../source/yaml_config/configuration.md:429
 msgid "`2`: For differential drive `[v, omega]` or omnidirectional `[forward, lateral]`"
 msgstr "`2`：对于差速驱动`[v, omega]`或全向 `[forward, lateral]`"
+
+#: ../../source/yaml_config/configuration.md:430
+msgid "`3`: For omnidirectional with angular control `[forward, lateral, yaw_rate]`"
+msgstr "`3`：对于带角速度控制的全向模型 `[forward, lateral, yaw_rate]`"
 
 #: ../../source/yaml_config/configuration.md:430
 msgid "Additional dimensions may be used for more complex kinematics"
@@ -1419,6 +1427,11 @@ msgstr "**`omni`** — 全向移动，由机体坐标系下的前进和横向速
 
 #: ../../source/yaml_config/configuration.md:495
 msgid ""
+"**`omni_angular`** — Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)"
+msgstr "**`omni_angular`** — 带角速度控制的全向移动，由机体坐标系下的速度和偏航角速度控制（`[forward, lateral, yaw_rate]`）"
+
+#: ../../source/yaml_config/configuration.md:496
+msgid ""
 "**`acker`** — Ackermann steering, controlled by linear speed and steering"
 " angle (`[v, phi]`)"
 msgstr "**`acker`** — 阿克曼转向，由线速度和转向角控制（`[v, phi]`）"
@@ -1447,21 +1460,41 @@ msgid ""
 msgstr "`noise`（bool）：是否给速度命令添加噪声。默认为 `False`。"
 
 #: ../../source/yaml_config/configuration.md:504
-#: ../../source/yaml_config/configuration.md:513
 #: ../../source/yaml_config/configuration.md:522
 msgid ""
 "`alpha` (list): noise parameters for velocity commands. Default is "
 "`[0.03, 0, 0, 0.03]`."
 msgstr "`alpha`（列表）：速度命令的噪声参数。默认值为 `[0.03, 0, 0, 0.03]`。"
 
+#: ../../source/yaml_config/configuration.md:513
+msgid ""
+"`alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral]`. Default is `[0.03, 0.03]`."
+msgstr "`alpha`（列表）：速度命令的噪声参数 `[alpha_forward, alpha_lateral]`。默认值为 `[0.03, 0.03]`。"
+
 #: ../../source/yaml_config/configuration.md:511
 msgid ""
 "`'omni'`: Omnidirectional movement, allowing movement in any direction "
 "without changing orientation. This type of robot is controlled by "
-"velocities along the x and y axes. Optional parameters:"
-msgstr "`'omni'`：全向运动，允许在任意方向移动而无需改变朝向。此类机器人通过沿 x 和 y 轴的速度控制。可选参数："
+"body-frame velocities `[forward, lateral]`. Orientation (theta) is preserved but not updated. Optional parameters:"
+msgstr "`'omni'`：全向运动，允许在任意方向移动而不改变朝向。此类机器人通过机体坐标系速度 `[forward, lateral]` 控制。朝向角（theta）保持不变。可选参数："
 
 #: ../../source/yaml_config/configuration.md:520
+msgid ""
+"`'omni_angular'`: Omnidirectional movement with angular velocity control. Extends `omni` by adding a yaw rate channel that integrates orientation (theta). This type of robot is controlled by body-frame velocities `[forward, lateral, yaw_rate]`. Optional parameters:"
+msgstr "`'omni_angular'`：带角速度控制的全向运动。在 `omni` 基础上增加偏航角速度通道以积分朝向角（theta）。此类机器人通过机体坐标系速度 `[forward, lateral, yaw_rate]` 控制。可选参数："
+
+#: ../../source/yaml_config/configuration.md:521
+msgid ""
+"`noise` (bool): whether to add noise to the velocity commands. Default is"
+" `False`."
+msgstr "`noise`（bool）：是否给速度命令添加噪声。默认为 `False`。"
+
+#: ../../source/yaml_config/configuration.md:522
+msgid ""
+"`alpha` (list): noise parameters for velocity commands `[alpha_forward, alpha_lateral, alpha_yaw]`. Default is `[0.03, 0.03, 0.03]`."
+msgstr "`alpha`（列表）：速度命令的噪声参数 `[alpha_forward, alpha_lateral, alpha_yaw]`。默认值为 `[0.03, 0.03, 0.03]`。"
+
+#: ../../source/yaml_config/configuration.md:528
 msgid ""
 "`'acker'`: Ackermann steering, typical for car-like vehicles requiring a "
 "turning radius."
@@ -1483,11 +1516,11 @@ msgstr "`angular`：对象通过线速度和角速度控制。"
 
 #: ../../source/yaml_config/configuration.md:532
 msgid ""
-"**`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** "
-"(`list` of `float`, default: `[1, 1]`)"
+"**`vel_min`** (`list` of `float`, default: `[-1] * action_dim`) and **`vel_max`** "
+"(`list` of `float`, default: `[1] * action_dim`)"
 
-"**`vel_min`**（`float` 列表，默认：`[-1, -1]`）和 **`vel_max`** （`float` "
-"列表，默认：`[1, 1]`）"
+"**`vel_min`**（`float` 列表，默认：`[-1] * action_dim`）和 **`vel_max`**（`float` "
+"列表，默认：`[1] * action_dim`）"
 
 #: ../../source/yaml_config/configuration.md:533
 msgid ""
@@ -1497,8 +1530,8 @@ msgid ""
 msgstr "设置每个控制维度的最小和最大速度限制（例如线速度和角速度）。这些约束确保对象的运动保持在可行且安全的范围内。"
 
 #: ../../source/yaml_config/configuration.md:535
-msgid "**`acce`** (`list` of `float`, default: `[inf, inf]`)"
-msgstr "**`acce`**（`float` 列表，默认：`[inf, inf]`）"
+msgid "**`acce`** (`list` of `float`, default: `[inf] * action_dim`)"
+msgstr "**`acce`**（`float` 列表，默认：`[inf] * action_dim`）"
 
 #: ../../source/yaml_config/configuration.md:536
 msgid ""
@@ -2625,6 +2658,10 @@ msgstr "混合障碍"
 #: ../../source/yaml_config/configuration.md
 msgid "Ackermann Vehicle"
 msgstr "阿克曼车辆"
+
+#: ../../source/yaml_config/configuration.md
+msgid "Omni Angular Robot"
+msgstr "全向角速度机器人"
 
 #: ../../source/yaml_config/configuration.md
 msgid "Sensor Integration"
