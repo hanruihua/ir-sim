@@ -761,8 +761,8 @@ class EnvBase:
             return
 
         self._reset_all()
-        self.step(action=[np.zeros((2, 1))] * self.robot_number)
         self._world.reset()
+        self.refresh()
         self.reset_plot()
         self.set_status("Reset")
         self.pause_flag = False
@@ -772,6 +772,23 @@ class EnvBase:
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
+
+    def refresh(self) -> None:
+        """
+        Refresh state-derived attributes across the environment without
+        advancing the simulation.
+
+        Calls ``ObjectBase.refresh`` on every object (geometry, geometry
+        validity, sensor readings), rebuilds the collision STRtree, and
+        re-evaluates collision/arrival status. Used after ``reset`` and
+        whenever callers mutate object states directly and need derived
+        views (geometry, sensors, collisions) brought up to date.
+        """
+
+        for obj in self.objects:
+            obj.refresh()
+        self.build_tree()
+        self._status_step()
 
     def reset_plot(self) -> None:
         """
