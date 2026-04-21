@@ -269,11 +269,23 @@ msgstr ""
 
 #: ../../source/usage/make_environment.md:123
 msgid ""
+"**`env.refresh()`**: Refreshes state-derived attributes (geometry, sensor"
+" readings, collision tree, and status) without advancing the simulation."
+" Useful after mutating object states directly (e.g. "
+"`robot.set_state(...)`) when you need sensors and collisions brought up "
+"to date before the next `env.step()`."
+msgstr ""
+"**`env.refresh()`**：在不推进仿真的前提下，刷新由状态派生的属性（几何、传感器读数、"
+"碰撞树以及状态）。当你直接修改对象状态（例如 `robot.set_state(...)`）后，若希望在下一次 "
+"`env.step()` 之前让传感器和碰撞信息同步到最新状态，使用此方法。"
+
+#: ../../source/usage/make_environment.md:124
+msgid ""
 "**`env.reload(world_name=None)`**: Re-parses the YAML file (optionally a "
 "different one) and rebuilds world/objects."
 msgstr "**`env.reload(world_name=None)`**：重新解析 YAML 文件（可选指定其他文件）并重建世界/对象。"
 
-#: ../../source/usage/make_environment.md:124
+#: ../../source/usage/make_environment.md:125
 msgid "**`env.end()`**: Properly closes the environment and releases resources"
 msgstr "**`env.end()`**：正确关闭环境并释放资源"
 

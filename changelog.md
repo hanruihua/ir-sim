@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.4
+
+- Features:
+  - Add `omni_angular` kinematics with 3-DOF body-frame control `[forward, lateral, yaw_rate]`, and refactor `omni` to body-frame `[forward, lateral]`. Body-frame velocities match how physical omni platforms are commanded, and `omni_angular` enables independent yaw control for holonomic/swerve use cases. Keyboard control is redesigned around the new axes. ([#270](https://github.com/hanruihua/ir-sim/pull/270))
+  - Add `env.reset(random=True)` to re-sample randomized scenes from the cached YAML parse. Lets you quickly restart with a fresh random scene (new positions, new random shapes) without re-reading the YAML file from disk, which is useful for RL rollouts and batched experiments. ([#283](https://github.com/hanruihua/ir-sim/pull/283))
+  - Add `random_uniform` sampler with pairwise min-distance, and world-derived defaults for `random` and `circle` distributions. The pairwise min-distance prevents object overlap in random sampling, and world-derived defaults make the sampling ranges adapt automatically to the world size/offset so users don't have to restate bounds per scene. ([#283](https://github.com/hanruihua/ir-sim/pull/283))
+  - Add `env.refresh()` and `ObjectBase.refresh()` to sync geometry, sensors, and collision tree without advancing the simulation. Useful after mutating object states directly (e.g. `robot.set_state(...)`) so sensors and collision data are up to date before the next `env.step()`. ([#284](https://github.com/hanruihua/ir-sim/pull/284))
+
+- Performance:
+  - Replace circle-buffer obstacle-map geometry with vectorized `shapely.box` + `unary_union`. Box cells tile the grid perfectly — ~3× fewer linestrings, ~24× fewer coordinates, ~3.8× faster lidar step, and proportionally lighter obstacle-map collision queries — and close diagonal gaps in the old circle buffer that previously let lidar rays leak through walls. ([#276](https://github.com/hanruihua/ir-sim/pull/276))
+
+- Fix:
+  - Reset `ObjectBase.id_iter` at `EnvBase.__init__` so each environment starts object IDs at 0. Previously the class-level counter persisted across environments, causing index mismatches when multiple environments were created sequentially. ([#277](https://github.com/hanruihua/ir-sim/pull/277))
+  - Preserve initial velocity across `env.reset()` so `set_velocity(init=True)` takes effect. Previously an internal zero-action step inside `reset` clobbered `_velocity` right after it was restored, so users could not set a non-zero starting velocity. ([#284](https://github.com/hanruihua/ir-sim/pull/284))
+
+- Docs:
+  - Fix broken cross-references across usage guides and the YAML configuration reference (Markdown `[Name](#irsim.path)` links replaced with Sphinx `{py:class/meth/func}` roles), and update omni velocity description to body-frame throughout EN + zh_CN. ([#278](https://github.com/hanruihua/ir-sim/pull/278))
+
 ## 2.9.3
 
 - Features:
