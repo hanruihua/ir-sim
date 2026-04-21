@@ -546,6 +546,31 @@ class TestRandomization:
         env = env_factory("test_multi_objects_world.yaml")
         env.random_obstacle_position(ids=[3, 4, 5, 6, 7], non_overlapping=True)
 
+    def test_reset_random_resamples_scene(self, env_factory):
+        """reset(random=True) should re-sample randomized distributions."""
+        env = env_factory("test_all_objects.yaml")
+        before = [np.asarray(obj.state).flatten().copy() for obj in env.obstacle_list]
+        env.reset(random=True)
+        after = [np.asarray(obj.state).flatten().copy() for obj in env.obstacle_list]
+        assert len(before) == len(after)
+        assert any(not np.allclose(b, a) for b, a in zip(before, after, strict=False))
+
+    def test_reset_random_reproducible_with_seed(self, env_factory):
+        """Seeding before reset(random=True) should yield a reproducible scene."""
+        from irsim.util.random import set_seed
+
+        env = env_factory("test_all_objects.yaml")
+        set_seed(7)
+        env.reset(random=True)
+        states_a = [np.asarray(obj.state).flatten().copy() for obj in env.obstacle_list]
+
+        set_seed(7)
+        env.reset(random=True)
+        states_b = [np.asarray(obj.state).flatten().copy() for obj in env.obstacle_list]
+
+        for a, b in zip(states_a, states_b, strict=False):
+            assert np.allclose(a, b)
+
 
 class TestLogger:
     """Tests for logger functionality."""
