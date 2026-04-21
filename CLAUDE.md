@@ -127,7 +127,7 @@ irsim/                  # Main package
 └── config/             # Configuration parameters
 
 tests/                  # Pytest test suite (21 test files)
-usage/                  # Example YAML configs and scripts (21 examples)
+usage/                  # Example YAML configs and scripts (22 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 
@@ -216,12 +216,14 @@ When releasing a new version, follow these steps in order:
 1. Update the version number in `pyproject.toml`
 2. Add a new entry to `docs/source/_static/switcher.json` (mark the new version as `(stable)`, remove that label from the previous one)
 3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`). See the **Changelog Style** section below for entry formatting.
-4. Run `uv lock` to update `uv.lock`
-5. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit
-6. Commit the version bump. Confirm with the user before committing
+4. Update `CLAUDE.md`'s *Directory Structure* counts if they changed (test files in `tests/`, example scripts in `usage/`)
+5. Run `uv lock` to update `uv.lock`
+   - If your local `uv` is older than the one that produced the checked-in lockfile, a full regen will downgrade the lockfile `revision` field. In that case, either upgrade `uv` and rerun, or manually patch only the `ir-sim` `version` line in `uv.lock` to avoid touching `revision`.
+6. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit
+7. Commit the version bump. Confirm with the user before committing
    - Must be on the `main` branch
    - Commit message format: `version bump to v<version>`
-7. Create a git tag: `git tag v<version>`
+8. Create a git tag: `git tag v<version>`
 
 ## Changelog Style
 
