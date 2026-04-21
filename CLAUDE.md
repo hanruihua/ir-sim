@@ -215,13 +215,25 @@ When releasing a new version, follow these steps in order:
 
 1. Update the version number in `pyproject.toml`
 2. Add a new entry to `docs/source/_static/switcher.json` (mark the new version as `(stable)`, remove that label from the previous one)
-3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`)
-   - Only include changes that are merged into `main`; do not list work still on feature branches
-   - For PRs not authored by hanruihua, append the contributor's GitHub handle (e.g., `(@username)`)
-   - For performance improvements, include the measured speedup (e.g., "~48% faster lidar step")
+3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`). See the **Changelog Style** section below for entry formatting.
 4. Run `uv lock` to update `uv.lock`
 5. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit
 6. Commit the version bump. Confirm with the user before committing
    - Must be on the `main` branch
    - Commit message format: `version bump to v<version>`
 7. Create a git tag: `git tag v<version>`
+
+## Changelog Style
+
+Rules for writing entries in `changelog.md`:
+
+- **Scope**: only include changes merged into `main`. Do not list work still on feature branches. Skip dependency-only PRs (`chore(deps)`, `chore(deps-dev)`).
+- **Section structure**: use `## <version>` as the top heading, then grouped subsections in this order — `Features`, `Performance`, `Fix`, `Refactor`, `Docs`, `Tests`. Include only the categories that apply.
+- **Entry format**: one bullet per PR, written as a complete sentence (or two). Lead with the technical change, then state the *motivation/target* — the "why", not just the "what". For example:
+  - Good: "Add `random_uniform` sampler with pairwise min-distance. Prevents object overlap in random sampling, and world-derived defaults adapt to the world size/offset so users don't restate bounds per scene."
+  - Avoid: "Add `random_uniform` sampler." (what, but no why)
+- **PR link**: end every entry with the PR link: `([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))`.
+- **Contributor credit**: for PRs not authored by `hanruihua`, append the GitHub handle after the PR link: `([#NNN](...)) (@username)`.
+- **Performance metrics**: quote concrete numbers — measured speedups, coordinate/linestring counts, memory reductions, etc. (e.g., "~48% faster lidar step", "~3× fewer linestrings").
+- **Version boundary**: if the current version in `pyproject.toml` has already been tagged/released, open a new `## <next-version>` section at the top instead of appending to the released one.
+- **PR and commit alignment**: when opening a PR or writing the commit that introduces a changelog entry, mirror the same summary in the PR description and commit message so the three sources stay in sync.
