@@ -1,7 +1,10 @@
 name: Ruff lint
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ruff:
@@ -9,5 +12,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
-      - run: ruff check --fix
-      - run: ruff format
+      - run: ruff check
+      - run: ruff format --check
