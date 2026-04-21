@@ -373,8 +373,10 @@ class PointsGeometry(geometry_handler):
         half_x = float(reso[0, 0]) / 2
         half_y = float(reso[-1, -1]) / 2
         boxes = shp.box(
-            points[0] - half_x, points[1] - half_y,
-            points[0] + half_x, points[1] + half_y,
+            points[0] - half_x,
+            points[1] - half_y,
+            points[0] + half_x,
+            points[1] + half_y,
         )
         boundary = unary_union(boxes).boundary
         if hasattr(boundary, "geoms"):
