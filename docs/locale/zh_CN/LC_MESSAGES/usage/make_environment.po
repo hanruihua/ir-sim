@@ -253,6 +253,39 @@ msgid ""
 msgstr "**`env.done()`**：当满足结束条件时返回 `True`"
 
 #: ../../source/usage/make_environment.md:122
+msgid ""
+"**`env.reset(random=False)`**: Restores objects to their initial states. "
+"With `random=True`, rebuilds the world from the cached YAML parse so any "
+"randomized elements (e.g. `distribution: random`, random shape "
+"generators) are re-sampled from the current RNG state — use together "
+"with `irsim.util.random.set_seed(seed)` for reproducible fresh scenes. "
+"The YAML file on disk is **not** re-read; to pick up on-disk edits, use "
+"`env.reload()` instead."
+msgstr ""
+"**`env.reset(random=False)`**：将对象恢复为初始状态。传入 `random=True` 时，会基于缓存的 YAML "
+"解析结果重建世界，从而让随机元素（如 `distribution: random`、随机形状生成器）按当前 RNG 状态重新采样 —— "
+"可配合 `irsim.util.random.set_seed(seed)` 获得可复现的全新场景。此操作**不会**重新读取磁盘上的 YAML "
+"文件；如需加载磁盘上的修改，请改用 `env.reload()`。"
+
+#: ../../source/usage/make_environment.md:123
+msgid ""
+"**`env.refresh()`**: Refreshes state-derived attributes (geometry, sensor"
+" readings, collision tree, and status) without advancing the simulation."
+" Useful after mutating object states directly (e.g. "
+"`robot.set_state(...)`) when you need sensors and collisions brought up "
+"to date before the next `env.step()`."
+msgstr ""
+"**`env.refresh()`**：在不推进仿真的前提下，刷新由状态派生的属性（几何、传感器读数、"
+"碰撞树以及状态）。当你直接修改对象状态（例如 `robot.set_state(...)`）后，若希望在下一次 "
+"`env.step()` 之前让传感器和碰撞信息同步到最新状态，使用此方法。"
+
+#: ../../source/usage/make_environment.md:124
+msgid ""
+"**`env.reload(world_name=None)`**: Re-parses the YAML file (optionally a "
+"different one) and rebuilds world/objects."
+msgstr "**`env.reload(world_name=None)`**：重新解析 YAML 文件（可选指定其他文件）并重建世界/对象。"
+
+#: ../../source/usage/make_environment.md:125
 msgid "**`env.end()`**: Properly closes the environment and releases resources"
 msgstr "**`env.end()`**：正确关闭环境并释放资源"
 

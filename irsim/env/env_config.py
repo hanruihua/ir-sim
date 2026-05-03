@@ -107,6 +107,7 @@ class EnvConfig:
             world_param_instance=self._world_param,
             **self._world_kwargs(),
         )
+        self.object_factory.world = world
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
@@ -167,6 +168,7 @@ class EnvConfig:
             world_param_instance=self._world_param,
             **self._world_kwargs(),
         )
+        self.object_factory.world = world
 
         robot_collection = self.object_factory.create_from_parse(
             self.parse["robot"], "robot"
@@ -197,6 +199,9 @@ class EnvConfig:
         # env_plot = EnvPlot(world, objects, **world.plot_parse)
         self._env_plot.clear_components("all", self._objects)
         self._env_plot._init_plot(world, objects)
+
+        # Refresh cached objects so subsequent reloads clear the right set
+        self._objects = objects
 
         return (
             world,

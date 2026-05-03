@@ -85,12 +85,14 @@ robot:
 |----------|---------------------------------|
 | `w`      | Forward                         |
 | `s`      | Backward                        |
-| `a`      | Turn Left                       |
-| `d`      | Turn Right                      |
-| `q`      | Decrease Linear Velocity        |
-| `e`      | Increase Linear Velocity        |
-| `z`      | Decrease Angular Velocity       |
-| `c`      | Increase Angular Velocity       |
+| `a`      | Turn Left (diff/acker) / Strafe Left (omni/omni_angular) |
+| `d`      | Turn Right (diff/acker) / Strafe Right (omni/omni_angular) |
+| `q`      | Rotate Left (omni_angular)      |
+| `e`      | Rotate Right (omni_angular)     |
+| `z`      | Decrease Max Angular Velocity   |
+| `c`      | Increase Max Angular Velocity   |
+| `shift+z`| Decrease Max Linear Velocity    |
+| `shift+c`| Increase Max Linear Velocity    |
 | `alt+num`| Change Current Control Robot ID |
 | `r`      | Reset the Environment           |
 | `space`  | Toggle Pause/Resume Environment |

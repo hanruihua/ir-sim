@@ -149,7 +149,7 @@ class TestBehaviorMethodsGoalNone:
     """Tests for behavior methods when goal is None."""
 
     def test_diff_rvo_goal_none(self, dummy_logger):
-        """Test diff rvo behavior returns zeros when goal is None (lines 59-63)."""
+        """Test diff rvo behavior returns zeros when goal is None."""
         from irsim.lib.behavior.behavior_methods import beh_diff_rvo
 
         _install_dummy_logger()
@@ -165,7 +165,7 @@ class TestBehaviorMethodsGoalNone:
         ego.logger.warning.assert_called_once()
 
     def test_omni_dash_goal_none(self, dummy_logger):
-        """Test omni dash behavior returns zeros when goal is None (lines 129-133)."""
+        """Test omni dash behavior returns zeros when goal is None."""
         from irsim.lib.behavior.behavior_methods import beh_omni_dash
 
         _install_dummy_logger()
@@ -179,6 +179,44 @@ class TestBehaviorMethodsGoalNone:
         result = beh_omni_dash(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
         ego.logger.warning.assert_called_once()
+
+    def test_omni_angular_dash_goal_none(self, dummy_logger):
+        """Test omni_angular dash behavior returns zeros when goal is None."""
+        from irsim.lib.behavior.behavior_methods import beh_omni_angular_dash
+
+        _install_dummy_logger()
+
+        ego = Mock()
+        ego.goal = None
+        ego._world_param = Mock()
+        ego._world_param.count = 10
+        ego.logger = Mock()
+
+        result = beh_omni_angular_dash(ego, [])
+        assert np.allclose(result, np.zeros((3, 1)))
+        ego.logger.warning.assert_called_once()
+
+    def test_omni_angular_dash_with_goal(self, dummy_logger):
+        """Test omni_angular dash behavior with valid goal."""
+        from irsim.lib.behavior.behavior_methods import beh_omni_angular_dash
+
+        _install_dummy_logger()
+
+        ego = Mock()
+        ego.state = np.array([[0.0], [0.0], [0.0]])
+        ego.goal = np.array([[5.0], [3.0], [1.0]])
+        ego.goal_threshold = 0.3
+        ego.get_vel_range = Mock(
+            return_value=(
+                np.array([[-1.0], [-1.0], [-0.5]]),
+                np.array([[1.0], [1.0], [0.5]]),
+            )
+        )
+        ego._world_param = Mock()
+        ego.logger = Mock()
+
+        result = beh_omni_angular_dash(ego, [])
+        assert result.shape == (3, 1)
 
 
 class TestBehaviorMethodsFunctions:
@@ -203,7 +241,7 @@ class TestBehaviorMethodsFunctions:
         assert result.shape == (2, 1)
 
     def test_omni_dash_at_goal(self):
-        """Test OmniDash when at goal (lines 331-332)."""
+        """Test OmniDash when at goal."""
         from irsim.lib.behavior.behavior_methods import OmniDash
 
         state = np.array([[5.0], [5.0], [0.0]])
@@ -212,6 +250,89 @@ class TestBehaviorMethodsFunctions:
 
         result = OmniDash(state, goal, max_vel, goal_threshold=0.5)
         assert np.allclose(result, np.zeros((2, 1)))
+
+    def test_omni_dash_moving_body_frame(self):
+        """Test OmniDash produces body-frame velocity toward goal."""
+        from irsim.lib.behavior.behavior_methods import OmniDash
+
+        # Robot at origin facing +x, goal ahead
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[5.0], [0.0]])
+        max_vel = np.array([[1.0], [1.0]])
+
+        result = OmniDash(state, goal, max_vel, goal_threshold=0.1)
+        assert result.shape == (2, 1)
+        assert result[0, 0] > 0  # forward component positive
+
+    def test_omni_dash_with_heading(self):
+        """Test OmniDash body-frame velocity with non-zero heading."""
+        from irsim.lib.behavior.behavior_methods import OmniDash
+
+        # Robot at origin facing +y (pi/2), goal at (5, 0) = to the right
+        state = np.array([[0.0], [0.0], [np.pi / 2]])
+        goal = np.array([[5.0], [0.0]])
+        max_vel = np.array([[1.0], [1.0]])
+
+        result = OmniDash(state, goal, max_vel, goal_threshold=0.1)
+        assert result.shape == (2, 1)
+        # Goal is to the right of heading, so lateral should be negative
+        assert result[1, 0] < 0
+
+    def test_omni_angular_dash_moving(self):
+        """Test OmniAngularDash drives toward goal with yaw."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[5.0], [3.0], [1.0]])
+        max_vel = np.array([[1.0], [1.0], [0.5]])
+
+        result = OmniAngularDash(state, goal, max_vel, goal_threshold=0.3)
+        assert result.shape == (3, 1)
+        # Should be moving forward and turning toward goal
+        assert result[0, 0] != 0 or result[1, 0] != 0
+        assert result[2, 0] != 0  # yaw rate active
+
+    def test_omni_angular_dash_at_goal_rotate_in_place(self):
+        """Test OmniAngularDash rotates in place when at goal position."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[5.0], [5.0], [0.0]])
+        goal = np.array([[5.0], [5.0], [1.5]])  # same position, different angle
+        max_vel = np.array([[1.0], [1.0], [0.5]])
+
+        result = OmniAngularDash(state, goal, max_vel, goal_threshold=0.5)
+        assert result.shape == (3, 1)
+        assert result[0, 0] == 0  # no forward
+        assert result[1, 0] == 0  # no lateral
+        assert result[2, 0] > 0  # rotating toward goal angle
+
+    def test_omni_angular_dash_at_goal_aligned(self):
+        """Test OmniAngularDash stops when at goal and angle aligned."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[5.0], [5.0], [1.0]])
+        goal = np.array([[5.0], [5.0], [1.0]])  # same position and angle
+        max_vel = np.array([[1.0], [1.0], [0.5]])
+
+        result = OmniAngularDash(
+            state, goal, max_vel, goal_threshold=0.5, angle_tolerance=0.1
+        )
+        assert np.allclose(result, np.zeros((3, 1)))
+
+    def test_omni_angular_dash_goal_no_theta(self):
+        """Test OmniAngularDash with 2D goal (no theta component)."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[5.0], [5.0], [0.5]])
+        goal = np.array([[5.0], [5.0]])  # 2x1 goal, no theta
+        max_vel = np.array([[1.0], [1.0], [0.5]])
+
+        result = OmniAngularDash(
+            state, goal, max_vel, goal_threshold=0.5, angle_tolerance=0.1
+        )
+        assert result.shape == (3, 1)
+        # At goal position, goal has no theta so target_angle = theta => no rotation
+        assert result[2, 0] == 0
 
     def test_diff_dash_at_goal_and_aligned(self):
         """Test DiffDash at goal and angle aligned (lines 398, 401)."""

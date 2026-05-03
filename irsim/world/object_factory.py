@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 from irsim.lib.handler.kinematics_handler import KinematicsFactory
-from irsim.util.random import rng
+from irsim.util.random import random_uniform
 from irsim.util.util import (
     convert_list_length,
     convert_list_length_dict,
@@ -26,6 +26,9 @@ class ObjectFactory:
     """
     Factory class for creating various objects in the simulation.
     """
+
+    def __init__(self, world: Any = None) -> None:
+        self.world = world
 
     def create_from_parse(
         self,
@@ -238,18 +241,17 @@ class ObjectFactory:
         It supports various distribution methods such as 'manual', 'circle', and 'random' to
         position the objects according to specific patterns or randomness.
 
+        Defaults for the ``circle`` and ``random`` distributions are derived
+        from the world attached to the factory (``self.world``). If no world
+        is attached (e.g. in unit tests that instantiate ``ObjectFactory()``
+        directly), defaults fall back to a 10x10 world at offset ``[0, 0]``.
+
         Args:
             number (int):
                 Number of state vectors to generate. Default is 1.
             distribution (Dict[str, Any]):
                 Configuration dictionary specifying the distribution method and its parameters.
                 Default is {"name": "manual"}.
-            state (List[float]):
-                Base state vector [x, y, theta] to use as a template for generating states.
-                Default is [1, 1, 0].
-            goal (List[float]):
-                Goal state vector [x, y, theta] for the generated objects.
-                Default is [1, 9, 0].
 
                 - 'name' (str): Name of the distribution method. Supported values are:
 
@@ -262,13 +264,31 @@ class ObjectFactory:
                   - For 'manual': Manually specified states and goal.
                   - For 'circle':
 
-                    - 'center' (List[float]): Center coordinates [x, y] of the circle.
-                    - 'radius' (float): Radius of the circle.
+                    - 'center' (List[float]): Center coordinates [x, y] of the
+                      circle. Default is the world center
+                      ``[offset_x + width / 2, offset_y + height / 2]``.
+                    - 'radius' (float): Radius of the circle. Default is
+                      ``min(width, height) / 2 - 0.5`` so the circle sits
+                      inside the world with a small margin.
 
                   - For 'random':
 
-                    - 'range_low' (List[float]): Lower bounds for random state values.
-                    - 'range_high' (List[float]): Upper bounds for random state values.
+                    - 'range_low' (List[float]): Lower bounds ``[x, y, theta]``
+                      for random state values. Default is
+                      ``[offset_x + 0.5, offset_y + 0.5, -pi]`` (the world
+                      bounds inset by 0.5).
+                    - 'range_high' (List[float]): Upper bounds ``[x, y, theta]``
+                      for random state values. Default is
+                      ``[offset_x + width - 0.5, offset_y + height - 0.5, pi]``.
+                    - 'min_distance' (float): Minimum pairwise xy distance
+                      between sampled points. Default is 1.0.
+
+            state (List[float]):
+                Base state vector [x, y, theta] used as a template when
+                ``distribution['name'] == 'manual'``. Default is [1, 1, 0].
+            goal (List[float]):
+                Goal state vector [x, y, theta] used when
+                ``distribution['name'] == 'manual'``. Default is [1, 9, 0].
 
         Returns:
             tuple[list[list[float]], list[list[float]]]:
@@ -287,19 +307,35 @@ class ObjectFactory:
         if goal is None:
             goal = [1, 9, 0]
 
+        width = self.world.width if self.world is not None else 10.0
+        height = self.world.height if self.world is not None else 10.0
+        offset = self.world.offset if self.world is not None else [0.0, 0.0]
+        margin = 0.5
+
         if distribution["name"] == "manual":
             state_list = convert_list_length(state, number)
             goal_list = convert_list_length(goal, number)
 
         elif distribution["name"] == "random":
-            range_low = distribution.get("range_low", [0, 0, -np.pi])
-            range_high = distribution.get("range_high", [10, 10, np.pi])
+            default_low = [offset[0] + margin, offset[1] + margin, -np.pi]
+            default_high = [
+                offset[0] + width - margin,
+                offset[1] + height - margin,
+                np.pi,
+            ]
+            range_low = distribution.get("range_low", default_low)
+            range_high = distribution.get("range_high", default_high)
+            min_distance = distribution.get("min_distance", 1.0)
 
-            state_array = rng.uniform(low=range_low, high=range_high, size=(number, 3))
-            state_list = state_array.tolist()
+            state_array = random_uniform(
+                range_low, range_high, size=(3, number), min_distance=min_distance
+            )
+            state_list = state_array.T.tolist()
 
-            goal_array = rng.uniform(low=range_low, high=range_high, size=(number, 3))
-            goal_list = goal_array.tolist()
+            goal_array = random_uniform(
+                range_low, range_high, size=(3, number), min_distance=min_distance
+            )
+            goal_list = goal_array.T.tolist()
 
         elif distribution["name"] == "uniform":
             raise NotImplementedError(
@@ -308,8 +344,10 @@ class ObjectFactory:
             )
 
         elif distribution["name"] == "circle":
-            radius = distribution.get("radius", 4)
-            center = distribution.get("center", [5, 5, 0])
+            default_radius = min(width, height) / 2 - margin
+            default_center = [offset[0] + width / 2, offset[1] + height / 2, 0]
+            radius = distribution.get("radius", default_radius)
+            center = distribution.get("center", default_center)
 
             state_list, goal_list = [], []
             for i in range(number):

@@ -368,10 +368,40 @@ class EnvBase:
     def _assign_keyboard_action(self, action: list[Any]) -> list[Any]:
         """
         Assign the keyboard action to the action list.
+
+        The keyboard produces a ``[linear, lateral, angular]`` (3x1) vector.
+        For kinematics that expect a different layout the velocity is
+        converted here so that the keyboard works regardless of robot type.
         """
 
-        if self._world_param.control_mode == "keyboard" and self.key_id < len(action):
-            action[self.key_id] = self.key_vel
+        if (
+            self._world_param.control_mode == "keyboard"
+            and self.key_id < len(action)
+            and self.key_id < len(self.robot_list)
+        ):
+            key_vel = self.key_vel
+            robot = self.robot_list[self.key_id]
+            kf_name = robot.kf.name if robot.kf else None
+            fwd = float(key_vel[0, 0])  # W/S: forward/backward
+            axis2 = float(key_vel[1, 0])  # A/D: angular (diff/acker) or lateral (omni)
+            rot = float(key_vel[2, 0])  # Q/E: yaw rate (omni_angular only)
+
+            if kf_name in ("omni", "omni_angular"):
+                # A/D controls lateral strafe (linear velocity, not angular).
+                # Rescale from key_ang_max to key_lv_max so that the lateral
+                # speed matches the forward speed range.
+                ang_max = self.keyboard.key_ang_max
+                if ang_max != 0:
+                    axis2 = axis2 / ang_max * self.keyboard.key_lv_max
+
+            if kf_name == "omni":
+                key_vel = np.array([[fwd], [axis2]])
+            elif kf_name == "omni_angular":
+                key_vel = np.array([[fwd], [axis2], [rot]])
+            else:
+                key_vel = np.array([[fwd], [axis2]])
+
+            action[self.key_id] = key_vel
 
         return action
 
@@ -695,7 +725,7 @@ class EnvBase:
             self.debug_flag = False
             self.debug_count = 0
 
-    def reset(self) -> None:
+    def reset(self, random: bool = False) -> None:
         """
         Reset the environment to its initial state.
 
@@ -709,15 +739,30 @@ class EnvBase:
         - Resetting the world timer and status
         - Refreshing the visualization plot
 
+        Args:
+            random (bool): If True, rebuild the world from the cached YAML
+                parse (the config loaded at env creation, not the file on
+                disk) so any randomized elements (e.g. ``distribution:
+                random``, random shape generators) are re-sampled from the
+                current RNG state. Call :func:`irsim.util.random.set_seed`
+                before ``reset(random=True)`` to get a reproducible fresh
+                scene. Default is False — only restores original initial
+                states.
+
         Example:
             >>> # Reset environment after simulation
             >>> env.reset()
-            >>> # Environment is now ready for a new simulation run
+            >>> # Reset and re-sample random distributions / shapes
+            >>> env.reset(random=True)
         """
 
+        if random:
+            self._rebuild_from_cached_parse()
+            return
+
         self._reset_all()
-        self.step(action=[np.zeros((2, 1))] * self.robot_number)
         self._world.reset()
+        self.refresh()
         self.reset_plot()
         self.set_status("Reset")
         self.pause_flag = False
@@ -727,6 +772,23 @@ class EnvBase:
 
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
+
+    def refresh(self) -> None:
+        """
+        Refresh state-derived attributes across the environment without
+        advancing the simulation.
+
+        Calls ``ObjectBase.refresh`` on every object (geometry, geometry
+        validity, sensor readings), rebuilds the collision STRtree, and
+        re-evaluates collision/arrival status. Used after ``reset`` and
+        whenever callers mutate object states directly and need derived
+        views (geometry, sensors, collisions) brought up to date.
+        """
+
+        for obj in self.objects:
+            obj.refresh()
+        self.build_tree()
+        self._status_step()
 
     def reset_plot(self) -> None:
         """
@@ -873,6 +935,37 @@ class EnvBase:
         self.validate_unique_names()
         self._env_param.objects = self._objects
         self.reload_flag = False
+
+    def _rebuild_from_cached_parse(self) -> None:
+        """Rebuild world and objects from the cached YAML parse.
+
+        Used by ``reset(random=True)`` to re-sample randomized elements
+        without re-reading the YAML file from disk (which would pick up
+        any on-disk edits since the environment was created). Old objects
+        are discarded, so no per-object reset or simulation step is run
+        beforehand — those would waste work and could consume RNG draws
+        (e.g. random behaviors), breaking reproducibility of the
+        re-sampled scene.
+        """
+        ObjectBase.reset_id_iter()
+        (
+            self._world,
+            self._objects,
+            self._env_plot,
+            self._robot_collection,
+            self._obstacle_collection,
+            self._map_collection,
+            self._object_groups,
+        ) = self.env_config.reload_objects()
+        self._wire_env_to_objects()
+        self.build_tree()
+        self.validate_unique_names()
+        self._env_param.objects = self._objects
+        self.set_status("Reset")
+        self.pause_flag = False
+        self.debug_flag = False
+        self.debug_count = 0
+        self.reset_flag = False
 
     # endregion: environment change
 
@@ -1358,7 +1451,7 @@ class EnvBase:
         """Get current keyboard velocity command.
 
         Returns:
-            Any: A 2x1 vector ``[[linear], [angular]]`` from keyboard input.
+            Any: A 3x1 vector ``[[linear], [lateral], [angular]]`` from keyboard input.
         """
         return self.keyboard.key_vel
 

@@ -2068,6 +2068,17 @@ class ObjectBase:
         self.stop_flag = False
         self.trajectory = []
 
+    def refresh(self):
+        """
+        Refresh state-derived attributes (geometry and sensors) without
+        advancing the simulation. Used after ``reset`` so geometry/sensor
+        readings reflect the current state without running a kinematic
+        step (which would clobber ``_velocity`` and add noise drift).
+        """
+        self._geometry = self.gf.step(self.state)
+        self._geometry_valid = shapely.is_valid(self._geometry)
+        self.sensor_step()
+
     def remove(self):
         """
         Remove the object from the environment.

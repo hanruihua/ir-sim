@@ -7,6 +7,7 @@ import numpy as np
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 
@@ -166,7 +167,7 @@ class KinematicsHandler(ABC):
 @register_kinematics("omni")
 class OmniKinematics(KinematicsHandler):
     action_dim = 2
-    min_state_dim = 2
+    min_state_dim = 3
     state_dim = 3
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
@@ -178,6 +179,8 @@ class OmniKinematics(KinematicsHandler):
 
     def __init__(self, name, noise, alpha):
         super().__init__(name, noise, alpha)
+        if alpha is None:
+            self.alpha = [0.03, 0.03]
 
     def step(
         self, state: np.ndarray, velocity: np.ndarray, step_time: float
@@ -185,26 +188,90 @@ class OmniKinematics(KinematicsHandler):
         """Advance omnidirectional state one step.
 
         Args:
-            state (np.ndarray): Current state [x, y, theta, ...].
-            velocity (np.ndarray): Velocity [vx, vy].
+            state (np.ndarray): Current state [x, y, theta].
+            velocity (np.ndarray): Velocity [forward, lateral] in body frame.
             step_time (float): Time step.
 
         Returns:
-            np.ndarray: New state (x, y updated; rest preserved).
+            np.ndarray: New state [x, y, theta] (theta preserved).
         """
-        next_position = omni_kinematics(
-            state[0:2], velocity, step_time, self.noise, self.alpha
-        )
-        return np.concatenate((next_position, state[2:]))
+        return omni_kinematics(state[0:3], velocity, step_time, self.noise, self.alpha)
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        return velocity
+        theta = state[2, 0] if state.shape[0] > 2 else 0.0
+        cos_t, sin_t = np.cos(theta), np.sin(theta)
+        fwd = velocity[0, 0]
+        lat = velocity[1, 0]
+        vx = fwd * cos_t - lat * sin_t
+        vy = fwd * sin_t + lat * cos_t
+        return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         return float(np.linalg.norm(vel_max))
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
-        return float(atan2(velocity[1, 0], velocity[0, 0]))
+        theta = state[2, 0] if state.shape[0] > 2 else 0.0
+        return float(atan2(velocity[1, 0], velocity[0, 0])) + theta
+
+
+@register_kinematics("omni_angular")
+class OmniAngularKinematics(KinematicsHandler):
+    """Omnidirectional kinematics with angular velocity control.
+
+    Velocity is ``[forward, lateral, yaw_rate]`` in body frame.
+    The kinematics function converts to world-frame internally.
+
+    Note: ``compute_heading`` is intentionally inherited from the base class
+    (returns ``state[2]``), because this robot has independent yaw control
+    and its heading IS the orientation angle, unlike :class:`OmniKinematics`
+    which derives heading from velocity direction.
+    """
+
+    action_dim = 3
+    min_state_dim = 3
+    state_dim = 3
+    vel_max: ClassVar[list[float]] = [1, 1, 1]
+    vel_min: ClassVar[list[float]] = [-1, -1, -1]
+    acce: ClassVar[list[float]] = [float("inf"), float("inf"), float("inf")]
+    color = "g"
+    obstacle_color = "k"
+    description = None
+    show_arrow = True
+
+    def __init__(self, name, noise, alpha):
+        super().__init__(name, noise, alpha)
+        if alpha is None:
+            self.alpha = [0.03, 0.03, 0.03]
+
+    def step(
+        self, state: np.ndarray, velocity: np.ndarray, step_time: float
+    ) -> np.ndarray:
+        """Advance omnidirectional-angular state one step.
+
+        Args:
+            state (np.ndarray): Current state [x, y, theta].
+            velocity (np.ndarray): Velocity [forward, lateral, yaw_rate] in body frame.
+            step_time (float): Time step.
+
+        Returns:
+            np.ndarray: New state [x, y, theta].
+        """
+
+        return omni_angular_kinematics(
+            state[0:3], velocity, step_time, self.noise, self.alpha
+        )
+
+    def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
+        theta = state[2, 0]
+        cos_t, sin_t = np.cos(theta), np.sin(theta)
+        fwd = velocity[0, 0]
+        lat = velocity[1, 0]
+        vx = fwd * cos_t - lat * sin_t
+        vy = fwd * sin_t + lat * cos_t
+        return np.array([[vx], [vy]])
+
+    def compute_max_speed(self, vel_max: np.ndarray) -> float:
+        return float(np.linalg.norm(vel_max[0:2]))
 
 
 @register_kinematics("diff")

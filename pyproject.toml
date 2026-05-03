@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ir-sim"
-version = "2.9.3"
+version = "2.9.4"
 authors = [
   { name="Han Ruihua", email="hanrh@connect.hku.hk" },
 ]
@@ -70,7 +70,7 @@ test = [
 dev = [
     {include-group = "lint"},
     {include-group = "test"},
-    "pre-commit==4.5.1",
+    "pre-commit==4.6.0",
     "ty>=0.0.1a17",
 ]
 

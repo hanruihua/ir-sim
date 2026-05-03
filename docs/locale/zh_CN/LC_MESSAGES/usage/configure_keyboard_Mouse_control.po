@@ -100,48 +100,64 @@ msgid "`a`"
 msgstr "`a`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Turn Left"
-msgstr "左转"
+msgid "Turn Left (diff/acker) / Strafe Left (omni/omni_angular)"
+msgstr "左转 (diff/acker) / 左平移 (omni/omni_angular)"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`d`"
 msgstr "`d`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Turn Right"
-msgstr "右转"
+msgid "Turn Right (diff/acker) / Strafe Right (omni/omni_angular)"
+msgstr "右转 (diff/acker) / 右平移 (omni/omni_angular)"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`q`"
 msgstr "`q`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Decrease Linear Velocity"
-msgstr "降低线速度"
+msgid "Rotate Left (omni_angular)"
+msgstr "左旋转 (omni_angular)"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`e`"
 msgstr "`e`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Increase Linear Velocity"
-msgstr "提升线速度"
+msgid "Rotate Right (omni_angular)"
+msgstr "右旋转 (omni_angular)"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`z`"
 msgstr "`z`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Decrease Angular Velocity"
-msgstr "降低角速度"
+msgid "Decrease Max Angular Velocity"
+msgstr "降低最大角速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`c`"
 msgstr "`c`"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
-msgid "Increase Angular Velocity"
-msgstr "提升角速度"
+msgid "Increase Max Angular Velocity"
+msgstr "提升最大角速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`shift+z`"
+msgstr "`shift+z`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Decrease Max Linear Velocity"
+msgstr "降低最大线速度"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "`shift+c`"
+msgstr "`shift+c`"
+
+#: ../../source/usage/configure_keyboard_Mouse_control.md:74
+msgid "Increase Max Linear Velocity"
+msgstr "提升最大线速度"
 
 #: ../../source/usage/configure_keyboard_Mouse_control.md:74
 msgid "`alt+num`"

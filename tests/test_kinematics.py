@@ -4,6 +4,7 @@ import pytest
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
+    omni_angular_kinematics,
     omni_kinematics,
 )
 from irsim.lib.handler.kinematics_handler import (
@@ -11,6 +12,7 @@ from irsim.lib.handler.kinematics_handler import (
     DifferentialKinematics,
     KinematicsFactory,
     KinematicsHandler,
+    OmniAngularKinematics,
     OmniKinematics,
     _kinematics_registry,
     register_kinematics,
@@ -66,21 +68,95 @@ def test_ackermann_kinematics():
 
 
 def test_omni_kinematics():
-    """Test omnidirectional robot kinematics"""
-    # Test basic movement
-    state = np.array([[0], [0]])  # x, y
-    velocity = np.array([[1], [0]])  # vx, vy
+    """Test omnidirectional robot kinematics with body-frame velocity."""
+    # Test forward movement at theta=0 (forward = +x in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0]])  # forward, lateral
     next_state = omni_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state, np.array([[1], [0]]))
+    assert np.allclose(next_state, np.array([[1], [0], [0]]))
 
-    # Test diagonal movement
-    velocity = np.array([[1], [1]])  # vx, vy
+    # Test forward movement at theta=pi/2 (forward = +y in world)
+    state = np.array([[0], [0], [np.pi / 2]])
+    velocity = np.array([[1], [0]])
     next_state = omni_kinematics(state, velocity, 1.0)
-    assert np.allclose(next_state, np.array([[1], [1]]))
+    assert np.allclose(next_state, np.array([[0], [1], [np.pi / 2]]), atol=1e-10)
+
+    # Test lateral movement at theta=0 (lateral = +y in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[0], [1]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [0]]), atol=1e-10)
+
+    # Test combined forward+lateral at theta=0
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [1]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [1], [0]]))
+
+    # Test theta is preserved
+    state = np.array([[0], [0], [1.5]])
+    velocity = np.array([[1], [0]])
+    next_state = omni_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state[2, 0], 1.5)
 
     # Test with noise
     next_state_noisy = omni_kinematics(state, velocity, 1.0, noise=True)
-    assert next_state_noisy.shape == (2, 1)
+    assert next_state_noisy.shape == (3, 1)
+
+
+def test_omni_angular_kinematics():
+    """Test omnidirectional robot kinematics with body-frame velocity."""
+    # Test forward movement at theta=0 (forward = +x in world)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0], [0]])  # forward, lateral, yaw_rate
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [0], [0]]))
+
+    # Test forward movement at theta=pi/2 (forward = +y in world)
+    state = np.array([[0], [0], [np.pi / 2]])
+    velocity = np.array([[1], [0], [0]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [np.pi / 2]]), atol=1e-10)
+
+    # Test lateral movement at theta=0 (lateral = -y in world... no, +y)
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[0], [1], [0]])  # pure lateral
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [1], [0]]), atol=1e-10)
+
+    # Test pure rotation
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[0], [0], [1]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[0], [0], [1]]))
+
+    # Test combined forward and rotation
+    state = np.array([[0], [0], [0]])
+    velocity = np.array([[1], [0], [0.5]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state, np.array([[1], [0], [0.5]]))
+
+    # Test with noise
+    next_state_noisy = omni_angular_kinematics(
+        state, np.array([[1], [1], [0.5]]), 1.0, noise=True
+    )
+    assert next_state_noisy.shape == (3, 1)
+
+    # Test angle wrapping
+    state = np.array([[0], [0], [np.pi]])
+    velocity = np.array([[0], [0], [np.pi]])
+    next_state = omni_angular_kinematics(state, velocity, 1.0)
+    assert np.allclose(next_state[2], 0, atol=1e-10)
+
+    # Test invalid noise parameters
+    with pytest.raises(ValueError, match="alpha"):
+        omni_angular_kinematics(
+            np.array([[0], [0], [0]]),
+            np.array([[1], [0], [0]]),
+            1.0,
+            noise=True,
+            alpha=[0.03, 0.03],  # Too few parameters
+        )
 
 
 def test_kinematics_error_handling():
@@ -115,19 +191,24 @@ class TestKinematicsRegistry:
     """Tests for the kinematics registry and @register_kinematics decorator."""
 
     def test_builtin_types_registered(self):
-        """All three built-in kinematics types are in the registry."""
+        """All four built-in kinematics types are in the registry."""
         assert "diff" in _kinematics_registry
         assert "omni" in _kinematics_registry
+        assert "omni_angular" in _kinematics_registry
         assert "acker" in _kinematics_registry
 
     def test_registry_maps_to_correct_classes(self):
         assert _kinematics_registry["diff"] is DifferentialKinematics
         assert _kinematics_registry["omni"] is OmniKinematics
+        assert _kinematics_registry["omni_angular"] is OmniAngularKinematics
         assert _kinematics_registry["acker"] is AckermannKinematics
 
     def test_get_handler_class(self):
         assert KinematicsFactory.get_handler_class("diff") is DifferentialKinematics
         assert KinematicsFactory.get_handler_class("omni") is OmniKinematics
+        assert (
+            KinematicsFactory.get_handler_class("omni_angular") is OmniAngularKinematics
+        )
         assert KinematicsFactory.get_handler_class("acker") is AckermannKinematics
         assert KinematicsFactory.get_handler_class("nonexistent") is None
 
@@ -137,6 +218,9 @@ class TestKinematicsRegistry:
 
         handler = KinematicsFactory.create_kinematics(name="omni")
         assert isinstance(handler, OmniKinematics)
+
+        handler = KinematicsFactory.create_kinematics(name="omni_angular")
+        assert isinstance(handler, OmniAngularKinematics)
 
         handler = KinematicsFactory.create_kinematics(name="acker")
         assert isinstance(handler, AckermannKinematics)
@@ -193,7 +277,7 @@ class TestHandlerMetadata:
 
     def test_omni_metadata(self):
         assert OmniKinematics.action_dim == 2
-        assert OmniKinematics.min_state_dim == 2
+        assert OmniKinematics.min_state_dim == 3
         assert OmniKinematics.state_dim == 3
         assert OmniKinematics.show_arrow is False
 
@@ -212,6 +296,13 @@ class TestHandlerMetadata:
         assert AckermannKinematics.description == "car_green.png"
         assert AckermannKinematics.show_arrow is True
 
+    def test_omni_angular_metadata(self):
+        assert OmniAngularKinematics.action_dim == 3
+        assert OmniAngularKinematics.min_state_dim == 3
+        assert OmniAngularKinematics.state_dim == 3
+        assert OmniAngularKinematics.show_arrow is True
+        assert OmniAngularKinematics.color == "g"
+
 
 # ---------------------------------------------------------------------------
 # Polymorphic method tests
@@ -223,10 +314,17 @@ class TestVelocityToXY:
 
     def test_omni(self):
         handler = OmniKinematics("omni", False, None)
-        state = np.array([[1], [2], [0.5]])
-        velocity = np.array([[3], [4]])
+        # At theta=0, forward=3 lateral=0 -> world vx=3, vy=0
+        state = np.array([[0], [0], [0]])
+        velocity = np.array([[3], [0]])
         result = handler.velocity_to_xy(state, velocity)
-        np.testing.assert_array_equal(result, velocity)
+        np.testing.assert_allclose(result, np.array([[3], [0]]), atol=1e-10)
+
+        # At theta=pi/2, forward=1 lateral=0 -> world vx=0, vy=1
+        state = np.array([[0], [0], [np.pi / 2]])
+        velocity = np.array([[1], [0]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[0], [1]]), atol=1e-10)
 
     def test_diff(self):
         handler = DifferentialKinematics("diff", False, None)
@@ -249,6 +347,20 @@ class TestVelocityToXY:
         result = handler.velocity_to_xy(state, velocity)
         np.testing.assert_allclose(result, np.array([[2], [0]]), atol=1e-10)
 
+    def test_omni_angular(self):
+        handler = OmniAngularKinematics("omni_angular", False, None)
+        # At theta=0, forward=3 lateral=0 -> world vx=3, vy=0
+        state = np.array([[0], [0], [0]])
+        velocity = np.array([[3], [0], [1.0]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[3], [0]]), atol=1e-10)
+
+        # At theta=pi/2, forward=1 lateral=0 -> world vx=0, vy=1
+        state = np.array([[0], [0], [np.pi / 2]])
+        velocity = np.array([[1], [0], [0.5]])
+        result = handler.velocity_to_xy(state, velocity)
+        np.testing.assert_allclose(result, np.array([[0], [1]]), atol=1e-10)
+
 
 class TestComputeMaxSpeed:
     """Tests for compute_max_speed on each handler."""
@@ -267,6 +379,12 @@ class TestComputeMaxSpeed:
         handler = AckermannKinematics("acker", False, None)
         vel_max = np.array([[3], [0.5]])
         assert handler.compute_max_speed(vel_max) == pytest.approx(3.0)
+
+    def test_omni_angular(self):
+        handler = OmniAngularKinematics("omni_angular", False, None)
+        vel_max = np.array([[3], [4], [1]])
+        # Only translational components count
+        assert handler.compute_max_speed(vel_max) == pytest.approx(5.0)
 
 
 class TestComputeHeading:
@@ -290,6 +408,13 @@ class TestComputeHeading:
         state = np.array([[0], [0], [2.0], [0]])
         velocity = np.array([[1], [0]])
         assert handler.compute_heading(state, velocity) == pytest.approx(2.0)
+
+    def test_omni_angular(self):
+        handler = OmniAngularKinematics("omni_angular", False, None)
+        state = np.array([[0], [0], [1.5]])
+        velocity = np.array([[1], [1], [0.5]])
+        # Heading comes from state[2], not velocity direction
+        assert handler.compute_heading(state, velocity) == pytest.approx(1.5)
 
 
 # ---------------------------------------------------------------------------
