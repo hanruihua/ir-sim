@@ -815,7 +815,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
         range_max: 8.0
         angle_range: 2.0944
         number: 121
-        motion_compensate: True
+        motion_compensate: False
         velocity_color: True
         velocity_linewidth: 2.0
         velocity_marker_size: 45

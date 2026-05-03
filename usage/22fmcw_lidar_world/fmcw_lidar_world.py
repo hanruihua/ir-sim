@@ -7,15 +7,16 @@ for step in range(120):
 
     scan = env.get_lidar_scan()
     valid_count = int(scan["valid"].sum())
-    center_idx = len(scan["ranges"]) // 2
-    if scan["valid"][center_idx]:
+    valid_indices = scan["valid"].nonzero()[0]
+    if len(valid_indices) > 0:
+        beam_idx = max(valid_indices, key=lambda idx: abs(scan["radial_velocity"][idx]))
         print(
             f"step={step:03d} valid_beams={valid_count:03d} "
-            f"center_range={scan['ranges'][center_idx]:.3f} "
-            f"center_radial_velocity={scan['radial_velocity'][center_idx]:.3f}"
+            f"beam={beam_idx:03d} range={scan['ranges'][beam_idx]:.3f} "
+            f"radial_velocity={scan['radial_velocity'][beam_idx]:.3f}"
         )
     else:
-        print(f"step={step:03d} valid_beams={valid_count:03d} center beam invalid")
+        print(f"step={step:03d} valid_beams={valid_count:03d} no valid returns")
 
     env.render(0.05, mode="all")
 

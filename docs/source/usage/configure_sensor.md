@@ -164,7 +164,7 @@ Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` param
 
 IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR, but each valid beam additionally reports a scalar `radial_velocity` measurement. This makes it useful for demonstrating how Doppler measurements can help interpret dynamic obstacles.
 
-The example below uses a forward 120-degree field of view with one beam per degree and multiple moving obstacles. When plotting is enabled, valid returns are colorized by radial velocity and marked at their endpoints.
+The example below uses a stationary ego sensor with a forward 120-degree field of view and multiple moving obstacles. When plotting is enabled, valid returns are colorized by radial velocity and marked at their endpoints.
 
 ::::{tab-set}
 
@@ -180,13 +180,16 @@ for step in range(120):
 
     scan = env.get_lidar_scan()
     valid_count = int(scan["valid"].sum())
-    center_idx = len(scan["ranges"]) // 2
-    if scan["valid"][center_idx]:
+    valid_indices = scan["valid"].nonzero()[0]
+    if len(valid_indices) > 0:
+        beam_idx = max(valid_indices, key=lambda idx: abs(scan["radial_velocity"][idx]))
         print(
             f"step={step:03d} valid_beams={valid_count:03d} "
-            f"center_range={scan['ranges'][center_idx]:.3f} "
-            f"center_radial_velocity={scan['radial_velocity'][center_idx]:.3f}"
+            f"beam={beam_idx:03d} range={scan['ranges'][beam_idx]:.3f} "
+            f"radial_velocity={scan['radial_velocity'][beam_idx]:.3f}"
         )
+    else:
+        print(f"step={step:03d} valid_beams={valid_count:03d} no valid returns")
 
     env.render(0.05, mode="all")
 
@@ -213,7 +216,7 @@ robot:
         range_max: 8.0
         angle_range: 2.0944
         number: 121
-        motion_compensate: True
+        motion_compensate: False
         noise: False
         velocity_linewidth: 2.0
         velocity_marker_size: 45

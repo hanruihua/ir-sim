@@ -22,7 +22,7 @@ robot:
         range_max: 8.0
         angle_range: 2.0944   # 120 degrees
         number: 121           # approximately 1 degree per beam, including center beam
-        motion_compensate: True
+        motion_compensate: False
         noise: False
         offset: [0.0, 0.0, 0.0]
         alpha: 0.8
