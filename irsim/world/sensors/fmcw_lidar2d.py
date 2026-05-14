@@ -108,17 +108,21 @@ class FMCWLidar2D(Lidar2D):
             if hit_distance is not None:
                 if self.noise:
                     hit_distance += rng.normal(0, self.std)
-                self.range_data[index] = np.clip(
-                    hit_distance,
-                    self.range_min,
-                    self.range_max,
-                )
-                self.valid[index] = True
 
-                radial_velocity = self._compute_radial_velocity(hit_object, direction)
-                if self.velocity_noise_std > 0:
-                    radial_velocity += rng.normal(0, self.velocity_noise_std)
-                self.radial_velocity[index] = radial_velocity
+                # Treat noise-induced out-of-range measurements as invalid so
+                # ``valid`` stays consistent with ``range_data`` and downstream
+                # consumers (e.g. ``get_points``) cannot silently drop a beam
+                # that is still flagged as a hit.
+                if self.range_min <= hit_distance <= self.range_max:
+                    self.range_data[index] = hit_distance
+                    self.valid[index] = True
+
+                    radial_velocity = self._compute_radial_velocity(
+                        hit_object, direction
+                    )
+                    if self.velocity_noise_std > 0:
+                        radial_velocity += rng.normal(0, self.velocity_noise_std)
+                    self.radial_velocity[index] = radial_velocity
 
             segment_end = origin_xy + self.range_data[index] * direction
             segments.append([tuple(origin_xy), tuple(segment_end)])

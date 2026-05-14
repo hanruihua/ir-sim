@@ -320,6 +320,45 @@ class TestFMCWLidar2D:
         assert abs(noisy_range - sensor.range_data[0]) < 1.0
         assert abs(noisy_velocity - sensor.radial_velocity[0]) < 2.0
 
+    def test_noise_pushed_out_of_range_invalidates_beam(self):
+        """Hits whose noisy range falls outside [range_min, range_max] are invalid.
+
+        Keeps ``valid`` consistent with ``range_data`` so downstream code
+        (e.g. ``get_points``, which drops beams at ``range_max``) cannot
+        silently disagree with the validity mask.
+        """
+        # Obstacle just inside range_max; large noise pushes most reads past it.
+        obstacle = _DummyObstacleObject(
+            obj_id=2, geometry=shapely.Point(4.95, 0.0).buffer(0.05)
+        )
+        env = _DummySensorEnvParam([obstacle], STRtree([obstacle.geometry]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+            noise=True,
+            std=10.0,  # so large that almost every draw exits [range_min, range_max]
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        set_seed(0)
+        invalidated_at_max = 0
+        for _ in range(200):
+            sensor.step(sensor.state)
+            if not sensor.valid[0]:
+                invalidated_at_max += 1
+                # Invalidated beams must report range_max and zero Doppler so
+                # consumers see a coherent "no usable return" signal.
+                assert sensor.range_data[0] == pytest.approx(5.0, abs=1e-9)
+                assert sensor.radial_velocity[0] == pytest.approx(0.0, abs=1e-9)
+            else:
+                # Valid hits must always lie within the documented bounds.
+                assert sensor.range_min <= sensor.range_data[0] <= sensor.range_max
+
+        assert invalidated_at_max > 0  # the failure mode is actually exercised
+
     def test_find_nearest_hit_skips_invalid_candidates(self):
         """``_find_nearest_hit`` must skip self, invalid, and unobstructed objects."""
         circle = shapely.Point(2.0, 0.0).buffer(0.2)
