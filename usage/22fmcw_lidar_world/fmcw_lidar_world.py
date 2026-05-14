@@ -20,7 +20,7 @@ for step in range(120):
 
     env.render(0.05, mode="all")
 
-    if env.done():
-        break
+    # if env.done():
+    #     break
 
 env.end(3)
