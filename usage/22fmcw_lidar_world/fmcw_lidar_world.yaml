@@ -5,15 +5,15 @@ world:
   sample_time: 0.1
   offset: [0, 0]
   collision_mode: 'stop'
-  control_mode: 'auto'
+  control_mode: 'keyboard'
 
 robot:
   - kinematics: {name: 'diff'}
     shape: {name: 'circle', radius: 0.2}
     state: [2.0, 5.0, 0.0]
-    goal: [2.0, 5.0, 0.0]
-    vel_min: [0.0, 0.0]
-    vel_max: [0.0, 0.0]
+    goal: [20.0, 5.0, 0.0]
+    vel_min: [-2, -2.0]
+    vel_max: [2, 2.0]
     behavior: {name: 'dash'}
 
     sensors:

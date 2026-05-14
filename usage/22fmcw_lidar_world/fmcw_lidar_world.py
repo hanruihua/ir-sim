@@ -2,7 +2,7 @@ import irsim
 
 env = irsim.make("fmcw_lidar_world.yaml")
 
-for step in range(120):
+for step in range(1000):
     env.step()
 
     scan = env.get_lidar_scan()
@@ -20,7 +20,7 @@ for step in range(120):
 
     env.render(0.05, mode="all")
 
-    # if env.done():
-    #     break
+    if env.done():
+        break
 
 env.end(3)
