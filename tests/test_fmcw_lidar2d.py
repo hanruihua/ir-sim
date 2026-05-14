@@ -1,7 +1,10 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import shapely
+from shapely import STRtree
 
+from irsim.util.random import set_seed
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
 from irsim.world.sensors.sensor_factory import SensorFactory
@@ -36,13 +39,36 @@ class _DummyObstacleObject:
         velocity_xy=(0.0, 0.0),
         shape="circle",
         unobstructed=False,
+        geometry_valid=True,
     ):
         self._id = obj_id
         self._geometry = geometry
-        self._geometry_valid = True
+        self._geometry_valid = geometry_valid
         self.shape = shape
         self.unobstructed = unobstructed
         self._velocity_xy = np.c_[velocity_xy]
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @property
+    def velocity_xy(self):
+        return self._velocity_xy
+
+
+class _DummyMapObject:
+    """Mimics a grid-map object that exposes ``linestrings`` + an STRtree."""
+
+    def __init__(self, obj_id, linestrings):
+        self._id = obj_id
+        self.linestrings = list(linestrings)
+        self._geometry = shapely.MultiLineString(self.linestrings)
+        self._geometry_valid = True
+        self.shape = "map"
+        self.unobstructed = False
+        self.geometry_tree = STRtree(self.linestrings)
+        self._velocity_xy = np.c_[(0.0, 0.0)]
 
     @property
     def geometry(self):
@@ -257,3 +283,235 @@ class TestFMCWLidar2D:
 
         assert points.shape == (2, 2)
         assert colors.shape == (2, 3)
+
+    def test_range_and_velocity_noise_are_applied(self):
+        """``noise=True`` and ``velocity_noise_std>0`` should perturb measurements."""
+        obstacle = _DummyObstacleObject(
+            obj_id=2,
+            geometry=shapely.Point(2.0, 0.0).buffer(0.2),
+            velocity_xy=(0.5, 0.0),
+        )
+        env = _DummySensorEnvParam([obstacle], STRtree([obstacle.geometry]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+            noise=True,
+            std=0.1,
+            velocity_noise_std=0.2,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        set_seed(123)
+        sensor.step(sensor.state)
+        noisy_range = sensor.range_data[0]
+        noisy_velocity = sensor.radial_velocity[0]
+
+        # Repeat without noise to compare against the deterministic baseline.
+        sensor.noise = False
+        sensor.velocity_noise_std = 0.0
+        sensor.step(sensor.state)
+
+        assert noisy_range != pytest.approx(sensor.range_data[0], abs=1e-9)
+        assert noisy_velocity != pytest.approx(sensor.radial_velocity[0], abs=1e-9)
+        # Noise should stay close to the baseline within a generous bound.
+        assert abs(noisy_range - sensor.range_data[0]) < 1.0
+        assert abs(noisy_velocity - sensor.radial_velocity[0]) < 2.0
+
+    def test_find_nearest_hit_skips_invalid_candidates(self):
+        """``_find_nearest_hit`` must skip self, invalid, and unobstructed objects."""
+        circle = shapely.Point(2.0, 0.0).buffer(0.2)
+        self_obj = _DummyObstacleObject(obj_id=1, geometry=circle)
+        invalid_obj = _DummyObstacleObject(
+            obj_id=3, geometry=circle, geometry_valid=False
+        )
+        unobstructed_obj = _DummyObstacleObject(
+            obj_id=4, geometry=circle, unobstructed=True
+        )
+        # An off-axis obstacle whose tree query matches the beam bbox but whose
+        # geometry does NOT actually intersect the ray (covers the None branch).
+        off_axis = _DummyObstacleObject(
+            obj_id=5, geometry=shapely.Point(1.5, 1.0).buffer(0.05)
+        )
+        # The actual hit object the beam should keep.
+        hit = _DummyObstacleObject(
+            obj_id=6,
+            geometry=shapely.Point(3.0, 0.0).buffer(0.3),
+            velocity_xy=(0.0, 0.0),
+        )
+
+        objects = [self_obj, invalid_obj, unobstructed_obj, off_axis, hit]
+        env = _DummySensorEnvParam(objects, STRtree([o.geometry for o in objects]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        sensor.step(sensor.state)
+
+        assert sensor.valid[0]
+        assert sensor.range_data[0] == pytest.approx(2.7, abs=1e-3)
+
+    def test_map_shape_obstacle_is_intersected(self):
+        """``shape == 'map'`` should route through ``geometry_tree`` and hit a wall."""
+        wall = shapely.LineString([(2.0, -1.0), (2.0, 1.0)])
+        far_wall = shapely.LineString([(4.0, -1.0), (4.0, 1.0)])
+        map_obj = _DummyMapObject(obj_id=2, linestrings=[wall, far_wall])
+        env = _DummySensorEnvParam([map_obj], STRtree([map_obj.geometry]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        sensor.step(sensor.state)
+
+        assert sensor.valid[0]
+        assert sensor.range_data[0] == pytest.approx(2.0, abs=1e-6)
+
+    def test_map_shape_with_no_intersection_returns_no_hit(self):
+        """Map objects whose linestrings miss the beam should leave the beam invalid."""
+        far_wall = shapely.LineString([(0.0, 4.0), (1.0, 4.0)])
+        map_obj = _DummyMapObject(obj_id=2, linestrings=[far_wall])
+
+        # Force the tree query to always return the map object so the
+        # ``len(intersecting_indices) == 0`` branch is exercised.
+        class _FakeTree:
+            def query(self, _ray):
+                return [0]
+
+        env = _DummySensorEnvParam([map_obj], _FakeTree())
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        sensor.step(sensor.state)
+
+        assert not sensor.valid[0]
+        assert sensor.range_data[0] == pytest.approx(5.0, abs=1e-6)
+
+    def test_iter_intersection_points_handles_geometry_types(self):
+        """Helper should yield points for every Shapely geometry kind it knows."""
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+
+        empty = list(sensor._iter_intersection_points(shapely.Point()))
+        assert empty == []
+
+        single = list(sensor._iter_intersection_points(shapely.Point(1.0, 2.0)))
+        assert len(single) == 1
+        assert single[0].geom_type == "Point"
+
+        multipoint = shapely.MultiPoint([(0.0, 0.0), (1.0, 1.0)])
+        assert len(list(sensor._iter_intersection_points(multipoint))) == 2
+
+        line = shapely.LineString([(0.0, 0.0), (1.0, 0.0)])
+        assert len(list(sensor._iter_intersection_points(line))) == 2
+
+        ring = shapely.LinearRing([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)])
+        assert len(list(sensor._iter_intersection_points(ring))) == 4
+
+        multiline = shapely.MultiLineString(
+            [[(0.0, 0.0), (1.0, 0.0)], [(2.0, 0.0), (3.0, 0.0)]]
+        )
+        assert len(list(sensor._iter_intersection_points(multiline))) == 4
+
+        collection = shapely.GeometryCollection(
+            [shapely.Point(0.0, 0.0), shapely.Point(1.0, 1.0)]
+        )
+        assert len(list(sensor._iter_intersection_points(collection))) == 2
+
+    def test_sensor_velocity_xy_falls_back_when_parent_missing(self):
+        """``_sensor_velocity_xy`` should default to zeros without a parent."""
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+        sensor.parent = None
+
+        np.testing.assert_array_equal(sensor._sensor_velocity_xy(), np.zeros(2))
+
+        # Default branch when parent exists but lacks ``velocity_xy``.
+        sensor.parent = object()
+        np.testing.assert_array_equal(sensor._sensor_velocity_xy(), np.zeros(2))
+
+    def test_plot_and_step_plot_render_velocity_visuals(self):
+        """End-to-end plotting should populate the line collection and markers."""
+        obstacle = _DummyObstacleObject(
+            obj_id=2,
+            geometry=shapely.Point(2.0, 0.0).buffer(0.2),
+            velocity_xy=(1.0, 0.0),
+        )
+        env = _DummySensorEnvParam([obstacle], STRtree([obstacle.geometry]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=5,
+            angle_range=0.4,
+            range_max=5.0,
+            velocity_color=True,
+            show_velocity_markers=True,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+        sensor.step(sensor.state)
+
+        fig = plt.figure()
+        ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+        try:
+            sensor._plot(ax, sensor.state)
+            assert hasattr(sensor, "laser_LineCollection")
+            assert hasattr(sensor, "velocity_marker_plot")
+            assert sensor.velocity_marker_plot in sensor.plot_patch_list
+
+            # Re-step so _step_plot exercises the update branches.
+            sensor.step(sensor.state)
+            sensor._step_plot()
+
+            # When no beams are valid the marker update path returns the
+            # ``np.empty((0, 4))`` fallback color array.
+            sensor.valid[:] = False
+            sensor._update_velocity_markers()
+        finally:
+            plt.close(fig)
+
+    def test_step_plot_skips_when_velocity_color_disabled(self):
+        """Disabling velocity_color should bypass the visuals branch entirely."""
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=2,
+            angle_range=0.5,
+            range_max=5.0,
+            velocity_color=False,
+            show_velocity_markers=False,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], _DummySensorEnvParam([], None))
+        sensor.step(sensor.state)
+
+        # Both visual hooks should be no-ops without raising.
+        sensor._apply_velocity_visuals()
+        sensor._update_velocity_markers()
+        assert not hasattr(sensor, "laser_LineCollection")
+        assert not hasattr(sensor, "velocity_marker_plot")
