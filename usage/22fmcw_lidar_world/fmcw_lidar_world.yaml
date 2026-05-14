@@ -5,7 +5,7 @@ world:
   sample_time: 0.1
   offset: [0, 0]
   collision_mode: 'stop'
-  control_mode: 'keyboard'
+  control_mode: 'auto'
 
 robot:
   - kinematics: {name: 'diff'}
@@ -15,6 +15,7 @@ robot:
     vel_min: [-2, -2.0]
     vel_max: [2, 2.0]
     behavior: {name: 'dash'}
+    static: True
 
     sensors:
       - type: 'fmcw_lidar2d'
