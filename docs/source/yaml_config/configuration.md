@@ -50,7 +50,7 @@ Use this navigation to quickly jump to specific parameter sections:
 :open:
 - [Parameters Table](#gui-parameters-table)
 - [keyboard properties](#keyboard-properties)
-  - `backend`, `global_hook`, `key_lv_max`, `key_ang_max`, `key_lv`, `key_ang`, `key_id`
+  - `backend`, `global_hook`, `key_lv_max`, `key_ang_max`, `key_lv`, `key_ang`, `key_rot`, `key_id`
 - [mouse properties](#mouse-properties)
   - `zoom_factor`
 ::::
@@ -643,7 +643,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   - **`'linestring'`**: Represents a line string shape defined by a list of vertices. Similar to a polygon but generates a line string.
     - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
     - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
-    - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `False`.
+    - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `True`.
     - parameters for random line string generation (polygon), see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
 
     ```yaml
@@ -684,7 +684,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `target_roles` (str/`all`): Only the objects with the target role will be applied to the behavior. Currently, you can set the target role as `robot` or `obstacle`.
     - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
     - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
-    - `angle_tolerance` (float/`0.1`): Tolerance for orientation alignment with `diff` and `acker` kinematics.
+    - `angle_tolerance` (float/`0.1`): Tolerance for orientation alignment with `diff`, `acker`, and `omni_angular` kinematics.
 
     **Example:**
     ```yaml
@@ -1020,6 +1020,7 @@ Configure keyboard control. Options are read by `KeyboardControl`. The default b
   - `key_ang_max` (`float`/`1.0`): Maximum angular velocity.
   - `key_lv` (`float`/`0.0`): Initial linear velocity.
   - `key_ang` (`float`/`0.0`): Initial angular velocity.
+  - `key_rot` (`float`/`0.0`): Initial rotational velocity (yaw rate for `omni_angular` kinematics).
   - `key_id` (`int`/`0`): Initial robot control id.
 
 ```yaml
@@ -1040,12 +1041,12 @@ gui:
 
 - `w` — Forward
 - `s` — Backward
-- `a` — Turn Left
-- `d` — Turn Right
-- `q` — Decrease Linear Velocity
-- `e` — Increase Linear Velocity
-- `z` — Decrease Angular Velocity
-- `c` — Increase Angular Velocity
+- `a` — Turn left (`diff`/`acker`) or strafe left (`omni`/`omni_angular`)
+- `d` — Turn right (`diff`/`acker`) or strafe right (`omni`/`omni_angular`)
+- `q` — Rotate left (yaw rate for `omni_angular`)
+- `e` — Rotate right (yaw rate for `omni_angular`)
+- `z` / `c` — Decrease / increase maximum angular velocity (`key_ang_max`)
+- `shift+z` / `shift+c` — Decrease / increase maximum linear velocity (`key_lv_max`)
 - `alt+num` — Change Current Control Robot ID
 - `r` — Reset the Environment
 - `space` — Toggle Pause/Resume Environment
@@ -1054,6 +1055,7 @@ gui:
 - `l` — Reload the Environment
 - `F5` — Debug the Environment (fn+f5 for mac)
 - `v` — Save the current figure
+- `y` — Toggle display render window
 
 ```{tip}
 Debug mode lets you step the simulation frame-by-frame for inspection:
@@ -1091,8 +1093,8 @@ Notes:
   - **Scroll Down** — Zoom out (centered on mouse position)
 
   **Mouse Position Attributes:**
-  - `mouse_left_pos` (`tuple`): Position of left click (x, y).
-  - `mouse_right_pos` (`tuple`): Position of right click (x, y).
+  - `left_click_pos` (`tuple`): Position of left click (x, y).
+  - `right_click_pos` (`tuple`): Position of right click (x, y).
   - `mouse_pos` (`tuple`): Current mouse position (x, y).
   ````
 :::::
