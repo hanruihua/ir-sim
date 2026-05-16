@@ -153,3 +153,6 @@ msgid ""
 msgstr ""
 "下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 `fov`（角度）与 "
 "`fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 `fov_detect_object()` 检测视场内的机器人。"
+
+msgid "Visualization parameters live under the sensor's **`plot:`** sub-dict (consistent with `lidar2d` and object `plot:`); flat top-level keys are still accepted for backward compatibility:"
+msgstr "可视化参数位于传感器的 **`plot:`** 子字典下（与 `lidar2d` 和对象的 `plot:` 约定一致）；为保持向后兼容，仍接受顶层扁平键："

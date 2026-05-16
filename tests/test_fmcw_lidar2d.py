@@ -95,6 +95,51 @@ class TestFMCWLidar2D:
         assert isinstance(sensor, FMCWLidar2D)
         assert sensor.sensor_type == "fmcw_lidar2d"
 
+    def test_plot_subdict_overrides_and_flat_fallback(self):
+        """Visualization params resolve from `plot:` first, then flat keys."""
+        factory = SensorFactory()
+
+        # fmcw: plot: wins over a flat key; a flat-only key still applies.
+        sensor = factory.create_sensor(
+            np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            type="fmcw_lidar2d",
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+            velocity_marker_size=10,  # flat (should be overridden)
+            no_hit_alpha=0.123,  # flat-only (should apply)
+            plot={"velocity_marker_size": 50, "velocity_linewidth": 3.5},
+        )
+        assert sensor.velocity_marker_size == 50
+        assert sensor.velocity_linewidth == 3.5
+        assert sensor.no_hit_alpha == 0.123
+
+        # lidar2d: alpha/color honored from the plot: sub-dict.
+        lidar = factory.create_sensor(
+            np.array([[0.0], [0.0], [0.0]]),
+            obj_id=2,
+            name="lidar2d",
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+            plot={"alpha": 0.7, "color": "g"},
+        )
+        assert lidar.alpha == 0.7
+        assert lidar.color == "g"
+
+        # lidar2d: flat keys still work without a plot: dict (back-compat).
+        lidar_flat = factory.create_sensor(
+            np.array([[0.0], [0.0], [0.0]]),
+            obj_id=3,
+            name="lidar2d",
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+            color="b",
+        )
+        assert lidar_flat.color == "b"
+
     def test_object_base_recognizes_fmcw_as_lidar(self):
         """ObjectBase should expose FMCW lidar via the existing lidar slot."""
         obj = ObjectFactory().create_object(

@@ -26,7 +26,8 @@ robot:
         std: 0.2
         angle_std: 0.2
         offset: [0.1, 0.1, 0.5]
-        alpha: 0.3
+        plot:
+          alpha: 0.3
       
 obstacle:
   - shape: {name: 'circle', radius: 1.0, center: [1, 1]}  # radius

@@ -26,19 +26,20 @@ robot:
         motion_compensate: False
         noise: False
         offset: [0.0, 0.0, 0.0]
-        alpha: 0.8
-        color: 'cyan'
-        velocity_linewidth: 2.0
-        no_hit_linewidth: 0.25
-        no_hit_alpha: 0.01
-        show_velocity_markers: True
-        velocity_marker_size: 45
-        velocity_marker_edge_color: 'black'
-        velocity_marker_edge_width: 0.5
-        zero_velocity_color: 'cyan'
-        positive_velocity_color: 'red'
-        negative_velocity_color: 'blue'
-        velocity_color_max: 0.6
+        plot:                 # sensor visualization (Doppler colors)
+          alpha: 0.8
+          color: 'cyan'
+          velocity_linewidth: 2.0
+          no_hit_linewidth: 0.25
+          no_hit_alpha: 0.01
+          show_velocity_markers: True
+          velocity_marker_size: 45
+          velocity_marker_edge_color: 'black'
+          velocity_marker_edge_width: 0.5
+          zero_velocity_color: 'cyan'
+          positive_velocity_color: 'red'
+          negative_velocity_color: 'blue'
+          velocity_color_max: 0.6
 
 obstacle:
   - kinematics: {name: 'omni'}

@@ -218,9 +218,10 @@ robot:
         number: 121
         motion_compensate: False
         noise: False
-        velocity_linewidth: 2.0
-        velocity_marker_size: 45
-        velocity_color_max: 0.6
+        plot:                     # visualization params under `plot:`
+          velocity_linewidth: 2.0
+          velocity_marker_size: 45
+          velocity_color_max: 0.6
 ```
 
 :::
@@ -230,6 +231,9 @@ Key FMCW-specific parameters are:
 
 - **motion_compensate**: Whether to remove ego-motion from the measured radial velocity.
 - **velocity_noise_std**: Standard deviation of Gaussian noise applied to `radial_velocity`.
+
+Visualization parameters live under the sensor's **`plot:`** sub-dict (consistent with `lidar2d` and object `plot:`); flat top-level keys are still accepted for backward compatibility:
+
 - **velocity_color**: Whether to colorize valid beams by radial velocity during plotting.
 - **velocity_color_max**: Velocity magnitude where the plotting color saturates.
 

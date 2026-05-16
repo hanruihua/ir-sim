@@ -57,27 +57,30 @@ class FMCWLidar2D(Lidar2D):
         self.sensor_type = "fmcw_lidar2d"
         self.motion_compensate = motion_compensate
         self.velocity_noise_std = velocity_noise_std
-        self.velocity_color = kwargs.get("velocity_color", True)
-        self.velocity_color_max = kwargs.get("velocity_color_max", 2.0)
-        self.velocity_linewidth = kwargs.get("velocity_linewidth", 2.5)
-        self.no_hit_linewidth = kwargs.get("no_hit_linewidth", 0.8)
-        self.no_hit_alpha = kwargs.get("no_hit_alpha", 0.03)
-        self.show_velocity_markers = kwargs.get("show_velocity_markers", True)
-        self.velocity_marker_size = kwargs.get("velocity_marker_size", 36)
-        self.velocity_marker_edge_color = kwargs.get(
-            "velocity_marker_edge_color", "black"
-        )
-        self.velocity_marker_edge_width = kwargs.get("velocity_marker_edge_width", 0.6)
-        self.zero_velocity_color = np.array(
-            to_rgb(kwargs.get("zero_velocity_color", "cyan"))
-        )
+
+        # Visualization params: prefer the `plot:` sub-dict (set on the
+        # base sensor as self._plot_cfg), fall back to flat top-level
+        # keys for backward compatibility, then the default.
+        def _pg(key, default):
+            return self._plot_cfg.get(key, kwargs.get(key, default))
+
+        self.velocity_color = _pg("velocity_color", True)
+        self.velocity_color_max = _pg("velocity_color_max", 2.0)
+        self.velocity_linewidth = _pg("velocity_linewidth", 2.5)
+        self.no_hit_linewidth = _pg("no_hit_linewidth", 0.8)
+        self.no_hit_alpha = _pg("no_hit_alpha", 0.03)
+        self.show_velocity_markers = _pg("show_velocity_markers", True)
+        self.velocity_marker_size = _pg("velocity_marker_size", 36)
+        self.velocity_marker_edge_color = _pg("velocity_marker_edge_color", "black")
+        self.velocity_marker_edge_width = _pg("velocity_marker_edge_width", 0.6)
+        self.zero_velocity_color = np.array(to_rgb(_pg("zero_velocity_color", "cyan")))
         self.positive_velocity_color = np.array(
-            to_rgb(kwargs.get("positive_velocity_color", "crimson"))
+            to_rgb(_pg("positive_velocity_color", "crimson"))
         )
         self.negative_velocity_color = np.array(
-            to_rgb(kwargs.get("negative_velocity_color", "royalblue"))
+            to_rgb(_pg("negative_velocity_color", "royalblue"))
         )
-        self.no_hit_color = np.array(to_rgb(kwargs.get("no_hit_color", "lightgray")))
+        self.no_hit_color = np.array(to_rgb(_pg("no_hit_color", "lightgray")))
         self.radial_velocity = np.zeros(self.number)
         self.valid = np.zeros(self.number, dtype=bool)
 

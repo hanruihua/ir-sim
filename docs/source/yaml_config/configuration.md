@@ -770,8 +770,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `std` (float/`0.2`): Standard deviation for range noise if `noise` is `True`.
     - `angle_std` (float/`0.02`): Standard deviation for angle noise if `noise` is `True`.
     - `offset` (list/`[0, 0, 0]`): Offset of the sensor from the object's position (x, y, theta).
-    - `alpha` (float/`0.3`): Transparency for plotting.
     - `has_velocity` (bool/`False`): Whether measures the lidar point velocity.
+
+    Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are still accepted for backward compatibility):
+    - `alpha` (float/`0.3`): Transparency for plotting.
     - `color` (str/`r`): Color of the sensor.
 
     **Example:**
@@ -787,12 +789,15 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
         std: 0.2
         angle_std: 0.2
         offset: [0, 0, 0]
-        alpha: 0.3
+        plot:
+          alpha: 0.3
     ```
 
-  - `fmcw_lidar2d`: Simplified 2D FMCW LiDAR for range and radial Doppler measurements. It reuses the beam geometry of `lidar2d` and adds:
+  - `fmcw_lidar2d`: Simplified 2D FMCW LiDAR for range and radial Doppler measurements. It reuses the beam geometry of `lidar2d` and adds two functional parameters:
     - `motion_compensate` (bool/`False`): Whether to remove ego-motion from the measured radial velocity.
     - `velocity_noise_std` (float/`0.0`): Standard deviation of Gaussian noise on radial velocity.
+
+    All visualization options go under the sensor's **`plot:`** sub-dict (same convention as `lidar2d` and object `plot:`). Flat top-level keys are still accepted for backward compatibility.
     - `velocity_color` (bool/`True`): Whether to color valid beams by radial velocity.
     - `velocity_color_max` (float/`2.0`): Velocity magnitude where the plotting color saturates.
     - `velocity_linewidth` (float/`2.5`): Plot line width for valid returns.
@@ -816,9 +821,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
         angle_range: 2.0944
         number: 121
         motion_compensate: False
-        velocity_color: True
-        velocity_linewidth: 2.0
-        velocity_marker_size: 45
+        plot:
+          velocity_color: True
+          velocity_linewidth: 2.0
+          velocity_marker_size: 45
     ```
 
 **`fov`** and **`fov_radius`**:
