@@ -145,8 +145,8 @@ html[data-theme="dark"] {
 }
 .navbar-nav .nav-link {
     white-space: nowrap;
-    font-size: 1rem;
-    padding-inline: 0.3rem;
+    font-size: 0.9rem;
+    padding-inline: 0.35rem;
 }
 .navbar-header-items__end {
     gap: 0.35rem;
