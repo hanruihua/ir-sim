@@ -2,90 +2,201 @@
    Everything in pydata-sphinx-theme is rem/em-based, so a single
    root bump scales body, headings, tables, code and sidebar
    proportionally. */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+
 html {
-    font-size: 112.5%;            /* 16px -> 18px */
+    font-size: 100%;              /* tight: 16px base (default) */
+}
+/* Reader-controlled text size (sidebar switcher + fontsize-init.js).
+   Attribute selector outranks the plain `html` rule above. */
+html[data-fontsize="small"]  { font-size: 93.75%; }   /* 15px */
+html[data-fontsize="medium"] { font-size: 100%; }      /* 16px */
+html[data-fontsize="large"]  { font-size: 112.5%; }    /* 18px */
+
+/* ---- sidebar text-size switcher ---- */
+.bd-sidebar-primary .irsim-fontsize {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.8rem;
+}
+.irsim-fontsize__label { color: var(--pst-color-text-muted); }
+.irsim-fontsize__btns { display: inline-flex; gap: 0.25rem; }
+.irsim-fontsize__btns button {
+    min-width: 1.9rem;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 6px;
+    background: var(--pst-color-surface);
+    color: var(--pst-color-text-base);
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    cursor: pointer;
+}
+.irsim-fontsize__btns button:hover {
+    border-color: var(--site-accent);
+    color: var(--site-accent);
+}
+.irsim-fontsize__btns button.is-active {
+    background: var(--site-accent);
+    border-color: var(--site-accent);
+    color: #fff;
 }
 
-.wy-nav-content {
-    max-width: 1000px !important;
+/* ============================================================
+   Claude (Anthropic) identity  —  follows DESIGN.md
+   Tasteful application: warm cream canvas, scarce coral
+   accent, hairline borders, and the signature editorial
+   type split — serif display (EB Garamond ≈ Tiempos) for
+   h1/h2, humanist sans (Inter ≈ StyreneB) for body & small
+   headings. Deliberately restrained: no hero band, no
+   floating page-card, no pastel rainbow. Everything routes
+   through --pst-color-* / --site-accent.
+   ============================================================ */
+:root {
+    --pst-font-family-base: "Inter", system-ui, -apple-system,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --pst-font-family-heading: var(--pst-font-family-base);
+    --claude-serif: "EB Garamond", "Tiempos Headline", Georgia,
+        "Times New Roman", serif;
+}
+html[data-theme="light"] {
+    --pst-color-primary: #cc785c;        /* Anthropic coral */
+    --pst-color-primary-bg: #f3e2d9;
+    --pst-color-primary-text: #ffffff;
+    --pst-color-primary-highlight: #a9583e;
+    --pst-color-secondary: #cc785c;
+    --pst-color-secondary-bg: #f3e2d9;
+    --pst-color-link: #a9583e;           /* coral-active = AA on cream */
+    --pst-color-link-hover: #cc785c;
+    --pst-color-link-higher-contrast: #8f4630;
+    --bs-link-color-rgb: 169, 88, 62;        /* #a9583e */
+    --bs-link-hover-color-rgb: 204, 120, 92; /* #cc785c */
+    --pst-color-background: #faf9f5;     /* warm cream canvas */
+    --pst-color-on-background: #faf9f5;
+    --pst-color-surface: #f5f0e8;        /* soft cream surface */
+    --pst-color-on-surface: #141413;
+    --pst-color-text-base: #3d3d3a;      /* warm body ink */
+    --pst-color-text-muted: #6c6a64;
+    --pst-color-heading-color: #141413;  /* near-black warm ink */
+    --pst-color-border: #e6dfd8;         /* hairline */
+    --pst-color-border-muted: #ebe6df;
+    --pst-color-inline-code: #141413;
+    --pst-color-target: #f3e2d9;
+    --site-accent: #cc785c;
+}
+html[data-theme="dark"] {
+    --pst-color-primary: #d99a82;        /* lighter coral on dark */
+    --pst-color-primary-bg: #3a2a22;
+    --pst-color-primary-text: #181715;
+    --pst-color-primary-highlight: #e8b59f;
+    --pst-color-secondary: #d99a82;
+    --pst-color-secondary-bg: #3a2a22;
+    --pst-color-link: #e0a589;
+    --pst-color-link-hover: #ecbda6;
+    --pst-color-link-higher-contrast: #ecbda6;
+    --bs-link-color-rgb: 224, 165, 137;      /* #e0a589 */
+    --bs-link-hover-color-rgb: 236, 189, 166; /* #ecbda6 */
+    --pst-color-background: #181715;     /* Claude dark surface */
+    --pst-color-on-background: #141413;
+    --pst-color-surface: #252320;        /* dark elevated */
+    --pst-color-on-surface: #faf9f5;
+    --pst-color-text-base: #faf9f5;
+    --pst-color-text-muted: #a09d96;
+    --pst-color-heading-color: #faf9f5;
+    --pst-color-border: #3a352f;
+    --pst-color-border-muted: #2a2722;
+    --pst-color-inline-code: #faf9f5;
+    --pst-color-target: #3a2a22;
+    --site-accent: #d99a82;
 }
 
-/* Prevent navigation links from wrapping */
+/* ---- Wider content: slim the right "On this page" TOC and
+   raise the page cap so the article column gets more room
+   (the Welcome page and wide tables/schema tree breathe). */
+:root {
+    --pst-sidebar-secondary: 14rem;
+}
+/* Primary sidebar keeps pydata's default 25% width, and the
+   whole page block is nudged right with a larger left inset
+   so the sidebar isn't flush against the window edge. */
+.bd-container .bd-page-width {
+    padding-left: 3rem;
+    padding-right: 1.5rem;
+}
+.bd-page-width {
+    max-width: 100rem;
+}
+.bd-header .bd-header__inner {
+    max-width: 100rem;
+    padding-inline: 1.5rem;
+}
+.bd-header .bd-navbar-elements,
+.bd-header .navbar-header-items {
+    flex-wrap: nowrap;
+}
+.bd-header .navbar-nav {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+}
 .navbar-nav .nav-link {
     white-space: nowrap;
+    font-size: 1rem;
+    padding-inline: 0.3rem;
 }
-
-/* Center and constrain navbar layout */
-.bd-header .bd-header__inner {
-    max-width: 1600px !important;
-    margin: 0 auto !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    padding: 0 2rem !important;
-}
-
-/* Logo container */
-.bd-header .col-lg-3 {
-    flex: 0 0 auto !important;
-    margin-right: 2rem !important;
-}
-
-/* Navigation items container */
-.bd-header .col-lg-9 {
-    flex: 1 1 auto !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    min-width: 0 !important;
-}
-
-.bd-navbar-elements {
-    flex-wrap: nowrap !important;
-    gap: 2rem !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-}
-
-.bd-navbar-elements .nav-link {
-    padding: 0.5rem 0 !important;
-    font-size: 0.95rem !important;
-    white-space: nowrap !important;
-}
-
-.navbar-header-items__center {
-    flex: 0 1 auto !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    min-width: 0 !important;
-}
-
-.navbar-header-items__center .navbar-nav {
-    display: flex !important;
-    gap: 2rem !important;
-    align-items: center !important;
-}
-
 .navbar-header-items__end {
-    flex-shrink: 0 !important;
-    margin-left: 2rem !important;
-    display: flex !important;
-    gap: 1rem !important;
-    align-items: center !important;
+    gap: 0.35rem;
 }
-
-/* Shrink language switcher and move to far right */
-.navbar-header-items__end .bd-header-article__inner {
-    order: 999 !important;
+/* text-size switcher in the navbar (after the PyPI icon):
+   compact, label hidden, aligned with the other end items. */
+.bd-header .irsim-fontsize {
+    display: inline-flex;
+    align-items: center;
 }
-
-.bd-header-article__inner .dropdown {
-    font-size: 0.85rem !important;
+.bd-header .irsim-fontsize__label { display: none; }
+.bd-header .irsim-fontsize__btns { gap: 0.1rem; }
+.bd-header .irsim-fontsize__btns button {
+    min-width: 1.35rem;
+    padding: 0.05rem 0.25rem;
+    font-size: 0.72rem;
 }
-
-.bd-header-article__inner .dropdown-toggle {
-    padding: 0.3rem 0.6rem !important;
-    font-size: 0.85rem !important;
+/* Tight control cluster: version + language + text-size flow
+   together on a line or two (instead of tall stacked blocks
+   with dividers), with a single divider before the nav. */
+.bd-sidebar-primary .sidebar-primary-item:has(.version-switcher__container),
+.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle),
+.bd-sidebar-primary .sidebar-primary-item:has(.irsim-fontsize) {
+    display: inline-flex;
+    width: auto;
+    margin: 0 0.4rem 0.4rem 0;
+    padding: 0;
+}
+.bd-sidebar-primary .version-switcher__container { margin: 0; }
+.bd-sidebar-primary li.nav-item.dropdown {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.bd-sidebar-primary .version-switcher__button,
+.bd-sidebar-primary #irsim-lang-toggle {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.5rem;
+}
+.bd-sidebar-primary li.nav-item.dropdown .dropdown-menu { font-size: 0.8rem; }
+/* one clean divider between the control cluster and the nav */
+.bd-sidebar-primary .sidebar-primary-item:has(nav) {
+    margin-top: 0.35rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--pst-color-border);
 }
 
 /* ============================================================
@@ -609,28 +720,59 @@ html[data-theme="dark"] .yaml-tree {
     --site-accent: var(--pst-color-primary, #0a7d91);
 }
 
-/* ---- heading rhythm & hierarchy ---- */
+/* ---- heading rhythm & hierarchy ----
+   Claude editorial split: serif display for h1/h2 (never
+   bold — DESIGN.md), humanist sans for h3/h4 and body. */
 .bd-article h1 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-    margin-bottom: 1.15rem;
+    font-family: var(--claude-serif);
+    font-weight: 500;
+    color: var(--pst-color-heading-color);
+    letter-spacing: -0.018em;
+    line-height: 1.1;
+    margin-bottom: 0.7rem;
 }
 .bd-article h2 {
-    font-weight: 700;
+    font-family: var(--claude-serif);
+    font-weight: 500;
+    color: var(--pst-color-heading-color);
     letter-spacing: -0.012em;
-    margin-top: 2.6rem;
-    padding-bottom: 0.3rem;
+    margin-top: 1.7rem;
+    padding-bottom: 0.25rem;
     border-bottom: 1px solid var(--pst-color-border);
 }
 .bd-article h3 {
     font-weight: 600;
     letter-spacing: -0.006em;
-    margin-top: 1.9rem;
+    margin-top: 1.2rem;
 }
-.bd-article h4 { margin-top: 1.5rem; }
+.bd-article h4 { margin-top: 0.95rem; }
 .bd-article p,
-.bd-article li { line-height: 1.7; }
+.bd-article li { line-height: 1.55; }
+.bd-article p { margin-bottom: 0.7rem; }
+/* ---- tight layout: dense content, trimmed padding/indents
+   (higher specificity so it wins over pydata defaults) ---- */
+.bd-main .bd-article {
+    /* pydata sets this via logical padding-inline/block; force
+       a tight box (user-requested dense layout). */
+    padding: 0.4rem 0 0 0.9rem !important;
+}
+.bd-article ul,
+.bd-article ol {
+    margin: 0 0 0.6rem;
+    padding-left: 1.35rem;
+}
+.bd-article li { margin-bottom: 0.15rem; }
+.bd-article li > p { margin-bottom: 0.3rem; }
+.bd-article .admonition { margin: 0.85rem 0; }
+.bd-article div.highlight { margin: 0.7rem 0; }
+.bd-article table.table,
+.bd-article table.docutils { margin-bottom: 0.85rem; }
+.bd-article h2 { margin-bottom: 0.65rem; }
+.bd-article h3 { margin-bottom: 0.45rem; }
+.bd-article .bd-article-footer,
+.bd-article footer { margin-top: 1.4rem; }
+/* slightly tighter gutter between content and the page TOC */
+.bd-sidebar-secondary { padding-left: 0.6rem; }
 
 /* ---- content links ---- */
 .bd-article a.reference {
