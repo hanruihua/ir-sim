@@ -1,19 +1,16 @@
-Configure grid map environment
-==============================
+# Configure grid map environment
 
 The grid map is a 2D occupancy grid used for collision detection and path planning. You configure it via the **``obstacle_map``** key in the ``world`` section of the YAML file. The grid is built by a **map generator**; built-in generators are **image** (from a PNG file) and **perlin** (procedural noise). You can also add custom generators (see [Adding a new map generator](#add-new-map-generator)).
 
 
-Overview
---------
+## Overview
 
 - **``obstacle_map``** accepts: **``null``**, a **generator spec dict** (recommended), a **string path** (shorthand for image), or an **ndarray** (programmatic use only).
 - **Generator spec** is a dict with ``name`` identifying the generator and generator-specific parameters. Grid size and semantics depend on the generator.
 - **``mdownsample``** (world section): downsampling factor applied to the generated grid to reduce resolution and computation.
 
 
-Quick example
--------------
+## Quick example
 
 ::::{tab-set}
 
@@ -81,8 +78,7 @@ obstacle:
 ::::
 
 
-Obstacle map types
-------------------
+## Obstacle map types
 
 **Canonical form: generator spec dict**
 
@@ -98,8 +94,7 @@ Use a dict with ``name`` and parameters. Two built-in generators:
 - **ndarray**: programmatic use only (e.g. when constructing the world in Python). Float array 0–100; cells above 50 are obstacles. Not available from YAML.
 
 
-Built-in generators
--------------------
+## Built-in generators
 
 ### Image generator (``name: image``)
 
@@ -158,15 +153,13 @@ world:
 Full example: ``usage/10grid_map/grid_map_perlin.yaml`` and ``grid_map_perlin.py``.
 
 
-Downsampling (``mdownsample``)
-------------------------------
+## Downsampling (``mdownsample``)
 
 ``mdownsample`` is an integer (default 1) applied to the generated grid: the grid is subsampled by this factor (e.g. 2 → every 2×2 block becomes one cell). Use it to reduce resolution and speed up collision checks. Only applies when an obstacle map is present.
 
 
 (add-new-map-generator)=
-Adding a new map generator
---------------------------
+## Adding a new map generator
 
 To add a custom generator (e.g. maze, other procedural maps), implement a class under **``irsim/world/map/``** and register it by importing in **``irsim/world/map/__init__.py``**.
 

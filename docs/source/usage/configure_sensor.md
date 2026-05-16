@@ -1,5 +1,6 @@
-Configure Sensors for the robot
-=================================
+# Configure Sensors for the robot
+
+Robots can carry sensors for environment perception. IR-SIM currently provides a 2D LiDAR (`lidar2d`) plus an optional field-of-view (FOV) region; both are attached per object in the YAML file. This page shows how to configure them and tune noise.
 
 ## LiDAR Configuration Parameters
 
@@ -90,7 +91,7 @@ To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined
 - **number**: The number of beams.
 - **alpha**: The transparency of the laser beam.
 
-A full list of parameters can be found in the [YAML Configuration](../yaml_config/configuration).
+A full list of parameters can be found in the [YAML Configuration](../yaml_config/configuration.md).
 
 
 ### Advanced Lidar Configuration with noise

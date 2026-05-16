@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"POT-Creation-Date: 2026-05-16 16:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -16,34 +16,62 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: ../../source/get_started/quick_start.md:1
 msgid "Quick Start"
 msgstr "快速开始"
 
-#: ../../source/get_started/quick_start.md:4
+#: ../../source/get_started/quick_start.md:3
 msgid ""
 "To quickly start the simulation, you can use the following code snippet "
 "to run a simulation for a robot in a world."
 msgstr "若想快速启动仿真，可使用以下代码片段在世界中运行一个机器人。"
 
-#: ../../source/get_started/quick_start.md:6
+#: ../../source/get_started/quick_start.md:5
 msgid ""
 "Create a Python file and copy the following code snippet to run the "
 "simulation."
 msgstr "创建一个 Python 文件并复制下面的代码片段即可运行仿真。"
 
-#: ../../source/get_started/quick_start.md:24
+#: ../../source/get_started/quick_start.md:23
 msgid ""
 "Create a configuration YAML file *robot_world.yaml* and copy the "
 "following configuration to the file."
 msgstr "创建配置文件 *robot_world.yaml*，并将以下配置复制到该文件中。"
 
-#: ../../source/get_started/quick_start.md:26
+#: ../../source/get_started/quick_start.md:25
 msgid ""
 "All the configurations are set in the YAML file. You can change the "
 "configurations in the YAML file to customize the simulation. The "
 "following is an example of the configuration file *robot_world.yaml*."
 msgstr "所有配置都写在该 YAML 文件中，你可以通过修改这些配置来自定义仿真。下面是 *robot_world.yaml* 的示例。"
+
+#: ../../source/get_started/quick_start.md:44
+msgid "Next steps"
+msgstr "后续步骤"
+
+#: ../../source/get_started/quick_start.md:46
+msgid ""
+"[Make Environment](../usage/make_environment.md) — the simulation loop, "
+"status control, and dynamic objects in depth."
+msgstr ""
+"[Make Environment](../usage/make_environment.md) —— 深入了解仿真循环、状态控制"
+"和动态对象。"
+
+#: ../../source/get_started/quick_start.md:47
+msgid ""
+"[Configure robots and obstacles](../usage/configure_robots_obstacles.md) "
+"— kinematics, shapes, and multi-object scenes."
+msgstr ""
+"[Configure robots and obstacles](../usage/configure_robots_obstacles.md) "
+"—— 运动学、形状和多对象场景。"
+
+#: ../../source/get_started/quick_start.md:48
+msgid ""
+"[YAML Configuration](../yaml_config/configuration.md) — the full "
+"configuration reference with an interactive schema explorer."
+msgstr ""
+"[YAML Configuration](../yaml_config/configuration.md) —— 完整的配置参考，"
+"附带交互式 schema 浏览器。"
 

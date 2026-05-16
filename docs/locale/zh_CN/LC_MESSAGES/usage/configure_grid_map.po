@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"POT-Creation-Date: 2026-05-16 16:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -16,312 +16,305 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Generated-By: Babel 2.17.0\n"
 
-#: ../../source/usage/configure_grid_map.md:1
+#: ../_al/usage/configure_grid_map.md:1
 msgid "Configure grid map environment"
 msgstr "配置网格地图环境"
 
-#: ../../source/usage/configure_grid_map.md:4
+#: ../_al/usage/configure_grid_map.md:3
 msgid ""
-"The grid map is a 2D occupancy grid used for collision detection and path "
-"planning. You configure it via the **``obstacle_map``** key in the "
+"The grid map is a 2D occupancy grid used for collision detection and path"
+" planning. You configure it via the **``obstacle_map``** key in the "
 "``world`` section of the YAML file. The grid is built by a **map "
 "generator**; built-in generators are **image** (from a PNG file) and "
 "**perlin** (procedural noise). You can also add custom generators (see "
 "[Adding a new map generator](#add-new-map-generator))."
 msgstr ""
-"网格地图是用于碰撞检测和路径规划的二维占据栅格。通过 YAML 文件 ``world`` 部分的 "
-"**``obstacle_map``** 键进行配置。栅格由 **地图生成器** 构建；内置生成器有 "
-"**image**（来自 PNG 文件）和 **perlin**（程序化噪声）。也可添加自定义生成器"
-"（参见[添加新地图生成器](#add-new-map-generator)）。"
+"网格地图是用于碰撞检测和路径规划的二维占据栅格。通过 YAML 文件 ``world`` 部分的 **``obstacle_map``** "
+"键进行配置。栅格由 **地图生成器** 构建；内置生成器有 **image**（来自 PNG 文件）和 "
+"**perlin**（程序化噪声）。也可添加自定义生成器（参见[添加新地图生成器](#add-new-map-generator)）。"
 
-#: ../../source/usage/configure_grid_map.md:7
+#: ../_al/usage/configure_grid_map.md:6
 msgid "Overview"
 msgstr "概述"
 
-#: ../../source/usage/configure_grid_map.md:10
+#: ../_al/usage/configure_grid_map.md:8
 msgid ""
-"- **``obstacle_map``** accepts: **``null``**, a **generator spec dict** "
-"(recommended), a **string path** (shorthand for image), or an "
-"**ndarray** (programmatic use only)."
+"**``obstacle_map``** accepts: **``null``**, a **generator spec dict** "
+"(recommended), a **string path** (shorthand for image), or an **ndarray**"
+" (programmatic use only)."
 msgstr ""
-"- **``obstacle_map``** 接受：**``null``**、**生成器配置字典**（推荐）、"
-"**字符串路径**（图像的简写形式）或 **ndarray**（仅限程序化使用）。"
+"**``obstacle_map``** 接受：**``null``**、**生成器配置字典**（推荐）、**字符串路径**（图像的简写形式）或 "
+"**ndarray**（仅限程序化使用）。"
 
-#: ../../source/usage/configure_grid_map.md:11
+#: ../_al/usage/configure_grid_map.md:9
 msgid ""
-"- **Generator spec** is a dict with ``name`` identifying the generator "
-"and generator-specific parameters. Grid size and semantics depend on the "
+"**Generator spec** is a dict with ``name`` identifying the generator and "
+"generator-specific parameters. Grid size and semantics depend on the "
 "generator."
-msgstr ""
-"- **生成器配置** 是一个字典，``name`` 标识生成器，其余为生成器特定参数。"
-"栅格大小和语义取决于所用生成器。"
+msgstr "**生成器配置** 是一个字典，``name`` 标识生成器，其余为生成器特定参数。栅格大小和语义取决于所用生成器。"
 
-#: ../../source/usage/configure_grid_map.md:12
+#: ../_al/usage/configure_grid_map.md:10
 msgid ""
-"- **``mdownsample``** (world section): downsampling factor applied to "
-"the generated grid to reduce resolution and computation."
-msgstr ""
-"- **``mdownsample``**（world 部分）：对生成的栅格进行降采样的因子，"
-"用于降低分辨率和计算量。"
+"**``mdownsample``** (world section): downsampling factor applied to the "
+"generated grid to reduce resolution and computation."
+msgstr "**``mdownsample``**（world 部分）：对生成的栅格进行降采样的因子，用于降低分辨率和计算量。"
 
-#: ../../source/usage/configure_grid_map.md:15
+#: ../_al/usage/configure_grid_map.md:13
 msgid "Quick example"
 msgstr "快速示例"
 
-#: ../../source/usage/configure_grid_map.md
+#: ../_al/usage/configure_grid_map.md
 msgid "Python"
 msgstr "Python"
 
-#: ../../source/usage/configure_grid_map.md
+#: ../_al/usage/configure_grid_map.md
 msgid "YAML (image map)"
 msgstr "YAML（图像地图）"
 
-#: ../../source/usage/configure_grid_map.md
+#: ../_al/usage/configure_grid_map.md
 msgid "Demonstration"
 msgstr "演示"
 
-#: ../../source/usage/configure_grid_map.md:84
+#: ../_al/usage/configure_grid_map.md:71
+msgid "Grid map demo"
+msgstr "栅格地图演示"
+
+#: ../_al/usage/configure_grid_map.md:81
 msgid "Obstacle map types"
 msgstr "障碍物地图类型"
 
-#: ../../source/usage/configure_grid_map.md:87
+#: ../_al/usage/configure_grid_map.md:83
 msgid "**Canonical form: generator spec dict**"
 msgstr "**标准形式：生成器配置字典**"
 
-#: ../../source/usage/configure_grid_map.md:89
-msgid ""
-"Use a dict with ``name`` and parameters. Two built-in generators:"
-msgstr ""
-"使用包含 ``name`` 和参数的字典。两个内置生成器："
+#: ../_al/usage/configure_grid_map.md:85
+msgid "Use a dict with ``name`` and parameters. Two built-in generators:"
+msgstr "使用包含 ``name`` 和参数的字典。两个内置生成器："
 
-#: ../../source/usage/configure_grid_map.md:91
+#: ../_al/usage/configure_grid_map.md:87
 msgid ""
-"- **``name: image``** — load grid from an image file. Only ``path`` is "
+"**``name: image``** — load grid from an image file. Only ``path`` is "
 "required. Grid size comes from the image dimensions."
-msgstr ""
-"- **``name: image``** — 从图像文件加载栅格。仅需 ``path`` 参数。"
-"栅格大小来源于图像尺寸。"
+msgstr "**``name: image``** — 从图像文件加载栅格。仅需 ``path`` 参数。栅格大小来源于图像尺寸。"
 
-#: ../../source/usage/configure_grid_map.md:92
+#: ../_al/usage/configure_grid_map.md:88
 msgid ""
-"- **``name: perlin``** — procedural Perlin noise grid. Requires "
+"**``name: perlin``** — procedural Perlin noise grid. Requires "
 "``resolution`` (meters per cell); grid size = world ``width`` / "
 "``height`` ÷ ``resolution``."
 msgstr ""
-"- **``name: perlin``** — 程序化 Perlin 噪声栅格。需要 ``resolution``（每格米数）；"
-"栅格大小 = 世界 ``width`` / ``height`` ÷ ``resolution``。"
+"**``name: perlin``** — 程序化 Perlin 噪声栅格。需要 ``resolution``（每格米数）；栅格大小 = 世界 "
+"``width`` / ``height`` ÷ ``resolution``。"
 
-#: ../../source/usage/configure_grid_map.md:94
+#: ../_al/usage/configure_grid_map.md:90
 msgid "**Other accepted values**"
 msgstr "**其他可接受的值**"
 
-#: ../../source/usage/configure_grid_map.md:96
+#: ../_al/usage/configure_grid_map.md:92
+#, python-brace-format
 msgid ""
-"- **String** (e.g. ``'cave.png'``): treated as ``{ name: image, path: "
+"**String** (e.g. ``'cave.png'``): treated as ``{ name: image, path: "
 "'cave.png' }`` (backward compatible)."
-msgstr ""
-"- **字符串**（如 ``'cave.png'``）：视为 ``{ name: image, path: 'cave.png' }``"
-"（向后兼容）。"
+msgstr "**字符串**（如 ``'cave.png'``）：视为 ``{ name: image, path: 'cave.png' }``（向后兼容）。"
 
-#: ../../source/usage/configure_grid_map.md:97
-msgid "- **``null``**: no obstacle map (empty free space)."
-msgstr "- **``null``**：无障碍物地图（空白可通行空间）。"
+#: ../_al/usage/configure_grid_map.md:93
+msgid "**``null``**: no obstacle map (empty free space)."
+msgstr "**``null``**：无障碍物地图（空白可通行空间）。"
 
-#: ../../source/usage/configure_grid_map.md:98
+#: ../_al/usage/configure_grid_map.md:94
 msgid ""
-"- **ndarray**: programmatic use only (e.g. when constructing the world "
-"in Python). Float array 0–100; cells above 50 are obstacles. Not "
-"available from YAML."
-msgstr ""
-"- **ndarray**：仅限程序化使用（如在 Python 中构建世界时）。浮点数组 0–100；"
-"大于 50 的格为障碍物。不可从 YAML 使用。"
+"**ndarray**: programmatic use only (e.g. when constructing the world in "
+"Python). Float array 0–100; cells above 50 are obstacles. Not available "
+"from YAML."
+msgstr "**ndarray**：仅限程序化使用（如在 Python 中构建世界时）。浮点数组 0–100；大于 50 的格为障碍物。不可从 YAML 使用。"
 
-#: ../../source/usage/configure_grid_map.md:101
+#: ../_al/usage/configure_grid_map.md:97
 msgid "Built-in generators"
 msgstr "内置生成器"
 
-#: ../../source/usage/configure_grid_map.md:104
+#: ../_al/usage/configure_grid_map.md:99
 msgid "Image generator (``name: image``)"
 msgstr "图像生成器（``name: image``）"
 
-#: ../../source/usage/configure_grid_map.md:106
+#: ../_al/usage/configure_grid_map.md:101
 msgid ""
-"Loads an image file (e.g. PNG) and converts it to a 0–100 occupancy "
-"grid. Black pixels become obstacles (high value), white pixels free "
-"space (low value). Grid size is the image size in pixels."
-msgstr ""
-"加载图像文件（如 PNG）并将其转换为 0–100 占据栅格。黑色像素为障碍物（高值），"
-"白色像素为可通行空间（低值）。栅格大小为图像的像素尺寸。"
+"Loads an image file (e.g. PNG) and converts it to a 0–100 occupancy grid."
+" Black pixels become obstacles (high value), white pixels free space (low"
+" value). Grid size is the image size in pixels."
+msgstr "加载图像文件（如 PNG）并将其转换为 0–100 占据栅格。黑色像素为障碍物（高值），白色像素为可通行空间（低值）。栅格大小为图像的像素尺寸。"
 
-#: ../../source/usage/configure_grid_map.md:108
+#: ../_al/usage/configure_grid_map.md:103
 msgid "**YAML (explicit):**"
 msgstr "**YAML（显式）：**"
 
-#: ../../source/usage/configure_grid_map.md:120
+#: ../_al/usage/configure_grid_map.md:115
 msgid ""
-"**YAML (shorthand):** ``obstacle_map: 'cave.png'`` is equivalent to "
-"the above."
+"**YAML (shorthand):** ``obstacle_map: 'cave.png'`` is equivalent to the "
+"above."
 msgstr "**YAML（简写）：** ``obstacle_map: 'cave.png'`` 等同于上述配置。"
 
-#: ../../source/usage/configure_grid_map.md:122
+#: ../_al/usage/configure_grid_map.md:117
 msgid ""
-"**Image location:** The path is resolved relative to the script "
-"directory or the package ``world/map`` search path. You can use "
-"absolute or relative paths. Place ``cave.png`` in the same directory "
-"as your script, or set the path accordingly."
+"**Image location:** The path is resolved relative to the script directory"
+" or the package ``world/map`` search path. You can use absolute or "
+"relative paths. Place ``cave.png`` in the same directory as your script, "
+"or set the path accordingly."
 msgstr ""
-"**图像位置：** 路径相对于脚本目录或包内 ``world/map`` 搜索路径解析。"
-"可使用绝对或相对路径。将 ``cave.png`` 放在脚本同目录下，或相应设置路径。"
+"**图像位置：** 路径相对于脚本目录或包内 ``world/map`` 搜索路径解析。可使用绝对或相对路径。将 ``cave.png`` "
+"放在脚本同目录下，或相应设置路径。"
 
-#: ../../source/usage/configure_grid_map.md:130
+#: ../_al/usage/configure_grid_map.md:119
+msgid "Example cave map"
+msgstr "示例洞穴地图"
+
+#: ../_al/usage/configure_grid_map.md:126
 msgid ""
-"Use custom PNG images for different environments. Values are "
-"interpreted as: darker → obstacle, lighter → free. Absolute or "
-"relative paths are supported."
-msgstr ""
-"使用自定义 PNG 图像可创建不同环境。值的解释为：越暗 → 障碍物，越亮 → 可通行。"
-"支持绝对和相对路径。"
+"Use custom PNG images for different environments. Values are interpreted "
+"as: darker → obstacle, lighter → free. Absolute or relative paths are "
+"supported."
+msgstr "使用自定义 PNG 图像可创建不同环境。值的解释为：越暗 → 障碍物，越亮 → 可通行。支持绝对和相对路径。"
 
-#: ../../source/usage/configure_grid_map.md:135
+#: ../_al/usage/configure_grid_map.md:130
 msgid "Perlin generator (``name: perlin``)"
 msgstr "Perlin 生成器（``name: perlin``）"
 
-#: ../../source/usage/configure_grid_map.md:137
+#: ../_al/usage/configure_grid_map.md:132
 msgid ""
-"Procedural grid from Perlin noise. Grid size is determined by world "
-"size and ``resolution``: e.g. world 20 m × 20 m with "
-"``resolution: 0.1`` gives 200×200 cells."
+"Procedural grid from Perlin noise. Grid size is determined by world size "
+"and ``resolution``: e.g. world 20 m × 20 m with ``resolution: 0.1`` gives"
+" 200×200 cells."
 msgstr ""
-"由 Perlin 噪声生成的程序化栅格。栅格大小由世界尺寸和 ``resolution`` 决定："
-"例如 20 m × 20 m 的世界配合 ``resolution: 0.1`` 可得 200×200 格。"
+"由 Perlin 噪声生成的程序化栅格。栅格大小由世界尺寸和 ``resolution`` 决定：例如 20 m × 20 m 的世界配合 "
+"``resolution: 0.1`` 可得 200×200 格。"
 
-#: ../../source/usage/configure_grid_map.md:156
+#: ../_al/usage/configure_grid_map.md:134
+msgid "**YAML:**"
+msgstr "**YAML：**"
+
+#: ../_al/usage/configure_grid_map.md:151
 msgid ""
 "**Parameters** (see ``irsim.world.map.PerlinGridGenerator``): "
 "``complexity``, ``fill``, ``fractal``, ``attenuation``, ``seed`` "
 "(optional). ``resolution`` is required; ``width`` and ``height`` (in "
 "cells) are computed from world size and must not be set in YAML."
 msgstr ""
-"**参数**（参见 ``irsim.world.map.PerlinGridGenerator``）："
-"``complexity``、``fill``、``fractal``、``attenuation``、``seed``"
-"（可选）。``resolution`` 为必需；``width`` 和 ``height``（格数）"
-"由世界尺寸计算，不可在 YAML 中设置。"
+"**参数**（参见 "
+"``irsim.world.map.PerlinGridGenerator``）：``complexity``、``fill``、``fractal``、``attenuation``、``seed``（可选）。``resolution``"
+" 为必需；``width`` 和 ``height``（格数）由世界尺寸计算，不可在 YAML 中设置。"
 
-#: ../../source/usage/configure_grid_map.md:158
+#: ../_al/usage/configure_grid_map.md:153
 msgid ""
 "Full example: ``usage/10grid_map/grid_map_perlin.yaml`` and "
 "``grid_map_perlin.py``."
 msgstr "完整示例：``usage/10grid_map/grid_map_perlin.yaml`` 和 ``grid_map_perlin.py``。"
 
-#: ../../source/usage/configure_grid_map.md:161
+#: ../_al/usage/configure_grid_map.md:156
 msgid "Downsampling (``mdownsample``)"
 msgstr "降采样（``mdownsample``）"
 
-#: ../../source/usage/configure_grid_map.md:164
+#: ../_al/usage/configure_grid_map.md:158
 msgid ""
-"``mdownsample`` is an integer (default 1) applied to the generated "
-"grid: the grid is subsampled by this factor (e.g. 2 → every 2×2 block "
-"becomes one cell). Use it to reduce resolution and speed up collision "
-"checks. Only applies when an obstacle map is present."
+"``mdownsample`` is an integer (default 1) applied to the generated grid: "
+"the grid is subsampled by this factor (e.g. 2 → every 2×2 block becomes "
+"one cell). Use it to reduce resolution and speed up collision checks. "
+"Only applies when an obstacle map is present."
 msgstr ""
-"``mdownsample`` 是一个整数（默认 1），作用于生成的栅格：按此因子对栅格降采样"
-"（如 2 → 每 2×2 块合并为一格）。用于降低分辨率并加速碰撞检测。"
-"仅在存在障碍物地图时生效。"
+"``mdownsample`` 是一个整数（默认 1），作用于生成的栅格：按此因子对栅格降采样（如 2 → 每 2×2 "
+"块合并为一格）。用于降低分辨率并加速碰撞检测。仅在存在障碍物地图时生效。"
 
-#: ../../source/usage/configure_grid_map.md:167
+#: ../_al/usage/configure_grid_map.md:162
 msgid "Adding a new map generator"
 msgstr "添加新地图生成器"
 
-#: ../../source/usage/configure_grid_map.md:171
+#: ../_al/usage/configure_grid_map.md:164
 msgid ""
-"To add a custom generator (e.g. maze, other procedural maps), implement "
-"a class under **``irsim/world/map/``** and register it by importing in "
+"To add a custom generator (e.g. maze, other procedural maps), implement a"
+" class under **``irsim/world/map/``** and register it by importing in "
 "**``irsim/world/map/__init__.py``**."
 msgstr ""
-"要添加自定义生成器（如迷宫或其他程序化地图），在 **``irsim/world/map/``** 下实现一个类，"
-"并在 **``irsim/world/map/__init__.py``** 中导入以完成注册。"
+"要添加自定义生成器（如迷宫或其他程序化地图），在 **``irsim/world/map/``** 下实现一个类，并在 "
+"**``irsim/world/map/__init__.py``** 中导入以完成注册。"
 
-#: ../../source/usage/configure_grid_map.md:173
+#: ../_al/usage/configure_grid_map.md:166
 msgid "**1. Implement the generator**"
 msgstr "**1. 实现生成器**"
 
-#: ../../source/usage/configure_grid_map.md:175
+#: ../_al/usage/configure_grid_map.md:168
 msgid ""
-"- Subclass **``GridMapGenerator``** (from "
+"Subclass **``GridMapGenerator``** (from "
 "``irsim.world.map.grid_map_generator_base``)."
 msgstr ""
-"- 继承 **``GridMapGenerator``**（来自 "
+"继承 **``GridMapGenerator``**（来自 "
 "``irsim.world.map.grid_map_generator_base``）。"
 
-#: ../../source/usage/configure_grid_map.md:176
+#: ../_al/usage/configure_grid_map.md:169
 msgid ""
-"- Implement **``_build_grid(self) -> np.ndarray``**: return an occupancy "
+"Implement **``_build_grid(self) -> np.ndarray``**: return an occupancy "
 "grid of shape ``(width, height)``, values 0–100 (values > 50 are "
 "obstacles). The framework passes ``width`` and ``height`` to your "
 "``__init__`` (derived from world size and ``resolution``)."
 msgstr ""
-"- 实现 **``_build_grid(self) -> np.ndarray``**：返回形状为 ``(width, height)`` 的"
-"占据栅格，值 0–100（> 50 为障碍物）。框架会将 ``width`` 和 ``height``"
-"（由世界尺寸和 ``resolution`` 计算）传递给 ``__init__``。"
+"实现 **``_build_grid(self) -> np.ndarray``**：返回形状为 ``(width, height)`` "
+"的占据栅格，值 0–100（> 50 为障碍物）。框架会将 ``width`` 和 ``height``（由世界尺寸和 "
+"``resolution`` 计算）传递给 ``__init__``。"
 
-#: ../../source/usage/configure_grid_map.md:177
-msgid "- Set class attributes:"
-msgstr "- 设置类属性："
+#: ../_al/usage/configure_grid_map.md:170
+msgid "Set class attributes:"
+msgstr "设置类属性："
 
-#: ../../source/usage/configure_grid_map.md:178
-msgid "- **``name``** (str): YAML key, e.g. ``name = \"maze\"``."
-msgstr "- **``name``**（str）：YAML 键名，如 ``name = \"maze\"``。"
+#: ../_al/usage/configure_grid_map.md:171
+msgid "**``name``** (str): YAML key, e.g. ``name = \"maze\"``."
+msgstr "**``name``**（str）：YAML 键名，如 ``name = \"maze\"``。"
 
-#: ../../source/usage/configure_grid_map.md:179
+#: ../_al/usage/configure_grid_map.md:172
 msgid ""
-"- **``yaml_param_names``** (tuple): parameter names from YAML passed to "
+"**``yaml_param_names``** (tuple): parameter names from YAML passed to "
 "``__init__`` (e.g. ``(\"seed\", \"density\")``). Do **not** include "
 "``\"name\"``, ``\"resolution\"``, ``\"width\"``, or ``\"height\"`` — "
 "``resolution`` is required in the spec; ``width`` and ``height`` are "
 "injected by the framework."
 msgstr ""
-"- **``yaml_param_names``**（tuple）：从 YAML 传递给 ``__init__`` 的参数名"
-"（如 ``(\"seed\", \"density\")``）。**不要** 包含 ``\"name\"``、``\"resolution\"``、"
-"``\"width\"`` 或 ``\"height\"`` — ``resolution`` 在配置中为必需项；"
-"``width`` 和 ``height`` 由框架注入。"
+"**``yaml_param_names``**（tuple）：从 YAML 传递给 ``__init__`` 的参数名（如 "
+"``(\"seed\", \"density\")``）。**不要** 包含 "
+"``\"name\"``、``\"resolution\"``、``\"width\"`` 或 ``\"height\"`` — "
+"``resolution`` 在配置中为必需项；``width`` 和 ``height`` 由框架注入。"
 
-#: ../../source/usage/configure_grid_map.md:181
+#: ../_al/usage/configure_grid_map.md:174
 msgid "**2. Register**"
 msgstr "**2. 注册**"
 
-#: ../../source/usage/configure_grid_map.md:183
+#: ../_al/usage/configure_grid_map.md:176
 msgid ""
-"Import the new class in **``irsim/world/map/__init__.py``**. Registration "
-"is automatic: subclasses of ``GridMapGenerator`` with a non-empty "
+"Import the new class in **``irsim/world/map/__init__.py``**. Registration"
+" is automatic: subclasses of ``GridMapGenerator`` with a non-empty "
 "``name`` are added to ``GridMapGenerator.registry`` when the class is "
 "defined. Optionally add the class to ``__all__``."
 msgstr ""
-"在 **``irsim/world/map/__init__.py``** 中导入新类。注册是自动的："
-"``GridMapGenerator`` 的子类在定义时，若 ``name`` 非空则自动添加到 "
-"``GridMapGenerator.registry``。可选择将其加入 ``__all__``。"
+"在 **``irsim/world/map/__init__.py``** 中导入新类。注册是自动的：``GridMapGenerator`` "
+"的子类在定义时，若 ``name`` 非空则自动添加到 ``GridMapGenerator.registry``。可选择将其加入 "
+"``__all__``。"
 
-#: ../../source/usage/configure_grid_map.md:185
+#: ../_al/usage/configure_grid_map.md:178
 msgid "**3. Use in YAML**"
 msgstr "**3. 在 YAML 中使用**"
 
-#: ../../source/usage/configure_grid_map.md:187
+#: ../_al/usage/configure_grid_map.md:180
 msgid ""
 "Your generator (like ``perlin``) goes through "
 "``build_grid_from_generator``: the spec must include ``name`` and "
 "``resolution``. Grid size is (world width / resolution, world height / "
 "resolution). Example:"
 msgstr ""
-"自定义生成器（如 ``perlin``）通过 ``build_grid_from_generator`` 处理："
-"配置中必须包含 ``name`` 和 ``resolution``。栅格大小为"
-"（世界宽度 / resolution，世界高度 / resolution）。示例："
+"自定义生成器（如 ``perlin``）通过 ``build_grid_from_generator`` 处理：配置中必须包含 ``name`` "
+"和 ``resolution``。栅格大小为（世界宽度 / resolution，世界高度 / resolution）。示例："
 
-#: ../../source/usage/configure_grid_map.md:200
+#: ../_al/usage/configure_grid_map.md:193
 msgid "**Skeleton example:**"
 msgstr "**框架示例：**"
 
-#: ../../source/usage/configure_grid_map.md:224
+#: ../_al/usage/configure_grid_map.md:217
 msgid ""
 "**Note:** The **``image``** generator is special: it does not use "
 "``resolution`` or world size (grid comes from the image) and is handled "
@@ -329,7 +322,7 @@ msgid ""
 "``build_grid_from_generator`` and require ``resolution``; ``width`` and "
 "``height`` are computed and passed by the framework."
 msgstr ""
-"**注意：** **``image``** 生成器较为特殊：它不使用 ``resolution`` 或世界尺寸"
-"（栅格来源于图像），由 ``resolve_obstacle_map`` 处理。所有其他生成器均使用 "
-"``build_grid_from_generator`` 且需要 ``resolution``；``width`` 和 ``height`` "
-"由框架计算并传入。"
+"**注意：** **``image``** 生成器较为特殊：它不使用 ``resolution`` 或世界尺寸（栅格来源于图像），由 "
+"``resolve_obstacle_map`` 处理。所有其他生成器均使用 ``build_grid_from_generator`` 且需要 "
+"``resolution``；``width`` 和 ``height`` 由框架计算并传入。"
+

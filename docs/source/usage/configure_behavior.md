@@ -1,5 +1,4 @@
-Configure behavior for objects
-=============================
+# Configure behavior for objects
 
 Each object in the simulation can be assigned a behavior independently to simulate different scenarios. The behavior of the object can be configured by specifying the behavior parameters in the YAML configuration file.
 
@@ -103,7 +102,7 @@ robot:
 **Dash-specific Parameters:**
 - **`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker` (default: `0.1` radians)
 
-Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration/).
+Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration.md).
 
 ### RVO with Line Obstacles
 

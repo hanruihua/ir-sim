@@ -85,6 +85,10 @@ myst_enable_extensions = [
     # Add other extensions as needed
 ]
 
+# Auto-generate slug anchors for h1–h4 so in-page/cross-doc
+# `[text](page.md#heading-slug)` links resolve consistently.
+myst_heading_anchors = 4
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 

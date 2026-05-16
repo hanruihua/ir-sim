@@ -1,5 +1,6 @@
-Render and Save Animation
-==============
+# Render and Save Animation
+
+Beyond live rendering, IR-SIM can export a run as an animated GIF or a video, and also supports 3D plots. This page shows how to render the environment and save the result in each format.
 
 ## Render the environment
 

@@ -1,5 +1,4 @@
-Configure robots and obstacles
-==============================
+# Configure robots and obstacles
 
 To effectively simulate robots within your environment, you need to define and configure various robot parameters.
 
@@ -61,7 +60,7 @@ robot:
 
 | Kinematics | Control Input | Typical Use | Can Rotate in Place? |
 |------------|---------------|-------------|----------------------|
-| `omni`     | `[forward, lateral]` - body-frame velocity | Holonomic robots, drones | ✗ No (heading fixed) |
+| `omni`     | `[forward, lateral]` - body-frame velocity | Holonomic robots, drones | ✗ No |
 | `omni_angular` | `[forward, lateral, yaw_rate]` - body-frame velocity + yaw | Holonomic robots with rotation | ✓ Yes |
 | `diff`     | `[v, ω]` - linear & angular velocity | Two-wheeled robots | ✓ Yes |
 | `acker`    | `[v, φ]` - linear velocity & steering angle | Cars, car-like robots | ✗ No |
@@ -85,12 +84,12 @@ The robot has a default behavior of moving from its initial position to the goal
 - **`env.done()`:** Checks whether the simulation conditions to terminate have been met. Such as reaching the goal or a collision. See {py:meth}`~irsim.env.env_base.EnvBase.done` for more details.
 - **`env.end()`:** Ensures that the simulation is terminated gracefully, releasing any resources or handles. Provides a clean exit. See {py:meth}`~irsim.env.env_base.EnvBase.end` for more details.
 
-:::{Note}
+:::{note}
 The [rda_planner](https://github.com/hanruihua/RDA-planner) is a case of using the `env.step(velocity)` to run your own control algorithm.
 :::
 
-:::{Note}
-You can add Gaussian noise on the kinematics of the robot and obstacle by setting the `noise` to be True in parameter in the `kinematics` dictionary. See [kinematics](#../yaml_config/configuration) for more details.
+:::{note}
+You can add Gaussian noise on the kinematics of the robot and obstacle by setting the `noise` to be True in parameter in the `kinematics` dictionary. See [kinematics](../yaml_config/configuration.md) for more details.
 :::
 
 ## Obstacle Configuration Parameters
@@ -262,7 +261,7 @@ obstacle:
 ```
 
 :::{note}
-- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](#../yaml_config/configuration/)
+- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](../yaml_config/configuration.md)
 :::
 
 :::{tab-item} Demonstration

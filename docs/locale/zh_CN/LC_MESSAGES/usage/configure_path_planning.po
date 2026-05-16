@@ -66,9 +66,7 @@ msgstr "**Informed RRT\\*** — 在获得初始解后使用椭球启发式搜索
 msgid ""
 "**PRM (Probabilistic Road Map)** — Sample-based graph search; builds a "
 "roadmap of random samples and runs Dijkstra over it."
-msgstr ""
-"**PRM（概率路图）** — 基于采样的图搜索：在自由空间中采样节点构建路图，"
-"再使用 Dijkstra 求最短路径。"
+msgstr "**PRM（概率路图）** — 基于采样的图搜索：在自由空间中采样节点构建路图，再使用 Dijkstra 求最短路径。"
 
 #: ../../source/usage/configure_path_planning.md:16
 msgid ""
@@ -112,7 +110,6 @@ msgid "``path_planning_prm.py`` — Probabilistic Road Map."
 msgstr "``path_planning_prm.py`` — 概率路图（PRM）。"
 
 #: ../../source/usage/configure_path_planning.md:30
-#, fuzzy
 msgid ""
 "Use the shared ``path_planning.yaml`` (or equivalent) for world and "
 "robot; each script selects the planner and computes a path from the "

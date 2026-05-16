@@ -1,10 +1,8 @@
-Path planning
-=============
+# Path planning
 
 IR-SIM includes grid-based path planners for computing collision-free paths on occupancy maps. Planners are used programmatically; the simulation can then follow the path (e.g. with a dash behavior or custom control).
 
-Supported algorithms
---------------------
+## Supported algorithms
 
 - **A\*** — Classic grid A* with 8-neighbourhood.
 - **JPS (Jump Point Search)** — Faster grid search with equivalent optimal paths.
@@ -15,8 +13,7 @@ Supported algorithms
 
 When a grid map is present (e.g. from ``obstacle_map`` in the world config), A*, JPS and PRM use grid occupancy for collision checks. RRT/RRT*/Informed RRT* can use the same grid or Shapely geometry.
 
-Example usage
--------------
+## Example usage
 
 Scripts and YAML under **usage/20path_planning** demonstrate each planner:
 
