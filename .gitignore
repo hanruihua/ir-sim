@@ -166,3 +166,6 @@ docs/.DS_Store
 
 # auto-generated API gettext catalogs (API ref isn't translated)
 docs/locale/zh_CN/LC_MESSAGES/api/
+
+# internal roadmap — tracked in GitHub Issues/Projects, not the repo
+/todo_list.md
