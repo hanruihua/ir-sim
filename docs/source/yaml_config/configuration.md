@@ -1000,7 +1000,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 (p-o-shape)=
 **`shape`** (`dict`, default: `{name: circle}`)
-: Determines the geometric shape used for collision detection and visualization in the original state. 
+: Determines the geometric shape used for collision detection and visualization in the original state. If `shape` is omitted entirely, the object falls back to a circle of `radius: 1` centered at `[0, 0]`; the `radius: 0.2` below is the default only when a `circle` shape is given without an explicit `radius`.
 
   **Supported Shapes:**
 
