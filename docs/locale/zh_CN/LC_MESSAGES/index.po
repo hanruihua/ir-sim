@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"POT-Creation-Date: 2026-05-16 18:26+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -16,23 +16,39 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:128
-msgid "Getting Started:"
-msgstr "快速开始："
+#: ../../source/index.rst:138
+msgid "Getting Started"
+msgstr "快速开始"
 
-#: ../../source/index.rst:135
-msgid "User Guide:"
-msgstr "用户指南："
+#: ../../source/index.rst:138
+msgid "User Guide"
+msgstr "用户指南"
 
-#: ../../source/index.rst:142
-msgid "YAML Configuration Syntax:"
-msgstr "YAML 配置语法："
+#: ../../source/index.rst:138
+msgid "Configuration"
+msgstr "配置"
 
-#: ../../source/index.rst:149
-msgid "API Reference:"
-msgstr "API 参考："
+#: ../../source/index.rst:138
+msgid "API Reference"
+msgstr "API 参考"
+
+#: ../../source/index.rst:138
+msgid "Documentation"
+msgstr "文档"
+
+#: ../../source/index.rst:148
+msgid "Contributing"
+msgstr "贡献指南"
+
+#: ../../source/index.rst:148
+msgid "Changelog"
+msgstr "更新日志"
+
+#: ../../source/index.rst:148
+msgid "Development"
+msgstr "开发"
 
 #: ../../source/index.rst:8
 msgid "Welcome to IR-SIM's documentation!"
@@ -55,83 +71,99 @@ msgstr ""
 msgid "🚀 Quick Start"
 msgstr "🚀 快速开始"
 
-#: ../../source/index.rst:21
+#: ../../source/index.rst:20
 msgid "Get up and running with IR-SIM in minutes"
 msgstr "几分钟内即可运行 IR-SIM"
 
-#: ../../source/index.rst:23
+#: ../../source/index.rst:22
 msgid "📚 User Guide"
 msgstr "📚 用户指南"
 
-#: ../../source/index.rst:29
+#: ../../source/index.rst:27
 msgid "Learn how to use IR-SIM effectively"
 msgstr "学习如何高效使用 IR-SIM"
 
-#: ../../source/index.rst:31
+#: ../../source/index.rst:29
 msgid "⚙️ Configuration"
 msgstr "⚙️ 配置"
 
-#: ../../source/index.rst:37
+#: ../../source/index.rst:34
 msgid "YAML configuration syntax and examples"
 msgstr "YAML 配置语法与示例"
 
-#: ../../source/index.rst:39
+#: ../../source/index.rst:36
 msgid "🔧 API Reference"
 msgstr "🔧 API 参考"
 
-#: ../../source/index.rst:45
+#: ../../source/index.rst:41
 msgid "Complete API documentation"
 msgstr "完整的 API 文档"
 
-#: ../../source/index.rst:51
+#: ../../source/index.rst:43
+msgid "📋 Changelog"
+msgstr "📋 更新日志"
+
+#: ../../source/index.rst:48
+msgid "Version history and release notes"
+msgstr "版本历史与发布说明"
+
+#: ../../source/index.rst:50
+msgid "🤝 Contributing"
+msgstr "🤝 贡献指南"
+
+#: ../../source/index.rst:55
+msgid "Guide for contributors"
+msgstr ""
+
+#: ../../source/index.rst:61
 msgid "Key Features"
 msgstr "核心特性"
 
-#: ../../source/index.rst:53
+#: ../../source/index.rst:63
 msgid ""
 "Simulate a wide range of robot platforms with diverse kinematics, "
 "sensors, and behaviors"
 msgstr "可仿真多种机器人平台，覆盖丰富的运动学模型、传感器与行为"
 
-#: ../../source/index.rst:54
+#: ../../source/index.rst:64
 msgid ""
 "Quickly configure and customize simulation scenarios using "
 "straightforward YAML files, with no complex coding required"
 msgstr "借助简洁的 YAML 文件即可快速配置与自定义仿真场景，无需复杂编码"
 
-#: ../../source/index.rst:55
+#: ../../source/index.rst:65
 msgid ""
 "Visualize simulation outcomes in real time for immediate feedback and "
 "analysis using matplotlib"
 msgstr "通过 matplotlib 实时可视化仿真结果，获得即时反馈与分析"
 
-#: ../../source/index.rst:56
+#: ../../source/index.rst:66
 msgid ""
 "Support collision detection and behavior control for each object in the "
 "simulation"
 msgstr "支持每个仿真对象的碰撞检测与行为控制"
 
-#: ../../source/index.rst:60 ../../source/index.rst:69
+#: ../../source/index.rst:74 ../../source/index.rst:79
 msgid "Multi-robot collision avoidance"
 msgstr "多机器人避障"
 
-#: ../../source/index.rst:71 ../../source/index.rst:80
+#: ../../source/index.rst:85 ../../source/index.rst:90
 msgid "Navigation in Grid World"
 msgstr "网格世界导航"
 
-#: ../../source/index.rst:82 ../../source/index.rst:91
+#: ../../source/index.rst:96 ../../source/index.rst:101
 msgid "Sensor visualization"
 msgstr "传感器可视化"
 
-#: ../../source/index.rst:93 ../../source/index.rst:102
+#: ../../source/index.rst:107 ../../source/index.rst:112
 msgid "Dynamic environment simulation"
 msgstr "动态环境仿真"
 
-#: ../../source/index.rst:104 ../../source/index.rst:113
+#: ../../source/index.rst:118 ../../source/index.rst:123
 msgid "3D habitat spaces"
 msgstr "三维栖息空间"
 
-#: ../../source/index.rst:115 ../../source/index.rst:124
+#: ../../source/index.rst:129 ../../source/index.rst:134
 msgid "Mouse control"
 msgstr "鼠标控制"
 
@@ -207,41 +239,23 @@ msgstr "深度强化学习项目"
 msgid ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_"
-msgstr "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_"
+msgstr ""
+"`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
+"navigation-IR-SIM>`_"
 
 #: ../../source/index.rst:219
 msgid "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_"
 msgstr "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_"
 
-#: ../../source/index.rst
-msgid "Getting Started"
-msgstr "快速开始"
+#~ msgid "Getting Started:"
+#~ msgstr "快速开始："
 
-#: ../../source/index.rst
-msgid "User Guide"
-msgstr "用户指南"
+#~ msgid "User Guide:"
+#~ msgstr "用户指南："
 
-#: ../../source/index.rst
-msgid "Configuration"
-msgstr "配置"
+#~ msgid "YAML Configuration Syntax:"
+#~ msgstr "YAML 配置语法："
 
-#: ../../source/index.rst
-msgid "API Reference"
-msgstr "API 参考"
-
-#: ../../source/index.rst
-msgid "Contributing"
-msgstr "贡献指南"
-
-#: ../../source/index.rst
-msgid "Changelog"
-msgstr "更新日志"
-
-#: ../../source/index.rst
-msgid "Documentation"
-msgstr "文档"
-
-#: ../../source/index.rst
-msgid "Development"
-msgstr "开发"
+#~ msgid "API Reference:"
+#~ msgstr "API 参考："
 

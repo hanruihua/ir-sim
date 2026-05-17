@@ -1,5 +1,4 @@
-Quick Start
-===============
+# Quick Start
 
 To quickly start the simulation, you can use the following code snippet to run a simulation for a robot in a world.
 
@@ -41,3 +40,9 @@ robot:
   behavior: {name: 'dash'} # move toward the goal directly 
   color: 'g' # green
 ```
+
+## Next steps
+
+- [Make Environment](../usage/make_environment.md) — the simulation loop, status control, and dynamic objects in depth.
+- [Configure robots and obstacles](../usage/configure_robots_obstacles.md) — kinematics, shapes, and multi-object scenes.
+- [YAML Configuration](../yaml_config/configuration.md) — the full configuration reference with an interactive schema explorer.

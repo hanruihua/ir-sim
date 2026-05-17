@@ -1,5 +1,4 @@
-Configure keyboard/Mouse control
-==========================
+# Configure keyboard/Mouse control
 
 IR-SIM supports reading the keyboard and mouse input to control the robot manually.  
 

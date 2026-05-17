@@ -1,5 +1,4 @@
-Configure dynamic random environment
-====================================
+# Configure dynamic random environment
 
 The dynamic, random, and clutter environment is useful to test the navigation and collision avoidance algorithms. In this environment, the distribution, goal position, and geometry of the obstacles are random at each episode. 
 
@@ -91,7 +90,7 @@ The parameters to generate random obstacles with various shapes are the settings
   - For circular obstacles, the `radius` will be randomly generated within `radius_range`. 
   - For polygon obstacles, `avg_radius_range`, `irregularity_range`, `num_vertices_range`, and `spikeyness_range` define which type of polygon will be generated. See {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for details.
 
-The details of the parameters are listed in the [YAML Configuration](../yaml_config/configuration/)
+The details of the parameters are listed in the [YAML Configuration](../yaml_config/configuration.md)
 
 :::{tip}
 To generate a convex polygon, you can set `spikeyness_range` to [0, 0] or set `is_convex` to True.

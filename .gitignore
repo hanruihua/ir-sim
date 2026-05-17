@@ -151,5 +151,18 @@ tests/figure/test_no_ext.png
 tests/figure/test_no_ext.png
 tests/figure/test.file.name.png
 docs/.DS_Store
-docs/.DS_Store
-docs/.DS_Store
+
+# getdesign scratch / design-system spec (not part of the repo)
+/DESIGN.md
+/apple/
+/vercel/
+/notion/
+/claude/
+
+# local agent / tooling state
+/.claude/
+/.agents/
+/skills-lock.json
+
+# auto-generated API gettext catalogs (API ref isn't translated)
+docs/locale/zh_CN/LC_MESSAGES/api/

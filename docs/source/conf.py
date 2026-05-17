@@ -85,6 +85,10 @@ myst_enable_extensions = [
     # Add other extensions as needed
 ]
 
+# Auto-generate slug anchors for h1–h4 so in-page/cross-doc
+# `[text](page.md#heading-slug)` links resolve consistently.
+myst_heading_anchors = 4
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -201,10 +205,19 @@ html_sidebars = {
     ],  # This ensures we test for custom sidebars
 }
 
-# Default sidebar stack without language switcher (language lives in top navbar)
-html_sidebars = {"**": ["sidebar-nav-bs"]}  # Use default navigation for all pages
+# Version switcher moved out of the crowded navbar into the sidebar top.
+html_sidebars = {
+    "**": [
+        "version-switcher",
+        "navbar-lang-switch",
+        "sidebar-nav-bs",
+    ]
+}
 
 html_js_files = [
+    # Loaded early (no defer) so the saved text size applies
+    # before first paint — avoids a font-size flash.
+    "fontsize-init.js",
     ("custom-icons.js", {"defer": "defer"}),
 ]
 
@@ -228,19 +241,19 @@ html_theme_options = {
             "icon": "fa-custom fa-pypi",
         },
     ],
-    # "logo": {
-    #     "text": "IR-SIM",
-    # },
+    "logo": {
+        "text": "IR-SIM documentation",
+    },
     "navbar_start": ["navbar-logo"],
     "navbar_center": ["navbar-nav"],
     "navbar_end": [
-        "version-switcher",
         "theme-switcher",
-        "navbar-lang-switch",
         "navbar-icon-links",
+        "font-size-switch",
     ],
-    # Show 4 nav items before collapsing rest to dropdown
-    "header_links_before_dropdown": 4,
+    # Show all top-level links in the navbar (incl. Contributing,
+    # Changelog) instead of folding them into a "More" dropdown.
+    "header_links_before_dropdown": 8,
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/main/docs/source/_static/switcher.json",
         "version_match": release,

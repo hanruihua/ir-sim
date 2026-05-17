@@ -1,5 +1,4 @@
-Configure behavior for objects
-=============================
+# Configure behavior for objects
 
 Each object in the simulation can be assigned a behavior independently to simulate different scenarios. The behavior of the object can be configured by specifying the behavior parameters in the YAML configuration file.
 
@@ -10,7 +9,18 @@ IR-SIM supports two types of behavior configuration:
 
 ## Behavior Configuration Parameters
 
-Currently, there are two built-in individual behaviors: `dash` and `rvo`. By default, the moving objects' behavior is static. You can set the behavior of the object to `dash` or `rvo` in the YAML configuration file. The `dash` behavior is a simple behavior that moves the object from its initial position to the goal position directly. The `rvo` behavior is a dynamic collision avoidance algorithm for multiple agents.
+Built-in individual behaviors are `dash` (move directly to the goal) and `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance). By default, moving objects have no behavior and remain static unless an external command is supplied.
+
+Behaviors are registered per kinematics, so not every (kinematics, behavior) pair exists:
+
+| Kinematics      | Available behaviors |
+| --------------- | ------------------- |
+| `diff`          | `dash`, `rvo`       |
+| `omni`          | `dash`, `rvo`       |
+| `omni_angular`  | `dash`              |
+| `acker`         | `dash`              |
+
+If you assign a behavior that is not registered for the kinematics (for example `rvo` on `acker`), object construction will fail. Use a [custom behavior](#advanced-configuration-for-custom-behavior) to fill the gaps.
 
 The example of RVO behavior is shown below:
 
@@ -92,7 +102,25 @@ robot:
 **Dash-specific Parameters:**
 - **`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker` (default: `0.1` radians)
 
-Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration/).
+Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration.md).
+
+### RVO with Line Obstacles
+
+`rvo` automatically avoids `linestring`-shaped obstacles in addition to circular agents. Each line segment between consecutive vertices of a `linestring` object is treated as a static velocity obstacle, so RVO agents can navigate around walls or polylines without extra configuration:
+
+```yaml
+robot:
+  - number: 6
+    kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}
+    behavior: {name: 'rvo'}
+
+obstacle:
+  - shape: {name: 'linestring', vertices: [[2, 2], [2, 8], [8, 8]]}
+```
+
+This works for both `omni` and `diff` kinematics; non-`linestring` obstacles continue to participate as agent neighbors.
 
 
 ## Group Behavior
@@ -106,7 +134,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 | Scope | Individual object | All objects in a group |
 | Computation | Per-object each step | All members at once |
 | Use case | Simple navigation | Coordinated multi-agent |
-| Available | `dash`, `rvo` | `orca` |
+| Available | `dash`, `rvo` (kinematics-dependent — see matrix above) | `orca` |
 
 ### ORCA (Optimal Reciprocal Collision Avoidance)
 
@@ -521,7 +549,7 @@ def beh_omni_swarm(
 :::{important}
 - Use `@register_group_behavior_class` when your behavior needs initialization (e.g., setting up external libraries, computing initial states)
 - Use `@register_group_behavior` for simple stateless behaviors
-- The first argument is the kinematics type (`'omni'`, `'diff'`, `'acker'`)
+- The first argument is the kinematics type (`'omni'`, `'omni_angular'`, `'diff'`, `'acker'`)
 - The second argument is the behavior name used in YAML `group_behavior: {name: 'your_name'}`
 :::
 
@@ -573,7 +601,7 @@ def DiffDash2(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
 The `ego_object` is the object that you want to control, and the `objects` is the list of all objects in the simulation. The custom behavior function should return the velocity of the object. You can obtain the state, goal, and other properties from the objects. `DiffDash2` is the custom behavior function that calculates the dash velocity of the object. 
 
 :::{important}
-You must use the `@register_behavior` decorator to register the custom behavior. The first argument of the decorator is the name of the kinematics (`diff`, `acker`, `omni`), and the second argument is the name of the behavior used in YAML file.
+You must use the `@register_behavior` decorator to register the custom behavior. The first argument of the decorator is the name of the kinematics (`diff`, `acker`, `omni`, `omni_angular`), and the second argument is the name of the behavior used in YAML file.
 :::
 
 ### Register Behavior
@@ -805,7 +833,7 @@ IR-SIM provides four behavior registration decorators:
 | `@register_group_behavior_class` | Group | Class | Complex multi-agent algorithms (e.g., ORCA) |
 
 All decorators take two arguments:
-1. **Kinematics type**: `'omni'`, `'diff'`, or `'acker'`
+1. **Kinematics type**: `'omni'`, `'omni_angular'`, `'diff'`, or `'acker'`
 2. **Behavior name**: The name used in YAML configuration
 
 :::{tip}
@@ -814,3 +842,12 @@ Choose the right decorator based on your needs:
 - Use class-based when you need initialization, state, or complex algorithms
 - Use group behaviors when actions depend on multiple agents together
 :::
+
+## External Controller Examples (CBF / C3BF)
+
+Not every controller needs to be wired through the behavior registry. The repository ships standalone safety-filter controllers under [`usage/21cbf_world/`](https://github.com/hanruihua/ir-sim/tree/main/usage/21cbf_world):
+
+- `cbf_qp.py` / `cbf_world.py` — distance-based **Control Barrier Function** safety filter solved as a QP. Wraps a nominal goal-seeking command and enforces collision avoidance against circular obstacles.
+- `c3bf_qp.py` / `c3bf_world.py` — **Collision-Cone CBF (C3BF)** variant that also accounts for relative velocity, useful for dynamic obstacles.
+
+Both examples support `omni` and `diff` kinematics, read the kinematics from YAML, and require the `cvxpy` solver (`pip install cvxpy`). See `usage/21cbf_world/README.md` for the full math, supported obstacle types, and known limitations.

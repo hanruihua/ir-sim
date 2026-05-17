@@ -71,6 +71,7 @@ cd docs && make html
 - Individual behaviors registered by robot type + behavior name:
   - `diff`: `dash`, `rvo`
   - `omni`: `dash`, `rvo`
+  - `omni_angular`: `dash`
   - `acker`: `dash`
 - Group behaviors in `group_behavior.py` and `group_behavior_methods.py`:
   - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package

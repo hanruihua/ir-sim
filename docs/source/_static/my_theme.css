@@ -1,81 +1,921 @@
-.wy-nav-content {
-    max-width: 1000px !important;
+/* Larger, more readable base size for the whole documentation.
+   Everything in pydata-sphinx-theme is rem/em-based, so a single
+   root bump scales body, headings, tables, code and sidebar
+   proportionally. */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+
+html {
+    font-size: 100%;              /* tight: 16px base (default) */
+}
+/* Reader-controlled text size (sidebar switcher + fontsize-init.js).
+   Attribute selector outranks the plain `html` rule above. */
+html[data-fontsize="small"]  { font-size: 93.75%; }   /* 15px */
+html[data-fontsize="medium"] { font-size: 100%; }      /* 16px */
+html[data-fontsize="large"]  { font-size: 112.5%; }    /* 18px */
+
+/* ---- sidebar text-size switcher ---- */
+.bd-sidebar-primary .irsim-fontsize {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.8rem;
+}
+.irsim-fontsize__label { color: var(--pst-color-text-muted); }
+.irsim-fontsize__btns { display: inline-flex; gap: 0.25rem; }
+.irsim-fontsize__btns button {
+    min-width: 1.9rem;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 6px;
+    background: var(--pst-color-surface);
+    color: var(--pst-color-text-base);
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    cursor: pointer;
+}
+.irsim-fontsize__btns button:hover {
+    border-color: var(--site-accent);
+    color: var(--site-accent);
+}
+.irsim-fontsize__btns button.is-active {
+    background: var(--site-accent);
+    border-color: var(--site-accent);
+    color: #fff;
 }
 
-/* Prevent navigation links from wrapping */
+/* ============================================================
+   Claude (Anthropic) identity  —  follows DESIGN.md
+   Tasteful application: warm cream canvas, scarce coral
+   accent, hairline borders, and the signature editorial
+   type split — serif display (EB Garamond ≈ Tiempos) for
+   h1/h2, humanist sans (Inter ≈ StyreneB) for body & small
+   headings. Deliberately restrained: no hero band, no
+   floating page-card, no pastel rainbow. Everything routes
+   through --pst-color-* / --site-accent.
+   ============================================================ */
+:root {
+    --pst-font-family-base: "Inter", system-ui, -apple-system,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --pst-font-family-heading: var(--pst-font-family-base);
+    --claude-serif: "EB Garamond", "Tiempos Headline", Georgia,
+        "Times New Roman", serif;
+}
+html[data-theme="light"] {
+    --pst-color-primary: #cc785c;        /* Anthropic coral */
+    --pst-color-primary-bg: #f3e2d9;
+    --pst-color-primary-text: #ffffff;
+    --pst-color-primary-highlight: #a9583e;
+    --pst-color-secondary: #cc785c;
+    --pst-color-secondary-bg: #f3e2d9;
+    --pst-color-link: #a9583e;           /* coral-active = AA on cream */
+    --pst-color-link-hover: #cc785c;
+    --pst-color-link-higher-contrast: #8f4630;
+    --bs-link-color-rgb: 169, 88, 62;        /* #a9583e */
+    --bs-link-hover-color-rgb: 204, 120, 92; /* #cc785c */
+    --pst-color-background: #faf9f5;     /* warm cream canvas */
+    --pst-color-on-background: #faf9f5;
+    --pst-color-surface: #f5f0e8;        /* soft cream surface */
+    --pst-color-on-surface: #141413;
+    --pst-color-text-base: #3d3d3a;      /* warm body ink */
+    --pst-color-text-muted: #6c6a64;
+    --pst-color-heading-color: #141413;  /* near-black warm ink */
+    --pst-color-border: #e6dfd8;         /* hairline */
+    --pst-color-border-muted: #ebe6df;
+    --pst-color-inline-code: #141413;
+    --pst-color-target: #f3e2d9;
+    --site-accent: #cc785c;
+}
+html[data-theme="dark"] {
+    --pst-color-primary: #d99a82;        /* lighter coral on dark */
+    --pst-color-primary-bg: #3a2a22;
+    --pst-color-primary-text: #181715;
+    --pst-color-primary-highlight: #e8b59f;
+    --pst-color-secondary: #d99a82;
+    --pst-color-secondary-bg: #3a2a22;
+    --pst-color-link: #e0a589;
+    --pst-color-link-hover: #ecbda6;
+    --pst-color-link-higher-contrast: #ecbda6;
+    --bs-link-color-rgb: 224, 165, 137;      /* #e0a589 */
+    --bs-link-hover-color-rgb: 236, 189, 166; /* #ecbda6 */
+    --pst-color-background: #181715;     /* Claude dark surface */
+    --pst-color-on-background: #141413;
+    --pst-color-surface: #252320;        /* dark elevated */
+    --pst-color-on-surface: #faf9f5;
+    --pst-color-text-base: #faf9f5;
+    --pst-color-text-muted: #a09d96;
+    --pst-color-heading-color: #faf9f5;
+    --pst-color-border: #3a352f;
+    --pst-color-border-muted: #2a2722;
+    --pst-color-inline-code: #faf9f5;
+    --pst-color-target: #3a2a22;
+    --site-accent: #d99a82;
+}
+
+/* ---- Wider content: slim the right "On this page" TOC and
+   raise the page cap so the article column gets more room
+   (the Welcome page and wide tables/schema tree breathe). */
+:root {
+    --pst-sidebar-secondary: 14rem;
+}
+/* Primary sidebar keeps pydata's default 25% width, and the
+   whole page block is nudged right with a larger left inset
+   so the sidebar isn't flush against the window edge. */
+.bd-container .bd-page-width {
+    padding-left: 3rem;
+    padding-right: 1.5rem;
+}
+.bd-page-width {
+    max-width: 100rem;
+}
+.bd-header .bd-header__inner {
+    max-width: 100rem;
+    padding-inline: 1.5rem;
+}
+/* Align the brand title's left edge with the left sidebar's
+   content column: page-width inset (3rem) + sidebar pad (1rem)
+   = 4rem; header inner pad is 1.5rem, so offset the brand by
+   the 2.5rem difference. Only the brand shifts (nav/end keep
+   their single-row fit). */
+.bd-header .navbar-brand {
+    margin-left: 2.5rem;
+}
+.bd-header .bd-navbar-elements,
+.bd-header .navbar-header-items {
+    flex-wrap: nowrap;
+}
+.bd-header .navbar-nav {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+}
 .navbar-nav .nav-link {
     white-space: nowrap;
+    font-size: 0.9rem;
+    padding-inline: 0.35rem;
 }
-
-/* Center and constrain navbar layout */
-.bd-header .bd-header__inner {
-    max-width: 1600px !important;
-    margin: 0 auto !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    padding: 0 2rem !important;
-}
-
-/* Logo container */
-.bd-header .col-lg-3 {
-    flex: 0 0 auto !important;
-    margin-right: 2rem !important;
-}
-
-/* Navigation items container */
-.bd-header .col-lg-9 {
-    flex: 1 1 auto !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    min-width: 0 !important;
-}
-
-.bd-navbar-elements {
-    flex-wrap: nowrap !important;
-    gap: 2rem !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-}
-
-.bd-navbar-elements .nav-link {
-    padding: 0.5rem 0 !important;
-    font-size: 0.95rem !important;
-    white-space: nowrap !important;
-}
-
-.navbar-header-items__center {
-    flex: 0 1 auto !important;
-    display: flex !important;
-    justify-content: flex-start !important;
-    min-width: 0 !important;
-}
-
-.navbar-header-items__center .navbar-nav {
-    display: flex !important;
-    gap: 2rem !important;
-    align-items: center !important;
-}
-
 .navbar-header-items__end {
-    flex-shrink: 0 !important;
-    margin-left: 2rem !important;
-    display: flex !important;
-    gap: 1rem !important;
-    align-items: center !important;
+    gap: 0.35rem;
+}
+/* text-size switcher in the navbar (after the PyPI icon):
+   compact, label hidden, aligned with the other end items. */
+.bd-header .irsim-fontsize {
+    display: inline-flex;
+    align-items: center;
+}
+.bd-header .irsim-fontsize__label { display: none; }
+.bd-header .irsim-fontsize__btns { gap: 0.1rem; }
+.bd-header .irsim-fontsize__btns button {
+    min-width: 1.35rem;
+    padding: 0.05rem 0.25rem;
+    font-size: 0.72rem;
+}
+/* Tight control cluster: version + language + text-size flow
+   together on a line or two (instead of tall stacked blocks
+   with dividers), with a single divider before the nav. */
+.bd-sidebar-primary .sidebar-primary-item:has(.version-switcher__container),
+.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle),
+.bd-sidebar-primary .sidebar-primary-item:has(.irsim-fontsize) {
+    display: inline-flex;
+    width: auto;
+    margin: 0 0.4rem 0.4rem 0;
+    padding: 0;
+}
+.bd-sidebar-primary .version-switcher__container { margin: 0; }
+.bd-sidebar-primary li.nav-item.dropdown {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.bd-sidebar-primary .version-switcher__button,
+.bd-sidebar-primary #irsim-lang-toggle {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.5rem;
+}
+.bd-sidebar-primary li.nav-item.dropdown .dropdown-menu { font-size: 0.8rem; }
+/* one clean divider between the control cluster and the nav */
+.bd-sidebar-primary .sidebar-primary-item:has(nav) {
+    margin-top: 0.35rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--pst-color-border);
 }
 
-/* Shrink language switcher and move to far right */
-.navbar-header-items__end .bd-header-article__inner {
-    order: 999 !important;
+/* ============================================================
+   IR-SIM YAML schema explorer  —  refined minimal reference
+   pure <details>/<summary> + CSS, light + dark
+   ============================================================ */
+.yaml-tree {
+    --yt-mono: "JetBrains Mono", "IBM Plex Mono", "Fira Code",
+        ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    --yt-ink: var(--pst-color-text-base, #1c2433);
+    --yt-dim: var(--pst-color-text-muted, #5b6b7c);
+    --yt-faint: color-mix(in srgb, var(--yt-dim) 55%, transparent);
+    --yt-rule: color-mix(in srgb, var(--yt-dim) 22%, transparent);
+    --yt-paper: var(--pst-color-background, #fff);
+    --yt-hover: color-mix(in srgb, var(--yt-dim) 8%, transparent);
+    --yt-accent: var(--pst-color-primary, #0f766e);   /* shared site accent */
+    --yt-str: #b45309;
+    --yt-num: #0e7490;
+    --yt-bool: #7c3aed;
+    --yt-list: #15803d;
+    --yt-dict: #be1558;
+    --yt-mix: var(--yt-dim);
+
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.4rem 0.4rem 0.6rem;
+    background: var(--yt-paper);
+    border: 1px solid var(--yt-rule);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--yt-ink);
+}
+.yaml-tree details { margin: 0; }
+
+/* ---- top-level sections as soft cards ---- */
+.yaml-tree > details {
+    background: var(--pst-color-surface, #f6f7f9);
+    border: 1px solid var(--yt-rule);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 0 0 0.7rem;
+}
+.yaml-tree > details:last-of-type { margin-bottom: 0.2rem; }
+.yaml-tree > details > summary {
+    background: color-mix(in srgb, var(--yt-accent) 9%, transparent);
+    border-left: 3px solid var(--yt-accent);
+}
+.yaml-tree > details[open] > summary {
+    border-bottom: 1px solid var(--yt-rule);
+}
+.yaml-tree > details > .yt-body {
+    background: var(--yt-paper);
+    margin-left: 0;
+    border-left: 0;
+    padding: 0.35rem 0.5rem 0.5rem;
+}
+/* nested dicts: lighter, inset (no heavy nested card) */
+.yaml-tree .yt-body .yt-body {
+    margin-left: 0.9rem;
+    padding-left: 0.85rem;
+    border-left: 1px solid var(--yt-rule);
 }
 
-.bd-header-article__inner .dropdown {
-    font-size: 0.85rem !important;
+/* ---- controls ---- */
+.yaml-tree .yt-controls {
+    display: flex;
+    gap: 1rem;
+    padding: 0.25rem 0.5rem 0.55rem;
+}
+.yaml-tree .yt-controls button {
+    font: inherit;
+    font-size: 0.84rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--yt-dim);
+    border-bottom: 1px dotted var(--yt-faint);
+    transition: color 0.13s;
+}
+.yaml-tree .yt-controls button:hover { color: var(--yt-accent); }
+
+/* ---- column legend ---- */
+.yaml-tree .yt-legend {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0 0.6rem 0.3rem 2.49rem;
+    margin-bottom: 0.15rem;
+    border-bottom: 1px solid var(--yt-rule);
+    font-family: var(--yt-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--yt-faint);
+}
+/* widths in rem so labels track the data columns regardless of the
+   legend's own (smaller) font: key 11em@1rem, type 9em@0.78rem,
+   def 9em@0.9rem */
+.yaml-tree .yt-legend span:nth-child(1) { flex: 0 0 11rem; }
+.yaml-tree .yt-legend span:nth-child(2) { flex: 0 0 7.02rem; }
+.yaml-tree .yt-legend span:nth-child(3) { flex: 0 0 8.1rem; }
+.yaml-tree .yt-legend span:nth-child(4) { flex: 1 1 auto; }
+
+/* ---- section headers ---- */
+.yaml-tree summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.32rem 0.6rem;
+    border-radius: 4px;
+}
+.yaml-tree summary::-webkit-details-marker { display: none; }
+.yaml-tree summary::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 0.42em;
+    height: 0.42em;
+    border-right: 1.5px solid var(--yt-accent);
+    border-bottom: 1.5px solid var(--yt-accent);
+    transform: rotate(-45deg);
+    transition: transform 0.16s ease;
+    margin-right: 0.15rem;
+}
+.yaml-tree details[open] > summary::before { transform: rotate(45deg); }
+.yaml-tree summary:hover { background: var(--yt-hover); }
+.yaml-tree summary:focus-visible {
+    outline: 2px solid var(--yt-accent);
+    outline-offset: -2px;
+}
+.yaml-tree summary .yt-key {
+    font-family: var(--yt-mono);
+    font-weight: 700;
+    color: var(--yt-ink);
+}
+.yaml-tree > details > summary {
+    margin-top: 0.15rem;
+}
+.yaml-tree > details > summary .yt-key { font-size: 1.06em; }
+.yaml-tree summary .yt-type {
+    font-family: var(--yt-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--yt-dim);
+    padding: 0.12em 0.6em;
+    background: color-mix(in srgb, var(--yt-dim) 12%, transparent);
+    border-radius: 999px;
+}
+.yaml-tree .yt-note {
+    color: var(--yt-dim);
+    font-size: 0.86em;
+    font-style: italic;
 }
 
-.bd-header-article__inner .dropdown-toggle {
-    padding: 0.3rem 0.6rem !important;
-    font-size: 0.85rem !important;
+/* ---- nesting guide ---- */
+.yaml-tree .yt-body {
+    margin-left: 1.05rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--yt-rule);
+}
+
+/* ---- leaf rows ---- */
+.yaml-tree .yt-leaf {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+.yaml-tree .yt-leaf:hover { background: var(--yt-hover); }
+
+.yaml-tree .yt-key {
+    font-family: var(--yt-mono);
+    font-weight: 600;
+    color: var(--yt-ink);
+}
+.yaml-tree .yt-leaf > .yt-key {
+    flex: 0 0 11em;
+    word-break: break-word;
+}
+.yaml-tree .yt-leaf:hover > .yt-key { color: var(--yt-accent); }
+
+/* key links — jump to the detailed description */
+.yaml-tree a.yt-key {
+    color: var(--yt-ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.12s;
+}
+.yaml-tree a.yt-key:hover {
+    color: var(--yt-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+}
+.yaml-tree a.yt-key:focus-visible {
+    outline: 2px solid var(--yt-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+.yaml-tree summary a.yt-key { font-weight: 700; }
+
+/* land below the sticky header when jumping from the tree */
+.bd-article dl.simple.myst[id^="p-"],
+.bd-article [id^="p-w-"],
+.bd-article [id^="p-o-"],
+.bd-article [id^="p-g-"] {
+    scroll-margin-top: 5rem;
+}
+
+/* gentle highlight on the jumped-to detail */
+@keyframes ytFlash {
+    from { background: color-mix(in srgb, var(--site-accent) 26%, transparent); }
+    to   { background: transparent; }
+}
+.yt-jump-flash {
+    animation: ytFlash 1.3s ease-out;
+    border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .yt-jump-flash { animation: none; }
+}
+/* min-width:0 stops flex items from auto-expanding past their basis
+   (default min-width:auto + nowrap was widening the type column for
+   long unions like "str/dict/null", mis-aligning the columns). */
+.yaml-tree .yt-leaf > .yt-key { min-width: 0; }
+.yaml-tree .yt-leaf > .yt-type {
+    flex: 0 0 9em;
+    min-width: 0;
+}
+.yaml-tree .yt-leaf > .yt-def {
+    flex: 0 0 9em;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.yaml-tree .yt-leaf > .yt-desc { flex: 1 1 12em; min-width: 0; }
+/* push the optional variant chip to the row end so it never shifts
+   the description column start */
+.yaml-tree .yt-leaf > .yt-variant { order: 5; margin-left: 0.6rem; }
+
+/* type — quiet semantic colour, no chrome */
+.yaml-tree .yt-type {
+    font-family: var(--yt-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--yt-mix);
+}
+.yaml-tree .yt-t-str  { color: var(--yt-str); }
+.yaml-tree .yt-t-num  { color: var(--yt-num); }
+.yaml-tree .yt-t-bool { color: var(--yt-bool); }
+.yaml-tree .yt-t-list { color: var(--yt-list); }
+.yaml-tree .yt-t-dict { color: var(--yt-dict); }
+.yaml-tree .yt-t-mix,
+.yaml-tree .yt-t-other { color: var(--yt-mix); }
+/* soft semantic-coloured pill (inherits the type's colour) */
+.yaml-tree .yt-pill {
+    display: inline-block;
+    padding: 0.1em 0.6em;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 15%, transparent);
+    color: inherit;
+    line-height: 1.5;
+}
+
+.yaml-tree .yt-def {
+    font-family: var(--yt-mono);
+    font-size: 0.9rem;
+    color: var(--yt-dim);
+}
+.yaml-tree .yt-desc {
+    color: var(--yt-dim);
+    font-size: 0.94em;
+}
+.yaml-tree .yt-variant {
+    font-family: var(--yt-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--yt-accent);
+    border: 1px solid color-mix(in srgb, var(--yt-accent) 35%, transparent);
+    border-radius: 3px;
+    padding: 0.05em 0.4em;
+    white-space: nowrap;
+    align-self: center;
+}
+
+/* ---- discriminated-union variant selector (CSS-only, no JS) ----
+   the `name` row IS the selector; its value area holds segmented
+   pills, and only the chosen variant's params show below. */
+.yaml-tree .yt-utabs {
+    background: color-mix(in srgb, var(--yt-accent) 5%, transparent);
+    border-radius: 6px;
+    padding: 0.15rem 0;
+    margin: 0.1rem 0 0.2rem;
+}
+.yaml-tree .yt-utab-radio {              /* a11y: focusable, visually hidden */
+    position: absolute;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.yaml-tree .yt-uvar-tabbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1 1 auto;
+}
+.yaml-tree .yt-uvar-tabbar label {
+    font-family: var(--yt-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.1em 0.7em;
+    border-radius: 999px;
+    color: var(--yt-dim);
+    background: color-mix(in srgb, var(--yt-dim) 12%, transparent);
+    transition: color 0.12s, background 0.12s;
+}
+.yaml-tree .yt-uvar-tabbar label:hover { color: var(--yt-accent); }
+.yaml-tree .yt-utabpanel { display: none; }
+.yaml-tree .yt-uvar-note .yt-desc { font-style: italic; }
+
+/* Generic, position-based (works for ANY union, 2–8 variants):
+   the k-th radio, when checked, shows the k-th panel and lights the
+   k-th tab label. Radios precede .yt-uvar-row and .yt-utabpanels. */
+.yaml-tree .yt-utab-radio:nth-of-type(1):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(1),
+.yaml-tree .yt-utab-radio:nth-of-type(2):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(2),
+.yaml-tree .yt-utab-radio:nth-of-type(3):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(3),
+.yaml-tree .yt-utab-radio:nth-of-type(4):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(4),
+.yaml-tree .yt-utab-radio:nth-of-type(5):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(5),
+.yaml-tree .yt-utab-radio:nth-of-type(6):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(6),
+.yaml-tree .yt-utab-radio:nth-of-type(7):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(7),
+.yaml-tree .yt-utab-radio:nth-of-type(8):checked ~ .yt-utabpanels > .yt-utabpanel:nth-of-type(8) {
+    display: block;
+}
+.yaml-tree .yt-utab-radio:nth-of-type(1):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(1),
+.yaml-tree .yt-utab-radio:nth-of-type(2):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(2),
+.yaml-tree .yt-utab-radio:nth-of-type(3):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(3),
+.yaml-tree .yt-utab-radio:nth-of-type(4):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(4),
+.yaml-tree .yt-utab-radio:nth-of-type(5):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(5),
+.yaml-tree .yt-utab-radio:nth-of-type(6):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(6),
+.yaml-tree .yt-utab-radio:nth-of-type(7):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(7),
+.yaml-tree .yt-utab-radio:nth-of-type(8):checked ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(8) {
+    color: var(--yt-paper);
+    background: var(--yt-accent);
+}
+.yaml-tree .yt-utab-radio:nth-of-type(1):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(1),
+.yaml-tree .yt-utab-radio:nth-of-type(2):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(2),
+.yaml-tree .yt-utab-radio:nth-of-type(3):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(3),
+.yaml-tree .yt-utab-radio:nth-of-type(4):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(4),
+.yaml-tree .yt-utab-radio:nth-of-type(5):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(5),
+.yaml-tree .yt-utab-radio:nth-of-type(6):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(6),
+.yaml-tree .yt-utab-radio:nth-of-type(7):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(7),
+.yaml-tree .yt-utab-radio:nth-of-type(8):focus-visible ~ .yt-uvar-row .yt-uvar-tabbar label:nth-of-type(8) {
+    outline: 2px solid var(--yt-accent);
+    outline-offset: 2px;
+}
+/* lead label for category switchers (e.g. plot) that have no `name` key */
+.yaml-tree .yt-uvar-row .yt-uvar-lead {
+    flex: 0 0 auto;
+    font-family: var(--yt-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--yt-faint);
+    margin-right: 0.2rem;
+}
+
+/* ---- `show_*` master switch that gates the rest of a group ---- */
+.yaml-tree .yt-gate {
+    position: absolute;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.yaml-tree .yt-gate-row { align-items: center; }
+.yaml-tree .yt-switch {
+    margin-left: auto;
+    flex: 0 0 auto;
+    width: 2.1rem;
+    height: 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--yt-dim) 30%, transparent);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.yaml-tree .yt-switch::after {
+    content: "";
+    position: absolute;
+    top: 0.13rem;
+    left: 0.14rem;
+    width: 0.84rem;
+    height: 0.84rem;
+    border-radius: 50%;
+    background: var(--yt-paper);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s;
+}
+.yaml-tree .yt-gate:checked ~ .yt-gate-row .yt-switch {
+    background: var(--yt-accent);
+}
+.yaml-tree .yt-gate:checked ~ .yt-gate-row .yt-switch::after {
+    transform: translateX(1rem);
+}
+.yaml-tree .yt-gate:checked ~ .yt-gate-row .yt-key { color: var(--yt-accent); }
+.yaml-tree .yt-gate:focus-visible ~ .yt-gate-row .yt-switch {
+    outline: 2px solid var(--yt-accent);
+    outline-offset: 2px;
+}
+.yaml-tree .yt-gated {
+    margin: 0.05rem 0 0.15rem;
+    border-left: 2px solid color-mix(in srgb, var(--yt-accent) 25%, transparent);
+    transition: opacity 0.15s;
+}
+.yaml-tree .yt-gate:not(:checked) ~ .yt-gated { opacity: 0.4; }
+/* the switch IS the show_* flag: reflect its value (false ⇄ true) */
+.yaml-tree .yt-gate-row .yt-def-on { display: none; }
+.yaml-tree .yt-gate:checked ~ .yt-gate-row .yt-def-off { display: none; }
+.yaml-tree .yt-gate:checked ~ .yt-gate-row .yt-def-on {
+    display: inline;
+    color: var(--yt-accent);
+    font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+    .yaml-tree .yt-switch,
+    .yaml-tree .yt-switch::after,
+    .yaml-tree .yt-gated { transition: none; }
+}
+
+/* ---- grouped rows (per-object plot) ---- */
+.yaml-tree .yt-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 0.45rem;
+    padding: 0.28rem 0.6rem;
+    line-height: 1.7;
+}
+.yaml-tree .yt-group > .yt-glabel {
+    flex: 0 0 6em;
+    font-family: var(--yt-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--yt-dim);
+}
+.yaml-tree .yt-group > .yt-key {
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--yt-dim);
+}
+.yaml-tree .yt-group > .yt-key:not(:last-child)::after {
+    content: ",";
+    color: var(--yt-faint);
+}
+
+/* ---- jump links ---- */
+.yaml-tree a.yt-link {
+    font-size: 0.76rem;
+    margin-left: auto;
+    white-space: nowrap;
+    align-self: center;
+    color: var(--yt-faint);
+    text-decoration: none;
+    transition: color 0.13s;
+}
+.yaml-tree a.yt-link:hover { color: var(--yt-accent); }
+
+/* ---- disclosure motion ---- */
+@keyframes ytReveal {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.yaml-tree details[open] > .yt-body { animation: ytReveal 0.16s ease both; }
+@media (prefers-reduced-motion: reduce) {
+    .yaml-tree details[open] > .yt-body { animation: none; }
+    .yaml-tree summary::before { transition: none; }
+}
+
+/* ---- dark theme ---- */
+html[data-theme="dark"] .yaml-tree {
+    --yt-str: #f0b072;
+    --yt-num: #5ec5d8;
+    --yt-bool: #b89cf5;
+    --yt-list: #6cc78a;
+    --yt-dict: #f070a0;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 700px) {
+    .yaml-tree .yt-leaf {
+        flex-wrap: wrap;
+        gap: 0.25rem 0.6rem;
+    }
+    .yaml-tree .yt-leaf > .yt-key { flex: 0 0 auto; }
+    .yaml-tree .yt-leaf > .yt-type,
+    .yaml-tree .yt-leaf > .yt-def { flex: 0 0 auto; }
+    .yaml-tree .yt-leaf > .yt-desc { flex: 1 1 100%; }
+    .yaml-tree .yt-legend { display: none; }
+}
+
+/* ============================================================
+   Site-wide refined polish  —  restrained, builds on
+   pydata-sphinx-theme. All colours via --pst-* so light/dark
+   adapt automatically. Scoped to content; theme chrome,
+   search, nav and version switcher untouched.
+   ============================================================ */
+:root {
+    --site-mono: "JetBrains Mono", "IBM Plex Mono", "Fira Code",
+        ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    --site-accent: var(--pst-color-primary, #0a7d91);
+}
+
+/* ---- heading rhythm & hierarchy ----
+   Claude editorial split: serif display for h1/h2 (never
+   bold — DESIGN.md), humanist sans for h3/h4 and body. */
+.bd-article h1 {
+    font-family: var(--claude-serif);
+    font-weight: 500;
+    color: var(--pst-color-heading-color);
+    letter-spacing: -0.018em;
+    line-height: 1.1;
+    margin-bottom: 0.7rem;
+}
+.bd-article h2 {
+    font-family: var(--claude-serif);
+    font-weight: 500;
+    color: var(--pst-color-heading-color);
+    letter-spacing: -0.012em;
+    margin-top: 1.7rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--pst-color-border);
+}
+.bd-article h3 {
+    font-weight: 600;
+    letter-spacing: -0.006em;
+    margin-top: 1.2rem;
+}
+.bd-article h4 { margin-top: 0.95rem; }
+.bd-article p,
+.bd-article li { line-height: 1.55; }
+.bd-article p { margin-bottom: 0.7rem; }
+/* ---- tight layout: dense content, trimmed padding/indents
+   (higher specificity so it wins over pydata defaults) ---- */
+.bd-main .bd-article {
+    /* pydata sets this via logical padding-inline/block; force
+       a tight box. Left padding is 0 so the article content
+       (H1, body, tables, tree) is flush with the breadcrumb
+       and footer — one consistent content-column left edge. */
+    padding: 0.4rem 0 0 0 !important;
+}
+.bd-article ul,
+.bd-article ol {
+    margin: 0 0 0.6rem;
+    padding-left: 1.35rem;
+}
+.bd-article li { margin-bottom: 0.15rem; }
+.bd-article li > p { margin-bottom: 0.3rem; }
+.bd-article .admonition { margin: 0.85rem 0; }
+.bd-article div.highlight { margin: 0.7rem 0; }
+.bd-article table.table,
+.bd-article table.docutils { margin-bottom: 0.85rem; }
+.bd-article h2 { margin-bottom: 0.65rem; }
+.bd-article h3 { margin-bottom: 0.45rem; }
+.bd-article .bd-article-footer,
+.bd-article footer { margin-top: 1.4rem; }
+/* slightly tighter gutter between content and the page TOC */
+.bd-sidebar-secondary { padding-left: 0.6rem; }
+
+/* ---- content links ---- */
+.bd-article a.reference {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.16em;
+    text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
+    transition: color 0.12s, text-decoration-color 0.12s;
+}
+.bd-article a.reference:hover {
+    text-decoration-color: currentColor;
+}
+
+/* ---- inline code (only docutils literals, never pygments) ---- */
+.bd-article code.literal {
+    font-family: var(--site-mono);
+    font-size: 0.84em;
+    padding: 0.1em 0.38em;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--site-accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--site-accent) 16%, transparent);
+    color: var(--pst-color-text-base);
+}
+.bd-article a.reference code.literal {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* ---- code blocks ---- */
+.bd-article div.highlight {
+    border: 1px solid var(--pst-color-border);
+    border-radius: 8px;
+}
+.bd-article div.highlight pre {
+    font-family: var(--site-mono);
+    font-size: 0.82rem;
+    line-height: 1.65;
+    padding: 1rem 1.1rem;
+}
+.bd-article button.copybtn {
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 0.13s;
+}
+.bd-article div.highlight:hover button.copybtn { opacity: 0.7; }
+.bd-article button.copybtn:hover { opacity: 1; }
+
+/* ---- admonitions (calmer, keep semantic colours) ---- */
+.bd-article div.admonition,
+.bd-article .admonition {
+    border-radius: 8px;
+    border-width: 1px;
+    border-left-width: 4px;
+    box-shadow: none;
+}
+.bd-article .admonition > .admonition-title {
+    font-weight: 600;
+    letter-spacing: 0.005em;
+}
+
+/* ---- tables (docs are table-heavy: parameter refs) ---- */
+.bd-article table.table,
+.bd-article table.docutils {
+    border: 1px solid var(--pst-color-border);
+    border-radius: 8px;
+    font-size: 0.88rem;
+}
+.bd-article table.table thead th,
+.bd-article table.docutils thead th {
+    background: var(--pst-color-surface);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    color: var(--pst-color-text-muted);
+    border-bottom: 2px solid var(--pst-color-border);
+}
+.bd-article table.table td,
+.bd-article table.table th,
+.bd-article table.docutils td,
+.bd-article table.docutils th {
+    padding: 0.5rem 0.8rem;
+}
+.bd-article table.table tbody tr:hover,
+.bd-article table.docutils tbody tr:hover {
+    background: color-mix(in srgb, var(--site-accent) 5%, transparent);
+}
+
+/* ---- blockquotes ---- */
+.bd-article blockquote {
+    border-left: 3px solid var(--site-accent);
+    padding-left: 1rem;
+    color: var(--pst-color-text-muted);
+    font-style: normal;
+}
+
+/* ---- sphinx-design cards ---- */
+.bd-article .sd-card {
+    border: 1px solid var(--pst-color-border);
+    border-radius: 10px;
+    transition: transform 0.16s ease, box-shadow 0.16s ease,
+        border-color 0.16s ease;
+}
+.bd-article .sd-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -20px rgba(0, 0, 0, 0.45);
+    border-color: color-mix(in srgb,
+        var(--site-accent) 45%, var(--pst-color-border));
+}
+
+/* ---- section anchor links ---- */
+.bd-article a.headerlink {
+    color: var(--site-accent);
+    opacity: 0;
+    padding-left: 0.35em;
+    transition: opacity 0.12s;
+    text-decoration: none;
+}
+.bd-article h1:hover a.headerlink,
+.bd-article h2:hover a.headerlink,
+.bd-article h3:hover a.headerlink,
+.bd-article h4:hover a.headerlink,
+.bd-article h5:hover a.headerlink { opacity: 0.5; }
+.bd-article a.headerlink:hover { opacity: 1; }
+
+/* ---- primary sidebar (colour/weight only, no layout) ---- */
+.bd-sidebar-primary a.current,
+.bd-sidebar-primary li.current > a {
+    font-weight: 600;
+    color: var(--site-accent);
+}
+
+/* ---- text selection ---- */
+.bd-article ::selection {
+    background: color-mix(in srgb, var(--site-accent) 22%, transparent);
 }

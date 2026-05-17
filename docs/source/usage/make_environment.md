@@ -1,5 +1,6 @@
-Make Environment
-==================
+# Make Environment
+
+An IR-SIM simulation is created from a YAML scenario file with `irsim.make()` and driven by a short Python loop (`env.step()` → `env.render()` → `env.done()`). This page covers building the environment, the core loop, status control, dynamic object management, and running multiple environments.
 
 ## Python script and YAML configuration file
 
@@ -79,7 +80,7 @@ The configuration file is a YAML file that specifies the properties of the envir
 You can use `sample_time` to control the rendering frequency and accelerate the simulation speed. The default value of `sample_time` is the same as `step_time`.
 ```
 
-For more detailed parameter information, see the [YAML Configuration](../yaml_config/index) reference.
+For more detailed parameter information, see the [YAML Configuration](../yaml_config/configuration.md) reference.
 
 :::{tip}
 **Automatic Configuration Detection**: The default YAML configuration file has the same name as your Python script. For example, if you create a script named `test.py`, IR-SIM automatically looks for `test.yaml` in the same directory.

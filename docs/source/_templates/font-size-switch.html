@@ -1,0 +1,32 @@
+<div class="irsim-fontsize" role="group" aria-label="Text size">
+    <span class="irsim-fontsize__label">Text size</span>
+    <div class="irsim-fontsize__btns">
+        <button type="button" data-size="small" onclick="irsimSetFontSize('small')" title="Small text">A<small>&minus;</small></button>
+        <button type="button" data-size="medium" onclick="irsimSetFontSize('medium')" title="Medium text">A</button>
+        <button type="button" data-size="large" onclick="irsimSetFontSize('large')" title="Large text">A<sup>+</sup></button>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function current() {
+            var s = document.documentElement.getAttribute('data-fontsize');
+            return (s === 'small' || s === 'large') ? s : 'medium';
+        }
+        function sync() {
+            var c = current();
+            document.querySelectorAll('.irsim-fontsize__btns button').forEach(function (b) {
+                var on = b.getAttribute('data-size') === c;
+                b.classList.toggle('is-active', on);
+                b.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        }
+        window.irsimSetFontSize = function (size) {
+            if (size !== 'small' && size !== 'medium' && size !== 'large') size = 'medium';
+            document.documentElement.setAttribute('data-fontsize', size);
+            try { localStorage.setItem('irsim-fontsize', size); } catch (e) {}
+            sync();
+        };
+        sync();
+    })();
+</script>
