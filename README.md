@@ -139,7 +139,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 | **Category**     | **Features**                                                                                                                                                                            |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kinematics**   | Differential Drive mobile Robot · Omnidirectional mobile Robot · Omnidirectional with Angular control · Ackermann Steering mobile Robot                                                 |
-| **Sensors**      | 2D LiDAR · FOV Detector                                                                                                                                                                |
+| **Sensors**      | 2D LiDAR · 2D FMCW LiDAR · FOV Detector                                                                                                                                                 |
 | **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map                                                                                                                             |
 | **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance)                                                                   |
 
@@ -172,5 +172,4 @@ Contributions are welcome! Please see [CONTRIBUTING.md](https://github.com/hanru
 ## License
 
 IR-SIM is released under the [MIT License](https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file).
-
 

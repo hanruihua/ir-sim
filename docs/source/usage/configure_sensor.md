@@ -160,6 +160,90 @@ obstacle:
 
 Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` parameters. The `std` parameter is the standard deviation of the range noise, and the `angle_std` parameter is the standard deviation of the angle noise. 
 
+## FMCW LiDAR Configuration Parameters
+
+IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR, but each valid beam additionally reports a scalar `radial_velocity` measurement. This makes it useful for demonstrating how Doppler measurements can help interpret dynamic obstacles.
+
+The example below uses a stationary ego sensor with a forward 120-degree field of view and multiple moving obstacles. When plotting is enabled, valid returns are colorized by radial velocity and marked at their endpoints.
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make("fmcw_lidar_world.yaml")
+
+for step in range(120):
+    env.step()
+
+    scan = env.get_lidar_scan()
+    valid_count = int(scan["valid"].sum())
+    valid_indices = scan["valid"].nonzero()[0]
+    if len(valid_indices) > 0:
+        beam_idx = max(valid_indices, key=lambda idx: abs(scan["radial_velocity"][idx]))
+        print(
+            f"step={step:03d} valid_beams={valid_count:03d} "
+            f"beam={beam_idx:03d} range={scan['ranges'][beam_idx]:.3f} "
+            f"radial_velocity={scan['radial_velocity'][beam_idx]:.3f}"
+        )
+    else:
+        print(f"step={step:03d} valid_beams={valid_count:03d} no valid returns")
+
+    env.render(0.05, mode="all")
+
+env.end(3)
+```
+
+:::
+
+:::{tab-item} YAML Configuration
+
+```yaml
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2.0, 5.0, 0.0]
+    goal: [2.0, 5.0, 0.0]
+    vel_min: [0.0, 0.0]
+    vel_max: [0.0, 0.0]
+    behavior: {name: 'dash'}
+
+    sensors:
+      - type: 'fmcw_lidar2d'
+        range_min: 0.0
+        range_max: 8.0
+        angle_range: 2.0944
+        number: 121
+        motion_compensate: False
+        noise: False
+        plot:                     # visualization params under `plot:`
+          velocity_linewidth: 2.0
+          velocity_marker_size: 45
+          velocity_color_max: 0.6
+```
+
+:::
+::::
+
+Key FMCW-specific parameters are:
+
+- **motion_compensate**: Whether to remove ego-motion from the measured radial velocity.
+- **velocity_noise_std**: Standard deviation of Gaussian noise applied to `radial_velocity`.
+
+Visualization parameters live under the sensor's **`plot:`** sub-dict (consistent with `lidar2d` and object `plot:`); flat top-level keys are still accepted for backward compatibility:
+
+- **velocity_color**: Whether to colorize valid beams by radial velocity during plotting.
+- **velocity_color_max**: Velocity magnitude where the plotting color saturates.
+
+The returned scan keeps the standard LiDAR angle metadata and adds:
+
+- **radial_velocity**: Scalar radial velocity for each beam.
+- **valid**: Whether the beam has a valid return within `range_max`.
+
+The complete runnable example is available under `usage/22fmcw_lidar_world/`.
+
 
 ## FOV Configuration Parameters
 
@@ -245,4 +329,3 @@ obstacle:
 ```
 :::
 ::::
-

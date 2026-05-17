@@ -111,7 +111,11 @@ class Lidar2D:
         self.angle_std = angle_std
         self.offset = np.c_[offset]
 
-        self.alpha = alpha
+        # Visualization params may be given under a `plot:` sub-dict
+        # (preferred) or as flat top-level keys (backward compatible).
+        _plot = kwargs.get("plot") or {}
+        self._plot_cfg = _plot
+        self.alpha = _plot.get("alpha", alpha)
         self.has_velocity = has_velocity
         self.velocity = np.zeros((2, number))
 
@@ -123,7 +127,7 @@ class Lidar2D:
         self._state = state
         self.init_geometry(self._state)
 
-        self.color = kwargs.get("color", "r")
+        self.color = _plot.get("color", kwargs.get("color", "r"))
 
         self.obj_id = obj_id
 

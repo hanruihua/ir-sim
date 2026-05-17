@@ -26,6 +26,22 @@ msgstr "为机器人配置传感器"
 msgid "LiDAR Configuration Parameters"
 msgstr "LiDAR 配置参数"
 
+#: ../../source/usage/configure_sensor.md:165
+msgid "FMCW LiDAR Configuration Parameters"
+msgstr "FMCW LiDAR 配置参数"
+
+#: ../../source/usage/configure_sensor.md:167
+msgid ""
+"IR-SIM also provides a simplified 2D FMCW LiDAR sensor named "
+"`fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D "
+"LiDAR, but each valid beam additionally reports a scalar "
+"`radial_velocity` measurement. This makes it useful for demonstrating "
+"how Doppler measurements can help interpret dynamic obstacles."
+msgstr ""
+"IR-SIM 还提供了一个名为 `fmcw_lidar2d` 的简化 2D FMCW "
+"LiDAR。它保留了标准 2D LiDAR 的束几何，但每条有效束会额外返回标量 "
+"`radial_velocity` 测量值，便于演示多普勒信息如何帮助理解动态障碍物。"
+
 #: ../../source/usage/configure_sensor.md:6
 msgid ""
 "The YAML configuration file and Python Script below shows an example of a"
@@ -138,3 +154,5 @@ msgstr ""
 "下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 `fov`（角度）与 "
 "`fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 `fov_detect_object()` 检测视场内的机器人。"
 
+msgid "Visualization parameters live under the sensor's **`plot:`** sub-dict (consistent with `lidar2d` and object `plot:`); flat top-level keys are still accepted for backward compatibility:"
+msgstr "可视化参数位于传感器的 **`plot:`** 子字典下（与 `lidar2d` 和对象的 `plot:` 约定一致）；为保持向后兼容，仍接受顶层扁平键："
