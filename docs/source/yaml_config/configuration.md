@@ -22,13 +22,13 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <div class="yt-leaf"><a class="yt-key" href="#p-w-name">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"world"</span><span class="yt-desc">world name</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-height">height</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span><span class="yt-desc">world height (m, y-axis)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-width">width</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span><span class="yt-desc">world width (m, x-axis)</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-step_time">step_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">simulation step (s)</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-sample_time">sample_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">step_time</span><span class="yt-desc">render / sample step (s)</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-step-time">step_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">simulation step (s)</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-sample-time">sample_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">step_time</span><span class="yt-desc">render / sample step (s)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-offset">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0]</span><span class="yt-desc">world origin offset [x, y]</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-control_mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision_mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-control-mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">Running | Pause | Arrived | Collision</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle_map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle-map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-mdownsample">mdownsample</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">obstacle-map downsample factor</span></div>
   <details>
   <summary><a class="yt-key" href="#p-w-plot">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">global plot options</span></summary>
@@ -56,18 +56,18 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"obstacle"</span><span class="yt-desc">robot | obstacle</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"k"</span><span class="yt-desc">matplotlib color</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-static">static</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">immobile object</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel_min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel_min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-acce">acce</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[inf]·dim</span><span class="yt-desc">accel limits</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-angle_range">angle_range</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-pi, pi]</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-goal_threshold">goal_threshold</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">arrival distance</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-arrive_mode">arrive_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"position"</span><span class="yt-desc">position | state</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-angle-range">angle_range</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-pi, pi]</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-goal-threshold">goal_threshold</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">arrival distance</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-arrive-mode">arrive_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"position"</span><span class="yt-desc">position | state</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-description">description</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">null</span><span class="yt-desc">image label</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-group">group</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">0</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-group_name">group_name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">null</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-group-name">group_name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">null</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-unobstructed">unobstructed</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">ignore collisions</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-state_dim">state_dim</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">null</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel_dim">vel_dim</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">null</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-state-dim">state_dim</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">null</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-dim">vel_dim</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">null</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-fov">fov</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">null</span><span class="yt-desc">field-of-view angle (rad)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-fov">fov_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">null</span></div>
   <details>
@@ -98,13 +98,13 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <details>
   <summary><a class="yt-key" href="#p-o-kinematics">kinematics</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">motion model</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-kinematics">noise</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">add velocity noise (all variants)</span></div>
     <div class="yt-utabs">
       <input class="yt-utab-radio" type="radio" name="yt-v-kinematics" id="yt-v-kin-diff" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-kinematics" id="yt-v-kin-omni">
       <input class="yt-utab-radio" type="radio" name="yt-v-kinematics" id="yt-v-kin-omniang">
       <input class="yt-utab-radio" type="radio" name="yt-v-kinematics" id="yt-v-kin-acker">
       <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-kinematics">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-kin-diff">diff</label><label for="yt-v-kin-omni">omni</label><label for="yt-v-kin-omniang">omni_angular</label><label for="yt-v-kin-acker">acker</label></span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-kinematics">noise</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">add velocity noise (all variants)</span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-kinematics">alpha</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0.03, 0, 0, 0.03]</span><span class="yt-desc">noise params [α₁ … α₄]</span></div>
@@ -164,15 +164,15 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <details>
   <summary><a class="yt-key" href="#p-o-behavior">behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">per-object motion logic</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — new random goal on arrival</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — cycle waypoints</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">shared — all | robot | obstacle</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_low</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0,0,-pi]</span><span class="yt-desc">shared — wander bound</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_high</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[10,10,pi]</span><span class="yt-desc">shared — wander bound</span></div>
     <div class="yt-utabs">
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-dash" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-rvo">
       <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-beh-dash">dash</label><label for="yt-v-beh-rvo">rvo</label></span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — new random goal on arrival</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — cycle waypoints</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">shared — all | robot | obstacle</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_low</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0,0,-pi]</span><span class="yt-desc">shared — wander bound</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_high</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[10,10,pi]</span><span class="yt-desc">shared — wander bound</span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">angle_tolerance</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">orientation tol. (diff/acker/omni_angular)</span></div>
@@ -190,33 +190,71 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   </div>
   </details>
   <details>
-  <summary><a class="yt-key" href="#p-o-group_behavior">group_behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">group-level (ORCA)</span></summary>
+  <summary><a class="yt-key" href="#p-o-group-behavior">group_behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">group-level (ORCA)</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">—</span><span class="yt-desc">orca</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">neighborDist</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">15.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">maxNeighbors</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">timeHorizon</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">20.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">timeHorizonObst</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">safe_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group_behavior">maxSpeed</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">falls back to vel_max</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">—</span><span class="yt-desc">orca</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">neighborDist</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">15.0</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxNeighbors</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizon</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">20.0</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizonObst</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">safe_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxSpeed</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">falls back to vel_max</span></div>
   </div>
   </details>
   <details>
-  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">currently only lidar2d</span></summary>
+  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">lidar2d or fmcw_lidar2d</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lidar2d"</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_min</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_range</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">pi</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">number</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">100</span><span class="yt-desc">beam count</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">scan_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">noise</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.2</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.02</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0, 0]</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.3</span><span class="yt-desc">plot transparency</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">has_velocity</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"r"</span></div>
+    <div class="yt-utabs">
+      <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-lidar2d" checked>
+      <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-fmcw">
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-sen-lidar2d">lidar2d</label><label for="yt-v-sen-fmcw">fmcw_lidar2d</label></span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_min</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_range</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">pi</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">number</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">100</span><span class="yt-desc">beam count</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">scan_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">noise</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">both variants</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.2</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.02</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0, 0]</span></div>
+      <div class="yt-utabpanels">
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">has_velocity</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span></div>
+          <details>
+          <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">sensor visualization · flat keys also accepted</span></summary>
+          <div class="yt-body">
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.3</span><span class="yt-desc">plot transparency</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"r"</span></div>
+          </div>
+          </details>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">motion_compensate</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">remove ego-motion from radial velocity</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_noise_std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.0</span><span class="yt-desc">radial-velocity noise std</span></div>
+          <div class="yt-leaf yt-uvar-note"><span class="yt-desc">scan adds <code>radial_velocity</code> and <code>valid</code> arrays.</span></div>
+          <details>
+          <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">Doppler visualization · flat keys also accepted</span></summary>
+          <div class="yt-body">
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.3</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"r"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_color</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">true</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_color_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.5</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.8</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.03</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">show_velocity_markers</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">true</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_size</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">36</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_edge_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"black"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_edge_width</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.6</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">zero_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"cyan"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">positive_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"crimson"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">negative_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"royalblue"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightgray"</span></div>
+          </div>
+          </details>
+        </div>
+      </div>
+    </div>
   </div>
   </details>
   <details>
@@ -500,13 +538,13 @@ This section outlines the configuration parameters available for the `world` sec
 **`width`** (`float`, default: `10`)  
 : Specifies the horizontal size of the world in units of meters in the X-axis direction plotted on the screen.
 
-(p-w-step_time)=
+(p-w-step-time)=
 **`step_time`** (`float`, default: `0.1`)
 : Determines the time interval between each simulation step. 
   
   **Performance Impact**: A smaller `step_time` results in a higher simulation frequency (e.g., `0.1` seconds corresponds to 10 Hz) but needs longer time to run the simulation.
 
-(p-w-sample_time)=
+(p-w-sample-time)=
 **`sample_time`** (`float`, default: `step_time`)
 : Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur. If not specified, defaults to the value of `step_time`.
 
@@ -518,7 +556,7 @@ This section outlines the configuration parameters available for the `world` sec
 (world-mode)=
 ::::{dropdown} **world mode**
 
-(p-w-control_mode)=
+(p-w-control-mode)=
 **`control_mode`** (`str`, default: `"auto"`)
 : Configures how the objects in the simulation are controlled:
 
@@ -526,7 +564,7 @@ This section outlines the configuration parameters available for the `world` sec
   - `auto`: Automatic control by the input velocities defined in python script or behavior in the YAML file.
   - `keyboard`: Manual control via keyboard inputs. The key inputs are defined in the file.
 
-(p-w-collision_mode)=
+(p-w-collision-mode)=
 **`collision_mode`** (`str`, default: `"stop"`)
 : Defines how collisions between objects are handled in the simulation:
 
@@ -551,7 +589,7 @@ This section outlines the configuration parameters available for the `world` sec
 (world-map)=
 ::::{dropdown} **world map**
 
-(p-w-obstacle_map)=
+(p-w-obstacle-map)=
 **`obstacle_map`** (`dict`, `str`, `ndarray`, or `null`, default: `None`)
 : Occupancy grid source. **Canonical form is a generator spec dict** with ``name``; other types are convenience/backward compat.
 
@@ -784,7 +822,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - [[10.0, 10.0, 0.2], [5.0, 4.0, 1.0], [3.0, 3.0, 2.0]]
   ```
 
-(p-o-state_dim)=
+(p-o-state-dim)=
 **`state_dim`** (`int`, default: `None`)
 : Explicitly defines the dimension of the state vector. When not specified, this is automatically inferred from the kinematics model. For most use cases, the default inference is sufficient.
 
@@ -797,7 +835,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   state_dim: 3
   ```
 
-(p-o-vel_dim)=
+(p-o-vel-dim)=
 **`vel_dim`** (`int`, default: `None`)
 : Explicitly defines the dimension of the velocity vector. When not specified, this is automatically inferred from the kinematics model. The velocity dimension depends on the control inputs for the specific kinematics.
 
@@ -819,7 +857,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   group: 1
   ```
 
-(p-o-group_name)=
+(p-o-group-name)=
 **`group_name`** (`str`, default: `None`)
 : Specifies a group name for organizational purposes, allowing objects to be categorized and managed together. Objects with the same group name can be treated as a cohesive unit for certain operations.
 
@@ -919,7 +957,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     kinematics: {name: 'acker', noise: True, alpha: [0.03, 0, 0, 0.03], mode: 'steer'}
     ```
   
-(p-o-vel_min)=
+(p-o-vel-min)=
 **`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** (`list` of `float`, default: `[1, 1]`)
 : Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds.
 
@@ -927,11 +965,11 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 **`acce`** (`list` of `float`, default: `[inf, inf]`)
 : Defines acceleration limits as the maximum change in velocity per time step for each control dimension. This parameter simulates the physical limitations of the object's motion capabilities.
 
-(p-o-angle_range)=
+(p-o-angle-range)=
 **`angle_range`** (`list` of `float`, default: `[-pi, pi]`)
 : Specifies the allowed range of orientation angles `[min, max]` in radians. The object's orientation angle `theta` is wrapped within this range to maintain consistency.
 
-(p-o-goal_threshold)=
+(p-o-goal-threshold)=
 **`goal_threshold`** (`float`, default: `0.1`)
 : Determines the proximity threshold to the goal at which the object is considered to have arrived. Once within this distance, arrival behaviors or state changes may be triggered.
 
@@ -1084,7 +1122,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0, mode: 'rvo', wander: False}
     ```
 
-(p-o-group_behavior)=
+(p-o-group-behavior)=
 **`group_behavior`** (`dict`, default: `None`)
 : Group-level behavior for all objects within the same group. This is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. Must include `name` plus behavior-specific parameters.
 
@@ -1180,6 +1218,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `no_hit_alpha` (float/`0.03`): Plot transparency for invalid beams.
     - `show_velocity_markers` (bool/`True`): Whether to draw colored hit markers at valid endpoints.
     - `velocity_marker_size` (float/`36`): Plot marker size for valid endpoints.
+    - `velocity_marker_edge_color` (str/`black`): Edge color of the endpoint markers.
+    - `velocity_marker_edge_width` (float/`0.6`): Edge width of the endpoint markers.
     - `zero_velocity_color` (str/`cyan`): Plot color used for near-zero radial velocity.
     - `positive_velocity_color` (str/`crimson`): Plot color used for positive radial velocity.
     - `negative_velocity_color` (str/`royalblue`): Plot color used for negative radial velocity.
@@ -1222,7 +1262,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`unobstructed`** — Ignore collisions (`True`/`False`)
 ```
 
-(p-o-arrive_mode)=
+(p-o-arrive-mode)=
 **`arrive_mode`** (`str`, default: `'position'`)
 : Chooses the method for determining if the object has arrived at its goal:
 

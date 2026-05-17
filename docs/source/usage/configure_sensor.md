@@ -1,6 +1,6 @@
 # Configure Sensors for the robot
 
-Robots can carry sensors for environment perception. IR-SIM currently provides a 2D LiDAR (`lidar2d`) plus an optional field-of-view (FOV) region; both are attached per object in the YAML file. This page shows how to configure them and tune noise.
+Robots can carry sensors for environment perception. IR-SIM provides a 2D LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-beam radial velocity), plus an optional field-of-view (FOV) region; all are attached per object in the YAML file. This page shows how to configure them and tune noise.
 
 ## LiDAR Configuration Parameters
 

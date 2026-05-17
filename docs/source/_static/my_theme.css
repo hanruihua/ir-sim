@@ -135,6 +135,14 @@ html[data-theme="dark"] {
     max-width: 100rem;
     padding-inline: 1.5rem;
 }
+/* Align the brand title's left edge with the left sidebar's
+   content column: page-width inset (3rem) + sidebar pad (1rem)
+   = 4rem; header inner pad is 1.5rem, so offset the brand by
+   the 2.5rem difference. Only the brand shifts (nav/end keep
+   their single-row fit). */
+.bd-header .navbar-brand {
+    margin-left: 2.5rem;
+}
 .bd-header .bd-navbar-elements,
 .bd-header .navbar-header-items {
     flex-wrap: nowrap;
@@ -753,8 +761,10 @@ html[data-theme="dark"] .yaml-tree {
    (higher specificity so it wins over pydata defaults) ---- */
 .bd-main .bd-article {
     /* pydata sets this via logical padding-inline/block; force
-       a tight box (user-requested dense layout). */
-    padding: 0.4rem 0 0 0.9rem !important;
+       a tight box. Left padding is 0 so the article content
+       (H1, body, tables, tree) is flush with the breadcrumb
+       and footer — one consistent content-column left edge. */
+    padding: 0.4rem 0 0 0 !important;
 }
 .bd-article ul,
 .bd-article ol {
