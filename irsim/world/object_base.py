@@ -391,7 +391,11 @@ class ObjectBase:
                 sensor.parent = self
 
             self.lidar = next(
-                (sensor for sensor in self.sensors if sensor.sensor_type == "lidar2d"),
+                (
+                    sensor
+                    for sensor in self.sensors
+                    if sensor.sensor_type in {"lidar2d", "fmcw_lidar2d"}
+                ),
                 None,
             )
         else:

@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 
+from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
 from irsim.world.sensors.lidar2d import Lidar2D
 
 
@@ -24,4 +25,6 @@ class SensorFactory:
 
         if sensor_type == "lidar2d":
             return Lidar2D(state, obj_id, **kwargs)
-        raise NotImplementedError(f"Sensor types {type} not implemented")
+        if sensor_type == "fmcw_lidar2d":
+            return FMCWLidar2D(state, obj_id, **kwargs)
+        raise NotImplementedError(f"Sensor type {sensor_type} not implemented")
