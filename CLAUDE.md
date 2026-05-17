@@ -127,7 +127,7 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (21 test files)
+tests/                  # Pytest test suite (22 test files)
 usage/                  # Example YAML configs and scripts (22 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
