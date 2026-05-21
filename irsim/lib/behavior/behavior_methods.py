@@ -3,7 +3,7 @@ from typing import Any
 
 import numpy as np
 
-from irsim.lib import reciprocal_vel_obs, register_behavior
+from irsim.lib import reciprocal_vel_obs, register_behavior, social_force_model
 from irsim.util.util import WrapToPi, omni_to_diff, relative_position
 
 """
@@ -211,6 +211,94 @@ def beh_omni_rvo(
     )
 
 
+@register_behavior("diff", "sfm")
+def beh_diff_sfm(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
+    """
+    Behavior function for differential drive robot using the Social Force Model.
+
+    Algorithm ported from libpedsim / pedsim_ros
+    (https://github.com/srl-freiburg/pedsim_ros).
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: SFM tuning parameters; see :func:`SFMVelocity`.
+
+    Returns:
+        np.array: Velocity [linear, angular] (2x1) for differential drive.
+    """
+    if ego_object.goal is None:
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
+                "Goal is currently None. This sfm behavior is waiting for goal configuration"
+            )
+        return np.zeros((2, 1))
+
+    neighbors = []
+    line_segments = []
+    for obj in external_objects:
+        segs = obj.rvo_line_segments
+        if segs:
+            line_segments.extend(segs)
+        else:
+            neighbors.append(obj.rvo_neighbor_state)
+
+    vx, vy = SFMVelocity(
+        ego_object.rvo_state,
+        neighbors,
+        line_segments,
+        step_time=ego_object._world_param.step_time,
+        **kwargs,
+    )
+    return omni_to_diff(ego_object.rvo_state[-1], [vx, vy])
+
+
+@register_behavior("omni", "sfm")
+def beh_omni_sfm(
+    ego_object: Any, external_objects: list[Any], **kwargs: Any
+) -> np.ndarray:
+    """
+    Behavior function for omnidirectional robot using the Social Force Model.
+
+    Algorithm ported from libpedsim / pedsim_ros
+    (https://github.com/srl-freiburg/pedsim_ros).
+
+    Args:
+        ego_object: The ego robot object.
+        external_objects (list): List of external objects in the environment.
+        **kwargs: SFM tuning parameters; see :func:`SFMVelocity`.
+
+    Returns:
+        np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
+    """
+    if ego_object.goal is None:
+        if ego_object._world_param.count % 10 == 0:
+            ego_object.logger.warning(
+                "Goal is currently None. This sfm behavior is waiting for goal configuration"
+            )
+        return np.zeros((2, 1))
+
+    neighbors = []
+    line_segments = []
+    for obj in external_objects:
+        segs = obj.rvo_line_segments
+        if segs:
+            line_segments.extend(segs)
+        else:
+            neighbors.append(obj.rvo_neighbor_state)
+
+    vx, vy = SFMVelocity(
+        ego_object.rvo_state,
+        neighbors,
+        line_segments,
+        step_time=ego_object._world_param.step_time,
+        **kwargs,
+    )
+    return np.array([[vx], [vy]])
+
+
 @register_behavior("omni_angular", "dash")
 def beh_omni_angular_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
@@ -274,6 +362,79 @@ def beh_acker_dash(
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
 
     return AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+
+
+def SFMVelocity(
+    state_tuple: Any,
+    neighbor_list: list[Any] | None = None,
+    line_segments: list[list[float]] | None = None,
+    vmax: float = 1.5,
+    step_time: float = 0.1,
+    neighbor_threshold: float = 10.0,
+    relaxation_time: float = 0.5,
+    force_factor_desired: float = 1.0,
+    force_factor_social: float = 2.1,
+    force_factor_obstacle: float = 10.0,
+    sigma_obstacle: float = 0.8,
+    lambda_importance: float = 2.0,
+    gamma: float = 0.35,
+    n_angular: float = 2.0,
+    n_velocity: float = 3.0,
+    **_: Any,
+) -> tuple[float, float]:
+    """
+    Compute the next world-frame velocity using the Social Force Model.
+
+    Anisotropic Moussaid-Helbing (2009) variant, ported from
+    ``libpedsim``/``pedsim_ros``:
+    https://github.com/srl-freiburg/pedsim_ros
+
+    Args:
+        state_tuple: Full RVO-style state
+            ``[x, y, vx, vy, radius, vx_des, vy_des, theta]``.
+        neighbor_list: Neighbour states ``[[x, y, vx, vy, radius], ...]``.
+        line_segments: Line obstacles ``[[x1, y1, x2, y2], ...]``.
+        vmax: Speed cap.
+        step_time: Integration step.
+        neighbor_threshold: Spatial cutoff for social interactions.
+        relaxation_time, force_factor_*, sigma_obstacle, lambda_importance,
+            gamma, n_angular, n_velocity: SFM tuning parameters
+            (see :class:`social_force_model`).
+
+    Returns:
+        tuple[float, float]: Updated world-frame velocity ``(vx, vy)``.
+    """
+    if neighbor_list is None:
+        neighbor_list = []
+    if line_segments is None:
+        line_segments = []
+
+    x, y = state_tuple[0], state_tuple[1]
+    filtered_neighbors = [
+        nb
+        for nb in neighbor_list
+        if (x - nb[0]) ** 2 + (y - nb[1]) ** 2 < neighbor_threshold**2
+    ]
+
+    sfm = social_force_model(
+        state=state_tuple,
+        neighbor_list=filtered_neighbors,
+        line_obs_list=line_segments,
+        vmax=vmax,
+        step_time=step_time,
+        relaxation_time=relaxation_time,
+        force_factor_desired=force_factor_desired,
+        force_factor_social=force_factor_social,
+        force_factor_obstacle=force_factor_obstacle,
+        sigma_obstacle=sigma_obstacle,
+        lambda_importance=lambda_importance,
+        gamma=gamma,
+        n_angular=n_angular,
+        n_velocity=n_velocity,
+        neighbor_range=neighbor_threshold,
+    )
+    vx, vy = sfm.cal_vel()
+    return vx, vy
 
 
 def OmniRVO(

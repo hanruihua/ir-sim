@@ -4,21 +4,21 @@ Each object in the simulation can be assigned a behavior independently to simula
 
 IR-SIM supports two types of behavior configuration:
 
-- **`behavior`**: Controls individual object movement (e.g., `dash`, `rvo`)
+- **`behavior`**: Controls individual object movement (e.g., `dash`, `rvo`, `sfm`)
 - **`group_behavior`**: Coordinates behavior for all objects in a group (e.g., `orca`)
 
 ## Behavior Configuration Parameters
 
-Built-in individual behaviors are `dash` (move directly to the goal) and `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance). By default, moving objects have no behavior and remain static unless an external command is supplied.
+Built-in individual behaviors are `dash` (move directly to the goal), `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance), and `sfm` (Social Force Model — reactive pedestrian-style avoidance, ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros)). By default, moving objects have no behavior and remain static unless an external command is supplied.
 
 Behaviors are registered per kinematics, so not every (kinematics, behavior) pair exists:
 
-| Kinematics      | Available behaviors |
-| --------------- | ------------------- |
-| `diff`          | `dash`, `rvo`       |
-| `omni`          | `dash`, `rvo`       |
-| `omni_angular`  | `dash`              |
-| `acker`         | `dash`              |
+| Kinematics      | Available behaviors        |
+| --------------- | -------------------------- |
+| `diff`          | `dash`, `rvo`, `sfm`       |
+| `omni`          | `dash`, `rvo`, `sfm`       |
+| `omni_angular`  | `dash`                     |
+| `acker`         | `dash`                     |
 
 If you assign a behavior that is not registered for the kinematics (for example `rvo` on `acker`), object construction will fail. Use a [custom behavior](#advanced-configuration-for-custom-behavior) to fill the gaps.
 
@@ -87,7 +87,7 @@ robot:
 ### Important Behavior Parameters Explained
 
 **Common Parameters:**
-- **`name`:** Behavior type (`'dash'`, `'rvo'`, or custom name)
+- **`name`:** Behavior type (`'dash'`, `'rvo'`, `'sfm'`, or custom name)
 - **`wander`:** Random goal generation after reaching current goal (default: `False`)
 - **`loop`:** Loop through waypoints continuously when reaching the last goal (default: `False`)
 - **`target_roles`:** Filter objects for behavior (`'all'`, `'robot'`, `'obstacle'`)
@@ -99,10 +99,46 @@ robot:
 - **`mode`:** Algorithm variant - `'rvo'` (default), `'hrvo'`, or `'vo'`
 - **`neighbor_threshold`:** Detection range for nearby objects (default: `3.0` meters)
 
+**SFM-specific Parameters** (anisotropic Moussaid-Helbing 2009 variant):
+- **`vmax`:** Speed cap applied after force integration (default: `1.5`)
+- **`neighbor_threshold`:** Social-interaction cutoff distance (default: `10.0`)
+- **`relaxation_time`:** Goal-pull time constant `tau` (default: `0.5`)
+- **`force_factor_desired`:** Weight on the goal-seeking force (default: `1.0`)
+- **`force_factor_social`:** Weight on inter-agent repulsion (default: `2.1`)
+- **`force_factor_obstacle`:** Weight on obstacle repulsion (default: `10.0`)
+- **`sigma_obstacle`:** Exponential decay length of obstacle force (default: `0.8`)
+- **`lambda_importance`:** Relative weight of velocity vs. position in the interaction direction (default: `2.0`)
+- **`gamma`:** Sets the interaction range `B = gamma * ||t||` (default: `0.35`)
+- **`n_angular`/`n_velocity`:** Angular sharpness exponents for the sideways and slowdown components (defaults: `2.0`, `3.0`)
+
 **Dash-specific Parameters:**
 - **`angle_tolerance`:** Orientation alignment tolerance for `diff`/`acker` (default: `0.1` radians)
 
 Full list of behavior parameters can be found in the [YAML Configuration](../yaml_config/configuration.md).
+
+### SFM (Social Force Model)
+
+`sfm` is a reactive avoidance behavior that treats each agent as a Newtonian particle under three forces — a goal-pull, an anisotropic neighbor repulsion (people on the agent's motion path push back more than people behind), and an exponential obstacle repulsion. The implementation is a faithful Python port of the C++ social-force code in [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros) (`libpedsim`/`ped_agent.cpp`), using the anisotropic variant from Moussaid, Helbing et al. (2009).
+
+`sfm` complements `rvo`/`orca`: RVO and ORCA are *geometric* and provably collision-free under their assumptions, while SFM is *behavioral* and produces more human-looking trajectories — including occasional brush-bys, hesitations, and the asymmetric reaction to neighbors ahead vs. behind. Use SFM when crowd realism matters; use RVO/ORCA when collision-freeness is the priority.
+
+```yaml
+robot:
+  - number: 10
+    distribution: {name: 'random', range_low: [1, 1, -3.14], range_high: [11, 11, 3.14]}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.25}]
+    behavior:
+      name: 'sfm'
+      vmax: 0.8
+      force_factor_desired: 0.6
+      force_factor_social: 4.0
+      wander: true                       # respawn a new random goal on arrival
+      range_low:  [1, 1, -3.14]
+      range_high: [11, 11, 3.14]
+```
+
+See `usage/23sfm_world/` for runnable examples (a wandering-pedestrian scene and a two-robot head-on pass).
 
 ### RVO with Line Obstacles
 

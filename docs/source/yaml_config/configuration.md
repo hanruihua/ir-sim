@@ -167,7 +167,8 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
     <div class="yt-utabs">
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-dash" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-rvo">
-      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-beh-dash">dash</label><label for="yt-v-beh-rvo">rvo</label></span></div>
+      <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-sfm">
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-beh-dash">dash</label><label for="yt-v-beh-rvo">rvo</label><label for="yt-v-beh-sfm">sfm</label></span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — new random goal on arrival</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — cycle waypoints</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">shared — all | robot | obstacle</span></div>
@@ -184,6 +185,19 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">factor</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span><span class="yt-desc">RVO scaling</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"rvo"</span><span class="yt-desc">rvo | hrvo | vo</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">neighbor_threshold</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">neighbour filter distance</span></div>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">vmax</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.5</span><span class="yt-desc">speed cap after force integration</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">neighbor_threshold</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span><span class="yt-desc">social interaction cutoff distance</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">relaxation_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span><span class="yt-desc">goal-pull time constant tau</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">force_factor_desired</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span><span class="yt-desc">goal-pull weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">force_factor_social</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.1</span><span class="yt-desc">inter-agent repulsion weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">force_factor_obstacle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span><span class="yt-desc">obstacle repulsion weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">sigma_obstacle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.8</span><span class="yt-desc">obstacle force decay length</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">lambda_importance</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">velocity vs. position weight in interaction direction</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">gamma</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.35</span><span class="yt-desc">interaction range scale</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">n_angular</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">sideways force angular sharpness</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">n_velocity</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">slowdown force angular sharpness</span></div>
         </div>
       </div>
     </div>
