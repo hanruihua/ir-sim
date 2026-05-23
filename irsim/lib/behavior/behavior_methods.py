@@ -15,8 +15,10 @@ It provides implementations for:
 1. Registered behavior functions (decorated with @register_behavior):
    - beh_diff_rvo: Differential drive robot with RVO behavior
    - beh_diff_dash: Differential drive robot with dash-to-goal behavior
+   - beh_diff_sfm: Differential drive robot with Social Force Model behavior
    - beh_omni_dash: Omnidirectional robot with dash-to-goal behavior
    - beh_omni_rvo: Omnidirectional robot with RVO behavior
+   - beh_omni_sfm: Omnidirectional robot with Social Force Model behavior
    - beh_acker_dash: Ackermann steering robot with dash-to-goal behavior
 
 2. Core behavior calculation functions:
@@ -25,11 +27,15 @@ It provides implementations for:
    - OmniDash: Omnidirectional dash-to-goal velocity calculation
    - DiffDash: Differential drive dash-to-goal velocity calculation
    - AckerDash: Ackermann steering dash-to-goal velocity calculation
+   - SFMVelocity: Social Force Model velocity calculation
 
 These functions are designed to be used with the robot behavior system to control
 robot movements in various scenarios including collision avoidance (RVO) and
 goal-reaching behaviors (dash).
 
+The Social Force Model (``sfm``) behaviors are ported from libpedsim / pedsim_ros
+(https://github.com/srl-freiburg/pedsim_ros); see
+:mod:`irsim.lib.algorithm.social_force_model` for the algorithmic details.
 """
 
 
@@ -218,9 +224,6 @@ def beh_diff_sfm(
     """
     Behavior function for differential drive robot using the Social Force Model.
 
-    Algorithm ported from libpedsim / pedsim_ros
-    (https://github.com/srl-freiburg/pedsim_ros).
-
     Args:
         ego_object: The ego robot object.
         external_objects (list): List of external objects in the environment.
@@ -252,7 +255,18 @@ def beh_diff_sfm(
         step_time=ego_object._world_param.step_time,
         **kwargs,
     )
-    return omni_to_diff(ego_object.rvo_state[-1], [vx, vy])
+    # SFM produces a holonomic ``(vx, vy)``; track it tightly so the small
+    # sideways component from anisotropic social/obstacle forces doesn't
+    # get clipped by ``omni_to_diff``'s default deadband.
+    _, vmax_pair = ego_object.get_vel_range()
+    w_max = float(vmax_pair[1, 0])
+    return omni_to_diff(
+        ego_object.rvo_state[-1],
+        [vx, vy],
+        w_max=w_max,
+        guarantee_time=ego_object._world_param.step_time,
+        tolerance=0.02,
+    )
 
 
 @register_behavior("omni", "sfm")
@@ -261,9 +275,6 @@ def beh_omni_sfm(
 ) -> np.ndarray:
     """
     Behavior function for omnidirectional robot using the Social Force Model.
-
-    Algorithm ported from libpedsim / pedsim_ros
-    (https://github.com/srl-freiburg/pedsim_ros).
 
     Args:
         ego_object: The ego robot object.
@@ -380,6 +391,7 @@ def SFMVelocity(
     gamma: float = 0.35,
     n_angular: float = 2.0,
     n_velocity: float = 3.0,
+    safety_radius: float = 0.0,
     **_: Any,
 ) -> tuple[float, float]:
     """
@@ -416,6 +428,16 @@ def SFMVelocity(
         if (x - nb[0]) ** 2 + (y - nb[1]) ** 2 < neighbor_threshold**2
     ]
 
+    # ``rvo_state`` provides ``(vx_des, vy_des)`` with components scaled by
+    # the kinematics-specific ``vel_max`` (anisotropic for diff/acker).
+    # SFM expects ``desired_direction * vmax``, so renormalise here.
+    state_tuple = list(state_tuple)
+    vx_des, vy_des = state_tuple[5], state_tuple[6]
+    norm = (vx_des * vx_des + vy_des * vy_des) ** 0.5
+    if norm > 1e-9:
+        state_tuple[5] = vmax * vx_des / norm
+        state_tuple[6] = vmax * vy_des / norm
+
     sfm = social_force_model(
         state=state_tuple,
         neighbor_list=filtered_neighbors,
@@ -432,6 +454,7 @@ def SFMVelocity(
         n_angular=n_angular,
         n_velocity=n_velocity,
         neighbor_range=neighbor_threshold,
+        safety_radius=safety_radius,
     )
     vx, vy = sfm.cal_vel()
     return vx, vy

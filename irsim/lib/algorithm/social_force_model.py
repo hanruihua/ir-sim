@@ -10,7 +10,9 @@ is the weighted sum of three forces:
 
 * desired force  -- relaxation of velocity toward ``v0 * e_goal``;
 * social force   -- anisotropic repulsion from each neighbor;
-* obstacle force -- exponential repulsion from nearest line obstacle.
+* obstacle force -- exponential repulsion summed over nearby line
+  obstacles (Helbing-Molnar 1995 sum form; libpedsim uses only the
+  single nearest obstacle, which oscillates between symmetric walls).
 
 Upstream reference (this file is a faithful Python port):
 
@@ -69,6 +71,12 @@ class social_force_model:
         n_velocity (float): Angular sharpness ``n'`` for the slowdown force.
         neighbor_range (float): Max distance for an agent to count as a
             social-force neighbor.
+        safety_radius (float): Personal-space buffer subtracted from the
+            agent-to-agent distance inside the social-force exponential.
+            ``0`` reproduces libpedsim (points). ``> 0`` shifts the
+            decay closer-in so the repulsion saturates at
+            ``2 * safety_radius`` of centre-to-centre clearance,
+            effectively giving each agent a body radius for SFM.
     """
 
     def __init__(
@@ -88,6 +96,7 @@ class social_force_model:
         n_angular: float = 2.0,
         n_velocity: float = 3.0,
         neighbor_range: float = 10.0,
+        safety_radius: float = 0.0,
     ) -> None:
         self.state = state
         self.neighbor_list = neighbor_list if neighbor_list is not None else []
@@ -107,6 +116,7 @@ class social_force_model:
         self.n_angular = n_angular
         self.n_velocity = n_velocity
         self.neighbor_range = neighbor_range
+        self.safety_radius = safety_radius
 
     def update(
         self,
@@ -227,9 +237,13 @@ class social_force_model:
                 t_hat_x * d_hat_x + t_hat_y * d_hat_y,
             )
 
-            f_v = -exp(-dist / B - (self.n_velocity * B * theta) ** 2)
+            # Shift the decay closer in by 2 * safety_radius so the
+            # repulsion saturates at the safety-bubble surface instead of
+            # at zero centre-to-centre distance.
+            gap = max(dist - 2.0 * self.safety_radius, 0.0)
+            f_v = -exp(-gap / B - (self.n_velocity * B * theta) ** 2)
             sign_theta = 1.0 if theta > 0 else (-1.0 if theta < 0 else 0.0)
-            f_a = -sign_theta * exp(-dist / B - (self.n_angular * B * theta) ** 2)
+            f_a = -sign_theta * exp(-gap / B - (self.n_angular * B * theta) ** 2)
 
             # left normal of t_hat
             t_perp_x = -t_hat_y
@@ -241,45 +255,47 @@ class social_force_model:
         return [fx, fy]
 
     def obstacle_force(self) -> list:
-        """Exponential repulsion from the nearest line obstacle.
+        """Exponential repulsion summed over all nearby line obstacles.
 
-        Mirrors ``Ped::Tagent::obstacleForce()`` in libpedsim
-        (``3rdparty/libpedsim/src/ped_agent.cpp`` in
-        https://github.com/srl-freiburg/pedsim_ros): only the single
-        closest obstacle point contributes.
+        The libpedsim/pedsim_ros reference uses only the single nearest
+        obstacle, which oscillates in symmetric environments (two
+        parallel walls flip which one is "nearest" each step). We use
+        the Helbing-Molnar (1995) summation form instead: every segment
+        within ``5 * sigma_obstacle`` contributes an exponentially
+        decayed push, so symmetric walls cancel and the agent walks the
+        centreline. The integration is also clamped against overlap
+        (``distance < 0`` would otherwise make ``exp(-distance/sigma)``
+        explode).
         """
         x = self.state[0]
         y = self.state[1]
         r = self.state[4]
 
-        best_diff_x = 0.0
-        best_diff_y = 0.0
-        best_d2 = float("inf")
+        if not self.line_obs_list:
+            return [0.0, 0.0]
 
+        cutoff = 5.0 * self.sigma_obstacle + r
+
+        fx = 0.0
+        fy = 0.0
         for seg in self.line_obs_list:
             cx, cy = self._closest_point_on_segment(x, y, seg)
             dx = x - cx
             dy = y - cy
-            d2 = dx * dx + dy * dy
-            if d2 < best_d2:
-                best_d2 = d2
-                best_diff_x = dx
-                best_diff_y = dy
+            dist_center = sqrt(dx * dx + dy * dy)
+            if dist_center > cutoff:
+                continue
+            if dist_center < 1e-9:
+                # overlap — push along an arbitrary axis at full strength
+                fx += 1.0
+                continue
+            # clamp at the surface so exp() can't blow up on penetration
+            distance = max(dist_center - r, 0.0)
+            amount = exp(-distance / self.sigma_obstacle)
+            fx += amount * dx / dist_center
+            fy += amount * dy / dist_center
 
-        if best_d2 == float("inf"):
-            return [0.0, 0.0]
-
-        dist_center = sqrt(best_d2)
-        if dist_center < 1e-9:
-            # already overlapping — push along any axis to escape
-            return [self.force_factor_obstacle, 0.0]
-
-        distance = dist_center - r
-        amount = exp(-distance / self.sigma_obstacle)
-        return [
-            amount * best_diff_x / dist_center,
-            amount * best_diff_y / dist_center,
-        ]
+        return [fx, fy]
 
     # ------------------------------------------------------------------
     # Geometry helpers

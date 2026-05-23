@@ -1,9 +1,9 @@
 world:
-  height: 6
+  height: 8
   width: 14
   step_time: 0.1
   sample_time: 0.1
-  offset: [-7, -3]
+  offset: [-7, -4]
   collision_mode: 'unobstructed'
   control_mode: 'auto'
 
@@ -11,10 +11,16 @@ world:
 robot:
   - kinematics: {name: 'diff'}
     shape: [{name: 'circle', radius: 0.3}]
-    state: [-6, 0, 0]
-    goal: [6, 0, 0]
+    state: [-6, -0.5, 0]   # lateral offset gives the anisotropic social
+    goal:  [ 6, -0.5, 0]   # force a clear side to pass on
     color: 'royalblue'
-    behavior: {name: 'sfm', vmax: 1.0}
+    behavior:
+      name: 'sfm'
+      vmax: 1.0
+      force_factor_social: 5.4       # Helbing-Molnar 1995 stiffness
+      force_factor_obstacle: 2.0     # gentler walls — keep agents in corridor
+      gamma: 0.5                     # widen the social interaction range
+      sigma_obstacle: 0.5            # shorter wall decay length
     vel_min: [-1.5, -3]
     vel_max: [1.5, 3]
     goal_threshold: 0.2
@@ -23,12 +29,29 @@ robot:
 
   - kinematics: {name: 'diff'}
     shape: [{name: 'circle', radius: 0.3}]
-    state: [6, 0.1, 3.14]    # tiny offset breaks the symmetric deadlock
-    goal: [-6, 0.1, 3.14]
+    state: [ 6, 0.5, 3.14]
+    goal:  [-6, 0.5, 3.14]
     color: 'red'
-    behavior: {name: 'sfm', vmax: 1.0}
+    behavior:
+      name: 'sfm'
+      vmax: 1.0
+      force_factor_social: 5.4       # Helbing-Molnar 1995 stiffness
+      force_factor_obstacle: 2.0     # gentler walls — keep agents in corridor
+      gamma: 0.5                     # widen the social interaction range
+      sigma_obstacle: 0.5            # shorter wall decay length
     vel_min: [-1.5, -3]
     vel_max: [1.5, 3]
     goal_threshold: 0.2
     arrive_mode: position
     plot: {show_trail: true, show_goal: true, trail_fill: true, trail_alpha: 0.2, keep_trail_length: 30}
+
+obstacle:
+  # Corridor walls placed wider than ``2 * sigma_obstacle`` so the
+  # exponential wall repulsion doesn't dominate the social interaction
+  # in the corridor centre.
+  - shape: {name: 'linestring', vertices: [[-7, 3], [7, 3]]}
+    state: [0, 0, 0]
+    unobstructed: true
+  - shape: {name: 'linestring', vertices: [[-7, -3], [7, -3]]}
+    state: [0, 0, 0]
+    unobstructed: true
