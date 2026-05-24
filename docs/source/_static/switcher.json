@@ -1,5 +1,10 @@
 [  {
-        "name": "2.9.4 (stable)",
+        "name": "2.10.0 (stable)",
+        "version": "2.10.0",
+        "url": "https://ir-sim.readthedocs.io/en/v2.10.0/"
+    },
+    {
+        "name": "2.9.4",
         "version": "2.9.4",
         "url": "https://ir-sim.readthedocs.io/en/v2.9.4/"
     },

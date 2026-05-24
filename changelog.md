@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## 2.10.0 (2026-05-24)
+
+Minor release adding two new perception/behavior capabilities — the Social Force Model (SFM) for pedestrian-style crowd avoidance and a simplified 2D FMCW LiDAR sensor with per-beam radial velocity.
 
 - Features:
-  - Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua/ir-sim/pull/293)) (@KevinLADLee)
-  - Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics, ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros). ([#307](https://github.com/hanruihua/ir-sim/pull/307))
+  - Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua/ir-sim/pull/293)) ([@KevinLADLee](https://github.com/KevinLADLee))
+  - Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics (anisotropic Moussaid-Helbing 2009 variant) with a `23sfm_world` cross-corridor usage example. ([#307](https://github.com/hanruihua/ir-sim/pull/307))
+
+- Performance:
+  - Cache `velocity_xy`, `rvo_neighbor_state`, and `rvo_line_segments` per-tick on `ObjectBase` — ~4× faster SFM/RVO step. ([#307](https://github.com/hanruihua/ir-sim/pull/307))
 
 - Docs:
   - Add release dates to all version headings in `changelog.md`. ([#288](https://github.com/hanruihua/ir-sim/pull/288))
@@ -37,12 +42,12 @@
 - Features:
   - Add loop mode for waypoint navigation behavior. ([#266](https://github.com/hanruihua/ir-sim/pull/266))
   - Add line obstacle support to RVO algorithm. ([#250](https://github.com/hanruihua/ir-sim/pull/250))
-  - Add CBF-QP and collision-cone usage examples. ([#258](https://github.com/hanruihua/ir-sim/pull/258)) (@Lawliet9666)
+  - Add CBF-QP and collision-cone usage examples. ([#258](https://github.com/hanruihua/ir-sim/pull/258)) ([@Lawliet9666](https://github.com/Lawliet9666))
 
 - Performance:
-  - Vectorize lidar range/origin filter and skip `union_all`, ~48% faster lidar step on map-based arenas. ([#257](https://github.com/hanruihua/ir-sim/pull/257)) (@williamleong)
-  - Use STRtree intersects predicate for lidar map segment filtering, ~26% faster lidar step on PNG-map arenas. ([#255](https://github.com/hanruihua/ir-sim/pull/255)) (@williamleong)
-  - Cache geometry validity and streamline lidar map ray intersection, ~18% faster lidar step on PNG-map arenas. ([#254](https://github.com/hanruihua/ir-sim/pull/254)) (@williamleong)
+  - Vectorize lidar range/origin filter and skip `union_all`, ~48% faster lidar step on map-based arenas. ([#257](https://github.com/hanruihua/ir-sim/pull/257)) ([@williamleong](https://github.com/williamleong))
+  - Use STRtree intersects predicate for lidar map segment filtering, ~26% faster lidar step on PNG-map arenas. ([#255](https://github.com/hanruihua/ir-sim/pull/255)) ([@williamleong](https://github.com/williamleong))
+  - Cache geometry validity and streamline lidar map ray intersection, ~18% faster lidar step on PNG-map arenas. ([#254](https://github.com/hanruihua/ir-sim/pull/254)) ([@williamleong](https://github.com/williamleong))
 
 - Fix:
   - Prevent infinite loop in `WrapToPi`/`WrapTo2Pi` for non-finite inputs. ([#269](https://github.com/hanruihua/ir-sim/pull/269))
@@ -62,7 +67,7 @@
   - Centralize kinematics metadata (default color, state_dim, description) in the handler registry to make the kinematics be added more easily. ([#237](https://github.com/hanruihua/ir-sim/pull/237))
 
 - Fix:
-  - Improve robustness of save animation by reading and saving frames one by one instead of loading all images into memory. ([#230](https://github.com/hanruihua/ir-sim/pull/230)) (@williamleong)
+  - Improve robustness of save animation by reading and saving frames one by one instead of loading all images into memory. ([#230](https://github.com/hanruihua/ir-sim/pull/230)) ([@williamleong](https://github.com/williamleong))
 
 - Docs:
   - Add "Dynamic Object Management" section to the Make Environment documentation. ([#251](https://github.com/hanruihua/ir-sim/pull/251))
@@ -71,7 +76,7 @@
 ## 2.9.1 (2026-02-16)
 
 - Features:
-  - Add Perlin noise and image-based grid map generators, new JPS (Jump Point Search) and Informed RRT* path planners, and refactor existing planners (A*, RRT, RRT*, PRM) to use the `EnvGridMap` protocol. #215 (@KevinLADLee)
+  - Add Perlin noise and image-based grid map generators, new JPS (Jump Point Search) and Informed RRT* path planners, and refactor existing planners (A*, RRT, RRT*, PRM) to use the `EnvGridMap` protocol. #215 ([@KevinLADLee](https://github.com/KevinLADLee))
   - Drop Python 3.9 support, add Python 3.14 support. Raise minimum Python version to 3.10, modernize type annotations (`Optional`/`Union` to `X | Y` syntax). #216
   - Add optional `reload` parameter to `set_random_seed()` that regenerates random obstacles with the new seed when set to `True`. #210
   - Default animation filename to the world name when not explicitly specified. #221

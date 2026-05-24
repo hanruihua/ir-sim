@@ -38,19 +38,20 @@ msgstr "新功能："
 msgid ""
 "Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a"
 " `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua"
-"/ir-sim/pull/293)) (@KevinLADLee)"
+"/ir-sim/pull/293)) ([@KevinLADLee](https://github.com/KevinLADLee))"
 msgstr ""
 "新增简化的 2D FMCW 激光雷达传感器，提供距离与速度回波，并新增 `22fmcw_lidar_world` 使用示例。"
-"([#293](https://github.com/hanruihua/ir-sim/pull/293)) (@KevinLADLee)"
+"([#293](https://github.com/hanruihua/ir-sim/pull/293)) ([@KevinLADLee](https://github.com/KevinLADLee))"
 
 #: ../../../changelog.md:8
 msgid ""
-"Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics, "
-"ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros). "
+"Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics "
+"(anisotropic Moussaid-Helbing 2009 variant) with a `23sfm_world` "
+"cross-corridor usage example. "
 "([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 msgstr ""
-"为 `diff` 和 `omni` 运动学新增社会力模型（SFM）行为，移植自 "
-"[`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros)。"
+"为 `diff` 和 `omni` 运动学新增社会力模型（SFM）行为（各向异性 Moussaid-Helbing 2009 变体），"
+"并提供 `23sfm_world` 十字走廊使用示例。"
 "([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 
 #: ../../../changelog.md:10 ../../../changelog.md:33 ../../../changelog.md:68
@@ -234,43 +235,43 @@ msgstr "为 RVO 算法新增线段障碍物支持。([#250](https://github.com/h
 #: ../../../changelog.md:41
 msgid ""
 "Add CBF-QP and collision-cone usage examples. "
-"([#258](https://github.com/hanruihua/ir-sim/pull/258)) (@Lawliet9666)"
+"([#258](https://github.com/hanruihua/ir-sim/pull/258)) ([@Lawliet9666](https://github.com/Lawliet9666))"
 msgstr ""
 "新增 CBF-QP 和碰撞锥使用示例。([#258](https://github.com/hanruihua/ir-sim/pull/258))"
-" (@Lawliet9666)"
+" ([@Lawliet9666](https://github.com/Lawliet9666))"
 
 #: ../../../changelog.md:44
 #, python-format
 msgid ""
 "Vectorize lidar range/origin filter and skip `union_all`, ~48% faster "
 "lidar step on map-based arenas. ([#257](https://github.com/hanruihua/ir-"
-"sim/pull/257)) (@williamleong)"
+"sim/pull/257)) ([@williamleong](https://github.com/williamleong))"
 msgstr ""
 "矢量化 lidar 距离/原点过滤并跳过 `union_all`，基于地图的场景中 lidar 步进加快约 "
 "48%。([#257](https://github.com/hanruihua/ir-sim/pull/257)) "
-"(@williamleong)"
+"([@williamleong](https://github.com/williamleong))"
 
 #: ../../../changelog.md:45
 #, python-format
 msgid ""
 "Use STRtree intersects predicate for lidar map segment filtering, ~26% "
 "faster lidar step on PNG-map arenas. ([#255](https://github.com/hanruihua"
-"/ir-sim/pull/255)) (@williamleong)"
+"/ir-sim/pull/255)) ([@williamleong](https://github.com/williamleong))"
 msgstr ""
 "使用 STRtree intersects 谓词进行 lidar 地图线段过滤，PNG 地图场景中 lidar 步进加快约 "
 "26%。([#255](https://github.com/hanruihua/ir-sim/pull/255)) "
-"(@williamleong)"
+"([@williamleong](https://github.com/williamleong))"
 
 #: ../../../changelog.md:46
 #, python-format
 msgid ""
 "Cache geometry validity and streamline lidar map ray intersection, ~18% "
 "faster lidar step on PNG-map arenas. ([#254](https://github.com/hanruihua"
-"/ir-sim/pull/254)) (@williamleong)"
+"/ir-sim/pull/254)) ([@williamleong](https://github.com/williamleong))"
 msgstr ""
 "缓存几何有效性并简化 lidar 地图射线求交，PNG 地图场景中 lidar 步进加快约 "
 "18%。([#254](https://github.com/hanruihua/ir-sim/pull/254)) "
-"(@williamleong)"
+"([@williamleong](https://github.com/williamleong))"
 
 #: ../../../changelog.md:49
 msgid ""
@@ -347,10 +348,10 @@ msgstr ""
 msgid ""
 "Improve robustness of save animation by reading and saving frames one by "
 "one instead of loading all images into memory. "
-"([#230](https://github.com/hanruihua/ir-sim/pull/230)) (@williamleong)"
+"([#230](https://github.com/hanruihua/ir-sim/pull/230)) ([@williamleong](https://github.com/williamleong))"
 msgstr ""
 "通过逐帧读取和保存而非将所有图像载入内存，提升保存动画的健壮性。([#230](https://github.com/hanruihua/ir-"
-"sim/pull/230)) (@williamleong)"
+"sim/pull/230)) ([@williamleong](https://github.com/williamleong))"
 
 #: ../../../changelog.md:69
 msgid ""
@@ -373,10 +374,11 @@ msgid ""
 "Add Perlin noise and image-based grid map generators, new JPS (Jump Point"
 " Search) and Informed RRT* path planners, and refactor existing planners "
 "(A*, RRT, RRT*, PRM) to use the `EnvGridMap` protocol. #215 "
-"(@KevinLADLee)"
+"([@KevinLADLee](https://github.com/KevinLADLee))"
 msgstr ""
 "新增 Perlin 噪声和基于图像的栅格地图生成器、新的 JPS（跳点搜索）和 Informed RRT* "
-"路径规划器，并重构现有规划器（A*、RRT、RRT*、PRM）以使用 `EnvGridMap` 协议。#215 (@KevinLADLee)"
+"路径规划器，并重构现有规划器（A*、RRT、RRT*、PRM）以使用 `EnvGridMap` 协议。#215 "
+"([@KevinLADLee](https://github.com/KevinLADLee))"
 
 #: ../../../changelog.md:76
 msgid ""

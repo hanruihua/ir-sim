@@ -69,12 +69,13 @@ cd docs && make html
 **Behaviors** (`irsim/lib/behavior/`):
 - Registry-based system using decorators (`behavior_registry.py`)
 - Individual behaviors registered by robot type + behavior name:
-  - `diff`: `dash`, `rvo`
-  - `omni`: `dash`, `rvo`
+  - `diff`: `dash`, `rvo`, `sfm`
+  - `omni`: `dash`, `rvo`, `sfm`
   - `omni_angular`: `dash`
   - `acker`: `dash`
 - Group behaviors in `group_behavior.py` and `group_behavior_methods.py`:
   - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package
+- SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant)
 
 **Path Planners** (`irsim/lib/path_planners/`):
 - `a_star.py`: A* grid-based path planning
@@ -86,6 +87,7 @@ cd docs && make html
 
 **Sensors** (`irsim/world/sensors/`):
 - `lidar2d.py`: 2D LiDAR simulation
+- `fmcw_lidar2d.py`: Simplified 2D FMCW LiDAR with per-beam radial velocity
 - `sensor_factory.py`: Factory for sensor instantiation
 
 **Map** (`irsim/world/map/`):
@@ -115,12 +117,12 @@ irsim/                  # Main package
 ├── world/              # Core simulation components
 │   ├── robots/         # Robot kinematics (diff, omni, acker)
 │   ├── obstacles/      # Obstacle types (static, dynamic)
-│   ├── sensors/        # Sensor implementations (lidar2d)
+│   ├── sensors/        # Sensor implementations (lidar2d, fmcw_lidar2d)
 │   ├── map/            # Map generators (grid, image, perlin, hm3d)
 │   └── description/    # Robot/vehicle visualization assets (PNG)
 ├── lib/                # Algorithms and behaviors
-│   ├── behavior/       # Robot behaviors (dash, rvo, orca)
-│   ├── algorithm/      # Core algorithms (kinematics, rvo, generation)
+│   ├── behavior/       # Robot behaviors (dash, rvo, sfm, orca)
+│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, generation)
 │   ├── path_planners/  # Path planning (A*, RRT, RRT*, Informed RRT*, JPS, PRM)
 │   └── handler/        # Geometry and kinematics handlers
 ├── gui/                # Keyboard/mouse controls
