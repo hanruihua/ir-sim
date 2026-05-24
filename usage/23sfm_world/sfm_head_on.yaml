@@ -1,0 +1,56 @@
+world:
+  height: 8
+  width: 14
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [-7, -4]
+  collision_mode: 'unobstructed'
+  control_mode: 'auto'
+
+
+robot:
+  # Both agents travel along y = 0; the second is shifted by 0.001 m so
+  # the anisotropic social-force angle is non-zero and SFM can pick a
+  # side. The offset is below pixel scale, so visually the two read as
+  # being on the same line.
+  - kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    state: [-6, 0.0, 0]
+    goal:  [ 6, 0.0, 0]
+    color: 'royalblue'
+    behavior: &sfm_ped
+      name: 'sfm'
+      vmax: 1.0
+      force_factor_social: 5.4       # Helbing-Molnar 1995 stiffness
+      force_factor_obstacle: 2.0     # gentler walls — keep agents in corridor
+      gamma: 0.5                     # widen the social interaction range
+      sigma_obstacle: 0.5            # shorter wall decay length
+      safety_radius: 0.05            # personal-space buffer for SFM
+    vel_min: &vmin [-1.5, -3]
+    vel_max: &vmax [1.5, 3]
+    goal_threshold: 0.2
+    arrive_mode: position
+    plot: &ped_plot {show_trail: true, show_goal: true, trail_fill: true, trail_alpha: 0.2, keep_trail_length: 30}
+
+  - kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    state: [ 6, 0.001, 3.14]
+    goal:  [-6, 0.001, 3.14]
+    color: 'red'
+    behavior: *sfm_ped
+    vel_min: *vmin
+    vel_max: *vmax
+    goal_threshold: 0.2
+    arrive_mode: position
+    plot: *ped_plot
+
+obstacle:
+  # Corridor walls placed wider than ``2 * sigma_obstacle`` so the
+  # exponential wall repulsion doesn't dominate the social interaction
+  # in the corridor centre.
+  - shape: {name: 'linestring', vertices: [[-7, 3], [7, 3]]}
+    state: [0, 0, 0]
+    unobstructed: true
+  - shape: {name: 'linestring', vertices: [[-7, -3], [7, -3]]}
+    state: [0, 0, 0]
+    unobstructed: true

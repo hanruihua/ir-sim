@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 16:13+0800\n"
+"POT-Creation-Date: 2026-05-24 16:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -24,13 +24,15 @@ msgstr "为机器人配置传感器"
 
 #: ../../source/usage/configure_sensor.md:3
 msgid ""
-"Robots can carry sensors for environment perception. IR-SIM currently "
-"provides a 2D LiDAR (`lidar2d`) plus an optional field-of-view (FOV) "
-"region; both are attached per object in the YAML file. This page shows "
-"how to configure them and tune noise."
+"Robots can carry sensors for environment perception. IR-SIM provides a 2D"
+" LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with "
+"per-beam radial velocity), plus an optional field-of-view (FOV) region; "
+"all are attached per object in the YAML file. This page shows how to "
+"configure them and tune noise."
 msgstr ""
-"机器人可以携带传感器进行环境感知。IR-SIM 目前提供 2D 激光雷达（`lidar2d`）以及可选的视场（FOV）区域；两者都在 YAML "
-"文件中按对象进行配置。本页展示如何配置它们并调节噪声。"
+"机器人可以携带传感器进行环境感知。IR-SIM 提供 2D 激光雷达（`lidar2d`）以及简化的 2D FMCW 激光雷达"
+"（`fmcw_lidar2d`，每条光束附带径向速度），以及可选的视场（FOV）区域；它们都在 YAML 文件中按对象进行配置。"
+"本页展示如何配置它们并调节噪声。"
 
 #: ../../source/usage/configure_sensor.md:5
 msgid "LiDAR Configuration Parameters"
@@ -59,7 +61,7 @@ msgid "Demonstration"
 msgstr "演示"
 
 #: ../../source/usage/configure_sensor.md:70
-#: ../../source/usage/configure_sensor.md:242
+#: ../../source/usage/configure_sensor.md:326
 msgid "Select Parameters"
 msgstr "参数选择"
 
@@ -134,11 +136,92 @@ msgstr ""
 "通过 `std` 与 `angle_std` 参数为 LiDAR 添加高斯噪声。其中 `std` 为距离噪声的标准差，`angle_std` "
 "为角度噪声的标准差。"
 
-#: ../../source/usage/configure_sensor.md:165
+#: ../../source/usage/configure_sensor.md:164
+msgid "FMCW LiDAR Configuration Parameters"
+msgstr "FMCW 激光雷达配置参数"
+
+#: ../../source/usage/configure_sensor.md:166
+msgid ""
+"IR-SIM also provides a simplified 2D FMCW LiDAR sensor named "
+"`fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR,"
+" but each valid beam additionally reports a scalar `radial_velocity` "
+"measurement. This makes it useful for demonstrating how Doppler "
+"measurements can help interpret dynamic obstacles."
+msgstr ""
+"IR-SIM 还提供了一个简化的 2D FMCW 激光雷达传感器，名为 `fmcw_lidar2d`。它保持与标准 2D 激光雷达相同"
+"的光束几何结构，但每条有效光束会额外返回一个标量 `radial_velocity`（径向速度）测量值。这便于演示多普勒测量"
+"如何帮助理解动态障碍物。"
+
+#: ../../source/usage/configure_sensor.md:168
+msgid ""
+"The example below uses a stationary ego sensor with a forward 120-degree "
+"field of view and multiple moving obstacles. When plotting is enabled, "
+"valid returns are colorized by radial velocity and marked at their "
+"endpoints."
+msgstr ""
+"下方示例使用一个静止的传感器主体，朝前方覆盖 120 度视场，并设置了多个移动障碍物。开启绘图后，"
+"有效回波会按径向速度着色，并在端点处标记出来。"
+
+#: ../../source/usage/configure_sensor.md:231
+msgid "Key FMCW-specific parameters are:"
+msgstr "FMCW 专用关键参数："
+
+#: ../../source/usage/configure_sensor.md:233
+msgid ""
+"**motion_compensate**: Whether to remove ego-motion from the measured "
+"radial velocity."
+msgstr "**motion_compensate**：是否从测量的径向速度中扣除自身运动分量。"
+
+#: ../../source/usage/configure_sensor.md:234
+msgid ""
+"**velocity_noise_std**: Standard deviation of Gaussian noise applied to "
+"`radial_velocity`."
+msgstr "**velocity_noise_std**：施加在 `radial_velocity` 上的高斯噪声标准差。"
+
+#: ../../source/usage/configure_sensor.md:236
+msgid ""
+"Visualization parameters live under the sensor's **`plot:`** sub-dict "
+"(consistent with `lidar2d` and object `plot:`); flat top-level keys are "
+"still accepted for backward compatibility:"
+msgstr ""
+"可视化参数位于传感器的 **`plot:`** 子字典下（与 `lidar2d` 及对象的 `plot:` 一致）；为保持向后兼容，"
+"扁平的顶层键仍然被接受："
+
+#: ../../source/usage/configure_sensor.md:238
+msgid ""
+"**velocity_color**: Whether to colorize valid beams by radial velocity "
+"during plotting."
+msgstr "**velocity_color**：绘图时是否按径向速度对有效光束着色。"
+
+#: ../../source/usage/configure_sensor.md:239
+msgid ""
+"**velocity_color_max**: Velocity magnitude where the plotting color "
+"saturates."
+msgstr "**velocity_color_max**：绘图颜色达到饱和的速度幅值。"
+
+#: ../../source/usage/configure_sensor.md:241
+msgid "The returned scan keeps the standard LiDAR angle metadata and adds:"
+msgstr "返回的扫描数据保留了标准激光雷达的角度元数据，并新增以下字段："
+
+#: ../../source/usage/configure_sensor.md:243
+msgid "**radial_velocity**: Scalar radial velocity for each beam."
+msgstr "**radial_velocity**：每条光束的标量径向速度。"
+
+#: ../../source/usage/configure_sensor.md:244
+msgid "**valid**: Whether the beam has a valid return within `range_max`."
+msgstr "**valid**：该光束是否在 `range_max` 范围内有有效回波。"
+
+#: ../../source/usage/configure_sensor.md:246
+msgid ""
+"The complete runnable example is available under "
+"`usage/22fmcw_lidar_world/`."
+msgstr "完整可运行示例位于 `usage/22fmcw_lidar_world/`。"
+
+#: ../../source/usage/configure_sensor.md:249
 msgid "FOV Configuration Parameters"
 msgstr "视场（FOV）配置参数"
 
-#: ../../source/usage/configure_sensor.md:167
+#: ../../source/usage/configure_sensor.md:251
 msgid ""
 "The YAML configuration file and Python Script below shows an example of "
 "objects within the field of view (FOV). The FOV is defined by the `fov` "

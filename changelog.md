@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Features:
+  - Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua/ir-sim/pull/293)) (@KevinLADLee)
+  - Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics, ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros). ([#307](https://github.com/hanruihua/ir-sim/pull/307))
+
+- Docs:
+  - Add release dates to all version headings in `changelog.md`. ([#288](https://github.com/hanruihua/ir-sim/pull/288))
+  - Refine the YAML configuration reference and keyboard/mouse control docs for clarity (en + zh_CN). ([#296](https://github.com/hanruihua/ir-sim/pull/296))
+  - Document the `sfm` behavior alongside `rvo` (en + zh_CN). ([#307](https://github.com/hanruihua/ir-sim/pull/307))
+
+- Tests:
+  - Add `tests/test_sfm.py` covering the SFM algorithm and behavior registration. ([#307](https://github.com/hanruihua/ir-sim/pull/307))
+
 ## 2.9.4 (2026-04-21)
 
 - Features:

@@ -500,6 +500,9 @@ class ObjectBase:
 
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
+            # velocity just got zeroed — invalidate per-tick caches so
+            # other agents don't perceive a stopped object as still moving.
+            self._invalidate_reactive_cache()
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
@@ -510,6 +513,14 @@ class ObjectBase:
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
+        # state/velocity/geometry changed — invalidate per-tick caches
+        # used by reactive behaviors (SFM/RVO read these once per
+        # neighbour). Non-static linestring objects have their vertices
+        # re-transformed by ``gf.step(state)`` above, so the segment
+        # cache must drop too; static objects skip this whole method
+        # (early-return at top), so their segment cache remains valid
+        # for the lifetime of the env.
+        self._invalidate_reactive_cache()
 
         if sensor_step:
             self.sensor_step()
@@ -884,6 +895,7 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
+        self._invalidate_reactive_cache()
 
     def set_velocity(
         self, velocity: list | np.ndarray | None = None, init: bool = False
@@ -904,6 +916,7 @@ class ObjectBase:
             self._init_velocity = temp_velocity.copy()
 
         self._velocity = temp_velocity.copy()
+        self._invalidate_reactive_cache()
 
     def set_original_geometry(self, geometry: BaseGeometry):
         """
@@ -2067,6 +2080,7 @@ class ObjectBase:
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
+        self._invalidate_reactive_cache()
 
     def refresh(self):
         """
@@ -2078,6 +2092,19 @@ class ObjectBase:
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
         self.sensor_step()
+        self._invalidate_reactive_cache()
+
+    def _invalidate_reactive_cache(self) -> None:
+        """Drop per-tick caches read by reactive behaviors (SFM/RVO).
+
+        Must be called from every path that mutates ``_state``,
+        ``_velocity``, or the transformed geometry — ``step()``,
+        ``set_state``, ``set_velocity``, ``reset``, ``refresh`` —
+        otherwise the next reader gets stale cached data.
+        """
+        self._velocity_xy_cache = None
+        self._rvo_neighbor_state_cache = None
+        self._rvo_line_segments_cache = None
 
     def remove(self):
         """
@@ -2620,13 +2647,19 @@ class ObjectBase:
         Returns:
             list: State [x, y, vx, vy, radius].
         """
-        return [
+        cached = getattr(self, "_rvo_neighbor_state_cache", None)
+        if cached is not None:
+            return cached
+        vxy = self.velocity_xy
+        out = [
             self.state[0, 0],
             self.state[1, 0],
-            self.velocity_xy[0, 0],
-            self.velocity_xy[1, 0],
+            vxy[0, 0],
+            vxy[1, 0],
             self.radius_extend,
         ]
+        self._rvo_neighbor_state_cache = out
+        return out
 
     @property
     def rvo_line_segments(self) -> list[list[float]]:
@@ -2637,14 +2670,22 @@ class ObjectBase:
             list: List of line segments [[x1, y1, x2, y2], ...] for linestring objects,
                   empty list for other shapes.
         """
+        # Per-tick cache: invalidated in ``step()`` so a moving linestring
+        # rebuilds its segments from the freshly transformed vertices on
+        # the next read. Static objects never enter ``step()``, so their
+        # cached segments persist for the lifetime of the env.
+        cached = getattr(self, "_rvo_line_segments_cache", None)
+        if cached is not None:
+            return cached
         if self.shape != "linestring":
-            return []
+            self._rvo_line_segments_cache = []
+            return self._rvo_line_segments_cache
         verts = self.vertices  # 2xN array
-        segments = []
-        for i in range(verts.shape[1] - 1):
-            segments.append(
-                [verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]]
-            )
+        segments = [
+            [verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]]
+            for i in range(verts.shape[1] - 1)
+        ]
+        self._rvo_line_segments_cache = segments
         return segments
 
     @property
@@ -2675,9 +2716,15 @@ class ObjectBase:
         Returns:
             (2*1) np.ndarray: Velocity [vx, vy].
         """
+        cached = getattr(self, "_velocity_xy_cache", None)
+        if cached is not None:
+            return cached
         if self.kf is not None:
-            return self.kf.velocity_to_xy(self.state, self.velocity)
-        return np.zeros((2, 1))
+            out = self.kf.velocity_to_xy(self.state, self.velocity)
+        else:
+            out = np.zeros((2, 1))
+        self._velocity_xy_cache = out
+        return out
 
     @property
     def max_speed(self):

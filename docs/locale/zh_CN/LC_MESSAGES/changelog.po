@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 18:31+0800\n"
+"POT-Creation-Date: 2026-05-24 16:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -22,18 +22,85 @@ msgid "Changelog"
 msgstr "更新日志"
 
 #: ../../../changelog.md:4
-msgid "2.9.4 (2026-04-21)"
+msgid "Unreleased"
 msgstr ""
 
-#: ../../../changelog.md:6 ../../../changelog.md:24 ../../../changelog.md:42
-#: ../../../changelog.md:60 ../../../changelog.md:80 ../../../changelog.md:124
-#: ../../../changelog.md:141 ../../../changelog.md:151
-#: ../../../changelog.md:167 ../../../changelog.md:190
-#: ../../../changelog.md:208 ../../../changelog.md:242
+#: ../../../changelog.md:6 ../../../changelog.md:20 ../../../changelog.md:38
+#: ../../../changelog.md:56 ../../../changelog.md:74 ../../../changelog.md:94
+#: ../../../changelog.md:138 ../../../changelog.md:155
+#: ../../../changelog.md:165 ../../../changelog.md:181
+#: ../../../changelog.md:204 ../../../changelog.md:222
+#: ../../../changelog.md:256
 msgid "Features:"
 msgstr "新功能："
 
 #: ../../../changelog.md:7
+msgid ""
+"Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a"
+" `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua"
+"/ir-sim/pull/293)) (@KevinLADLee)"
+msgstr ""
+"新增简化的 2D FMCW 激光雷达传感器，提供距离与速度回波，并新增 `22fmcw_lidar_world` 使用示例。"
+"([#293](https://github.com/hanruihua/ir-sim/pull/293)) (@KevinLADLee)"
+
+#: ../../../changelog.md:8
+msgid ""
+"Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics, "
+"ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros). "
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+msgstr ""
+"为 `diff` 和 `omni` 运动学新增社会力模型（SFM）行为，移植自 "
+"[`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros)。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+
+#: ../../../changelog.md:10 ../../../changelog.md:33 ../../../changelog.md:68
+#: ../../../changelog.md:86 ../../../changelog.md:109 ../../../changelog.md:145
+#: ../../../changelog.md:198
+msgid "Docs:"
+msgstr "文档："
+
+#: ../../../changelog.md:11
+msgid ""
+"Add release dates to all version headings in `changelog.md`. "
+"([#288](https://github.com/hanruihua/ir-sim/pull/288))"
+msgstr ""
+"为 `changelog.md` 中的所有版本标题添加发布日期。"
+"([#288](https://github.com/hanruihua/ir-sim/pull/288))"
+
+#: ../../../changelog.md:12
+msgid ""
+"Refine the YAML configuration reference and keyboard/mouse control docs "
+"for clarity (en + zh_CN). ([#296](https://github.com/hanruihua/ir-"
+"sim/pull/296))"
+msgstr ""
+"优化 YAML 配置参考与键盘/鼠标控制文档，使其更清晰（英文 + 中文）。"
+"([#296](https://github.com/hanruihua/ir-sim/pull/296))"
+
+#: ../../../changelog.md:13
+msgid ""
+"Document the `sfm` behavior alongside `rvo` (en + zh_CN). "
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+msgstr ""
+"在 `rvo` 旁边补充 `sfm` 行为的文档（英文 + 中文）。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+
+#: ../../../changelog.md:15 ../../../changelog.md:114
+msgid "Tests:"
+msgstr "测试："
+
+#: ../../../changelog.md:16
+msgid ""
+"Add `tests/test_sfm.py` covering the SFM algorithm and behavior "
+"registration. ([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+msgstr ""
+"新增 `tests/test_sfm.py`，覆盖 SFM 算法与行为注册。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+
+#: ../../../changelog.md:18
+msgid "2.9.4 (2026-04-21)"
+msgstr ""
+
+#: ../../../changelog.md:21
 msgid ""
 "Add `omni_angular` kinematics with 3-DOF body-frame control `[forward, "
 "lateral, yaw_rate]`, and refactor `omni` to body-frame `[forward, "
@@ -48,7 +115,7 @@ msgstr ""
 "场景提供独立偏航控制。键盘控制围绕新轴重新设计。([#270](https://github.com/hanruihua/ir-"
 "sim/pull/270))"
 
-#: ../../../changelog.md:8
+#: ../../../changelog.md:22
 msgid ""
 "Add `env.reset(random=True)` to re-sample randomized scenes from the "
 "cached YAML parse. Lets you quickly restart with a fresh random scene "
@@ -60,7 +127,7 @@ msgstr ""
 "即可快速以全新随机场景（新位置、新随机形状）重启，适用于强化学习 rollout "
 "和批量实验。([#283](https://github.com/hanruihua/ir-sim/pull/283))"
 
-#: ../../../changelog.md:9
+#: ../../../changelog.md:23
 msgid ""
 "Add `random_uniform` sampler with pairwise min-distance, and world-"
 "derived defaults for `random` and `circle` distributions. The pairwise "
@@ -73,7 +140,7 @@ msgstr ""
 "分布提供基于世界的默认值。成对最小间距可防止随机采样中的物体重叠，基于世界的默认值使采样范围自动适应世界尺寸/偏移，用户无需为每个场景重复指定边界。([#283](https://github.com/hanruihua"
 "/ir-sim/pull/283))"
 
-#: ../../../changelog.md:10
+#: ../../../changelog.md:24
 msgid ""
 "Add `env.refresh()` and `ObjectBase.refresh()` to sync geometry, sensors,"
 " and collision tree without advancing the simulation. Useful after "
@@ -86,11 +153,11 @@ msgstr ""
 "`robot.set_state(...)`）后很有用，可确保下一次 `env.step()` "
 "前传感器和碰撞数据已更新。([#284](https://github.com/hanruihua/ir-sim/pull/284))"
 
-#: ../../../changelog.md:12 ../../../changelog.md:29
+#: ../../../changelog.md:26 ../../../changelog.md:43
 msgid "Performance:"
 msgstr ""
 
-#: ../../../changelog.md:13
+#: ../../../changelog.md:27
 msgid ""
 "Replace circle-buffer obstacle-map geometry with vectorized `shapely.box`"
 " + `unary_union`. Box cells tile the grid perfectly — ~3× fewer "
@@ -104,13 +171,13 @@ msgstr ""
 " 减少约 3 倍、坐标减少约 24 倍、lidar 步进加快约 3.8 倍，障碍物地图碰撞查询也相应减负——并修复旧圆形缓冲中曾让 lidar "
 "射线穿墙的对角缝隙。([#276](https://github.com/hanruihua/ir-sim/pull/276))"
 
-#: ../../../changelog.md:15 ../../../changelog.md:34 ../../../changelog.md:51
-#: ../../../changelog.md:66 ../../../changelog.md:88 ../../../changelog.md:112
-#: ../../../changelog.md:135
+#: ../../../changelog.md:29 ../../../changelog.md:48 ../../../changelog.md:65
+#: ../../../changelog.md:80 ../../../changelog.md:102 ../../../changelog.md:126
+#: ../../../changelog.md:149
 msgid "Fix:"
 msgstr "修复："
 
-#: ../../../changelog.md:16
+#: ../../../changelog.md:30
 msgid ""
 "Reset `ObjectBase.id_iter` at `EnvBase.__init__` so each environment "
 "starts object IDs at 0. Previously the class-level counter persisted "
@@ -122,7 +189,7 @@ msgstr ""
 "开始。此前类级计数器跨环境保留，导致顺序创建多个环境时索引不匹配。([#277](https://github.com/hanruihua/ir-"
 "sim/pull/277))"
 
-#: ../../../changelog.md:17
+#: ../../../changelog.md:31
 msgid ""
 "Preserve initial velocity across `env.reset()` so "
 "`set_velocity(init=True)` takes effect. Previously an internal zero-"
@@ -135,12 +202,7 @@ msgstr ""
 "`_velocity`，导致用户无法设置非零初始速度。([#284](https://github.com/hanruihua/ir-"
 "sim/pull/284))"
 
-#: ../../../changelog.md:19 ../../../changelog.md:54 ../../../changelog.md:72
-#: ../../../changelog.md:95 ../../../changelog.md:131 ../../../changelog.md:184
-msgid "Docs:"
-msgstr "文档："
-
-#: ../../../changelog.md:20
+#: ../../../changelog.md:34
 #, python-brace-format
 msgid ""
 "Fix broken cross-references across usage guides and the YAML "
@@ -153,23 +215,23 @@ msgstr ""
 "`{py:class/meth/func}` role），并在 EN + zh_CN 全文将 omni "
 "速度描述更新为机体坐标系。([#278](https://github.com/hanruihua/ir-sim/pull/278))"
 
-#: ../../../changelog.md:22
+#: ../../../changelog.md:36
 msgid "2.9.3 (2026-04-06)"
 msgstr ""
 
-#: ../../../changelog.md:25
+#: ../../../changelog.md:39
 msgid ""
 "Add loop mode for waypoint navigation behavior. "
 "([#266](https://github.com/hanruihua/ir-sim/pull/266))"
 msgstr "为路点导航行为新增循环模式。([#266](https://github.com/hanruihua/ir-sim/pull/266))"
 
-#: ../../../changelog.md:26
+#: ../../../changelog.md:40
 msgid ""
 "Add line obstacle support to RVO algorithm. "
 "([#250](https://github.com/hanruihua/ir-sim/pull/250))"
 msgstr "为 RVO 算法新增线段障碍物支持。([#250](https://github.com/hanruihua/ir-sim/pull/250))"
 
-#: ../../../changelog.md:27
+#: ../../../changelog.md:41
 msgid ""
 "Add CBF-QP and collision-cone usage examples. "
 "([#258](https://github.com/hanruihua/ir-sim/pull/258)) (@Lawliet9666)"
@@ -177,7 +239,7 @@ msgstr ""
 "新增 CBF-QP 和碰撞锥使用示例。([#258](https://github.com/hanruihua/ir-sim/pull/258))"
 " (@Lawliet9666)"
 
-#: ../../../changelog.md:30
+#: ../../../changelog.md:44
 #, python-format
 msgid ""
 "Vectorize lidar range/origin filter and skip `union_all`, ~48% faster "
@@ -188,7 +250,7 @@ msgstr ""
 "48%。([#257](https://github.com/hanruihua/ir-sim/pull/257)) "
 "(@williamleong)"
 
-#: ../../../changelog.md:31
+#: ../../../changelog.md:45
 #, python-format
 msgid ""
 "Use STRtree intersects predicate for lidar map segment filtering, ~26% "
@@ -199,7 +261,7 @@ msgstr ""
 "26%。([#255](https://github.com/hanruihua/ir-sim/pull/255)) "
 "(@williamleong)"
 
-#: ../../../changelog.md:32
+#: ../../../changelog.md:46
 #, python-format
 msgid ""
 "Cache geometry validity and streamline lidar map ray intersection, ~18% "
@@ -210,7 +272,7 @@ msgstr ""
 "18%。([#254](https://github.com/hanruihua/ir-sim/pull/254)) "
 "(@williamleong)"
 
-#: ../../../changelog.md:35
+#: ../../../changelog.md:49
 msgid ""
 "Prevent infinite loop in `WrapToPi`/`WrapTo2Pi` for non-finite inputs. "
 "([#269](https://github.com/hanruihua/ir-sim/pull/269))"
@@ -218,12 +280,12 @@ msgstr ""
 "防止 `WrapToPi`/`WrapTo2Pi` "
 "在非有限输入下出现无限循环。([#269](https://github.com/hanruihua/ir-sim/pull/269))"
 
-#: ../../../changelog.md:37 ../../../changelog.md:48 ../../../changelog.md:69
-#: ../../../changelog.md:85
+#: ../../../changelog.md:51 ../../../changelog.md:62 ../../../changelog.md:83
+#: ../../../changelog.md:99
 msgid "Refactor:"
 msgstr "重构："
 
-#: ../../../changelog.md:38
+#: ../../../changelog.md:52
 msgid ""
 "Simplify `file_check` and `find_file` in util. "
 "([#256](https://github.com/hanruihua/ir-sim/pull/256))"
@@ -231,11 +293,11 @@ msgstr ""
 "简化 util 中的 `file_check` 和 "
 "`find_file`。([#256](https://github.com/hanruihua/ir-sim/pull/256))"
 
-#: ../../../changelog.md:40
+#: ../../../changelog.md:54
 msgid "2.9.2 (2026-03-16)"
 msgstr ""
 
-#: ../../../changelog.md:43
+#: ../../../changelog.md:57
 msgid ""
 "Add `env.create_robot()` and `env.create_obstacle()` for programmatic "
 "object creation, and `env.add_object()` / `env.add_objects()` for adding "
@@ -245,7 +307,7 @@ msgstr ""
 "`env.add_object()` / `env.add_objects()` "
 "用于运行时添加。([#251](https://github.com/hanruihua/ir-sim/pull/251))"
 
-#: ../../../changelog.md:44
+#: ../../../changelog.md:58
 msgid ""
 "Add `check_arrive()` method to check if an object has reached a given "
 "goal, and initialize plot for dynamically added objects. "
@@ -255,7 +317,7 @@ msgstr ""
 "方法检查物体是否到达指定目标，并为动态添加的物体初始化绘图。([#240](https://github.com/hanruihua/ir-"
 "sim/pull/240))"
 
-#: ../../../changelog.md:45
+#: ../../../changelog.md:59
 msgid ""
 "Add `set_text()` and `set_goal_text()` API for setting custom text on "
 "objects and goals. ([#239](https://github.com/hanruihua/ir-sim/pull/239))"
@@ -264,7 +326,7 @@ msgstr ""
 "API，用于为物体和目标设置自定义文本。([#239](https://github.com/hanruihua/ir-"
 "sim/pull/239))"
 
-#: ../../../changelog.md:46
+#: ../../../changelog.md:60
 msgid ""
 "Add typo detection and suggestions for invalid YAML configuration keys. "
 "([#227](https://github.com/hanruihua/ir-sim/pull/227))"
@@ -272,7 +334,7 @@ msgstr ""
 "为无效的 YAML 配置键新增拼写错误检测与建议。([#227](https://github.com/hanruihua/ir-"
 "sim/pull/227))"
 
-#: ../../../changelog.md:49
+#: ../../../changelog.md:63
 msgid ""
 "Centralize kinematics metadata (default color, state_dim, description) in"
 " the handler registry to make the kinematics be added more easily. "
@@ -281,7 +343,7 @@ msgstr ""
 "将运动学元数据（默认颜色、state_dim、描述）集中到 handler "
 "注册表，使运动学更易于添加。([#237](https://github.com/hanruihua/ir-sim/pull/237))"
 
-#: ../../../changelog.md:52
+#: ../../../changelog.md:66
 msgid ""
 "Improve robustness of save animation by reading and saving frames one by "
 "one instead of loading all images into memory. "
@@ -290,7 +352,7 @@ msgstr ""
 "通过逐帧读取和保存而非将所有图像载入内存，提升保存动画的健壮性。([#230](https://github.com/hanruihua/ir-"
 "sim/pull/230)) (@williamleong)"
 
-#: ../../../changelog.md:55
+#: ../../../changelog.md:69
 msgid ""
 "Add \"Dynamic Object Management\" section to the Make Environment "
 "documentation. ([#251](https://github.com/hanruihua/ir-sim/pull/251))"
@@ -298,15 +360,15 @@ msgstr ""
 "在 Make Environment 文档中新增“动态物体管理”章节。([#251](https://github.com/hanruihua"
 "/ir-sim/pull/251))"
 
-#: ../../../changelog.md:56
+#: ../../../changelog.md:70
 msgid "Fix and update Chinese translations."
 msgstr "修复并更新中文翻译。"
 
-#: ../../../changelog.md:58
+#: ../../../changelog.md:72
 msgid "2.9.1 (2026-02-16)"
 msgstr ""
 
-#: ../../../changelog.md:61
+#: ../../../changelog.md:75
 msgid ""
 "Add Perlin noise and image-based grid map generators, new JPS (Jump Point"
 " Search) and Informed RRT* path planners, and refactor existing planners "
@@ -316,7 +378,7 @@ msgstr ""
 "新增 Perlin 噪声和基于图像的栅格地图生成器、新的 JPS（跳点搜索）和 Informed RRT* "
 "路径规划器，并重构现有规划器（A*、RRT、RRT*、PRM）以使用 `EnvGridMap` 协议。#215 (@KevinLADLee)"
 
-#: ../../../changelog.md:62
+#: ../../../changelog.md:76
 msgid ""
 "Drop Python 3.9 support, add Python 3.14 support. Raise minimum Python "
 "version to 3.10, modernize type annotations (`Optional`/`Union` to `X | "
@@ -325,44 +387,44 @@ msgstr ""
 "移除 Python 3.9 支持，新增 Python 3.14 支持。将最低 Python 版本提升至 "
 "3.10，现代化类型注解（`Optional`/`Union` 改为 `X | Y` 语法）。#216"
 
-#: ../../../changelog.md:63
+#: ../../../changelog.md:77
 msgid ""
 "Add optional `reload` parameter to `set_random_seed()` that regenerates "
 "random obstacles with the new seed when set to `True`. #210"
 msgstr "为 `set_random_seed()` 新增可选 `reload` 参数，设为 `True` 时用新种子重新生成随机障碍物。#210"
 
-#: ../../../changelog.md:64
+#: ../../../changelog.md:78
 msgid ""
 "Default animation filename to the world name when not explicitly "
 "specified. #221"
 msgstr "未显式指定时，动画文件名默认使用世界名称。#221"
 
-#: ../../../changelog.md:67
+#: ../../../changelog.md:81
 msgid ""
 "Add grid-based collision detection for obstacle maps using grid array "
 "lookup for faster detection, cache STRtree in `ObstacleMap`. #205"
 msgstr "为障碍物地图新增基于栅格的碰撞检测，使用栅格数组查找以加速检测，并在 `ObstacleMap` 中缓存 STRtree。#205"
 
-#: ../../../changelog.md:70
+#: ../../../changelog.md:84
 msgid ""
 "Add input validation decorators (`validate_shape`, `validate_length`, "
 "`ensure_column_vector`, `ensure_numpy`) for kinematics and utility "
 "functions. #209"
 msgstr "为运动学和工具函数新增输入校验装饰器（`validate_shape`、`validate_length`、`ensure_column_vector`、`ensure_numpy`）。#209"
 
-#: ../../../changelog.md:73
+#: ../../../changelog.md:87
 msgid "Refine README. #222"
 msgstr ""
 
-#: ../../../changelog.md:74
+#: ../../../changelog.md:88
 msgid "Add grid map configuration and path planning documentation. #215"
 msgstr "新增栅格地图配置和路径规划文档。#215"
 
-#: ../../../changelog.md:76
+#: ../../../changelog.md:90
 msgid "2.9.0 (2026-01-26)"
 msgstr ""
 
-#: ../../../changelog.md:78
+#: ../../../changelog.md:92
 msgid ""
 "This version adds multi-environment support with instance-based "
 "parameters, allowing multiple independent simulation environments to run "
@@ -370,7 +432,7 @@ msgid ""
 "improvements."
 msgstr "此版本新增了基于实例参数的多环境支持，允许多个独立的仿真环境同时运行。还引入了 1D ToF 传感器支持和键盘改进。"
 
-#: ../../../changelog.md:81
+#: ../../../changelog.md:95
 msgid ""
 "Add 1D ToF (Time-of-Flight) sensor support by setting lidar2d sensor "
 "`number: 1` and `angle_range: 0`. ([#200](https://github.com/hanruihua"
@@ -379,7 +441,7 @@ msgstr ""
 "通过设置 lidar2d 传感器 `number: 1` 和 `angle_range: 0` 新增 1D "
 "ToF（飞行时间）传感器支持。([#200](https://github.com/hanruihua/ir-sim/pull/200))"
 
-#: ../../../changelog.md:82
+#: ../../../changelog.md:96
 msgid ""
 "Add multi-environment keyboard switching support. Only one environment "
 "responds to keyboard input at a time; switching occurs via mouse click or"
@@ -388,13 +450,13 @@ msgstr ""
 "新增多环境键盘切换支持。同一时刻仅一个环境响应键盘输入；通过鼠标点击或焦点事件切换。([#192](https://github.com/hanruihua"
 "/ir-sim/pull/192))"
 
-#: ../../../changelog.md:83
+#: ../../../changelog.md:97
 msgid ""
 "Add `y` key to toggle display render window on/off. "
 "([#194](https://github.com/hanruihua/ir-sim/pull/194))"
 msgstr "新增 `y` 键用于开关显示渲染窗口。([#194](https://github.com/hanruihua/ir-sim/pull/194))"
 
-#: ../../../changelog.md:86
+#: ../../../changelog.md:100
 msgid ""
 "Environment parameters (`env_param`, `world_param`, `path_param`) are now"
 " instance-based rather than global, enabling proper multi-environment "
@@ -403,7 +465,7 @@ msgstr ""
 "环境参数（`env_param`、`world_param`、`path_param`）现为基于实例而非全局，从而支持正确的多环境运行。([#191](https://github.com/hanruihua"
 "/ir-sim/pull/191))"
 
-#: ../../../changelog.md:89
+#: ../../../changelog.md:103
 msgid ""
 "Fix `robot` property to raise `IndexError` with clear message when no "
 "robots exist. ([#188](https://github.com/hanruihua/ir-sim/pull/188))"
@@ -411,7 +473,7 @@ msgstr ""
 "修复 `robot` 属性，在不存在机器人时抛出带清晰信息的 "
 "`IndexError`。([#188](https://github.com/hanruihua/ir-sim/pull/188))"
 
-#: ../../../changelog.md:90
+#: ../../../changelog.md:104
 msgid ""
 "Fix `save_figure` to handle filenames with multiple dots correctly. "
 "([#188](https://github.com/hanruihua/ir-sim/pull/188))"
@@ -419,7 +481,7 @@ msgstr ""
 "修复 `save_figure` 以正确处理含多个点的文件名。([#188](https://github.com/hanruihua/ir-"
 "sim/pull/188))"
 
-#: ../../../changelog.md:91
+#: ../../../changelog.md:105
 msgid ""
 "Fix type annotations for `get_group_by_name`, `get_obstacle_info_list`, "
 "`get_robot_info_list`, and `random_obstacle_position`. "
@@ -429,7 +491,7 @@ msgstr ""
 "`random_obstacle_position` 的类型注解。([#188](https://github.com/hanruihua/ir-"
 "sim/pull/188))"
 
-#: ../../../changelog.md:92
+#: ../../../changelog.md:106
 msgid ""
 "Fix `set_ax_viewpoint` to handle `None` objects parameter. "
 "([#188](https://github.com/hanruihua/ir-sim/pull/188))"
@@ -437,7 +499,7 @@ msgstr ""
 "修复 `set_ax_viewpoint` 以处理 `None` 的 objects "
 "参数。([#188](https://github.com/hanruihua/ir-sim/pull/188))"
 
-#: ../../../changelog.md:93
+#: ../../../changelog.md:107
 msgid ""
 "Add `NotImplementedError` for 3D state generation and uniform "
 "distribution (not yet implemented). ([#188](https://github.com/hanruihua"
@@ -447,29 +509,25 @@ msgstr ""
 "`NotImplementedError`。([#188](https://github.com/hanruihua/ir-"
 "sim/pull/188))"
 
-#: ../../../changelog.md:96
+#: ../../../changelog.md:110
 msgid ""
 "Add changelog and contributing pages to documentation. "
 "([#203](https://github.com/hanruihua/ir-sim/pull/203))"
 msgstr "在文档中新增更新日志和贡献页面。([#203](https://github.com/hanruihua/ir-sim/pull/203))"
 
-#: ../../../changelog.md:97
+#: ../../../changelog.md:111
 msgid ""
 "Improve custom behavior tutorial and examples. "
 "([#193](https://github.com/hanruihua/ir-sim/pull/193))"
 msgstr "改进自定义行为教程和示例。([#193](https://github.com/hanruihua/ir-sim/pull/193))"
 
-#: ../../../changelog.md:98
+#: ../../../changelog.md:112
 msgid ""
 "Fix formatting issues in documentation. "
 "([#190](https://github.com/hanruihua/ir-sim/pull/190))"
 msgstr "修复文档中的格式问题。([#190](https://github.com/hanruihua/ir-sim/pull/190))"
 
-#: ../../../changelog.md:100
-msgid "Tests:"
-msgstr "测试："
-
-#: ../../../changelog.md:101
+#: ../../../changelog.md:115
 msgid ""
 "Refactor and improve test coverage from 94% to 97%. "
 "([#189](https://github.com/hanruihua/ir-sim/pull/189))"
@@ -477,61 +535,61 @@ msgstr ""
 "重构并将测试覆盖率从 94% 提升至 97%。([#189](https://github.com/hanruihua/ir-"
 "sim/pull/189))"
 
-#: ../../../changelog.md:102
+#: ../../../changelog.md:116
 msgid "Add tests for multi-env keyboard switching and display toggle."
 msgstr "为多环境键盘切换和显示开关新增测试。"
 
-#: ../../../changelog.md:104
+#: ../../../changelog.md:118
 msgid "2.8.2 (2026-01-05)"
 msgstr ""
 
-#: ../../../changelog.md:106
+#: ../../../changelog.md:120
 msgid "Features #183:"
 msgstr "功能 #183："
 
-#: ../../../changelog.md:107
+#: ../../../changelog.md:121
 msgid ""
 "Add `group_name` YAML parameter to help user manage the objects in the "
 "same group."
 msgstr "新增 `group_name` YAML 参数，帮助用户管理同组物体。"
 
-#: ../../../changelog.md:108
+#: ../../../changelog.md:122
 msgid ""
 "Add `show_goal_text` YAML parameter to decide whether to show the goal "
 "text on the plot."
 msgstr "新增 `show_goal_text` YAML 参数，决定是否在绘图上显示目标文本。"
 
-#: ../../../changelog.md:109
+#: ../../../changelog.md:123
 msgid ""
 "Add `get_group_by_name` function to get the objects in the same group by "
 "the group name."
 msgstr "新增 `get_group_by_name` 函数，按组名获取同组物体。"
 
-#: ../../../changelog.md:110
+#: ../../../changelog.md:124
 msgid "Update related documentation"
 msgstr "更新相关文档"
 
-#: ../../../changelog.md:113
+#: ../../../changelog.md:127
 msgid "Fix Group ID parameter conflict issue #180 #183"
 msgstr "修复组 ID 参数冲突问题 #180 #183"
 
-#: ../../../changelog.md:114
+#: ../../../changelog.md:128
 msgid "Fix group behavior warning issue e8ca7df"
 msgstr "修复组行为警告问题 e8ca7df"
 
-#: ../../../changelog.md:116
+#: ../../../changelog.md:130
 msgid "2.8.1 (2025-12-13)"
 msgstr ""
 
-#: ../../../changelog.md:118
+#: ../../../changelog.md:132
 msgid "Hotfix: Fix the autoapi extension issue in the documentation."
 msgstr "热修复：修复文档中的 autoapi 扩展问题。"
 
-#: ../../../changelog.md:120
+#: ../../../changelog.md:134
 msgid "2.8.0 (2025-12-12)"
 msgstr ""
 
-#: ../../../changelog.md:122
+#: ../../../changelog.md:136
 msgid ""
 "This version add the feature of `group_behavior` to support group-level "
 "behavior for all objects within the same group, which is more efficient "
@@ -542,26 +600,26 @@ msgstr ""
 "此版本添加了 `group_behavior` "
 "功能，支持同一组内所有对象的群体级行为，这对于协调行为（如群体或人群仿真）更加高效，因为它可以在单步中计算所有成员的动作。同时支持中文版文档。"
 
-#: ../../../changelog.md:125
+#: ../../../changelog.md:139
 msgid ""
 "Add `group_behavior` YAML parameter to support group-level behavior for "
 "all objects within the same group."
 msgstr "新增 `group_behavior` YAML 参数，支持对同组所有物体的组级行为。"
 
-#: ../../../changelog.md:126
+#: ../../../changelog.md:140
 msgid ""
 "Integrate `GroupBehavior` class to handle group-level logic, allowing for"
 " both function-based and class-based behaviors."
 msgstr "集成 `GroupBehavior` 类处理组级逻辑，支持基于函数和基于类的行为。"
 
-#: ../../../changelog.md:127
+#: ../../../changelog.md:141
 msgid ""
 "Add ORCA (Optimal Reciprocal Collision Avoidance) behavior support "
 "implemented by `pyrvo` library, this behavior can be configured in the "
 "YAML file."
 msgstr "新增由 `pyrvo` 库实现的 ORCA（最优互惠碰撞避免）行为支持，可在 YAML 文件中配置。"
 
-#: ../../../changelog.md:128
+#: ../../../changelog.md:142
 msgid ""
 "Update `behavior_registry` to support registration of behavior classes "
 "and group behavior classes using decorators (`@register_behavior_class`, "
@@ -570,35 +628,35 @@ msgstr ""
 "更新 "
 "`behavior_registry`，支持使用装饰器（`@register_behavior_class`、`@register_group_behavior_class`）注册行为类和组行为类。"
 
-#: ../../../changelog.md:129
+#: ../../../changelog.md:143
 msgid ""
 "Add `viewpoint` YAML parameter for rendering the plot with the viewpoint "
 "of the object."
 msgstr "新增 `viewpoint` YAML 参数，以物体视角渲染绘图。"
 
-#: ../../../changelog.md:132
+#: ../../../changelog.md:146
 msgid "Support chinese version documentation."
 msgstr "支持中文版文档。"
 
-#: ../../../changelog.md:133
+#: ../../../changelog.md:147
 msgid ""
 "Update documentation for `group_behavior` configuration, including ORCA "
 "parameters."
 msgstr "更新 `group_behavior` 配置文档，包含 ORCA 参数。"
 
-#: ../../../changelog.md:136
+#: ../../../changelog.md:150
 msgid "rng random in generate_polygon function"
 msgstr "generate_polygon 函数中的 rng 随机化"
 
-#: ../../../changelog.md:137
+#: ../../../changelog.md:151
 msgid "Group index increment issue"
 msgstr "组索引递增问题"
 
-#: ../../../changelog.md:139
+#: ../../../changelog.md:153
 msgid "2.7.5 (2025-10-26)"
 msgstr ""
 
-#: ../../../changelog.md:142
+#: ../../../changelog.md:156
 msgid ""
 "Add features to set the seed in random environment generation for "
 "reproducibility. Simply add the seed parameter to the make function "
@@ -610,7 +668,7 @@ msgstr ""
 "irsim.make(\"random_obstacle.yaml\", seed=2)`），或使用 `env.set_random_seed` "
 "函数设置种子后调用 `env.reload()`。详见用法 `random_obstacle_seed`。"
 
-#: ../../../changelog.md:143
+#: ../../../changelog.md:157
 msgid ""
 "Add ORCA example (behavior) in ir-sim, implemented by PyRVO, a Python "
 "binding of the classic ORCA algorithm (C++ version, high efficiency). See"
@@ -619,67 +677,67 @@ msgstr ""
 "在 ir-sim 中新增 ORCA 示例（行为），由 PyRVO 实现——经典 ORCA 算法（C++ 版，高效）的 Python 绑定。详见 "
 "`usage orca world`。"
 
-#: ../../../changelog.md:145 ../../../changelog.md:157
-#: ../../../changelog.md:176 ../../../changelog.md:229
+#: ../../../changelog.md:159 ../../../changelog.md:171
+#: ../../../changelog.md:190 ../../../changelog.md:243
 msgid "Bug fixes:"
 msgstr ""
 
-#: ../../../changelog.md:146
+#: ../../../changelog.md:160
 msgid "Fix issue where sampling time did not work."
 msgstr "修复采样时间不生效的问题。"
 
-#: ../../../changelog.md:147
+#: ../../../changelog.md:161
 msgid "Fix documentation errors."
 msgstr "修复文档错误。"
 
-#: ../../../changelog.md:149
+#: ../../../changelog.md:163
 msgid "2.7.4 (2025-10-06)"
 msgstr ""
 
-#: ../../../changelog.md:152
+#: ../../../changelog.md:166
 msgid "Add state normalization and an input-checking decorator function."
 msgstr "新增状态归一化和输入检查装饰器函数。"
 
-#: ../../../changelog.md:153
+#: ../../../changelog.md:167
 msgid ""
 "Add new key `F5` to debug the environment. In debug mode, the environment"
 " pauses and waits for the next F5 to continue; press Space to exit debug "
 "mode."
 msgstr "新增 `F5` 键调试环境。调试模式下环境暂停并等待下一次 F5 继续；按空格退出调试模式。"
 
-#: ../../../changelog.md:154
+#: ../../../changelog.md:168
 msgid "Add new key `v` to save the current figure."
 msgstr "新增 `v` 键保存当前图像。"
 
-#: ../../../changelog.md:155
+#: ../../../changelog.md:169
 msgid "Add flags for reload, debug, and quit."
 msgstr "新增 reload、debug 和 quit 标志。"
 
-#: ../../../changelog.md:158
+#: ../../../changelog.md:172
 msgid "Fix keyboard issues."
 msgstr ""
 
-#: ../../../changelog.md:159
+#: ../../../changelog.md:173
 msgid "Fix goal plot issues."
 msgstr ""
 
-#: ../../../changelog.md:161
+#: ../../../changelog.md:175
 msgid "Style:"
 msgstr ""
 
-#: ../../../changelog.md:162
+#: ../../../changelog.md:176
 msgid "Organize plot function for patch plot."
 msgstr "整理 patch 绘图的绘图函数。"
 
-#: ../../../changelog.md:163
+#: ../../../changelog.md:177
 msgid "Organize logger info."
 msgstr ""
 
-#: ../../../changelog.md:165
+#: ../../../changelog.md:179
 msgid "2.7.3 (2025-09-20)"
 msgstr ""
 
-#: ../../../changelog.md:168
+#: ../../../changelog.md:182
 msgid ""
 "Switch the default keyboard backend to `pynput` (global keyboard hook), "
 "with automatic fallback to Matplotlib (`mpl`) when `pynput` is "
@@ -688,29 +746,29 @@ msgstr ""
 "将默认键盘后端切换为 `pynput`（全局键盘钩子），`pynput` 不可用时自动回退到 Matplotlib（`mpl`）。注意：`mpl`"
 " 在绘制大量物体时可能引入延迟。"
 
-#: ../../../changelog.md:169
+#: ../../../changelog.md:183
 msgid "Parity for the `pynput` keyboard backend with `mpl`:"
 msgstr "使 `pynput` 键盘后端与 `mpl` 功能对齐："
 
-#: ../../../changelog.md:170
+#: ../../../changelog.md:184
 msgid "Keyboard input is handled only when the figure window is focused."
 msgstr "仅当图形窗口获得焦点时处理键盘输入。"
 
-#: ../../../changelog.md:171
+#: ../../../changelog.md:185
 msgid ""
 "Add a `global_hook` option in the keyboard config to allow input when the"
 " figure window is unfocused."
 msgstr "在键盘配置中新增 `global_hook` 选项，允许图形窗口失焦时输入。"
 
-#: ../../../changelog.md:172
+#: ../../../changelog.md:186
 msgid "Implement `reload` and `quit` for the `pynput` backend."
 msgstr "为 `pynput` 后端实现 `reload` 和 `quit`。"
 
-#: ../../../changelog.md:173
+#: ../../../changelog.md:187
 msgid "Add an environment-level `quit` function."
 msgstr "新增环境级 `quit` 函数。"
 
-#: ../../../changelog.md:174
+#: ../../../changelog.md:188
 msgid ""
 "Rename keyboard handlers in `keyboard_control.py`: `_on_release` → "
 "`_on_pynput_release`, `_on_press` → `_on_pynput_press`."
@@ -718,45 +776,45 @@ msgstr ""
 "重命名 `keyboard_control.py` 中的键盘处理器：`_on_release` → "
 "`_on_pynput_release`，`_on_press` → `_on_pynput_press`。"
 
-#: ../../../changelog.md:177
+#: ../../../changelog.md:191
 msgid "Correct goal plot alpha handling."
 msgstr "修正目标绘图的 alpha 处理。"
 
-#: ../../../changelog.md:178
+#: ../../../changelog.md:192
 msgid "Set default sample time to match step time."
 msgstr "将默认采样时间设置为与步进时间一致。"
 
-#: ../../../changelog.md:179
+#: ../../../changelog.md:193
 msgid "Fix random obstacle plotting."
 msgstr "修复随机障碍物绘图。"
 
-#: ../../../changelog.md:180
+#: ../../../changelog.md:194
 msgid "Fix GUI YAML example in the usage docs."
 msgstr "修复用法文档中的 GUI YAML 示例。"
 
-#: ../../../changelog.md:181
+#: ../../../changelog.md:195
 msgid ""
 "Resolve LiDAR step timing for dynamic objects (LiDAR updates after all "
 "object poses are updated)."
 msgstr "解决动态物体的 LiDAR 步进时序问题（LiDAR 在所有物体位姿更新后再更新）。"
 
-#: ../../../changelog.md:182
+#: ../../../changelog.md:196
 msgid "Fix keyboard issue on macOS."
 msgstr "修复 macOS 上的键盘问题。"
 
-#: ../../../changelog.md:185
+#: ../../../changelog.md:199
 msgid "Clarify sensor update order."
 msgstr "明确传感器更新顺序。"
 
-#: ../../../changelog.md:186
+#: ../../../changelog.md:200
 msgid "Document keyboard control using the `pynput` backend."
 msgstr "补充使用 `pynput` 后端的键盘控制文档。"
 
-#: ../../../changelog.md:188
+#: ../../../changelog.md:202
 msgid "2.7.2 (2025-08-31)"
 msgstr ""
 
-#: ../../../changelog.md:191
+#: ../../../changelog.md:205
 msgid ""
 "Add a new gui section to the YAML configuration for keyboard and mouse "
 "controls. see [gui configuration](https://ir-"
@@ -767,7 +825,7 @@ msgstr ""
 "sim.readthedocs.io/en/latest/yaml_config/configuration.html#gui-"
 "configuration)"
 
-#: ../../../changelog.md:193
+#: ../../../changelog.md:207
 msgid ""
 "Change the default keyboard backend to Matplotlib (`mpl`), which uses "
 "figure window key events. The `mpl` backend is active when the Matplotlib"
@@ -777,235 +835,235 @@ msgstr ""
 "将默认键盘后端改为 Matplotlib（`mpl`），其使用图形窗口按键事件。`mpl` 后端在 Matplotlib "
 "图形窗口获得焦点时生效。提供全局键盘钩子的 `pynput` 后端仍受支持，可在 YAML 中选择。"
 
-#: ../../../changelog.md:195
+#: ../../../changelog.md:209
 msgid ""
 "Add `env.reload()` to reload the environment on the fly, enabling YAML "
 "changes to be applied without closing the Matplotlib figure window."
 msgstr "新增 `env.reload()` 可即时重载环境，使 YAML 更改无需关闭 Matplotlib 图形窗口即可应用。"
 
-#: ../../../changelog.md:197
+#: ../../../changelog.md:211
 msgid ""
 "Add hotkeys to configure and update environment settings, available in "
 "both `auto` and `keyboard` control modes:"
 msgstr "新增热键以配置和更新环境设置，在 `auto` 和 `keyboard` 控制模式下均可用："
 
-#: ../../../changelog.md:198
+#: ../../../changelog.md:212
 msgid "`r`: Reset the environment"
 msgstr "`r`：重置环境"
 
-#: ../../../changelog.md:199
+#: ../../../changelog.md:213
 msgid "`space`: Pause/Resume the environment"
 msgstr "`space`：暂停/恢复环境"
 
-#: ../../../changelog.md:200
+#: ../../../changelog.md:214
 msgid "`esc`: Quit the environment"
 msgstr "`esc`：退出环境"
 
-#: ../../../changelog.md:201
+#: ../../../changelog.md:215
 msgid "`x`: Switch between keyboard and auto control modes"
 msgstr "`x`：在键盘和自动控制模式间切换"
 
-#: ../../../changelog.md:202
+#: ../../../changelog.md:216
 msgid ""
 "`l`: Reload the environment and apply the updated YAML without closing "
 "the Matplotlib figure window"
 msgstr "`l`：重载环境并应用更新的 YAML，无需关闭 Matplotlib 图形窗口"
 
-#: ../../../changelog.md:204
+#: ../../../changelog.md:218
 msgid "update corresponding documentation and usage."
 msgstr "更新相应的文档和用法。"
 
-#: ../../../changelog.md:206
+#: ../../../changelog.md:220
 msgid "2.7.1 (2025-08-25)"
 msgstr ""
 
-#: ../../../changelog.md:209
+#: ../../../changelog.md:223
 msgid ""
 "Add `name` attribute for the object. It can be configured in the yaml "
 "file. The duplicate name check is added to ensure there are no duplicate "
 "names."
 msgstr "为物体新增 `name` 属性，可在 yaml 文件中配置。新增重名检查以确保无重复名称。"
 
-#: ../../../changelog.md:210
+#: ../../../changelog.md:224
 msgid ""
 "Clearify the `env.step` action order: 1st. keyboard control; 2nd. input "
 "action; 3rd. behavior control."
 msgstr "明确 `env.step` 动作顺序：1. 键盘控制；2. 输入动作；3. 行为控制。"
 
-#: ../../../changelog.md:211
+#: ../../../changelog.md:225
 msgid ""
 "Add `env.get_object_by_name` and `env.get_object_by_id` function to get "
 "the object by name and id."
 msgstr "新增 `env.get_object_by_name` 和 `env.get_object_by_id` 函数，按名称和 id 获取物体。"
 
-#: ../../../changelog.md:213 ../../../changelog.md:239
-#: ../../../changelog.md:255 ../../../changelog.md:277
-#: ../../../changelog.md:287 ../../../changelog.md:298
-#: ../../../changelog.md:304 ../../../changelog.md:326
-#: ../../../changelog.md:334 ../../../changelog.md:348
-#: ../../../changelog.md:359 ../../../changelog.md:372
-#: ../../../changelog.md:391 ../../../changelog.md:399
-#: ../../../changelog.md:411 ../../../changelog.md:423
+#: ../../../changelog.md:227 ../../../changelog.md:253
+#: ../../../changelog.md:269 ../../../changelog.md:291
+#: ../../../changelog.md:301 ../../../changelog.md:312
+#: ../../../changelog.md:318 ../../../changelog.md:340
+#: ../../../changelog.md:348 ../../../changelog.md:362
+#: ../../../changelog.md:373 ../../../changelog.md:386
+#: ../../../changelog.md:405 ../../../changelog.md:413
+#: ../../../changelog.md:425 ../../../changelog.md:437
 msgid "Bug Fixes:"
 msgstr ""
 
-#: ../../../changelog.md:214
+#: ../../../changelog.md:228
 msgid "Fix error in documentation and function comments."
 msgstr "修复文档和函数注释中的错误。"
 
-#: ../../../changelog.md:216
+#: ../../../changelog.md:230
 msgid "ir-sim 2.7.0 (2025-08-10)"
 msgstr "ir-sim 2.7.0 (2025-08-10)"
 
-#: ../../../changelog.md:218
+#: ../../../changelog.md:232
 msgid ""
 "This version improves the CI pipeline, GitHub Actions workflows, linting,"
 " and formatting to ensure consistent style and faster checks, with no API"
 " changes."
 msgstr "此版本改进了 CI 流水线、GitHub Actions 工作流、代码检查和格式化，以确保一致的代码风格和更快的检查速度，无 API 变更。"
 
-#: ../../../changelog.md:220
+#: ../../../changelog.md:234
 msgid "Workflow improvements:"
 msgstr ""
 
-#: ../../../changelog.md:221
+#: ../../../changelog.md:235
 msgid ""
 "Adopted `uv` to manage the project and dependencies; pyproject.toml is "
 "now uv-managed."
 msgstr "采用 `uv` 管理项目和依赖；pyproject.toml 现由 uv 管理。"
 
-#: ../../../changelog.md:222
+#: ../../../changelog.md:236
 msgid "Using `uv.lock` to lock the dependencies."
 msgstr "使用 `uv.lock` 锁定依赖。"
 
-#: ../../../changelog.md:223
+#: ../../../changelog.md:237
 msgid "Using `Ruff` for linting and formatting (replacing `Black`)."
 msgstr "使用 `Ruff` 进行 lint 和格式化（替代 `Black`）。"
 
-#: ../../../changelog.md:224
+#: ../../../changelog.md:238
 msgid "Added type hint and Using `ty` for type checking."
 msgstr "新增类型提示并使用 `ty` 进行类型检查。"
 
-#: ../../../changelog.md:225
+#: ../../../changelog.md:239
 msgid ""
 "Added `pre-commit` configuration (.pre-commit-config.yaml) to run linting"
 " and formatting before commits."
 msgstr "新增 `pre-commit` 配置（.pre-commit-config.yaml），在提交前运行 lint 和格式化。"
 
-#: ../../../changelog.md:226
+#: ../../../changelog.md:240
 msgid ""
 "Reorganized GitHub Actions workflows to test the API and enforce code "
 "style."
 msgstr "重组 GitHub Actions 工作流以测试 API 并强制代码风格。"
 
-#: ../../../changelog.md:227
+#: ../../../changelog.md:241
 msgid "Added issue templates; dependabot.yml; Contributing;"
 msgstr "新增 issue 模板、dependabot.yml、贡献指南。"
 
-#: ../../../changelog.md:230
+#: ../../../changelog.md:244
 msgid "Fixed documentation errors."
 msgstr "修复文档错误。"
 
-#: ../../../changelog.md:231
+#: ../../../changelog.md:245
 msgid "Fixed 3D plot title."
 msgstr ""
 
-#: ../../../changelog.md:233
+#: ../../../changelog.md:247
 msgid "Folder structure:"
 msgstr ""
 
-#: ../../../changelog.md:234
+#: ../../../changelog.md:248
 msgid "Renamed `doc/` to `docs/`."
 msgstr "将 `doc/` 重命名为 `docs/`。"
 
-#: ../../../changelog.md:235
+#: ../../../changelog.md:249
 msgid "Moved `irsim/usage/` to `usage/` at the repository root."
 msgstr "将 `irsim/usage/` 移动到仓库根目录的 `usage/`。"
 
-#: ../../../changelog.md:237
+#: ../../../changelog.md:251
 msgid "ir-sim 2.6.1 (2025-07-28)"
 msgstr "ir-sim 2.6.1 (2025-07-28)"
 
-#: ../../../changelog.md:240
+#: ../../../changelog.md:254
 msgid "Fix documentation error."
 msgstr ""
 
-#: ../../../changelog.md:243
+#: ../../../changelog.md:257
 msgid "Add WrapTo2Pi function."
 msgstr ""
 
-#: ../../../changelog.md:244
+#: ../../../changelog.md:258
 msgid "WrapTo2Pi for lidar and fov angle range."
 msgstr "对 lidar 和 fov 角度范围应用 WrapTo2Pi。"
 
-#: ../../../changelog.md:246
+#: ../../../changelog.md:260
 msgid "ir-sim 2.6.0 (2025-07-21)"
 msgstr "ir-sim 2.6.0 (2025-07-21)"
 
-#: ../../../changelog.md:248
+#: ../../../changelog.md:262
 msgid ""
 "This version is a major update of the documentation website. The new "
 "website is more user-friendly and easier to navigate the parameters usage"
 " and the API."
 msgstr "此版本是文档网站的重大更新。新网站更加用户友好，更容易浏览参数用法和 API。"
 
-#: ../../../changelog.md:250
+#: ../../../changelog.md:264
 msgid "Main Features"
 msgstr "主要功能"
 
-#: ../../../changelog.md:251
+#: ../../../changelog.md:265
 msgid "Add version switcher to the documentation."
 msgstr "为文档新增版本切换器。"
 
-#: ../../../changelog.md:252
+#: ../../../changelog.md:266
 msgid "Refine the documentation style."
 msgstr "优化文档样式。"
 
-#: ../../../changelog.md:253
+#: ../../../changelog.md:267
 msgid "Refine the comments and code style."
 msgstr "优化注释和代码风格。"
 
-#: ../../../changelog.md:256
+#: ../../../changelog.md:270
 msgid "Extract item from ndarray"
 msgstr "从 ndarray 提取元素"
 
-#: ../../../changelog.md:257
+#: ../../../changelog.md:271
 msgid "Fix goal orientation and traj keep length"
 msgstr "修复目标朝向和轨迹保留长度"
 
-#: ../../../changelog.md:258
+#: ../../../changelog.md:272
 msgid "Fix gif generation bug"
 msgstr ""
 
-#: ../../../changelog.md:260 ../../../changelog.md:292
+#: ../../../changelog.md:274 ../../../changelog.md:306
 msgid "API Changes:"
 msgstr ""
 
-#: ../../../changelog.md:261
+#: ../../../changelog.md:275
 msgid ""
 "Rename `global_param` folder to be `config`. All the call of the "
 "`global_param` should be replaced to `config`."
 msgstr "将 `global_param` 文件夹重命名为 `config`。所有对 `global_param` 的调用都应替换为 `config`。"
 
-#: ../../../changelog.md:262
+#: ../../../changelog.md:276
 msgid "Rename `keep_length` to `keep_traj_length` and `keep_trail_length`."
 msgstr "将 `keep_length` 重命名为 `keep_traj_length` 和 `keep_trail_length`。"
 
-#: ../../../changelog.md:264
+#: ../../../changelog.md:278
 msgid "ir-sim 2.5.5 (2025-06-29)"
 msgstr "ir-sim 2.5.5 (2025-06-29)"
 
-#: ../../../changelog.md:266 ../../../changelog.md:282
-#: ../../../changelog.md:310 ../../../changelog.md:317
-#: ../../../changelog.md:338 ../../../changelog.md:351
-#: ../../../changelog.md:364 ../../../changelog.md:375
-#: ../../../changelog.md:384 ../../../changelog.md:405
-#: ../../../changelog.md:414 ../../../changelog.md:428
-#: ../../../changelog.md:440
+#: ../../../changelog.md:280 ../../../changelog.md:296
+#: ../../../changelog.md:324 ../../../changelog.md:331
+#: ../../../changelog.md:352 ../../../changelog.md:365
+#: ../../../changelog.md:378 ../../../changelog.md:389
+#: ../../../changelog.md:398 ../../../changelog.md:419
+#: ../../../changelog.md:428 ../../../changelog.md:442
+#: ../../../changelog.md:454
 msgid "New Features:"
 msgstr "新功能："
 
-#: ../../../changelog.md:267
+#: ../../../changelog.md:281
 msgid ""
 "Add environment pause and resume function. You can pause/resume the "
 "environment by pressing `space` key in the keyboard control. see "
@@ -1016,7 +1074,7 @@ msgstr ""
 "新增环境暂停和恢复功能。在键盘控制中按 `space` 键可暂停/恢复环境。详见 [键盘控制文档](https://ir-"
 "sim.readthedocs.io/en/stable/usage/configure_keyboard_Mouse_control.html)。"
 
-#: ../../../changelog.md:268
+#: ../../../changelog.md:282
 msgid ""
 "Add environment title to show current simulation time and robots status. "
 "You can also customize the title by setting the `env.set_title` function."
@@ -1026,61 +1084,61 @@ msgstr ""
 "新增环境标题以显示当前仿真时间和机器人状态。也可通过 `env.set_title` 函数自定义标题。详见 [make env 文档](https"
 "://ir-sim.readthedocs.io/en/stable/usage/make_environment.html)。"
 
-#: ../../../changelog.md:269
+#: ../../../changelog.md:283
 msgid "Change the default figure pixel (size) to be 1000x800."
 msgstr "将默认图像像素（尺寸）改为 1000x800。"
 
-#: ../../../changelog.md:271 ../../../changelog.md:342
+#: ../../../changelog.md:285 ../../../changelog.md:356
 msgid "Enhancements:"
 msgstr ""
 
-#: ../../../changelog.md:272
+#: ../../../changelog.md:286
 msgid "Refine code style, log warning output, and website documentation."
 msgstr "优化代码风格、日志警告输出和网站文档。"
 
-#: ../../../changelog.md:275
+#: ../../../changelog.md:289
 msgid "ir-sim 2.5.4 (2025-06-16)"
 msgstr "ir-sim 2.5.4 (2025-06-16)"
 
-#: ../../../changelog.md:278
+#: ../../../changelog.md:292
 msgid "Fix the pynput import error"
 msgstr "修复 pynput 导入错误"
 
-#: ../../../changelog.md:280
+#: ../../../changelog.md:294
 msgid "ir-sim 2.5.3 (2025-06-15)"
 msgstr "ir-sim 2.5.3 (2025-06-15)"
 
-#: ../../../changelog.md:283
+#: ../../../changelog.md:297
 msgid "Add GUI module, including keyboard and mouse control."
 msgstr "新增 GUI 模块，包含键盘和鼠标控制。"
 
-#: ../../../changelog.md:284
+#: ../../../changelog.md:298
 msgid "Add mouse control documentation."
 msgstr "新增鼠标控制文档。"
 
-#: ../../../changelog.md:285
+#: ../../../changelog.md:299
 msgid "Make the object default goal to be None."
 msgstr "将物体默认目标设为 None。"
 
-#: ../../../changelog.md:288
+#: ../../../changelog.md:302
 msgid "Fix the backend error for macos system."
 msgstr "修复 macOS 系统的后端错误。"
 
-#: ../../../changelog.md:289
+#: ../../../changelog.md:303
 msgid "Fix zorder issue for the object plot."
 msgstr "修复物体绘图的 zorder 问题。"
 
-#: ../../../changelog.md:290
+#: ../../../changelog.md:304
 msgid "Fix the object collision check issue."
 msgstr "修复物体碰撞检查问题。"
 
-#: ../../../changelog.md:293
+#: ../../../changelog.md:307
 msgid ""
 "Add `mouse_left_pos`, `mouse_right_pos`, and `mouse_pos` attributes to "
 "the environment for mouse control."
 msgstr "为环境新增 `mouse_left_pos`、`mouse_right_pos` 和 `mouse_pos` 属性用于鼠标控制。"
 
-#: ../../../changelog.md:294
+#: ../../../changelog.md:308
 msgid ""
 "Move keyboard_control.py to the gui folder. Thus the api of the keyboard "
 "is changed, such as from `env.alt_flag` to `env.keyboard.alt_flag`."
@@ -1088,43 +1146,43 @@ msgstr ""
 "将 keyboard_control.py 移至 gui 文件夹。因此键盘 API 改变，如从 `env.alt_flag` 改为 "
 "`env.keyboard.alt_flag`。"
 
-#: ../../../changelog.md:296
+#: ../../../changelog.md:310
 msgid "ir-sim 2.5.2 (2025-06-02)"
 msgstr "ir-sim 2.5.2 (2025-06-02)"
 
-#: ../../../changelog.md:299
+#: ../../../changelog.md:313
 msgid "Fix the bug of the clear components."
 msgstr "修复清除组件的 bug。"
 
-#: ../../../changelog.md:302
+#: ../../../changelog.md:316
 msgid "ir-sim 2.5.1 (2025-06-02)"
 msgstr "ir-sim 2.5.1 (2025-06-02)"
 
-#: ../../../changelog.md:305
+#: ../../../changelog.md:319
 msgid "Fix the goal plot coordinate bug."
 msgstr "修复目标绘图坐标 bug。"
 
-#: ../../../changelog.md:306
+#: ../../../changelog.md:320
 msgid "Fix grammar, format, and typos in the documentation and comments."
 msgstr "修复文档和注释中的语法、格式和拼写错误。"
 
-#: ../../../changelog.md:307
+#: ../../../changelog.md:321
 msgid "Uniform the name of `accer` to `acce` for acceleration parameter."
 msgstr "将加速度参数名 `accer` 统一为 `acce`。"
 
-#: ../../../changelog.md:308
+#: ../../../changelog.md:322
 msgid "Remove state check warning for obstacles."
 msgstr "移除障碍物的状态检查警告。"
 
-#: ../../../changelog.md:311
+#: ../../../changelog.md:325
 msgid "Add `center` for circular object."
 msgstr "为圆形物体新增 `center`。"
 
-#: ../../../changelog.md:313
+#: ../../../changelog.md:327
 msgid "ir-sim 2.5.0 (2025-05-26)"
 msgstr "ir-sim 2.5.0 (2025-05-26)"
 
-#: ../../../changelog.md:315
+#: ../../../changelog.md:329
 #, python-format
 msgid ""
 "This version improves performance (approximately 40% speed improvement) "
@@ -1132,659 +1190,659 @@ msgid ""
 "operation for large environments."
 msgstr "此版本通过重构对象绘图函数和大型环境的几何变换操作，提升了性能（约 40% 的速度提升）。"
 
-#: ../../../changelog.md:318
+#: ../../../changelog.md:332
 msgid "Refactor the object plot function using Matplotlib patch transforms."
 msgstr "使用 Matplotlib patch transforms 重构物体绘图函数。"
 
-#: ../../../changelog.md:319
+#: ../../../changelog.md:333
 msgid "Add new object plot features and API."
 msgstr "新增物体绘图功能和 API。"
 
-#: ../../../changelog.md:320
+#: ../../../changelog.md:334
 msgid "Refactor the geometry-transform operation."
 msgstr "重构几何变换操作。"
 
-#: ../../../changelog.md:321
+#: ../../../changelog.md:335
 msgid "Improve test coverage."
 msgstr ""
 
-#: ../../../changelog.md:322
+#: ../../../changelog.md:336
 msgid "Add a set-laser-color function."
 msgstr "新增设置激光颜色的函数。"
 
-#: ../../../changelog.md:323
+#: ../../../changelog.md:337
 msgid "Refine documentation and the to-do list."
 msgstr "优化文档和待办列表。"
 
-#: ../../../changelog.md:324
+#: ../../../changelog.md:338
 msgid "Add a UV lock file for the project."
 msgstr "为项目新增 UV 锁文件。"
 
-#: ../../../changelog.md:327
+#: ../../../changelog.md:341
 msgid "Fix bugs in object plot."
 msgstr ""
 
-#: ../../../changelog.md:328
+#: ../../../changelog.md:342
 msgid "Rename `init_vertices` to `original_vertices`."
 msgstr "将 `init_vertices` 重命名为 `original_vertices`。"
 
-#: ../../../changelog.md:329
+#: ../../../changelog.md:343
 msgid "Rename `init_geometry` to `original_geometry`."
 msgstr "将 `init_geometry` 重命名为 `original_geometry`。"
 
-#: ../../../changelog.md:330
+#: ../../../changelog.md:344
 msgid "Fix warning messages."
 msgstr ""
 
-#: ../../../changelog.md:332
+#: ../../../changelog.md:346
 msgid "ir-sim 2.4.4 (2025-05-06)"
 msgstr "ir-sim 2.4.4 (2025-05-06)"
 
-#: ../../../changelog.md:335
+#: ../../../changelog.md:349
 msgid "Fix geometry tree bug"
 msgstr ""
 
-#: ../../../changelog.md:336
+#: ../../../changelog.md:350
 msgid "Fix 3D plot bug"
 msgstr ""
 
-#: ../../../changelog.md:339
+#: ../../../changelog.md:353
 msgid "Add rrt star path planner"
 msgstr "新增 RRT* 路径规划器"
 
-#: ../../../changelog.md:340
+#: ../../../changelog.md:354
 msgid "Add neighbor_threshold parameter for the rvo behavior"
 msgstr "为 rvo 行为新增 neighbor_threshold 参数"
 
-#: ../../../changelog.md:343
+#: ../../../changelog.md:357
 msgid "Update the distance function to accelerate the rvo algorithm"
 msgstr "更新距离函数以加速 rvo 算法"
 
-#: ../../../changelog.md:344
+#: ../../../changelog.md:358
 msgid "Update the robot image"
 msgstr ""
 
-#: ../../../changelog.md:346
+#: ../../../changelog.md:360
 msgid "ir-sim 2.4.3 (2025-04-30)"
 msgstr "ir-sim 2.4.3 (2025-04-30)"
 
-#: ../../../changelog.md:349
+#: ../../../changelog.md:363
 msgid "Fix lidar offset plot bug."
 msgstr "修复 lidar 偏移绘图 bug。"
 
-#: ../../../changelog.md:352
+#: ../../../changelog.md:366
 msgid ""
 "Implement several classic path planner, A star, RRT, and PRM adapted from"
 " python robotics repo."
 msgstr "实现若干经典路径规划器（A*、RRT、PRM），改编自 python robotics 仓库。"
 
-#: ../../../changelog.md:353
+#: ../../../changelog.md:367
 msgid "Add draw quiver functions"
 msgstr "新增绘制 quiver 的函数"
 
-#: ../../../changelog.md:354
+#: ../../../changelog.md:368
 msgid "Add world plot parameters in yaml file."
 msgstr "在 yaml 文件中新增世界绘图参数。"
 
-#: ../../../changelog.md:355
+#: ../../../changelog.md:369
 msgid "Update requirements."
 msgstr ""
 
-#: ../../../changelog.md:357
+#: ../../../changelog.md:371
 msgid "ir-sim 2.4.2 (2025-04-19)"
 msgstr "ir-sim 2.4.2 (2025-04-19)"
 
-#: ../../../changelog.md:360
+#: ../../../changelog.md:374
 msgid "Change omni robot default state dim to be 3."
 msgstr "将 omni 机器人默认状态维度改为 3。"
 
-#: ../../../changelog.md:361
+#: ../../../changelog.md:375
 msgid "Remove the check_collision and arrive property in the env_base."
 msgstr "移除 env_base 中的 check_collision 和 arrive 属性。"
 
-#: ../../../changelog.md:362
+#: ../../../changelog.md:376
 msgid "Fix bugs in test cases; Remove some old features (#50)."
 msgstr "修复测试用例中的 bug；移除部分旧功能 (#50)。"
 
-#: ../../../changelog.md:365
+#: ../../../changelog.md:379
 msgid "Reorganize the logger functions."
 msgstr "重组 logger 函数。"
 
-#: ../../../changelog.md:366
+#: ../../../changelog.md:380
 msgid "Add object heading and orientation (#48)."
 msgstr "新增物体航向和朝向 (#48)。"
 
-#: ../../../changelog.md:367
+#: ../../../changelog.md:381
 msgid "Formulate the geometry tree for the collision check"
 msgstr "为碰撞检查构建几何树"
 
-#: ../../../changelog.md:368
+#: ../../../changelog.md:382
 msgid "Improve test coverage of this code (#50)."
 msgstr "提升此代码的测试覆盖率 (#50)。"
 
-#: ../../../changelog.md:370
+#: ../../../changelog.md:384
 msgid "ir-sim 2.4.1 (2025-04-02)"
 msgstr "ir-sim 2.4.1 (2025-04-02)"
 
-#: ../../../changelog.md:373
+#: ../../../changelog.md:387
 msgid "Fix the polygon trail type bug."
 msgstr "修复多边形轨迹类型 bug。"
 
-#: ../../../changelog.md:376
+#: ../../../changelog.md:390
 msgid "Make sure the obstacles are valid polygons."
 msgstr "确保障碍物为有效多边形。"
 
-#: ../../../changelog.md:377
+#: ../../../changelog.md:391
 msgid "Add functions to set the laser color."
 msgstr "新增设置激光颜色的函数。"
 
-#: ../../../changelog.md:378
+#: ../../../changelog.md:392
 msgid "Env can be initialized without yaml files."
 msgstr "环境可在无 yaml 文件时初始化。"
 
-#: ../../../changelog.md:379
+#: ../../../changelog.md:393
 msgid ""
 "Add the render `mode` to select the objects to render. `static`, "
 "`dynamic`, `all`."
 msgstr "新增渲染 `mode` 以选择要渲染的物体：`static`、`dynamic`、`all`。"
 
-#: ../../../changelog.md:380
+#: ../../../changelog.md:394
 msgid "Enhance readme and Documentation."
 msgstr "增强 readme 和文档。"
 
-#: ../../../changelog.md:382
+#: ../../../changelog.md:396
 msgid "ir-sim 2.4.0 (2025-03-20)"
 msgstr "ir-sim 2.4.0 (2025-03-20)"
 
-#: ../../../changelog.md:385
+#: ../../../changelog.md:399
 msgid "Add binary map generated from the 3D scene dataset (Hm3d)."
 msgstr "新增由 3D 场景数据集（Hm3d）生成的二值地图。"
 
-#: ../../../changelog.md:386
+#: ../../../changelog.md:400
 msgid "Accelerate collision check for larger binary map."
 msgstr "加速大型二值地图的碰撞检查。"
 
-#: ../../../changelog.md:387
+#: ../../../changelog.md:401
 msgid "Support Multiple Goal setting."
 msgstr "支持多目标设置。"
 
-#: ../../../changelog.md:388
+#: ../../../changelog.md:402
 msgid "Add the requirement files."
 msgstr "新增 requirement 文件。"
 
-#: ../../../changelog.md:389
+#: ../../../changelog.md:403
 msgid "Set random goals call for objects."
 msgstr "为物体新增设置随机目标的调用。"
 
-#: ../../../changelog.md:392
+#: ../../../changelog.md:406
 msgid ""
 "Fix the bug of the collision mode, unobstructed obstacles will not be "
 "considered in the collision check."
 msgstr "修复碰撞模式 bug，无阻挡障碍物将不计入碰撞检查。"
 
-#: ../../../changelog.md:393
+#: ../../../changelog.md:407
 msgid "Fix the typo in readme and documentation."
 msgstr "修复 readme 和文档中的拼写错误。"
 
-#: ../../../changelog.md:394
+#: ../../../changelog.md:408
 msgid "Fix the error in log message."
 msgstr "修复日志消息中的错误。"
 
-#: ../../../changelog.md:395
+#: ../../../changelog.md:409
 msgid "Fix the multi-object keyboard control error."
 msgstr "修复多物体键盘控制错误。"
 
-#: ../../../changelog.md:397
+#: ../../../changelog.md:411
 msgid "ir-sim 2.3.6 (2025-03-12)"
 msgstr "ir-sim 2.3.6 (2025-03-12)"
 
-#: ../../../changelog.md:400
+#: ../../../changelog.md:414
 msgid ""
 "Lidar2d sensor pass through the unobstructed objects now, see usage: "
 "`05lidar_world` for detail."
 msgstr "Lidar2d 传感器现在会穿过无阻挡物体，详见用法：`05lidar_world`。"
 
-#: ../../../changelog.md:401
+#: ../../../changelog.md:415
 msgid "Fix the matplotlib backend error when running in the headless server."
 msgstr "修复在无头服务器运行时的 matplotlib 后端错误。"
 
-#: ../../../changelog.md:402
+#: ../../../changelog.md:416
 msgid "Fix the error of object vertices."
 msgstr "修复物体顶点错误。"
 
-#: ../../../changelog.md:403
+#: ../../../changelog.md:417
 msgid ""
 "Fix the plot parameter name: edgecolor -> trail_edgecolor; linewidth -> "
 "trail_linewidth;"
 msgstr "修复绘图参数名：edgecolor -> trail_edgecolor；linewidth -> trail_linewidth；"
 
-#: ../../../changelog.md:406
+#: ../../../changelog.md:420
 msgid ""
 "Add the `obj_linestyle` parameter for the object to set the line style of"
 " the object edge. see usage: `05lidar_world` for detail."
 msgstr "为物体新增 `obj_linestyle` 参数以设置物体边缘线型，详见用法：`05lidar_world`。"
 
-#: ../../../changelog.md:407
+#: ../../../changelog.md:421
 msgid "Update object property comments and API documentation."
 msgstr "更新物体属性注释和 API 文档。"
 
-#: ../../../changelog.md:409
+#: ../../../changelog.md:423
 msgid "ir-sim 2.3.5 (2025-02-27)"
 msgstr "ir-sim 2.3.5 (2025-02-27)"
 
-#: ../../../changelog.md:412
+#: ../../../changelog.md:426
 msgid "Dimension of init vertices for the polygon object"
 msgstr "多边形物体初始顶点的维度"
 
-#: ../../../changelog.md:415
+#: ../../../changelog.md:429
 msgid ""
 "Complete the feature of show_text for the object and add abbr name for "
 "the object, run usage: 06multi_objects_world for detail."
 msgstr "完善物体的 show_text 功能并为物体新增缩写名，运行用法：06multi_objects_world 查看详情。"
 
-#: ../../../changelog.md:416
+#: ../../../changelog.md:430
 msgid "Add init parameters for the set_goal function."
 msgstr "为 set_goal 函数新增 init 参数。"
 
-#: ../../../changelog.md:417
+#: ../../../changelog.md:431
 msgid ""
 "Add add_object, add_objects, delete_object, delete_objects functions for "
 "the environment to support adding or eliminating obstacles."
 msgstr "为环境新增 add_object、add_objects、delete_object、delete_objects 函数以支持添加或移除障碍物。"
 
-#: ../../../changelog.md:418
+#: ../../../changelog.md:432
 msgid "Add get_Gh function for the object."
 msgstr "为物体新增 get_Gh 函数。"
 
-#: ../../../changelog.md:419
+#: ../../../changelog.md:433
 msgid "Update type hint for the functions and format the code with black."
 msgstr "更新函数的类型提示并用 black 格式化代码。"
 
-#: ../../../changelog.md:421
+#: ../../../changelog.md:435
 msgid "ir-sim 2.3.4 (2025-02-18)"
 msgstr "ir-sim 2.3.4 (2025-02-18)"
 
-#: ../../../changelog.md:424
+#: ../../../changelog.md:438
 msgid "omni robot dynamics"
 msgstr ""
 
-#: ../../../changelog.md:425
+#: ../../../changelog.md:439
 msgid "rvo zero division"
 msgstr ""
 
-#: ../../../changelog.md:426
+#: ../../../changelog.md:440
 msgid "python version compatibility"
 msgstr "Python 版本兼容性"
 
-#: ../../../changelog.md:429
+#: ../../../changelog.md:443
 msgid ""
 "Update random_obstacle_position function to support selection of "
 "obstacles and non-overlapping features."
 msgstr "更新 random_obstacle_position 函数以支持障碍物选择和不重叠特性。"
 
-#: ../../../changelog.md:430
+#: ../../../changelog.md:444
 msgid "Support saving the animation as video."
 msgstr "支持将动画保存为视频。"
 
-#: ../../../changelog.md:432
+#: ../../../changelog.md:446
 msgid "ir-sim 2.3.2 (2025-01-28)"
 msgstr "ir-sim 2.3.2 (2025-01-28)"
 
-#: ../../../changelog.md:434
+#: ../../../changelog.md:448
 msgid "ir-sim 2.3.2 is a bug fix release with no new features compared to 2.3.1."
 msgstr "ir-sim 2.3.2 是一个错误修复版本，与 2.3.1 相比没有新功能。"
 
-#: ../../../changelog.md:436
+#: ../../../changelog.md:450
 msgid "ir-sim 2.3.1 (2025-01-26)"
 msgstr "ir-sim 2.3.1 (2025-01-26)"
 
-#: ../../../changelog.md:438
+#: ../../../changelog.md:452
 msgid "Update relevant documentation."
 msgstr "更新相关文档。"
 
-#: ../../../changelog.md:439 ../../../changelog.md:512
-#: ../../../changelog.md:526 ../../../changelog.md:554
-#: ../../../changelog.md:562
+#: ../../../changelog.md:453 ../../../changelog.md:526
+#: ../../../changelog.md:540 ../../../changelog.md:568
+#: ../../../changelog.md:576
 msgid "Fix some bugs"
 msgstr ""
 
-#: ../../../changelog.md:441
+#: ../../../changelog.md:455
 msgid "Add FOV for the object, see usage 15fov_world for detail."
 msgstr "为物体新增 FOV，详见用法 15fov_world。"
 
-#: ../../../changelog.md:442
+#: ../../../changelog.md:456
 msgid "Add arguments for function WrapToPi."
 msgstr "为 WrapToPi 函数新增参数。"
 
-#: ../../../changelog.md:443
+#: ../../../changelog.md:457
 msgid "Add the role selection for the behaviors."
 msgstr "为行为新增角色选择。"
 
-#: ../../../changelog.md:445
+#: ../../../changelog.md:459
 msgid "ir-sim 2.3.0 (2024-12-22)"
 msgstr "ir-sim 2.3.0 (2024-12-22)"
 
-#: ../../../changelog.md:447
+#: ../../../changelog.md:461
 msgid "**Major Version Update:**"
 msgstr "**主要版本更新：**"
 
-#: ../../../changelog.md:449
+#: ../../../changelog.md:463
 msgid "Publish the documentation for the project."
 msgstr "发布项目文档。"
 
-#: ../../../changelog.md:450
+#: ../../../changelog.md:464
 msgid "Add coverage tests for the project."
 msgstr "为项目新增覆盖率测试。"
 
-#: ../../../changelog.md:451
+#: ../../../changelog.md:465
 msgid ""
 "Refactor the kinematics handler and geometry handler to configure the "
 "robot and obstacles."
 msgstr "重构运动学 handler 和几何 handler 以配置机器人和障碍物。"
 
-#: ../../../changelog.md:452
+#: ../../../changelog.md:466
 msgid "Reorganize the lidar2d step function to improve its performance."
 msgstr "重组 lidar2d 步进函数以提升性能。"
 
-#: ../../../changelog.md:453
+#: ../../../changelog.md:467
 msgid "Update the comments for the functions."
 msgstr "更新函数注释。"
 
-#: ../../../changelog.md:454
+#: ../../../changelog.md:468
 msgid "Fix some bugs in the project."
 msgstr "修复项目中的若干 bug。"
 
-#: ../../../changelog.md:455
+#: ../../../changelog.md:469
 msgid "Add a 3D plotting environment."
 msgstr "新增 3D 绘图环境。"
 
-#: ../../../changelog.md:457
+#: ../../../changelog.md:471
 msgid "ir-sim 2.2.6 (2024-11-22)"
 msgstr "ir-sim 2.2.6 (2024-11-22)"
 
-#: ../../../changelog.md:459
+#: ../../../changelog.md:473
 msgid ""
 "Refactor the behavior library and add a custom behavior interface. See "
 "usage: 13custom_behavior for details."
 msgstr "重构行为库并新增自定义行为接口。详见用法：13custom_behavior。"
 
-#: ../../../changelog.md:461
+#: ../../../changelog.md:475
 msgid ""
 "Add a default name for YAML files, matching the Python script name. See "
 "usage: 12dynamic_obstacle for details."
 msgstr "为 YAML 文件新增默认名称，与 Python 脚本名匹配。详见用法：12dynamic_obstacle。"
 
-#: ../../../changelog.md:463
+#: ../../../changelog.md:477
 msgid ""
 "Change the trajectory visualization style. See usage: 02robot_world for "
 "details."
 msgstr "更改轨迹可视化样式。详见用法：02robot_world。"
 
-#: ../../../changelog.md:465
+#: ../../../changelog.md:479
 msgid ""
 "Reconstruct the save_figure function. See usage: 07renderw_world for "
 "details."
 msgstr "重构 save_figure 函数。详见用法：07renderw_world。"
 
-#: ../../../changelog.md:467
+#: ../../../changelog.md:481
 msgid "Fix the 'display' bug in the env.end() function."
 msgstr "修复 env.end() 函数中的 'display' bug。"
 
-#: ../../../changelog.md:469
+#: ../../../changelog.md:483
 msgid "ir-sim 2.2.5 (2024-10-17)"
 msgstr "ir-sim 2.2.5 (2024-10-17)"
 
-#: ../../../changelog.md:471
+#: ../../../changelog.md:485
 msgid "Convert the GIF file to readme links to reduce the repository size"
 msgstr "将 GIF 文件转为 readme 链接以减小仓库体积"
 
-#: ../../../changelog.md:472
+#: ../../../changelog.md:486
 msgid "Modify the visualization of the arrow for the robot"
 msgstr "修改机器人箭头的可视化"
 
-#: ../../../changelog.md:473
+#: ../../../changelog.md:487
 msgid "Adjust figure size by pixel"
 msgstr "按像素调整图像尺寸"
 
-#: ../../../changelog.md:474
+#: ../../../changelog.md:488
 msgid "Add reset for world time"
 msgstr ""
 
-#: ../../../changelog.md:475
+#: ../../../changelog.md:489
 msgid "Change the matplotlib backend to TkAgg"
 msgstr "将 matplotlib 后端改为 TkAgg"
 
-#: ../../../changelog.md:476
+#: ../../../changelog.md:490
 msgid "Fix some bugs on the visualization"
 msgstr "修复可视化的若干 bug"
 
-#: ../../../changelog.md:478
+#: ../../../changelog.md:492
 msgid "ir-sim 2.2.4 (2024-09-17)"
 msgstr "ir-sim 2.2.4 (2024-09-17)"
 
-#: ../../../changelog.md:480
+#: ../../../changelog.md:494
 msgid "Fix collision avoidance bug for obstacles"
 msgstr "修复障碍物的碰撞避免 bug"
 
-#: ../../../changelog.md:481
+#: ../../../changelog.md:495
 msgid "Arrange the kinematics functions"
 msgstr "整理运动学函数"
 
-#: ../../../changelog.md:482
+#: ../../../changelog.md:496
 msgid "Add the state_shape and vel_shape for object_base"
 msgstr "为 object_base 新增 state_shape 和 vel_shape"
 
-#: ../../../changelog.md:483
+#: ../../../changelog.md:497
 msgid "Format all python code with black"
 msgstr "用 black 格式化所有 Python 代码"
 
-#: ../../../changelog.md:484
+#: ../../../changelog.md:498
 msgid "Complete the function comments and generate api documentation"
 msgstr "完善函数注释并生成 API 文档"
 
-#: ../../../changelog.md:486
+#: ../../../changelog.md:500
 msgid "ir-sim 2.2.3 (2024-09-01)"
 msgstr "ir-sim 2.2.3 (2024-09-01)"
 
-#: ../../../changelog.md:488
+#: ../../../changelog.md:502
 msgid ""
 "Rename the module name from ir_sim to irsim, rename the package name from"
 " ir_sim to ir-sim"
 msgstr "将模块名从 ir_sim 重命名为 irsim，将包名从 ir_sim 重命名为 ir-sim"
 
-#: ../../../changelog.md:489 ../../../changelog.md:498
+#: ../../../changelog.md:503 ../../../changelog.md:512
 msgid "Add citation for the project"
 msgstr "为项目新增引用信息"
 
-#: ../../../changelog.md:490 ../../../changelog.md:499
+#: ../../../changelog.md:504 ../../../changelog.md:513
 msgid "Refine the comments for the functions"
 msgstr "优化函数注释"
 
-#: ../../../changelog.md:491
+#: ../../../changelog.md:505
 msgid "Configure the readthedoc and sphnix for documentation"
 msgstr "为文档配置 readthedocs 和 sphinx"
 
-#: ../../../changelog.md:492
+#: ../../../changelog.md:506
 msgid ""
 "Add the attribute unobstructed for obejcts, see usage: obstace_world for "
 "detail"
 msgstr "为物体新增 unobstructed 属性，详见用法：obstace_world"
 
-#: ../../../changelog.md:493
+#: ../../../changelog.md:507
 msgid "Fix the state_dim bug"
 msgstr ""
 
-#: ../../../changelog.md:495
+#: ../../../changelog.md:509
 msgid "ir-sim 2.2.0 (2024-08-30)"
 msgstr "ir-sim 2.2.0 (2024-08-30)"
 
-#: ../../../changelog.md:497
+#: ../../../changelog.md:511
 msgid ""
 "Rename the module from ir_sim to irsim, rename the package name from "
 "ir_sim to ir-sim"
 msgstr "将模块从 ir_sim 重命名为 irsim，将包名从 ir_sim 重命名为 ir-sim"
 
-#: ../../../changelog.md:502
+#: ../../../changelog.md:516
 msgid "ir-sim 2.1.4 (2024-08-19)"
 msgstr "ir-sim 2.1.4 (2024-08-19)"
 
-#: ../../../changelog.md:504
+#: ../../../changelog.md:518
 msgid "Update function comments"
 msgstr ""
 
-#: ../../../changelog.md:505
+#: ../../../changelog.md:519
 msgid "Update the readme"
 msgstr ""
 
-#: ../../../changelog.md:506
+#: ../../../changelog.md:520
 msgid "Add interface to change the object distribution in the environment"
 msgstr "新增更改环境中物体分布的接口"
 
-#: ../../../changelog.md:507
+#: ../../../changelog.md:521
 msgid "Add Feature of obstacles random in the environment"
 msgstr "新增环境中障碍物随机化功能"
 
-#: ../../../changelog.md:509
+#: ../../../changelog.md:523
 msgid "ir-sim 2.1.3 (2024-08-11)"
 msgstr "ir-sim 2.1.3 (2024-08-11)"
 
-#: ../../../changelog.md:510
+#: ../../../changelog.md:524
 msgid "Fix errors in usages"
 msgstr ""
 
-#: ../../../changelog.md:511
+#: ../../../changelog.md:525
 msgid "delete some old files"
 msgstr ""
 
-#: ../../../changelog.md:514
+#: ../../../changelog.md:528
 msgid "ir-sim 2.1.2 (2024-08-04)"
 msgstr "ir-sim 2.1.2 (2024-08-04)"
 
-#: ../../../changelog.md:516
+#: ../../../changelog.md:530
 msgid "Fix bug for omni dynamics robots"
 msgstr "修复 omni 动力学机器人的 bug"
 
-#: ../../../changelog.md:517
+#: ../../../changelog.md:531
 msgid "Fix bug for rvo behavior"
 msgstr ""
 
-#: ../../../changelog.md:518
+#: ../../../changelog.md:532
 msgid "Replace the diff description for the object_base"
 msgstr "替换 object_base 的 diff 描述"
 
-#: ../../../changelog.md:521
+#: ../../../changelog.md:535
 msgid "ir-sim 2.1.1 (2024-07-15)"
 msgstr "ir-sim 2.1.1 (2024-07-15)"
 
-#: ../../../changelog.md:523
+#: ../../../changelog.md:537
 msgid "Update the YAML API"
 msgstr ""
 
-#: ../../../changelog.md:524
+#: ../../../changelog.md:538
 msgid "Enhance features in object_base (G, h)"
 msgstr "增强 object_base 中的功能 (G, h)"
 
-#: ../../../changelog.md:525
+#: ../../../changelog.md:539
 msgid "Expand project development utilities"
 msgstr "扩展项目开发工具"
 
-#: ../../../changelog.md:528
+#: ../../../changelog.md:542
 msgid "ir-sim 2.1.0 (2024-03-29)"
 msgstr "ir-sim 2.1.0 (2024-03-29)"
 
-#: ../../../changelog.md:530
+#: ../../../changelog.md:544
 msgid "Big Version"
 msgstr "大版本更新"
 
-#: ../../../changelog.md:532
+#: ../../../changelog.md:546
 msgid ""
 "Reformulate the whole project framework, all the objects are developed by"
 " the object base"
 msgstr "重构整个项目框架，所有物体均基于 object base 开发"
 
-#: ../../../changelog.md:533
+#: ../../../changelog.md:547
 msgid "Using shapely to construct the geometry for the robot and obstacles"
 msgstr "使用 shapely 构建机器人和障碍物的几何"
 
-#: ../../../changelog.md:534
+#: ../../../changelog.md:548
 msgid "Reconstruct the YAML interface"
 msgstr "重构 YAML 接口"
 
-#: ../../../changelog.md:535
+#: ../../../changelog.md:549
 msgid "Add the behavior library for the objects"
 msgstr "为物体新增行为库"
 
-#: ../../../changelog.md:536
+#: ../../../changelog.md:550
 msgid "Add the object factory to create the objects"
 msgstr "新增物体工厂用于创建物体"
 
-#: ../../../changelog.md:537
+#: ../../../changelog.md:551
 msgid "Add env logger to record and print the environment status"
 msgstr "新增 env logger 用于记录和打印环境状态"
 
-#: ../../../changelog.md:539
+#: ../../../changelog.md:553
 msgid "ir-sim 1.1.12 (2023-11-02)"
 msgstr "ir-sim 1.1.12 (2023-11-02)"
 
-#: ../../../changelog.md:541
+#: ../../../changelog.md:555
 msgid ""
 "Update the refresh of the show_trail Add set robot goal method Fix some "
 "bugs"
 msgstr "更新 show_trail 的刷新；新增设置机器人目标的方法；修复若干 bug"
 
-#: ../../../changelog.md:546
+#: ../../../changelog.md:560
 msgid "ir-sim 1.1.11 (2023-04-28)"
 msgstr "ir-sim 1.1.11 (2023-04-28)"
 
-#: ../../../changelog.md:548
+#: ../../../changelog.md:562
 msgid "Add the function to change the edgecolor Add repeat mkdirs Fix some bugs"
 msgstr "新增更改 edgecolor 的函数；新增重复 mkdirs；修复若干 bug"
 
-#: ../../../changelog.md:552
+#: ../../../changelog.md:566
 msgid "ir-sim 1.1.10 (2023-04-12)"
 msgstr "ir-sim 1.1.10 (2023-04-12)"
 
-#: ../../../changelog.md:555
+#: ../../../changelog.md:569
 msgid "Add the collision mode 'unobstructed'"
 msgstr "新增碰撞模式 'unobstructed'"
 
-#: ../../../changelog.md:556
+#: ../../../changelog.md:570
 msgid "Add draw box function"
 msgstr ""
 
-#: ../../../changelog.md:557
+#: ../../../changelog.md:571
 msgid "Add radius for obstacle"
 msgstr ""
 
-#: ../../../changelog.md:560
+#: ../../../changelog.md:574
 msgid "ir-sim 1.1.9 (2023-03-20)"
 msgstr "ir-sim 1.1.9 (2023-03-20)"
 
-#: ../../../changelog.md:563
+#: ../../../changelog.md:577
 msgid "Add features for obstacles."
 msgstr "为障碍物新增功能。"
 
-#: ../../../changelog.md:566
+#: ../../../changelog.md:580
 msgid "ir-sim 1.1.8 (2023-02-27)"
 msgstr "ir-sim 1.1.8 (2023-02-27)"
 
-#: ../../../changelog.md:568
+#: ../../../changelog.md:582
 msgid "Add map obstacles"
 msgstr ""
 
-#: ../../../changelog.md:569
+#: ../../../changelog.md:583
 msgid "Fix bugs of reset robot"
 msgstr ""
 
-#: ../../../changelog.md:570
+#: ../../../changelog.md:584
 msgid "Add different car models"
 msgstr ""
 
-#: ../../../changelog.md:572
+#: ../../../changelog.md:586
 msgid "ir-sim-v1.1.7 (2023-01-16)"
 msgstr "ir-sim-v1.1.7 (2023-01-16)"
 
-#: ../../../changelog.md:574
+#: ../../../changelog.md:588
 msgid "Fix bugs of pyproject.toml"
 msgstr "修复 pyproject.toml 的 bug"
 
