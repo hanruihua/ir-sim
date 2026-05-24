@@ -9,7 +9,7 @@ IR-SIM supports two types of behavior configuration:
 
 ## Behavior Configuration Parameters
 
-Built-in individual behaviors are `dash` (move directly to the goal), `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance), and `sfm` (Social Force Model — reactive pedestrian-style avoidance, ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros)). By default, moving objects have no behavior and remain static unless an external command is supplied.
+Built-in individual behaviors are `dash` (move directly to the goal), `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance), and `sfm` (Social Force Model — reactive pedestrian-style avoidance). By default, moving objects have no behavior and remain static unless an external command is supplied.
 
 Behaviors are registered per kinematics, so not every (kinematics, behavior) pair exists:
 
@@ -118,27 +118,112 @@ Full list of behavior parameters can be found in the [YAML Configuration](../yam
 
 ### SFM (Social Force Model)
 
-`sfm` is a reactive avoidance behavior that treats each agent as a Newtonian particle under three forces — a goal-pull, an anisotropic neighbor repulsion (people on the agent's motion path push back more than people behind), and an exponential obstacle repulsion. The implementation is a faithful Python port of the C++ social-force code in [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros) (`libpedsim`/`ped_agent.cpp`), using the anisotropic variant from Moussaid, Helbing et al. (2009).
+`sfm` is a reactive avoidance behavior that treats each agent as a Newtonian particle under three forces — a goal-pull, an anisotropic neighbor repulsion (people on the agent's motion path push back more than people behind), and an exponential obstacle repulsion. The implementation uses the anisotropic variant from Moussaid, Helbing et al. (2009).
 
 `sfm` complements `rvo`/`orca`: RVO and ORCA are *geometric* and provably collision-free under their assumptions, while SFM is *behavioral* and produces more human-looking trajectories — including occasional brush-bys, hesitations, and the asymmetric reaction to neighbors ahead vs. behind. Use SFM when crowd realism matters; use RVO/ORCA when collision-freeness is the priority.
 
+The example below is `usage/23sfm_world/sfm_world.yaml`: twenty-four pedestrians crossing a `+`-shaped intersection of two 6.6 m corridors. Each lane carries a head-on pair (W↔E in blue/red, S↔N in green/orange), and the L-shaped wall corners enter SFM as line obstacles so agents bend around them instead of cutting the corner.
+
+:::{note}
+Place the YAML file in the same directory as the main Python script.
+:::
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make()
+
+while not env.done():
+    env.step()
+    env.render(0.01)
+
+env.end()
+```
+:::
+
+:::{tab-item} YAML Configuration
+
 ```yaml
+world:
+  height: 20
+  width: 20
+  step_time: 0.1
+  offset: [-10, -10]
+  collision_mode: 'unobstructed'   # SFM is reactive; allow brief overlap
+  control_mode: 'auto'
+
 robot:
-  - number: 10
-    distribution: {name: 'random', range_low: [1, 1, -3.14], range_high: [11, 11, 3.14]}
+  - number: 24
+    distribution: {name: 'manual'}
     kinematics: {name: 'diff'}
     shape: [{name: 'circle', radius: 0.25}]
+    # 12 horizontal head-on pairs + 12 vertical head-on pairs, interleaved
+    # so adjacent indices share a lane (ir-sim steps objects sequentially,
+    # so the pair coupling depends on adjacency in env.objects).
+    state:
+      - [-9, -2.6, 0]
+      - [ 9, -2.601, 3.14]
+      - [-9, -1.6, 0]
+      - [ 9, -1.601, 3.14]
+      # ... (six horizontal lanes + six vertical lanes, see usage file)
+    goal:
+      - [ 9, -2.6, 0]
+      - [-9, -2.601, 3.14]
+      - [ 9, -1.6, 0]
+      - [-9, -1.601, 3.14]
+      # ...
+    color:
+      - 'royalblue'   # W->E
+      - 'red'         # E->W
+      # ... (alternating blue/red horizontally, green/orange vertically)
     behavior:
       name: 'sfm'
-      vmax: 0.8
-      force_factor_desired: 0.6
-      force_factor_social: 4.0
-      wander: true                       # respawn a new random goal on arrival
-      range_low:  [1, 1, -3.14]
-      range_high: [11, 11, 3.14]
-```
+      loop: true
+      vmax: 0.7
+      neighbor_threshold: 5.0
+      force_factor_social: 6.0
+      force_factor_obstacle: 8.0       # walls must hold during loop-reset
+      lambda_importance: 1.0           # cleaner repulsion along line of centres
+      gamma: 0.5
+      sigma_obstacle: 0.6              # wall felt across most of the 6.6 m corridor
+      n_angular: 1.5                   # agents commit to a side earlier
+      n_velocity: 2.5
+      safety_radius: 0.12              # 0.24 m personal bubble
+    vel_min: [-1.5, -3.0]
+    vel_max: [ 1.5,  3.0]
+    arrive_mode: position
+    goal_threshold: 1.0                # loop-reset fires before the wall stalls the goal approach
+    plot: {show_trail: true, show_goal: true, trail_fill: true, trail_alpha: 0.2, keep_trail_length: 25}
 
-See `usage/23sfm_world/` for runnable examples (a wandering-pedestrian scene and a two-robot head-on pass).
+obstacle:
+  - number: 4
+    distribution: {name: 'manual'}
+    state: [0, 0, 0]
+    unobstructed: true
+    shape:
+      - {name: 'linestring', vertices: [[-10,  3.3], [-3.3,  3.3], [-3.3,  10]]}
+      - {name: 'linestring', vertices: [[ 10,  3.3], [ 3.3,  3.3], [ 3.3,  10]]}
+      - {name: 'linestring', vertices: [[-10, -3.3], [-3.3, -3.3], [-3.3, -10]]}
+      - {name: 'linestring', vertices: [[ 10, -3.3], [ 3.3, -3.3], [ 3.3, -10]]}
+```
+:::
+
+:::{tab-item} Demonstration
+:selected:
+
+```{image} gif/sfm_world.gif
+:alt: SFM cross-corridor crowd
+:width: 400px
+:align: center
+```
+:::
+::::
+
+See `usage/23sfm_world/` for the full runnable file (24-agent cross corridor plus a separate two-robot head-on pass).
 
 ### RVO with Line Obstacles
 

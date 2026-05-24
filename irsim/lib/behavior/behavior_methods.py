@@ -33,9 +33,8 @@ These functions are designed to be used with the robot behavior system to contro
 robot movements in various scenarios including collision avoidance (RVO) and
 goal-reaching behaviors (dash).
 
-The Social Force Model (``sfm``) behaviors are ported from libpedsim / pedsim_ros
-(https://github.com/srl-freiburg/pedsim_ros); see
-:mod:`irsim.lib.algorithm.social_force_model` for the algorithmic details.
+See :mod:`irsim.lib.algorithm.social_force_model` for the SFM algorithmic
+details.
 """
 
 
@@ -397,9 +396,7 @@ def SFMVelocity(
     """
     Compute the next world-frame velocity using the Social Force Model.
 
-    Anisotropic Moussaid-Helbing (2009) variant, ported from
-    ``libpedsim``/``pedsim_ros``:
-    https://github.com/srl-freiburg/pedsim_ros
+    Anisotropic Moussaid-Helbing (2009) variant.
 
     Args:
         state_tuple: Full RVO-style state

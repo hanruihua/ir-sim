@@ -27,9 +27,6 @@ Upstream reference (this file is a faithful Python port):
     (RandomForce, AlongWallForce, group coherence/gaze/repulsion).
     Only the three core forces from ``libpedsim`` are ported here.
 
-    Local checkout used as the reference implementation:
-        /Users/han/tech/pedsim_ros/3rdparty/libpedsim/src/ped_agent.cpp
-
 Algorithmic references:
 
     Helbing, D. & Molnar, P. (1995), *Social force model for pedestrian
@@ -73,9 +70,9 @@ class social_force_model:
             social-force neighbor.
         safety_radius (float): Personal-space buffer subtracted from the
             agent-to-agent distance inside the social-force exponential.
-            ``0`` reproduces libpedsim (points). ``> 0`` shifts the
-            decay closer-in so the repulsion saturates at
-            ``2 * safety_radius`` of centre-to-centre clearance,
+            ``0`` reproduces the upstream behavior (point agents).
+            ``> 0`` shifts the decay closer-in so the repulsion saturates
+            at ``2 * safety_radius`` of centre-to-centre clearance,
             effectively giving each agent a body radius for SFM.
     """
 
@@ -172,10 +169,7 @@ class social_force_model:
     def desired_force(self) -> list:
         """Relaxation toward the desired velocity ``v0 * e_goal``.
 
-        Mirrors ``Ped::Twaypoint::getForce`` in libpedsim
-        (``3rdparty/libpedsim/src/ped_waypoint.cpp`` in
-        https://github.com/srl-freiburg/pedsim_ros). The desired
-        velocity is supplied directly via ``state[5:7]``.
+        The desired velocity is supplied directly via ``state[5:7]``.
         """
         vx = self.state[2]
         vy = self.state[3]
@@ -191,10 +185,7 @@ class social_force_model:
         """Anisotropic neighbor repulsion (Moussaid-Helbing 2009).
 
         Iterates over all neighbors within ``neighbor_range`` and sums
-        their contribution. The implementation follows
-        ``Ped::Tagent::socialForce()`` line-for-line
-        (``3rdparty/libpedsim/src/ped_agent.cpp`` in
-        https://github.com/srl-freiburg/pedsim_ros).
+        their contribution.
         """
         x = self.state[0]
         y = self.state[1]
@@ -216,7 +207,7 @@ class social_force_model:
             d_hat_x = dx / dist
             d_hat_y = dy / dist
 
-            # velocity diff is self - other (libpedsim convention)
+            # velocity diff is self - other (upstream convention)
             vdx = vx - mvx
             vdy = vy - mvy
 
@@ -257,10 +248,10 @@ class social_force_model:
     def obstacle_force(self) -> list:
         """Exponential repulsion summed over all nearby line obstacles.
 
-        The libpedsim/pedsim_ros reference uses only the single nearest
-        obstacle, which oscillates in symmetric environments (two
-        parallel walls flip which one is "nearest" each step). We use
-        the Helbing-Molnar (1995) summation form instead: every segment
+        The upstream reference uses only the single nearest obstacle,
+        which oscillates in symmetric environments (two parallel walls
+        flip which one is "nearest" each step). We use the
+        Helbing-Molnar (1995) summation form instead: every segment
         within ``5 * sigma_obstacle`` contributes an exponentially
         decayed push, so symmetric walls cancel and the agent walks the
         centreline. The integration is also clamped against overlap

@@ -510,6 +510,10 @@ class ObjectBase:
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
+        # state/velocity changed — invalidate per-tick caches used by
+        # reactive behaviors (SFM/RVO read these once per neighbour).
+        self._velocity_xy_cache = None
+        self._rvo_neighbor_state_cache = None
 
         if sensor_step:
             self.sensor_step()
@@ -2620,13 +2624,19 @@ class ObjectBase:
         Returns:
             list: State [x, y, vx, vy, radius].
         """
-        return [
+        cached = getattr(self, "_rvo_neighbor_state_cache", None)
+        if cached is not None:
+            return cached
+        vxy = self.velocity_xy
+        out = [
             self.state[0, 0],
             self.state[1, 0],
-            self.velocity_xy[0, 0],
-            self.velocity_xy[1, 0],
+            vxy[0, 0],
+            vxy[1, 0],
             self.radius_extend,
         ]
+        self._rvo_neighbor_state_cache = out
+        return out
 
     @property
     def rvo_line_segments(self) -> list[list[float]]:
@@ -2637,14 +2647,21 @@ class ObjectBase:
             list: List of line segments [[x1, y1, x2, y2], ...] for linestring objects,
                   empty list for other shapes.
         """
+        # Linestring vertices are immutable after construction, so cache once.
+        # Non-linestring objects cache the empty list forever to skip the
+        # shape check on every read.
+        cached = getattr(self, "_rvo_line_segments_cache", None)
+        if cached is not None:
+            return cached
         if self.shape != "linestring":
-            return []
+            self._rvo_line_segments_cache = []
+            return self._rvo_line_segments_cache
         verts = self.vertices  # 2xN array
-        segments = []
-        for i in range(verts.shape[1] - 1):
-            segments.append(
-                [verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]]
-            )
+        segments = [
+            [verts[0, i], verts[1, i], verts[0, i + 1], verts[1, i + 1]]
+            for i in range(verts.shape[1] - 1)
+        ]
+        self._rvo_line_segments_cache = segments
         return segments
 
     @property
@@ -2675,9 +2692,15 @@ class ObjectBase:
         Returns:
             (2*1) np.ndarray: Velocity [vx, vy].
         """
+        cached = getattr(self, "_velocity_xy_cache", None)
+        if cached is not None:
+            return cached
         if self.kf is not None:
-            return self.kf.velocity_to_xy(self.state, self.velocity)
-        return np.zeros((2, 1))
+            out = self.kf.velocity_to_xy(self.state, self.velocity)
+        else:
+            out = np.zeros((2, 1))
+        self._velocity_xy_cache = out
+        return out
 
     @property
     def max_speed(self):

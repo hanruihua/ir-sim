@@ -6,8 +6,7 @@ of the corridor, and each lane carries two agents staggered in depth so
 the central square stays busy across the run. Opposite-direction streams
 don't head-on within a single arm; all conflicts happen in the
 intersection, resolved by the anisotropic Moussaid-Helbing 2009 social
-force (ported from ``pedsim_ros`` / libpedsim). The L-shaped wall
-corners enter SFM as line obstacles.
+force. The L-shaped wall corners enter SFM as line obstacles.
 
 See ``irsim/lib/algorithm/social_force_model.py`` for the algorithm and
 ``irsim/lib/behavior/behavior_methods.py`` for the registered behaviors

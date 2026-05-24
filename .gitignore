@@ -162,6 +162,8 @@ docs/.DS_Store
 # local agent / tooling state
 /.claude/
 /.agents/
+/.continue/
+/skills/
 /skills-lock.json
 
 # auto-generated API gettext catalogs (API ref isn't translated)
