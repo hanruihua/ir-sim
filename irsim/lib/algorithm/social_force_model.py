@@ -99,15 +99,11 @@ class social_force_model:
         # ``ZeroDivisionError`` deep inside the per-neighbour loop or
         # silently produce non-physical dynamics on the first ``cal_vel``.
         if relaxation_time <= 0.0:
-            raise ValueError(
-                f"relaxation_time must be > 0, got {relaxation_time}"
-            )
+            raise ValueError(f"relaxation_time must be > 0, got {relaxation_time}")
         if gamma <= 0.0:
             raise ValueError(f"gamma must be > 0, got {gamma}")
         if sigma_obstacle <= 0.0:
-            raise ValueError(
-                f"sigma_obstacle must be > 0, got {sigma_obstacle}"
-            )
+            raise ValueError(f"sigma_obstacle must be > 0, got {sigma_obstacle}")
 
         self.state = state
         self.neighbor_list = neighbor_list if neighbor_list is not None else []
