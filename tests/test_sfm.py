@@ -260,13 +260,26 @@ class TestSFMEndToEnd:
 
 
 class TestSFMEdgeCases:
-    def test_social_force_skips_degenerate_interaction(self):
-        # If a neighbour has the exact same position AND velocity as ego,
-        # both ``d_hat`` and ``dv`` are zero so ``t_norm < 1e-9``; the
-        # neighbour must be skipped instead of dividing by zero.
+    def test_social_force_skips_collocated_neighbor(self):
+        # ``dist < 1e-6`` continue branch: a neighbour at the exact same
+        # position must be skipped instead of dividing by zero.
         sfm = social_force_model(
             state=_state(x=0.0, y=0.0, vx=0.0, vy=0.0),
             neighbor_list=[[0.0, 0.0, 0.0, 0.0, 0.3]],
+            lambda_importance=2.0,
+        )
+        fx, fy = sfm.social_force()
+        assert fx == 0.0
+        assert fy == 0.0
+
+    def test_social_force_skips_zero_interaction_vector(self):
+        # ``t_norm < 1e-9`` continue branch: with ``d_hat=(1,0)`` and
+        # ``dv=(-0.5, 0)``, the interaction vector ``t = lambda*dv + d_hat``
+        # is ``(-1+1, 0) = 0`` for ``lambda=2``. Without the guard this
+        # would divide by zero; with it, the neighbour contributes nothing.
+        sfm = social_force_model(
+            state=_state(x=0.0, y=0.0, vx=-0.5, vy=0.0),
+            neighbor_list=[[1.0, 0.0, 0.0, 0.0, 0.3]],
             lambda_importance=2.0,
         )
         fx, fy = sfm.social_force()
@@ -354,6 +367,211 @@ class TestReactiveStateCache:
         nb_after = robot.rvo_neighbor_state
         assert after is not first
         assert nb_after is not nb_first
+        env.end(suppress_summary=True)
+
+    def test_sfm_with_goal_none_returns_zero_velocity(self):
+        """``beh_diff_sfm`` / ``beh_omni_sfm`` must warn-and-stop when goal is None."""
+        cfg = {
+            "world": {
+                "height": 6,
+                "width": 6,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-3, -3],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [0, 0, 0],
+                "goal": [2, 0, 0],
+                "behavior": {"name": "sfm", "vmax": 0.5},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+        robot.set_goal(None)
+        # gen_behavior_vel hits the goal-None branch — must return zeros.
+        vel = robot.gen_behavior_vel()
+        assert np.allclose(vel, np.zeros((2, 1)))
+        env.end(suppress_summary=True)
+
+    def test_omni_sfm_with_goal_none_returns_zero(self):
+        """``beh_omni_sfm`` must warn-and-stop when goal is None."""
+        cfg = {
+            "world": {
+                "height": 6,
+                "width": 6,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-3, -3],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "omni"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [0, 0, 0],
+                "goal": [2, 0, 0],
+                "behavior": {"name": "sfm", "vmax": 0.5},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+        robot.set_goal(None)
+        vel = robot.gen_behavior_vel()
+        assert np.allclose(vel, np.zeros((2, 1)))
+        env.end(suppress_summary=True)
+
+    def test_omni_sfm_with_neighbors_and_wall(self):
+        """Omni-SFM scene with another agent and a linestring obstacle —
+        exercises the per-object loop body in ``beh_omni_sfm`` (the
+        ``if segs: line_segments.extend(segs)`` and ``else``-branch
+        ``neighbors.append`` paths)."""
+        cfg = {
+            "world": {
+                "height": 6,
+                "width": 6,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-3, -3],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": [
+                {
+                    "kinematics": {"name": "omni"},
+                    "shape": [{"name": "circle", "radius": 0.2}],
+                    "state": [-2, 0, 0],
+                    "goal": [2, 0, 0],
+                    "behavior": {"name": "sfm", "vmax": 0.6},
+                    "vel_min": [-1, -1],
+                    "vel_max": [1, 1],
+                    "arrive_mode": "position",
+                    "goal_threshold": 0.3,
+                },
+                {
+                    "kinematics": {"name": "omni"},
+                    "shape": [{"name": "circle", "radius": 0.2}],
+                    "state": [2, 0.05, 3.14],
+                    "goal": [-2, 0.05, 3.14],
+                    "behavior": {"name": "sfm", "vmax": 0.6},
+                    "vel_min": [-1, -1],
+                    "vel_max": [1, 1],
+                    "arrive_mode": "position",
+                    "goal_threshold": 0.3,
+                },
+            ],
+            "obstacle": [
+                {
+                    "shape": {"name": "linestring", "vertices": [[-2, 1.5], [2, 1.5]]},
+                    "state": [0, 0, 0],
+                    "unobstructed": True,
+                },
+            ],
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        for _ in range(30):
+            env.step()  # just exercise the code path
+        env.end(suppress_summary=True)
+
+    def test_sfm_velocity_handles_none_inputs(self):
+        """``SFMVelocity`` defaults ``neighbor_list``/``line_segments`` to []
+        when called with ``None`` — hits the two guard branches at the top."""
+        from irsim.lib.behavior.behavior_methods import SFMVelocity
+
+        state = [0.0, 0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0]  # heading east, vmax desired
+        vx, vy = SFMVelocity(state, neighbor_list=None, line_segments=None, vmax=1.0)
+        # No neighbours, no walls — desired-force only, finite output.
+        assert np.isfinite(vx)
+        assert np.isfinite(vy)
+
+    def test_omni_sfm_end_to_end(self):
+        """End-to-end exercise of ``beh_omni_sfm`` (was registration-only).
+
+        Asserts the behaviour produces a non-zero velocity and the agent
+        makes net progress toward its goal — full arrival is not required,
+        since the goal here is just to invoke the omni-SFM code path.
+        """
+        cfg = {
+            "world": {
+                "height": 8,
+                "width": 8,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-4, -4],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "omni"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [-3, 0, 0],
+                "goal": [3, 0, 0],
+                "behavior": {"name": "sfm", "vmax": 0.8},
+                "vel_min": [-1.5, -1.5],
+                "vel_max": [1.5, 1.5],
+                "arrive_mode": "position",
+                "goal_threshold": 0.3,
+            },
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+        start_x = float(robot.state[0, 0])
+        for _ in range(50):
+            env.step()
+        # The omni-SFM behavior must have produced motion toward the goal.
+        assert float(robot.state[0, 0]) > start_x + 1.0
+        env.end(suppress_summary=True)
+
+    def test_sfm_with_line_obstacle_in_scene(self):
+        """End-to-end with a linestring obstacle: covers the
+        ``if segs: line_segments.extend(segs)`` branch in ``beh_diff_sfm``."""
+        cfg = {
+            "world": {
+                "height": 6,
+                "width": 12,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-6, -3],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [-5, 0, 0],
+                "goal": [5, 0, 0],
+                "behavior": {"name": "sfm", "vmax": 0.8},
+                "vel_min": [-1.5, -3],
+                "vel_max": [1.5, 3],
+                "arrive_mode": "position",
+                "goal_threshold": 0.3,
+            },
+            "obstacle": [
+                {
+                    "shape": {"name": "linestring", "vertices": [[-5, 2], [5, 2]]},
+                    "state": [0, 0, 0],
+                    "unobstructed": True,
+                },
+            ],
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        for _ in range(300):
+            env.step()
+            if env.done():
+                break
+        assert env.done(), "robot must arrive past the linestring wall"
         env.end(suppress_summary=True)
 
     def test_rvo_line_segments_cached_per_object(self):
