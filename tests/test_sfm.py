@@ -6,10 +6,13 @@ Covers:
 - End-to-end env step with `behavior: sfm` via a temp YAML.
 """
 
+import contextlib
 import importlib
+import os
 import tempfile
 
 import numpy as np
+import pytest
 import yaml
 
 import irsim
@@ -147,10 +150,32 @@ class TestSFMBehaviorRegistration:
 # ===================================================================
 
 
+# Track every temp YAML written by ``_write_temp_yaml`` so an autouse
+# fixture can remove them after each test — prevents files leaking
+# across repeated test runs.
+_TEMP_YAML_PATHS: list[str] = []
+
+
 def _write_temp_yaml(cfg: dict) -> str:
-    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
-        yaml.safe_dump(cfg, f)
-        return f.name
+    fd, path = tempfile.mkstemp(suffix=".yaml")
+    try:
+        with os.fdopen(fd, "w") as f:
+            yaml.safe_dump(cfg, f)
+    except Exception:
+        os.unlink(path)
+        raise
+    _TEMP_YAML_PATHS.append(path)
+    return path
+
+
+@pytest.fixture(autouse=True)
+def _cleanup_temp_yamls():
+    """Remove every temp YAML this test produced, even if the test failed."""
+    yield
+    while _TEMP_YAML_PATHS:
+        path = _TEMP_YAML_PATHS.pop()
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(path)
 
 
 class TestSFMEndToEnd:
@@ -306,6 +331,22 @@ class TestSFMEdgeCases:
         fx, fy = sfm.obstacle_force()
         assert fx == 1.0
         assert fy == 0.0
+
+    def test_non_positive_divisors_rejected(self):
+        # ``relaxation_time``, ``gamma`` and ``sigma_obstacle`` are all
+        # divisors inside the force terms — non-positive values are a
+        # logic error rather than weird-but-valid input.
+        for kwargs in (
+            {"relaxation_time": 0.0},
+            {"relaxation_time": -0.1},
+            {"gamma": 0.0},
+            {"gamma": -0.5},
+            {"sigma_obstacle": 0.0},
+            {"sigma_obstacle": -1.0},
+        ):
+            param = next(iter(kwargs))
+            with pytest.raises(ValueError, match=f"^{param} must be > 0"):
+                social_force_model(state=_state(), **kwargs)
 
     def test_closest_point_on_degenerate_segment(self):
         # A "segment" whose endpoints coincide is a point; the helper must
@@ -621,6 +662,98 @@ class TestReactiveStateCache:
         assert after != before_copy, (
             "rvo_line_segments cache went stale after the linestring moved"
         )
+        env.end(suppress_summary=True)
+
+    def test_cache_invalidated_by_set_state_set_velocity(self):
+        """Manual state/velocity mutation must drop the per-tick caches
+        so the next reactive read sees the new pose, not the previous
+        cached one."""
+        cfg = {
+            "world": {
+                "height": 10,
+                "width": 10,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [0, 0],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [1, 1, 0],
+                "goal": [9, 9, 0],
+                "behavior": {"name": "dash"},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+
+        # Prime the caches.
+        first = robot.velocity_xy
+        nb_first = robot.rvo_neighbor_state
+
+        # Mutate state externally — caches must drop.
+        robot.set_state([5, 5, 0])
+        after_state = robot.velocity_xy
+        nb_after_state = robot.rvo_neighbor_state
+        assert after_state is not first
+        assert nb_after_state is not nb_first
+        # x coordinate of the cached neighbour state must reflect the
+        # new pose, not the old one.
+        assert nb_after_state[0] == 5.0
+
+        # Mutate velocity externally — caches must drop again.
+        primed_vxy = robot.velocity_xy
+        robot.set_velocity([0.5, 0.0])
+        assert robot.velocity_xy is not primed_vxy
+        env.end(suppress_summary=True)
+
+    def test_cache_invalidated_by_reset(self):
+        """``env.reset()`` returns the object to its initial state; the
+        caches populated during the previous run must not leak across
+        the reset boundary."""
+        cfg = {
+            "world": {
+                "height": 10,
+                "width": 10,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [0, 0],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [1, 1, 0],
+                "goal": [9, 9, 0],
+                "behavior": {"name": "dash"},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+
+        for _ in range(5):
+            env.step()
+        moved_x = float(robot.state[0, 0])
+        assert moved_x > 1.0
+
+        primed = robot.velocity_xy
+        primed_nb = robot.rvo_neighbor_state
+        env.reset()
+        # reset() must drop the cached velocity/neighbour-state.
+        post_reset_nb = robot.rvo_neighbor_state
+        assert post_reset_nb is not primed_nb
+        assert post_reset_nb[0] == 1.0  # back to initial x
+        # velocity_xy was also invalidated; new lookup recomputes.
+        assert robot.velocity_xy is not primed
         env.end(suppress_summary=True)
 
     def test_rvo_line_segments_cached_per_object(self):

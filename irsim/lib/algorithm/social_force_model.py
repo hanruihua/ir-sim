@@ -95,6 +95,20 @@ class social_force_model:
         neighbor_range: float = 10.0,
         safety_radius: float = 0.0,
     ) -> None:
+        # Catch non-positive divisors early — these would otherwise raise
+        # ``ZeroDivisionError`` deep inside the per-neighbour loop or
+        # silently produce non-physical dynamics on the first ``cal_vel``.
+        if relaxation_time <= 0.0:
+            raise ValueError(
+                f"relaxation_time must be > 0, got {relaxation_time}"
+            )
+        if gamma <= 0.0:
+            raise ValueError(f"gamma must be > 0, got {gamma}")
+        if sigma_obstacle <= 0.0:
+            raise ValueError(
+                f"sigma_obstacle must be > 0, got {sigma_obstacle}"
+            )
+
         self.state = state
         self.neighbor_list = neighbor_list if neighbor_list is not None else []
         self.line_obs_list = line_obs_list if line_obs_list is not None else []

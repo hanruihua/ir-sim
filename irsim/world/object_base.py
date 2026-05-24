@@ -500,10 +500,9 @@ class ObjectBase:
 
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
-            # velocity just got zeroed — invalidate the per-tick caches so
+            # velocity just got zeroed — invalidate per-tick caches so
             # other agents don't perceive a stopped object as still moving.
-            self._velocity_xy_cache = None
-            self._rvo_neighbor_state_cache = None
+            self._invalidate_reactive_cache()
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
@@ -514,16 +513,14 @@ class ObjectBase:
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
-        # state/velocity changed — invalidate per-tick caches used by
-        # reactive behaviors (SFM/RVO read these once per neighbour).
-        # ``_rvo_line_segments_cache`` is also cleared because non-static
-        # linestring objects have their vertices re-transformed by
-        # ``gf.step(state)`` on the line above; static objects skip this
-        # whole method (early-return at top), so their segment cache
-        # remains valid for the lifetime of the env.
-        self._velocity_xy_cache = None
-        self._rvo_neighbor_state_cache = None
-        self._rvo_line_segments_cache = None
+        # state/velocity/geometry changed — invalidate per-tick caches
+        # used by reactive behaviors (SFM/RVO read these once per
+        # neighbour). Non-static linestring objects have their vertices
+        # re-transformed by ``gf.step(state)`` above, so the segment
+        # cache must drop too; static objects skip this whole method
+        # (early-return at top), so their segment cache remains valid
+        # for the lifetime of the env.
+        self._invalidate_reactive_cache()
 
         if sensor_step:
             self.sensor_step()
@@ -898,6 +895,7 @@ class ObjectBase:
         self._state = temp_state.copy()
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
+        self._invalidate_reactive_cache()
 
     def set_velocity(
         self, velocity: list | np.ndarray | None = None, init: bool = False
@@ -918,6 +916,7 @@ class ObjectBase:
             self._init_velocity = temp_velocity.copy()
 
         self._velocity = temp_velocity.copy()
+        self._invalidate_reactive_cache()
 
     def set_original_geometry(self, geometry: BaseGeometry):
         """
@@ -2081,6 +2080,7 @@ class ObjectBase:
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
+        self._invalidate_reactive_cache()
 
     def refresh(self):
         """
@@ -2092,6 +2092,19 @@ class ObjectBase:
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
         self.sensor_step()
+        self._invalidate_reactive_cache()
+
+    def _invalidate_reactive_cache(self) -> None:
+        """Drop per-tick caches read by reactive behaviors (SFM/RVO).
+
+        Must be called from every path that mutates ``_state``,
+        ``_velocity``, or the transformed geometry — ``step()``,
+        ``set_state``, ``set_velocity``, ``reset``, ``refresh`` —
+        otherwise the next reader gets stale cached data.
+        """
+        self._velocity_xy_cache = None
+        self._rvo_neighbor_state_cache = None
+        self._rvo_line_segments_cache = None
 
     def remove(self):
         """
