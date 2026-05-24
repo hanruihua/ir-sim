@@ -252,3 +252,158 @@ class TestSFMEndToEnd:
             "wander mode should re-sample at least one goal in 300 steps"
         )
         env.end(suppress_summary=True)
+
+
+# ===================================================================
+# Degenerate / edge-case branches in the SFM algorithm
+# ===================================================================
+
+
+class TestSFMEdgeCases:
+    def test_social_force_skips_degenerate_interaction(self):
+        # If a neighbour has the exact same position AND velocity as ego,
+        # both ``d_hat`` and ``dv`` are zero so ``t_norm < 1e-9``; the
+        # neighbour must be skipped instead of dividing by zero.
+        sfm = social_force_model(
+            state=_state(x=0.0, y=0.0, vx=0.0, vy=0.0),
+            neighbor_list=[[0.0, 0.0, 0.0, 0.0, 0.3]],
+            lambda_importance=2.0,
+        )
+        fx, fy = sfm.social_force()
+        assert fx == 0.0
+        assert fy == 0.0
+
+    def test_obstacle_force_skips_far_segments(self):
+        # Segment well outside ``5 * sigma_obstacle`` must contribute zero.
+        sfm = social_force_model(
+            state=_state(x=0.0, y=0.0, r=0.3),
+            line_obs_list=[[-1.0, 100.0, 1.0, 100.0]],
+            sigma_obstacle=0.5,
+        )
+        assert sfm.obstacle_force() == [0.0, 0.0]
+
+    def test_obstacle_force_handles_zero_distance_overlap(self):
+        # Closest point on the segment coincides with the agent → the
+        # "centre on the wall" branch fires and pushes along +x at unit
+        # magnitude instead of dividing by zero.
+        sfm = social_force_model(
+            state=_state(x=0.0, y=0.0, r=0.3),
+            line_obs_list=[[-1.0, 0.0, 1.0, 0.0]],
+        )
+        fx, fy = sfm.obstacle_force()
+        assert fx == 1.0
+        assert fy == 0.0
+
+    def test_closest_point_on_degenerate_segment(self):
+        # A "segment" whose endpoints coincide is a point; the helper must
+        # short-circuit to that point instead of dividing by ``l2 == 0``.
+        cx, cy = social_force_model._closest_point_on_segment(
+            5.0, 5.0, [2.0, 3.0, 2.0, 3.0]
+        )
+        assert (cx, cy) == (2.0, 3.0)
+
+
+# ===================================================================
+# Per-tick reactive-state cache on ObjectBase
+# ===================================================================
+
+
+class TestReactiveStateCache:
+    def test_velocity_xy_cache_hit_then_invalidated_on_step(self):
+        """Cached value is reused until the next ``step()`` commits new state."""
+        cfg = {
+            "world": {
+                "height": 10,
+                "width": 10,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [0, 0],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": [
+                {
+                    "kinematics": {"name": "diff"},
+                    "shape": [{"name": "circle", "radius": 0.2}],
+                    "state": [1.0, 1.0, 0.0],
+                    "goal": [9.0, 9.0, 0.0],
+                    "behavior": {"name": "dash"},
+                    "vel_min": [-1, -1],
+                    "vel_max": [1, 1],
+                }
+            ],
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        robot = env.robot_list[0]
+
+        # Cache miss → compute and store.
+        first = robot.velocity_xy
+        # Cache hit → identical object returned.
+        second = robot.velocity_xy
+        assert first is second
+
+        # Same for the list properties.
+        nb_first = robot.rvo_neighbor_state
+        nb_second = robot.rvo_neighbor_state
+        assert nb_first is nb_second
+
+        # After step(), the velocity/state mutate → caches must invalidate.
+        env.step()
+        after = robot.velocity_xy
+        nb_after = robot.rvo_neighbor_state
+        assert after is not first
+        assert nb_after is not nb_first
+        env.end(suppress_summary=True)
+
+    def test_rvo_line_segments_cached_per_object(self):
+        """Linestring obstacles cache vertices once; non-linestrings cache []."""
+        cfg = {
+            "world": {
+                "height": 10,
+                "width": 10,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-5, -5],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [-3, 0, 0],
+                "goal": [3, 0, 0],
+                "behavior": {"name": "dash"},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+            "obstacle": [
+                {
+                    "shape": {"name": "linestring", "vertices": [[-2, 1], [2, 1]]},
+                    "state": [0, 0, 0],
+                    "unobstructed": True,
+                },
+                {
+                    "shape": {"name": "circle", "radius": 0.3},
+                    "state": [0, -2, 0],
+                    "unobstructed": True,
+                },
+            ],
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        line_obs = env.obstacle_list[0]
+        circle_obs = env.obstacle_list[1]
+
+        # Linestring: same list object returned on second access.
+        segs_a = line_obs.rvo_line_segments
+        segs_b = line_obs.rvo_line_segments
+        assert segs_a is segs_b
+        assert len(segs_a) == 1  # one segment between the two vertices
+
+        # Non-linestring: cached empty list returned on second access.
+        empty_a = circle_obs.rvo_line_segments
+        empty_b = circle_obs.rvo_line_segments
+        assert empty_a is empty_b
+        assert empty_a == []
+        env.end(suppress_summary=True)

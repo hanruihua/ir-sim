@@ -310,7 +310,7 @@ class social_force_model:
 # Standalone sanity check (run: python -m irsim.lib.algorithm.social_force_model)
 # ----------------------------------------------------------------------
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover - standalone sanity demo
     # Two agents approaching head-on along the x axis.
     # Agent A at (0,0) heading +x; Agent B at (4,0.05) heading -x.
     state_a = [0.0, 0.0, 1.0, 0.0, 0.3, 1.0, 0.0, 0.0]
