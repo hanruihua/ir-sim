@@ -35,21 +35,23 @@ msgid "Features:"
 msgstr "新功能："
 
 #: ../../../changelog.md:7
-#, fuzzy
 msgid ""
 "Add simplified 2D FMCW LiDAR sensor with range-and-velocity returns and a"
 " `22fmcw_lidar_world` usage example. ([#293](https://github.com/hanruihua"
 "/ir-sim/pull/293)) (@KevinLADLee)"
 msgstr ""
-"新增 CBF-QP 和碰撞锥使用示例。([#258](https://github.com/hanruihua/ir-sim/pull/258))"
-" (@Lawliet9666)"
+"新增简化的 2D FMCW 激光雷达传感器，提供距离与速度回波，并新增 `22fmcw_lidar_world` 使用示例。"
+"([#293](https://github.com/hanruihua/ir-sim/pull/293)) (@KevinLADLee)"
 
 #: ../../../changelog.md:8
 msgid ""
 "Add Social Force Model (SFM) behavior for `diff` and `omni` kinematics, "
 "ported from [`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros). "
-"([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 msgstr ""
+"为 `diff` 和 `omni` 运动学新增社会力模型（SFM）行为，移植自 "
+"[`pedsim_ros`](https://github.com/srl-freiburg/pedsim_ros)。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 
 #: ../../../changelog.md:10 ../../../changelog.md:33 ../../../changelog.md:68
 #: ../../../changelog.md:86 ../../../changelog.md:109 ../../../changelog.md:145
@@ -58,39 +60,41 @@ msgid "Docs:"
 msgstr "文档："
 
 #: ../../../changelog.md:11
-#, fuzzy
 msgid ""
 "Add release dates to all version headings in `changelog.md`. "
 "([#288](https://github.com/hanruihua/ir-sim/pull/288))"
-msgstr "为 RVO 算法新增线段障碍物支持。([#250](https://github.com/hanruihua/ir-sim/pull/250))"
+msgstr ""
+"为 `changelog.md` 中的所有版本标题添加发布日期。"
+"([#288](https://github.com/hanruihua/ir-sim/pull/288))"
 
 #: ../../../changelog.md:12
-#, fuzzy
 msgid ""
 "Refine the YAML configuration reference and keyboard/mouse control docs "
 "for clarity (en + zh_CN). ([#296](https://github.com/hanruihua/ir-"
 "sim/pull/296))"
 msgstr ""
-"重构并将测试覆盖率从 94% 提升至 97%。([#189](https://github.com/hanruihua/ir-"
-"sim/pull/189))"
+"优化 YAML 配置参考与键盘/鼠标控制文档，使其更清晰（英文 + 中文）。"
+"([#296](https://github.com/hanruihua/ir-sim/pull/296))"
 
 #: ../../../changelog.md:13
-#, fuzzy
 msgid ""
 "Document the `sfm` behavior alongside `rvo` (en + zh_CN). "
-"([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))"
-msgstr "改进自定义行为教程和示例。([#193](https://github.com/hanruihua/ir-sim/pull/193))"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+msgstr ""
+"在 `rvo` 旁边补充 `sfm` 行为的文档（英文 + 中文）。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 
 #: ../../../changelog.md:15 ../../../changelog.md:114
 msgid "Tests:"
 msgstr "测试："
 
 #: ../../../changelog.md:16
-#, fuzzy
 msgid ""
 "Add `tests/test_sfm.py` covering the SFM algorithm and behavior "
-"registration. ([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))"
-msgstr "改进自定义行为教程和示例。([#193](https://github.com/hanruihua/ir-sim/pull/193))"
+"registration. ([#307](https://github.com/hanruihua/ir-sim/pull/307))"
+msgstr ""
+"新增 `tests/test_sfm.py`，覆盖 SFM 算法与行为注册。"
+"([#307](https://github.com/hanruihua/ir-sim/pull/307))"
 
 #: ../../../changelog.md:18
 msgid "2.9.4 (2026-04-21)"

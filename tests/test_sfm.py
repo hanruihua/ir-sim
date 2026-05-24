@@ -574,6 +574,55 @@ class TestReactiveStateCache:
         assert env.done(), "robot must arrive past the linestring wall"
         env.end(suppress_summary=True)
 
+    def test_rvo_line_segments_invalidated_when_linestring_moves(self):
+        """A dynamic linestring obstacle re-transforms its vertices each
+        step; ``rvo_line_segments`` must invalidate so the cached value
+        does not lag behind the actual geometry."""
+        cfg = {
+            "world": {
+                "height": 10,
+                "width": 10,
+                "step_time": 0.1,
+                "sample_time": 0.1,
+                "offset": [-5, -5],
+                "collision_mode": "unobstructed",
+                "control_mode": "auto",
+            },
+            "robot": {
+                "kinematics": {"name": "diff"},
+                "shape": [{"name": "circle", "radius": 0.2}],
+                "state": [-3, -2, 0],
+                "goal": [3, -2, 0],
+                "behavior": {"name": "dash"},
+                "vel_min": [-1, -1],
+                "vel_max": [1, 1],
+            },
+            "obstacle": [
+                {
+                    "kinematics": {"name": "omni"},
+                    "shape": {"name": "linestring", "vertices": [[-1, 0], [1, 0]]},
+                    "state": [0, 0, 0],
+                    "goal": [0, 3, 0],
+                    "behavior": {"name": "dash"},
+                    "vel_max": [1, 1],
+                    "unobstructed": True,
+                },
+            ],
+        }
+        path = _write_temp_yaml(cfg)
+        env = irsim.make(path, save_ani=False, display=False)
+        moving_line = env.obstacle_list[0]
+        before = moving_line.rvo_line_segments
+        before_copy = [list(seg) for seg in before]
+        for _ in range(20):
+            env.step()
+        after = moving_line.rvo_line_segments
+        # Segment endpoints must have translated with the obstacle's motion.
+        assert after != before_copy, (
+            "rvo_line_segments cache went stale after the linestring moved"
+        )
+        env.end(suppress_summary=True)
+
     def test_rvo_line_segments_cached_per_object(self):
         """Linestring obstacles cache vertices once; non-linestrings cache []."""
         cfg = {

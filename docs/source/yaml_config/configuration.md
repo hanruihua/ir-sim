@@ -198,6 +198,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">gamma</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.35</span><span class="yt-desc">interaction range scale</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">n_angular</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">sideways force angular sharpness</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">n_velocity</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">slowdown force angular sharpness</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">safety_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.0</span><span class="yt-desc">personal-space buffer (m) shifting decay closer in</span></div>
         </div>
       </div>
     </div>

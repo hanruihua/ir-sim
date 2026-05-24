@@ -1,7 +1,7 @@
 """Two-robot head-on pass under the Social Force Model.
 
 A minimal stress test showing the Moussaid-Helbing anisotropic swerve:
-the tiny lateral offset (0.1 m) on robot B breaks symmetry and both
+the sub-pixel lateral offset (0.001 m) on robot B breaks symmetry and both
 agents bend their paths to pass each other.
 """
 

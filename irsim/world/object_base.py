@@ -500,6 +500,10 @@ class ObjectBase:
 
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
+            # velocity just got zeroed — invalidate the per-tick caches so
+            # other agents don't perceive a stopped object as still moving.
+            self._velocity_xy_cache = None
+            self._rvo_neighbor_state_cache = None
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
@@ -512,8 +516,14 @@ class ObjectBase:
         self._geometry_valid = shapely.is_valid(self._geometry)
         # state/velocity changed — invalidate per-tick caches used by
         # reactive behaviors (SFM/RVO read these once per neighbour).
+        # ``_rvo_line_segments_cache`` is also cleared because non-static
+        # linestring objects have their vertices re-transformed by
+        # ``gf.step(state)`` on the line above; static objects skip this
+        # whole method (early-return at top), so their segment cache
+        # remains valid for the lifetime of the env.
         self._velocity_xy_cache = None
         self._rvo_neighbor_state_cache = None
+        self._rvo_line_segments_cache = None
 
         if sensor_step:
             self.sensor_step()
@@ -2647,9 +2657,10 @@ class ObjectBase:
             list: List of line segments [[x1, y1, x2, y2], ...] for linestring objects,
                   empty list for other shapes.
         """
-        # Linestring vertices are immutable after construction, so cache once.
-        # Non-linestring objects cache the empty list forever to skip the
-        # shape check on every read.
+        # Per-tick cache: invalidated in ``step()`` so a moving linestring
+        # rebuilds its segments from the freshly transformed vertices on
+        # the next read. Static objects never enter ``step()``, so their
+        # cached segments persist for the lifetime of the env.
         cached = getattr(self, "_rvo_line_segments_cache", None)
         if cached is not None:
             return cached

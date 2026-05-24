@@ -23,7 +23,6 @@ msgid "Configure Sensors for the robot"
 msgstr "为机器人配置传感器"
 
 #: ../../source/usage/configure_sensor.md:3
-#, fuzzy
 msgid ""
 "Robots can carry sensors for environment perception. IR-SIM provides a 2D"
 " LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with "
@@ -31,8 +30,9 @@ msgid ""
 "all are attached per object in the YAML file. This page shows how to "
 "configure them and tune noise."
 msgstr ""
-"机器人可以携带传感器进行环境感知。IR-SIM 目前提供 2D 激光雷达（`lidar2d`）以及可选的视场（FOV）区域；两者都在 YAML "
-"文件中按对象进行配置。本页展示如何配置它们并调节噪声。"
+"机器人可以携带传感器进行环境感知。IR-SIM 提供 2D 激光雷达（`lidar2d`）以及简化的 2D FMCW 激光雷达"
+"（`fmcw_lidar2d`，每条光束附带径向速度），以及可选的视场（FOV）区域；它们都在 YAML 文件中按对象进行配置。"
+"本页展示如何配置它们并调节噪声。"
 
 #: ../../source/usage/configure_sensor.md:5
 msgid "LiDAR Configuration Parameters"
