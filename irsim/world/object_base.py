@@ -1137,9 +1137,13 @@ class ObjectBase:
         Returns:
             list: Names of plot attributes created (e.g., 'object_patch', 'goal_patch').
         """
-        # Apply handler-derived show_arrow default when not explicitly set
+        # Apply handler-derived show_arrow default only when the object is
+        # dynamic (has a kinematics handler and is not flagged static).
+        # Static objects — YAML obstacles without `kinematics:`, kf=None
+        # robots, anything routed through ObjectStatic — default to no arrow.
         if (
             self.kf is not None
+            and not self.static
             and "show_arrow" not in self.plot_kwargs
             and "show_arrow" not in kwargs
         ):
