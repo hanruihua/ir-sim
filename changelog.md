@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.1
+
+- Fix:
+  - Suppress the default velocity arrow on static obstacles by gating the handler-derived `show_arrow` on `not self.static` (regression from v2.9.2's kinematics-handler registry refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))
+
 ## 2.10.0 (2026-05-24)
 
 Minor release adding two new perception/behavior capabilities — the Social Force Model (SFM) for pedestrian-style crowd avoidance and a simplified 2D FMCW LiDAR sensor with per-beam radial velocity.
