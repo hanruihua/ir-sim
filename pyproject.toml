@@ -1,7 +1,7 @@
 [build-system]
 requires = ["setuptools>=61.0",
             ]
-                   
+
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -61,6 +61,7 @@ lint = [
     "black>=25.1.0",
     "ruff>=0.12.8",
     "ty>=0.0.1a17",
+    "bandit[toml]>=1.8.0",
 ]
 test = [
     "pytest>=8.4.1",
@@ -121,12 +122,21 @@ exclude = ["docs", "tests"]
 
 [tool.ty.rules]
 unused-ignore-comment = "warn"
-possibly-unbound-import = "error"
+possibly-missing-import = "error"
 invalid-argument-type = "ignore"
 unresolved-import = "ignore"
 redundant-cast = "ignore"
 unresolved-attribute = "ignore"
-possibly-unbound-attribute = "ignore"
+possibly-missing-attribute = "ignore"
+
+[tool.bandit]
+# Scan the library source only; tests and docs are not shipped.
+exclude_dirs = ["tests", "docs", ".venv"]
+# Skips justified for a simulation library (no security-sensitive context):
+#   B101 assert_used      - asserts guard internal invariants
+#   B311 blacklist        - PRNG is for simulation sampling, not cryptography
+#   B110 try_except_pass  - intentional best-effort cleanup paths
+skips = ["B101", "B311", "B110"]
 
 [project.urls]
 "Homepage" = "https://ir-sim.readthedocs.io/en/stable/"

@@ -14,3 +14,25 @@ jobs:
       - uses: astral-sh/ruff-action@v3
       - run: ruff check
       - run: ruff format --check
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Bandit security scan
+        run: pipx run 'bandit[toml]' -c pyproject.toml -r irsim
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --locked --dev
+      # `ty` is in preview; surface findings without failing the build yet.
+      - name: Run ty type checker
+        run: uv run ty check
+        continue-on-error: true

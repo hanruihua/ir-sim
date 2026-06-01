@@ -64,7 +64,7 @@ class EnvConfig:
 
         if self.world_file_path is not None:
             with open(self.world_file_path) as file:
-                com_list = yaml.load(file, Loader=yaml.FullLoader)
+                com_list = yaml.safe_load(file)
 
                 for key in com_list:
                     if key in self._kwargs_parse:
