@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 18:26+0800\n"
+"POT-Creation-Date: 2026-06-02 17:25+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -18,224 +18,207 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:138
+#: ../../source/index.rst:190
 msgid "Getting Started"
 msgstr "快速开始"
 
-#: ../../source/index.rst:138
+#: ../../source/index.rst:190
 msgid "User Guide"
 msgstr "用户指南"
 
-#: ../../source/index.rst:138
+#: ../../source/index.rst:190
 msgid "Configuration"
 msgstr "配置"
 
-#: ../../source/index.rst:138
+#: ../../source/index.rst:190
 msgid "API Reference"
 msgstr "API 参考"
 
-#: ../../source/index.rst:138
+#: ../../source/index.rst:190
 msgid "Documentation"
 msgstr "文档"
 
-#: ../../source/index.rst:148
+#: ../../source/index.rst:200
 msgid "Contributing"
 msgstr "贡献指南"
 
-#: ../../source/index.rst:148
+#: ../../source/index.rst:200
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../source/index.rst:148
+#: ../../source/index.rst:200
+msgid "About Us"
+msgstr "关于我们"
+
+#: ../../source/index.rst:200
 msgid "Development"
 msgstr "开发"
 
-#: ../../source/index.rst:8
+#: ../../source/index.rst:10
 msgid "Welcome to IR-SIM's documentation!"
 msgstr "欢迎查阅 IR-SIM 文档！"
 
-#: ../../source/index.rst:10
+#: ../../source/index.rst:12
 msgid ""
-"**IR-SIM** is an open-source, Python-based, lightweight robot simulator "
-"designed for navigation, control, and learning. It provides a simple, "
-"user-friendly framework with built-in collision detection for modeling "
-"robots, sensors, and environments. Ideal for academic and educational "
-"use, IR-SIM enables rapid prototyping of robotics and AI algorithms in "
-"custom scenarios with minimal coding and hardware requirements."
+"**IR-SIM** is an open-source, lightweight Python robot simulator for "
+"navigation, control, and learning. It pairs a simple, user-friendly "
+"framework with built-in collision detection for modeling robots, sensors,"
+" and environments — so you can prototype robotics and AI algorithms in "
+"custom scenarios with minimal code and hardware."
 msgstr ""
-"\"\"IR-SIM\"\" 是一款开源、基于 Python "
-"的轻量级机器人仿真器，面向导航、控制与学习场景。它提供简单易用的框架，并内置碰撞检测，用于建模机器人、传感器与环境。IR-SIM "
-"非常适合科研与教学，可在自定义场景下以最少的编码与硬件需求，快速构建机器人与 AI 算法的原型。"
+"**IR-SIM** 是一款开源、轻量级的 Python "
+"机器人仿真器，面向导航、控制与学习。它将简单易用的框架与内置碰撞检测相结合，用于建模机器人、传感器与环境——让你以最少的代码与硬件，在自定义场景中快速构建机器人与"
+" AI 算法的原型。"
 
-#: ../../source/index.rst:15
-msgid "🚀 Quick Start"
-msgstr "🚀 快速开始"
+#: ../../source/index.rst:18
+msgid "🚀 Get Started"
+msgstr "🚀 开始使用"
 
-#: ../../source/index.rst:20
-msgid "Get up and running with IR-SIM in minutes"
-msgstr "几分钟内即可运行 IR-SIM"
-
-#: ../../source/index.rst:22
+#: ../../source/index.rst:24
 msgid "📚 User Guide"
 msgstr "📚 用户指南"
-
-#: ../../source/index.rst:27
-msgid "Learn how to use IR-SIM effectively"
-msgstr "学习如何高效使用 IR-SIM"
 
 #: ../../source/index.rst:29
 msgid "⚙️ Configuration"
 msgstr "⚙️ 配置"
 
 #: ../../source/index.rst:34
-msgid "YAML configuration syntax and examples"
-msgstr "YAML 配置语法与示例"
-
-#: ../../source/index.rst:36
 msgid "🔧 API Reference"
 msgstr "🔧 API 参考"
 
-#: ../../source/index.rst:41
-msgid "Complete API documentation"
-msgstr "完整的 API 文档"
+#: ../../source/index.rst:39
+msgid "⭐ GitHub"
+msgstr "⭐ GitHub"
 
-#: ../../source/index.rst:43
-msgid "📋 Changelog"
-msgstr "📋 更新日志"
+#: ../../source/index.rst:44
+msgid "See IR-SIM in action"
+msgstr "实际运行效果"
 
-#: ../../source/index.rst:48
-msgid "Version history and release notes"
-msgstr "版本历史与发布说明"
+#: ../../source/index.rst:53 ../../source/index.rst:58
+msgid "Multi-robot collision avoidance"
+msgstr "多机器人避障"
 
-#: ../../source/index.rst:50
-msgid "🤝 Contributing"
-msgstr "🤝 贡献指南"
+#: ../../source/index.rst:64 ../../source/index.rst:69
+msgid "Navigation in Grid World"
+msgstr "网格世界导航"
 
-#: ../../source/index.rst:55
-msgid "Guide for contributors"
-msgstr ""
+#: ../../source/index.rst:75 ../../source/index.rst:80
+msgid "Sensor visualization"
+msgstr "传感器可视化"
 
-#: ../../source/index.rst:61
+#: ../../source/index.rst:86 ../../source/index.rst:91
+msgid "Dynamic environment simulation"
+msgstr "动态环境仿真"
+
+#: ../../source/index.rst:97 ../../source/index.rst:102
+msgid "3D habitat spaces"
+msgstr "三维栖息空间"
+
+#: ../../source/index.rst:108 ../../source/index.rst:113
+msgid "Mouse control"
+msgstr "鼠标控制"
+
+#: ../../source/index.rst:116
 msgid "Key Features"
 msgstr "核心特性"
 
-#: ../../source/index.rst:63
+#: ../../source/index.rst:118
 msgid ""
 "Simulate a wide range of robot platforms with diverse kinematics, "
 "sensors, and behaviors"
 msgstr "可仿真多种机器人平台，覆盖丰富的运动学模型、传感器与行为"
 
-#: ../../source/index.rst:64
+#: ../../source/index.rst:119
 msgid ""
 "Quickly configure and customize simulation scenarios using "
 "straightforward YAML files, with no complex coding required"
 msgstr "借助简洁的 YAML 文件即可快速配置与自定义仿真场景，无需复杂编码"
 
-#: ../../source/index.rst:65
+#: ../../source/index.rst:120
 msgid ""
 "Visualize simulation outcomes in real time for immediate feedback and "
 "analysis using matplotlib"
 msgstr "通过 matplotlib 实时可视化仿真结果，获得即时反馈与分析"
 
-#: ../../source/index.rst:66
+#: ../../source/index.rst:121
 msgid ""
 "Support collision detection and behavior control for each object in the "
 "simulation"
 msgstr "支持每个仿真对象的碰撞检测与行为控制"
 
-#: ../../source/index.rst:74 ../../source/index.rst:79
-msgid "Multi-robot collision avoidance"
-msgstr "多机器人避障"
+#: ../../source/index.rst:124
+msgid "Installation"
+msgstr "安装"
 
-#: ../../source/index.rst:85 ../../source/index.rst:90
-msgid "Navigation in Grid World"
-msgstr "网格世界导航"
+#: ../../source/index.rst:126
+msgid "Install the latest release from PyPI:"
+msgstr "从 PyPI 安装最新版本："
 
-#: ../../source/index.rst:96 ../../source/index.rst:101
-msgid "Sensor visualization"
-msgstr "传感器可视化"
+#: ../../source/index.rst:132
+msgid "Prefer conda or uv? Pick your installation method:"
+msgstr "更喜欢 conda 或 uv？选择你的安装方式："
 
-#: ../../source/index.rst:107 ../../source/index.rst:112
-msgid "Dynamic environment simulation"
-msgstr "动态环境仿真"
-
-#: ../../source/index.rst:118 ../../source/index.rst:123
-msgid "3D habitat spaces"
-msgstr "三维栖息空间"
-
-#: ../../source/index.rst:129 ../../source/index.rst:134
-msgid "Mouse control"
-msgstr "鼠标控制"
-
-#: ../../source/index.rst:159
-msgid "Get Started"
-msgstr "开始使用"
-
-#: ../../source/index.rst:161
-msgid "Ready to start using IR-SIM? Choose your preferred installation method:"
-msgstr "准备开始使用 IR-SIM 了吗？请选择你喜欢的安装方式："
-
-#: ../../source/index.rst:171
+#: ../../source/index.rst:142
 msgid ":bdg-success:`Recommended`"
 msgstr ":bdg-success:`推荐`"
 
-#: ../../source/index.rst:165
+#: ../../source/index.rst:136
 msgid "📦 pip"
 msgstr "📦 pip"
 
-#: ../../source/index.rst:175
+#: ../../source/index.rst:146
 msgid "Quick installation with pip"
 msgstr "使用 pip 快速安装"
 
-#: ../../source/index.rst:183
+#: ../../source/index.rst:154
 msgid ":bdg-info:`Popular`"
 msgstr ":bdg-info:`热门`"
 
-#: ../../source/index.rst:177
+#: ../../source/index.rst:148
 msgid "🐍 conda"
 msgstr "🐍 conda"
 
-#: ../../source/index.rst:187
+#: ../../source/index.rst:158
 msgid "Installation in conda environment"
 msgstr "在 conda 环境中安装"
 
-#: ../../source/index.rst:195
+#: ../../source/index.rst:166
 msgid ":bdg-warning:`Fast`"
 msgstr ":bdg-warning:`极速`"
 
-#: ../../source/index.rst:189
+#: ../../source/index.rst:160
 msgid "⚡ uv"
 msgstr "⚡ uv"
 
-#: ../../source/index.rst:199
+#: ../../source/index.rst:170
 msgid "Lightning-fast installation"
 msgstr "闪电般的安装速度"
 
-#: ../../source/index.rst:204
+#: ../../source/index.rst:173
 msgid "Projects using IR-SIM"
 msgstr "基于 IR-SIM 的项目"
 
-#: ../../source/index.rst:208
+#: ../../source/index.rst:177
 msgid "Academic projects"
 msgstr "科研项目"
 
-#: ../../source/index.rst:211
+#: ../../source/index.rst:180
 msgid "`rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_"
 msgstr "`rl-rvo-nav（RAL & ICRA2023） <https://github.com/hanruihua/rl_rvo_nav>`_"
 
-#: ../../source/index.rst:212
+#: ../../source/index.rst:181
 msgid "`RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_"
 msgstr "`RDA_planner（RAL & IROS2023） <https://github.com/hanruihua/RDA_planner>`_"
 
-#: ../../source/index.rst:213
+#: ../../source/index.rst:182
 msgid "`NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_"
 msgstr "`NeuPAN（T-RO 2025） <https://github.com/hanruihua/NeuPAN>`_"
 
-#: ../../source/index.rst:215
+#: ../../source/index.rst:184
 msgid "Deep Reinforcement Learning Projects"
 msgstr "深度强化学习项目"
 
-#: ../../source/index.rst:218
+#: ../../source/index.rst:187
 msgid ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_"
@@ -243,7 +226,7 @@ msgstr ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_"
 
-#: ../../source/index.rst:219
+#: ../../source/index.rst:188
 msgid "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_"
 msgstr "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_"
 
@@ -258,4 +241,37 @@ msgstr "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_"
 
 #~ msgid "API Reference:"
 #~ msgstr "API 参考："
+
+#~ msgid "🚀 Quick Start"
+#~ msgstr "🚀 快速开始"
+
+#~ msgid "Get up and running with IR-SIM in minutes"
+#~ msgstr "几分钟内即可运行 IR-SIM"
+
+#~ msgid "📚 User Guide"
+#~ msgstr "📚 用户指南"
+
+#~ msgid "Learn how to use IR-SIM effectively"
+#~ msgstr "学习如何高效使用 IR-SIM"
+
+#~ msgid "YAML configuration syntax and examples"
+#~ msgstr "YAML 配置语法与示例"
+
+#~ msgid "Complete API documentation"
+#~ msgstr "完整的 API 文档"
+
+#~ msgid "📋 Changelog"
+#~ msgstr "📋 更新日志"
+
+#~ msgid "Version history and release notes"
+#~ msgstr "版本历史与发布说明"
+
+#~ msgid "🤝 Contributing"
+#~ msgstr "🤝 贡献指南"
+
+#~ msgid "Guide for contributors"
+#~ msgstr ""
+
+#~ msgid "Ready to start using IR-SIM? Choose your preferred installation method:"
+#~ msgstr "准备开始使用 IR-SIM 了吗？请选择你喜欢的安装方式："
 

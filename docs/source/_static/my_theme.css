@@ -135,6 +135,79 @@ html[data-theme="dark"] {
     max-width: 100rem;
     padding-inline: 1.5rem;
 }
+/* ============================================================
+   Landing page (the Welcome page drops the right "On this page"
+   TOC, so we key off its absence). Goal: a wide, generous shell
+   for cards/images, but prose kept at a comfortable reading
+   measure. Layout (sidebar, page width) stays default.
+   ============================================================ */
+/* Narrow the nav sidebar so the main text gets more room, and
+   mirror it with equal phantom space on the right so the content
+   block is centered in the FULL window, not just the post-sidebar
+   area (desktop only — mobile keeps its overlay drawer). */
+@media (min-width: 960px) {
+    .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-sidebar-primary {
+        width: 15rem;
+        flex: 0 0 15rem;
+    }
+    .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-content {
+        padding-right: 15rem;
+    }
+}
+/* Centered content block: cap the article column and center it
+   in the available space so there's balanced whitespace on both
+   sides (not flush-left, not edge-to-edge). Text stays
+   left-aligned within the block. */
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article-container {
+    max-width: 94rem;
+    margin-inline: auto;
+}
+/* Measured prose: paragraphs and bullet lists stay readable
+   (~72ch) even though the shell is wide. Card text lives in
+   .sd-card-body (not a <section>), so it's untouched. */
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article section > p,
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article section > ul,
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article section > ol {
+    max-width: 72ch;
+}
+/* Lead paragraph: the intro right under the H1 reads as a
+   standfirst — larger, lighter, a touch wider. */
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article > section > p:first-of-type {
+    max-width: 80ch;
+    font-size: 1.18rem;
+    line-height: 1.55;
+    color: var(--pst-color-text-muted);
+}
+/* Hero CTA row: compact, button-like link cards. Cards survive
+   i18n translation where sphinx-design button directives don't
+   (a translated button label re-parses and drops its wrapper),
+   so this keeps the EN and ZH hero identical. */
+.bd-article .hero-cta {
+    margin: 1rem 0 0.4rem;
+    max-width: 80rem;
+}
+.bd-article .hero-cta .sd-card {
+    border-radius: 8px;
+}
+.bd-article .hero-cta .sd-card-body {
+    padding: 0.5rem 0.85rem;
+}
+.bd-article .hero-cta .sd-card-title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+/* primary action: accent-filled (override pydata's
+   .sd-sphinx-override card background). */
+.bd-article .hero-cta .sd-card.hero-cta-primary,
+.bd-article .hero-cta .sd-card.hero-cta-primary .sd-card-body {
+    background-color: var(--site-accent);
+    border-color: var(--site-accent);
+}
+.bd-article .hero-cta .sd-card.hero-cta-primary .sd-card-title {
+    color: #fff;
+}
 /* Align the brand title's left edge with the left sidebar's
    content column: page-width inset (3rem) + sidebar pad (1rem)
    = 4rem; header inner pad is 1.5rem, so offset the brand by
@@ -172,11 +245,16 @@ html[data-theme="dark"] {
     padding: 0.05rem 0.25rem;
     font-size: 0.72rem;
 }
-/* Tight control cluster: version + language + text-size flow
-   together on a line or two (instead of tall stacked blocks
-   with dividers), with a single divider before the nav. */
+/* Control cluster: version and language switchers stack
+   vertically (each on its own row), and the text-size switcher
+   flows inline below them, with a single divider before the nav. */
 .bd-sidebar-primary .sidebar-primary-item:has(.version-switcher__container),
-.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle),
+.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle) {
+    display: flex;
+    width: auto;
+    margin: 0 0 0.4rem 0;
+    padding: 0;
+}
 .bd-sidebar-primary .sidebar-primary-item:has(.irsim-fontsize) {
     display: inline-flex;
     width: auto;
@@ -205,6 +283,26 @@ html[data-theme="dark"] {
     margin-top: 0.35rem;
     padding-top: 0.7rem;
     border-top: 1px solid var(--pst-color-border);
+}
+
+/* ---- contributor avatar grid (About Us) ---- */
+.bd-article .contributor-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 1rem 0 1.2rem;
+}
+.bd-article .contributor-grid a { line-height: 0; }
+.bd-article .contributor-grid img {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--pst-color-border);
+    transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.bd-article .contributor-grid a:hover img {
+    transform: scale(1.08);
+    border-color: var(--site-accent);
 }
 
 /* ============================================================
