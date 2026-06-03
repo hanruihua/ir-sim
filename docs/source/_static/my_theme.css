@@ -245,20 +245,17 @@ html[data-theme="dark"] {
     padding: 0.05rem 0.25rem;
     font-size: 0.72rem;
 }
-/* Control cluster: version and language switchers stack
-   vertically (each on its own row), and the text-size switcher
-   flows inline below them, with a single divider before the nav. */
+/* Control cluster: version switcher, language toggle and text-size
+   switcher all flow inline (side by side) on one row, with a single
+   divider before the nav. */
 .bd-sidebar-primary .sidebar-primary-item:has(.version-switcher__container),
-.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle) {
-    display: flex;
-    width: auto;
-    margin: 0 0 0.4rem 0;
-    padding: 0;
-}
+.bd-sidebar-primary .sidebar-primary-item:has(#irsim-lang-toggle),
 .bd-sidebar-primary .sidebar-primary-item:has(.irsim-fontsize) {
     display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
     width: auto;
-    margin: 0 0.4rem 0.4rem 0;
+    margin: 0 0.25rem 0.4rem 0;
     padding: 0;
 }
 .bd-sidebar-primary .version-switcher__container { margin: 0; }
@@ -271,11 +268,16 @@ html[data-theme="dark"] {
 .bd-sidebar-primary .version-switcher__button,
 .bd-sidebar-primary #irsim-lang-toggle {
     width: auto;
+    height: 1.7rem;
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.78rem;
-    padding: 0.2rem 0.5rem;
+    justify-content: center;
+    gap: 0.2rem;
+    font-size: 0.72rem;
+    line-height: 1;
+    padding: 0 0.45rem;
+    white-space: nowrap;
 }
 .bd-sidebar-primary li.nav-item.dropdown .dropdown-menu { font-size: 0.8rem; }
 /* one clean divider between the control cluster and the nav */
