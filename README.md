@@ -160,6 +160,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 
 - [DRL-robot-navigation-IR-SIM](https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM) -- Deep reinforcement learning for robot navigation.
 - [AutoNavRL](https://github.com/harshmahesheka/AutoNavRL) -- Autonomous navigation using reinforcement learning.
+- [IRSIM-3DGS-Bridge](https://github.com/Wayneyujie/IRSIM-3DGS-Bridge) -- A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
 
 ## Contributing
 
@@ -172,4 +173,3 @@ Contributions are welcome! Please see [CONTRIBUTING.md](https://github.com/hanru
 ## License
 
 IR-SIM is released under the [MIT License](https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file).
-

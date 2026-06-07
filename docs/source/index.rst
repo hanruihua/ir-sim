@@ -217,3 +217,4 @@ Projects using IR-SIM
 
         * `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_
         * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_
+        * `IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and Habitat-GS trajectory playback.
