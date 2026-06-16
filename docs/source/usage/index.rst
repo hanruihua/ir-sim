@@ -52,14 +52,14 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
 
         Drive and interact with robots by keyboard or mouse.
 
-    .. grid-item-card:: Save animation
-        :img-top: gif/save_ani.gif
-        :link: save_animation
+    .. grid-item-card:: Social Force Model
+        :img-top: gif/sfm_world.gif
+        :link: configure_behavior
         :link-type: doc
         :text-align: center
         :shadow: md
 
-        Export a run as a GIF or video, and render 3D plots.
+        Pedestrian-style crowd navigation with the Social Force Model.
 
     .. grid-item-card:: Grid maps
         :img-top: gif/grid_map.gif

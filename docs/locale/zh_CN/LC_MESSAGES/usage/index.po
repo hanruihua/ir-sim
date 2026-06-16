@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-17 02:04+0800\n"
+"POT-Creation-Date: 2026-06-17 02:11+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -77,12 +77,12 @@ msgid "Drive and interact with robots by keyboard or mouse."
 msgstr "通过键盘或鼠标驱动机器人并进行交互。"
 
 #: ../../source/usage/index.rst:55
-msgid "Save animation"
-msgstr "保存动画"
+msgid "Social Force Model"
+msgstr "社会力模型"
 
 #: ../../source/usage/index.rst:62
-msgid "Export a run as a GIF or video, and render 3D plots."
-msgstr "将运行结果导出为 GIF 或视频，并渲染三维图。"
+msgid "Pedestrian-style crowd navigation with the Social Force Model."
+msgstr "基于社会力模型（SFM）的行人式人群导航。"
 
 #: ../../source/usage/index.rst:64
 msgid "Grid maps"
@@ -111,3 +111,9 @@ msgstr "每次运行都生成随机的动态障碍物。"
 #: ../../source/usage/index.rst:92
 msgid "Contents"
 msgstr "目录"
+
+#~ msgid "Save animation"
+#~ msgstr "保存动画"
+
+#~ msgid "Export a run as a GIF or video, and render 3D plots."
+#~ msgstr "将运行结果导出为 GIF 或视频，并渲染三维图。"
