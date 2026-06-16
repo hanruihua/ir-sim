@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 19:55+0800\n"
+"POT-Creation-Date: 2026-06-17 00:55+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -24,52 +24,69 @@ msgstr "快速开始"
 
 #: ../../source/get_started/quick_start.md:3
 msgid ""
-"To quickly start the simulation, you can use the following code snippet to "
-"run a simulation for a robot in a world."
-msgstr "若想快速启动仿真，可使用以下代码片段在世界中运行一个机器人。"
+"[![Open In Colab](https://colab.research.google.com/assets/colab-"
+"badge.svg)](https://colab.research.google.com/github/hanruihua/ir-"
+"sim/blob/main/notebooks/quickstart.ipynb)"
+msgstr ""
+"[![Open In Colab](https://colab.research.google.com/assets/colab-"
+"badge.svg)](https://colab.research.google.com/github/hanruihua/ir-"
+"sim/blob/main/notebooks/quickstart.ipynb)"
+
+#: ../../source/get_started/quick_start.md:3
+msgid "Open In Colab"
+msgstr "在 Colab 中打开"
 
 #: ../../source/get_started/quick_start.md:5
+msgid ""
+"Want to try IR-SIM without installing anything? Open the notebook above in "
+"Google Colab. Otherwise, the snippet below runs a simulation for a robot in "
+"a world."
+msgstr ""
+"想在不安装任何东西的情况下试用 IR-SIM？在上方的 Google Colab 中打开该 notebook "
+"即可。否则，下面的代码片段会在一个世界中运行一个机器人的仿真。"
+
+#: ../../source/get_started/quick_start.md:7
 msgid ""
 "Create a Python file and copy the following code snippet to run the "
 "simulation."
 msgstr "创建一个 Python 文件并复制下面的代码片段即可运行仿真。"
 
-#: ../../source/get_started/quick_start.md:23
+#: ../../source/get_started/quick_start.md:25
 msgid ""
 "Create a configuration YAML file *robot_world.yaml* and copy the following "
 "configuration to the file."
 msgstr "创建配置文件 *robot_world.yaml*，并将以下配置复制到该文件中。"
 
-#: ../../source/get_started/quick_start.md:25
+#: ../../source/get_started/quick_start.md:27
 msgid ""
 "All the configurations are set in the YAML file. You can change the "
 "configurations in the YAML file to customize the simulation. The following "
 "is an example of the configuration file *robot_world.yaml*."
 msgstr "所有配置都写在该 YAML 文件中，你可以通过修改这些配置来自定义仿真。下面是 *robot_world.yaml* 的示例。"
 
-#: ../../source/get_started/quick_start.md:44
+#: ../../source/get_started/quick_start.md:46
 msgid ""
 "Run the script and a window opens showing the differential-drive robot "
 "navigating from its start to the goal:"
 msgstr "运行脚本后会弹出一个窗口，显示差速驱动机器人从起点导航到目标："
 
-#: ../../source/get_started/quick_start.md:46
+#: ../../source/get_started/quick_start.md:48
 msgid ""
 "Quick-start simulation — a differential-drive robot navigating to its goal"
 msgstr "快速开始仿真 —— 差速驱动机器人导航到目标"
 
-#: ../../source/get_started/quick_start.md:52
+#: ../../source/get_started/quick_start.md:54
 msgid "Next steps"
 msgstr "后续步骤"
 
-#: ../../source/get_started/quick_start.md:54
+#: ../../source/get_started/quick_start.md:56
 msgid ""
 "[Make Environment](../usage/make_environment.md) — the simulation loop, "
 "status control, and dynamic objects in depth."
 msgstr ""
 "[Make Environment](../usage/make_environment.md) —— 深入了解仿真循环、状态控制和动态对象。"
 
-#: ../../source/get_started/quick_start.md:55
+#: ../../source/get_started/quick_start.md:57
 msgid ""
 "[Configure robots and obstacles](../usage/configure_robots_obstacles.md) — "
 "kinematics, shapes, and multi-object scenes."
@@ -77,10 +94,15 @@ msgstr ""
 "[Configure robots and obstacles](../usage/configure_robots_obstacles.md) —— "
 "运动学、形状和多对象场景。"
 
-#: ../../source/get_started/quick_start.md:56
+#: ../../source/get_started/quick_start.md:58
 msgid ""
 "[YAML Configuration](../yaml_config/configuration.md) — the full "
 "configuration reference with an interactive schema explorer."
 msgstr ""
 "[YAML Configuration](../yaml_config/configuration.md) —— 完整的配置参考，附带交互式 "
 "schema 浏览器。"
+
+#~ msgid ""
+#~ "To quickly start the simulation, you can use the following code snippet to "
+#~ "run a simulation for a robot in a world."
+#~ msgstr "若想快速启动仿真，可使用以下代码片段在世界中运行一个机器人。"

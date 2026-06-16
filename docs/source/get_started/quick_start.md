@@ -1,6 +1,8 @@
 # Quick Start
 
-To quickly start the simulation, you can use the following code snippet to run a simulation for a robot in a world.
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/hanruihua/ir-sim/blob/main/notebooks/quickstart.ipynb)
+
+Want to try IR-SIM without installing anything? Open the notebook above in Google Colab. Otherwise, the snippet below runs a simulation for a robot in a world.
 
 1. Create a Python file and copy the following code snippet to run the simulation.
 
