@@ -237,6 +237,20 @@ Projects using IR-SIM
         * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - Autonomous navigation using reinforcement learning.
         * `IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
 
+Citation
+========
+
+If you find IR-SIM useful, please consider starring ⭐ the project on GitHub and citing our paper:
+
+.. code-block:: bibtex
+
+    @article{han2026ir,
+      title={IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking},
+      author={Han, Ruihua and Wang, Shuai and Li, Chengyang and Gao, Rui and Wang, Xinyi and Liu, Zhe and Li, Guoliang and Lu, Yupu and Hao, Qi and Pan, Jia and others},
+      journal={arXiv preprint arXiv:2606.08729},
+      year={2026}
+    }
+
 .. toctree::
    :maxdepth: 2
    :caption: Documentation
