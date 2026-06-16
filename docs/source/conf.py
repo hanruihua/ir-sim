@@ -68,10 +68,11 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "myst_parser",
-    "sphinx_multiversion",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinxext.opengraph",
+    "sphinx_sitemap",
 ]
 
 ENABLE_AUTOAPI = True
@@ -268,7 +269,33 @@ html_theme_options = {
     "show_toc_level": 3,  # Shows headings up to level 2 by default
     # Add search button to navbar
     "navbar_persistent": ["search-button"],
+    # To enable web analytics, drop in your GA4 or Plausible id (pydata theme):
+    # "analytics": {"google_analytics_id": "G-XXXXXXXXXX"},
 }
+
+# -- SEO and social sharing --------------------------------------------------
+# Canonical base URL of the published docs (Read the Docs, stable English).
+# Required for <link rel="canonical">, the sitemap, and Open Graph cards.
+html_baseurl = "https://ir-sim.readthedocs.io/en/stable/"
+
+# sphinx-sitemap: emit sitemap.xml so search engines can index the docs.
+sitemap_url_scheme = "{link}"
+
+# sphinxext-opengraph: rich link-preview cards when the docs are shared on
+# social/chat platforms (X, Slack, Reddit, LinkedIn, ...).
+ogp_site_url = "https://ir-sim.readthedocs.io/en/stable/"
+ogp_enable_meta_description = True
+ogp_description_length = 200
+# Fallback preview image (the signature multi-robot RVO demo) used on pages
+# whose first image is externally hosted — most importantly the landing page.
+ogp_image = "https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b"
+# Prefer each page's own first image as its preview card when one is available
+# (guide pages with local gifs); otherwise fall back to `ogp_image` above.
+ogp_use_first_image = True
+# NOTE: auto-generated `ogp_social_cards` is intentionally left off — its card
+# renderer ships only a Latin font, so Chinese (zh_CN) page titles render as
+# tofu. To get branded image cards, bundle a CJK font for the card renderer or
+# set a static `ogp_image` banner.
 
 
 def setup(app):

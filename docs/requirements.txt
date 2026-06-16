@@ -1,7 +1,6 @@
 sphinx
 sphinx_rtd_theme
 sphinx-autodoc-typehints
-sphinx_multiversion
 myst_parser
 importlib-metadata
 sphinx_copybutton
@@ -11,3 +10,5 @@ sphinx_design
 sphinx_inline_tabs
 sphinx-autoapi
 sphinx-intl
+sphinxext-opengraph
+sphinx-sitemap

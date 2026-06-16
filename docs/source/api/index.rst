@@ -7,6 +7,7 @@ Welcome to the IR-SIM API Reference. This section provides detailed documentatio
    :maxdepth: 1
    :caption: API Documentation
 
+   Overview (irsim.make, EnvBase) <irsim/index>
    irsim/env/index
    irsim/world/index
    irsim/lib/index
