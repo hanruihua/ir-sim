@@ -1,10 +1,10 @@
 User Guide
 ===============
 
-Practical, task-focused guides for building and running IR-SIM scenarios. Browse the highlights below, or use the sidebar for the full list.
+Practical, task-focused guides for building and running IR-SIM scenarios. Browse the highlights below, or jump to any page from the contents.
 
-.. grid:: 1 2 2 3
-    :gutter: 3
+.. grid:: 2 3 3 3
+    :gutter: 2
     :class-container: usage-gallery
 
     .. grid-item-card:: Make environment
@@ -34,6 +34,15 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
 
         Attach 2D LiDAR, FMCW LiDAR, and field-of-view detectors.
 
+    .. grid-item-card:: Behaviors
+        :img-top: gif/rvo.gif
+        :link: configure_behavior
+        :link-type: doc
+        :text-align: center
+        :shadow: md
+
+        dash, RVO, ORCA, and Social Force Model behaviors.
+
     .. grid-item-card:: Keyboard & mouse
         :img-top: gif/keyboard.gif
         :link: configure_keyboard_Mouse_control
@@ -52,15 +61,6 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
 
         Export a run as a GIF or video, and render 3D plots.
 
-    .. grid-item-card:: Behaviors
-        :img-top: gif/rvo.gif
-        :link: configure_behavior
-        :link-type: doc
-        :text-align: center
-        :shadow: md
-
-        dash, RVO, ORCA, and Social Force Model behaviors.
-
     .. grid-item-card:: Grid maps
         :img-top: gif/grid_map.gif
         :link: configure_grid_map
@@ -69,6 +69,15 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
         :shadow: md
 
         Build occupancy grids from images or Perlin noise.
+
+    .. grid-item-card:: Path planning
+        :img-top: gif/path_planning.png
+        :link: configure_path_planning
+        :link-type: doc
+        :text-align: center
+        :shadow: md
+
+        Plan collision-free paths with A*, JPS, RRT, RRT*, and PRM.
 
     .. grid-item-card:: Dynamic scenes
         :img-top: gif/random_obstacles.gif
@@ -79,10 +88,12 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
 
         Spawn randomized dynamic obstacles on every run.
 
+Contents
+--------
+
 .. toctree::
    :maxdepth: 2
    :caption: Basic Usage
-   :hidden:
 
    make_environment
    configure_robots_obstacles
@@ -93,7 +104,6 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
 .. toctree::
    :maxdepth: 2
    :caption: Advanced Usage
-   :hidden:
 
    multiple_environments
    configure_behavior

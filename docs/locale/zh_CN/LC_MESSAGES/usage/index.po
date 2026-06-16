@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 20:08+0800\n"
+"POT-Creation-Date: 2026-06-17 02:04+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/usage/index.rst:82
+#: ../../source/usage/index.rst:94
 msgid "Basic Usage"
 msgstr "基础用法"
 
-#: ../../source/usage/index.rst:93
+#: ../../source/usage/index.rst:104
 msgid "Advanced Usage"
 msgstr "进阶用法"
 
@@ -33,8 +33,8 @@ msgstr "用户指南"
 #: ../../source/usage/index.rst:4
 msgid ""
 "Practical, task-focused guides for building and running IR-SIM scenarios. "
-"Browse the highlights below, or use the sidebar for the full list."
-msgstr "面向实际任务的指南，帮助你构建并运行 IR-SIM 场景。可浏览下方亮点，或使用侧边栏查看完整列表。"
+"Browse the highlights below, or jump to any page from the contents."
+msgstr "面向实际任务的指南，帮助你构建并运行 IR-SIM 场景。可浏览下方亮点，或从目录跳转到任意页面。"
 
 #: ../../source/usage/index.rst:10
 msgid "Make environment"
@@ -61,28 +61,28 @@ msgid "Attach 2D LiDAR, FMCW LiDAR, and field-of-view detectors."
 msgstr "挂载 2D 激光雷达、FMCW 激光雷达与视场（FOV）检测器。"
 
 #: ../../source/usage/index.rst:37
-msgid "Keyboard & mouse"
-msgstr "键盘与鼠标"
-
-#: ../../source/usage/index.rst:44
-msgid "Drive and interact with robots by keyboard or mouse."
-msgstr "通过键盘或鼠标驱动机器人并进行交互。"
-
-#: ../../source/usage/index.rst:46
-msgid "Save animation"
-msgstr "保存动画"
-
-#: ../../source/usage/index.rst:53
-msgid "Export a run as a GIF or video, and render 3D plots."
-msgstr "将运行结果导出为 GIF 或视频，并渲染三维图。"
-
-#: ../../source/usage/index.rst:55
 msgid "Behaviors"
 msgstr "行为"
 
-#: ../../source/usage/index.rst:62
+#: ../../source/usage/index.rst:44
 msgid "dash, RVO, ORCA, and Social Force Model behaviors."
 msgstr "dash、RVO、ORCA 与社会力模型（SFM）行为。"
+
+#: ../../source/usage/index.rst:46
+msgid "Keyboard & mouse"
+msgstr "键盘与鼠标"
+
+#: ../../source/usage/index.rst:53
+msgid "Drive and interact with robots by keyboard or mouse."
+msgstr "通过键盘或鼠标驱动机器人并进行交互。"
+
+#: ../../source/usage/index.rst:55
+msgid "Save animation"
+msgstr "保存动画"
+
+#: ../../source/usage/index.rst:62
+msgid "Export a run as a GIF or video, and render 3D plots."
+msgstr "将运行结果导出为 GIF 或视频，并渲染三维图。"
 
 #: ../../source/usage/index.rst:64
 msgid "Grid maps"
@@ -93,9 +93,21 @@ msgid "Build occupancy grids from images or Perlin noise."
 msgstr "基于图像或 Perlin 噪声构建占据栅格。"
 
 #: ../../source/usage/index.rst:73
+msgid "Path planning"
+msgstr "路径规划"
+
+#: ../../source/usage/index.rst:80
+msgid "Plan collision-free paths with A*, JPS, RRT, RRT*, and PRM."
+msgstr "用 A*、JPS、RRT、RRT*、PRM 规划无碰撞路径。"
+
+#: ../../source/usage/index.rst:82
 msgid "Dynamic scenes"
 msgstr "动态场景"
 
-#: ../../source/usage/index.rst:80
+#: ../../source/usage/index.rst:89
 msgid "Spawn randomized dynamic obstacles on every run."
 msgstr "每次运行都生成随机的动态障碍物。"
+
+#: ../../source/usage/index.rst:92
+msgid "Contents"
+msgstr "目录"
