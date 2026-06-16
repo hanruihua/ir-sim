@@ -77,6 +77,12 @@ extensions = [
 
 ENABLE_AUTOAPI = True
 
+# Render Google-style "Attributes:" sections as :ivar: fields instead of
+# standalone ".. attribute::" directives. The latter collide with the members
+# AutoAPI documents for the same class, producing "duplicate object
+# description" warnings; :ivar: keeps the descriptions without a second target.
+napoleon_use_ivar = True
+
 myst_enable_extensions = [
     "amsmath",
     "deflist",
@@ -304,24 +310,31 @@ def setup(app):
     if ENABLE_AUTOAPI:
         app.connect("autoapi-skip-member", autoapi_skip_member)
 
-    # Filter out duplicate object warnings using logging
+    # Suppress AutoAPI "duplicate object description" warnings — benign artifacts
+    # of documenting a module variable twice (optional-import idiom) or a module
+    # and class sharing a name. The filter must live on the *handlers* of the
+    # "sphinx" logger: a logger-level filter is NOT applied to records propagated
+    # from child loggers (e.g. sphinx.domains.python), which is exactly where
+    # these originate — so a logger-level filter leaks them under `-W` /
+    # fail_on_warning. Handlers exist by "builder-inited", so install there.
     import logging
 
     class DuplicateWarningFilter(logging.Filter):
         def filter(self, record):
-            # Suppress duplicate object description warnings
-            if hasattr(record, "msg") and "duplicate object description" in str(
-                record.msg
-            ):
-                return False
-            if hasattr(record, "message") and "duplicate object description" in str(
-                record.message
-            ):
-                return False
-            return True
+            try:
+                msg = record.getMessage()
+            except Exception:
+                msg = str(record.msg)
+            return "duplicate object description" not in msg
 
-    # Apply filter to sphinx logger
-    logging.getLogger("sphinx").addFilter(DuplicateWarningFilter())
+    def _install_duplicate_filter(app, *args):
+        flt = DuplicateWarningFilter()
+        logger = logging.getLogger("sphinx")
+        logger.addFilter(flt)
+        for handler in logger.handlers:
+            handler.addFilter(flt)
+
+    app.connect("builder-inited", _install_duplicate_filter)
 
     # Add custom JavaScript to handle conditional search button display
     # app.add_js_file('conditional-search.js')
