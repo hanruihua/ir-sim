@@ -4,6 +4,7 @@ Rapidly-exploring Random Tree (RRT) path planner.
 Collision precedence (delegated to ``env_map.is_collision(geometry)``):
   1. Grid lookup when ``env_map.grid`` is not ``None``; if occupied, collision.
   2. When the grid reports free or is unavailable, geometry vs. obstacle_list.
+
   The planner builds the robot shape as a geometry (e.g. circle, or polygon for
   non-circular robots) and calls the unified interface; the map supports any
   Shapely geometry.

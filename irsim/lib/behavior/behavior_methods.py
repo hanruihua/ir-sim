@@ -406,9 +406,8 @@ def SFMVelocity(
         vmax: Speed cap.
         step_time: Integration step.
         neighbor_threshold: Spatial cutoff for social interactions.
-        relaxation_time, force_factor_*, sigma_obstacle, lambda_importance,
-            gamma, n_angular, n_velocity: SFM tuning parameters
-            (see :class:`social_force_model`).
+        relaxation_time, force_factor_*, sigma_obstacle, lambda_importance, gamma, n_angular, n_velocity:
+            SFM tuning parameters (see :class:`social_force_model`).
 
     Returns:
         tuple[float, float]: Updated world-frame velocity ``(vx, vy)``.

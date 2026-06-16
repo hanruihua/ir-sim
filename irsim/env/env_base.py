@@ -432,7 +432,7 @@ class EnvBase:
         Args:
             interval (float): Time interval between frames in seconds.
             figure_kwargs (dict): Additional keyword arguments for saving figures,
-                see `savefig <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html>`_ for details.
+                see `savefig <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html>`__ for details.
             mode (str): One of {"dynamic", "static", "all"} specifying which types of objects
                 to draw and clear each frame.
             kwargs: Additional keyword arguments for drawing components. See
@@ -1251,7 +1251,7 @@ class EnvBase:
             save_name (str): Name of the file with format to save the figure. Default is None.
             include_index (bool): Flag to include index in the saved file name. Default is False.
             save_gif (bool): Flag to save as GIF format. Default is False.
-            **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`_ function for detail.
+            **kwargs: Additional keyword arguments for saving the figure, see `savefig <https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.savefig.html>`__ function for detail.
         """
         file_save_name = save_name or self._world.name + ".png"
 

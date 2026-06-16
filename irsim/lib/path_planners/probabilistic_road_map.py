@@ -4,6 +4,7 @@ Probabilistic Road Map (PRM) Planner.
 Collision precedence:
   1. Grid lookup when ``env_map.grid`` is not ``None``; if occupied, collision.
   2. When the grid reports free or is unavailable, Shapely vs. obstacle_list.
+
   (Grid and obstacle_list are combined when both are present.)
 
 author: Atsushi Sakai (@Atsushi_twi)
