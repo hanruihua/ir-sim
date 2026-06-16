@@ -247,6 +247,11 @@ html_theme_options = {
             "url": "https://pypi.org/project/ir-sim/",
             "icon": "fa-custom fa-pypi",
         },
+        {
+            "name": "Issues",
+            "url": "https://github.com/hanruihua/ir-sim/issues",
+            "icon": "fa-solid fa-bug",
+        },
     ],
     "logo": {
         "text": "IR-SIM documentation",
