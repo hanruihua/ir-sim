@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-17 01:43+0800\n"
+"POT-Creation-Date: 2026-06-17 01:51+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -35,26 +35,22 @@ msgid "API Reference"
 msgstr "API 参考"
 
 #: ../../source/index.rst:252
-msgid "FAQ"
-msgstr "常见问题"
-
-#: ../../source/index.rst:252
 msgid "Documentation"
 msgstr "文档"
 
-#: ../../source/index.rst:263
+#: ../../source/index.rst:262
 msgid "Contributing"
 msgstr "贡献指南"
 
-#: ../../source/index.rst:263
+#: ../../source/index.rst:262
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../source/index.rst:263
+#: ../../source/index.rst:262
 msgid "About Us"
 msgstr "关于我们"
 
-#: ../../source/index.rst:263
+#: ../../source/index.rst:262
 msgid "Development"
 msgstr "开发"
 
@@ -435,4 +431,7 @@ msgstr ""
 
 #~ msgid "When to use IR-SIM"
 #~ msgstr "为什么选择 IR-SIM？"
+
+#~ msgid "FAQ"
+#~ msgstr "常见问题"
 

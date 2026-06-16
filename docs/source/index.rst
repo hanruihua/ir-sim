@@ -258,7 +258,6 @@ Projects using IR-SIM
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
-   FAQ <faq>
 
 .. toctree::
    :maxdepth: 2
