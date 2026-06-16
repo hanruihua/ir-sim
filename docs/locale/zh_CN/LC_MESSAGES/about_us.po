@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-02 21:36+0800\n"
+"POT-Creation-Date: 2026-06-16 14:00+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -25,11 +25,11 @@ msgstr "关于我们"
 #: ../../source/about_us.md:3
 msgid ""
 "**IR-SIM** was created and is maintained by Ruihua Han (PostDoc, Ph.D. @ "
-"The University of Hong Kong) ( [Home page](https://hanruihua.github.io/) "
-"), who initialized the project in 2022."
+"The University of Hong Kong, [Home page](https://hanruihua.github.io/)), "
+"who initialized the project in 2022."
 msgstr ""
-"**IR-SIM** 由韩瑞华（香港大学博士后、博士）（[个人主页](https://hanruihua.github.io/)）"
-"创建并维护，他于 2022 年发起本项目。"
+"**IR-SIM** 由韩瑞华（香港大学博士后、博士）（[个人主页](https://hanruihua.github.io/)）创建并维护，他于"
+" 2022 年发起本项目。"
 
 #: ../../source/about_us.md:5
 msgid "Contributors"
@@ -41,13 +41,23 @@ msgid ""
 "and ideas on GitHub"
 msgstr "衷心感谢每一位在 GitHub 上贡献代码、示例、Bug 反馈与想法的朋友。"
 
-#: ../../source/about_us.md:22
+#: ../../source/about_us.md:23
 msgid ""
 "See the full, always up-to-date list on the [GitHub contributors "
 "page](https://github.com/hanruihua/ir-sim/graphs/contributors)."
 msgstr ""
 "完整且实时更新的名单参见 [GitHub 贡献者页面](https://github.com/hanruihua/ir-"
 "sim/graphs/contributors)。"
+
+#: ../../source/about_us.md:25
+msgid "Citation"
+msgstr "引用"
+
+#: ../../source/about_us.md:27
+msgid ""
+"If you find IR-SIM useful, please consider starring ⭐ the project on "
+"GitHub and citing our paper:"
+msgstr "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 ⭐ Star，并引用我们的论文："
 
 #~ msgid "[@reiniscimurs](https://github.com/reiniscimurs)"
 #~ msgstr "[@reiniscimurs](https://github.com/reiniscimurs)"
