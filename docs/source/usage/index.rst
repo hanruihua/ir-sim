@@ -15,6 +15,7 @@ User Guide
    :maxdepth: 2
    :caption: Advanced Usage
 
+   multiple_environments
    configure_behavior
    configure_grid_map
    configure_path_planning
