@@ -212,6 +212,12 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 
 - You can try to use the uv virtual environment for testing and development: ir-sim/.venv/bin/python
 
+## Citation
+
+- IR-SIM has an accompanying arXiv paper: *IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking* ([arXiv:2606.08729](https://arxiv.org/abs/2606.08729)).
+- The canonical paper citation (BibTeX) lives in the README's `## Citation` section, alongside the arXiv badge in the header.
+- `CITATION.cff` at the repo root is the *software* citation (separate from the paper); keep its `version`/`date-released` in sync with releases.
+
 ## Release Checklist
 
 When releasing a new version, follow these steps in order:
