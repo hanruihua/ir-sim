@@ -7,5 +7,4 @@ Get Started
    install
    quick_start
    /concepts
-   /comparison
 

@@ -154,18 +154,6 @@ Key Features
 - Support collision detection and behavior control for each object in the simulation
 - Suitable for multi-agent and robot learning research
 
-Why IR-SIM?
-===========
-
-IR-SIM is the *lightweight* choice in the robot-simulator landscape: pure-Python, ``pip``-installable in seconds, and driven entirely by readable YAML — no game engine, ROS, or compiled dependencies. Reach for it when you want to prototype and benchmark navigation, control, and reinforcement-learning algorithms quickly, rather than model high-fidelity physics or photorealistic sensors.
-
-- **Zero setup** — ``pip install ir-sim`` and run; no ROS, Gazebo, or Unity.
-- **YAML-first** — define robots, sensors, and whole scenes declaratively.
-- **Built for learning** — reproducible seeding, headless/batch runs, and multi-agent support.
-- **Hackable** — register custom behaviors, sensors, and map generators in a few lines.
-
-Not sure if it fits your problem? See :doc:`When to use IR-SIM <comparison>` for how it compares to Gazebo, CARLA, Stage, and the RL environment standards.
-
 Capabilities
 ============
 
