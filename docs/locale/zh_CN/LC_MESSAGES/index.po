@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 20:10+0800\n"
+"POT-Creation-Date: 2026-06-17 00:42+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -21,6 +21,10 @@ msgstr ""
 #: ../../source/index.rst:250
 msgid "Getting Started"
 msgstr "快速开始"
+
+#: ../../source/index.rst:250
+msgid "Concepts"
+msgstr "核心概念"
 
 #: ../../source/index.rst:250
 msgid "User Guide"
@@ -42,19 +46,19 @@ msgstr "常见问题"
 msgid "Documentation"
 msgstr "文档"
 
-#: ../../source/index.rst:261
+#: ../../source/index.rst:262
 msgid "Contributing"
 msgstr "贡献指南"
 
-#: ../../source/index.rst:261
+#: ../../source/index.rst:262
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../source/index.rst:261
+#: ../../source/index.rst:262
 msgid "About Us"
 msgstr "关于我们"
 
-#: ../../source/index.rst:261
+#: ../../source/index.rst:262
 msgid "Development"
 msgstr "开发"
 

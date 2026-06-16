@@ -253,6 +253,7 @@ Projects using IR-SIM
    :hidden:
 
    Getting Started <get_started/index>
+   Concepts <concepts>
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
