@@ -1,6 +1,6 @@
 # About Us
 
-**IR-SIM** was created and is maintained by Ruihua Han ([Home page](https://hanruihua.github.io/), PostDoc, Ph.D. @ The University of Hong Kong), who initialized the project in 2023.
+**IR-SIM** was created and is maintained by Ruihua Han ([Home page](https://hanruihua.github.io/), Ph.D., PostDoc @ The University of Hong Kong), who initialized the project in 2023.
 
 ## Contributors
 
