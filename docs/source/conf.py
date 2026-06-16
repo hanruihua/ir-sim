@@ -280,8 +280,10 @@ html_theme_options = {
     "show_toc_level": 3,  # Shows headings up to level 2 by default
     # Add search button to navbar
     "navbar_persistent": ["search-button"],
-    # To enable web analytics, drop in your GA4 or Plausible id (pydata theme):
-    # "analytics": {"google_analytics_id": "G-XXXXXXXXXX"},
+    # Web analytics is handled by Read the Docs (enable it in the RTD dashboard:
+    # Admin -> Analytics) — no config is needed here. To use Google Analytics or
+    # Plausible instead, add e.g.:
+    #   "analytics": {"google_analytics_id": "G-XXXXXXXXXX"},
 }
 
 # -- SEO and social sharing --------------------------------------------------
