@@ -255,8 +255,6 @@ Projects using IR-SIM
    :hidden:
 
    Getting Started <get_started/index>
-   Concepts <concepts>
-   When to use IR-SIM <comparison>
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
