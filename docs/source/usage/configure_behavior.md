@@ -255,7 +255,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 | Scope | Individual object | All objects in a group |
 | Computation | Per-object each step | All members at once |
 | Use case | Simple navigation | Coordinated multi-agent |
-| Available | `dash`, `rvo` (kinematics-dependent — see matrix above) | `orca` |
+| Available | `dash`, `rvo`, `sfm` (kinematics-dependent — see matrix above) | `orca` |
 
 ### ORCA (Optimal Reciprocal Collision Avoidance)
 
@@ -441,7 +441,7 @@ robot:
 When `loop: true`, the robot will navigate through all waypoints and restart from the first waypoint upon reaching the last one.
 
 :::{tip}
-Use `group_behavior` in YAML for most cases as it handles initialization automatically. Use the manual approach only when you need custom ORCA logic or integration with external planners.
+Use `group_behavior` in YAML for most cases as it handles initialization automatically. For full control — custom collision logic or an external planner — drive each robot yourself by passing velocity commands to `env.step(action)` instead of setting a behavior.
 :::
 
 ### Custom Group Behavior

@@ -212,7 +212,7 @@ robot:
     behavior: {name: 'dash'}
 
     sensors:
-      - type: 'fmcw_lidar2d'
+      - name: 'fmcw_lidar2d'
         range_min: 0.0
         range_max: 8.0
         angle_range: 2.0944
