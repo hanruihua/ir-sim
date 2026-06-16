@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-17 00:42+0800\n"
+"POT-Creation-Date: 2026-06-17 01:06+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -18,47 +18,52 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "Getting Started"
 msgstr "快速开始"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "Concepts"
 msgstr "核心概念"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
+#, fuzzy
+msgid "When to use IR-SIM"
+msgstr "为什么选择 IR-SIM？"
+
+#: ../../source/index.rst:252
 msgid "User Guide"
 msgstr "用户指南"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "Configuration"
 msgstr "配置"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "API Reference"
 msgstr "API 参考"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "FAQ"
 msgstr "常见问题"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:252
 msgid "Documentation"
 msgstr "文档"
 
-#: ../../source/index.rst:262
+#: ../../source/index.rst:265
 msgid "Contributing"
 msgstr "贡献指南"
 
-#: ../../source/index.rst:262
+#: ../../source/index.rst:265
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../source/index.rst:262
+#: ../../source/index.rst:265
 msgid "About Us"
 msgstr "关于我们"
 
-#: ../../source/index.rst:262
+#: ../../source/index.rst:265
 msgid "Development"
 msgstr "开发"
 
@@ -209,101 +214,110 @@ msgid ""
 "few lines."
 msgstr "**易于扩展** —— 几行代码即可注册自定义行为、传感器与地图生成器。"
 
-#: ../../source/index.rst:168
+#: ../../source/index.rst:167
+msgid ""
+"Not sure if it fits your problem? See :doc:`When to use IR-SIM <comparison>`"
+" for how it compares to Gazebo, CARLA, Stage, and the RL environment "
+"standards."
+msgstr ""
+"不确定它是否适合你的问题？请参阅 :doc:`何时使用 IR-SIM <comparison>`，了解它与 Gazebo、CARLA、Stage "
+"以及各类强化学习环境标准的对比。"
+
+#: ../../source/index.rst:170
 msgid "Capabilities"
 msgstr "功能支持"
 
-#: ../../source/index.rst:173
+#: ../../source/index.rst:175
 msgid "**Kinematics**"
 msgstr "**运动学**"
 
-#: ../../source/index.rst:174
+#: ../../source/index.rst:176
 msgid ""
 "Differential drive · Omnidirectional · Omnidirectional (angular) · Ackermann"
 " steering"
 msgstr "差速驱动 · 全向 · 全向（带角速度控制） · 阿克曼转向"
 
-#: ../../source/index.rst:175
+#: ../../source/index.rst:177
 msgid "**Sensors**"
 msgstr "**传感器**"
 
-#: ../../source/index.rst:176
+#: ../../source/index.rst:178
 msgid "2D LiDAR · 2D FMCW LiDAR · FOV detector"
 msgstr "2D 激光雷达 · 2D FMCW 激光雷达 · 视场（FOV）检测器"
 
-#: ../../source/index.rst:177
+#: ../../source/index.rst:179
 msgid "**Geometries**"
 msgstr "**几何形状**"
 
-#: ../../source/index.rst:178
+#: ../../source/index.rst:180
 msgid "Circle · Rectangle · Polygon · LineString · Binary grid map"
 msgstr "圆形 · 矩形 · 多边形 · 折线 · 二值栅格地图"
 
-#: ../../source/index.rst:179
+#: ../../source/index.rst:181
 msgid "**Behaviors**"
 msgstr "**行为**"
 
-#: ../../source/index.rst:180
+#: ../../source/index.rst:182
 msgid "dash · RVO · ORCA · SFM (Social Force Model)"
 msgstr "dash · RVO · ORCA · SFM（社会力模型）"
 
-#: ../../source/index.rst:183
+#: ../../source/index.rst:185
 msgid "Installation"
 msgstr "安装"
 
-#: ../../source/index.rst:185
+#: ../../source/index.rst:187
 msgid "Install the latest release from PyPI:"
 msgstr "从 PyPI 安装最新版本："
 
-#: ../../source/index.rst:191
+#: ../../source/index.rst:193
 msgid "Prefer conda or uv? Pick your installation method:"
 msgstr "更喜欢 conda 或 uv？选择你的安装方式："
 
-#: ../../source/index.rst:201
+#: ../../source/index.rst:203
 msgid ":bdg-success:`Recommended`"
 msgstr ":bdg-success:`推荐`"
 
-#: ../../source/index.rst:195
+#: ../../source/index.rst:197
 msgid "📦 pip"
 msgstr "📦 pip"
 
-#: ../../source/index.rst:205
+#: ../../source/index.rst:207
 msgid "Quick installation with pip"
 msgstr "使用 pip 快速安装"
 
-#: ../../source/index.rst:213
+#: ../../source/index.rst:215
 msgid ":bdg-info:`Popular`"
 msgstr ":bdg-info:`热门`"
 
-#: ../../source/index.rst:207
+#: ../../source/index.rst:209
 msgid "🐍 conda"
 msgstr "🐍 conda"
 
-#: ../../source/index.rst:217
+#: ../../source/index.rst:219
 msgid "Installation in conda environment"
 msgstr "在 conda 环境中安装"
 
-#: ../../source/index.rst:225
+#: ../../source/index.rst:227
 msgid ":bdg-warning:`Fast`"
 msgstr ":bdg-warning:`极速`"
 
-#: ../../source/index.rst:219
+#: ../../source/index.rst:221
 msgid "⚡ uv"
 msgstr "⚡ uv"
 
-#: ../../source/index.rst:229
+#: ../../source/index.rst:231
 msgid "Lightning-fast installation"
 msgstr "闪电般的安装速度"
 
-#: ../../source/index.rst:232
+#: ../../source/index.rst:234
 msgid "Projects using IR-SIM"
 msgstr "基于 IR-SIM 的项目"
 
-#: ../../source/index.rst:236
+#: ../../source/index.rst:238
 msgid "Academic Publications"
 msgstr "学术论文"
 
-#: ../../source/index.rst:239
+#: ../../source/index.rst:241
 msgid ""
 "`rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_ - "
 "Reinforcement learning-based RVO behavior for multi-robot navigation."
@@ -311,7 +325,7 @@ msgstr ""
 "`rl-rvo-nav（RAL & ICRA2023） <https://github.com/hanruihua/rl_rvo_nav>`_ - "
 "基于强化学习的 RVO 行为，用于多机器人导航。"
 
-#: ../../source/index.rst:240
+#: ../../source/index.rst:242
 msgid ""
 "`RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_ -"
 " Accelerated collision-free motion planner for cluttered environments."
@@ -319,7 +333,7 @@ msgstr ""
 "`RDA_planner（RAL & IROS2023） <https://github.com/hanruihua/RDA_planner>`_ - "
 "面向密集环境的加速无碰撞运动规划器。"
 
-#: ../../source/index.rst:241
+#: ../../source/index.rst:243
 msgid ""
 "`NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_ - Direct point "
 "robot navigation with end-to-end model-based learning."
@@ -327,11 +341,11 @@ msgstr ""
 "`NeuPAN（T-RO 2025） <https://github.com/hanruihua/NeuPAN>`_ - "
 "端到端、基于模型学习的点云直接驱动机器人导航。"
 
-#: ../../source/index.rst:243
+#: ../../source/index.rst:245
 msgid "Community Projects"
 msgstr "社区项目"
 
-#: ../../source/index.rst:246
+#: ../../source/index.rst:248
 msgid ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_ - Deep reinforcement learning for robot navigation."
@@ -339,14 +353,14 @@ msgstr ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_ - 用于机器人导航的深度强化学习。"
 
-#: ../../source/index.rst:247
+#: ../../source/index.rst:249
 msgid ""
 "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - Autonomous "
 "navigation using reinforcement learning."
 msgstr ""
 "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - 基于强化学习的自主导航。"
 
-#: ../../source/index.rst:248
+#: ../../source/index.rst:250
 msgid ""
 "`IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A "
 "closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM "

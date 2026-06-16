@@ -164,6 +164,8 @@ IR-SIM is the *lightweight* choice in the robot-simulator landscape: pure-Python
 - **Built for learning** — reproducible seeding, headless/batch runs, and multi-agent support.
 - **Hackable** — register custom behaviors, sensors, and map generators in a few lines.
 
+Not sure if it fits your problem? See :doc:`When to use IR-SIM <comparison>` for how it compares to Gazebo, CARLA, Stage, and the RL environment standards.
+
 Capabilities
 ============
 
@@ -254,6 +256,7 @@ Projects using IR-SIM
 
    Getting Started <get_started/index>
    Concepts <concepts>
+   When to use IR-SIM <comparison>
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
