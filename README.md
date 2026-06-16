@@ -170,7 +170,7 @@ If you find IR-SIM useful, please consider starring ⭐ this project and citing 
 ```bibtex
 @article{han2026ir,
   title={IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking},
-  author={Han, Ruihua and Wang, Shuai and Li, Chengyang and Gao, Rui and Wang, Xinyi and Liu, Zhe and Li, Guoliang and Lu, Yupu and Hao, Qi and Pan, Jia and others},
+  author={Han, Ruihua and Wang, Shuai and Li, Chengyang and Gao, Rui and Wang, Xinyi and Liu, Zhe and Li, Guoliang and Lu, Yupu and Hao, Qi and Pan, Jia and Zhao, Hengshuang},
   journal={arXiv preprint arXiv:2606.08729},
   year={2026}
 }
