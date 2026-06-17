@@ -287,16 +287,23 @@ html_theme_options = {
 }
 
 # -- SEO and social sharing --------------------------------------------------
-# Canonical base URL of the published docs (Read the Docs, stable English).
-# Required for <link rel="canonical">, the sitemap, and Open Graph cards.
-html_baseurl = "https://ir-sim.readthedocs.io/en/stable/"
+# Canonical base URL of the published docs, used for <link rel="canonical">,
+# the sitemap, and Open Graph cards. On Read the Docs, READTHEDOCS_CANONICAL_URL
+# is set per version *and* language (e.g. .../en/latest/, .../zh-cn/stable/), so
+# those stay correct across every build; fall back to the stable English URL for
+# local builds.
+html_baseurl = os.environ.get(
+    "READTHEDOCS_CANONICAL_URL", "https://ir-sim.readthedocs.io/en/stable/"
+)
 
 # sphinx-sitemap: emit sitemap.xml so search engines can index the docs.
+# {link} appends the page path to html_baseurl (which already carries the
+# version/language), so per-version sitemaps are correct.
 sitemap_url_scheme = "{link}"
 
 # sphinxext-opengraph: rich link-preview cards when the docs are shared on
 # social/chat platforms (X, Slack, Reddit, LinkedIn, ...).
-ogp_site_url = "https://ir-sim.readthedocs.io/en/stable/"
+ogp_site_url = html_baseurl
 ogp_enable_meta_description = True
 ogp_description_length = 200
 # Fallback preview image (the signature multi-robot RVO demo) used on pages
