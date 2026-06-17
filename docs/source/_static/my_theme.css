@@ -178,6 +178,12 @@ html[data-theme="dark"] {
     line-height: 1.55;
     color: var(--pst-color-text-muted);
 }
+/* Key Features: opt out of the 72ch reading cap so each feature stays on a
+   single line. The longer bullets otherwise wrap, looking uneven next to the
+   wider intro paragraph. */
+.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article #key-features > ul {
+    max-width: none;
+}
 /* Hero CTA row: compact, button-like link cards. Cards survive
    i18n translation where sphinx-design button directives don't
    (a translated button label re-parses and drops its wrapper),
