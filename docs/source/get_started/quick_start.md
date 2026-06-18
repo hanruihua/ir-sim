@@ -41,6 +41,14 @@ robot:
   color: 'g' # green
 ```
 
+Run the script and a window opens showing the differential-drive robot navigating from its start to the goal:
+
+```{image} quick_start.gif
+:alt: Quick-start simulation — a differential-drive robot navigating to its goal
+:width: 420px
+:align: center
+```
+
 ## Next steps
 
 - [Make Environment](../usage/make_environment.md) — the simulation loop, status control, and dynamic objects in depth.

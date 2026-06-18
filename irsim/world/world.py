@@ -150,7 +150,7 @@ class World:
         """Generate a grid map for obstacles.
 
         The *obstacle_map* value is resolved to a float64 ndarray by
-        :pyfunc:`irsim.world.map.resolve_obstacle_map`.  Accepted types:
+        :py:func:`irsim.world.map.resolve_obstacle_map`.  Accepted types:
         ``None``, path string (image), ndarray, or generator spec dict.
 
         Args:

@@ -53,9 +53,10 @@ docs = [
     "sphinx-copybutton>=0.5.2",
     "sphinx-design>=0.6.1",
     "sphinx-inline-tabs>=2023.4.21",
-    "sphinx-multiversion>=0.2.4",
     "sphinx-rtd-theme>=3.0.2",
     "sphinx-intl>=2.3.2",
+    "sphinxext-opengraph>=0.9.1",
+    "sphinx-sitemap>=2.6.0",
 ]
 lint = [
     "black>=25.1.0",

@@ -89,7 +89,7 @@ The [rda_planner](https://github.com/hanruihua/RDA-planner) is a case of using t
 :::
 
 :::{note}
-You can add Gaussian noise on the kinematics of the robot and obstacle by setting the `noise` to be True in parameter in the `kinematics` dictionary. See [kinematics](../yaml_config/configuration.md) for more details.
+You can add Gaussian noise on the kinematics of the robot and obstacle by setting the `noise` to be True in parameter in the `kinematics` dictionary. See the {doc}`YAML configuration <../yaml_config/configuration>` for more details.
 :::
 
 ## Obstacle Configuration Parameters
@@ -261,7 +261,7 @@ obstacle:
 ```
 
 :::{note}
-- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the [YAML Configuration](../yaml_config/configuration.md)
+- The `distribution` parameter specifies how the robots and obstacles are distributed within the environment. Options include `'manual'` and `'random'`. Details are provided in the {doc}`YAML Configuration <../yaml_config/configuration>`.
 :::
 
 :::{tab-item} Demonstration

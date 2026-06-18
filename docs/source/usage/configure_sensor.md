@@ -157,6 +157,16 @@ obstacle:
 ```
 
 :::
+
+:::{tab-item} Demonstration
+
+```{image} gif/noise.gif
+:alt: LiDAR scan with Gaussian noise
+:width: 400px
+:align: center
+```
+
+:::
 ::::
 
 Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` parameters. The `std` parameter is the standard deviation of the range noise, and the `angle_std` parameter is the standard deviation of the angle noise. 
@@ -212,7 +222,7 @@ robot:
     behavior: {name: 'dash'}
 
     sensors:
-      - type: 'fmcw_lidar2d'
+      - name: 'fmcw_lidar2d'
         range_min: 0.0
         range_max: 8.0
         angle_range: 2.0944

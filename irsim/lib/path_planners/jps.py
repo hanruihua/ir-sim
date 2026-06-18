@@ -7,6 +7,7 @@ and expands "jump points" only, preserving optimality while reducing nodes expan
 Collision precedence:
   1. Grid lookup when ``env_map.grid`` is not ``None``; if occupied, collision.
   2. When the grid reports free or is unavailable, Shapely vs. obstacle_list.
+
   (Grid and obstacle_list are combined when both are present.)
 
 References

@@ -2,6 +2,8 @@
 
 Thank you for your interest in improving IR-SIM! Whether you're fixing a typo, adding a new feature, or writing documentation, your contribution is welcome by opening an issue or a pull request to the `main` branch. Below are a few guidelines to help you get started.
 
+New here? Browse issues labelled **[good first issue](https://github.com/hanruihua/ir-sim/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)** for a friendly starting point. By participating, you agree to uphold our **[Code of Conduct](https://github.com/hanruihua/ir-sim/blob/main/CODE_OF_CONDUCT.md)**.
+
 ---
 
 ## What You Can Contribute
@@ -74,6 +76,20 @@ pytest
 ```
 
 Please add tests for any new functionality or bug fix.
+
+---
+
+## Pull Requests
+
+Open pull requests against the `main` branch, and keep each PR focused on a single change. Before submitting, run `ruff check` and `pytest`.
+
+Use a [Conventional Commits](https://www.conventionalcommits.org/)-style title — `<type>(<scope>): <subject>` — where `<type>` is one of `feat`, `fix`, `docs`, `style`, `refactor`, `test`, or `chore` (the scope is optional):
+
+```text
+feat: add hat wobble
+fix(lidar): correct beam angle wrapping
+docs: clarify behavior registration
+```
 
 ---
 

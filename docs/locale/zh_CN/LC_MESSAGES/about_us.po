@@ -1,0 +1,173 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version:  IR-SIM\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-16 15:51+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/about_us.md:1
+msgid "About Us"
+msgstr "关于我们"
+
+#: ../../source/about_us.md:3
+msgid ""
+"**IR-SIM** was created and is maintained by Ruihua Han ([Home "
+"page](https://hanruihua.github.io/), Ph.D., PostDoc @ The University of "
+"Hong Kong), who initialized the project in 2023."
+msgstr ""
+"**IR-SIM** 由韩瑞华（[个人主页](https://hanruihua.github.io/)，香港大学博士、博士后）创建并维护，他于 "
+"2023 年发起本项目。"
+
+#: ../../source/about_us.md:5
+msgid "Contributors"
+msgstr "贡献者"
+
+#: ../../source/about_us.md:7
+msgid ""
+"Huge thanks to everyone who has contributed code, examples, bug reports, "
+"and ideas on GitHub"
+msgstr "衷心感谢每一位在 GitHub 上贡献代码、示例、Bug 反馈与想法的朋友。"
+
+#: ../../source/about_us.md:23
+msgid ""
+"See the full, always up-to-date list on the [GitHub contributors "
+"page](https://github.com/hanruihua/ir-sim/graphs/contributors)."
+msgstr ""
+"完整且实时更新的名单参见 [GitHub 贡献者页面](https://github.com/hanruihua/ir-"
+"sim/graphs/contributors)。"
+
+#: ../../source/about_us.md:25
+msgid "Citation"
+msgstr "引用"
+
+#: ../../source/about_us.md:27
+msgid ""
+"If you find IR-SIM useful, please consider starring ⭐ the project on "
+"GitHub and citing our paper:"
+msgstr "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 ⭐ Star，并引用我们的论文："
+
+#~ msgid "[@reiniscimurs](https://github.com/reiniscimurs)"
+#~ msgstr "[@reiniscimurs](https://github.com/reiniscimurs)"
+
+#~ msgid "[@YupuLu](https://github.com/YupuLu)"
+#~ msgstr "[@YupuLu](https://github.com/YupuLu)"
+
+#~ msgid ""
+#~ "[@williamleong](https://github.com/williamleong) — lidar"
+#~ " performance optimizations"
+#~ msgstr "[@williamleong](https://github.com/williamleong) —— 激光雷达性能优化"
+
+#~ msgid "[@GuoliangLI1998](https://github.com/GuoliangLI1998)"
+#~ msgstr "[@GuoliangLI1998](https://github.com/GuoliangLI1998)"
+
+#~ msgid ""
+#~ "[@KevinLADLee](https://github.com/KevinLADLee) — FMCW "
+#~ "LiDAR sensor, map generators, and path"
+#~ " planners"
+#~ msgstr ""
+#~ "[@KevinLADLee](https://github.com/KevinLADLee) —— FMCW "
+#~ "激光雷达传感器、地图生成器与路径规划器"
+
+#~ msgid "[@hfr2015](https://github.com/hfr2015)"
+#~ msgstr "[@hfr2015](https://github.com/hfr2015)"
+
+#~ msgid "[@emmanuel-ferdman](https://github.com/emmanuel-ferdman)"
+#~ msgstr "[@emmanuel-ferdman](https://github.com/emmanuel-ferdman)"
+
+#~ msgid "[@harshmahesheka](https://github.com/harshmahesheka)"
+#~ msgstr "[@harshmahesheka](https://github.com/harshmahesheka)"
+
+#~ msgid ""
+#~ "[@Lawliet9666](https://github.com/Lawliet9666) — CBF-"
+#~ "QP and collision-cone examples"
+#~ msgstr "[@Lawliet9666](https://github.com/Lawliet9666) —— CBF-QP 与碰撞锥示例"
+
+#~ msgid "[@sobolevn](https://github.com/sobolevn)"
+#~ msgstr "[@sobolevn](https://github.com/sobolevn)"
+
+#~ msgid "The Author"
+#~ msgstr "作者"
+
+#~ msgid ""
+#~ "Ruihua is a robotics researcher working"
+#~ " on robot navigation, motion planning, "
+#~ "and learning-based control. He built "
+#~ "IR-SIM as a lightweight, YAML-"
+#~ "driven simulator that makes it easy "
+#~ "to prototype and test navigation, "
+#~ "control, and reinforcement learning algorithms"
+#~ " with minimal setup and hardware —"
+#~ " the tool he wished he had for"
+#~ " his own research."
+#~ msgstr ""
+#~ "韩瑞华是一名机器人方向的研究者，主要研究机器人导航、运动规划与基于学习的控制。他开发 IR-"
+#~ "SIM，是希望提供一个轻量、以 YAML "
+#~ "驱动的仿真器，让用户能够以最少的配置与硬件，快速搭建并测试导航、控制与强化学习算法——这正是他在自己的研究中一直想要的工具。"
+
+#~ msgid "Some of his related research and open-source projects:"
+#~ msgstr "他的部分相关研究与开源项目："
+
+#~ msgid ""
+#~ "**[RAL & ICRA 2023]** [rl-rvo-"
+#~ "nav](https://github.com/hanruihua/rl_rvo_nav) — "
+#~ "Reinforcement learning-based RVO behavior "
+#~ "for multi-robot navigation."
+#~ msgstr ""
+#~ "**[RAL & ICRA 2023]** [rl-rvo-"
+#~ "nav](https://github.com/hanruihua/rl_rvo_nav) —— 基于强化学习的"
+#~ " RVO 行为，用于多机器人导航。"
+
+#~ msgid ""
+#~ "**[RAL & IROS 2023]** "
+#~ "[RDA_planner](https://github.com/hanruihua/RDA_planner) — "
+#~ "Accelerated collision-free motion planner "
+#~ "for cluttered environments."
+#~ msgstr ""
+#~ "**[RAL & IROS 2023]** "
+#~ "[RDA_planner](https://github.com/hanruihua/RDA_planner) —— "
+#~ "面向密集环境的加速无碰撞运动规划器。"
+
+#~ msgid ""
+#~ "**[T-RO 2025]** "
+#~ "[NeuPAN](https://github.com/hanruihua/NeuPAN) — Direct "
+#~ "point robot navigation with end-to-"
+#~ "end model-based learning."
+#~ msgstr ""
+#~ "**[T-RO 2025]** "
+#~ "[NeuPAN](https://github.com/hanruihua/NeuPAN) —— "
+#~ "端到端、基于模型学习的点云直接驱动机器人导航。"
+
+#~ msgid "Get in Touch"
+#~ msgstr "联系方式"
+
+#~ msgid "GitHub: [@hanruihua](https://github.com/hanruihua)"
+#~ msgstr "GitHub：[@hanruihua](https://github.com/hanruihua)"
+
+#~ msgid "Email: [hanrh@connect.hku.hk](mailto:hanrh@connect.hku.hk)"
+#~ msgstr "邮箱：[hanrh@connect.hku.hk](mailto:hanrh@connect.hku.hk)"
+
+#~ msgid ""
+#~ "Found a bug or have an idea? "
+#~ "Open an issue on the [IR-SIM "
+#~ "repository](https://github.com/hanruihua/ir-sim/issues), "
+#~ "or see the [Contributing](contributing.md) "
+#~ "guide. Contributions of all kinds are"
+#~ " welcome."
+#~ msgstr ""
+#~ "发现了 Bug 或有新想法？欢迎在 [IR-SIM "
+#~ "仓库](https://github.com/hanruihua/ir-sim/issues) 提交 "
+#~ "issue，或参阅[贡献指南](contributing.md)。我们欢迎各种形式的贡献。"
+

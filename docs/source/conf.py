@@ -68,13 +68,20 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "myst_parser",
-    "sphinx_multiversion",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinxext.opengraph",
+    "sphinx_sitemap",
 ]
 
 ENABLE_AUTOAPI = True
+
+# Render Google-style "Attributes:" sections as :ivar: fields instead of
+# standalone ".. attribute::" directives. The latter collide with the members
+# AutoAPI documents for the same class, producing "duplicate object
+# description" warnings; :ivar: keeps the descriptions without a second target.
+napoleon_use_ivar = True
 
 myst_enable_extensions = [
     "amsmath",
@@ -240,6 +247,11 @@ html_theme_options = {
             "url": "https://pypi.org/project/ir-sim/",
             "icon": "fa-custom fa-pypi",
         },
+        {
+            "name": "Issues",
+            "url": "https://github.com/hanruihua/ir-sim/issues",
+            "icon": "fa-solid fa-bug",
+        },
     ],
     "logo": {
         "text": "IR-SIM documentation",
@@ -268,7 +280,42 @@ html_theme_options = {
     "show_toc_level": 3,  # Shows headings up to level 2 by default
     # Add search button to navbar
     "navbar_persistent": ["search-button"],
+    # Web analytics is handled by Read the Docs (enable it in the RTD dashboard:
+    # Admin -> Analytics) — no config is needed here. To use Google Analytics or
+    # Plausible instead, add e.g.:
+    #   "analytics": {"google_analytics_id": "G-XXXXXXXXXX"},
 }
+
+# -- SEO and social sharing --------------------------------------------------
+# Canonical base URL of the published docs, used for <link rel="canonical">,
+# the sitemap, and Open Graph cards. On Read the Docs, READTHEDOCS_CANONICAL_URL
+# is set per version *and* language (e.g. .../en/latest/, .../zh-cn/stable/), so
+# those stay correct across every build; fall back to the stable English URL for
+# local builds.
+html_baseurl = os.environ.get(
+    "READTHEDOCS_CANONICAL_URL", "https://ir-sim.readthedocs.io/en/stable/"
+)
+
+# sphinx-sitemap: emit sitemap.xml so search engines can index the docs.
+# {link} appends the page path to html_baseurl (which already carries the
+# version/language), so per-version sitemaps are correct.
+sitemap_url_scheme = "{link}"
+
+# sphinxext-opengraph: rich link-preview cards when the docs are shared on
+# social/chat platforms (X, Slack, Reddit, LinkedIn, ...).
+ogp_site_url = html_baseurl
+ogp_enable_meta_description = True
+ogp_description_length = 200
+# Fallback preview image (the signature multi-robot RVO demo) used on pages
+# whose first image is externally hosted — most importantly the landing page.
+ogp_image = "https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b"
+# Prefer each page's own first image as its preview card when one is available
+# (guide pages with local gifs); otherwise fall back to `ogp_image` above.
+ogp_use_first_image = True
+# NOTE: auto-generated `ogp_social_cards` is intentionally left off — its card
+# renderer ships only a Latin font, so Chinese (zh_CN) page titles render as
+# tofu. To get branded image cards, bundle a CJK font for the card renderer or
+# set a static `ogp_image` banner.
 
 
 def setup(app):
@@ -277,24 +324,31 @@ def setup(app):
     if ENABLE_AUTOAPI:
         app.connect("autoapi-skip-member", autoapi_skip_member)
 
-    # Filter out duplicate object warnings using logging
+    # Suppress AutoAPI "duplicate object description" warnings — benign artifacts
+    # of documenting a module variable twice (optional-import idiom) or a module
+    # and class sharing a name. The filter must live on the *handlers* of the
+    # "sphinx" logger: a logger-level filter is NOT applied to records propagated
+    # from child loggers (e.g. sphinx.domains.python), which is exactly where
+    # these originate — so a logger-level filter leaks them under `-W` /
+    # fail_on_warning. Handlers exist by "builder-inited", so install there.
     import logging
 
     class DuplicateWarningFilter(logging.Filter):
         def filter(self, record):
-            # Suppress duplicate object description warnings
-            if hasattr(record, "msg") and "duplicate object description" in str(
-                record.msg
-            ):
-                return False
-            if hasattr(record, "message") and "duplicate object description" in str(
-                record.message
-            ):
-                return False
-            return True
+            try:
+                msg = record.getMessage()
+            except Exception:
+                msg = str(record.msg)
+            return "duplicate object description" not in msg
 
-    # Apply filter to sphinx logger
-    logging.getLogger("sphinx").addFilter(DuplicateWarningFilter())
+    def _install_duplicate_filter(app, *args):
+        flt = DuplicateWarningFilter()
+        logger = logging.getLogger("sphinx")
+        logger.addFilter(flt)
+        for handler in logger.handlers:
+            handler.addFilter(flt)
+
+    app.connect("builder-inited", _install_duplicate_filter)
 
     # Add custom JavaScript to handle conditional search button display
     # app.add_js_file('conditional-search.js')

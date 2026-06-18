@@ -622,9 +622,11 @@ def validate_shape(**shape_requirements):
             e.g., state=3 means state.shape[0] must be >= 3
 
     Example:
-        @validate_shape(state=3, velocity=2)
-        def differential_kinematics(state, velocity, step_time):
-            ...
+        .. code-block:: python
+
+            @validate_shape(state=3, velocity=2)
+            def differential_kinematics(state, velocity, step_time):
+                ...
 
     Raises:
         TypeError: If parameter is not a numpy array.
@@ -670,9 +672,11 @@ def validate_length(**length_requirements):
             e.g., alpha=4 means len(alpha) must be >= 4
 
     Example:
-        @validate_length(alpha=4)
-        def some_function(alpha):
-            ...
+        .. code-block:: python
+
+            @validate_length(alpha=4)
+            def some_function(alpha):
+                ...
 
     Raises:
         TypeError: If parameter doesn't support len().
@@ -723,9 +727,11 @@ def ensure_column_vector(*param_names):
         *param_names: Names of parameters to convert.
 
     Example:
-        @ensure_column_vector('state', 'velocity')
-        def some_function(state, velocity, step_time):
-            ...
+        .. code-block:: python
+
+            @ensure_column_vector('state', 'velocity')
+            def some_function(state, velocity, step_time):
+                ...
     """
 
     def decorator(func):
@@ -765,9 +771,11 @@ def ensure_numpy(*param_names):
         *param_names: Names of parameters to convert.
 
     Example:
-        @ensure_numpy('data', 'weights')
-        def some_function(data, weights):
-            ...
+        .. code-block:: python
+
+            @ensure_numpy('data', 'weights')
+            def some_function(data, weights):
+                ...
     """
 
     def decorator(func):

@@ -5,20 +5,52 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: IR-SIM \n"
+"Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-30 16:34+0800\n"
+"POT-Creation-Date: 2026-06-17 01:13+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh_CN\n"
 "Language-Team: zh_CN <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: ../../source/yaml_config/index.rst:2
 msgid "YAML Configuration Syntax"
 msgstr "YAML 配置语法"
 
+#: ../../source/yaml_config/index.rst:4
+msgid ""
+"Every IR-SIM scenario is a single YAML file with up to four top-level "
+"blocks:"
+msgstr "每个 IR-SIM 场景都是一个 YAML 文件，最多包含四个顶层块："
+
+#: ../../source/yaml_config/index.rst:6
+msgid ""
+"``world`` — the simulation space, clock, coordinate frame, and obstacle map."
+msgstr "``world`` —— 仿真空间、时钟、坐标系与障碍物地图。"
+
+#: ../../source/yaml_config/index.rst:7
+msgid ""
+"``robot`` — one or more controllable robots (kinematics, shape, goal, "
+"behavior, sensors)."
+msgstr "``robot`` —— 一个或多个可控机器人（运动学、形状、目标、行为、传感器）。"
+
+#: ../../source/yaml_config/index.rst:8
+msgid ""
+"``obstacle`` — static or dynamic obstacles. Robots and obstacles share the "
+"**same object schema**, so any key valid for one is valid for the other."
+msgstr "``obstacle`` —— 静态或动态障碍物。机器人与障碍物共享**同一套对象模式**，因此对其一有效的键对另一者同样有效。"
+
+#: ../../source/yaml_config/index.rst:9
+msgid "``gui`` — optional rendering and interaction options."
+msgstr "``gui`` —— 可选的渲染与交互选项。"
+
+#: ../../source/yaml_config/index.rst:11
+msgid ""
+"The full reference below documents every key, with its default, and includes"
+" an interactive schema explorer."
+msgstr "下方的完整参考记录了每一个键及其默认值，并提供交互式的模式浏览器。"
