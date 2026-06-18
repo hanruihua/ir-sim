@@ -5,17 +5,17 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: IR-SIM \n"
+"Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-16 15:51+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh_CN\n"
 "Language-Team: zh_CN <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
 
 #: ../../source/usage/configure_sensor.md:1
@@ -24,11 +24,11 @@ msgstr "为机器人配置传感器"
 
 #: ../../source/usage/configure_sensor.md:3
 msgid ""
-"Robots can carry sensors for environment perception. IR-SIM provides a 2D"
-" LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with "
-"per-beam radial velocity), plus an optional field-of-view (FOV) region; "
-"all are attached per object in the YAML file. This page shows how to "
-"configure them and tune noise."
+"Robots can carry sensors for environment perception. IR-SIM provides a 2D "
+"LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-"
+"beam radial velocity), plus an optional field-of-view (FOV) region; all are "
+"attached per object in the YAML file. This page shows how to configure them "
+"and tune noise."
 msgstr ""
 "机器人可以携带传感器进行环境感知。IR-SIM 提供 2D 激光雷达（`lidar2d`）以及简化的 2D FMCW "
 "激光雷达（`fmcw_lidar2d`，每条光束附带径向速度），以及可选的视场（FOV）区域；它们都在 YAML "
@@ -40,8 +40,8 @@ msgstr "LiDAR 配置参数"
 
 #: ../../source/usage/configure_sensor.md:7
 msgid ""
-"The YAML configuration file and Python Script below shows an example of a"
-" robot with a 2D LiDAR sensor:"
+"The YAML configuration file and Python Script below shows an example of a "
+"robot with a 2D LiDAR sensor:"
 msgstr "下面的 YAML 配置与 Python 脚本展示了带 2D LiDAR 传感器的机器人示例："
 
 #: ../../source/usage/configure_sensor.md
@@ -71,13 +71,13 @@ msgstr "更新顺序"
 
 #: ../../source/usage/configure_sensor.md:81
 msgid ""
-"The environment updates sensors after all objects have moved in a step. "
-"This avoids temporal skew in readings. If you control objects manually, "
-"either pass `sensor_step=True` to `ObjectBase.step(...)` or call "
+"The environment updates sensors after all objects have moved in a step. This"
+" avoids temporal skew in readings. If you control objects manually, either "
+"pass `sensor_step=True` to `ObjectBase.step(...)` or call "
 "`obj.sensor_step()` after updating object states."
 msgstr ""
-"环境会在所有对象完成该时间步移动后再更新传感器，从而避免读数的时间偏差。若手动控制对象，请在 `ObjectBase.step(...)` 中传入"
-" `sensor_step=True`，或在更新对象状态后调用 `obj.sensor_step()`。"
+"环境会在所有对象完成该时间步移动后再更新传感器，从而避免读数的时间偏差。若手动控制对象，请在 `ObjectBase.step(...)` 中传入 "
+"`sensor_step=True`，或在更新对象状态后调用 `obj.sensor_step()`。"
 
 #: ../../source/usage/configure_sensor.md:84
 msgid "Important Parameters Explained"
@@ -86,8 +86,8 @@ msgstr "关键参数说明"
 #: ../../source/usage/configure_sensor.md:86
 msgid ""
 "To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be "
-"defined in the `sensors` section of the robot. Key parameters of the "
-"LiDAR sensor are explained below:"
+"defined in the `sensors` section of the robot. Key parameters of the LiDAR "
+"sensor are explained below:"
 msgstr "若要配置 2D LiDAR，需在机器人 `sensors` 部分定义名为 `lidar2d` 的传感器。主要参数如下："
 
 #: ../../source/usage/configure_sensor.md:88
@@ -128,14 +128,14 @@ msgstr "若需为 LiDAR 添加噪声，可将 `noise` 设为 `True`。"
 
 #: ../../source/usage/configure_sensor.md:163
 msgid "LiDAR scan with Gaussian noise"
-msgstr ""
+msgstr "带高斯噪声的 LiDAR 扫描"
 
 #: ../../source/usage/configure_sensor.md:172
 msgid ""
-"Gaussian noise is added to the LiDAR sensor with the `std` and "
-"`angle_std` parameters. The `std` parameter is the standard deviation of "
-"the range noise, and the `angle_std` parameter is the standard deviation "
-"of the angle noise."
+"Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` "
+"parameters. The `std` parameter is the standard deviation of the range "
+"noise, and the `angle_std` parameter is the standard deviation of the angle "
+"noise."
 msgstr ""
 "通过 `std` 与 `angle_std` 参数为 LiDAR 添加高斯噪声。其中 `std` 为距离噪声的标准差，`angle_std` "
 "为角度噪声的标准差。"
@@ -146,11 +146,11 @@ msgstr "FMCW 激光雷达配置参数"
 
 #: ../../source/usage/configure_sensor.md:176
 msgid ""
-"IR-SIM also provides a simplified 2D FMCW LiDAR sensor named "
-"`fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR,"
-" but each valid beam additionally reports a scalar `radial_velocity` "
-"measurement. This makes it useful for demonstrating how Doppler "
-"measurements can help interpret dynamic obstacles."
+"IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`."
+" It keeps the same beam geometry as the standard 2D LiDAR, but each valid "
+"beam additionally reports a scalar `radial_velocity` measurement. This makes"
+" it useful for demonstrating how Doppler measurements can help interpret "
+"dynamic obstacles."
 msgstr ""
 "IR-SIM 还提供了一个简化的 2D FMCW 激光雷达传感器，名为 `fmcw_lidar2d`。它保持与标准 2D "
 "激光雷达相同的光束几何结构，但每条有效光束会额外返回一个标量 "
@@ -159,10 +159,10 @@ msgstr ""
 #: ../../source/usage/configure_sensor.md:178
 msgid ""
 "The example below uses a stationary ego sensor with a forward 120-degree "
-"field of view and multiple moving obstacles. When plotting is enabled, "
-"valid returns are colorized by radial velocity and marked at their "
-"endpoints."
-msgstr "下方示例使用一个静止的传感器主体，朝前方覆盖 120 度视场，并设置了多个移动障碍物。开启绘图后，有效回波会按径向速度着色，并在端点处标记出来。"
+"field of view and multiple moving obstacles. When plotting is enabled, valid"
+" returns are colorized by radial velocity and marked at their endpoints."
+msgstr ""
+"下方示例使用一个静止的传感器主体，朝前方覆盖 120 度视场，并设置了多个移动障碍物。开启绘图后，有效回波会按径向速度着色，并在端点处标记出来。"
 
 #: ../../source/usage/configure_sensor.md:241
 msgid "Key FMCW-specific parameters are:"
@@ -170,8 +170,8 @@ msgstr "FMCW 专用关键参数："
 
 #: ../../source/usage/configure_sensor.md:243
 msgid ""
-"**motion_compensate**: Whether to remove ego-motion from the measured "
-"radial velocity."
+"**motion_compensate**: Whether to remove ego-motion from the measured radial"
+" velocity."
 msgstr "**motion_compensate**：是否从测量的径向速度中扣除自身运动分量。"
 
 #: ../../source/usage/configure_sensor.md:244
@@ -233,4 +233,3 @@ msgid ""
 msgstr ""
 "下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 `fov`（角度）与 "
 "`fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 `fov_detect_object()` 检测视场内的机器人。"
-

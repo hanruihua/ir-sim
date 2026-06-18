@@ -1,6 +1,6 @@
 # Make Environment
 
-An IR-SIM simulation is created from a YAML scenario file with `irsim.make()` and driven by a short Python loop (`env.step()` → `env.render()` → `env.done()`). This page covers building the environment, the core loop, status control, and dynamic object management. For running several scenarios at once, see [Multiple environments](multiple_environments).
+An IR-SIM simulation is created from a YAML scenario file with `irsim.make()` and driven by a short Python loop (`env.step()` → `env.render()` → `env.done()`). This page covers building the environment, the core loop, status control, and dynamic object management. For running several scenarios at once, see [Multiple environments](multiple_environments.md).
 
 ## Python script and YAML configuration file
 
@@ -285,4 +285,4 @@ Each object must have a unique name. Adding an object with a duplicate name rais
 
 ## See also
 
-- [Multiple environments](multiple_environments) — run several scenarios at once with isolated state, for comparison studies or reinforcement-learning training.
+- [Multiple environments](multiple_environments.md) — run several scenarios at once with isolated state, for comparison studies or reinforcement-learning training.
