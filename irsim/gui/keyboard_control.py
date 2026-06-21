@@ -192,7 +192,17 @@ class KeyboardControl:
         except Exception:
             pass
 
-        if self.backend == "pynput" and _PYNPUT_AVAILABLE:
+        # Keyboard input is only meaningful with an interactive display. When
+        # headless (display=False) skip installing any input hook: pynput's
+        # global listener triggers OS input-monitoring permission prompts and
+        # overflows the event queue when many environments are spawned for
+        # parallel training. The handlers stay callable directly so tests and
+        # programmatic use are unaffected.
+        interactive = getattr(self.env_ref, "display", True) if self.env_ref else True
+
+        if not interactive:
+            self.listener = None
+        elif self.backend == "pynput" and _PYNPUT_AVAILABLE:
             # Use pynput global keyboard listener
             self.listener = keyboard.Listener(
                 on_press=self._on_pynput_press, on_release=self._on_pynput_release

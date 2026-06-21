@@ -542,6 +542,21 @@ def test_keyboard_control():
     assert True  # Add keyboard control related assertions
 
 
+def test_keyboard_listener_skipped_when_headless():
+    """Headless envs must not start the global pynput keyboard listener.
+
+    The listener installs a global OS keyboard hook; starting one per env
+    triggers input-monitoring permission prompts and overflows the event queue
+    when many environments are created for parallel training. With display=False
+    the KeyboardControl object is still created (its handlers stay callable) but
+    no listener thread is started.
+    """
+    env = irsim.make("test_keyboard_control.yaml", save_ani=False, display=False)
+    assert hasattr(env, "keyboard")
+    assert env.keyboard.listener is None
+    env.end()
+
+
 def test_keyboard_control_mpl_backend():
     """Test keyboard control via Matplotlib backend key events."""
     # Ensure world is set to keyboard mode via YAML; KeyboardControl defaults to mpl backend
