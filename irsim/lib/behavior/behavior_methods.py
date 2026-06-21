@@ -128,7 +128,9 @@ def beh_diff_dash(
 
         return np.zeros((2, 1))
 
-    vel = DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt)
+    vel = DiffDash(
+        state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt
+    )
     min_step, max_step = ego_object.get_vel_range()
     return np.clip(vel, min_step, max_step)
 
@@ -347,7 +349,9 @@ def beh_omni_angular_dash(
     acce = ego_object.info.acce
     angular_acce = acce[2, 0] if acce.shape[0] > 2 else float("inf")
     dt = ego_object._world_param.step_time
-    vel = OmniAngularDash(state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt)
+    vel = OmniAngularDash(
+        state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt
+    )
     min_step, max_step = ego_object.get_vel_range()
     return np.clip(vel, min_step, max_step)
 
