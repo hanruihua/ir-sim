@@ -575,7 +575,21 @@ def DiffRVO(
         line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
-    return omni_to_diff(state_tuple[-1], rvo_vel)
+    diff_vel = omni_to_diff(state_tuple[-1], rvo_vel)
+
+    if not diff_vel.any() and not filtered_neighbor_list and not line_segments:
+        # With no neighbors or obstacles in range, a fully frozen command means
+        # the holonomic RVO solution collapsed toward zero velocity because the
+        # goal lies behind the robot (it cannot represent a reversal), so the
+        # diff robot would freeze forever instead of turning around. Rotate in
+        # place toward the desired heading; forward speed stays zero and
+        # ``omni_to_diff`` naturally stops the rotation once the robot faces its
+        # goal. When neighbors are present the freeze is collision avoidance and
+        # the robot must keep waiting, so this branch is skipped entirely.
+        diff_vel = omni_to_diff(state_tuple[-1], [state_tuple[5], state_tuple[6]])
+        diff_vel[0, 0] = 0.0
+
+    return diff_vel
 
 
 def OmniDash(
