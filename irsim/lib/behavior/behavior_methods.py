@@ -115,8 +115,10 @@ def beh_diff_dash(
     state = ego_object.state
     goal = ego_object.goal
     goal_threshold = ego_object.goal_threshold
-    _, max_vel = ego_object.get_vel_range()
+    max_vel = ego_object.vel_max
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
+    angular_acce = ego_object.info.acce[1, 0]
+    dt = ego_object._world_param.step_time
 
     if goal is None:
         if ego_object._world_param.count % 10 == 0:
@@ -126,7 +128,9 @@ def beh_diff_dash(
 
         return np.zeros((2, 1))
 
-    return DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+    vel = DiffDash(state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt)
+    min_step, max_step = ego_object.get_vel_range()
+    return np.clip(vel, min_step, max_step)
 
 
 @register_behavior("omni", "dash")
@@ -155,8 +159,10 @@ def beh_omni_dash(
     state = ego_object.state
     goal = ego_object.goal
     goal_threshold = ego_object.goal_threshold
-    _, max_vel = ego_object.get_vel_range()
-    return OmniDash(state, goal, max_vel, goal_threshold)
+    max_vel = ego_object.vel_max
+    vel = OmniDash(state, goal, max_vel, goal_threshold)
+    min_step, max_step = ego_object.get_vel_range()
+    return np.clip(vel, min_step, max_step)
 
 
 @register_behavior("omni", "rvo")
@@ -336,9 +342,14 @@ def beh_omni_angular_dash(
     state = ego_object.state
     goal = ego_object.goal
     goal_threshold = ego_object.goal_threshold
-    _, max_vel = ego_object.get_vel_range()
+    max_vel = ego_object.vel_max
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
-    return OmniAngularDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+    acce = ego_object.info.acce
+    angular_acce = acce[2, 0] if acce.shape[0] > 2 else float("inf")
+    dt = ego_object._world_param.step_time
+    vel = OmniAngularDash(state, goal, max_vel, goal_threshold, angle_tolerance, angular_acce, dt)
+    min_step, max_step = ego_object.get_vel_range()
+    return np.clip(vel, min_step, max_step)
 
 
 @register_behavior("acker", "dash")
@@ -368,10 +379,11 @@ def beh_acker_dash(
     state = ego_object.state
     goal = ego_object.goal
     goal_threshold = ego_object.goal_threshold
-    _, max_vel = ego_object.get_vel_range()
+    max_vel = ego_object.vel_max
     angle_tolerance = kwargs.get("angle_tolerance", 0.1)
-
-    return AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+    vel = AckerDash(state, goal, max_vel, goal_threshold, angle_tolerance)
+    min_step, max_step = ego_object.get_vel_range()
+    return np.clip(vel, min_step, max_step)
 
 
 def SFMVelocity(
@@ -600,6 +612,8 @@ def OmniAngularDash(
     max_vel: np.ndarray,
     goal_threshold: float = 0.3,
     angle_tolerance: float = 0.1,
+    angular_acce: float = float("inf"),
+    dt: float = 0.0,
 ) -> np.ndarray:
     """
     Calculate body-frame velocity to reach a goal.
@@ -608,12 +622,22 @@ def OmniAngularDash(
     to face it. After arriving at the goal position, rotates in place
     to match the goal orientation.
 
+    The yaw rate is ramped down near the target so the robot can decelerate
+    to a stop within the remaining angle. The ramp uses the exact discrete-time
+    formula ``ω ≤ -a·dt + √(a²·dt² + 2·a·remaining)`` so the robot stops
+    cleanly within one step of ``angle_tolerance`` without overshoot.
+
     Args:
         state (np.array): Current state [x, y, theta] (3x1).
         goal (np.array): Goal state [x, y, theta] (3x1).
-        max_vel (np.array): Maximum velocity [forward, lateral, yaw_rate] (3x1).
+        max_vel (np.array): Absolute maximum velocity [forward, lateral, yaw_rate] (3x1).
         goal_threshold (float): Distance threshold to consider goal reached (default 0.3).
         angle_tolerance (float): Allowable angular deviation (default 0.1).
+        angular_acce (float): Angular acceleration limit (rad/s^2). Used to cap
+            yaw rate so the robot can always stop within the remaining angle.
+            ``inf`` (default) gives bang-bang behaviour.
+        dt (float): Simulation time step (s). Used for exact discrete-time decel
+            ramp. 0 (default) falls back to the continuous-time approximation.
 
     Returns:
         np.array: Body-frame velocity [forward, lateral, yaw_rate] (3x1).
@@ -632,10 +656,19 @@ def OmniAngularDash(
         target_angle = goal[2, 0] if goal.shape[0] > 2 else theta
 
     diff_angle = WrapToPi(target_angle - theta)
-    if abs(diff_angle) > angle_tolerance:
-        yaw_rate = max_vel[2, 0] * np.sign(diff_angle)
+    if abs(diff_angle) <= angle_tolerance:
+        yaw_rate = 0.0
     else:
-        yaw_rate = 0
+        if np.isfinite(angular_acce) and angular_acce > 0:
+            remaining = abs(diff_angle) - angle_tolerance
+            # Exact discrete-time limit: robot moves ω·dt this step before braking,
+            # so the true stopping condition is ω·dt + ω²/(2a) ≤ remaining.
+            # Solving: ω ≤ -a·dt + √(a²·dt² + 2·a·remaining)
+            a_dt = angular_acce * dt
+            max_yaw = -a_dt + np.sqrt(a_dt**2 + 2.0 * angular_acce * remaining)
+        else:
+            max_yaw = abs(max_vel[2, 0])
+        yaw_rate = np.sign(diff_angle) * max_yaw
 
     return np.array([[forward], [lateral], [yaw_rate]])
 
@@ -646,6 +679,8 @@ def DiffDash(
     max_vel: np.ndarray,
     goal_threshold: float = 0.1,
     angle_tolerance: float = 0.2,
+    angular_acce: float = float("inf"),
+    dt: float = 0.0,
 ) -> np.ndarray:
     """
     Calculate the differential drive velocity to reach a goal.
@@ -653,9 +688,12 @@ def DiffDash(
     Args:
         state (np.array): Current state [x, y, theta] (3x1).
         goal (np.array): Goal position [x, y] (2x1).
-        max_vel (np.array): Maximum velocity [linear, angular] (2x1).
+        max_vel (np.array): Absolute maximum velocity [linear, angular] (2x1).
         goal_threshold (float): Distance threshold to consider goal reached (default 0.1).
         angle_tolerance (float): Allowable angular deviation (default 0.2).
+        angular_acce (float): Angular acceleration limit (rad/s^2) for the decel ramp.
+            ``inf`` (default) gives bang-bang behaviour.
+        dt (float): Simulation time step (s) for exact discrete-time decel ramp.
 
     Returns:
         np.array: Velocity [linear, angular] (2x1).
@@ -669,9 +707,15 @@ def DiffDash(
     linear = max_vel[0, 0] * np.cos(diff_radian)
 
     if abs(diff_radian) < angle_tolerance:
-        angular = 0
+        angular = 0.0
     else:
-        angular = max_vel[1, 0] * np.sign(diff_radian)
+        if np.isfinite(angular_acce) and angular_acce > 0:
+            remaining = abs(diff_radian) - angle_tolerance
+            a_dt = angular_acce * dt
+            max_ang = -a_dt + np.sqrt(a_dt**2 + 2.0 * angular_acce * remaining)
+        else:
+            max_ang = abs(max_vel[1, 0])
+        angular = np.sign(diff_radian) * max_ang
 
     return np.array([[linear], [angular]])
 
