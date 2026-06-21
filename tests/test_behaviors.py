@@ -127,9 +127,13 @@ class TestBehaviorCoverage:
         ego.state = np.array([[0], [0], [0]])
         ego.goal = np.array([[1], [1]])
         ego.goal_threshold = 0.1
+        ego.vel_max = np.array([[1.0], [1.0]])
+        ego.info = Mock()
+        ego.info.acce = np.array([[1.0], [1.0]])
         ego.get_vel_range = Mock(
-            return_value=(np.array([[0], [0]]), np.array([[1], [1]]))
+            return_value=(np.array([[-1.0], [-1.0]]), np.array([[1.0], [1.0]]))
         )
+        ego._world_param.step_time = 0.1
         ego.max_speed = 1.0
 
         # This should filter out the obstacle and keep only the robot
@@ -206,17 +210,54 @@ class TestBehaviorMethodsGoalNone:
         ego.state = np.array([[0.0], [0.0], [0.0]])
         ego.goal = np.array([[5.0], [3.0], [1.0]])
         ego.goal_threshold = 0.3
+        ego.vel_max = np.array([[1.0], [1.0], [0.5]])
+        ego.info = Mock()
+        ego.info.acce = np.array([[1.0], [1.0], [3.0]])
         ego.get_vel_range = Mock(
-            return_value=(
-                np.array([[-1.0], [-1.0], [-0.5]]),
-                np.array([[1.0], [1.0], [0.5]]),
-            )
+            return_value=(np.array([[-1.0], [-1.0], [-0.5]]), np.array([[1.0], [1.0], [0.5]]))
         )
         ego._world_param = Mock()
+        ego._world_param.step_time = 0.1
         ego.logger = Mock()
 
         result = beh_omni_angular_dash(ego, [])
         assert result.shape == (3, 1)
+
+    def test_omni_angular_dash_yaw_deceleration(self, dummy_logger):
+        """OmniAngularDash decel ramp: caps yaw below max, mirrors CCW/CW, inf → bang-bang."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal_pos = np.array([[5.0], [0.0], [0.3]])  # goal heading 0.3 rad away
+        max_vel = np.array([[1.0], [1.0], [3.0]])
+        dt = 0.1
+
+        res = OmniAngularDash(
+            state, goal_pos, max_vel, goal_threshold=6.0,
+            angle_tolerance=0.05, angular_acce=3.0, dt=dt,
+        )
+        assert abs(res[2, 0]) < 3.0, "decel ramp should limit yaw rate"
+
+        # Discrete-time ramp: ω·dt + ω²/(2a) ≤ remaining → no overshoot in one step
+        remaining = 0.3 - 0.05
+        a, omega = 3.0, abs(res[2, 0])
+        assert omega * dt + omega**2 / (2 * a) <= remaining + 1e-9, "overshoot in one step"
+
+        # CW goal must produce same magnitude as CCW
+        goal_cw = np.array([[5.0], [0.0], [-0.3]])
+        res_cw = OmniAngularDash(
+            state, goal_cw, max_vel, goal_threshold=6.0,
+            angle_tolerance=0.05, angular_acce=3.0, dt=dt,
+        )
+        assert abs(res[2, 0]) == pytest.approx(abs(res_cw[2, 0]))
+        assert res_cw[2, 0] < 0
+
+        # inf acce → bang-bang (full yaw)
+        res_inf = OmniAngularDash(
+            state, goal_pos, max_vel, goal_threshold=6.0,
+            angle_tolerance=0.05,
+        )
+        assert res_inf[2, 0] == pytest.approx(3.0)
 
 
 class TestBehaviorMethodsFunctions:
