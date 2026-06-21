@@ -299,6 +299,27 @@ class TestBehaviorMethodsFunctions:
         result = DiffRVO(state_tuple, neighbor_list=None)
         assert result.shape == (2, 1)
 
+    def test_diff_rvo_goal_behind_rotates(self):
+        """DiffRVO must turn around instead of freezing when the goal is behind.
+
+        Holonomic RVO collapses toward zero velocity when the goal lies behind
+        the robot (it cannot encode a reversal). With a tight acceleration
+        window the converted command would be all-zeros and a diff robot would
+        freeze forever facing away from its goal. With no neighbors in range the
+        behavior should instead rotate in place toward the desired heading.
+        """
+        from irsim.lib.behavior.behavior_methods import DiffRVO
+
+        # rvo_state = [x, y, vx, vy, radius, vx_des, vy_des, theta]
+        # robot faces +x (theta=0) but the desired velocity points behind it.
+        state_tuple = [0.0, 0.0, 0.0, 0.0, 0.5, -1.0, 0.0, 0.0]
+        # Tight acce window forces the RVO solution below the deadband.
+        result = DiffRVO(state_tuple, neighbor_list=[], acce=0.01)
+
+        assert result.shape == (2, 1)
+        assert result[0, 0] == 0.0  # no forward creep while turning around
+        assert abs(result[1, 0]) > 0.1  # rotates toward the goal instead of freezing
+
     def test_omni_dash_at_goal(self):
         """Test OmniDash when at goal."""
         from irsim.lib.behavior.behavior_methods import OmniDash
