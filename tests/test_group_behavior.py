@@ -3,7 +3,6 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
-from irsim.config import world_param
 from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
 
@@ -144,17 +143,20 @@ class TestGroupBehaviorCoverage:
 
     def test_gen_group_vel_warning_auto_mode(self):
         """Test warning in gen_group_vel when name/kinematics is None (lines 96-101)."""
-        world_param.control_mode = "auto"
-        world_param.count = 20
+        from unittest.mock import patch
 
         member = Mock(spec=ObjectBase)
         member.kinematics = None
+        # gen_group_vel reads the member's world param, so the auto-mode warning
+        # condition must be set there (not on the global world_param).
+        member._world_param.control_mode = "auto"
+        member._world_param.count = 20
 
         gb = GroupBehavior([member], name=None)
-        result = gb.gen_group_vel()
+        with patch("irsim.lib.behavior.group_behavior.log_warning") as mock_log:
+            result = gb.gen_group_vel()
         assert result == [None]
-
-        world_param.control_mode = "keyboard"
+        mock_log.assert_called_once()
 
     def test_load_group_behaviors_import_error(self):
         """Test ImportError handling in load_group_behaviors (lines 132-133)."""

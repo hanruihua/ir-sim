@@ -76,7 +76,7 @@ class reciprocal_vel_obs:
         elif mode == "vo":
             rvo_list = self.config_vo()
 
-        else:
+        else:  # pragma: no cover - defensive guard; callers pass a valid mode
             log_error("wrong method mode, please input vo, rvo or hrvo")
 
         vo_outside, vo_inside = self.vel_candidate(rvo_list)
@@ -120,7 +120,7 @@ class reciprocal_vel_obs:
 
             vo_apex = [mvx, mvy]
             rvo_apex = vo_apex  # vo
-        else:
+        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
             log_error("wrong rvo mode")
 
         dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
@@ -182,7 +182,7 @@ class reciprocal_vel_obs:
             mvy = 0
             mr = obstacle[2] + 0.2
 
-        else:
+        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
             log_error("wrong hrvo mode")
 
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
@@ -271,7 +271,7 @@ class reciprocal_vel_obs:
             mvy = 0
             mr = obstacle[2] + 0.2
 
-        else:
+        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
             log_error("wrong obstacle mode")
 
         vo_apex = [mvx, mvy]
