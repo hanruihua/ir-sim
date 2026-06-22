@@ -4,6 +4,7 @@ from typing import Any
 import numpy as np
 
 from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
+from irsim.util.util import log_error
 
 
 class Behavior:
@@ -134,7 +135,7 @@ class Behavior:
         try:
             importlib.import_module(behaviors, package="irsim.lib.behavior")
         except ImportError as e:
-            print(f"Failed to load module '{behaviors}': {e}")
+            log_error(f"Failed to load module '{behaviors}': {e}")
 
     def invoke_behavior(self, kinematics: str, action: str, **kwargs: Any) -> Any:
         """

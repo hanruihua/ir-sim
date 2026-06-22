@@ -261,7 +261,7 @@ class EnvPlot:
             )
 
             if isinstance(self.ax, Axes3D):
-                print("Map will not show in 3D plot")
+                self.logger.warning("Map will not show in 3D plot")
 
     def draw_trajectory(
         self,

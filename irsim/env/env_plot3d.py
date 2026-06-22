@@ -148,7 +148,7 @@ class EnvPlot3D(EnvPlot):
         )
 
         if show_direction:
-            print("Not support currently")
+            self.logger.warning("show_direction is not supported in 3D plot")
 
         if refresh:
             self.dyna_line_list.append(line)

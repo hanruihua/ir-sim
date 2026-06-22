@@ -22,6 +22,7 @@ from irsim.util.util import (
     geometry_transform,
     get_transform,
     is_convex_and_ordered,
+    log_warning,
 )
 
 
@@ -269,7 +270,7 @@ class PolygonGeometry(geometry_handler):
                 vertices = random_generate_polygon(**kwargs)
 
         elif vertices is None:
-            print("No vertices provided for polygon. Using default square")
+            log_warning("No vertices provided for polygon. Using default square.")
             vertices = [
                 (-1, -1),
                 (1, -1),
@@ -281,7 +282,7 @@ class PolygonGeometry(geometry_handler):
 
         if is_valid(polygon):
             return polygon
-        print("Invalid polygon. Making it valid.")
+        log_warning("Invalid polygon. Making it valid.")
         valid_polygons = make_valid(polygon)
 
         polygon = envelope(valid_polygons)

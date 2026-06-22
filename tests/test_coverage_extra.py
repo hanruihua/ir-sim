@@ -1124,8 +1124,8 @@ class TestLoadBehaviorReinitialization:
         # Verify group behavior reinitialization was called
         mock_group.group_behavior._init_group_behavior_class.assert_called_once()
 
-    def test_load_behavior_import_error_mock(self, capsys):
-        """Test that load_behavior returns early on import error."""
+    def test_load_behavior_import_error_mock(self):
+        """Test that load_behavior logs an error and returns early on import error."""
         from unittest.mock import MagicMock, patch
 
         mock_env = MagicMock()
@@ -1134,14 +1134,15 @@ class TestLoadBehaviorReinitialization:
 
         from irsim.env.env_base import EnvBase
 
-        # Patch importlib to raise ImportError
+        # The failure is reported through the env's own logger (self.logger),
+        # which respects log_level, not printed to stdout.
         with patch(
             "importlib.import_module", side_effect=ImportError("Module not found")
         ):
             EnvBase.load_behavior(mock_env, "nonexistent_module")
 
-        captured = capsys.readouterr()
-        assert "Failed to load module" in captured.out
+        mock_env.logger.error.assert_called_once()
+        assert "Failed to load module" in mock_env.logger.error.call_args[0][0]
 
     def test_load_behavior_skips_none_behaviors(self):
         """Test load_behavior handles objects without behaviors."""

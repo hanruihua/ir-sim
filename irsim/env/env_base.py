@@ -1280,7 +1280,7 @@ class EnvBase:
         try:
             importlib.import_module(behaviors)
         except ImportError as e:
-            print(f"Failed to load module '{behaviors}': {e}")
+            self.logger.error(f"Failed to load module '{behaviors}': {e}")
             return
 
         # Reinitialize individual behaviors for all objects

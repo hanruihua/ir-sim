@@ -10,6 +10,7 @@ from irsim.lib.algorithm.kinematics import (
     omni_angular_kinematics,
     omni_kinematics,
 )
+from irsim.util.util import log_warning
 
 # ---------------------------------------------------------------------------
 # Registry
@@ -384,9 +385,9 @@ class KinematicsFactory:
         # elif name == 'rigid3d':
         #     return Rigid3DKinematics(name, noise, alpha)
         if role == "robot":
-            print(f"Unknown kinematics type: {name}, the robot will be stationary.")
-        else:
-            pass
+            log_warning(
+                f"Unknown kinematics type: {name}, the robot will be stationary."
+            )
 
         # Fallback to a stationary kinematics handler (differential with zero wheelbase)
         return DifferentialKinematics(name or "diff", noise, alpha)

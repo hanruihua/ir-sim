@@ -10,7 +10,7 @@ from math import asin, atan2, cos, pi, sin, sqrt
 
 import numpy as np
 
-from irsim.util.util import dist_hypot
+from irsim.util.util import dist_hypot, log_error
 
 
 class reciprocal_vel_obs:
@@ -77,7 +77,7 @@ class reciprocal_vel_obs:
             rvo_list = self.config_vo()
 
         else:
-            print("wrong method mode, pleas input vo, rvo or hrvo")
+            log_error("wrong method mode, please input vo, rvo or hrvo")
 
         vo_outside, vo_inside = self.vel_candidate(rvo_list)
         return self.vel_select(vo_outside, vo_inside)
@@ -121,7 +121,7 @@ class reciprocal_vel_obs:
             vo_apex = [mvx, mvy]
             rvo_apex = vo_apex  # vo
         else:
-            print("wrong rvo mode")
+            log_error("wrong rvo mode")
 
         dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
         angle_mr = atan2(my - y, mx - x)
@@ -183,7 +183,7 @@ class reciprocal_vel_obs:
             mr = obstacle[2] + 0.2
 
         else:
-            print("wrong hrvo mode")
+            log_error("wrong hrvo mode")
 
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
         vo_apex = [mvx, mvy]
@@ -272,7 +272,7 @@ class reciprocal_vel_obs:
             mr = obstacle[2] + 0.2
 
         else:
-            print("wrong obstacle mode")
+            log_error("wrong obstacle mode")
 
         vo_apex = [mvx, mvy]
         dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)

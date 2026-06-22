@@ -111,21 +111,25 @@ class TestGroupBehavior(unittest.TestCase):
         # Verify function map was NOT queried when class handler exists
         mock_func_map.get.assert_not_called()
 
+    @patch("irsim.lib.behavior.group_behavior.log_error")
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_map")
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_class_map")
-    def test_gen_group_vel_missing_function(self, mock_class_map, mock_func_map):
+    def test_gen_group_vel_missing_function(
+        self, mock_class_map, mock_func_map, mock_log_error
+    ):
         mock_class_map.get.return_value = None
         mock_func_map.get.return_value = None
 
         behavior_dict = {"name": "missing_behavior"}
         gb = GroupBehavior(self.members, **behavior_dict)
 
-        with self.assertLogs("irsim.lib.behavior.group_behavior", level="ERROR") as cm:
-            gb.gen_group_vel()
-
+        # The error is reported through the env logger (util.log_error), which
+        # respects log_level, not a stdlib logging.getLogger.
+        gb.gen_group_vel()
+        mock_log_error.assert_called_once()
         assert (
             "No group behavior method found for category 'diff' and action 'missing_behavior'."
-            in cm.output[0]
+            in mock_log_error.call_args[0][0]
         )
 
     def test_update_members(self):
