@@ -3,7 +3,6 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 
-from irsim.config import world_param
 from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
 
@@ -111,21 +110,25 @@ class TestGroupBehavior(unittest.TestCase):
         # Verify function map was NOT queried when class handler exists
         mock_func_map.get.assert_not_called()
 
+    @patch("irsim.lib.behavior.group_behavior.log_error")
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_map")
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_class_map")
-    def test_gen_group_vel_missing_function(self, mock_class_map, mock_func_map):
+    def test_gen_group_vel_missing_function(
+        self, mock_class_map, mock_func_map, mock_log_error
+    ):
         mock_class_map.get.return_value = None
         mock_func_map.get.return_value = None
 
         behavior_dict = {"name": "missing_behavior"}
         gb = GroupBehavior(self.members, **behavior_dict)
 
-        with self.assertLogs("irsim.lib.behavior.group_behavior", level="ERROR") as cm:
-            gb.gen_group_vel()
-
+        # The error is reported through the env logger (util.log_error), which
+        # respects log_level, not a stdlib logging.getLogger.
+        gb.gen_group_vel()
+        mock_log_error.assert_called_once()
         assert (
             "No group behavior method found for category 'diff' and action 'missing_behavior'."
-            in cm.output[0]
+            in mock_log_error.call_args[0][0]
         )
 
     def test_update_members(self):
@@ -140,17 +143,20 @@ class TestGroupBehaviorCoverage:
 
     def test_gen_group_vel_warning_auto_mode(self):
         """Test warning in gen_group_vel when name/kinematics is None (lines 96-101)."""
-        world_param.control_mode = "auto"
-        world_param.count = 20
+        from unittest.mock import patch
 
         member = Mock(spec=ObjectBase)
         member.kinematics = None
+        # gen_group_vel reads the member's world param, so the auto-mode warning
+        # condition must be set there (not on the global world_param).
+        member._world_param.control_mode = "auto"
+        member._world_param.count = 20
 
         gb = GroupBehavior([member], name=None)
-        result = gb.gen_group_vel()
+        with patch("irsim.lib.behavior.group_behavior.log_warning") as mock_log:
+            result = gb.gen_group_vel()
         assert result == [None]
-
-        world_param.control_mode = "keyboard"
+        mock_log.assert_called_once()
 
     def test_load_group_behaviors_import_error(self):
         """Test ImportError handling in load_group_behaviors (lines 132-133)."""

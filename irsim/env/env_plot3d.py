@@ -147,8 +147,8 @@ class EnvPlot3D(EnvPlot):
             path_x_list, path_y_list, path_z_list, traj_type, label=label, **kwargs
         )
 
-        if show_direction:
-            print("Not support currently")
+        if show_direction and self.logger is not None:
+            self.logger.warning("show_direction is not supported in 3D plot")
 
         if refresh:
             self.dyna_line_list.append(line)

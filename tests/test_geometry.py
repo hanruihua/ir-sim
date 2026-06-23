@@ -220,6 +220,39 @@ class TestGeometryHandlerCoverage:
         polygon = PolygonGeometry(name="polygon", vertices=vertices)
         assert polygon.geometry is not None
 
+    def test_polygon_warnings_route_through_logger(self):
+        """Geometry warnings must go through the env logger (respect log_level),
+        not unconditional print(). See issue #301 supplementary item."""
+        from unittest.mock import patch
+
+        from irsim.lib.handler.geometry_handler import PolygonGeometry
+
+        with patch("irsim.lib.handler.geometry_handler.log_warning") as mock_log:
+            # Self-intersecting bowtie is invalid and gets repaired.
+            PolygonGeometry(name="polygon", vertices=[(0, 0), (1, 1), (1, 0), (0, 1)])
+            mock_log.assert_called_once()
+            assert "Invalid polygon" in mock_log.call_args[0][0]
+
+            # Missing vertices fall back to the default square with a warning.
+            mock_log.reset_mock()
+            PolygonGeometry(name="polygon", vertices=None)
+            mock_log.assert_called_once()
+            assert "No vertices" in mock_log.call_args[0][0]
+
+    def test_polygon_warning_silent_without_logger(self, capsys):
+        """With no env logger configured, the geometry warning is silently
+        dropped instead of printed to stdout."""
+        from unittest.mock import MagicMock, patch
+
+        from irsim.lib.handler.geometry_handler import PolygonGeometry
+
+        # Simulate "no env logger configured": log_warning must no-op silently.
+        no_logger = MagicMock()
+        no_logger.logger = None
+        with patch("irsim.util.util.env_param", no_logger):
+            PolygonGeometry(name="polygon", vertices=None)
+        assert capsys.readouterr().out == ""
+
     def test_linestring_random_convex(self):
         """Test linestring with random_shape and is_convex=True (lines 348-349)."""
         from irsim.lib.handler.geometry_handler import LinestringGeometry

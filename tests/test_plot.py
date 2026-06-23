@@ -138,6 +138,33 @@ class TestEnvPlot3D:
         """Test draw_quivers with list of 3D arrays."""
         plot_3d.draw_quivers([np.array([1.0, 2.0, 0.5, 0.1, 0.2, 0.3])], refresh=True)
 
+    def test_draw_grid_map_3d_without_logger(self):
+        """draw_grid_map on a 3D axis must not crash when no env logger is set.
+
+        self.logger resolves to env_param.logger, which defaults to None, so the
+        "Map will not show in 3D plot" warning must be guarded.
+        """
+        from types import SimpleNamespace
+
+        fig = plt.figure()
+        ax3d = fig.add_subplot(111, projection="3d")
+        # No env logger configured -> logger is None.
+        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=None)
+        EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))  # must not raise
+        plt.close("all")
+
+    def test_draw_grid_map_3d_warns_with_logger(self):
+        """When a logger is present the 3D grid-map warning is still emitted."""
+        from types import SimpleNamespace
+
+        fig = plt.figure()
+        ax3d = fig.add_subplot(111, projection="3d")
+        logger = Mock()
+        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=logger)
+        EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))
+        logger.warning.assert_called_once()
+        plt.close("all")
+
 
 class TestDrawPatch:
     """Tests for draw_patch function with various shapes."""
