@@ -260,7 +260,7 @@ class EnvPlot:
                 zorder=0,
             )
 
-            if isinstance(self.ax, Axes3D):
+            if isinstance(self.ax, Axes3D) and self.logger is not None:
                 self.logger.warning("Map will not show in 3D plot")
 
     def draw_trajectory(
