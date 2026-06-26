@@ -77,6 +77,10 @@ class EnvPlot:
             dpi=self.saved_figure_kwargs["dpi"],
         )
 
+        # Initial figure size. Saved animation frames are pinned to it so that
+        # size (bbox_inches="tight" otherwise recomputes it from the window).
+        self._save_size = self.fig.get_size_inches().copy()
+
         self.viewpoint = world.plot_parse.get("viewpoint", None)
 
         # Initialize dynamic plotting lists
@@ -108,6 +112,8 @@ class EnvPlot:
         world.plot_parse.update(kwargs)
         self.world = world
         self.saved_ani_kwargs: dict[str, Any] = {}
+        # Frozen crop box for animation frames (computed lazily on first save).
+        self._save_bbox: Any = None
         self.title = world.plot_parse.get("title", None)
         self.show_title = world.plot_parse.get("show_title", True)
         self.saved_figure_kwargs.update(world.plot_parse.get("saved_figure", {}))
@@ -449,7 +455,38 @@ class EnvPlot:
         else:
             full_name = fp + "/" + file_name + "." + file_format
 
-        self.fig.savefig(full_name, format=file_format, **self.saved_figure_kwargs)
+        save_kwargs = self.saved_figure_kwargs
+        restore_size = None
+        if save_gif:
+            # Save at the fixed initial size with a frozen crop box so every
+            # animation frame is the same size, then restore the window's current
+            # size so the user can still resize/zoom the live figure during render.
+            restore_size = self.fig.get_size_inches().copy()
+            if self._save_bbox is None:
+                self._save_bbox = self._init_save_bbox()
+            # forward=False resizes the figure for the save only, without
+            # resizing the on-screen window (which would flicker every frame).
+            self.fig.set_size_inches(self._save_size, forward=False)
+            save_kwargs = {**self.saved_figure_kwargs, "bbox_inches": self._save_bbox}
+
+        self.fig.savefig(full_name, format=file_format, **save_kwargs)
+
+        if restore_size is not None:
+            self.fig.set_size_inches(restore_size, forward=False)
+
+    def _init_save_bbox(self) -> Any:
+        """Tight crop box of the initial figure, captured once and reused.
+
+        Reusing one crop box (with the figure pinned to its initial size) keeps
+        every animation frame the same size, regardless of how the window was
+        resized or zoomed. The mp4 encoder's even-size requirement is handled at
+        write time (ffmpeg pad), not here, since bbox->pixel rounding can't
+        guarantee an even pixel count.
+        """
+        self.fig.set_size_inches(self._save_size, forward=False)
+        self.fig.canvas.draw()
+        pad = self.saved_figure_kwargs.get("pad_inches", 0.1)
+        return self.fig.get_tightbbox(self.fig.canvas.get_renderer()).padded(pad)
 
     def save_animate(
         self,
@@ -522,6 +559,14 @@ class EnvPlot:
             # Video format (e.g., .mp4) - stream frames to encoder
             video_kwargs = self.saved_ani_kwargs.copy()
             fps = video_kwargs.pop("fps", 10)
+            # H.264 needs even dimensions; the tight crop is often odd. Let ffmpeg
+            # pad (not resize) each frame up to even, so the video isn't distorted
+            # and the encoder doesn't reject odd sizes. macro_block_size=1 stops
+            # imageio from doing its own resize first.
+            video_kwargs.setdefault("macro_block_size", 1)
+            video_kwargs.setdefault(
+                "output_params", ["-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"]
+            )
 
             # Use get_writer for memory-efficient streaming writes
             with imageio.get_writer(full_name, fps=fps, **video_kwargs) as writer:
