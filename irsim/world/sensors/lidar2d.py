@@ -8,7 +8,6 @@ from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from shapely import MultiLineString, prepare
-from shapely.geometry import GeometryCollection
 
 from irsim.util.random import rng
 from irsim.util.util import (
@@ -276,12 +275,21 @@ class Lidar2D:
                     intersect_indices.append(geom_index)
 
         if geometries_to_subtract:
-            obstacle = (
-                geometries_to_subtract[0]
-                if len(geometries_to_subtract) == 1
-                else GeometryCollection(geometries_to_subtract)
-            )
-            lidar_geometry = lidar_geometry.difference(obstacle)
+            # Subtract linestrings (e.g. the static map) and polygons (e.g. moving
+            # obstacles) as separate, merged groups. Putting both kinds into one
+            # GeometryCollection makes GEOS's difference 2-3x slower, so adding a
+            # single dynamic obstacle on top of a map stalls the lidar (issue #302).
+            polygons = []
+            lines = []
+            for g in geometries_to_subtract:
+                bucket = (
+                    polygons if g.geom_type in ("Polygon", "MultiPolygon") else lines
+                )
+                bucket.append(g)
+            for group in (lines, polygons):
+                if group:
+                    obstacle = group[0] if len(group) == 1 else shapely.union_all(group)
+                    lidar_geometry = lidar_geometry.difference(obstacle)
             lidar_geometry = self._ensure_multi_linestring(lidar_geometry)
 
         return lidar_geometry, intersect_indices
