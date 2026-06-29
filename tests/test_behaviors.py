@@ -127,9 +127,13 @@ class TestBehaviorCoverage:
         ego.state = np.array([[0], [0], [0]])
         ego.goal = np.array([[1], [1]])
         ego.goal_threshold = 0.1
+        ego.vel_max = np.array([[1.0], [1.0]])
+        ego.info = Mock()
+        ego.info.acce = np.array([[1.0], [1.0]])
         ego.get_vel_range = Mock(
-            return_value=(np.array([[0], [0]]), np.array([[1], [1]]))
+            return_value=(np.array([[-1.0], [-1.0]]), np.array([[1.0], [1.0]]))
         )
+        ego._world_param.step_time = 0.1
         ego.max_speed = 1.0
 
         # This should filter out the obstacle and keep only the robot
@@ -206,6 +210,9 @@ class TestBehaviorMethodsGoalNone:
         ego.state = np.array([[0.0], [0.0], [0.0]])
         ego.goal = np.array([[5.0], [3.0], [1.0]])
         ego.goal_threshold = 0.3
+        ego.vel_max = np.array([[1.0], [1.0], [0.5]])
+        ego.info = Mock()
+        ego.info.acce = np.array([[1.0], [1.0], [3.0]])
         ego.get_vel_range = Mock(
             return_value=(
                 np.array([[-1.0], [-1.0], [-0.5]]),
@@ -213,10 +220,104 @@ class TestBehaviorMethodsGoalNone:
             )
         )
         ego._world_param = Mock()
+        ego._world_param.step_time = 0.1
         ego.logger = Mock()
 
         result = beh_omni_angular_dash(ego, [])
         assert result.shape == (3, 1)
+
+    def test_omni_angular_dash_yaw_deceleration(self, dummy_logger):
+        """OmniAngularDash decel ramp: caps yaw below max, mirrors CCW/CW, inf → bang-bang."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal_pos = np.array([[5.0], [0.0], [0.3]])  # goal heading 0.3 rad away
+        max_vel = np.array([[1.0], [1.0], [3.0]])
+        dt = 0.1
+
+        res = OmniAngularDash(
+            state,
+            goal_pos,
+            max_vel,
+            goal_threshold=6.0,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=dt,
+        )
+        assert abs(res[2, 0]) < 3.0, "decel ramp should limit yaw rate"
+
+        # Discrete-time ramp: ω·dt + ω²/(2a) ≤ remaining → no overshoot in one step
+        remaining = 0.3 - 0.05
+        a, omega = 3.0, abs(res[2, 0])
+        assert omega * dt + omega**2 / (2 * a) <= remaining + 1e-9, (
+            "overshoot in one step"
+        )
+
+        # CW goal must produce same magnitude as CCW
+        goal_cw = np.array([[5.0], [0.0], [-0.3]])
+        res_cw = OmniAngularDash(
+            state,
+            goal_cw,
+            max_vel,
+            goal_threshold=6.0,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=dt,
+        )
+        assert abs(res[2, 0]) == pytest.approx(abs(res_cw[2, 0]))
+        assert res_cw[2, 0] < 0
+
+        # inf acce → bang-bang (full yaw)
+        res_inf = OmniAngularDash(
+            state,
+            goal_pos,
+            max_vel,
+            goal_threshold=6.0,
+            angle_tolerance=0.05,
+        )
+        assert res_inf[2, 0] == pytest.approx(3.0)
+
+    def test_omni_angular_dash_yaw_capped_at_max_vel(self, dummy_logger):
+        """Large heading error: the decel ramp is capped at max_vel, not exceeded."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        # At goal position, but goal heading is ~pi away -> large remaining, so the
+        # uncapped decel ramp (~3.9) would exceed the 3.0 yaw-rate limit.
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[0.0], [0.0], [3.0]])
+        max_vel = np.array([[1.0], [1.0], [3.0]])
+
+        res = OmniAngularDash(
+            state,
+            goal,
+            max_vel,
+            goal_threshold=0.5,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=0.1,
+        )
+        assert res[2, 0] == pytest.approx(3.0)
+
+    def test_diff_dash_angular_capped_at_max_vel(self, dummy_logger):
+        """Large heading error: DiffDash decel ramp is capped at max_vel."""
+        from irsim.lib.behavior.behavior_methods import DiffDash
+
+        # Goal directly behind -> heading error ~pi, so the uncapped ramp (~4.0)
+        # would exceed the 2.0 angular limit.
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[-5.0], [0.0]])
+        max_vel = np.array([[1.0], [2.0]])
+
+        res = DiffDash(
+            state,
+            goal,
+            max_vel,
+            goal_threshold=0.1,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=0.1,
+        )
+        assert abs(res[1, 0]) == pytest.approx(2.0)
 
 
 class TestBehaviorMethodsFunctions:
@@ -239,6 +340,27 @@ class TestBehaviorMethodsFunctions:
         state_tuple = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0)
         result = DiffRVO(state_tuple, neighbor_list=None)
         assert result.shape == (2, 1)
+
+    def test_diff_rvo_goal_behind_rotates(self):
+        """DiffRVO must turn around instead of freezing when the goal is behind.
+
+        Holonomic RVO collapses toward zero velocity when the goal lies behind
+        the robot (it cannot encode a reversal). With a tight acceleration
+        window the converted command would be all-zeros and a diff robot would
+        freeze forever facing away from its goal. With no neighbors in range the
+        behavior should instead rotate in place toward the desired heading.
+        """
+        from irsim.lib.behavior.behavior_methods import DiffRVO
+
+        # rvo_state = [x, y, vx, vy, radius, vx_des, vy_des, theta]
+        # robot faces +x (theta=0) but the desired velocity points behind it.
+        state_tuple = [0.0, 0.0, 0.0, 0.0, 0.5, -1.0, 0.0, 0.0]
+        # Tight acce window forces the RVO solution below the deadband.
+        result = DiffRVO(state_tuple, neighbor_list=[], acce=0.01)
+
+        assert result.shape == (2, 1)
+        assert result[0, 0] == 0.0  # no forward creep while turning around
+        assert abs(result[1, 0]) > 0.1  # rotates toward the goal instead of freezing
 
     def test_omni_dash_at_goal(self):
         """Test OmniDash when at goal."""
