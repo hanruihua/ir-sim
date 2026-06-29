@@ -91,6 +91,11 @@ class EnvBase:
             Default is False.
         save_ani (bool): Whether to save the simulation as an animation file.
             Useful for creating videos of simulation runs. Default is False.
+        ani_kwargs (dict, optional): Default keyword arguments for animation
+            saving (see :py:meth:`.EnvPlot.save_animate`), e.g.
+            ``{"suffix": ".mp4"}``. Honored by every save path, including
+            quitting with ESC; per-call ``end(**kwargs)`` overrides them.
+            Default is None.
         full (bool): Whether to display the visualization in full screen mode.
             Only effective on supported platforms. Default is False.
         log_file (str, optional): Path to the log file for saving simulation logs.
@@ -139,6 +144,7 @@ class EnvBase:
         display: bool = True,
         disable_all_plot: bool = False,
         save_ani: bool = False,
+        ani_kwargs: dict[str, Any] | None = None,
         full: bool = False,
         log_file: str | None = None,
         log_level: str = "INFO",
@@ -164,6 +170,9 @@ class EnvBase:
 
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
+        # Copy so later external mutation of the caller's dict can't change
+        # this env's default animation-save behavior.
+        self.ani_kwargs: dict[str, Any] = dict(ani_kwargs) if ani_kwargs else {}
 
         self._env_param.logger = EnvLogger(log_file, log_level)
 
@@ -557,6 +566,7 @@ class EnvBase:
             return
 
         if self.save_ani:
+            kwargs = {**self.ani_kwargs, **kwargs}
             if "ani_name" not in kwargs:
                 kwargs["ani_name"] = f"animation_{self._world.name}"
 

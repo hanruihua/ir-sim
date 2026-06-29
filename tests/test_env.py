@@ -506,6 +506,36 @@ class TestAnimationSaving:
             env.render(0.01)
         env.end(ani_name="test_animation")
 
+    def test_ani_kwargs_honored_by_quit_and_overridable(self):
+        """ani_kwargs default is used by every save path (incl. ESC/quit) and
+        is overridable per call. See issue #301 (ESC saved .gif not .mp4)."""
+        from unittest.mock import MagicMock
+
+        # default format set up front
+        env = irsim.make(
+            "test_render.yaml",
+            save_ani=True,
+            display=False,
+            ani_kwargs={"suffix": ".mp4"},
+        )
+        env._env_plot.save_animate = MagicMock()
+
+        # ESC path: quit() calls end() itself -> must use the stored suffix
+        with pytest.raises(SystemExit):
+            env.quit()
+        assert env._env_plot.save_animate.call_args.kwargs["suffix"] == ".mp4"
+
+        # per-call kwargs override the stored default
+        env2 = irsim.make(
+            "test_render.yaml",
+            save_ani=True,
+            display=False,
+            ani_kwargs={"suffix": ".mp4"},
+        )
+        env2._env_plot.save_animate = MagicMock()
+        env2.end(ending_time=0, suffix=".gif")
+        assert env2._env_plot.save_animate.call_args.kwargs["suffix"] == ".gif"
+
 
 class TestRandomization:
     """Tests for randomization methods."""
