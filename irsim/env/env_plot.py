@@ -77,8 +77,9 @@ class EnvPlot:
             dpi=self.saved_figure_kwargs["dpi"],
         )
 
-        # Initial figure size. Saved animation frames are pinned to it so that
-        # size (bbox_inches="tight" otherwise recomputes it from the window).
+        # Default size for saved animation frames; refined on the first saved
+        # frame (see save_figure) so every frame is pinned to it
+        # (bbox_inches="tight" otherwise recomputes it from the window).
         self._save_size = self.fig.get_size_inches().copy()
 
         self.viewpoint = world.plot_parse.get("viewpoint", None)
@@ -463,6 +464,11 @@ class EnvPlot:
             # size so the user can still resize/zoom the live figure during render.
             restore_size = self.fig.get_size_inches().copy()
             if self._save_bbox is None:
+                # Pin every frame to the size of the first frame actually saved
+                # (which reflects any resize the user did before saving started),
+                # not the construction-time size. Set before _init_save_bbox,
+                # which reads self._save_size.
+                self._save_size = restore_size.copy()
                 self._save_bbox = self._init_save_bbox()
             # forward=False resizes the figure for the save only, without
             # resizing the on-screen window (which would flicker every frame).

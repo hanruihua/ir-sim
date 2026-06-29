@@ -170,7 +170,9 @@ class EnvBase:
 
         self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
-        self.ani_kwargs: dict[str, Any] = ani_kwargs or {}
+        # Copy so later external mutation of the caller's dict can't change
+        # this env's default animation-save behavior.
+        self.ani_kwargs: dict[str, Any] = dict(ani_kwargs) if ani_kwargs else {}
 
         self._env_param.logger = EnvLogger(log_file, log_level)
 
