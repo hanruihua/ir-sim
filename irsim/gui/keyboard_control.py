@@ -193,11 +193,12 @@ class KeyboardControl:
             pass
 
         # Keyboard input is only meaningful with an interactive display. When
-        # headless (display=False) skip installing any input hook: pynput's
-        # global listener triggers OS input-monitoring permission prompts and
-        # overflows the event queue when many environments are spawned for
-        # parallel training. The handlers stay callable directly so tests and
-        # programmatic use are unaffected.
+        # headless (display=False) skip installing the global OS keyboard
+        # listener (and the matplotlib key-event fallback): pynput's listener
+        # triggers OS input-monitoring permission prompts and can overflow the
+        # event queue when many environments are spawned for parallel training.
+        # The matplotlib focus wiring above still runs; the handlers stay
+        # callable directly so tests and programmatic use are unaffected.
         interactive = getattr(self.env_ref, "display", True) if self.env_ref else True
 
         if not interactive:

@@ -684,6 +684,9 @@ def OmniAngularDash(
             # Solving: ω ≤ -a·dt + √(a²·dt² + 2·a·remaining)
             a_dt = angular_acce * dt
             max_yaw = -a_dt + np.sqrt(a_dt**2 + 2.0 * angular_acce * remaining)
+            # The decel ramp grows unbounded with ``remaining``; never exceed
+            # the configured yaw-rate limit.
+            max_yaw = min(abs(max_vel[2, 0]), max_yaw)
         else:
             max_yaw = abs(max_vel[2, 0])
         yaw_rate = np.sign(diff_angle) * max_yaw
@@ -731,6 +734,9 @@ def DiffDash(
             remaining = abs(diff_radian) - angle_tolerance
             a_dt = angular_acce * dt
             max_ang = -a_dt + np.sqrt(a_dt**2 + 2.0 * angular_acce * remaining)
+            # The decel ramp grows unbounded with ``remaining``; never exceed
+            # the configured angular-speed limit.
+            max_ang = min(abs(max_vel[1, 0]), max_ang)
         else:
             max_ang = abs(max_vel[1, 0])
         angular = np.sign(diff_radian) * max_ang

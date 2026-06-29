@@ -277,6 +277,48 @@ class TestBehaviorMethodsGoalNone:
         )
         assert res_inf[2, 0] == pytest.approx(3.0)
 
+    def test_omni_angular_dash_yaw_capped_at_max_vel(self, dummy_logger):
+        """Large heading error: the decel ramp is capped at max_vel, not exceeded."""
+        from irsim.lib.behavior.behavior_methods import OmniAngularDash
+
+        # At goal position, but goal heading is ~pi away -> large remaining, so the
+        # uncapped decel ramp (~3.9) would exceed the 3.0 yaw-rate limit.
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[0.0], [0.0], [3.0]])
+        max_vel = np.array([[1.0], [1.0], [3.0]])
+
+        res = OmniAngularDash(
+            state,
+            goal,
+            max_vel,
+            goal_threshold=0.5,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=0.1,
+        )
+        assert res[2, 0] == pytest.approx(3.0)
+
+    def test_diff_dash_angular_capped_at_max_vel(self, dummy_logger):
+        """Large heading error: DiffDash decel ramp is capped at max_vel."""
+        from irsim.lib.behavior.behavior_methods import DiffDash
+
+        # Goal directly behind -> heading error ~pi, so the uncapped ramp (~4.0)
+        # would exceed the 2.0 angular limit.
+        state = np.array([[0.0], [0.0], [0.0]])
+        goal = np.array([[-5.0], [0.0]])
+        max_vel = np.array([[1.0], [2.0]])
+
+        res = DiffDash(
+            state,
+            goal,
+            max_vel,
+            goal_threshold=0.1,
+            angle_tolerance=0.05,
+            angular_acce=3.0,
+            dt=0.1,
+        )
+        assert abs(res[1, 0]) == pytest.approx(2.0)
+
 
 class TestBehaviorMethodsFunctions:
     """Tests for standalone behavior method functions."""
