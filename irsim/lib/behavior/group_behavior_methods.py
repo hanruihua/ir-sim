@@ -139,6 +139,11 @@ class OrcaGroupBehavior:
             list[np.ndarray]: the velocities of the members
         """
 
+        # Keep the kinematics mapping in sync with the call-time members, in
+        # case the group was rebuilt or its members changed since __init__.
+        if members:
+            self._kinematics = members[0].kinematics
+
         # If agent count mismatches, rebuild
         try:
             if self._sim.get_num_agents() != len(members):

@@ -281,6 +281,36 @@ class TestOrcaGroupBehaviorCoverage:
         orca = OrcaGroupBehavior([member])
         assert orca._pref_velocity(member) == [0.0, 0.0]
 
+    def test_orca_call_refreshes_kinematics_from_members(self):
+        """__call__ re-reads kinematics from the call-time members, so a reused
+        or rebuilt handler maps the ORCA output for the current members."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "diff"
+        member.state = np.array([[0.0], [0.0], [0.0]])
+        member.goal = np.array([[10.0], [0.0], [0.0]])
+        member.radius = 0.2
+        member.max_speed = 1.5
+        member.vel_max = np.array([[1.5], [1.0]])
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        orca = OrcaGroupBehavior([member])
+        # Simulate a stale cached kinematics (e.g. handler reused after the
+        # group's members changed); __call__ must correct it.
+        orca._kinematics = "omni"
+        result = orca([member])
+
+        assert orca._kinematics == "diff"
+        assert result[0].shape == (2, 1)
+        # diff mapping: aligned with the goal -> forward, no turn.
+        assert result[0][0, 0] == pytest.approx(1.5, abs=1e-6)
+        assert result[0][1, 0] == pytest.approx(0.0, abs=1e-6)
+
     def test_orca_diff_integration_via_make(self, tmp_path):
         """End-to-end: a diff + orca scenario dispatches to ``beh_diff_orca``
         through the registry and drives the robots toward their goals."""
