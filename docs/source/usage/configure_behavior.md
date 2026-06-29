@@ -255,11 +255,13 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 | Scope | Individual object | All objects in a group |
 | Computation | Per-object each step | All members at once |
 | Use case | Simple navigation | Coordinated multi-agent |
-| Available | `dash`, `rvo`, `sfm` (kinematics-dependent — see matrix above) | `orca` |
+| Available | `dash`, `rvo`, `sfm` (kinematics-dependent — see matrix above) | `orca` (`omni`, `diff`) |
 
 ### ORCA (Optimal Reciprocal Collision Avoidance)
 
 ORCA is a classical built-in group-level collision avoidance algorithm that computes optimal velocities for multiple agents simultaneously. It ensures smooth, collision-free navigation even with hundreds of agents.
+
+ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same.
 
 :::{note}
 ORCA requires the `pyrvo` library, which is a python binding for the ORCA C++ algorithm. Install it using:

@@ -2,6 +2,9 @@
 
 ## 2.10.1 (unreleased)
 
+- Features:
+  - Add `orca` group behavior support for `diff` robots; ORCA's holonomic velocity is mapped to `(linear, angular)` via `omni_to_diff`, with a `19orca_world/orca_diff_world` usage example. ([#333](https://github.com/hanruihua/ir-sim/pull/333))
+
 - Fix:
   - Suppress the default velocity arrow on static obstacles by gating the handler-derived `show_arrow` on `not self.static` (regression from v2.9.2's kinematics-handler registry refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))
 

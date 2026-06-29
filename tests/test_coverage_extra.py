@@ -869,9 +869,10 @@ class TestOrcaGroupBehaviorCoverage:
 
         from irsim.lib.behavior.behavior_registry import group_behaviors_class_map
 
-        key = ("omni", "orca")
-        if key in group_behaviors_class_map:
-            del group_behaviors_class_map[key]
+        # ORCA registers both omni and diff handlers; clear both so a fresh
+        # import doesn't trip the duplicate-registration guard.
+        for key in (("omni", "orca"), ("diff", "orca")):
+            group_behaviors_class_map.pop(key, None)
 
         # Also clear the module cache
         if "irsim.lib.behavior.group_behavior_methods" in sys.modules:
@@ -884,9 +885,8 @@ class TestOrcaGroupBehaviorCoverage:
         from irsim.lib.behavior.behavior_registry import group_behaviors_class_map
 
         # Clear registration if it exists (from mock import)
-        key = ("omni", "orca")
-        if key in group_behaviors_class_map:
-            del group_behaviors_class_map[key]
+        for key in (("omni", "orca"), ("diff", "orca")):
+            group_behaviors_class_map.pop(key, None)
 
         # Clear module cache
         if "irsim.lib.behavior.group_behavior_methods" in sys.modules:
