@@ -413,8 +413,8 @@ msgid "`dash`, `rvo`, `sfm` (kinematics-dependent — see matrix above)"
 msgstr "`dash`、`rvo`、`sfm`（取决于运动学模型 —— 见上方矩阵）"
 
 #: ../../source/usage/configure_behavior.md:218
-msgid "`orca`"
-msgstr "`orca`"
+msgid "`orca` (`omni`, `diff`)"
+msgstr "`orca`（`omni`、`diff`）"
 
 #: ../../source/usage/configure_behavior.md:260
 msgid "ORCA (Optimal Reciprocal Collision Avoidance)"
@@ -426,6 +426,20 @@ msgid ""
 "computes optimal velocities for multiple agents simultaneously. It ensures "
 "smooth, collision-free navigation even with hundreds of agents."
 msgstr "ORCA 是一种经典的内置群组级碰撞避免算法，可同时为多个智能体计算最优速度。即使有数百个智能体，也能确保平滑无碰撞的导航。"
+
+#: ../../source/usage/configure_behavior.md:264
+msgid ""
+"ORCA supports both `omni` and `diff` kinematics. It plans a holonomic "
+"velocity `(vx, vy)` for every member: `omni` robots use it directly, while "
+"`diff` robots map it to a `(linear, angular)` command, so a differential-"
+"drive robot turns toward the planned direction and slows down when it is not "
+"yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the "
+"differential-drive variant; all ORCA parameters below stay the same."
+msgstr ""
+"ORCA 同时支持 `omni` 和 `diff` 运动学模型。它为每个成员规划一个完整（全向）"
+"速度 `(vx, vy)`：`omni` 机器人直接使用该速度，而 `diff` 机器人会将其映射为 "
+"`(线速度, 角速度)` 指令，因此差速机器人会朝规划方向转向，并在尚未对准时减速。"
+"在群组上设置 `kinematics: {name: 'diff'}` 即可使用差速变体；下方的所有 ORCA 参数保持不变。"
 
 #: ../../source/usage/configure_behavior.md:265
 msgid ""

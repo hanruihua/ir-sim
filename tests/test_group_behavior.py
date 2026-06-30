@@ -225,6 +225,127 @@ class TestOrcaGroupBehaviorCoverage:
         result = orca([member1, member2])
         assert len(result) == 2
 
+    def test_orca_diff_outputs_unicycle_velocity(self):
+        """diff ORCA maps the holonomic plan to (linear, angular)."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        def make_member(theta):
+            m = Mock(spec=ObjectBase)
+            m.kinematics = "diff"
+            m.state = np.array([[0.0], [0.0], [theta]])
+            m.goal = np.array([[10.0], [0.0], [0.0]])
+            m.radius = 0.2
+            m.max_speed = 1.5
+            m.vel_max = np.array([[1.5], [1.0]])
+            m._world_param = Mock()
+            m._world_param.step_time = 0.1
+            return m
+
+        # Single isolated robot already facing its goal: the holonomic plan
+        # passes straight through, so it drives forward with no turn.
+        facing = make_member(0.0)
+        orca = OrcaGroupBehavior([facing])
+        result = orca([facing])
+        assert len(result) == 1
+        assert result[0].shape == (2, 1)
+        assert result[0][0, 0] == pytest.approx(1.5, abs=1e-6)
+        assert result[0][1, 0] == pytest.approx(0.0, abs=1e-6)
+
+        # Robot facing away from its goal turns in place instead of reversing.
+        backward = make_member(np.pi)
+        orca = OrcaGroupBehavior([backward])
+        result = orca([backward])
+        assert result[0][0, 0] == pytest.approx(0.0, abs=1e-6)
+        assert abs(result[0][1, 0]) > 0.0
+
+    def test_orca_diff_zero_when_no_goal(self):
+        """diff preferred velocity is zero when a member has no goal."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "diff"
+        member.state = np.array([[0.0], [0.0], [0.0]])
+        member.goal = None
+        member.radius = 0.2
+        member.max_speed = 1.5
+        member.vel_max = np.array([[1.5], [1.0]])
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        orca = OrcaGroupBehavior([member])
+        assert orca._pref_velocity(member) == [0.0, 0.0]
+
+    def test_orca_call_refreshes_kinematics_from_members(self):
+        """__call__ re-reads kinematics from the call-time members, so a reused
+        or rebuilt handler maps the ORCA output for the current members."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "diff"
+        member.state = np.array([[0.0], [0.0], [0.0]])
+        member.goal = np.array([[10.0], [0.0], [0.0]])
+        member.radius = 0.2
+        member.max_speed = 1.5
+        member.vel_max = np.array([[1.5], [1.0]])
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        orca = OrcaGroupBehavior([member])
+        # Simulate a stale cached kinematics (e.g. handler reused after the
+        # group's members changed); __call__ must correct it.
+        orca._kinematics = "omni"
+        result = orca([member])
+
+        assert orca._kinematics == "diff"
+        assert result[0].shape == (2, 1)
+        # diff mapping: aligned with the goal -> forward, no turn.
+        assert result[0][0, 0] == pytest.approx(1.5, abs=1e-6)
+        assert result[0][1, 0] == pytest.approx(0.0, abs=1e-6)
+
+    def test_orca_diff_integration_via_make(self, tmp_path):
+        """End-to-end: a diff + orca scenario dispatches to ``beh_diff_orca``
+        through the registry and drives the robots toward their goals."""
+        import pytest
+
+        pytest.importorskip("pyrvo")
+        import irsim
+
+        config = tmp_path / "orca_diff.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 20\n"
+            "  width: 20\n"
+            "  step_time: 0.1\n"
+            "robot:\n"
+            "  - number: 3\n"
+            "    kinematics: {name: 'diff'}\n"
+            "    shape: {name: 'circle', radius: 0.3}\n"
+            "    distribution: {name: 'circle', radius: 5}\n"
+            "    vel_max: [2, 1.5]\n"
+            "    group_behavior: {name: 'orca', neighborDist: 8.0, safe_radius: 0.2}\n"
+        )
+
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            start = np.array([r.state[:2, 0] for r in env.robot_list])
+            for _ in range(30):
+                env.step()
+            end = np.array([r.state[:2, 0] for r in env.robot_list])
+        finally:
+            env.end()
+
+        # ORCA produced non-zero diff velocities, so the robots moved.
+        assert np.linalg.norm(end - start, axis=1).max() > 0.1
+
 
 if __name__ == "__main__":
     unittest.main()

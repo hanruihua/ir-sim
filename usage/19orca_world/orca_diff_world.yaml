@@ -1,0 +1,30 @@
+world:
+  height: 50
+  width: 50
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [-25, -25]
+
+robot:
+  - number: 20
+    kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.5}
+    distribution: {name: 'random', range_low: [-20, -20, -3.14], range_high: [20, 20, 3.14]}
+    color: 'g'
+    goal_threshold: 0.2
+    vel_max: [3, 2]
+    vel_min: [-3, -2]
+    plot:
+      show_trajectory: True
+      show_goal: True
+      keep_traj_length: 50
+    group_behavior:
+      name: 'orca'
+      neighborDist: 10.0
+      maxNeighbors: 10
+      timeHorizon: 5.0
+      timeHorizonObst: 5.0
+      safe_radius: 0.2
+      wander: True
+      range_low: [-20, -20, -3.14]
+      range_high: [20, 20, 3.14]

@@ -1,8 +1,10 @@
+from math import cos, sin
 from typing import Any
 
 import numpy as np
 
 from irsim.lib.behavior.behavior_registry import register_group_behavior_class
+from irsim.util.util import omni_to_diff, relative_position
 from irsim.world.object_base import ObjectBase
 
 
@@ -14,9 +16,22 @@ def beh_omni_orca(members: list[ObjectBase], **kwargs: Any):
     return OrcaGroupBehavior(members, **kwargs)
 
 
+@register_group_behavior_class("diff", "orca")
+def beh_diff_orca(members: list[ObjectBase], **kwargs: Any):
+    """
+    Registered initializer returning a class-based ORCA handler for
+    differential-drive robots.
+    """
+    return OrcaGroupBehavior(members, **kwargs)
+
+
 class OrcaGroupBehavior:
     """
     Class-based ORCA group behavior with one-time initialization.
+
+    ORCA plans a collision-free holonomic velocity ``(vx, vy)`` for every
+    member. ``omni`` members use it directly; ``diff`` members map it to a
+    ``(linear, angular)`` command via :func:`omni_to_diff`.
     """
 
     def __init__(
@@ -36,6 +51,7 @@ class OrcaGroupBehavior:
         self._timeHorizonObst = timeHorizonObst
         self._safe_radius = safe_radius
         self._maxSpeed = maxSpeed
+        self._kinematics = members[0].kinematics if members else None
         self._sim = self._build_sim(members, **kwargs)
 
     def _ensure_pyrvo(self):
@@ -82,6 +98,37 @@ class OrcaGroupBehavior:
 
         return sim
 
+    def _pref_velocity(self, member: ObjectBase) -> list[float]:
+        """ORCA preferred velocity for one member as world-frame ``[vx, vy]``.
+
+        ``diff`` ``vel_max`` is ``[linear, angular]``, so the raw desired omni
+        velocity would skew the preferred direction toward the x-axis. Build it
+        from the true goal bearing scaled by the translational speed limit
+        instead; ``omni`` members keep using the desired omni velocity.
+        """
+        if self._kinematics == "diff":
+            if member.goal is None:
+                return [0.0, 0.0]
+            _, radian = relative_position(member.state, member.goal)
+            speed = member.max_speed
+            return [speed * cos(radian), speed * sin(radian)]
+        return member.get_desired_omni_vel(normalized=True).flatten().tolist()
+
+    def _to_action(self, member: ObjectBase, vel_xy: tuple[float, float]) -> np.ndarray:
+        """Convert an ORCA world-frame velocity into a member control input.
+
+        ``omni`` members consume ``(vx, vy)`` directly; ``diff`` members get the
+        holonomic velocity mapped to ``(linear, angular)``.
+        """
+        if self._kinematics == "diff":
+            return omni_to_diff(
+                member.state[2, 0],
+                [vel_xy[0], vel_xy[1]],
+                w_max=float(member.vel_max[1, 0]),
+                guarantee_time=member._world_param.step_time,
+            )
+        return np.c_[list(vel_xy)]
+
     def __call__(self, members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:
         """
         Generate the velocity for the group.
@@ -92,6 +139,11 @@ class OrcaGroupBehavior:
             list[np.ndarray]: the velocities of the members
         """
 
+        # Keep the kinematics mapping in sync with the call-time members, in
+        # case the group was rebuilt or its members changed since __init__.
+        if members:
+            self._kinematics = members[0].kinematics
+
         # If agent count mismatches, rebuild
         try:
             if self._sim.get_num_agents() != len(members):
@@ -100,14 +152,12 @@ class OrcaGroupBehavior:
             self._sim = self._build_sim(members, **kwargs)
 
         for i, member in enumerate(members):
-            self._sim.set_agent_pref_velocity(
-                i, member.get_desired_omni_vel(normalized=True).flatten().tolist()
-            )
+            self._sim.set_agent_pref_velocity(i, self._pref_velocity(member))
             self._sim.set_agent_position(i, member.state[:2, 0].tolist())
 
         self._sim.do_step()
 
         return [
-            np.c_[list(self._sim.get_agent_velocity(i).to_tuple())]
+            self._to_action(members[i], self._sim.get_agent_velocity(i).to_tuple())
             for i in range(self._sim.get_num_agents())
         ]
