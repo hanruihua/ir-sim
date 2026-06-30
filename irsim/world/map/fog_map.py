@@ -50,6 +50,11 @@ class FogMap(Map):
         self._ry = height / ny
         # Matplotlib artist for the overlay (created lazily in _init_plot).
         self._im = None
+        # Cached RGBA buffer for rendering (RGB is constant; only alpha changes).
+        self._rgba = None
+        # Set when a new cell is revealed; lets _step_plot skip the costly image
+        # upload on renders where nothing changed (e.g. revisiting seen area).
+        self._dirty = True
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -64,6 +69,7 @@ class FogMap(Map):
     def reset(self) -> None:
         """Re-cover the whole world with fog."""
         self.explored[:] = False
+        self._dirty = True
 
     def reveal_from_lidar(
         self,
@@ -138,21 +144,42 @@ class FogMap(Map):
         cy = oy + (np.arange(gy0, gy1) + 0.5) * self._ry
         dx = cx[:, None] - x0
         dy = cy[None, :] - y0
-        in_range = dx * dx + dy * dy <= radius * radius
-        bearing = np.abs((np.arctan2(dy, dx) - theta + np.pi) % (2 * np.pi) - np.pi)
-        mask = in_range & (bearing <= 0.5 * fov)
+        dist_sq = dx * dx + dy * dy
+        mask = dist_sq <= radius * radius
+
+        # Restrict to the sector. For fov <= pi the angle test reduces to a dot
+        # product against the heading (|bearing| <= fov/2 iff the projection onto
+        # the heading is >= cos(fov/2) * distance), avoiding a per-cell arctan2.
+        if fov < 2 * np.pi:
+            half = 0.5 * fov
+            cos_half = np.cos(half)
+            proj = dx * np.cos(theta) + dy * np.sin(theta)
+            if cos_half >= 0.0:  # fov <= pi (the common case)
+                mask &= (proj >= 0.0) & (proj * proj >= cos_half * cos_half * dist_sq)
+            else:  # pi < fov < 2*pi: rare, fall back to the exact angle
+                bearing = np.abs(
+                    (np.arctan2(dy, dx) - theta + np.pi) % (2 * np.pi) - np.pi
+                )
+                mask &= bearing <= half
 
         li, lj = np.nonzero(mask)
-        self.explored[gx0 + li, gy0 + lj] = True
+        gx, gy = gx0 + li, gy0 + lj
+        if gx.size and not self.explored[gx, gy].all():
+            self._dirty = True
+        self.explored[gx, gy] = True
 
     def _mark_cells(self, xs: np.ndarray, ys: np.ndarray) -> None:
-        """Mark the cells covering world points ``(xs, ys)`` as explored."""
+        """Mark the cells covering world points ``(xs, ys)`` as explored
+        (flagging dirty when any of them are newly revealed)."""
         ox, oy = self.world_offset
         gx = np.floor((xs - ox) / self._rx).astype(int)
         gy = np.floor((ys - oy) / self._ry).astype(int)
         nx, ny = self.explored.shape
         valid = (gx >= 0) & (gx < nx) & (gy >= 0) & (gy < ny)
-        self.explored[gx[valid], gy[valid]] = True
+        gx, gy = gx[valid], gy[valid]
+        if gx.size and not self.explored[gx, gy].all():
+            self._dirty = True
+        self.explored[gx, gy] = True
 
     def to_rgba(
         self,
@@ -165,13 +192,19 @@ class FogMap(Map):
         by default so the fog still fully hides the map until seen); explored
         cells are fully transparent so the underlying map shows through. Shape
         is ``(nx, ny, 4)`` (transpose the first two axes for ``imshow``).
+
+        The buffer is allocated once and reused: the constant RGB channels are
+        filled on the first call, and only the alpha channel is recomputed (the
+        only thing that changes as cells are revealed).
         """
-        rgba = np.zeros((*self.explored.shape, 4), dtype=float)
-        rgba[..., 0] = color[0]
-        rgba[..., 1] = color[1]
-        rgba[..., 2] = color[2]
-        rgba[..., 3] = np.where(self.explored, 0.0, alpha)
-        return rgba
+        if self._rgba is None or self._rgba.shape[:2] != self.explored.shape:
+            self._rgba = np.empty((*self.explored.shape, 4), dtype=float)
+            self._rgba[..., 0] = color[0]
+            self._rgba[..., 1] = color[1]
+            self._rgba[..., 2] = color[2]
+        # Only alpha changes: 0 where explored (transparent), `alpha` where fogged.
+        self._rgba[..., 3] = np.where(self.explored, 0.0, alpha)
+        return self._rgba
 
     # ------------------------------------------------------------------
     # Plotting (mirrors ObjectBase._init_plot / _step_plot / plot_clear)
@@ -194,13 +227,20 @@ class FogMap(Map):
                 zorder=zorder,
                 **kwargs,
             )
+            self._dirty = False  # image now reflects the current fog
         else:
             self._step_plot()
 
     def _step_plot(self) -> None:
-        """Refresh the overlay image data after the fog has been revealed."""
-        if self._im is not None:
-            self._im.set_data(self.to_rgba().transpose(1, 0, 2))
+        """Refresh the overlay image data after the fog has been revealed.
+
+        Skips the (O(pixels)) image upload when no new cell was revealed since
+        the last render.
+        """
+        if self._im is None or not self._dirty:
+            return
+        self._im.set_data(self.to_rgba().transpose(1, 0, 2))
+        self._dirty = False
 
     def plot_clear(self) -> None:
         """Remove the fog overlay artist."""
