@@ -874,6 +874,29 @@ class TestFogMap:
         # beyond fov_radius -> not revealed
         assert not fog.explored[int((4.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
 
+    def test_reveal_noops_on_degenerate_input(self):
+        fog = FogMap(width=10, height=10, resolution=0.5)
+        # non-empty beams but all-zero ranges -> max_range <= 0 -> no-op
+        fog.reveal_from_lidar([5.0, 5.0, 0.0], [0.0, 1.0], [0.0, 0.0])
+        assert fog.explored_ratio == 0.0
+        # zero fov or zero radius -> no-op
+        fog.reveal_fov([5.0, 5.0, 0.0], 0.0, 3.0)
+        fog.reveal_fov([5.0, 5.0, 0.0], np.pi / 2, 0.0)
+        assert fog.explored_ratio == 0.0
+        # origin far outside the world -> empty bounding box -> no-op
+        fog.reveal_fov([100.0, 100.0, 0.0], np.pi / 2, 3.0)
+        assert fog.explored_ratio == 0.0
+
+    def test_reveal_fov_wide_sector(self):
+        """fov in (pi, 2*pi) uses the exact arctan2 path; only the rear blind
+        spot stays fogged."""
+        fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
+        fog.reveal_fov([0.0, 0.0, 0.0], fov=1.5 * np.pi, fov_radius=3.0)
+        # front (+x, inside the 270-degree sector) revealed
+        assert fog.explored[int((2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+        # directly behind (-x, in the rear 90-degree blind spot) not revealed
+        assert not fog.explored[int((-2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+
     def test_plot_lifecycle(self):
         """FogMap owns its artist: _init_plot creates it, _step_plot refreshes,
         plot_clear removes it (mirrors ObjectBase)."""
@@ -883,8 +906,12 @@ class TestFogMap:
             assert fog._im is None
             fog._init_plot(ax)
             assert fog._im is not None
+            artist = fog._im
             fog.reveal_from_lidar([5.0, 5.0, 0.0], [0.0], [3.0])
             fog._step_plot()  # refresh data; should not raise
+            # calling _init_plot again reuses the existing artist (no stacking)
+            fog._init_plot(ax)
+            assert fog._im is artist
             fog.plot_clear()
             assert fog._im is None
         finally:

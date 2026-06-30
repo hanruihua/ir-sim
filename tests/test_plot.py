@@ -169,6 +169,19 @@ class TestEnvPlot3D:
         logger.warning.assert_called_once()
         plt.close("all")
 
+    def test_draw_grid_map_none_drops_existing(self):
+        """draw_grid_map(None) removes a previously drawn grid image (e.g. on a
+        reload into a world with no obstacle map)."""
+        from types import SimpleNamespace
+
+        grid_im = Mock()
+        fake = SimpleNamespace(
+            ax=None, x_range=[0, 10], y_range=[0, 10], logger=None, _grid_im=grid_im
+        )
+        EnvPlot.draw_grid_map(fake, None)
+        grid_im.remove.assert_called_once()
+        assert fake._grid_im is None
+
 
 class TestDrawPatch:
     """Tests for draw_patch function with various shapes."""
