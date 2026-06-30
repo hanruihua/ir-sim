@@ -326,7 +326,7 @@ class EnvBase:
 
         self._objects_step(action, sensor_step=False)
         self._objects_sensor_step()
-        self._world.step()
+        self._world.step(self.objects)
         self._status_step()
 
     def _objects_step(self, action: list[Any], sensor_step: bool = True) -> None:

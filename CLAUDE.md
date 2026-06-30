@@ -92,6 +92,7 @@ cd docs && make html
 
 **Map** (`irsim/world/map/`):
 - `obstacle_map.py`: Obstacle map representation
+- `fog_map.py`: Fog-of-map overlay (`FogMap`, subclass of `Map`) revealed by lidar line of sight or robot field of view
 - `grid_map_generator_base.py`: Base grid map generator
 - `image_map_generator.py`: Image-based map generation
 - `perlin_map_generator.py`: Perlin noise procedural map generation
@@ -130,7 +131,7 @@ irsim/                  # Main package
 └── config/             # Configuration parameters
 
 tests/                  # Pytest test suite (23 test files)
-usage/                  # Example YAML configs and scripts (23 examples)
+usage/                  # Example YAML configs and scripts (24 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 

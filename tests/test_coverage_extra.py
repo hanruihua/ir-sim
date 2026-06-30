@@ -22,6 +22,7 @@ from irsim.world.obstacles.obstacle_acker import ObstacleAcker
 class _DummyWorld2D:
     def __init__(self):
         self.grid_map = np.zeros((10, 10))
+        self.fog_map = None
         self.x_range = (0, 10)
         self.y_range = (0, 10)
         self.time = 0.0

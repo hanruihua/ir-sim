@@ -2,6 +2,9 @@
 
 ## 2.10.1 (unreleased)
 
+- Features:
+  - Add fog-of-map via a `FogMap` (subclass of `Map`) and a `world: {fog_map: true, fog_map_resolution: ...}` option. Cells start grey (unexplored) and are revealed by each robot's lidar line of sight (or its `fov`/`fov_radius` sector when it has no lidar), exposing the map (free white, obstacle black) as the robot explores; the explored mask updates headless too as a coverage signal. Includes a `24fog_world` usage example. ([#336](https://github.com/hanruihua/ir-sim/pull/336))
+
 - Fix:
   - Suppress the default velocity arrow on static obstacles by gating the handler-derived `show_arrow` on `not self.static` (regression from v2.9.2's kinematics-handler registry refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))
 

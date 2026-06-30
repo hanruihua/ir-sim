@@ -30,6 +30,8 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">Running | Pause | Arrived | Collision</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle-map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-mdownsample">mdownsample</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">obstacle-map downsample factor</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-fog-map">fog_map</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">fog-of-map overlay</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-fog-map-resolution">fog_map_resolution</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">map res</span><span class="yt-desc">fog cell size (m)</span></div>
   <details>
   <summary><a class="yt-key" href="#p-w-plot">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">global plot options</span></summary>
   <div class="yt-body">
@@ -534,6 +536,8 @@ This section outlines the configuration parameters available for the `world` sec
 | `status`         | `str`             | `"None"`    | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`) |
 | `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](../usage/configure_grid_map.md). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
+| `fog_map`        | `bool`            | `false`     | Enable a fog-of-map overlay: the world starts grey (unexplored) and is revealed by each lidar's line of sight as the robot explores. See [`fog_map`](#p-w-fog-map) below. |
+| `fog_map_resolution` | `float`       | map cell size | Fog cell size in metres (only used when `fog_map: true`). Defaults to the obstacle map's cell size, or `0.1` when there is no obstacle map. Finer is smoother but heavier; coarser is faster. |
 | `plot`           | `dict`            | `{}`        | Plotting options for initializing the plot of the world.                                                   |
 
 ### Detailed Parameter Descriptions
@@ -633,6 +637,14 @@ This section outlines the configuration parameters available for the `world` sec
 : Sets the downsampling factor for the obstacle map image. 
 
   **Performance Tip**: A higher value reduces the resolution of the obstacle map, which can optimize the simulation performance by decreasing computational load. 
+
+(p-w-fog-map)=
+**`fog_map`** (`bool`, default: `false`)
+: Enables a **fog-of-map** overlay (`FogMap`) covering the whole world. Every cell starts grey (unexplored). Each robot reveals cells along its lidar's line of sight, or within its field-of-view sector ([`fov`](#p-o-fov) / `fov_radius`) when it has no lidar, so the explored region grows as the robot navigates; revealed cells become transparent and the underlying map shows through (free space white, obstacles black, unknown grey). The explored mask is updated every step even when headless, so it can also be used as an exploration/coverage signal (`env._world.fog_map.explored_ratio`). See the `usage/24fog_world` example.
+
+(p-w-fog-map-resolution)=
+**`fog_map_resolution`** (`float`, default: obstacle map cell size, else `0.1`)
+: Fog cell size in metres, used only when `fog_map: true`. When omitted it matches the obstacle map's cell size, so the fog grid aligns with the map; it falls back to `0.1` m when there is no obstacle map. Finer values give a smoother reveal but cost more memory/time; coarser values are faster.
 ::::
 
 (world-visualization)=

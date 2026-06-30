@@ -149,7 +149,9 @@ class TestEnvPlot3D:
         fig = plt.figure()
         ax3d = fig.add_subplot(111, projection="3d")
         # No env logger configured -> logger is None.
-        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=None)
+        fake = SimpleNamespace(
+            ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=None, _grid_im=None
+        )
         EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))  # must not raise
         plt.close("all")
 
@@ -160,7 +162,9 @@ class TestEnvPlot3D:
         fig = plt.figure()
         ax3d = fig.add_subplot(111, projection="3d")
         logger = Mock()
-        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=logger)
+        fake = SimpleNamespace(
+            ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=logger, _grid_im=None
+        )
         EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))
         logger.warning.assert_called_once()
         plt.close("all")

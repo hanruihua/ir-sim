@@ -1,0 +1,26 @@
+# Fog of map over an obstacle (grid) map: both `obstacle_map` and `fog` are on.
+# Drive the robot with the keyboard to clear the fog and reveal the cave map
+# (free space white, walls black) as you explore; unseen areas stay grey.
+world:
+  height: 50
+  width: 50
+  step_time: 0.1
+  offset: [0, 0]
+  control_mode: 'keyboard'   # drive the robot yourself to explore
+  obstacle_map: 'cave.png'   # the underlying occupancy map
+  mdownsample: 2
+  fog_map: true              # fog-of-map overlay on top of the map
+  # fog_map_resolution defaults to the obstacle map's cell size when omitted
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.5}
+    state: [8, 8, 0]
+    vel_max: [3, 1.5]
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.0
+        range_max: 12.0
+        angle_range: 5.0
+        number: 200
+        noise: false

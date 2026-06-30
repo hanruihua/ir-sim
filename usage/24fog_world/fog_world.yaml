@@ -1,0 +1,31 @@
+world:
+  height: 20
+  width: 20
+  step_time: 0.1
+  fog_map: true            # enable the fog-of-map overlay
+  control_mode: 'keyboard'  # 'keyboard', 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.3}
+    state: [10, 10, 0]
+    behavior: {name: 'rvo', wander: true, range_low: [1, 1, -3.14], range_high: [19, 19, 3.14], vxmax: 2, vymax: 2, factor: 3.0}
+    vel_max: [2, 1.5]
+    vel_min: [-2, -1.5]
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.0
+        range_max: 5.0
+        angle_range: 3.14
+        number: 180
+        noise: false
+
+obstacle:
+  - shape: {name: 'rectangle', length: 4, width: 0.6}
+    state: [6, 7, 0.5]
+  - shape: {name: 'rectangle', length: 0.6, width: 5}
+    state: [14, 13, 0]
+  - shape: {name: 'circle', radius: 1.2}
+    state: [5, 15, 0]
+  - shape: {name: 'circle', radius: 1.0}
+    state: [16, 5, 0]
