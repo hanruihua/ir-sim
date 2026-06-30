@@ -44,6 +44,7 @@ class DummyWorld2D:
 
     def __init__(self) -> None:
         self.grid_map = np.zeros((10, 10))
+        self.fog_map = None
         self.x_range = (0, 10)
         self.y_range = (0, 10)
         self.time = 0.0

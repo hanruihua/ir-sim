@@ -390,6 +390,7 @@ class Map:
 
 __all__ = [
     "EnvGridMap",
+    "FogMap",
     "GridMapGenerator",
     "ImageGridGenerator",
     "Map",
@@ -398,3 +399,6 @@ __all__ = [
     "build_grid_from_generator",
     "resolve_obstacle_map",
 ]
+
+# Imported last: FogMap subclasses Map, so Map must already be defined here.
+from .fog_map import FogMap  # noqa: E402

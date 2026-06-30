@@ -89,6 +89,12 @@ class EnvPlot:
         self.dyna_point_list: list[Any] = []
         self.dyna_quiver_list: list[Any] = []
 
+        # Grid-map overlay artist (managed by draw_grid_map), reused across
+        # reset/reload so artists don't stack.
+        self._grid_im: Any = None
+        # Set in _init_plot; pre-set so the first call has a defined previous world.
+        self.world: Any = None
+
         # Initialize the plot with world data
         self._init_plot(world, objects, **kwargs)
 
@@ -109,6 +115,11 @@ class EnvPlot:
             objects (list): List of objects to initialize and draw.
             **kwargs: Plot overrides merged into ``world.plot_parse``.
         """
+
+        # Clear the previous world's fog overlay before swapping worlds, so a
+        # reload's new FogMap doesn't orphan the old artist on the reused axes.
+        if self.world is not None and self.world.fog_map is not None:
+            self.world.fog_map.plot_clear()
 
         world.plot_parse.update(kwargs)
         self.world = world
@@ -132,6 +143,7 @@ class EnvPlot:
 
         self.init_objects_plot(objects)
         self.draw_grid_map(world.grid_map)
+        self.draw_fog(world.fog_map)
 
         if world.plot_parse.get("no_axis", False):
             plt.axis("off")
@@ -162,6 +174,7 @@ class EnvPlot:
         else:
             self.clear_components(mode)
             self.step_objects_plot(mode, objects, **kwargs)
+            self.step_world_plot()
 
     def init_objects_plot(self, objects: list[Any], **kwargs: Any) -> None:
         """Initialize plot state for provided objects, then render once.
@@ -258,17 +271,60 @@ class EnvPlot:
         Args:
             grid_map (optional): The grid map to draw.
         """
-        if grid_map is not None:
-            self.ax.imshow(
+        if grid_map is None:
+            # Reloading into a world without an obstacle map: drop the old grid.
+            if self._grid_im is not None:
+                self._grid_im.remove()
+                self._grid_im = None
+            return
+
+        # Reuse the existing grid image on repeated _init_plot (e.g. on every
+        # env.reset() / reload()) instead of stacking new imshow artists, which
+        # leaks memory and slows interactive redraws.
+        if self._grid_im is None:
+            self._grid_im = self.ax.imshow(
                 grid_map.T,
                 cmap="Greys",
                 origin="lower",
                 extent=self.x_range + self.y_range,
                 zorder=0,
             )
+        else:
+            self._grid_im.set_data(grid_map.T)
+            # extent may change if a reload swaps in a differently sized world
+            self._grid_im.set_extent(self.x_range + self.y_range)
 
-            if isinstance(self.ax, Axes3D) and self.logger is not None:
-                self.logger.warning("Map will not show in 3D plot")
+        if isinstance(self.ax, Axes3D) and self.logger is not None:
+            self.logger.warning("Map will not show in 3D plot")
+
+    def draw_fog(
+        self, fog_map: Any | None = None, zorder: int = 2, **kwargs: Any
+    ) -> None:
+        """Initialize the fog-of-map overlay.
+
+        The :class:`~irsim.world.map.FogMap` owns its artist and refreshes it via
+        :meth:`step_world_plot`; this just hands it the axes. Skipped in 3D. On
+        ``env.reset()`` the same ``FogMap`` is reused and refreshed; on reload the
+        previous overlay is cleared in :meth:`_init_plot`.
+
+        Args:
+            fog_map: A :class:`~irsim.world.map.FogMap`, or ``None`` to skip.
+            zorder: Drawing layer for the overlay.
+        """
+        if fog_map is None or isinstance(self.ax, Axes3D):
+            return
+        fog_map._init_plot(self.ax, zorder=zorder, **kwargs)
+
+    def step_world_plot(self) -> None:
+        """Refresh per-step world-level overlays (not tied to a single object).
+
+        Currently steps the fog-of-map overlay; extend here for other
+        world-level visuals updated every step. ``_step_plot`` is a no-op when
+        there is no artist (fog disabled or 3D), so no extra guard is needed.
+        """
+        fog_map = self.world.fog_map
+        if fog_map is not None:
+            fog_map._step_plot()
 
     def draw_trajectory(
         self,
