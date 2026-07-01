@@ -1,16 +1,28 @@
 # Changelog
 
-## 2.10.1 (unreleased)
+## 2.10.1 (2026-07-01)
 
 - Features:
-  - Add `orca` group behavior support for `diff` robots; ORCA's holonomic velocity is mapped to `(linear, angular)` via `omni_to_diff`, with a `19orca_world/orca_diff_world` usage example. ([#333](https://github.com/hanruihua/ir-sim/pull/333))
-  - Add fog-of-map via a `FogMap` (subclass of `Map`) and a `world: {fog_map: true, fog_map_resolution: ...}` option. Cells start grey (unexplored) and are revealed by each robot's lidar line of sight (or its `fov`/`fov_radius` sector when it has no lidar), exposing the map (free white, obstacle black) as the robot explores; the explored mask updates headless too as a coverage signal. Includes a `24fog_world` usage example. ([#337](https://github.com/hanruihua/ir-sim/pull/337))
+  - Add `orca` group behavior for `diff` robots (ORCA's holonomic velocity mapped to `(linear, angular)` via `omni_to_diff`), extending reciprocal collision avoidance to differential-drive fleets; see the `19orca_world/orca_diff_world` example. ([#333](https://github.com/hanruihua/ir-sim/pull/333))
+  - Add a fog-of-map overlay (`FogMap`, enabled via `world: {fog_map: true, fog_map_resolution: ...}`) revealed by each robot's lidar or `fov` sector, for modeling exploration under partial observability; see the `24fog_world` example. ([#337](https://github.com/hanruihua/ir-sim/pull/337))
+
+- Performance:
+  - Speed up the lidar step ~2x when a dynamic obstacle overlaps a static map. ([#332](https://github.com/hanruihua/ir-sim/pull/332))
 
 - Fix:
-  - Suppress the default velocity arrow on static obstacles by gating the handler-derived `show_arrow` on `not self.static` (regression from v2.9.2's kinematics-handler registry refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))
+  - Fix `dash` in-place yaw oscillation and stalling when the goal is behind the robot. ([#331](https://github.com/hanruihua/ir-sim/pull/331))
+  - Fix `diff` RVO freezing when the goal is directly behind the robot. ([#331](https://github.com/hanruihua/ir-sim/pull/331))
+  - Fix the headless keyboard event-queue overflow when spawning many environments. ([#331](https://github.com/hanruihua/ir-sim/pull/331))
+  - Keep saved animation frames at a fixed size and pad video to even dimensions so the saved mp4/gif matches the on-screen figure. ([#330](https://github.com/hanruihua/ir-sim/pull/330))
+  - Suppress the default velocity arrow on static obstacles (regression from v2.9.2's kinematics-handler refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))
+
+- Refactor:
+  - Send warnings and errors to the logger instead of `print`. ([#326](https://github.com/hanruihua/ir-sim/pull/326))
 
 - Docs:
   - Overhaul the documentation site for clarity and navigation, with full English/Chinese parity. ([#325](https://github.com/hanruihua/ir-sim/pull/325))
+  - Add the arXiv paper citation and badge to the README. ([#320](https://github.com/hanruihua/ir-sim/pull/320))
+  - Add the IRSIM-3DGS-Bridge community project link. ([#317](https://github.com/hanruihua/ir-sim/pull/317)) ([@Wayneyujie](https://github.com/Wayneyujie))
 
 ## 2.10.0 (2026-05-24)
 

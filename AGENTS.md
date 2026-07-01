@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -163,7 +163,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 
 ## Git Commit Notes
 
-- Please do not mention claude code in the commit messages and PR messages.
+- Please do not mention Codex in the commit messages and PR messages.
 - PR Title Format: `<type>(<scope>): <subject>`
 
     `<scope>` is optional
@@ -201,7 +201,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
     If there are any errors, please fix them before committing.
 
     If there are any warnings, please ignore them.
-    
+
 ## IR-sim documentation notes
 
 - The documentation is built with Sphinx and uses a mix of reStructuredText (`.rst`) and Markdown (`.md`) files.
@@ -226,7 +226,7 @@ When releasing a new version, follow these steps in order:
 1. Update the version number in `pyproject.toml`
 2. Add a new entry to `docs/source/_static/switcher.json` (mark the new version as `(stable)`, remove that label from the previous one)
 3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`). See the **Changelog Style** section below for entry formatting.
-4. Update `CLAUDE.md`'s *Directory Structure* counts if they changed (test files in `tests/`, example scripts in `usage/`)
+4. Update `AGENTS.md`'s *Directory Structure* counts if they changed (test files in `tests/`, example scripts in `usage/`)
 5. Run `uv lock` to update `uv.lock`
    - If your local `uv` is older than the one that produced the checked-in lockfile, a full regen will downgrade the lockfile `revision` field. In that case, either upgrade `uv` and rerun, or manually patch only the `ir-sim` `version` line in `uv.lock` to avoid touching `revision`.
 6. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit

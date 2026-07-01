@@ -21,9 +21,49 @@ msgstr ""
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../../changelog.md:4
-msgid "2.10.1 (unreleased)"
+#: ../../../changelog.md:3
+msgid "2.10.1 (2026-07-01)"
 msgstr ""
+
+#: ../../../changelog.md:6
+msgid "Add `orca` group behavior for `diff` robots (ORCA's holonomic velocity mapped to `(linear, angular)` via `omni_to_diff`), extending reciprocal collision avoidance to differential-drive fleets; see the `19orca_world/orca_diff_world` example. ([#333](https://github.com/hanruihua/ir-sim/pull/333))"
+msgstr "为 `diff` 机器人新增 `orca` 群体行为（ORCA 的完整（holonomic）速度通过 `omni_to_diff` 映射为 `(linear, angular)`），将互惠碰撞避免扩展到差速驱动机群；参见 `19orca_world/orca_diff_world` 示例。([#333](https://github.com/hanruihua/ir-sim/pull/333))"
+
+#: ../../../changelog.md:7
+msgid "Add a fog-of-map overlay (`FogMap`, enabled via `world: {fog_map: true, fog_map_resolution: ...}`) revealed by each robot's lidar or `fov` sector, for modeling exploration under partial observability; see the `24fog_world` example. ([#337](https://github.com/hanruihua/ir-sim/pull/337))"
+msgstr "新增地图迷雾（fog-of-map）叠加层（`FogMap`，通过 `world: {fog_map: true, fog_map_resolution: ...}` 启用），由每个机器人的激光雷达或 `fov` 扇形揭示，用于在部分可观测条件下建模探索；参见 `24fog_world` 示例。([#337](https://github.com/hanruihua/ir-sim/pull/337))"
+
+#: ../../../changelog.md:10
+msgid "Speed up the lidar step ~2x when a dynamic obstacle overlaps a static map. ([#332](https://github.com/hanruihua/ir-sim/pull/332))"
+msgstr "当动态障碍物与静态地图重叠时，将激光雷达步进加速约 2 倍。([#332](https://github.com/hanruihua/ir-sim/pull/332))"
+
+#: ../../../changelog.md:13
+msgid "Fix `dash` in-place yaw oscillation and stalling when the goal is behind the robot. ([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+msgstr "修复目标位于机体后方时 `dash` 的原地偏航振荡与停滞。([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+
+#: ../../../changelog.md:14
+msgid "Fix `diff` RVO freezing when the goal is directly behind the robot. ([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+msgstr "修复目标正后方时 `diff` RVO 的冻结。([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+
+#: ../../../changelog.md:15
+msgid "Fix the headless keyboard event-queue overflow when spawning many environments. ([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+msgstr "修复创建大量环境时无渲染（headless）键盘事件队列溢出。([#331](https://github.com/hanruihua/ir-sim/pull/331))"
+
+#: ../../../changelog.md:14
+msgid "Keep saved animation frames at a fixed size and pad video to even dimensions so the saved mp4/gif matches the on-screen figure. ([#330](https://github.com/hanruihua/ir-sim/pull/330))"
+msgstr "将保存的动画帧固定为统一尺寸，并将视频填充为偶数尺寸，使保存的 mp4/gif 与屏幕上的图形一致。([#330](https://github.com/hanruihua/ir-sim/pull/330))"
+
+#: ../../../changelog.md:18
+msgid "Send warnings and errors to the logger instead of `print`. ([#326](https://github.com/hanruihua/ir-sim/pull/326))"
+msgstr "将警告和错误发送到日志记录器（logger）而非 `print`。([#326](https://github.com/hanruihua/ir-sim/pull/326))"
+
+#: ../../../changelog.md:22
+msgid "Add the arXiv paper citation and badge to the README. ([#320](https://github.com/hanruihua/ir-sim/pull/320))"
+msgstr "在 README 中添加 arXiv 论文引用和徽章。([#320](https://github.com/hanruihua/ir-sim/pull/320))"
+
+#: ../../../changelog.md:23
+msgid "Add the IRSIM-3DGS-Bridge community project link. ([#317](https://github.com/hanruihua/ir-sim/pull/317)) ([@Wayneyujie](https://github.com/Wayneyujie))"
+msgstr "新增 IRSIM-3DGS-Bridge 社区项目链接。([#317](https://github.com/hanruihua/ir-sim/pull/317)) ([@Wayneyujie](https://github.com/Wayneyujie))"
 
 #: ../../../changelog.md:6 ../../../changelog.md:42 ../../../changelog.md:61
 #: ../../../changelog.md:78 ../../../changelog.md:93 ../../../changelog.md:115
@@ -32,12 +72,8 @@ msgid "Fix:"
 msgstr "修复："
 
 #: ../../../changelog.md:7
-msgid ""
-"Suppress the default velocity arrow on static obstacles by gating the "
-"handler-derived `show_arrow` on `not self.static` (regression from v2.9.2's "
-"kinematics-handler registry refactor). "
-"([#313](https://github.com/hanruihua/ir-sim/pull/313))"
-msgstr ""
+msgid "Suppress the default velocity arrow on static obstacles (regression from v2.9.2's kinematics-handler refactor). ([#313](https://github.com/hanruihua/ir-sim/pull/313))"
+msgstr "抑制静态障碍物上默认的速度箭头（v2.9.2 运动学处理器重构引入的回归）。([#313](https://github.com/hanruihua/ir-sim/pull/313))"
 
 #: ../../../changelog.md:9 ../../../changelog.md:23 ../../../changelog.md:46
 #: ../../../changelog.md:81 ../../../changelog.md:99 ../../../changelog.md:122
@@ -45,13 +81,14 @@ msgstr ""
 msgid "Docs:"
 msgstr "文档："
 
-#: ../../../changelog.md:10
-#, fuzzy
+#: ../../../changelog.md:21
 msgid ""
 "Overhaul the documentation site for clarity and navigation, with full "
 "English/Chinese parity. ([#325](https://github.com/hanruihua/ir-"
 "sim/pull/325))"
-msgstr "为路点导航行为新增循环模式。([#266](https://github.com/hanruihua/ir-sim/pull/266))"
+msgstr ""
+"全面改进文档站点的清晰度与导航，实现完整的中英文对应。"
+"([#325](https://github.com/hanruihua/ir-sim/pull/325))"
 
 #: ../../../changelog.md:12
 #, fuzzy
@@ -97,7 +134,7 @@ msgstr ""
 
 #: ../../../changelog.md:20 ../../../changelog.md:39 ../../../changelog.md:56
 msgid "Performance:"
-msgstr ""
+msgstr "性能："
 
 #: ../../../changelog.md:21
 msgid ""
