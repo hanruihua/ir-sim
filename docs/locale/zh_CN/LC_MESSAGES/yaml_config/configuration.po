@@ -634,7 +634,7 @@ msgid ""
 "falls back to `0.1` m when there is no obstacle map. Finer values give a "
 "smoother reveal but cost more memory/time; coarser values are faster."
 msgstr ""
-"迷雾栅格的尺寸（米），仅在 `fog: true` 时使用。省略时与障碍地图的栅格尺寸一"
+"迷雾栅格的尺寸（米），仅在 `fog_map: true` 时使用。省略时与障碍地图的栅格尺寸一"
 "致，使迷雾栅格与地图对齐；若无障碍地图则回退为 `0.1` 米。取值越细腻揭示越平"
 "滑，但占用更多内存/时间；取值越粗糙则越快。"
 

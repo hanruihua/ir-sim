@@ -163,9 +163,9 @@ class World:
         Advance the simulation by one step.
 
         Args:
-            objects: Current scene objects. When ``fog`` is enabled, their
+            objects: Current scene objects. When ``fog_map`` is enabled, their
                 lidars reveal the fog-of-map overlay along their line of sight.
-                Pass ``None`` to skip the fog update.
+                Pass ``None`` or an empty list to skip the fog update.
         """
         self.count += 1
         self.sampling = self.count % (int(self.sample_time / self.step_time)) == 0

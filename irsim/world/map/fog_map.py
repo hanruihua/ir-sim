@@ -34,7 +34,14 @@ class FogMap(Map):
             resolution: Fog cell size (metres/cell). Finer is smoother but
                 heavier; coarser is faster.
             world_offset: World origin ``(x, y)`` for cell indexing.
+
+        Raises:
+            ValueError: If ``resolution`` is not positive and finite (it is
+                user-configurable via ``fog_map_resolution``).
         """
+        resolution = float(resolution)
+        if not (np.isfinite(resolution) and resolution > 0):
+            raise ValueError("FogMap resolution must be positive and finite.")
         nx = max(1, round(width / resolution))
         ny = max(1, round(height / resolution))
         super().__init__(

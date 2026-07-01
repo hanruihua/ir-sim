@@ -819,6 +819,11 @@ class TestFogMap:
         assert fog.explored_ratio == 0.0
         assert not fog.explored.any()
 
+    def test_invalid_resolution_raises(self):
+        for bad in (0.0, -0.5, float("inf"), float("nan")):
+            with pytest.raises(ValueError, match="positive and finite"):
+                FogMap(width=10, height=10, resolution=bad)
+
     def test_reveal_from_lidar_marks_line_of_sight(self):
         fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
         # full-circle lidar at the origin, range 3
