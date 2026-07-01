@@ -9,7 +9,7 @@
 <a href="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?style=for-the-badge" alt="Python Version"></a>
 <a href="https://github.com/hanruihua/ir-sim/actions/workflows/python-version-test.yml"><img src="https://img.shields.io/github/actions/workflow/status/hanruihua/ir-sim/python-version-test.yml?branch=main&style=for-the-badge&label=CI" alt="CI"></a>
 <a href="https://codecov.io/gh/hanruihua/ir-sim"><img src="https://img.shields.io/codecov/c/github/hanruihua/ir-sim?style=for-the-badge&color=yellow" alt="Coverage"></a>
-<a href="https://ir-sim.readthedocs.io/en/stable/"><img src="https://img.shields.io/readthedocs/ir-sim?style=for-the-badge" alt="Docs"></a>
+<a href="https://ir-sim.readthedocs.io/en/stable/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs"></a>
 <a href="https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
 <a href="https://pepy.tech/project/ir-sim"><img src="https://img.shields.io/pepy/dt/ir-sim?style=for-the-badge" alt="Downloads"></a>
 
@@ -141,7 +141,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Kinematics**   | Differential Drive mobile Robot · Omnidirectional mobile Robot · Omnidirectional with Angular control · Ackermann Steering mobile Robot                                                 |
 | **Sensors**      | 2D LiDAR · 2D FMCW LiDAR · FOV Detector                                                                                                                                                 |
-| **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map                                                                                                                             |
+| **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map · Fog of Map                                                                                                                |
 | **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance) · SFM (Social Force Model)                                        |
 
 ## Documentation
