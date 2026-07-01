@@ -8,6 +8,7 @@ Covers:
 - resolve_obstacle_map and build_grid_from_generator
 - Map (grid_occupied, grid_resolution, is_collision)
 - _grid_collision_geometry (grid vs geometry collision)
+- FogMap (fog-of-map overlay) and its world/env integration
 """
 
 import os
@@ -23,6 +24,7 @@ from shapely.geometry import box
 
 from irsim.world import map as world_map_module
 from irsim.world.map import (
+    FogMap,
     GridMapGenerator,
     ImageGridGenerator,
     Map,
@@ -805,3 +807,410 @@ class TestWorldGetMap:
         # Still uses original grid (no upsampling)
         assert env_map.grid.shape == env._world.grid_map.shape
         env.end()
+
+
+class TestFogMap:
+    """Unit tests for the FogMap fog-of-map overlay."""
+
+    def test_subclasses_map_and_starts_unexplored(self):
+        fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
+        assert isinstance(fog, Map)
+        assert fog.shape == (20, 20)
+        assert fog.explored_ratio == 0.0
+        assert not fog.explored.any()
+
+    def test_invalid_resolution_raises(self):
+        for bad in (0.0, -0.5, float("inf"), float("nan")):
+            with pytest.raises(ValueError, match="positive and finite"):
+                FogMap(width=10, height=10, resolution=bad)
+
+    def test_reveal_from_lidar_marks_line_of_sight(self):
+        fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
+        # full-circle lidar at the origin, range 3
+        angles = np.linspace(-np.pi, np.pi, 16)
+        ranges = np.full(16, 3.0)
+        fog.reveal_from_lidar([0.0, 0.0, 0.0], angles, ranges)
+
+        assert fog.explored_ratio > 0.0
+        # the lidar origin cell is revealed ...
+        assert fog.explored[10, 10]
+        # ... and a far corner outside lidar range is not.
+        assert not fog.explored[0, 0]
+
+    def test_reveal_respects_per_beam_range(self):
+        fog = FogMap(width=10, height=10, resolution=0.1, world_offset=(-5, -5))
+        # single beam along +x with range 2 -> cells past 2 m stay fogged
+        fog.reveal_from_lidar([0.0, 0.0, 0.0], [0.0], [2.0])
+        # cell at ~1 m along +x is revealed
+        assert fog.explored[int((1.0 + 5) / 0.1), int((0.0 + 5) / 0.1)]
+        # cell at ~3 m along +x (beyond range) is not
+        assert not fog.explored[int((3.0 + 5) / 0.1), int((0.0 + 5) / 0.1)]
+
+    def test_reset_recovers_fog(self):
+        fog = FogMap(width=10, height=10, resolution=0.5)
+        fog.reveal_from_lidar([5.0, 5.0, 0.0], [0.0, np.pi], [2.0, 2.0])
+        assert fog.explored_ratio > 0.0
+        fog.reset()
+        assert fog.explored_ratio == 0.0
+
+    def test_to_rgba_transparent_where_explored(self):
+        fog = FogMap(width=4, height=4, resolution=1.0, world_offset=(0, 0))
+        fog.explored[1, 1] = True
+        rgba = fog.to_rgba(color=(0.5, 0.5, 0.5), alpha=1.0)
+        assert rgba.shape == (4, 4, 4)
+        # explored cell -> fully transparent; fogged cell -> opaque
+        assert rgba[1, 1, 3] == pytest.approx(0.0)
+        assert rgba[0, 0, 3] == pytest.approx(1.0)
+
+    def test_empty_scan_is_noop(self):
+        fog = FogMap(width=4, height=4, resolution=1.0)
+        fog.reveal_from_lidar([2.0, 2.0, 0.0], [], [])
+        assert fog.explored_ratio == 0.0
+
+    def test_reveal_fov_marks_sector(self):
+        fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
+        # 90-degree FOV facing +x (theta=0), radius 3, centred at the origin.
+        fog.reveal_fov([0.0, 0.0, 0.0], fov=np.pi / 2, fov_radius=3.0)
+        assert fog.explored_ratio > 0.0
+        # in front and within the sector -> revealed
+        assert fog.explored[int((2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+        # behind the heading -> outside the sector -> not revealed
+        assert not fog.explored[int((-2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+        # beyond fov_radius -> not revealed
+        assert not fog.explored[int((4.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+
+    def test_reveal_noops_on_degenerate_input(self):
+        fog = FogMap(width=10, height=10, resolution=0.5)
+        # non-empty beams but all-zero ranges -> max_range <= 0 -> no-op
+        fog.reveal_from_lidar([5.0, 5.0, 0.0], [0.0, 1.0], [0.0, 0.0])
+        assert fog.explored_ratio == 0.0
+        # zero fov or zero radius -> no-op
+        fog.reveal_fov([5.0, 5.0, 0.0], 0.0, 3.0)
+        fog.reveal_fov([5.0, 5.0, 0.0], np.pi / 2, 0.0)
+        assert fog.explored_ratio == 0.0
+        # origin far outside the world -> empty bounding box -> no-op
+        fog.reveal_fov([100.0, 100.0, 0.0], np.pi / 2, 3.0)
+        assert fog.explored_ratio == 0.0
+
+    def test_reveal_fov_wide_sector(self):
+        """fov in (pi, 2*pi) uses the exact arctan2 path; only the rear blind
+        spot stays fogged."""
+        fog = FogMap(width=10, height=10, resolution=0.5, world_offset=(-5, -5))
+        fog.reveal_fov([0.0, 0.0, 0.0], fov=1.5 * np.pi, fov_radius=3.0)
+        # front (+x, inside the 270-degree sector) revealed
+        assert fog.explored[int((2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+        # directly behind (-x, in the rear 90-degree blind spot) not revealed
+        assert not fog.explored[int((-2.0 + 5) / 0.5), int((0.0 + 5) / 0.5)]
+
+    def test_plot_lifecycle(self):
+        """FogMap owns its artist: _init_plot creates it, _step_plot refreshes,
+        plot_clear removes it (mirrors ObjectBase)."""
+        fog = FogMap(width=10, height=10, resolution=1.0)
+        fig, ax = plt.subplots()
+        try:
+            assert fog._im is None
+            fog._init_plot(ax)
+            assert fog._im is not None
+            artist = fog._im
+            fog.reveal_from_lidar([5.0, 5.0, 0.0], [0.0], [3.0])
+            fog._step_plot()  # refresh data; should not raise
+            # calling _init_plot again reuses the existing artist (no stacking)
+            fog._init_plot(ax)
+            assert fog._im is artist
+            fog.plot_clear()
+            assert fog._im is None
+        finally:
+            plt.close(fig)
+
+
+class TestFogIntegration:
+    """FogMap integration through ``irsim.make`` (enable, reveal, reset)."""
+
+    def _make_fog_env(self, tmp_path, fog=True):
+        import irsim
+
+        config = tmp_path / "fog.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_time: 0.1\n"
+            f"  fog_map: {str(fog).lower()}\n"
+            "  fog_map_resolution: 0.2\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [5, 5, 0]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    goal: [8, 8, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 4.0\n"
+            "        angle_range: 6.283\n"
+            "        number: 90\n"
+            "        noise: false\n"
+        )
+        return irsim.make(str(config), display=False, save_ani=False)
+
+    def test_fog_enabled_reveals_over_time(self, tmp_path):
+        env = self._make_fog_env(tmp_path, fog=True)
+        try:
+            assert env._world.fog_map is not None
+            start = env._world.fog_map.explored_ratio
+            for _ in range(15):
+                env.step()
+                env.render(0.001)
+            end = env._world.fog_map.explored_ratio
+            # the FogMap created its own overlay artist and the area grew
+            assert env._world.fog_map._im is not None
+            assert end > start
+        finally:
+            env.end()
+
+    def test_fog_revealed_by_fov_without_lidar(self, tmp_path):
+        """A robot with an `fov` but no lidar reveals fog via its FOV sector."""
+        import irsim
+
+        config = tmp_path / "fogfov.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 12\n"
+            "  width: 12\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [6, 6, 0]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    goal: [10, 6, 0]\n"
+            "    fov: 1.57\n"
+            "    fov_radius: 4.0\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            assert env.robot_list[0].lidar is None  # no lidar -> FOV reveal
+            start = env._world.fog_map.explored_ratio
+            for _ in range(15):
+                env.step()
+                env.render(0.001)
+            assert env._world.fog_map.explored_ratio > start
+        finally:
+            env.end()
+
+    def test_fog_disabled_by_default(self, tmp_path):
+        env = self._make_fog_env(tmp_path, fog=False)
+        try:
+            assert env._world.fog_map is None
+            env.step()
+            env.render(0.001)
+        finally:
+            env.end()
+
+    def test_reset_recovers_fog(self, tmp_path):
+        env = self._make_fog_env(tmp_path, fog=True)
+        try:
+            for _ in range(10):
+                env.step()
+            assert env._world.fog_map.explored_ratio > 0.0
+            env.reset()
+            assert env._world.fog_map.explored_ratio == 0.0
+        finally:
+            env.end()
+
+    def test_reset_does_not_leak_imshow_artists(self, tmp_path):
+        """Repeated env.reset() must not stack grid/fog imshow artists."""
+        import irsim
+
+        config = tmp_path / "fogleak.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "  obstacle_map:\n"
+            "    name: perlin\n"
+            "    resolution: 0.2\n"
+            "    fill: 0.2\n"
+            "    seed: 7\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    state: [2, 2, 0]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    goal: [8, 8, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 4.0\n"
+            "        number: 60\n"
+            "        noise: false\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            ax = env._env_plot.ax
+            for _ in range(3):
+                env.step()
+                env.render(0.001)
+            env.reset()
+            baseline = len(ax.images)  # grid map + fog overlay
+            for _ in range(4):
+                for _ in range(3):
+                    env.step()
+                    env.render(0.001)
+                env.reset()
+            assert len(ax.images) == baseline
+        finally:
+            env.end()
+
+    def test_reload_does_not_leak_imshow_artists(self, tmp_path):
+        """Repeated env.reload() must not stack imshow artists or open figures.
+
+        Reload rebuilds the world (and FogMap) while reusing the figure/axes, so
+        the previous grid/fog overlays must be cleared rather than orphaned.
+        """
+        import matplotlib.pyplot as plt
+
+        import irsim
+
+        config = tmp_path / "fogreload.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "  obstacle_map:\n"
+            "    name: perlin\n"
+            "    resolution: 0.2\n"
+            "    fill: 0.2\n"
+            "    seed: 7\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    state: [2, 2, 0]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    goal: [8, 8, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 4.0\n"
+            "        number: 60\n"
+            "        noise: false\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            for _ in range(3):
+                env.step()
+                env.render(0.001)
+            env.reload()
+            baseline = len(env._env_plot.ax.images)  # grid map + fog overlay
+            figs = len(plt.get_fignums())
+            for _ in range(3):
+                for _ in range(3):
+                    env.step()
+                    env.render(0.001)
+                env.reload()
+            assert len(env._env_plot.ax.images) == baseline
+            assert len(plt.get_fignums()) == figs
+        finally:
+            env.end()
+
+    def test_fog_coexists_with_obstacle_map(self, tmp_path):
+        """The fog overlay and an obstacle (grid) map exist together; the fog is
+        revealed over the underlying map as the robot explores."""
+        import irsim
+
+        config = tmp_path / "fog_grid.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 20\n"
+            "  width: 20\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "  fog_map_resolution: 0.2\n"
+            "  obstacle_map:\n"
+            "    name: perlin\n"
+            "    resolution: 0.2\n"
+            "    fill: 0.2\n"
+            "    seed: 7\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [2, 2, 0]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    goal: [17, 17, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 5.0\n"
+            "        angle_range: 6.283\n"
+            "        number: 90\n"
+            "        noise: false\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            # both the obstacle grid map and the fog overlay are present
+            assert env._world.grid_map is not None
+            assert env._world.fog_map is not None
+            start = env._world.fog_map.explored_ratio
+            for _ in range(15):
+                env.step()
+                env.render(0.001)
+            assert env._world.fog_map.explored_ratio > start
+        finally:
+            env.end()
+
+    def test_fog_map_resolution_defaults_to_map(self, tmp_path):
+        """With no `fog_map_resolution`, the fog grid matches the obstacle map's."""
+        import irsim
+
+        config = tmp_path / "fogres.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 20\n"
+            "  width: 20\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "  obstacle_map:\n"
+            "    name: perlin\n"
+            "    resolution: 0.2\n"
+            "    fill: 0.2\n"
+            "    seed: 7\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    state: [2, 2, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 5.0\n"
+            "        number: 60\n"
+            "        noise: false\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            assert env._world.fog_map.shape == env._world.grid_map.shape
+        finally:
+            env.end()
+
+    def test_fog_map_resolution_fallback_without_map(self, tmp_path):
+        """Without an obstacle map, `fog_map_resolution` falls back to 0.1 m."""
+        import irsim
+
+        config = tmp_path / "fognomap.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    state: [5, 5, 0]\n"
+            "    sensors:\n"
+            "      - name: 'lidar2d'\n"
+            "        range_max: 4.0\n"
+            "        number: 60\n"
+            "        noise: false\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            # 10 m / 0.1 m = 100 cells per axis
+            assert env._world.fog_map.shape == (100, 100)
+        finally:
+            env.end()

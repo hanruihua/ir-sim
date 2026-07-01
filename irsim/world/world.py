@@ -5,7 +5,12 @@ from typing import TYPE_CHECKING, Any, ClassVar, Optional
 import numpy as np
 
 from irsim.util.util import check_unknown_kwargs
-from irsim.world.map import Map, _downsample_occupancy_grid, resolve_obstacle_map
+from irsim.world.map import (
+    FogMap,
+    Map,
+    _downsample_occupancy_grid,
+    resolve_obstacle_map,
+)
 
 if TYPE_CHECKING:
     from irsim.config.world_param import WorldParam
@@ -41,6 +46,8 @@ class World:
         "collision_mode",
         "obstacle_map",
         "mdownsample",
+        "fog_map",
+        "fog_map_resolution",
         "plot",
         "status",
     }
@@ -57,6 +64,8 @@ class World:
         collision_mode: str = "stop",
         obstacle_map: Any | None = None,
         mdownsample: int = 1,
+        fog_map: bool = False,
+        fog_map_resolution: float | None = None,
         plot: dict[str, Any] | None = None,
         status: str = "None",
         world_param_instance: Optional["WorldParam"] = None,
@@ -119,6 +128,23 @@ class World:
             obstacle_map, mdownsample
         )
 
+        # fog of map: a grey overlay revealed by lidar line of sight. The fog
+        # resolution defaults to the obstacle map's cell size (``self.reso``,
+        # set by gen_grid_map), or 0.1 m when there is no obstacle map.
+        if fog_map:
+            if fog_map_resolution is None:
+                fog_map_resolution = (
+                    float(self.reso[0, 0]) if self.grid_map is not None else 0.1
+                )
+            self.fog_map = FogMap(
+                width=self.width,
+                height=self.height,
+                resolution=fog_map_resolution,
+                world_offset=self.offset,
+            )
+        else:
+            self.fog_map = None
+
         # visualization
         self.plot_parse = plot
 
@@ -132,15 +158,40 @@ class World:
             kwargs, self._VALID_PARAMS, context=" in 'world' config", logger=self.logger
         )
 
-    def step(self) -> None:
+    def step(self, objects: list[Any] | None = None) -> None:
         """
         Advance the simulation by one step.
+
+        Args:
+            objects: Current scene objects. When ``fog_map`` is enabled, their
+                lidars reveal the fog-of-map overlay along their line of sight.
+                Pass ``None`` or an empty list to skip the fog update.
         """
         self.count += 1
         self.sampling = self.count % (int(self.sample_time / self.step_time)) == 0
 
         self._wp.time = self.time
         self._wp.count = self.count
+
+        self._reveal_fog(objects)
+
+    def _reveal_fog(self, objects: list[Any] | None) -> None:
+        """Reveal the fog-of-map for each sensing object.
+
+        Uses the lidar's line of sight when present, otherwise the object's
+        field-of-view sector (``fov`` / ``fov_radius``) if one is configured.
+        """
+        if self.fog_map is None or not objects:
+            return
+        for obj in objects:
+            if obj.lidar is not None:
+                self.fog_map.reveal_from_lidar(
+                    obj.lidar.lidar_origin[:, 0],
+                    obj.lidar.angle_list,
+                    obj.lidar.range_data,
+                )
+            elif obj.fov and obj.fov_radius:
+                self.fog_map.reveal_fov(obj.state[:3, 0], obj.fov, obj.fov_radius)
 
     def gen_grid_map(
         self,
@@ -246,6 +297,8 @@ class World:
 
         self._wp.count = 0
         self.count = 0
+        if self.fog_map is not None:
+            self.fog_map.reset()
 
     @property
     def time(self) -> float:

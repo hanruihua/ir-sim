@@ -149,7 +149,9 @@ class TestEnvPlot3D:
         fig = plt.figure()
         ax3d = fig.add_subplot(111, projection="3d")
         # No env logger configured -> logger is None.
-        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=None)
+        fake = SimpleNamespace(
+            ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=None, _grid_im=None
+        )
         EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))  # must not raise
         plt.close("all")
 
@@ -160,10 +162,25 @@ class TestEnvPlot3D:
         fig = plt.figure()
         ax3d = fig.add_subplot(111, projection="3d")
         logger = Mock()
-        fake = SimpleNamespace(ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=logger)
+        fake = SimpleNamespace(
+            ax=ax3d, x_range=[0, 10], y_range=[0, 10], logger=logger, _grid_im=None
+        )
         EnvPlot.draw_grid_map(fake, np.zeros((10, 10)))
         logger.warning.assert_called_once()
         plt.close("all")
+
+    def test_draw_grid_map_none_drops_existing(self):
+        """draw_grid_map(None) removes a previously drawn grid image (e.g. on a
+        reload into a world with no obstacle map)."""
+        from types import SimpleNamespace
+
+        grid_im = Mock()
+        fake = SimpleNamespace(
+            ax=None, x_range=[0, 10], y_range=[0, 10], logger=None, _grid_im=grid_im
+        )
+        EnvPlot.draw_grid_map(fake, None)
+        grid_im.remove.assert_called_once()
+        assert fake._grid_im is None
 
 
 class TestDrawPatch:
