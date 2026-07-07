@@ -68,7 +68,7 @@ obstacle:
 
 :::{tab-item} Demonstration
 
-```{image} gif/grid_map.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/grid_map/grid_map.gif
 :alt: Grid map demo
 :width: 400px
 :align: center

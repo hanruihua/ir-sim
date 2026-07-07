@@ -72,7 +72,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: usage/gif/sfm_world.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/sfm_world.gif
            :width: 70%
            :alt: Social Force Model (SFM)
 
@@ -127,7 +127,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: usage/gif/mouse.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/mouse.gif
            :width: 70%
            :alt: Mouse Control
 
@@ -138,7 +138,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: usage/gif/keyboard.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/keyboard.gif
            :width: 70%
            :alt: Keyboard Control
 

@@ -43,7 +43,7 @@ robot:
 
 Run the script and a window opens showing the differential-drive robot navigating from its start to the goal:
 
-```{image} quick_start.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/get_started/quick_start.gif
 :alt: Quick-start simulation — a differential-drive robot navigating to its goal
 :width: 420px
 :align: center

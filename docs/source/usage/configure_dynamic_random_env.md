@@ -70,7 +70,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/random_obstacles.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/dynamic_random_env/random_obstacles.gif
 :alt: random_obstacles
 :width: 400px
 :align: center

@@ -159,7 +159,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/robot_obstacle.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/robots_obstacles/robot_obstacle.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -267,7 +267,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/multi_objects.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/robots_obstacles/multi_objects.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

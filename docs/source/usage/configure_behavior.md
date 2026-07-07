@@ -76,7 +76,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/rvo.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/rvo.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -215,7 +215,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/sfm_world.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/sfm_world.gif
 :alt: SFM cross-corridor crowd
 :width: 400px
 :align: center
@@ -329,7 +329,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/orca_world.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/orca_world.gif
 :alt: ORCA Basic Configuration
 :width: 400px
 :align: center
@@ -418,7 +418,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/orca_random.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/orca_random.gif
 :alt: ORCA Random Wandering
 :width: 400px
 :align: center
@@ -790,7 +790,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/custom_behavior.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/custom_behavior.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
