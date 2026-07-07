@@ -410,6 +410,10 @@ class EnvBase:
             else:
                 key_vel = np.array([[fwd], [axis2]])
 
+            # Clamp the keyboard command to the robot's velocity limits.
+            if key_vel.shape == robot.vel_max.shape:
+                key_vel = np.clip(key_vel, robot.vel_min, robot.vel_max)
+
             action[self.key_id] = key_vel
 
         return action

@@ -6,6 +6,7 @@ Covers both pynput and matplotlib backends for keyboard input handling.
 
 from unittest.mock import Mock, patch
 
+import numpy as np
 import pytest
 
 import irsim
@@ -30,6 +31,27 @@ class TestKeyboardControlPynput:
                 env.keyboard._on_pynput_release(mock_key)
             env.step()
             env.render(0.01)
+
+    def test_keyboard_command_clamped_to_vel_max(self, env_factory):
+        """A keyboard command above the robot's vel_max is clamped, not passed
+        through raw. This prevents the per-step "clipped due to acceleration
+        limit" warning that fired every step while a key was held when
+        key_lv_max/key_ang_max exceeded the robot's vel_max.
+        """
+        env = env_factory("test_keyboard_control.yaml")  # acker, vel_max [4, 1]
+        robot = env.robot_list[0]
+
+        # Command far beyond the robot's limits (as if key_lv_max/key_ang_max
+        # were configured larger than vel_max).
+        env.keyboard.key_vel = np.array([[100.0], [100.0], [0.0]])
+        action = env._assign_keyboard_action([None] * len(env.objects))
+        cmd = action[env.keyboard.key_id]
+
+        # Clamped within [vel_min, vel_max] and actually reaching vel_max
+        # (moving at top speed, not zeroed out).
+        assert np.all(cmd <= robot.vel_max + 1e-9)
+        assert np.all(cmd >= robot.vel_min - 1e-9)
+        assert np.allclose(cmd.flatten(), robot.vel_max.flatten())
 
     def test_reload_key(self, env_factory, mock_keyboard_key):
         """Test 'l' key reloads environment."""
