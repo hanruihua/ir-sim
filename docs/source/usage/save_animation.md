@@ -85,7 +85,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/save_ani.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/save_animation/save_ani.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -200,7 +200,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/3d_plot.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/save_animation/3d_plot.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

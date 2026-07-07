@@ -67,7 +67,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/lidar2d.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/lidar2d.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -160,7 +160,7 @@ obstacle:
 
 :::{tab-item} Demonstration
 
-```{image} gif/noise.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/noise.gif
 :alt: LiDAR scan with Gaussian noise
 :width: 400px
 :align: center
@@ -333,7 +333,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/fov.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/fov.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

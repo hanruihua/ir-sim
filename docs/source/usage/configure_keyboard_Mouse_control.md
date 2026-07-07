@@ -70,7 +70,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/keyboard.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/keyboard.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -226,7 +226,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} gif/mouse.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/mouse.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
