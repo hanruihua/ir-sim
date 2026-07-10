@@ -167,6 +167,12 @@ class KinematicsHandler(ABC):
 
 @register_kinematics("omni")
 class OmniKinematics(KinematicsHandler):
+    """Omnidirectional model with body-frame translational velocity.
+
+    Velocity is ``[forward, lateral]`` in the robot body frame. The state is
+    ``[x, y, theta]`` and ``theta`` is preserved by :meth:`step`.
+    """
+
     action_dim = 2
     min_state_dim = 3
     state_dim = 3
@@ -199,6 +205,15 @@ class OmniKinematics(KinematicsHandler):
         return omni_kinematics(state[0:3], velocity, step_time, self.noise, self.alpha)
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
+        """Convert body-frame translation to world-frame ``[vx, vy]``.
+
+        Args:
+            state (np.ndarray): Current state ``[x, y, theta]``.
+            velocity (np.ndarray): Body-frame ``[forward, lateral]`` velocity.
+
+        Returns:
+            np.ndarray: ``(2, 1)`` world-frame velocity.
+        """
         theta = state[2, 0] if state.shape[0] > 2 else 0.0
         cos_t, sin_t = np.cos(theta), np.sin(theta)
         fwd = velocity[0, 0]
@@ -208,9 +223,26 @@ class OmniKinematics(KinematicsHandler):
         return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
+        """Compute translational speed limit from forward/lateral limits.
+
+        Args:
+            vel_max (np.ndarray): Maximum ``[forward, lateral]`` velocity.
+
+        Returns:
+            float: Euclidean norm of the translational velocity bound.
+        """
         return float(np.linalg.norm(vel_max))
 
     def compute_heading(self, state: np.ndarray, velocity: np.ndarray) -> float:
+        """Compute travel-direction heading for omnidirectional motion.
+
+        Args:
+            state (np.ndarray): Current state ``[x, y, theta]``.
+            velocity (np.ndarray): Body-frame ``[forward, lateral]`` velocity.
+
+        Returns:
+            float: World-frame velocity direction in radians.
+        """
         theta = state[2, 0] if state.shape[0] > 2 else 0.0
         return float(atan2(velocity[1, 0], velocity[0, 0])) + theta
 
@@ -263,6 +295,17 @@ class OmniAngularKinematics(KinematicsHandler):
         )
 
     def velocity_to_xy(self, state: np.ndarray, velocity: np.ndarray) -> np.ndarray:
+        """Convert body-frame translation to world-frame ``[vx, vy]``.
+
+        The yaw-rate component is ignored for this projection.
+
+        Args:
+            state (np.ndarray): Current state ``[x, y, theta]``.
+            velocity (np.ndarray): Body-frame ``[forward, lateral, yaw_rate]``.
+
+        Returns:
+            np.ndarray: ``(2, 1)`` world-frame velocity.
+        """
         theta = state[2, 0]
         cos_t, sin_t = np.cos(theta), np.sin(theta)
         fwd = velocity[0, 0]
@@ -272,11 +315,21 @@ class OmniAngularKinematics(KinematicsHandler):
         return np.array([[vx], [vy]])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
+        """Compute translational speed limit from the first two components.
+
+        Args:
+            vel_max (np.ndarray): Maximum ``[forward, lateral, yaw_rate]`` velocity.
+
+        Returns:
+            float: Euclidean norm of forward/lateral velocity bounds.
+        """
         return float(np.linalg.norm(vel_max[0:2]))
 
 
 @register_kinematics("diff")
 class DifferentialKinematics(KinematicsHandler):
+    """Differential-drive model with ``[linear, angular]`` velocity."""
+
     action_dim = 2
     min_state_dim = 3
     state_dim = 3
@@ -311,6 +364,13 @@ class DifferentialKinematics(KinematicsHandler):
 
 @register_kinematics("acker")
 class AckermannKinematics(KinematicsHandler):
+    """Ackermann car-like model with steering or angular-rate control.
+
+    The state is ``[x, y, theta, steer]``. In ``mode="steer"``, velocity is
+    interpreted as ``[linear, steer]``; other modes are handled by
+    :func:`irsim.lib.algorithm.kinematics.ackermann_kinematics`.
+    """
+
     action_dim = 2
     min_state_dim = 4
     state_dim = 4
@@ -372,6 +432,21 @@ class KinematicsFactory:
         wheelbase: float | None = None,
         role: str = "robot",
     ) -> KinematicsHandler:
+        """Create a kinematics handler from a YAML ``kinematics.name`` value.
+
+        Args:
+            name: Registered kinematics name, such as ``diff``, ``omni``,
+                ``omni_angular``, or ``acker``. ``None`` uses the fallback.
+            noise: Whether to apply motion noise.
+            alpha: Noise parameters passed to the handler.
+            mode: Ackermann mode, used only by ``acker``.
+            wheelbase: Ackermann wheelbase; defaults to ``1.0`` for ``acker``.
+            role: Object role used for warnings.
+
+        Returns:
+            KinematicsHandler: Registered handler instance, or a differential
+            handler fallback when the name is missing or unknown.
+        """
         name = name.lower() if name else None
 
         handler_cls = _kinematics_registry.get(name) if name else None

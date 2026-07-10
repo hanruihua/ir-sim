@@ -433,7 +433,7 @@ For patrol scenarios where robots continuously navigate through predefined waypo
 
 ```yaml
 robot:
-  kinematics: diff
+  kinematics: {name: diff}
   goal: [[1, 1], [5, 1], [5, 5], [1, 5]]
   behavior:
     name: dash

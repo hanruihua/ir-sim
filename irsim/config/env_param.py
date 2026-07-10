@@ -13,6 +13,15 @@ from irsim.world.object_base import ObjectBase
 
 @dataclass
 class EnvParam:
+    """Mutable per-environment runtime state.
+
+    Attributes:
+        objects: Objects currently managed by the environment.
+        logger: Environment logger instance.
+        GeometryTree: Spatial index used for geometry queries, when available.
+        platform_name: Name of the current operating system platform.
+    """
+
     objects: list[ObjectBase] = field(default_factory=list)
     logger: Any | None = None
     GeometryTree: Any | None = None

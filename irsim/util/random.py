@@ -12,6 +12,12 @@ rng = _RNGProxy()
 
 
 def set_seed(seed: int | None = None) -> None:
+    """Reset the shared IR-SIM random number generator.
+
+    Args:
+        seed: Seed for deterministic sampling. ``None`` creates a fresh
+            non-deterministic generator.
+    """
     global _rng
     _rng = (
         np.random.default_rng(seed) if seed is not None else np.random.default_rng()

@@ -283,7 +283,8 @@ class EnvBase:
                 - **Omnidirectional robot**: [velocity_x, velocity_y]
                 - **Ackermann robot**: [linear_velocity, steering_angle]
 
-                If None, robots will use their default behavior or keyboard control if enabled.
+                If None, keyboard control is applied when enabled; otherwise robots use configured behaviors.
+                Robots without a configured behavior remain static.
 
         Note - Priority Order:
                     1. Apply keyboard control for the specified ``action_id`` if enabled.

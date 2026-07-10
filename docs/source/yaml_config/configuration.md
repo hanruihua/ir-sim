@@ -6,7 +6,7 @@ The configuration file is a YAML file to initialize the environment. It contains
 
 ## Configuration Overview
 
-A complete IR-SIM scene is described by up to four top-level keys — `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` share the same per-object schema** — only their default `role` differs. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `—`. Click a section's **full docs ›** link to jump to the detailed description.
+A complete IR-SIM scene is described by up to four top-level keys — `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `—`. Click a section's **full docs ›** link to jump to the detailed description.
 
 ```{raw} html
 <div class="yaml-tree">
@@ -52,11 +52,11 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
 <div class="yt-body">
   <div class="yt-leaf"><a class="yt-key" href="#p-o-name">name</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/list</b></span><span class="yt-def">null</span><span class="yt-desc">unique id, auto "&lt;role&gt;_&lt;id&gt;"</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-number">number</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">how many to create</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-state">state</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0, 0]</span><span class="yt-desc">initial [x, y, theta]</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-goal">goal</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">null</span><span class="yt-desc">target [x, y, theta] (or list of)</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-state">state</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1, 1, 0]</span><span class="yt-desc">manual initial [x, y, theta]</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-goal">goal</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1, 9, 0]</span><span class="yt-desc">manual target [x, y, theta] (or list of)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-velocity">velocity</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0]·dim</span><span class="yt-desc">initial control vector</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"obstacle"</span><span class="yt-desc">robot | obstacle</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"k"</span><span class="yt-desc">matplotlib color</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">top-level key</span><span class="yt-desc">robot | obstacle</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">role/kinematics</span><span class="yt-desc">matplotlib color</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-static">static</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">immobile object</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
@@ -722,13 +722,13 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
 | `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`, `omni_angular`                               |
 | `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`                               |
-| `state`          | `list` of `float`                                | `[0, 0, 0]`      | Initial state vector of the object.                                                                                |
+| `state`          | `list` of `float`                                | `[1, 1, 0]` for manual distribution | Initial state vector of the object.                                                                                |
 | `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
-| `goal`           | `list` of `float` or `list` of `list` of `float` | `None`           | Goal state(s) vector.                                                                                              |
-| `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo` (availability depends on `kinematics`; see [Configure behavior](../usage/configure_behavior.md))   |
+| `goal`           | `list` of `float` or `list` of `list` of `float` | `[1, 9, 0]` for manual distribution | Goal state(s) vector.                                                                                              |
+| `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`, `sfm` (availability depends on `kinematics`; see [Configure behavior](../usage/configure_behavior.md))   |
 | `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`                                           |
-| `role`           | `str`                                            | `"obstacle"`     | Role of the object in the simulation.                                                                              |
-| `color`          | `str`                                            | `'k'` (black)    | Visualization color of the object in the simulation.                                                               |
+| `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
+| `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots use kinematics-specific defaults; obstacles default to black. |
 | `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                                                 |
 | `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
@@ -810,8 +810,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```
 
 (p-o-state)=
-**`state`** (`list` of `float`, default: `[0, 0, 0]`)
-: Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros.
+**`state`** (`list` of `float`, default: `[1, 1, 0]` for manual distribution)
+: Defines the initial state of the object, typically in the format `[x, y, theta]`, where `theta` represents the orientation in radians. If the provided state has more elements than required, extra elements are truncated; if fewer, missing values are filled with zeros. Random and circle distributions generate states from their distribution parameters.
 
   ```yaml
   # Example usage
@@ -833,8 +833,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   ```
 
 (p-o-goal)=
-**`goal`** (`list` of `float` or `list` of `list` of `float`, default: `None`)
-: Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]` or `[[x, y, theta], [x, y, theta], ...]` for multiple goals.
+**`goal`** (`list` of `float` or `list` of `list` of `float`, default: `[1, 9, 0]` for manual distribution)
+: Sets the target state or position the object should move toward. Used in conjunction with behaviors to guide the object's navigation. The format is `[x, y, theta]` or `[[x, y, theta], [x, y, theta], ...]` for multiple goals. Random and circle distributions generate goals from their distribution parameters.
 
   ```yaml
   # Example usage - single goal
@@ -923,8 +923,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   Do not confuse the object-level `name` with the `name` keys inside dictionaries like `shape`, `kinematics`, or `behavior`. The latter specify the type of that component, not the object's identifier.
   ```
 
-  **`role`** (`str`, default: `'obstacle'`)
-  : Defines the object's role in the simulation, determined by the section it belongs to:
+  **`role`** (`str`, inferred from top-level key)
+  : Defines the object's role in the simulation. In YAML configurations, this is inferred from the section it belongs to and normally does not need to be set manually:
   - `'robot'`: An active entity typically controlled by behaviors or input commands.
   - `'obstacle'`: A passive entity that may or may not move but is considered during collision detection.
 ::::
@@ -1105,7 +1105,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Behavior Systems
 :class-card: sd-bg-light sd-rounded-3
-- **`behavior`**: `dash` (move toward the goal directly), `rvo` (collision avoidance algorithm)
+- **`behavior`**: `dash` (move toward the goal directly), `rvo` (reciprocal velocity obstacles), `sfm` (social force model)
 - **`group_behavior`**: `orca` (optimal reciprocal collision avoidance)
 - **`static`** — Immobile objects (`True`/`False`)
 ```
@@ -1148,6 +1148,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     ```yaml
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0, mode: 'rvo', wander: False}
     ```
+
+  - `'sfm'`: Implements the Social Force Model for reactive pedestrian-style avoidance. Supported kinematics are `diff` and `omni`.
 
 (p-o-group-behavior)=
 **`group_behavior`** (`dict`, default: `None`)
@@ -1328,8 +1330,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 ```
 
 (p-o-color)=
-**`color`** (`str`, default: `'k'` (black))
-: Specifies the object's color in visualizations for easy identification. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
+**`color`** (`str`, default: inferred from role and kinematics)
+: Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler; obstacles default to black. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
 
   **Example:**
   ```yaml

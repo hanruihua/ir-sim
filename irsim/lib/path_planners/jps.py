@@ -391,12 +391,15 @@ class JPSPlanner:
         return rx, ry
 
     def calc_grid_position(self, index: int, min_position: float) -> float:
+        """Convert a grid index to a world coordinate."""
         return index * self.resolution + min_position
 
     def calc_xy_index(self, position: float, min_pos: float) -> int:
+        """Convert a world coordinate to a grid index."""
         return round((position - min_pos) / self.resolution)
 
     def calc_grid_index_from_xy(self, x: int, y: int) -> int:
+        """Flatten a 2D grid index into the planner node id."""
         return y * self.x_width + x
 
     def is_collision(self, x: float, y: float) -> bool:

@@ -17,6 +17,8 @@ COLLISION_RADIUS_FACTOR = 0.5
 
 
 class ObstacleMap(ObjectBase):
+    """Static obstacle object backed by map line segments and optional grid data."""
+
     def __init__(
         self,
         shape: dict | None = None,

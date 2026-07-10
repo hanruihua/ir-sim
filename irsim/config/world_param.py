@@ -15,6 +15,16 @@ from dataclasses import dataclass
 
 @dataclass
 class WorldParam:
+    """Mutable simulation-clock and control-mode parameters.
+
+    Attributes:
+        time: Elapsed simulation time.
+        control_mode: ``auto`` for automatic control or ``keyboard`` for manual control.
+        collision_mode: Collision handling mode.
+        step_time: Simulation time step.
+        count: Number of elapsed simulation steps.
+    """
+
     time: float = 0.0
     control_mode: str = "auto"
     collision_mode: str = "stop"

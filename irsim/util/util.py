@@ -110,7 +110,7 @@ def WrapToPi(rad: float, positive: bool = False) -> float:
 
     Args:
 
-        rad (float): Angle in radians. The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to transform to the range `[-π, π]`. The function ensures that the angle is within this range by wrapping it around if it exceeds the bounds.
+        rad (float): Angle in radians. The `rad` parameter in the `WrapToPi` function represents an angle in radians that you want to transform to the range `[-pi, pi]`. The function ensures that the angle is within this range by wrapping it around if it exceeds the bounds.
 
         positive (bool): Whether to return the positive value of the angle. Useful for angles difference.
 
@@ -582,6 +582,7 @@ def distance(
 
 
 def dist_hypot(x1: float, y1: float, x2: float, y2: float) -> float:
+    """Compute Euclidean distance between two 2D points."""
     return math.hypot(x2 - x1, y2 - y1)
 
 

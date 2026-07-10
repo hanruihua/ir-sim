@@ -7,6 +7,13 @@ from irsim.world.sensors.lidar2d import Lidar2D
 
 
 class SensorFactory:
+    """Factory for sensors declared in YAML object configurations.
+
+    The factory reads the ``name`` or ``type`` key from a sensor dictionary and
+    creates the matching concrete sensor class. Currently supported names are
+    ``"lidar2d"`` and ``"fmcw_lidar2d"``.
+    """
+
     def create_sensor(self, state: np.ndarray, obj_id: int, **kwargs: Any) -> Any:
         """Create a sensor instance from configuration kwargs.
 

@@ -197,6 +197,15 @@ msgid ""
 msgstr "**`goal`：** 指定机器人的目标位置与朝向。"
 
 #: ../../source/usage/configure_robots_obstacles.md:75
+msgid ""
+"**`behavior`:** Specifies how the robot generates velocity in `env.step()` "
+"when no external command is provided. If omitted, the robot remains static "
+"unless a velocity command is passed to `env.step(velocity)`."
+msgstr ""
+"**`behavior`：** 指定在未提供外部控制指令时，机器人如何在 `env.step()` 中生成速度。"
+"若省略该项，除非通过 `env.step(velocity)` 传入速度指令，否则机器人将保持静止。"
+
+#: ../../source/usage/configure_robots_obstacles.md:76
 #, python-brace-format
 msgid ""
 "**`plot`** (optional): Specifies the visualization settings for the robot. "
@@ -205,11 +214,14 @@ msgstr ""
 "**`plot`**（可选）：设置机器人的可视化样式。参见 "
 "{py:meth}`~irsim.world.object_base.ObjectBase.plot`。"
 
-#: ../../source/usage/configure_robots_obstacles.md:78
+#: ../../source/usage/configure_robots_obstacles.md:80
 msgid ""
-"The robot has a default behavior of moving from its initial position to the "
-"goal position directly (`dash`) if the `kinematics` is set."
-msgstr "当设置了 `kinematics` 时，机器人默认使用 `dash` 行为从起始位置直接移动到目标。"
+"The example above explicitly sets `behavior: {name: 'dash'}` so the robot "
+"moves from its initial state toward its goal when `env.step()` is called "
+"without an input velocity."
+msgstr ""
+"上面的示例显式设置了 `behavior: {name: 'dash'}`，因此在调用 `env.step()` 且不传入速度时，"
+"机器人会从初始状态向目标移动。"
 
 #: ../../source/usage/configure_robots_obstacles.md:80
 msgid "Explanation"
@@ -311,14 +323,20 @@ msgid "**Configuration Tips:**"
 msgstr "**配置提示：**"
 
 #: ../../source/usage/configure_robots_obstacles.md:186
-msgid "Without `kinematics`, obstacles remain stationary"
-msgstr "若未设置 `kinematics`，障碍物将保持静止"
+msgid "Objects without `kinematics` are static"
+msgstr "未设置 `kinematics` 的对象是静态对象"
 
 #: ../../source/usage/configure_robots_obstacles.md:187
-msgid "Add `kinematics` + `behavior` to create moving obstacles"
-msgstr "同时配置 `kinematics` 与 `behavior` 可让障碍物移动"
+msgid "Add `kinematics` + `behavior` to create moving robots or obstacles"
+msgstr "同时配置 `kinematics` 与 `behavior` 可创建会移动的机器人或障碍物"
 
 #: ../../source/usage/configure_robots_obstacles.md:188
+msgid ""
+"Pass a velocity to `env.step(velocity)` when using your own controller "
+"instead of a configured behavior"
+msgstr "使用自定义控制器而不是配置行为时，请向 `env.step(velocity)` 传入速度指令"
+
+#: ../../source/usage/configure_robots_obstacles.md:189
 msgid "Use `-` to define each new robot/obstacle in the list"
 msgstr "列表中使用 `-` 定义每个新的机器人/障碍物"
 

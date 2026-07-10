@@ -37,16 +37,16 @@ msgstr "配置总览"
 #: ../../source/yaml_config/configuration.md:9
 msgid ""
 "A complete IR-SIM scene is described by up to four top-level keys — `world`,"
-" `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` share the same "
-"per-object schema** — only their default `role` differs. Expand the "
-"interactive tree below to explore every key with its type and default; every"
-" key is optional unless its default is `—`. Click a section's **full docs "
-"›** link to jump to the detailed description."
+" `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same "
+"per-object keys**, while factory defaults can differ by object type and "
+"kinematics, such as `role`, color, state dimension, and image description. "
+"Expand the interactive tree below to explore every key with its type and "
+"default; every key is optional unless its default is `—`. Click a section's "
+"**full docs ›** link to jump to the detailed description."
 msgstr ""
 "一个完整的 IR-SIM 场景由最多四个顶层键描述 —— `world`、`robot`、`obstacle` 和 `gui`。**`robot` 和 "
-"`obstacle` 共享同一个对象级 schema** —— 仅默认的 `role` "
-"不同。展开下方的交互式树即可浏览每个键及其类型和默认值；除非默认值为 `—`，否则所有键均为可选。点击各部分的 **full docs ›** "
-"链接可跳转到详细说明。"
+"`obstacle` 接受相同的对象级键**，但工厂默认值会因对象类型和运动学而异，例如 `role`、颜色、状态维度和图像描述。"
+"展开下方的交互式树即可浏览每个键及其类型和默认值；除非默认值为 `—`，否则所有键均为可选。点击各部分的 **full docs ›** 链接可跳转到详细说明。"
 
 #: ../../source/yaml_config/configuration.md:449
 msgid ""
@@ -819,8 +819,8 @@ msgid "`state`"
 msgstr "`state`"
 
 #: ../../source/yaml_config/configuration.md:691
-msgid "`[0, 0, 0]`"
-msgstr "`[0, 0, 0]`"
+msgid "`[1, 1, 0]` for manual distribution"
+msgstr "手动分布时为 `[1, 1, 0]`"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "Initial state vector of the object."
@@ -853,16 +853,20 @@ msgid "Goal state(s) vector."
 msgstr "目标状态向量。"
 
 #: ../../source/yaml_config/configuration.md:691
+msgid "`[1, 9, 0]` for manual distribution"
+msgstr "手动分布时为 `[1, 9, 0]`"
+
+#: ../../source/yaml_config/configuration.md:691
 msgid "`behavior`"
 msgstr "`behavior`"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid ""
 "Behavior configuration dictating object movement. Support name: `dash`, "
-"`rvo` (availability depends on `kinematics`; see [Configure "
+"`rvo`, `sfm` (availability depends on `kinematics`; see [Configure "
 "behavior](../usage/configure_behavior.md))"
 msgstr ""
-"决定对象运动的行为配置，支持 `dash`、`rvo`（可用性取决于 "
+"决定对象运动的行为配置，支持 `dash`、`rvo`、`sfm`（可用性取决于 "
 "`kinematics`，详见[配置行为](../usage/configure_behavior.md)）。"
 
 #: ../../source/yaml_config/configuration.md:691
@@ -879,24 +883,28 @@ msgid "`role`"
 msgstr "`role`"
 
 #: ../../source/yaml_config/configuration.md:691
-msgid "`\"obstacle\"`"
-msgstr "`\"obstacle\"`"
+msgid "inferred from top-level key"
+msgstr "从顶层键推断"
 
 #: ../../source/yaml_config/configuration.md:691
-msgid "Role of the object in the simulation."
-msgstr "对象在仿真中的角色。"
+msgid ""
+"Role of the object in the simulation (`\"robot\"` under `robot`, "
+"`\"obstacle\"` under `obstacle`)."
+msgstr "对象在仿真中的角色（`robot` 下为 `\"robot\"`，`obstacle` 下为 `\"obstacle\"`）。"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "`color`"
 msgstr "`color`"
 
 #: ../../source/yaml_config/configuration.md:691
-msgid "`'k'` (black)"
-msgstr "`'k'`（黑色）"
+msgid "inferred from role and kinematics"
+msgstr "从角色和运动学推断"
 
 #: ../../source/yaml_config/configuration.md:691
-msgid "Visualization color of the object in the simulation."
-msgstr "对象在仿真中的显示颜色。"
+msgid ""
+"Visualization color of the object in the simulation. Robots use kinematics-"
+"specific defaults; obstacles default to black."
+msgstr "对象在仿真中的显示颜色。机器人使用运动学相关的默认颜色；障碍物默认使用黑色。"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "`static`"
@@ -1214,18 +1222,20 @@ msgstr ""
 "`radius` (float): 圆的半径。默认值为 `min(width, height) / 2 - 0.5`，使圆形排布留有少量边距。"
 
 #: ../../source/yaml_config/configuration.md:800
-msgid "**`state`** (`list` of `float`, default: `[0, 0, 0]`)"
-msgstr "**`state`** (`float`列表, 默认为`[0, 0, 0]`)"
+msgid "**`state`** (`list` of `float`, default: `[1, 1, 0]` for manual distribution)"
+msgstr "**`state`**（`float` 列表，手动分布时默认：`[1, 1, 0]`）"
 
 #: ../../source/yaml_config/configuration.md:801
 msgid ""
 "Defines the initial state of the object, typically in the format `[x, y, "
 "theta]`, where `theta` represents the orientation in radians. If the "
 "provided state has more elements than required, extra elements are "
-"truncated; if fewer, missing values are filled with zeros."
+"truncated; if fewer, missing values are filled with zeros. Random and circle"
+" distributions generate states from their distribution parameters."
 msgstr ""
 "定义对象的初始状态，通常为 `[x, y, theta]` 格式，其中 `theta` "
 "表示以弧度为单位的朝向。若提供的状态元素多于所需，多余的会被截断；若不足，缺失值以零补齐。"
+"随机分布和圆形分布会根据其分布参数生成状态。"
 
 #: ../../source/yaml_config/configuration.md:809
 msgid "**`velocity`** (`list` of `float`, default: `[0] * action_dim`)"
@@ -1262,17 +1272,19 @@ msgstr "`'acker'`模型参数通常由`[v, phi]`构成，其中 `v` 是线速度
 #: ../../source/yaml_config/configuration.md:823
 msgid ""
 "**`goal`** (`list` of `float` or `list` of `list` of `float`, default: "
-"`None`)"
-msgstr "**`goal`** (`float` 列表或 `float` 列表的列表，默认值：`None`)"
+"`[1, 9, 0]` for manual distribution)"
+msgstr "**`goal`**（`float` 列表或 `float` 列表的列表，手动分布时默认：`[1, 9, 0]`）"
 
 #: ../../source/yaml_config/configuration.md:824
 msgid ""
 "Sets the target state or position the object should move toward. Used in "
 "conjunction with behaviors to guide the object's navigation. The format is "
 "`[x, y, theta]` or `[[x, y, theta], [x, y, theta], ...]` for multiple goals."
+" Random and circle distributions generate goals from their distribution "
+"parameters."
 msgstr ""
 "设置对象应移动到的目标状态或位置。与行为配合使用以引导对象导航。格式为 `[x, y, theta]`，或多目标时为 `[[x, y, theta], "
-"[x, y, theta], ...]`。"
+"[x, y, theta], ...]`。随机分布和圆形分布会根据其分布参数生成目标。"
 
 #: ../../source/yaml_config/configuration.md:831
 msgid ""
@@ -1383,14 +1395,15 @@ msgstr ""
 "键混淆。后者指定该组件的类型，而非对象的标识符。"
 
 #: ../../source/yaml_config/configuration.md:913
-msgid "**`role`** (`str`, default: `'obstacle'`)"
-msgstr "**`role`** (`str`, 默认值： `'obstacle'`)"
+msgid "**`role`** (`str`, inferred from top-level key)"
+msgstr "**`role`**（`str`，从顶层键推断）"
 
 #: ../../source/yaml_config/configuration.md:914
 msgid ""
-"Defines the object's role in the simulation, determined by the section it "
-"belongs to:"
-msgstr "定义对象在仿真中的角色，由其所属的配置区块决定："
+"Defines the object's role in the simulation. In YAML configurations, this is"
+" inferred from the section it belongs to and normally does not need to be "
+"set manually:"
+msgstr "定义对象在仿真中的角色。在 YAML 配置中，该值由对象所属的配置区块推断，通常无需手动设置："
 
 #: ../../source/yaml_config/configuration.md:915
 msgid ""
@@ -1753,9 +1766,9 @@ msgstr "行为系统"
 
 #: ../../source/yaml_config/configuration.md:1095
 msgid ""
-"**`behavior`**: `dash` (move toward the goal directly), `rvo` (collision "
-"avoidance algorithm)"
-msgstr "**`behavior`**：`dash`（直接朝目标移动）、`rvo`（碰撞避让算法）"
+"**`behavior`**: `dash` (move toward the goal directly), `rvo` (reciprocal "
+"velocity obstacles), `sfm` (social force model)"
+msgstr "**`behavior`**：`dash`（直接朝目标移动）、`rvo`（互惠速度障碍）、`sfm`（社会力模型）"
 
 #: ../../source/yaml_config/configuration.md:1096
 msgid "**`group_behavior`**: `orca` (optimal reciprocal collision avoidance)"
@@ -1846,6 +1859,12 @@ msgid ""
 msgstr "`'rvo'`：实现多动态体避碰的 RVO 算法，支持 `diff` 与 `omni` 运动学。"
 
 #: ../../source/yaml_config/configuration.md:1124
+msgid ""
+"`'sfm'`: Implements the Social Force Model for reactive pedestrian-style "
+"avoidance. Supported kinematics are `diff` and `omni`."
+msgstr "`'sfm'`：实现社会力模型，用于反应式行人风格避障。支持 `diff` 和 `omni` 运动学。"
+
+#: ../../source/yaml_config/configuration.md:1126
 msgid "`vxmax` (float/`1.5`): Maximum linear velocity in x axis."
 msgstr "`vxmax`（float）：x 轴最大线速度，默认 `1.5`。"
 
@@ -2239,17 +2258,18 @@ msgid "**Sensors** — Sensor display (`show_sensor`, `show_fov`)"
 msgstr "**Sensors** — 传感器显示（`show_sensor`、`show_fov`）"
 
 #: ../../source/yaml_config/configuration.md:1318
-msgid "**`color`** (`str`, default: `'k'` (black))"
-msgstr "**`color`**（`str`，默认 `'k'` 黑色）"
+msgid "**`color`** (`str`, default: inferred from role and kinematics)"
+msgstr "**`color`**（`str`，默认从角色和运动学推断）"
 
 #: ../../source/yaml_config/configuration.md:1319
 msgid ""
 "Specifies the object's color in visualizations for easy identification. "
-"Detailed color options can be found in [matplotlib "
-"color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
+"Robots with registered kinematics use the color defined by the kinematics "
+"handler; obstacles default to black. Detailed color options can be found in "
+"[matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
 msgstr ""
-"指定对象在可视化中的颜色以便于识别。详细的颜色选项见 [matplotlib "
-"颜色](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
+"指定对象在可视化中的颜色，便于识别。带有已注册运动学的机器人使用运动学处理器定义的颜色；"
+"障碍物默认使用黑色。详细颜色选项见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
 
 #: ../../source/yaml_config/configuration.md:1327
 msgid "**`description`** (`str`, default: `None`)"

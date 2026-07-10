@@ -718,14 +718,17 @@ class EnvPlot:
 
     @property
     def logger(self):
+        """Environment logger used by plotting helpers."""
         return self._env_param.logger
 
     @property
     def x_range(self):
+        """World x-axis range used by the plot."""
         return self.world.x_range
 
     @property
     def y_range(self):
+        """World y-axis range used by the plot."""
         return self.world.y_range
 
 
