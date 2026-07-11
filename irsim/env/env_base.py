@@ -1109,7 +1109,9 @@ class EnvBase:
         Get the current state of the robot.
 
         Returns:
-            state: 3*1 vector [x, y, theta]
+            np.ndarray: Current robot state as a column vector. Differential and
+            omnidirectional robots return ``[x, y, theta]``; Ackermann robots return
+            ``[x, y, theta, steer]``.
 
         """
 

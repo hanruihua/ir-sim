@@ -93,8 +93,9 @@ class ObjectBase:
     Args:
         shape (dict): Parameters defining the shape of the object for geometry creation.
             The dictionary should contain keys and values required by the GeometryFactory to create
-            the object's geometry, such as 'type' (e.g., 'circle', 'rectangle') and associated parameters.
-            Defaults to None.
+            the object's geometry, including ``name`` (for example, ``circle`` or
+            ``rectangle``) and associated parameters. If omitted, a circle with radius
+            ``1`` is created; an explicit ``{"name": "circle"}`` uses radius ``0.2``.
         kinematics (dict): Parameters defining the kinematics of the object.
             Includes kinematic model and any necessary parameters. If None, no kinematics model is applied.
             Defaults to None.

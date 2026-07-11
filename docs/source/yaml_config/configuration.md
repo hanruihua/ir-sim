@@ -533,7 +533,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
-| `status`         | `str`             | `"None"`    | Initial status of the simulation environment (Support: `"Running"`, `"Arrived"`, `"Collision"`, `"Pause"`) |
+| `status`         | `str`             | `"None"`    | Initial status of the simulation environment (supports `"None"`, `"Running"`, `"Arrived"`, `"Collision"`, and `"Pause"`) |
 | `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](../usage/configure_grid_map.md). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
 | `fog_map`        | `bool`            | `false`     | Enable a fog-of-map overlay: the world starts grey (unexplored) and is revealed by each lidar's line of sight as the robot explores. See [`fog_map`](#p-w-fog-map) below. |
@@ -597,7 +597,8 @@ This section outlines the configuration parameters available for the `world` sec
 : Sets the initial status of the simulation environment:
 
   **Options:**
-  - `"Running"`: The simulation runs normally (default).
+  - `"None"`: Initial sentinel value (default). After the first completed step, IR-SIM changes it to `"Running"` unless another status applies.
+  - `"Running"`: The simulation runs normally.
   - `"Pause"`: The simulation starts in a paused state.
   - `"Arrived"`: The simulation stops when the robot arrives at the goal.
   - `"Collision"`: The simulation stops when the robot collides with an obstacle.
@@ -720,8 +721,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `name`           | `str` or `list` of `str`                         | `None`           | Unique identifier for the object. If omitted, auto-assigned as `"<role>_<id>"`. Supports a list when `number > 1`. |
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
-| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Support name: `diff`, `acker`, `omni`, `omni_angular`                               |
-| `shape`          | `dict`                                           | `{name: circle}` | Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , `linestring`                               |
+| `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Supported names: `diff`, `acker`, `omni`, `omni_angular`. An object without kinematics is static. |
+| `shape`          | `dict`                                           | `None`           | Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, `rectangle`, `polygon`, `linestring`. |
 | `state`          | `list` of `float`                                | `[1, 1, 0]` for manual distribution | Initial state vector of the object.                                                                                |
 | `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[1, 9, 0]` for manual distribution | Goal state(s) vector.                                                                                              |
@@ -729,7 +730,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`                                           |
 | `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
 | `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots use kinematics-specific defaults; obstacles default to black. |
-| `static`         | `bool`                                           | `False`          | Indicates if the object is static.                                                                                 |
+| `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise the object is always static. Set `true` to freeze an object that has kinematics. |
 | `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `acce`           | `list` of `float`                                | `[inf] * action_dim` | Acceleration limits. Length matches the kinematics action dimension.                                               |

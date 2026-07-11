@@ -270,9 +270,11 @@ msgstr "`\"None\"`"
 
 #: ../../source/yaml_config/configuration.md:503
 msgid ""
-"Initial status of the simulation environment (Support: `\"Running\"`, "
-"`\"Arrived\"`, `\"Collision\"`, `\"Pause\"`)"
-msgstr "仿真环境状态初始化（支持 `\"Running\"`、`\"Arrived\"`、`\"Collision\"`、`\"Pause\"`）"
+"Initial status of the simulation environment (supports `\"None\"`, "
+"`\"Running\"`, `\"Arrived\"`, `\"Collision\"`, and `\"Pause\"`)"
+msgstr ""
+"仿真环境的初始状态（支持 `\"None\"`、`\"Running\"`、`\"Arrived\"`、"
+"`\"Collision\"` 和 `\"Pause\"`）"
 
 #: ../../source/yaml_config/configuration.md:503
 msgid "`obstacle_map`"
@@ -286,6 +288,22 @@ msgstr "`str`、`ndarray`、`dict` 或 `null`"
 #: ../../source/yaml_config/configuration.md:691
 msgid "`None`"
 msgstr "`None`"
+
+#: ../../source/yaml_config/configuration.md:506
+msgid "`fog_map`"
+msgstr "`fog_map`"
+
+#: ../../source/yaml_config/configuration.md:506
+msgid "`false`"
+msgstr "`false`"
+
+#: ../../source/yaml_config/configuration.md:506
+msgid "`fog_map_resolution`"
+msgstr "`fog_map_resolution`"
+
+#: ../../source/yaml_config/configuration.md:506
+msgid "map cell size"
+msgstr "地图栅格尺寸"
 
 #: ../../source/yaml_config/configuration.md:503
 #, python-brace-format
@@ -500,9 +518,17 @@ msgstr "**`status`** (`str`, 默认值： `\"None\"`)"
 msgid "Sets the initial status of the simulation environment:"
 msgstr "设置仿真环境的初始状态："
 
+#: ../../source/yaml_config/configuration.md:600
+msgid ""
+"`\"None\"`: Initial sentinel value (default). After the first completed "
+"step, IR-SIM changes it to `\"Running\"` unless another status applies."
+msgstr ""
+"`\"None\"`：初始哨兵值（默认）。第一个时间步完成后，除非触发其他状态，"
+"IR-SIM 会将其改为 `\"Running\"`。"
+
 #: ../../source/yaml_config/configuration.md:595
-msgid "`\"Running\"`: The simulation runs normally (default)."
-msgstr "`\"Running\"`：仿真正常运行（默认）。"
+msgid "`\"Running\"`: The simulation runs normally."
+msgstr "`\"Running\"`：仿真正常运行。"
 
 #: ../../source/yaml_config/configuration.md:596
 msgid "`\"Pause\"`: The simulation starts in a paused state."
@@ -795,9 +821,11 @@ msgstr "`kinematics`"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid ""
-"Kinematic model of the object. Support name: `diff`, `acker`, `omni`, "
-"`omni_angular`"
-msgstr "对象的运动学模型。支持的模型有`diff`、`acker`、`omni`、`omni_angular`。"
+"Kinematic model of the object. Supported names: `diff`, `acker`, `omni`, "
+"`omni_angular`. An object without kinematics is static."
+msgstr ""
+"对象的运动学模型。支持 `diff`、`acker`、`omni`、`omni_angular`。"
+"没有运动学模型的对象为静态对象。"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "`shape`"
@@ -805,14 +833,14 @@ msgstr "`shape`"
 
 #: ../../source/yaml_config/configuration.md:691
 #, python-brace-format
-msgid "`{name: circle}`"
-msgstr "`{name: circle}`"
-
-#: ../../source/yaml_config/configuration.md:691
 msgid ""
-"Shape of the object.  Support name:  `circle`, `rectangle`, `polygon` , "
-"`linestring`"
-msgstr "对象的几何形状。支持的形状有`circle`, `rectangle`, `polygon` , `linestring`"
+"Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; "
+"an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, "
+"`rectangle`, `polygon`, `linestring`."
+msgstr ""
+"对象的几何形状。省略时，IR-SIM 创建半径为 `1` 的圆；显式指定 "
+"`{name: circle}` 时使用半径 `0.2`。支持 `circle`、`rectangle`、`polygon`、"
+"`linestring`。"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "`state`"
@@ -918,9 +946,16 @@ msgstr "`bool`"
 msgid "`False`"
 msgstr "`False`"
 
+#: ../../source/yaml_config/configuration.md:705
+msgid "derived"
+msgstr "派生值"
+
 #: ../../source/yaml_config/configuration.md:691
-msgid "Indicates if the object is static."
-msgstr "指示对象是否是静态的。"
+msgid ""
+"`False` when kinematics are present; otherwise the object is always static. "
+"Set `true` to freeze an object that has kinematics."
+msgstr ""
+"存在运动学模型时为 `False`；否则对象始终为静态。将其设为 `true` 可冻结具有运动学模型的对象。"
 
 #: ../../source/yaml_config/configuration.md:691
 msgid "`vel_min`"

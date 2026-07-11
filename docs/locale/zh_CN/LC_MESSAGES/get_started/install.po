@@ -51,8 +51,8 @@ msgid "Install `conda`_."
 msgstr "先安装 `conda`_。"
 
 #: ../../source/get_started/install.rst:27
-msgid "2. Create a new conda environment, ::"
-msgstr "2. 创建一个新的 conda 环境："
+msgid "2. Create a new conda environment with Python and pip, ::"
+msgstr "2. 创建一个包含 Python 和 pip 的新 conda 环境："
 
 #: ../../source/get_started/install.rst:33
 msgid "or activate an existing one"
@@ -105,6 +105,25 @@ msgstr "否则运行"
 #: ../../source/get_started/install.rst:86
 msgid "or for `uv`_ users, run"
 msgstr "若使用 `uv`_，执行"
+
+#: ../../source/get_started/install.rst:94
+msgid "Verify the Installation"
+msgstr "验证安装"
+
+#: ../../source/get_started/install.rst:96
+msgid ""
+"Using the Python interpreter from the environment where IR-SIM was "
+"installed, print the installed version:"
+msgstr "使用安装了 IR-SIM 的环境中的 Python 解释器，打印已安装的版本："
+
+#: ../../source/get_started/install.rst:103
+msgid ""
+"If this command prints a version without an import error, the core "
+"installation is ready. Continue with the :doc:`Quick Start <quick_start>` "
+"to run a scene."
+msgstr ""
+"如果该命令能够正常输出版本号且没有导入错误，则核心安装已经就绪。接下来可按照 "
+":doc:`快速开始 <quick_start>` 运行场景。"
 
 #: ../../source/get_started/install.rst:93
 msgid "Install with Additional Features"
@@ -201,20 +220,38 @@ msgid "All Features"
 msgstr "全部功能"
 
 #: ../../source/get_started/install.rst:171
-msgid "To install all optional dependencies and features:"
-msgstr "如需安装全部可选依赖与功能："
+msgid "To install all optional runtime dependencies and features:"
+msgstr "如需安装全部可选运行时依赖与功能："
 
 #: ../../source/get_started/install.rst:179
-msgid "Keyboard control features (`pynput`)"
-msgstr "键盘控制功能（`pynput`）"
+msgid "Keyboard control (`pynput`)"
+msgstr "键盘控制（`pynput`）"
 
 #: ../../source/get_started/install.rst:180
 msgid "Enhanced video support (`imageio[ffmpeg]`)"
 msgstr "增强的视频支持（`imageio[ffmpeg]`）"
 
+#: ../../source/get_started/install.rst:136
+msgid "ORCA group behavior (`pyrvo`)"
+msgstr "ORCA 群组行为（`pyrvo`）"
+
+#: ../../source/get_started/install.rst:140
+msgid "Developer Setup"
+msgstr "开发环境"
+
+#: ../../source/get_started/install.rst:142
+msgid ""
+"The following dependency groups are only needed when developing IR-SIM "
+"itself. They are not required to run normal simulations."
+msgstr "以下依赖组仅在开发 IR-SIM 本身时需要；运行普通仿真无需安装。"
+
+#: ../../source/get_started/install.rst
+msgid "All Development Groups"
+msgstr "全部开发依赖组"
+
 #: ../../source/get_started/install.rst:182
-msgid "To install dependency-groups:"
-msgstr "安装依赖组："
+msgid "To install all development dependency groups:"
+msgstr "安装全部开发依赖组："
 
 #: ../../source/get_started/install.rst:190
 msgid "lint group"
@@ -227,4 +264,3 @@ msgstr "test 组"
 #: ../../source/get_started/install.rst:192
 msgid "docs group"
 msgstr "docs 组"
-

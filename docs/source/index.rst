@@ -138,12 +138,12 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/keyboard.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/grid_map/fog_grid_map.gif
            :width: 70%
-           :alt: Keyboard Control
+           :alt: Fog-of-Map Exploration
 
         +++
-        Keyboard Control
+        Fog-of-Map Exploration
 
 Key Features
 ============

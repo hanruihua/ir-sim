@@ -28,7 +28,7 @@ A scene in IR-SIM is a **World** plus a set of **Objects** (robots and obstacles
 The **environment** (`EnvBase`) is the object you interact with. It owns the world and every object, and it exposes the simulation **lifecycle**:
 
 - **`make()`** — parse the YAML scenario and build the world and objects.
-- **`step()`** — advance every object by one time step: apply each object's behavior (or an external command), integrate its kinematics, then refresh sensors and collision state.
+- **`step()`** — advance every object by one time step: resolve external actions or behaviors, integrate object states and geometry, refresh sensors, advance the world clock and fog map, then update arrival and collision status.
 - **`render()`** — draw the current state with Matplotlib.
 - **`done()`** — report whether a terminal condition has been reached (e.g. all robots arrived, or a collision).
 - **`reset()` / `reload()`** — restore objects to their initial states, or rebuild the scene from YAML.
@@ -44,10 +44,27 @@ The **World** holds the global state that objects live in: the size (`width`, `h
 
 Everything placed in the scene is an **object**. Robots and obstacles share the same machinery — the difference is mostly their *role* and whether they are actively controlled. Each object has:
 
-- **State** — its pose, represented as a column vector `[x, y, theta]` (some kinematics add dimensions). This is what `step()` integrates and what sensors and collisions are computed from.
+- **State** — its pose, stored as a column vector. Differential and omnidirectional models use `[x, y, theta]`; Ackermann models add steering angle as `[x, y, theta, steer]`. This is what `step()` integrates and what sensors and collisions are computed from.
 - **Kinematics** — how a velocity command turns into motion: `diff` (differential drive), `omni` (omnidirectional), `omni_angular`, or `acker` (Ackermann / car-like). An object with no kinematics is *static*.
 - **Shape** — `circle`, `rectangle`, `polygon`, or `linestring`, used for both collision and drawing.
 - **Goal** — an optional target pose; arrival is detected within a distance threshold.
+
+### State and action conventions
+
+YAML expresses states and velocities as flat lists. Inside Python, IR-SIM stores
+them as column arrays. The meaning of an action depends on the kinematics model:
+
+| Kinematics | State | Action / velocity |
+| --- | --- | --- |
+| `diff` | `[x, y, theta]` | `[linear, angular]` |
+| `omni` | `[x, y, theta]` | Body-frame `[forward, lateral]`; `theta` is preserved |
+| `omni_angular` | `[x, y, theta]` | Body-frame `[forward, lateral, yaw_rate]` |
+| `acker` | `[x, y, theta, steer]` | `[linear, steer]` in `steer` mode, or `[linear, angular]` in `angular` mode |
+
+Positions are measured in metres, angles in radians, linear velocities in
+metres per second, and angular velocities in radians per second. See
+{doc}`Configure robots and obstacles <usage/configure_robots_obstacles>` for
+configuration examples and velocity limits.
 
 ## Behaviors: deciding what to do
 
