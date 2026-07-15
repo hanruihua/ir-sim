@@ -7,6 +7,7 @@ Covers GeometryFactory and various geometry types.
 import numpy as np
 import pytest
 
+import irsim
 from irsim.lib.handler.geometry_handler import GeometryFactory
 
 
@@ -405,3 +406,42 @@ class TestPointsGeometry:
         points = np.array([[0.0], [0.0]])
         pg = PointsGeometry(points=points, reso=np.array([[0.2], [0.3]]))
         assert pg.geometry is not None
+
+
+class TestCircleCenterConsistency:
+    """Circles with a body-frame center offset: the G/h cone constraints and
+    the RVO neighbor disc must sit on the same circle the collision geometry
+    uses, for both a translated and a rotated object state."""
+
+    def test_circle_gh_matches_collision_geometry(self, circle_center_world):
+        env = irsim.make(circle_center_world, display=False)
+
+        for obj in env.obstacle_list:
+            # Body frame: init G/h must encode the body-frame circle center.
+            _, h0, cone_type, convex = obj.get_init_Gh()
+            assert cone_type == "norm2"
+            assert convex
+            np.testing.assert_allclose(
+                h0[:2, 0], obj.original_centroid.flatten(), atol=1e-9
+            )
+            np.testing.assert_allclose(h0[2, 0], -obj.radius, atol=1e-9)
+
+            # World frame: the G/h center must be the collision centroid.
+            _, h, _, _ = obj.get_Gh()
+            np.testing.assert_allclose(
+                h[:2, 0], np.array(obj.geometry.centroid.coords[0]), atol=1e-6
+            )
+
+        env.end()
+
+    def test_rvo_neighbor_disc_matches_collision_geometry(self, circle_center_world):
+        env = irsim.make(circle_center_world, display=False)
+
+        for obj in env.obstacle_list:
+            x, y, _, _, r = obj.rvo_neighbor_state
+            np.testing.assert_allclose(
+                [x, y], np.array(obj.geometry.centroid.coords[0]), atol=1e-6
+            )
+            assert r >= obj.radius
+
+        env.end()

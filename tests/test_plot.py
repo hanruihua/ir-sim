@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+import irsim
 import irsim.env.env_plot as env_plot_module
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
@@ -730,3 +731,40 @@ class TestSaveAnimate:
             env_plot_module.imageio.imread = original_imread
 
         assert not buffer_dir.exists()
+
+
+class TestCircleCenterRender:
+    """Circles with a body-frame center offset must render on their collision
+    geometry, for both translated and rotated object states."""
+
+    @staticmethod
+    def _patch_center_in_data_coords(patch, ax):
+        """Map a Circle patch's center to data coords.
+
+        ``Circle.get_transform()`` maps unit-circle space to display space and
+        already includes the patch's own center, so the center is the image of
+        the unit-space origin.
+        """
+        display = patch.get_transform().transform((0.0, 0.0))
+        return ax.transData.inverted().transform(display)
+
+    def test_circle_center_offset_render_matches_collision(self, circle_center_world):
+        env = irsim.make(circle_center_world, display=False)
+        env.render()
+
+        ax = env._env_plot.ax
+        for obj in env.obstacle_list:
+            rendered = self._patch_center_in_data_coords(obj.object_patch, ax)
+            collision = np.array(obj.geometry.centroid.coords[0])
+            np.testing.assert_allclose(rendered, collision, atol=1e-6)
+
+        # Translated only: state (5, 5, 0) with center [1, 1] -> world (6, 6).
+        first = np.array(env.obstacle_list[0].geometry.centroid.coords[0])
+        np.testing.assert_allclose(first, [6.0, 6.0], atol=1e-6)
+
+        # Rotated: state (5, 5, 1.57) with center [1, 0] -> (5 + cos, 5 + sin).
+        second = np.array(env.obstacle_list[1].geometry.centroid.coords[0])
+        expected = [5.0 + np.cos(1.57), 5.0 + np.sin(1.57)]
+        np.testing.assert_allclose(second, expected, atol=1e-6)
+
+        env.end()

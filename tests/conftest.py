@@ -156,6 +156,31 @@ YAML_CONFIGS = {
 }
 
 
+CIRCLE_CENTER_WORLD_YAML = """
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+
+obstacle:
+  - shape: {name: 'circle', radius: 1.0, center: [1, 1]}
+    state: [5, 5, 0]
+
+  - shape: {name: 'circle', radius: 0.5, center: [1, 0]}
+    state: [5, 5, 1.57]
+"""
+
+
+@pytest.fixture
+def circle_center_world(tmp_path):
+    """World with circle obstacles offset by a body-frame ``center``:
+    one translated only, one rotated. Used by the render/collision and
+    G-h/RVO consistency tests."""
+    path = tmp_path / "circle_center_world.yaml"
+    path.write_text(CIRCLE_CENTER_WORLD_YAML)
+    return str(path)
+
+
 # ---------------------------------------------------------------------------
 # Keyboard mock helpers
 # ---------------------------------------------------------------------------

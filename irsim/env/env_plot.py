@@ -782,7 +782,8 @@ def draw_patch(
     Draw a geometric element (patch or line) on the given axes.
 
     Supported shapes and expected inputs (refer to irsim.world.object_base plotting patterns):
-    - circle: use ``state`` (x,y,theta) and ``radius``; created at origin and transformed
+    - circle: use ``state`` (x,y,theta), ``radius``, and optional ``center`` (body-frame
+      offset); created in the body frame and transformed, matching the collision geometry
     - rectangle: prefer ``vertices`` (2xN) else use ``width``/``height`` with ``state`` transform
     - polygon: use ``vertices`` (2xN)
     - ellipse: use ``width``/``height`` with ``state`` transform
@@ -803,6 +804,7 @@ def draw_patch(
     edgecolor = kwargs.pop("edgecolor", None)
     alpha = kwargs.pop("alpha", None)
     fill = kwargs.pop("fill", None)
+    center = kwargs.pop("center", None)
 
     state = state if state is not None else np.zeros((3, 1))
 
@@ -812,8 +814,14 @@ def draw_patch(
             raise ValueError("circle requires radius")
 
         use_radius = radius
-        # Create at origin; translate/rotate with transform
-        patch = Circle((0.0, 0.0), use_radius)
+        
+        if center is None:
+            xy = (0.0, 0.0)
+        else:
+            c = np.asarray(center, dtype=float).flatten()
+            xy = (c[0], c[1])
+        # Create at the body-frame center; translate/rotate with transform
+        patch = Circle(xy, use_radius)
         created_element = ax.add_patch(patch)
         set_patch_property(
             created_element,

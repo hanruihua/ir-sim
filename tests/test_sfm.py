@@ -703,8 +703,8 @@ class TestReactiveStateCache:
         assert after_state is not first
         assert nb_after_state is not nb_first
         # x coordinate of the cached neighbour state must reflect the
-        # new pose, not the old one.
-        assert nb_after_state[0] == 5.0
+        # new pose, not the old one (centroid-based, so approximate).
+        assert nb_after_state[0] == pytest.approx(5.0)
 
         # Mutate velocity externally — caches must drop again.
         primed_vxy = robot.velocity_xy
@@ -751,7 +751,7 @@ class TestReactiveStateCache:
         # reset() must drop the cached velocity/neighbour-state.
         post_reset_nb = robot.rvo_neighbor_state
         assert post_reset_nb is not primed_nb
-        assert post_reset_nb[0] == 1.0  # back to initial x
+        assert post_reset_nb[0] == pytest.approx(1.0)  # back to initial x
         # velocity_xy was also invalidated; new lookup recomputes.
         assert robot.velocity_xy is not primed
         env.end(suppress_summary=True)
