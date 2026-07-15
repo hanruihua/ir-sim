@@ -814,7 +814,7 @@ def draw_patch(
             raise ValueError("circle requires radius")
 
         use_radius = radius
-        
+
         if center is None:
             xy = (0.0, 0.0)
         else:
