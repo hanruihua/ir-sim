@@ -83,7 +83,7 @@ Please add tests for any new functionality or bug fix.
 
 Open pull requests against the `main` branch, and keep each PR focused on a single change. Before submitting, run `ruff check` and `pytest`.
 
-Use a [Conventional Commits](https://www.conventionalcommits.org/)-style title — `<type>(<scope>): <subject>` — where `<type>` is one of `feat`, `fix`, `docs`, `style`, `refactor`, `test`, or `chore` (the scope is optional):
+Use a [Conventional Commits](https://www.conventionalcommits.org/)-style title, `<type>(<scope>): <subject>`, where `<type>` is one of `feat`, `fix`, `docs`, `style`, `refactor`, `test`, or `chore` (the scope is optional):
 
 ```text
 feat: add hat wobble

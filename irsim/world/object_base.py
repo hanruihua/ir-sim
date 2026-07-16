@@ -33,6 +33,13 @@ from irsim.world.sensors.sensor_factory import SensorFactory
 
 @dataclass
 class ObjectInfo:
+    """Snapshot of an object's public state used by behaviors and planners.
+
+    Behavior functions receive this structure instead of the full object when
+    only immutable configuration-style fields are needed. Additional fields can
+    be attached with :meth:`add_property` for custom behaviors.
+    """
+
     id: int
     shape: str
     kinematics: str
@@ -53,11 +60,14 @@ class ObjectInfo:
     name: str
 
     def add_property(self, key, value):
+        """Attach an additional field to this info snapshot."""
         setattr(self, key, value)
 
 
 @dataclass
 class ObstacleInfo:
+    """Geometry and motion snapshot exposed for collision-aware behaviors."""
+
     center: np.ndarray
     vertex: np.ndarray
     velocity: np.ndarray
@@ -68,6 +78,7 @@ class ObstacleInfo:
     convex_flag: bool
 
     def add_property(self, key, value):
+        """Attach an additional field to this obstacle snapshot."""
         setattr(self, key, value)
 
 
@@ -82,8 +93,9 @@ class ObjectBase:
     Args:
         shape (dict): Parameters defining the shape of the object for geometry creation.
             The dictionary should contain keys and values required by the GeometryFactory to create
-            the object's geometry, such as 'type' (e.g., 'circle', 'rectangle') and associated parameters.
-            Defaults to None.
+            the object's geometry, including ``name`` (for example, ``circle`` or
+            ``rectangle``) and associated parameters. If omitted, a circle with radius
+            ``1`` is created; an explicit ``{"name": "circle"}`` uses radius ``0.2``.
         kinematics (dict): Parameters defining the kinematics of the object.
             Includes kinematic model and any necessary parameters. If None, no kinematics model is applied.
             Defaults to None.
@@ -93,7 +105,7 @@ class ObjectBase:
         velocity (list of float): Initial velocity vector [vx, vy] or according to the kinematics model.
             Defaults to [0, 0].
         goal (list of float or list of list of float): Goal state vector [x, y, theta, ...] or [[x, y, theta], [x, y, theta], ...] for multiple goals
-            Used by behaviors to determine the desired movement. Defaults to [10, 10, 0].
+            Used by behaviors to determine the desired movement. Defaults to None.
         role (str): Role of the object in the simulation, e.g., "robot" or "obstacle".
             Defaults to "obstacle".
         color (str): Color of the object when plotted.
@@ -109,8 +121,8 @@ class ObjectBase:
         angle_range (list of float): Allowed range of orientation angles [min, max] in radians.
             The object's orientation will be wrapped within this range. Defaults to [-pi, pi].
         behavior (dict or str): Behavioral mode or configuration of the object.
-            Can be a behavior name (str) or a dictionary with behavior parameters. If None, default behavior is applied.
-            Defaults to {'name': 'dash'}, moving to the goal directly.
+            Can be a behavior name (str) or a dictionary with behavior parameters.
+            If None and no group behavior is configured, the object remains static unless an external velocity is supplied.
         group_behavior (dict): Shared behavior defaults for objects in the same group.
             When an object's own behavior configuration is empty or missing, the
             group behavior will be used as a fallback and exposed via `beh_config`.
@@ -500,7 +512,7 @@ class ObjectBase:
 
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
-            # velocity just got zeroed — invalidate per-tick caches so
+            # velocity just got zeroed; invalidate per-tick caches so
             # other agents don't perceive a stopped object as still moving.
             self._invalidate_reactive_cache()
             return self.state
@@ -513,7 +525,7 @@ class ObjectBase:
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
-        # state/velocity/geometry changed — invalidate per-tick caches
+        # state/velocity/geometry changed; invalidate per-tick caches
         # used by reactive behaviors (SFM/RVO read these once per
         # neighbour). Non-static linestring objects have their vertices
         # re-transformed by ``gf.step(state)`` above, so the segment
@@ -1139,8 +1151,8 @@ class ObjectBase:
         """
         # Apply handler-derived show_arrow default only when the object is
         # dynamic (has a kinematics handler and is not flagged static).
-        # Static objects — YAML obstacles without `kinematics:`, kf=None
-        # robots, anything routed through ObjectStatic — default to no arrow.
+        # Static objects: YAML obstacles without `kinematics:`, kf=None
+        # robots, anything routed through ObjectStatic; default to no arrow.
         if (
             self.kf is not None
             and not self.static
@@ -2102,8 +2114,8 @@ class ObjectBase:
         """Drop per-tick caches read by reactive behaviors (SFM/RVO).
 
         Must be called from every path that mutates ``_state``,
-        ``_velocity``, or the transformed geometry — ``step()``,
-        ``set_state``, ``set_velocity``, ``reset``, ``refresh`` —
+        ``_velocity``, or the transformed geometry: ``step()``,
+        ``set_state``, ``set_velocity``, ``reset``, ``refresh``;
         otherwise the next reader gets stale cached data.
         """
         self._velocity_xy_cache = None

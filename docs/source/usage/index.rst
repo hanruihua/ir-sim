@@ -8,7 +8,7 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
     :class-container: usage-gallery
 
     .. grid-item-card:: Make environment
-        :img-top: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/robots_obstacles/robot_obstacle.gif
+        :img-top: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/make_environment/basic_loop.gif
         :link: make_environment
         :link-type: doc
         :text-align: center

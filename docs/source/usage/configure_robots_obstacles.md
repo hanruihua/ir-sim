@@ -39,10 +39,20 @@ robot:
   shape: {name: 'circle', radius: 0.2}  
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
+  behavior: {name: 'dash'}
   color: 'g'
   plot:
     show_trajectory: True
     show_goal: True
+```
+:::
+
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/get_started/quick_start.gif
+:alt: Differential-drive robot moving from its start pose to its goal
+:width: 400px
+:align: center
 ```
 :::
 
@@ -72,10 +82,11 @@ robot:
  
 - **`state`:** Defines the initial position and orientation of the robot in the environment.
 - **`goal`:** Specifies the target position and orientation for the robot.
+- **`behavior`:** Specifies how the robot generates velocity in `env.step()` when no external command is provided. If omitted, the robot remains static unless a velocity command is passed to `env.step(velocity)`.
 - **`plot`** (optional): Specifies the visualization settings for the robot. See {py:meth}`~irsim.world.object_base.ObjectBase.plot` for more details.
 
 
-The robot has a default behavior of moving from its initial position to the goal position directly (`dash`) if the `kinematics` is set. 
+The example above explicitly sets `behavior: {name: 'dash'}` so the robot moves from its initial state toward its goal when `env.step()` is called without an input velocity.
 
 ### Explanation
 
@@ -130,6 +141,7 @@ robot:
   shape: {name: 'circle', radius: 0.2}  
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
+  behavior: {name: 'dash'}
   color: 'g'
   plot:
     show_trajectory: True
@@ -180,11 +192,12 @@ obstacle:
 | `role` | `"robot"` | `"obstacle"` |
 | `color` | Varies | `"k"` (black) |
 | `kinematics` | User-defined | `None` (static) |
-| `behavior` | `{name: 'dash'}` if kinematics set | `None` (static) |
+| `behavior` | `None` (static unless configured or externally controlled) | `None` (static unless configured or externally controlled) |
 
 **Configuration Tips:**
-- Without `kinematics`, obstacles remain stationary
-- Add `kinematics` + `behavior` to create moving obstacles
+- Objects without `kinematics` are static
+- Add `kinematics` + `behavior` to create moving robots or obstacles
+- Pass a velocity to `env.step(velocity)` when using your own controller instead of a configured behavior
 - Use `-` to define each new robot/obstacle in the list
 :::
 
@@ -237,6 +250,9 @@ robot:
     goal:
       - [9, 9, 0] 
       - [9, 2, 0]
+    behavior:
+      - {name: 'dash'}
+      - {name: 'dash'}
     color: 
       - 'royalblue'
       - 'red'
@@ -274,7 +290,3 @@ obstacle:
 ```
 :::
 ::::
-
-
-
-

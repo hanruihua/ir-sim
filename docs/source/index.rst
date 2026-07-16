@@ -5,13 +5,15 @@
 
 :html_theme.sidebar_secondary.remove: true
 
+.. rst-class:: landing-hero
+
 ==================================
 Welcome to IR-SIM's documentation!
 ==================================
 
-**IR-SIM** is an open-source, lightweight Python robot simulator for navigation, control, and learning. It pairs a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments — so you can prototype robotics and AI algorithms in custom scenarios with minimal code and hardware.
+**IR-SIM** is an open-source, lightweight Python robot simulator for navigation, control, and learning. It pairs a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments, so you can prototype robotics and AI algorithms in custom scenarios with minimal code and hardware.
 
-.. grid:: 2 3 5 5
+.. grid:: 1 2 3 5
     :gutter: 2
     :class-container: hero-cta
 
@@ -40,11 +42,21 @@ Welcome to IR-SIM's documentation!
         :link: https://github.com/hanruihua/ir-sim
         :text-align: center
 
+Key Features
+============
+
+- Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors
+- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required
+- Visualize simulation outcomes in real time for immediate feedback and analysis using matplotlib
+- Support collision detection and behavior control for each object in the simulation
+- Suitable for multi-agent and robot learning research
+
 See IR-SIM in action
 ====================
 
-.. grid:: 3 3 3 3
+.. grid:: 1 2 3 3
     :gutter: 3
+    :class-container: showcase-grid
 
     .. grid-item-card::
         :shadow: lg
@@ -127,32 +139,23 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/mouse.gif
-           :width: 70%
-           :alt: Mouse Control
-
-        +++
-        Mouse Control
-
-    .. grid-item-card::
-        :shadow: lg
-        :text-align: center
-
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/keyboard.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/keyboard_mouse/keyboard.gif
            :width: 70%
            :alt: Keyboard Control
 
         +++
         Keyboard Control
 
-Key Features
-============
+    .. grid-item-card::
+        :shadow: lg
+        :text-align: center
 
-- Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors
-- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required
-- Visualize simulation outcomes in real time for immediate feedback and analysis using matplotlib
-- Support collision detection and behavior control for each object in the simulation
-- Suitable for multi-agent and robot learning research
+        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/grid_map/fog_grid_map.gif
+           :width: 70%
+           :alt: Fog-of-Map Exploration
+
+        +++
+        Fog-of-Map Exploration
 
 Capabilities
 ============

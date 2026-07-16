@@ -8,6 +8,8 @@ from .env_plot import EnvPlot
 
 
 class EnvPlot3D(EnvPlot):
+    """Matplotlib 3D renderer for IR-SIM worlds and objects."""
+
     def __init__(
         self,
         world: Any,

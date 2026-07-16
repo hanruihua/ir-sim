@@ -61,6 +61,14 @@ class Node:
 
 
 class PRMPlanner:
+    """Probabilistic Roadmap planner over an :class:`~irsim.world.map.EnvGridMap`.
+
+    The planner samples collision-free points inside the map bounds, connects
+    nearby nodes with collision-checked edges, and uses Dijkstra search to
+    recover a path. The robot footprint is modeled as a circle with radius
+    ``robot_radius``.
+    """
+
     def __init__(
         self,
         env_map: EnvGridMap,
@@ -328,6 +336,7 @@ class PRMPlanner:
     def plot_road_map(
         road_map: list[list[int]], sample_x: list[float], sample_y: list[float]
     ) -> None:  # pragma: no cover
+        """Plot roadmap edges for debugging or animation."""
         for i, _ in enumerate(road_map):
             for ii in range(len(road_map[i])):
                 ind = road_map[i][ii]

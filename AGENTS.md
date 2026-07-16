@@ -226,7 +226,7 @@ When releasing a new version, follow these steps in order:
 1. Update the version number in `pyproject.toml`
 2. Add a new entry to `docs/source/_static/switcher.json` (mark the new version as `(stable)`, remove that label from the previous one)
 3. Summarize the version changes in `changelog.md` (`docs/source/changelog.md` auto-includes it via `{include}`). See the **Changelog Style** section below for entry formatting.
-4. Update `AGENTS.md`'s *Directory Structure* counts if they changed (test files in `tests/`, example scripts in `usage/`)
+4. Update the *Directory Structure* counts in both `CLAUDE.md` and `AGENTS.md` if they changed (test files in `tests/`, example scripts in `usage/`)
 5. Run `uv lock` to update `uv.lock`
    - If your local `uv` is older than the one that produced the checked-in lockfile, a full regen will downgrade the lockfile `revision` field. In that case, either upgrade `uv` and rerun, or manually patch only the `ir-sim` `version` line in `uv.lock` to avoid touching `revision`.
 6. Run `ruff check` and `ruff format`; commit formatting changes separately (e.g., `style: apply ruff format`) before the version bump commit

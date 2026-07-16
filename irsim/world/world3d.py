@@ -4,6 +4,8 @@ from irsim.world.world import World
 
 
 class World3D(World):
+    """3D world wrapper that extends :class:`~irsim.world.world.World` with z range."""
+
     def __init__(
         self,
         name: str,

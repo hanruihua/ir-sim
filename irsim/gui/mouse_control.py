@@ -7,6 +7,8 @@ from matplotlib.backend_bases import MouseButton
 
 
 class MouseControl:
+    """Mouse interaction helper for Matplotlib axes."""
+
     def __init__(self, ax: Axes, zoom_factor: float = 1.1) -> None:
         """
         Initialize MouseControl with comprehensive mouse interaction functionality.

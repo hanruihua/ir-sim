@@ -20,6 +20,8 @@ You can save the animation of the simulation as a gif file very easily by settin
 
 ```python
 
+import irsim
+
 env = irsim.make(save_ani=True)
 
 for i in range(300):
@@ -71,13 +73,12 @@ robot:
       
       
 obstacle:
-  - number: 10
+  - number: 2
     distribution: {name: 'manual'}
     shape:
-      - {name: 'circle', radius: 1.5}  # radius
-      - {name: 'circle', radius: 1.0}  # radius
-      
-    state: [[20, 34], [31, 38], [10, 20], [41, 25], [20, 13], [16, 26], [10, 24], [18, 20], [16, 26], [19, 26], [10, 30]]
+      - {name: 'circle', radius: 0.35}
+      - {name: 'rectangle', length: 1.0, width: 0.7}
+    state: [[2, 6, 0], [9, 4, 0]]
 
 ```
 :::
@@ -114,6 +115,8 @@ You can save the animation of the simulation as a video file such as mp4 file by
 
 ```python 
 
+import irsim
+
 env = irsim.make(save_ani=True)
 
 for i in range(300):
@@ -141,6 +144,8 @@ You can simply set the `projection` parameter to `3d` in `irsim.make` function t
 :::{tab-item} Python Script
 
 ```python
+
+import irsim
 
 env = irsim.make(projection='3d')
 
@@ -212,5 +217,3 @@ robot:
 :::{note}
 Currently, the 3D plot only visualizes the 2D objects in the 3D space. The 3D objects are not supported yet. 
 :::
-
-

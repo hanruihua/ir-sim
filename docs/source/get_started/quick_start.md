@@ -1,56 +1,70 @@
 # Quick Start
 
-To quickly start the simulation, you can use the following code snippet to run a simulation for a robot in a world.
+This example runs a differential-drive robot from a start pose to a goal. Before
+continuing, [install IR-SIM](install.rst) and verify that it imports successfully.
 
-1. Create a Python file and copy the following code snippet to run the simulation.
+1. Create a Python file named `quick_start.py`:
 
 ```python
 import irsim
 
-env = irsim.make('robot_world.yaml') # initialize the environment with the configuration file
+env = irsim.make("robot_world.yaml")
 
-for i in range(300): # run the simulation for 300 steps
+for _ in range(300):
+    env.step()
+    env.render()
 
-    env.step()  # update the environment
-    env.render() # render the environment
+    if env.done():
+        break
 
-    if env.done(): 
-        break # check if the simulation is done
-        
-env.end() # close the environment
+env.end()
 ```
 
-2. Create a configuration YAML file *robot_world.yaml* and copy the following configuration to the file.
+2. In the same directory, create `robot_world.yaml`:
 
-All the configurations are set in the YAML file. You can change the configurations in the YAML file to customize the simulation. The following is an example of the configuration file *robot_world.yaml*.
+The YAML file describes the world and robot. Change these values later to customize the scene.
 
 ```yaml
 world:
-  height: 10  # the height of the world
-  width: 10   # the width of the world
-  step_time: 0.1  # 10Hz to calculate each step
-  sample_time: 0.1  # 10 Hz for render and data extraction 
-  offset: [0, 0] # the offset of the world on x and y 
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
 
 robot:
-  kinematics: {name: 'diff'}  # kinematics of the robot, current name should be one of omni, omni_angular, diff, acker. If not set, this object will be static
-  shape: {name: 'circle', radius: 0.2}  # radius for circle shape
-  state: [1, 1, 0]  # x, y, theta, 2d position and orientation
-  goal: [9, 9, 0]  # x, y, theta, 2d position and orientation
-  behavior: {name: 'dash'} # move toward the goal directly 
-  color: 'g' # green
+  kinematics: {name: diff}
+  shape: {name: circle, radius: 0.2}
+  state: [1, 1, 0]
+  goal: [9, 9, 0]
+  behavior: {name: dash}
+  color: g
+  plot:
+    show_trajectory: true
+    show_goal: true
+```
+
+3. Run the Python file from that directory:
+
+```bash
+python quick_start.py
 ```
 
 Run the script and a window opens showing the differential-drive robot navigating from its start to the goal:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/get_started/quick_start.gif
-:alt: Quick-start simulation — a differential-drive robot navigating to its goal
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/get_started/quick_start.gif
+:alt: Quick-start simulation: a differential-drive robot navigating to its goal
 :width: 420px
 :align: center
 ```
 
+The loop advances the simulation by `0.1` seconds per step, renders the latest
+state, and stops early when the environment reports that it is done. For a
+server or batch job, create the environment with `display=False` and omit the
+`env.render()` call.
+
 ## Next steps
 
-- [Make Environment](../usage/make_environment.md) — the simulation loop, status control, and dynamic objects in depth.
-- [Configure robots and obstacles](../usage/configure_robots_obstacles.md) — kinematics, shapes, and multi-object scenes.
-- [YAML Configuration](../yaml_config/configuration.md) — the full configuration reference with an interactive schema explorer.
+- [Make Environment](../usage/make_environment.md): the simulation loop, status control, and dynamic objects in depth.
+- [Configure robots and obstacles](../usage/configure_robots_obstacles.md): kinematics, shapes, and multi-object scenes.
+- [YAML Configuration](../yaml_config/configuration.md): the full configuration reference with an interactive schema explorer.

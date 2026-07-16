@@ -97,6 +97,17 @@ class geometry_handler(ABC):
         return G, h, cone_type, convex_flag
 
     def get_Gh(self, **kwargs):
+        """Generate convex constraint matrices for the current shape type.
+
+        Args:
+            **kwargs: Shape-specific data such as ``vertices``, ``center``, or
+                ``radius``. If omitted, callers should use :meth:`get_init_Gh`
+                for constraints from the original geometry.
+
+        Returns:
+            tuple: ``(G, h, cone_type, convex_flag)`` where unavailable
+            constraints are returned as ``None`` values.
+        """
         if self.name == "polygon" or self.name == "rectangle":
             G, h, cone_type, convex_flag = self.get_polygon_Gh(kwargs.get("vertices"))
 
@@ -163,6 +174,14 @@ class geometry_handler(ABC):
         return G, h, cone_type, convex_flag
 
     def cal_length_width(self, geometry):
+        """Calculate axis-aligned bounding-box length and width.
+
+        Args:
+            geometry: Shapely geometry.
+
+        Returns:
+            tuple[float, float]: Length in x and width in y.
+        """
         min_x, min_y, max_x, max_y = bounds(geometry).tolist()
         length = max_x - min_x
         width = max_y - min_y
@@ -171,6 +190,7 @@ class geometry_handler(ABC):
 
     @property
     def vertices(self):
+        """Current geometry vertices as a ``(2, N)`` array."""
         if self.name == "linestring":
             x = self.geometry.xy[0]
             y = self.geometry.xy[1]
@@ -211,10 +231,13 @@ class geometry_handler(ABC):
 
     @property
     def radius(self):
+        """Minimum bounding radius of the original geometry."""
         return minimum_bounding_radius(self._original_geometry)
 
 
 class CircleGeometry(geometry_handler):
+    """Circular geometry handler for ``shape: {name: circle}``."""
+
     def __init__(self, name: str = "circle", **kwargs):
         super().__init__(name, **kwargs)
 
@@ -226,6 +249,18 @@ class CircleGeometry(geometry_handler):
         radius_range: list | None = None,
         wheelbase: float | None = None,
     ):
+        """Construct a circle at the local origin.
+
+        Args:
+            radius: Circle radius.
+            center: Local center ``[x, y]``.
+            random_shape: If True, sample radius from ``radius_range``.
+            radius_range: ``[min, max]`` radius range for random shapes.
+            wheelbase: Optional Ackermann wheelbase offset for car-like bodies.
+
+        Returns:
+            shapely.geometry.Polygon: Buffered point representing the circle.
+        """
         if radius_range is None:
             radius_range = [0.1, 1.0]
         if center is None:
@@ -239,6 +274,8 @@ class CircleGeometry(geometry_handler):
 
 
 class PolygonGeometry(geometry_handler):
+    """Polygon geometry handler for ``shape: {name: polygon}``."""
+
     def __init__(self, name: str = "polygon", **kwargs):
         super().__init__(name, **kwargs)
 
@@ -291,6 +328,8 @@ class PolygonGeometry(geometry_handler):
 
 
 class RectangleGeometry(geometry_handler):
+    """Rectangle geometry handler for ``shape: {name: rectangle}``."""
+
     def __init__(self, name: str = "rectangle", **kwargs):
         super().__init__(name, **kwargs)
 
@@ -298,10 +337,15 @@ class RectangleGeometry(geometry_handler):
         self, length: float = 1.0, width: float = 1.0, wheelbase: float | None = None
     ):
         """
-        Args
-            length: in x axis
-            width: in y axis
-            wheelbase: for ackermann robot
+        Construct a rectangle around the local origin.
+
+        Args:
+            length: Rectangle length along x.
+            width: Rectangle width along y.
+            wheelbase: Optional Ackermann wheelbase used to offset the rear axle.
+
+        Returns:
+            shapely.geometry.Polygon: Rectangle polygon.
         """
 
         if wheelbase is None:
@@ -326,6 +370,8 @@ class RectangleGeometry(geometry_handler):
 
 
 class LinestringGeometry(geometry_handler):
+    """LineString geometry handler for wall or boundary segments."""
+
     def __init__(self, name: str = "linestring", **kwargs):
         super().__init__(name, **kwargs)
 
@@ -355,6 +401,8 @@ class LinestringGeometry(geometry_handler):
 
 
 class PointsGeometry(geometry_handler):
+    """Map-cell geometry handler that converts occupied points to line segments."""
+
     def __init__(self, name: str = "map", **kwargs):
         super().__init__(name, **kwargs)
 
@@ -365,10 +413,15 @@ class PointsGeometry(geometry_handler):
         **kwargs,
     ):
         """
+        Construct boundary lines around occupied map cells.
+
         Args:
             points: (2, N) array of points
-            reso: resolution — either a (2, 1) array [x_reso, y_reso]
+            reso: resolution, either a (2, 1) array [x_reso, y_reso]
                 or a scalar applied to both axes
+
+        Returns:
+            shapely.geometry.MultiLineString: Boundary of occupied map cells.
         """
         reso = np.atleast_2d(reso)
         half_x = float(reso[0, 0]) / 2
@@ -404,6 +457,7 @@ class geometry_handler3d(ABC):
 
     @abstractmethod
     def construct_original_geometry(self, **kwargs):
+        """Construct the local-frame 3D geometry before any state transform."""
         pass
 
     def step(self, state):
@@ -411,7 +465,7 @@ class geometry_handler3d(ABC):
         Transform geometry to the new state.
 
         Args:
-            state (np.ndarray 6*1): [x, y, z, roll, pitch, roll].
+            state (np.ndarray 6*1): [x, y, z, roll, pitch, yaw].
 
         Returns:
             Transformed geometry.
@@ -436,6 +490,19 @@ class GeometryFactory:
 
     @staticmethod
     def create_geometry(name: str = "circle", **kwargs) -> geometry_handler:
+        """Create a geometry handler from a YAML ``shape`` name.
+
+        Args:
+            name: Shape name. Supported values are ``circle``, ``polygon``,
+                ``rectangle``, ``linestring``, and ``map``.
+            **kwargs: Shape-specific parameters forwarded to the handler.
+
+        Returns:
+            geometry_handler: Concrete geometry handler.
+
+        Raises:
+            ValueError: If ``name`` is not supported.
+        """
         name = name.lower()
 
         if name == "circle":

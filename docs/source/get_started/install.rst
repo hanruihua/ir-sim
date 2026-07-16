@@ -14,7 +14,7 @@ pip or conda for installation.
 
         ::
 
-            pip install ir-sim
+            python -m pip install ir-sim
 
         This will install the package and core dependencies for the base environment.
 
@@ -24,10 +24,10 @@ pip or conda for installation.
 
         1. Install `conda`_.
 
-        2. Create a new conda environment,
+        2. Create a new conda environment with Python and pip,
         ::
 
-            conda create --name irsim_env
+            conda create --name irsim_env python=3.12 pip
             conda activate irsim_env
 
         or activate an existing one
@@ -35,7 +35,7 @@ pip or conda for installation.
         3. Install ``ir-sim`` in the virtual environment
         ::
 
-            pip install ir-sim
+            python -m pip install ir-sim
 
     .. tab:: uv
 
@@ -45,6 +45,7 @@ pip or conda for installation.
         
         ::
 
+            uv venv
             uv pip install ir-sim
         
         or use uv's project management:
@@ -75,20 +76,33 @@ pip or conda for installation.
 
         ::
 
-            pip install -e .
+            python -m pip install -e .
 
         otherwise, run
         
         ::
 
-            pip install .
+            python -m pip install .
 
         or for `uv`_ users, run
 
         ::
 
             uv sync
-        
+
+Verify the Installation
+-----------------------
+
+Using the Python interpreter from the environment where IR-SIM was installed,
+print the installed version:
+
+::
+
+    python -c "import irsim; print(irsim.__version__)"
+
+If this command prints a version without an import error, the core installation
+is ready. Continue with the :doc:`Quick Start <quick_start>` to run a scene.
+
 Install with Additional Features
 ---------------------------------
 
@@ -100,11 +114,33 @@ Install with Additional Features
 
     ::
 
-        pip install ir-sim[keyboard]
+        python -m pip install "ir-sim[keyboard]"
 
     This installs:
     
     * `pynput`_ - For keyboard and mouse input handling
+
+
+.. dropdown:: All Features
+
+    To install all optional runtime dependencies and features:
+
+    ::
+
+        python -m pip install "ir-sim[all]"
+
+    This includes:
+
+    * Keyboard control (`pynput`)
+    * Enhanced video support (`imageio[ffmpeg]`)
+    * ORCA group behavior (`pyrvo`)
+
+
+Developer Setup
+---------------
+
+The following dependency groups are only needed when developing IR-SIM itself.
+They are not required to run normal simulations.
 
 
 .. dropdown:: Linting
@@ -166,20 +202,9 @@ Install with Additional Features
     The output will be available under ``docs/build/html`` (or ``docs/_build/html`` depending on your environment setup).
 
 
-.. dropdown:: All Features
+.. dropdown:: All Development Groups
 
-    To install all optional dependencies and features:
-
-    ::
-
-        pip install ir-sim[all]
-
-    This includes:
-    
-    * Keyboard control features (`pynput`)
-    * Enhanced video support (`imageio[ffmpeg]`)
-
-    To install dependency-groups:
+    To install all development dependency groups:
 
     ::
 
@@ -210,6 +235,5 @@ Install with Additional Features
 .. _Ruff: https://docs.astral.sh/ruff/
 .. _black: https://black.readthedocs.io/
 .. _ty: https://docs.astral.sh/ty/
-
 
 

@@ -29,6 +29,14 @@ from irsim.world.map import EnvGridMap
 
 
 class AStarPlanner:
+    """Grid-based A* planner over an :class:`~irsim.world.map.EnvGridMap`.
+
+    The planner uses the map grid when available and falls back to Shapely
+    collision checks against ``env_map.obstacle_list``. :meth:`planning`
+    returns a ``2 x N`` array-like path of x/y coordinates from goal back to
+    start, matching the original PythonRobotics implementation convention.
+    """
+
     def __init__(self, env_map: EnvGridMap) -> None:
         """
         Initialize A* planner.
@@ -227,6 +235,7 @@ class AStarPlanner:
 
     @staticmethod
     def calc_heuristic(n1: Node, n2: Node) -> float:
+        """Compute Euclidean A* heuristic between two grid nodes."""
         w = 1.0  # weight of heuristic
         return w * math.hypot(n1.x - n2.x, n1.y - n2.y)
 
@@ -314,6 +323,7 @@ class AStarPlanner:
 
     @staticmethod
     def get_motion_model() -> list[list[float]]:
+        """Return 8-connected grid motions as ``[dx, dy, cost]`` rows."""
         # dx, dy, cost
         return [
             [1, 0, 1],

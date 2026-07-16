@@ -2,15 +2,15 @@
    Everything in pydata-sphinx-theme is rem/em-based, so a single
    root bump scales body, headings, tables, code and sidebar
    proportionally. */
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
 html {
-    font-size: 100%;              /* tight: 16px base (default) */
+    font-size: 106.25%;           /* 17px default reading size */
 }
 /* Reader-controlled text size (sidebar switcher + fontsize-init.js).
    Attribute selector outranks the plain `html` rule above. */
-html[data-fontsize="small"]  { font-size: 93.75%; }   /* 15px */
-html[data-fontsize="medium"] { font-size: 100%; }      /* 16px */
+html[data-fontsize="small"]  { font-size: 100%; }      /* 16px */
+html[data-fontsize="medium"] { font-size: 106.25%; }   /* 17px */
 html[data-fontsize="large"]  { font-size: 112.5%; }    /* 18px */
 
 /* ---- sidebar text-size switcher ---- */
@@ -48,71 +48,67 @@ html[data-fontsize="large"]  { font-size: 112.5%; }    /* 18px */
 }
 
 /* ============================================================
-   Claude (Anthropic) identity  —  follows DESIGN.md
-   Tasteful application: warm cream canvas, scarce coral
-   accent, hairline borders, and the signature editorial
-   type split — serif display (EB Garamond ≈ Tiempos) for
-   h1/h2, humanist sans (Inter ≈ StyreneB) for body & small
-   headings. Deliberately restrained: no hero band, no
-   floating page-card, no pastel rainbow. Everything routes
-   through --pst-color-* / --site-accent.
+   IR-SIM field notebook identity
+
+   A cool neutral canvas keeps long technical pages comfortable,
+   while a single teal signal colour evokes sensing and navigation.
+   Orange remains reserved for status and warnings.  The palette is
+   intentionally quiet so code, figures, and YAML schemas stay primary.
    ============================================================ */
 :root {
-    --pst-font-family-base: "Inter", system-ui, -apple-system,
-        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --pst-font-family-base: "IBM Plex Sans", "Avenir Next", "Segoe UI",
+        sans-serif;
     --pst-font-family-heading: var(--pst-font-family-base);
-    --claude-serif: "EB Garamond", "Tiempos Headline", Georgia,
-        "Times New Roman", serif;
 }
 html[data-theme="light"] {
-    --pst-color-primary: #cc785c;        /* Anthropic coral */
-    --pst-color-primary-bg: #f3e2d9;
+    --pst-color-primary: #0f766e;
+    --pst-color-primary-bg: #d8f0ec;
     --pst-color-primary-text: #ffffff;
-    --pst-color-primary-highlight: #a9583e;
-    --pst-color-secondary: #cc785c;
-    --pst-color-secondary-bg: #f3e2d9;
-    --pst-color-link: #a9583e;           /* coral-active = AA on cream */
-    --pst-color-link-hover: #cc785c;
-    --pst-color-link-higher-contrast: #8f4630;
-    --bs-link-color-rgb: 169, 88, 62;        /* #a9583e */
-    --bs-link-hover-color-rgb: 204, 120, 92; /* #cc785c */
-    --pst-color-background: #faf9f5;     /* warm cream canvas */
-    --pst-color-on-background: #faf9f5;
-    --pst-color-surface: #f5f0e8;        /* soft cream surface */
-    --pst-color-on-surface: #141413;
-    --pst-color-text-base: #3d3d3a;      /* warm body ink */
-    --pst-color-text-muted: #6c6a64;
-    --pst-color-heading-color: #141413;  /* near-black warm ink */
-    --pst-color-border: #e6dfd8;         /* hairline */
-    --pst-color-border-muted: #ebe6df;
-    --pst-color-inline-code: #141413;
-    --pst-color-target: #f3e2d9;
-    --site-accent: #cc785c;
+    --pst-color-primary-highlight: #115e59;
+    --pst-color-secondary: #0f766e;
+    --pst-color-secondary-bg: #d8f0ec;
+    --pst-color-link: #0b635e;
+    --pst-color-link-hover: #0f766e;
+    --pst-color-link-higher-contrast: #07534f;
+    --bs-link-color-rgb: 11, 99, 94;
+    --bs-link-hover-color-rgb: 15, 118, 110;
+    --pst-color-background: #f7fafb;
+    --pst-color-on-background: #f7fafb;
+    --pst-color-surface: #ffffff;
+    --pst-color-on-surface: #14212b;
+    --pst-color-text-base: #26343d;
+    --pst-color-text-muted: #60717c;
+    --pst-color-heading-color: #12212b;
+    --pst-color-border: #dbe4e8;
+    --pst-color-border-muted: #e8eef0;
+    --pst-color-inline-code: #14212b;
+    --pst-color-target: #d8f0ec;
+    --site-accent: #0f766e;
 }
 html[data-theme="dark"] {
-    --pst-color-primary: #d99a82;        /* lighter coral on dark */
-    --pst-color-primary-bg: #3a2a22;
-    --pst-color-primary-text: #181715;
-    --pst-color-primary-highlight: #e8b59f;
-    --pst-color-secondary: #d99a82;
-    --pst-color-secondary-bg: #3a2a22;
-    --pst-color-link: #e0a589;
-    --pst-color-link-hover: #ecbda6;
-    --pst-color-link-higher-contrast: #ecbda6;
-    --bs-link-color-rgb: 224, 165, 137;      /* #e0a589 */
-    --bs-link-hover-color-rgb: 236, 189, 166; /* #ecbda6 */
-    --pst-color-background: #181715;     /* Claude dark surface */
-    --pst-color-on-background: #141413;
-    --pst-color-surface: #252320;        /* dark elevated */
-    --pst-color-on-surface: #faf9f5;
-    --pst-color-text-base: #faf9f5;
-    --pst-color-text-muted: #a09d96;
-    --pst-color-heading-color: #faf9f5;
-    --pst-color-border: #3a352f;
-    --pst-color-border-muted: #2a2722;
-    --pst-color-inline-code: #faf9f5;
-    --pst-color-target: #3a2a22;
-    --site-accent: #d99a82;
+    --pst-color-primary: #5eead4;
+    --pst-color-primary-bg: #173c3a;
+    --pst-color-primary-text: #10201f;
+    --pst-color-primary-highlight: #99f6e4;
+    --pst-color-secondary: #5eead4;
+    --pst-color-secondary-bg: #173c3a;
+    --pst-color-link: #7dece0;
+    --pst-color-link-hover: #b5f5ec;
+    --pst-color-link-higher-contrast: #b5f5ec;
+    --bs-link-color-rgb: 125, 236, 224;
+    --bs-link-hover-color-rgb: 181, 245, 236;
+    --pst-color-background: #101b24;
+    --pst-color-on-background: #101b24;
+    --pst-color-surface: #182832;
+    --pst-color-on-surface: #eaf3f5;
+    --pst-color-text-base: #eaf3f5;
+    --pst-color-text-muted: #a5b5bd;
+    --pst-color-heading-color: #f2fbfc;
+    --pst-color-border: #2b3e49;
+    --pst-color-border-muted: #20323c;
+    --pst-color-inline-code: #f2fbfc;
+    --pst-color-target: #173c3a;
+    --site-accent: #5eead4;
 }
 
 /* ---- Wider content: slim the right "On this page" TOC and
@@ -162,6 +158,19 @@ html[data-theme="dark"] {
     max-width: 94rem;
     margin-inline: auto;
 }
+/* The landing hero introduces the simulator before readers choose a path.
+   Center its title, while keeping its summary and the reference-style
+   sections below left-aligned for scanning. */
+.bd-article .landing-hero > h1 {
+    text-align: center;
+    margin-inline: auto;
+}
+/* The landing summary follows the full width of the home-page content shell,
+   rather than the narrower reading measure used by regular prose. */
+.bd-page-width:not(:has(.bd-sidebar-secondary))
+    .bd-article .landing-hero > p:first-of-type {
+    max-width: none;
+}
 /* Measured prose: paragraphs and bullet lists stay readable
    (~72ch) even though the shell is wide. Card text lives in
    .sd-card-body (not a <section>), so it's untouched. */
@@ -169,14 +178,6 @@ html[data-theme="dark"] {
 .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article section > ul,
 .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article section > ol {
     max-width: 72ch;
-}
-/* Lead paragraph: the intro right under the H1 reads as a
-   standfirst — larger, lighter, a touch wider. */
-.bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article > section > p:first-of-type {
-    max-width: 80ch;
-    font-size: 1.18rem;
-    line-height: 1.55;
-    color: var(--pst-color-text-muted);
 }
 /* Key Features: opt out of the 72ch reading cap so each feature stays on a
    single line. The longer bullets otherwise wrap, looking uneven next to the
@@ -193,16 +194,21 @@ html[data-theme="dark"] {
     max-width: 80rem;
 }
 .bd-article .hero-cta .sd-card {
-    border-radius: 8px;
+    border-radius: 9px;
+    background: var(--pst-color-surface);
 }
 .bd-article .hero-cta .sd-card-body {
-    padding: 0.5rem 0.85rem;
+    min-height: 3.05rem;
+    padding: 0.55rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .bd-article .hero-cta .sd-card-title {
     margin: 0;
     font-size: 0.92rem;
     font-weight: 600;
-    white-space: nowrap;
+    line-height: 1.2;
 }
 /* primary action: accent-filled (override pydata's
    .sd-sphinx-override card background). */
@@ -228,15 +234,27 @@ html[data-theme="dark"] {
 }
 .bd-header .navbar-nav {
     flex-wrap: nowrap;
-    gap: 0.4rem;
+    gap: 0.1rem;
 }
 .navbar-nav .nav-link {
     white-space: nowrap;
-    font-size: 0.9rem;
-    padding-inline: 0.35rem;
+    font-size: 1rem;
+    padding-inline: 0.1rem;
 }
 .navbar-header-items__end {
-    gap: 0.35rem;
+    gap: 0.1rem;
+}
+/* Reserve a little more header width for the complete project navigation.
+   The brand still fits its own column, while the controls stay on the right. */
+@media (min-width: 960px) {
+    .bd-header .navbar-header-items__start {
+        flex: 0 0 19%;
+        max-width: 19%;
+    }
+    .bd-header .navbar-header-items {
+        flex: 0 0 81%;
+        max-width: 81%;
+    }
 }
 /* text-size switcher in the navbar (after the PyPI icon):
    compact, label hidden, aligned with the other end items. */
@@ -829,25 +847,27 @@ html[data-theme="dark"] .yaml-tree {
    search, nav and version switcher untouched.
    ============================================================ */
 :root {
-    --site-mono: "JetBrains Mono", "IBM Plex Mono", "Fira Code",
-        ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    --site-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo,
+        Consolas, "DejaVu Sans Mono", monospace;
+    --pst-font-family-monospace: var(--site-mono);
     --site-accent: var(--pst-color-primary, #0a7d91);
 }
 
 /* ---- heading rhythm & hierarchy ----
-   Claude editorial split: serif display for h1/h2 (never
-   bold — DESIGN.md), humanist sans for h3/h4 and body. */
+   technical display for h1/h2, with a compact sans hierarchy
+   for the rest of the reference. */
 .bd-article h1 {
-    font-family: var(--claude-serif);
-    font-weight: 500;
+    font-family: var(--pst-font-family-base);
+    font-size: clamp(2.15rem, 3vw, 3.25rem);
+    font-weight: 700;
     color: var(--pst-color-heading-color);
-    letter-spacing: -0.018em;
-    line-height: 1.1;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
     margin-bottom: 0.7rem;
 }
 .bd-article h2 {
-    font-family: var(--claude-serif);
-    font-weight: 500;
+    font-family: var(--pst-font-family-base);
+    font-weight: 600;
     color: var(--pst-color-heading-color);
     letter-spacing: -0.012em;
     margin-top: 1.7rem;
@@ -921,12 +941,21 @@ html[data-theme="dark"] .yaml-tree {
 .bd-article div.highlight {
     border: 1px solid var(--pst-color-border);
     border-radius: 8px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--site-accent) 4%, var(--pst-color-surface));
+}
+.bd-article div.highlight::before {
+    content: "";
+    display: block;
+    height: 2px;
+    background: color-mix(in srgb, var(--site-accent) 72%, transparent);
 }
 .bd-article div.highlight pre {
     font-family: var(--site-mono);
     font-size: 0.82rem;
     line-height: 1.65;
     padding: 1rem 1.1rem;
+    background: transparent;
 }
 .bd-article button.copybtn {
     border-radius: 5px;
@@ -989,6 +1018,7 @@ html[data-theme="dark"] .yaml-tree {
 .bd-article .sd-card {
     border: 1px solid var(--pst-color-border);
     border-radius: 10px;
+    box-shadow: 0 8px 20px -20px rgba(15, 38, 49, 0.55);
     transition: transform 0.16s ease, box-shadow 0.16s ease,
         border-color 0.16s ease;
 }
@@ -997,6 +1027,56 @@ html[data-theme="dark"] .yaml-tree {
     box-shadow: 0 14px 30px -20px rgba(0, 0, 0, 0.45);
     border-color: color-mix(in srgb,
         var(--site-accent) 45%, var(--pst-color-border));
+}
+
+/* ---- homepage simulation gallery ----
+   Simulations are the visual evidence for the project. Give each animation
+   enough room to show its behavior instead of treating it as a thumbnail. */
+.bd-article .showcase-grid {
+    margin-top: 1.1rem;
+    margin-bottom: 2rem;
+}
+.bd-article .showcase-grid .sd-card {
+    overflow: hidden;
+    background: var(--pst-color-surface);
+    box-shadow: 0 12px 26px -24px rgba(15, 38, 49, 0.7);
+}
+.bd-article .showcase-grid .sd-card-body {
+    display: grid;
+    aspect-ratio: 1;
+    place-items: center;
+    padding: 0.55rem;
+    background: var(--pst-color-surface);
+}
+.bd-article .showcase-grid .image-reference {
+    display: block;
+    width: 100%;
+    line-height: 0;
+}
+.bd-article .showcase-grid img {
+    width: 100% !important;
+    max-width: none;
+    height: 100%;
+    object-fit: contain;
+}
+.bd-article .showcase-grid .sd-card-footer {
+    min-height: 3.8rem;
+    display: grid;
+    place-items: center;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid var(--pst-color-border);
+    background: var(--pst-color-surface);
+}
+.bd-article .showcase-grid .sd-card-footer .sd-card-text {
+    margin: 0;
+    color: var(--pst-color-text-base);
+    font-size: 0.87rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+.bd-article .showcase-grid .sd-card:hover {
+    border-color: color-mix(in srgb, var(--site-accent) 52%, var(--pst-color-border));
+    box-shadow: 0 18px 34px -25px rgba(15, 38, 49, 0.75);
 }
 
 /* ---- section anchor links ---- */
@@ -1021,7 +1101,31 @@ html[data-theme="dark"] .yaml-tree {
     color: var(--site-accent);
 }
 
+/* Keyboard focus uses the same teal signal, but stays distinct from hover. */
+.bd-article a:focus-visible,
+.bd-sidebar-primary a:focus-visible,
+.bd-header a:focus-visible {
+    outline: 2px solid var(--site-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
 /* ---- text selection ---- */
 .bd-article ::selection {
     background: color-mix(in srgb, var(--site-accent) 22%, transparent);
+}
+
+/* The landing page must stay legible in the sidebar-overlay layout.
+   One compact CTA per row is more useful than clipped labels. */
+@media (max-width: 700px) {
+    .bd-container .bd-page-width {
+        padding-inline: 1.25rem;
+    }
+    .bd-header .navbar-brand {
+        margin-left: 0;
+        font-size: 0.94rem;
+    }
+    .bd-article .hero-cta .sd-card-title {
+        font-size: 0.95rem;
+    }
 }

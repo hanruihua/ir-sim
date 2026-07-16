@@ -4,6 +4,13 @@ from irsim.world.object_base import ObjectBase
 
 
 class ObjectGroup:
+    """Container for objects that share a role and group id.
+
+    Groups are created by the world when multiple objects belong to the same
+    YAML group. They provide sequence-like access to members and a single place
+    to evaluate group-level behavior such as ORCA.
+    """
+
     def __init__(
         self,
         members: list[ObjectBase],
@@ -58,6 +65,7 @@ class ObjectGroup:
         ]
 
     def gen_group_vel(self):
+        """Generate velocities for all members from the configured group behavior."""
         return self.group_behavior.gen_group_vel()
 
     def __hash__(self) -> int:
@@ -110,4 +118,5 @@ class ObjectGroup:
 
     @property
     def logger(self):
+        """Logger bound to the active environment parameters."""
         return env_param.logger

@@ -24,28 +24,30 @@ msgstr "快速开始"
 
 #: ../../source/get_started/quick_start.md:3
 msgid ""
-"To quickly start the simulation, you can use the following code snippet to "
-"run a simulation for a robot in a world."
-msgstr "创建一个 Python 文件并复制下面的代码片段即可运行仿真。"
+"This example runs a differential-drive robot from a start pose to a goal. "
+"Before continuing, [install IR-SIM](install.rst) and verify that it imports "
+"successfully."
+msgstr ""
+"本示例让一个差速驱动机器人从起始位姿运动到目标。在继续之前，请先[安装 IR-SIM]"
+"(install.rst)，并确认可以成功导入。"
 
 #: ../../source/get_started/quick_start.md:5
-msgid ""
-"Create a Python file and copy the following code snippet to run the "
-"simulation."
-msgstr "创建一个 Python 文件并复制下面的代码片段即可运行仿真。"
+msgid "Create a Python file named `quick_start.py`:"
+msgstr "创建名为 `quick_start.py` 的 Python 文件："
 
 #: ../../source/get_started/quick_start.md:23
-msgid ""
-"Create a configuration YAML file *robot_world.yaml* and copy the following "
-"configuration to the file."
-msgstr "创建配置文件 *robot_world.yaml*，并将以下配置复制到该文件中。"
+msgid "In the same directory, create `robot_world.yaml`:"
+msgstr "在同一目录下创建 `robot_world.yaml`："
 
 #: ../../source/get_started/quick_start.md:25
 msgid ""
-"All the configurations are set in the YAML file. You can change the "
-"configurations in the YAML file to customize the simulation. The following "
-"is an example of the configuration file *robot_world.yaml*."
-msgstr "所有配置都写在该 YAML 文件中，你可以通过修改这些配置来自定义仿真。下面是 *robot_world.yaml* 的示例。"
+"The YAML file describes the world and robot. Change these values later to "
+"customize the scene."
+msgstr "该 YAML 文件描述世界和机器人。之后可修改这些值来自定义场景。"
+
+#: ../../source/get_started/quick_start.md:44
+msgid "Run the Python file from that directory:"
+msgstr "在该目录中运行 Python 文件："
 
 #: ../../source/get_started/quick_start.md:44
 msgid ""
@@ -57,6 +59,16 @@ msgstr "运行脚本后会弹出一个窗口，显示差速驱动机器人从起
 msgid ""
 "Quick-start simulation — a differential-drive robot navigating to its goal"
 msgstr "快速开始仿真 —— 差速驱动机器人导航到目标"
+
+#: ../../source/get_started/quick_start.md:58
+msgid ""
+"The loop advances the simulation by `0.1` seconds per step, renders the "
+"latest state, and stops early when the environment reports that it is done. "
+"For a server or batch job, create the environment with `display=False` and "
+"omit the `env.render()` call."
+msgstr ""
+"该循环每步将仿真推进 `0.1` 秒、渲染最新状态，并在环境报告结束时提前停止。"
+"在服务器或批处理任务中，请使用 `display=False` 创建环境，并省略 `env.render()` 调用。"
 
 #: ../../source/get_started/quick_start.md:52
 msgid "Next steps"

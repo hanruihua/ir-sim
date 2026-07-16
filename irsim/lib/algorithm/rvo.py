@@ -51,6 +51,7 @@ class reciprocal_vel_obs:
         self.factor = factor
 
     def update(self, state, obs_state_list, line_obs_list=None):
+        """Update the agent, circular-obstacle, and line-obstacle states."""
         self.state = state
         self.obs_state_list = obs_state_list
         self.line_obs_list = line_obs_list if line_obs_list is not None else []
@@ -83,6 +84,7 @@ class reciprocal_vel_obs:
         return self.vel_select(vo_outside, vo_inside)
 
     def config_rvo(self):
+        """Build reciprocal velocity-obstacle cones for all obstacles."""
         rvo_list = []
 
         for obstacle in self.obs_state_list:
@@ -94,6 +96,15 @@ class reciprocal_vel_obs:
         return rvo_list
 
     def config_rvo_mode(self, obstacle):
+        """Build one RVO cone for a circular obstacle.
+
+        Args:
+            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
+                static circular obstacle state ``[x, y, radius]``.
+
+        Returns:
+            list: ``[apex, left_vector, right_vector]`` cone description.
+        """
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -148,6 +159,7 @@ class reciprocal_vel_obs:
         return [rvo_apex, line_left_vector, line_right_vector]
 
     def config_hrvo(self):
+        """Build hybrid reciprocal velocity-obstacle cones for all obstacles."""
         hrvo_list = []
 
         for obstacle in self.obs_state_list:
@@ -160,6 +172,15 @@ class reciprocal_vel_obs:
         return hrvo_list
 
     def config_hrvo_mode(self, obstacle):
+        """Build one HRVO cone for a circular obstacle.
+
+        Args:
+            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
+                static circular obstacle state ``[x, y, radius]``.
+
+        Returns:
+            list | None: ``[apex, left_vector, right_vector]`` cone description.
+        """
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -238,6 +259,7 @@ class reciprocal_vel_obs:
         return None
 
     def config_vo(self):
+        """Build standard velocity-obstacle cones for all obstacles."""
         vo_list = []
 
         for obstacle in self.obs_state_list:
@@ -249,6 +271,15 @@ class reciprocal_vel_obs:
         return vo_list
 
     def config_vo_mode(self, obstacle):
+        """Build one VO cone for a circular obstacle.
+
+        Args:
+            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
+                static circular obstacle state ``[x, y, radius]``.
+
+        Returns:
+            list: ``[apex, left_vector, right_vector]`` cone description.
+        """
         x = self.state[0]
         y = self.state[1]
         vx = self.state[2]
@@ -361,6 +392,15 @@ class reciprocal_vel_obs:
         return vo_list
 
     def vel_candidate(self, rvo_list):
+        """Sample reachable velocities and split them by VO feasibility.
+
+        Args:
+            rvo_list: Velocity-obstacle cone descriptions.
+
+        Returns:
+            tuple[list, list]: Feasible velocities outside all cones and
+            infeasible velocities inside at least one cone.
+        """
         vo_outside = []
         vo_inside = []
 
@@ -384,6 +424,7 @@ class reciprocal_vel_obs:
         return vo_outside, vo_inside
 
     def vo_out(self, vx, vy, rvo_list):
+        """Return whether a candidate velocity lies outside every VO cone."""
         for rvo in rvo_list:
             rel_vx = vx - rvo[0][0]
             rel_vy = vy - rvo[0][1]
@@ -397,6 +438,7 @@ class reciprocal_vel_obs:
         return True
 
     def vel_select(self, vo_outside, vo_inside):
+        """Select the best velocity from feasible candidates or penalized fallback."""
         vel_des = [self.state[5], self.state[6]]
 
         if len(vo_outside) != 0:
@@ -407,6 +449,7 @@ class reciprocal_vel_obs:
         return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
 
     def penalty(self, vel, vel_des, factor):
+        """Compute fallback cost from desired-velocity error and collision time."""
         tc_list = []
 
         for moving in self.obs_state_list:
@@ -478,7 +521,7 @@ class reciprocal_vel_obs:
         vel_toward = -(nx * vel[0] + ny * vel[1])
 
         if vel_toward <= 1e-7:
-            # Moving away or parallel — no collision
+            # Moving away or parallel; no collision.
             return 1e6
 
         # Time to reach the expanded segment (offset by radius)
@@ -503,6 +546,7 @@ class reciprocal_vel_obs:
     # judge the direction by vector
     @staticmethod
     def between_vector(line_left_vector, line_right_vector, line_vector):
+        """Return whether ``line_vector`` lies inside a cone boundary pair."""
         return bool(
             reciprocal_vel_obs.cross_product(line_left_vector, line_vector) <= 0
             and reciprocal_vel_obs.cross_product(line_right_vector, line_vector) >= 0
@@ -510,4 +554,5 @@ class reciprocal_vel_obs:
 
     @staticmethod
     def cross_product(vector1, vector2):
+        """Compute the 2D cross product ``vector1 x vector2``."""
         return float(vector1[0] * vector2[1] - vector2[0] * vector1[1])

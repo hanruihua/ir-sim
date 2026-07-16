@@ -4,6 +4,8 @@ from loguru import logger
 
 
 class EnvLogger:
+    """Thin wrapper around Loguru used by IR-SIM environments."""
+
     def __init__(
         self, log_file: str | None = "irsim_error.log", log_level: str = "WARNING"
     ) -> None:

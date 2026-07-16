@@ -6,10 +6,10 @@ IR-SIM includes grid- and sampling-based path planners for computing a collision
 
 Every planner follows the same four-step workflow:
 
-1. **Build the map** — `env.get_map(resolution=...)` returns the occupancy grid the planner searches (`resolution` is the planning cell size in meters).
-2. **Create the planner** — instantiate one planner from `irsim.lib.path_planners`.
-3. **Plan** — `planner.planning(start, goal)` returns a trajectory (list of `[x, y]` points), or `None` if no path is found.
-4. **Draw / follow** — `env.draw_trajectory(trajectory)` overlays the path; feed it to a controller to follow it.
+1. **Build the map**: `env.get_map(resolution=...)` returns the occupancy grid the planner searches (`resolution` is the planning cell size in meters).
+2. **Create the planner**: instantiate one planner from `irsim.lib.path_planners`.
+3. **Plan**: `planner.planning(start, goal)` returns a trajectory (list of `[x, y]` points), or `None` if no path is found.
+4. **Draw / follow**: `env.draw_trajectory(trajectory)` overlays the path; feed it to a controller to follow it.
 
 The start and goal come from the scene: `env.get_robot_state()` and `env.get_robot_info().goal`.
 
@@ -82,9 +82,18 @@ robot:
 ```
 :::
 
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/path_planning/path_planning.gif
+:alt: A-star search expanding over an occupancy map before drawing its final path
+:width: 500px
+:align: center
+```
+:::
+
 ::::
 
-Swap `AStarPlanner` for any other planner — only the constructor changes; `planning()` and `draw_trajectory()` stay the same.
+Swap `AStarPlanner` for any other planner: only the constructor changes; `planning()` and `draw_trajectory()` stay the same.
 
 ## Planner constructors
 

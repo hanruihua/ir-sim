@@ -2,6 +2,8 @@ from irsim.world.object_base import ObjectBase
 
 
 class ObjectStatic(ObjectBase):
+    """Static object implementation used for static robots and obstacles."""
+
     def __init__(self, color="k", role="obstacle", state_dim=3, **kwargs):
         """Create a static object (robot or obstacle).
 

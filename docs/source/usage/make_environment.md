@@ -14,7 +14,7 @@ Create your environment with a simple Python script:
 ```python
 import irsim
 
-env = irsim.make('empty_world.yaml')
+env = irsim.make('basic_world.yaml')
 ```
 The `make` function creates an environment from a configuration file. Supported parameters include:
 
@@ -34,7 +34,7 @@ For more details, see the {py:class}`~irsim.env.env_base.EnvBase` class document
 
 :::{tab-item} YAML Configuration
 
-Define your world properties in a YAML file (`empty_world.yaml`):
+Define a minimal running world in a YAML file (`basic_world.yaml`):
 
 ```yaml
 world:
@@ -46,9 +46,29 @@ world:
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
   collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
   obstacle_map: null # path to obstacle map file (optional)
+
+robot:
+  kinematics: {name: diff}
+  shape: {name: circle, radius: 0.2}
+  state: [1, 1, 0]
+  goal: [9, 9, 0]
+  behavior: {name: dash}
+  color: g
+  plot:
+    show_trajectory: true
+    show_goal: true
 ```
 
-The configuration file is a YAML file that specifies the properties of the environment. The `empty_world.yaml` file is a simple configuration file that creates an empty environment.
+The configuration file defines the world and the robot that the main loop advances from its start to its goal.
+:::
+
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/make_environment/basic_loop.gif
+:alt: A single robot running the IR-SIM step, render, and done loop
+:width: 400px
+:align: center
+```
 :::
 ::::
 
@@ -120,7 +140,7 @@ env.end()  # Clean up resources
 - **`env.step()`**: Advances the simulation by one time step
 - **`env.render(interval)`**: Updates the visualization with specified time interval between frames
 - **`env.done()`**: Returns `True` if simulation completion conditions are met
-- **`env.reset(random=False)`**: Restores objects to their initial states. With `random=True`, rebuilds the world from the cached YAML parse so any randomized elements (e.g. `distribution: random`, random shape generators) are re-sampled from the current RNG state — use together with `irsim.util.random.set_seed(seed)` for reproducible fresh scenes. The YAML file on disk is **not** re-read; to pick up on-disk edits, use `env.reload()` instead.
+- **`env.reset(random=False)`**: Restores objects to their initial states. With `random=True`, rebuilds the world from the cached YAML parse so any randomized elements (e.g. `distribution: random`, random shape generators) are re-sampled from the current RNG state. Use it together with `irsim.util.random.set_seed(seed)` for reproducible fresh scenes. The YAML file on disk is **not** re-read; to pick up on-disk edits, use `env.reload()` instead.
 - **`env.refresh()`**: Refreshes state-derived attributes (geometry, sensor readings, collision tree, and status) without advancing the simulation. Useful after mutating object states directly (e.g. `robot.set_state(...)`) when you need sensors and collisions brought up to date before the next `env.step()`.
 - **`env.reload(world_name=None)`**: Re-parses the YAML file (optionally a different one) and rebuilds world/objects.
 - **`env.end()`**: Properly closes the environment and releases resources
@@ -285,4 +305,4 @@ Each object must have a unique name. Adding an object with a duplicate name rais
 
 ## See also
 
-- [Multiple environments](multiple_environments.md) — run several scenarios at once with isolated state, for comparison studies or reinforcement-learning training.
+- [Multiple environments](multiple_environments.md): run several scenarios at once with isolated state, for comparison studies or reinforcement-learning training.

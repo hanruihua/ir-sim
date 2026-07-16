@@ -263,8 +263,7 @@ html_theme_options = {
         "navbar-icon-links",
         "font-size-switch",
     ],
-    # Show all top-level links in the navbar (incl. Contributing,
-    # Changelog) instead of folding them into a "More" dropdown.
+    # Keep every top-level project page visible in the desktop navbar.
     "header_links_before_dropdown": 8,
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/main/docs/source/_static/switcher.json",
