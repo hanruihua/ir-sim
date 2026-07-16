@@ -78,8 +78,9 @@ class geometry_handler(ABC):
         """
 
         if self.name == "circle":
+            # The circle may be offset from the body origin (center/wheelbase).
             G = np.array([[1, 0], [0, 1], [0, 0]])
-            h = np.array([[0], [0], [-self.radius]])
+            h = np.vstack((self.original_centroid, [[-self.radius]]))
             cone_type = "norm2"
             convex_flag = True
 

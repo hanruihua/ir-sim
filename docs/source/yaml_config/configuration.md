@@ -1034,7 +1034,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   - **`'circle'`**: Represents a circular shape.
     - **`radius`** (`float`): Radius of the circle. Default is `0.2`.
-    - **`center`** (`list`): Center (x, y) of the circle. Default is `[0, 0]`.
+    - **`center`** (`list`): Body-frame `[x, y]` offset of the circle center. It rotates with the object's heading. Default is `[0, 0]`. For an Ackermann circle, the effective center is additionally shifted forward by `wheelbase / 2`.
     - **`random_shape`** (`bool`): Whether to generate a random radius. Default is `False`.
     - **`radius_range`** (`list`): Range `[min_radius, max_radius]` for random radius generation if `random_shape` is `True`. Default is `[0.1, 1.0]`.
     - **`wheelbase`** (`float`): Wheelbase of the Ackermann steering vehicle. Required when using `'acker'` kinematics. Default is `None`.

@@ -1637,6 +1637,9 @@ class ObjectBase:
                         shape=self.shape,
                         state=state,
                         radius=self.radius,
+                        center=(
+                            self.original_centroid if self.shape == "circle" else None
+                        ),
                         vertices=vertices,
                         color=self.color,
                         linestyle=obj_linestyle,
@@ -1983,6 +1986,7 @@ class ObjectBase:
             state=state,
             vertices=vertices,
             radius=self.radius,
+            center=(self.original_centroid if trail_type == "circle" else None),
             width=self.length,
             height=self.width,
             edgecolor=trail_edgecolor,
@@ -2188,7 +2192,7 @@ class ObjectBase:
             tuple[np.ndarray, np.ndarray]: Tuple containing G matrix and h vector.
         """
         return self.gf.get_Gh(
-            center=self.position, radius=self.radius, vertices=self.vertices
+            center=self.centroid, radius=self.radius, vertices=self.vertices
         )
 
     def get_desired_omni_vel(self, goal_threshold=0.1, normalized=False) -> np.ndarray:
@@ -2661,15 +2665,17 @@ class ObjectBase:
         Get the RVO state for this object.
 
         Returns:
-            list: State [x, y, vx, vy, radius].
+            list: State [x, y, vx, vy, radius], with (x, y) at the geometry
+            centroid so the disc covers the collision geometry.
         """
         cached = getattr(self, "_rvo_neighbor_state_cache", None)
         if cached is not None:
             return cached
         vxy = self.velocity_xy
+        centroid = self.centroid
         out = [
-            self.state[0, 0],
-            self.state[1, 0],
+            centroid[0, 0],
+            centroid[1, 0],
             vxy[0, 0],
             vxy[1, 0],
             self.radius_extend,

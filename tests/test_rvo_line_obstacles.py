@@ -439,3 +439,32 @@ class TestRVOLineSegmentsProperty:
         assert len(segments) == 2
         assert segments[0] == [0, 0, 1, 1]
         assert segments[1] == [1, 1, 2, 0]
+
+
+# ===================================================================
+# reciprocal_vel_obs — cal_vel robustness
+# ===================================================================
+
+
+class TestCalVelRobustness:
+    """cal_vel must return finite velocities for every vo mode whether the
+    ego is moving or momentarily stationary.
+
+    Regression: a stationary ego parses neighbors via the "sta_circular"
+    branch, which reads the neighbor tuple's third element as a radius; a
+    fast negative neighbor velocity produced ratio < -1 and an asin domain
+    error in hrvo, the one mode variant missing the ratio clamp.
+    """
+
+    def test_cal_vel_finite_for_all_modes_and_egos(self):
+        stationary_ego = _agent_state(x=5.0, y=5.0)
+        moving_ego = _agent_state(x=5.0, y=5.0, vx=0.5, vy=0.1)
+        fast_neighbor = [6.3, 5.2, -2.9, 0.3, 0.3]  # vx once drove ratio < -1
+        static_neighbor = [6.3, 5.2, 0.0, 0.0, 0.3]
+
+        for ego in (stationary_ego, moving_ego):
+            for neighbor in (fast_neighbor, static_neighbor):
+                rvo = reciprocal_vel_obs(ego, [neighbor])
+                for mode in ("rvo", "hrvo", "vo"):
+                    vel = rvo.cal_vel(mode)
+                    assert np.all(np.isfinite(vel))
