@@ -5,11 +5,13 @@
 
 :html_theme.sidebar_secondary.remove: true
 
+.. rst-class:: landing-hero
+
 ==================================
 Welcome to IR-SIM's documentation!
 ==================================
 
-**IR-SIM** is an open-source, lightweight Python robot simulator for navigation, control, and learning. It pairs a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments — so you can prototype robotics and AI algorithms in custom scenarios with minimal code and hardware.
+**IR-SIM** is an open-source, lightweight Python robot simulator for navigation, control, and learning. It pairs a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments, so you can prototype robotics and AI algorithms in custom scenarios with minimal code and hardware.
 
 .. grid:: 1 2 3 5
     :gutter: 2
@@ -137,12 +139,12 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/mouse.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/keyboard_mouse/keyboard.gif
            :width: 70%
-           :alt: Mouse Control
+           :alt: Keyboard Control
 
         +++
-        Mouse Control
+        Keyboard Control
 
     .. grid-item-card::
         :shadow: lg

@@ -37,6 +37,11 @@ env.end()
 world:
   height: 50
   width: 50
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'keyboard'
   obstacle_map: 'cave.png'   # shorthand for image generator
   mdownsample: 2
 
@@ -46,15 +51,22 @@ robot:
     state: [5, 5, 0, 0]
     goal: [40, 40, 0]
     vel_max: [4, 1]
+    behavior: {name: 'dash'}
     plot:
       show_trail: true
+      traj_color: 'g'
       show_trajectory: true
+      show_goal: false
     sensors:
-      - name: 'lidar2d'
+      - type: 'lidar2d'
         range_min: 0
         range_max: 20
         angle_range: 3.14
         number: 100
+        noise: False
+        std: 1
+        angle_std: 0.2
+        offset: [0, 0, 0]
         alpha: 0.4
 
 obstacle:
@@ -84,8 +96,8 @@ obstacle:
 
 Use a dict with ``name`` and parameters. Two built-in generators:
 
-- **``name: image``** — load grid from an image file. Only ``path`` is required. Grid size comes from the image dimensions.
-- **``name: perlin``** — procedural Perlin noise grid. Requires ``resolution`` (meters per cell); grid size = world ``width`` / ``height`` ÷ ``resolution``.
+- **``name: image``**: load grid from an image file. Only ``path`` is required. Grid size comes from the image dimensions.
+- **``name: perlin``**: procedural Perlin noise grid. Requires ``resolution`` (meters per cell); grid size = world ``width`` / ``height`` ÷ ``resolution``.
 
 **Other accepted values**
 
@@ -169,7 +181,7 @@ To add a custom generator (e.g. maze, other procedural maps), implement a class 
 - Implement **``_build_grid(self) -> np.ndarray``**: return an occupancy grid of shape ``(width, height)``, values 0–100 (values > 50 are obstacles). The framework passes ``width`` and ``height`` to your ``__init__`` (derived from world size and ``resolution``).
 - Set class attributes:
   - **``name``** (str): YAML key, e.g. ``name = "maze"``.
-  - **``yaml_param_names``** (tuple): parameter names from YAML passed to ``__init__`` (e.g. ``("seed", "density")``). Do **not** include ``"name"``, ``"resolution"``, ``"width"``, or ``"height"`` — ``resolution`` is required in the spec; ``width`` and ``height`` are injected by the framework.
+  - **``yaml_param_names``** (tuple): parameter names from YAML passed to ``__init__`` (e.g. ``("seed", "density")``). Do **not** include ``"name"``, ``"resolution"``, ``"width"``, or ``"height"``. The ``resolution`` parameter is required in the spec, while ``width`` and ``height`` are injected by the framework.
 
 **2. Register**
 

@@ -43,7 +43,7 @@ robot:
     vel_max: [4, 1]
 
     sensors: 
-      - name: 'lidar2d'
+      - type: 'lidar2d'
         range_min: 0
         range_max: 20
         angle_range: 3.14
@@ -57,7 +57,7 @@ obstacle:
   - number: 20
     kinematics: {name: 'omni'}
     distribution: {name: 'random', range_low: [10, 10, -3.14], range_high: [40, 40, 3.14]}
-    behavior: {name: 'rvo', wander: True, range_low: [10, 10, -3.14], range_high: [40, 40, 3.14], vxmax: 2, vymax: 2, factor: 3.0}
+    behavior: {name: 'rvo', wander: True, range_low: [10, 10, -3.14], range_high: [40, 40, 3.14], vxmax: 2, vymax: 2, factor: 3.0, neighbor_threshold: 5.0}
     vel_max: [4, 4]
     vel_min: [-4, -4]
     shape:

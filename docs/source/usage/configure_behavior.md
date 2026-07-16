@@ -9,7 +9,7 @@ IR-SIM supports two types of behavior configuration:
 
 ## Behavior Configuration Parameters
 
-Built-in individual behaviors are `dash` (move directly to the goal), `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance), and `sfm` (Social Force Model — reactive pedestrian-style avoidance). By default, moving objects have no behavior and remain static unless an external command is supplied.
+Built-in individual behaviors are `dash` (move directly to the goal), `rvo` (reciprocal velocity obstacles for multi-agent collision avoidance), and `sfm` (Social Force Model, a reactive pedestrian-style avoidance method). By default, moving objects have no behavior and remain static unless an external command is supplied.
 
 Behaviors are registered per kinematics, so not every (kinematics, behavior) pair exists:
 
@@ -118,9 +118,9 @@ Full list of behavior parameters can be found in the [YAML Configuration](../yam
 
 ### SFM (Social Force Model)
 
-`sfm` is a reactive avoidance behavior that treats each agent as a Newtonian particle under three forces — a goal-pull, an anisotropic neighbor repulsion (people on the agent's motion path push back more than people behind), and an exponential obstacle repulsion. The implementation uses the anisotropic variant from Moussaid, Helbing et al. (2009).
+`sfm` is a reactive avoidance behavior that treats each agent as a Newtonian particle under three forces: a goal-pull, an anisotropic neighbor repulsion (people on the agent's motion path push back more than people behind), and an exponential obstacle repulsion. The implementation uses the anisotropic variant from Moussaid, Helbing et al. (2009).
 
-`sfm` complements `rvo`/`orca`: RVO and ORCA are *geometric* and provably collision-free under their assumptions, while SFM is *behavioral* and produces more human-looking trajectories — including occasional brush-bys, hesitations, and the asymmetric reaction to neighbors ahead vs. behind. Use SFM when crowd realism matters; use RVO/ORCA when collision-freeness is the priority.
+`sfm` complements `rvo`/`orca`: RVO and ORCA are *geometric* and provably collision-free under their assumptions, while SFM is *behavioral* and produces more human-looking trajectories, including occasional brush-bys, hesitations, and the asymmetric reaction to neighbors ahead vs. behind. Use SFM when crowd realism matters; use RVO/ORCA when collision-freeness is the priority.
 
 The example below is `usage/23sfm_world/sfm_world.yaml`: twenty-four pedestrians crossing a `+`-shaped intersection of two 6.6 m corridors. Each lane carries a head-on pair (W↔E in blue/red, S↔N in green/orange), and the L-shaped wall corners enter SFM as line obstacles so agents bend around them instead of cutting the corner.
 
@@ -145,7 +145,7 @@ env.end()
 ```
 :::
 
-:::{tab-item} YAML Configuration
+:::{tab-item} YAML Excerpt
 
 ```yaml
 world:
@@ -255,7 +255,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 | Scope | Individual object | All objects in a group |
 | Computation | Per-object each step | All members at once |
 | Use case | Simple navigation | Coordinated multi-agent |
-| Available | `dash`, `rvo`, `sfm` (kinematics-dependent — see matrix above) | `orca` (`omni`, `diff`) |
+| Available | `dash`, `rvo`, `sfm` (kinematics-dependent: see matrix above) | `orca` (`omni`, `diff`) |
 
 ### ORCA (Optimal Reciprocal Collision Avoidance)
 
@@ -309,8 +309,8 @@ robot:
     distribution: {name: 'circle', radius: 140}
     color: 'g'
     goal_threshold: 0.1
-    vel_max: [3, 3]
-    vel_min: [-3, -3]
+    vel_max: [2, 2]
+    vel_min: [-2, -2]
     plot:
       show_trajectory: True
       show_goal: True
@@ -443,7 +443,7 @@ robot:
 When `loop: true`, the robot will navigate through all waypoints and restart from the first waypoint upon reaching the last one.
 
 :::{tip}
-Use `group_behavior` in YAML for most cases as it handles initialization automatically. For full control — custom collision logic or an external planner — drive each robot yourself by passing velocity commands to `env.step(action)` instead of setting a behavior.
+Use `group_behavior` in YAML for most cases as it handles initialization automatically. For full control, such as custom collision logic or an external planner, drive each robot yourself by passing velocity commands to `env.step(action)` instead of setting a behavior.
 :::
 
 ### Custom Group Behavior
@@ -609,6 +609,15 @@ robot:
 ```
 :::
 
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/custom_group_behavior.gif
+:alt: Five omnidirectional robots using a custom formation behavior
+:width: 400px
+:align: center
+```
+:::
+
 ::::
 
 #### Function-based Group Behavior Example
@@ -759,7 +768,7 @@ Please place the script with the name `custom_behavior_methods` in the same dire
 
 :::{tab-item} YAML Configuration
 
-Now, you can use the custom behavior `dash_custom` in the YAML configuration file as shown below.
+The final two robots below use the custom `dash_custom` behavior alongside built-in RVO and dash robots for comparison.
 
 ```yaml
 world:
@@ -767,17 +776,50 @@ world:
   width: 10   # the width of the world
 
 robot:
-  - number: 10
-    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
+  - number: 3
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}
     kinematics: {name: 'diff'}
-    shape: 
-      - {name: 'circle', radius: 0.2} 
+    shape: [{name: 'circle', radius: 0.2}]
+    behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, acce: 1.0, factor: 1.0}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['royalblue', 'red', 'green']
+    arrive_mode: position
+    goal_threshold: 0.2
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+  - number: 2
+    distribution: {name: 'circle', radius: 4.0, center: [5, 5]}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.2}]
+    behavior: {name: 'dash', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
+    vel_min: [-3, -3.0]
+    vel_max: [3, 3.0]
+    color: ['orange', 'purple']
+    arrive_mode: position
+    goal_threshold: 0.2
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      show_trajectory: false
+
+  - number: 2
+    distribution: {name: 'random'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.2}]
     behavior: {name: 'dash_custom'}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
-    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    color: ['pink', 'brown']
     arrive_mode: position
-    goal_threshold: 0.15
+    goal_threshold: 0.2
     plot:
       show_trail: true
       show_goal: true
@@ -930,15 +972,46 @@ world:
   width: 10
 
 robot:
+  # Robot using class-based smooth_dash behavior
   - kinematics: {name: 'diff'}
     shape: {name: 'circle', radius: 0.2}
     state: [2, 2, 0]
     goal: [8, 8]
-    behavior:
-      name: 'smooth_dash'
-      smoothing: 0.5  # Custom smoothing parameter
+    color: 'blue'
     vel_max: [2, 2]
     vel_min: [-2, -2]
+    goal_threshold: 0.3
+    behavior:
+      name: 'smooth_dash'
+      smoothing: 0.5
+    plot:
+      show_goal: true
+      show_trajectory: true
+      keep_traj_length: 200
+
+  # Robot using regular dash behavior for comparison
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [2, 3, 0]
+    goal: [8, 7]
+    color: 'red'
+    vel_max: [2, 2]
+    vel_min: [-2, -2]
+    goal_threshold: 0.3
+    behavior: {name: 'dash'}
+    plot:
+      show_goal: true
+      show_trajectory: true
+      keep_traj_length: 200
+```
+:::
+
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/custom_smooth_dash.gif
+:alt: Smooth dash and dash differential-drive robots moving to their goals
+:width: 400px
+:align: center
 ```
 :::
 
@@ -970,7 +1043,7 @@ Choose the right decorator based on your needs:
 
 Not every controller needs to be wired through the behavior registry. The repository ships standalone safety-filter controllers under [`usage/21cbf_world/`](https://github.com/hanruihua/ir-sim/tree/main/usage/21cbf_world):
 
-- `cbf_qp.py` / `cbf_world.py` — distance-based **Control Barrier Function** safety filter solved as a QP. Wraps a nominal goal-seeking command and enforces collision avoidance against circular obstacles.
-- `c3bf_qp.py` / `c3bf_world.py` — **Collision-Cone CBF (C3BF)** variant that also accounts for relative velocity, useful for dynamic obstacles.
+- `cbf_qp.py` / `cbf_world.py`: distance-based **Control Barrier Function** safety filter solved as a QP. Wraps a nominal goal-seeking command and enforces collision avoidance against circular obstacles.
+- `c3bf_qp.py` / `c3bf_world.py`: **Collision-Cone CBF (C3BF)** variant that also accounts for relative velocity, useful for dynamic obstacles.
 
 Both examples support `omni` and `diff` kinematics, read the kinematics from YAML, and require the `cvxpy` solver (`pip install cvxpy`). See `usage/21cbf_world/README.md` for the full math, supported obstacle types, and known limitations.

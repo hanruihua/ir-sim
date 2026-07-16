@@ -47,6 +47,15 @@ robot:
 ```
 :::
 
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/get_started/quick_start.gif
+:alt: Differential-drive robot moving from its start pose to its goal
+:width: 400px
+:align: center
+```
+:::
+
 ::::
 
 ### Important Parameters Explained
@@ -132,6 +141,7 @@ robot:
   shape: {name: 'circle', radius: 0.2}  
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
+  behavior: {name: 'dash'}
   color: 'g'
   plot:
     show_trajectory: True
@@ -240,6 +250,9 @@ robot:
     goal:
       - [9, 9, 0] 
       - [9, 2, 0]
+    behavior:
+      - {name: 'dash'}
+      - {name: 'dash'}
     color: 
       - 'royalblue'
       - 'red'
@@ -277,6 +290,3 @@ obstacle:
 ```
 :::
 ::::
-
-
-

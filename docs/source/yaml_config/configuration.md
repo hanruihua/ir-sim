@@ -6,7 +6,7 @@ The configuration file is a YAML file to initialize the environment. It contains
 
 ## Configuration Overview
 
-A complete IR-SIM scene is described by up to four top-level keys — `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `—`. Click a section's **full docs ›** link to jump to the detailed description.
+A complete IR-SIM scene is described by up to four top-level keys: `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `unset`. Click a section's **full docs ›** link to jump to the detailed description.
 
 ```{raw} html
 <div class="yaml-tree">
@@ -82,7 +82,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
       <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-distribution">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-dist-manual">manual</label><label for="yt-v-dist-random">random</label><label for="yt-v-dist-circle">circle</label></span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel yt-tp-manual">
-          <div class="yt-leaf yt-uvar-note"><span class="yt-desc">No extra keys — set <code>state</code> / <code>goal</code> per object.</span></div>
+          <div class="yt-leaf yt-uvar-note"><span class="yt-desc">No extra keys: set <code>state</code> / <code>goal</code> per object.</span></div>
         </div>
         <div class="yt-utabpanel yt-tp-random">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-distribution">range_low</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">world bounds +0.5</span><span class="yt-desc">lower [x, y, θ] bound</span></div>
@@ -149,13 +149,13 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">wheelbase</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">null</span><span class="yt-desc">required for acker</span></div>
         </div>
         <div class="yt-utabpanel">
-          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">vertices</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">—</span><span class="yt-desc">[[x, y], …] body frame</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">vertices</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">unset</span><span class="yt-desc">[[x, y], …] body frame</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">random_shape</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">generate random polygons</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">is_convex</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">force convex when random</span></div>
           <div class="yt-leaf yt-uvar-note"><span class="yt-desc">Random-gen extras: <code>number</code>, <code>center_range</code>, <code>avg_radius_range</code>, … (see full docs).</span></div>
         </div>
         <div class="yt-utabpanel">
-          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">vertices</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">—</span><span class="yt-desc">[[x, y], …] body frame</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">vertices</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">unset</span><span class="yt-desc">[[x, y], …] body frame</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">random_shape</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">generate random linestrings</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">is_convex</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">true</span><span class="yt-desc">force convex when random</span></div>
         </div>
@@ -171,11 +171,11 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-rvo">
       <input class="yt-utab-radio" type="radio" name="yt-v-behavior" id="yt-v-beh-sfm">
       <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-beh-dash">dash</label><label for="yt-v-beh-rvo">rvo</label><label for="yt-v-beh-sfm">sfm</label></span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — new random goal on arrival</span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared — cycle waypoints</span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">shared — all | robot | obstacle</span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_low</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0,0,-pi]</span><span class="yt-desc">shared — wander bound</span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_high</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[10,10,pi]</span><span class="yt-desc">shared — wander bound</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared: new random goal on arrival</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared: cycle waypoints</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">shared: all | robot | obstacle</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_low</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0,0,-pi]</span><span class="yt-desc">shared: wander bound</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">range_high</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[10,10,pi]</span><span class="yt-desc">shared: wander bound</span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-behavior">angle_tolerance</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">orientation tol. (diff/acker/omni_angular)</span></div>
@@ -209,7 +209,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
   <details>
   <summary><a class="yt-key" href="#p-o-group-behavior">group_behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">group-level (ORCA)</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">—</span><span class="yt-desc">orca</span></div>
+    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">unset</span><span class="yt-desc">orca</span></div>
     <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">neighborDist</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">15.0</span></div>
     <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxNeighbors</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
     <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizon</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">20.0</span></div>
@@ -296,7 +296,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-goal">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_goal</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-goal" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_goal</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-goal" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">goal_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">object's color</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">goal_alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span></div>
@@ -306,7 +306,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-text">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_text</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-text" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_text</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-text" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">text_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"k"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">text_size</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
@@ -317,7 +317,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-arrow">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_arrow</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-arrow" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_arrow</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-arrow" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"gold"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_length</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.4</span></div>
@@ -328,7 +328,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-traj">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_trajectory</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-traj" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_trajectory</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-traj" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">traj_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">object's color</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">traj_style</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"-"</span></div>
@@ -340,7 +340,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-trail">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_trail</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-trail" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_trail</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-trail" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">trail_freq</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">2</span><span class="yt-desc">plot every N steps</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">trail_type</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">object's shape</span></div>
@@ -356,7 +356,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">show_sensor</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">true</span><span class="yt-desc">show sensor visualization</span></div>
           <input type="checkbox" class="yt-gate" id="yt-g-fov">
-          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_fov</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch — enables the keys below</span><label class="yt-switch" for="yt-g-fov" title="preview enabled state"></label></div>
+          <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_fov</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-fov" title="preview enabled state"></label></div>
           <div class="yt-gated">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightblue"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_edge_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"blue"</span></div>
@@ -449,7 +449,7 @@ A complete IR-SIM scene is described by up to four top-level keys — `world`, `
 ```
 
 ```{tip}
-This tree is a quick map — click any key to jump to its full description. For prose, examples, and edge cases, see the per-section docs below.
+This tree is a quick map: click any key to jump to its full description. For prose, examples, and edge cases, see the per-section docs below.
 ```
 
 ---
@@ -755,15 +755,15 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
-- **`number`** — How many objects to create
-- **`distribution`** — Object placement (`manual`, `random`, `circle`)
-- **`state`** — Initial position (`[x, y, θ]`)
-- **`goal`** — Target destination (`[x, y, θ]`)
-- **`velocity`** — Initial speed (`[v, ω]`, `[forward, lateral]`, `[v, φ]`)
-- **`state_dim`** — State vector size (auto: 3 or 4)
-- **`vel_dim`** — Velocity vector size (auto: 2)
-- **`name`** — Unique identifier for the object.
-- **`role`** — Object type (`robot`, `obstacle`)
+- **`number`**: How many objects to create
+- **`distribution`**: Object placement (`manual`, `random`, `circle`)
+- **`state`**: Initial position (`[x, y, θ]`)
+- **`goal`**: Target destination (`[x, y, θ]`)
+- **`velocity`**: Initial speed (`[v, ω]`, `[forward, lateral]`, `[v, φ]`)
+- **`state_dim`**: State vector size (auto: 3 or 4)
+- **`vel_dim`**: Velocity vector size (auto: 2)
+- **`name`**: Unique identifier for the object.
+- **`role`**: Object type (`robot`, `obstacle`)
 ```
 
 (p-o-number)=
@@ -935,10 +935,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Kinematics Models
 :class-card: sd-bg-light sd-rounded-3
-- **`diff`** — Differential drive, controlled by linear speed and angular velocity (`[v, omega]`)
-- **`omni`** — Omnidirectional, controlled by body-frame forward and lateral speed (`[forward, lateral]`)
-- **`omni_angular`** — Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)
-- **`acker`** — Ackermann steering, controlled by linear speed and steering angle (`[v, phi]`)
+- **`diff`**: Differential drive, controlled by linear speed and angular velocity (`[v, omega]`)
+- **`omni`**: Omnidirectional, controlled by body-frame forward and lateral speed (`[forward, lateral]`)
+- **`omni_angular`**: Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)
+- **`acker`**: Ackermann steering, controlled by linear speed and steering angle (`[v, phi]`)
 ```
 
 (p-o-kinematics)=
@@ -1020,10 +1020,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
-- **`circle`** — Round shape (`radius`, `center`)
-- **`rectangle`** — Rectangular shape (`length`, `width`, `wheelbase`)
-- **`polygon`** — Custom shape (`vertices`, `is_convex`)
-- **`linestring`** — Line segments (`vertices`)
+- **`circle`**: Round shape (`radius`, `center`)
+- **`rectangle`**: Rectangular shape (`length`, `width`, `wheelbase`)
+- **`polygon`**: Custom shape (`vertices`, `is_convex`)
+- **`linestring`**: Line segments (`vertices`)
 ```
 
 (p-o-shape)=
@@ -1108,7 +1108,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 :class-card: sd-bg-light sd-rounded-3
 - **`behavior`**: `dash` (move toward the goal directly), `rvo` (reciprocal velocity obstacles), `sfm` (social force model)
 - **`group_behavior`**: `orca` (optimal reciprocal collision avoidance)
-- **`static`** — Immobile objects (`True`/`False`)
+- **`static`**: Immobile objects (`True`/`False`)
 ```
 
 (p-o-behavior)=
@@ -1194,10 +1194,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
-- **`lidar2d`** — 2D laser scanner (`range_min/max`, `angle_range`, `noise`)
-- **`fmcw_lidar2d`** — 2D FMCW LiDAR (`range/radial_velocity`, `motion_compensate`, Doppler visualization)
-- **`fov`** — Field of view angle (radians)
-- **`fov_radius`** — Maximum detection distance
+- **`lidar2d`**: 2D laser scanner (`range_min/max`, `angle_range`, `noise`)
+- **`fmcw_lidar2d`**: 2D FMCW LiDAR (`range/radial_velocity`, `motion_compensate`, Doppler visualization)
+- **`fov`**: Field of view angle (radians)
+- **`fov_radius`**: Maximum detection distance
 ```
 
 (p-o-sensors)=
@@ -1288,8 +1288,8 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
-- **`arrive_mode`** — Goal detection (`position`, `state`)
-- **`unobstructed`** — Ignore collisions (`True`/`False`)
+- **`arrive_mode`**: Goal detection (`position`, `state`)
+- **`unobstructed`**: Ignore collisions (`True`/`False`)
 ```
 
 (p-o-arrive-mode)=
@@ -1320,14 +1320,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
 ```{card} Overview
 :class-card: sd-bg-light sd-rounded-3
-- **`color`** — Object color (`'r'`, `'blue'`, `'k'`)
-- **`description`** — Image file (`'car_blue.png'`, `'diff_robot0.png'`)
-- **`plot`** — Advanced display options
-  - **Object** — Appearance (`obj_color`, `obj_alpha`, `obj_linestyle`)
-  - **Goal** — Goal markers (`show_goal`, `goal_color`, `show_goal_text`)
-  - **Trail** — Object trails (`show_trail`, `keep_trail_length`)
-  - **Trajectory** — Path lines (`show_trajectory`, `keep_traj_length`)
-  - **Sensors** — Sensor display (`show_sensor`, `show_fov`)
+- **`color`**: Object color (`'r'`, `'blue'`, `'k'`)
+- **`description`**: Image file (`'car_blue.png'`, `'diff_robot0.png'`)
+- **`plot`**: Advanced display options
+  - **Object**: Appearance (`obj_color`, `obj_alpha`, `obj_linestyle`)
+  - **Goal**: Goal markers (`show_goal`, `goal_color`, `show_goal_text`)
+  - **Trail**: Object trails (`show_trail`, `keep_trail_length`)
+  - **Trajectory**: Path lines (`show_trajectory`, `keep_traj_length`)
+  - **Sensors**: Sensor display (`show_sensor`, `show_fov`)
 ```
 
 (p-o-color)=
@@ -1530,23 +1530,23 @@ gui:
 
 **Keyboard Control Keys:**
 
-- `w` — Forward
-- `s` — Backward
-- `a` — Turn left (`diff`/`acker`) or strafe left (`omni`/`omni_angular`)
-- `d` — Turn right (`diff`/`acker`) or strafe right (`omni`/`omni_angular`)
-- `q` — Rotate left (yaw rate for `omni_angular`)
-- `e` — Rotate right (yaw rate for `omni_angular`)
-- `z` / `c` — Decrease / increase maximum angular velocity (`key_ang_max`)
-- `shift+z` / `shift+c` — Decrease / increase maximum linear velocity (`key_lv_max`)
-- `alt+num` — Change Current Control Robot ID
-- `r` — Reset the Environment
-- `space` — Toggle Pause/Resume Environment
-- `esc` — Quit the Environment (sets quit flag)
-- `x` — Switch Keyboard/Auto Control
-- `l` — Reload the Environment
-- `F5` — Debug the Environment (fn+f5 for mac)
-- `v` — Save the current figure
-- `y` — Toggle display render window
+- `w`: Forward
+- `s`: Backward
+- `a`: Turn left (`diff`/`acker`) or strafe left (`omni`/`omni_angular`)
+- `d`: Turn right (`diff`/`acker`) or strafe right (`omni`/`omni_angular`)
+- `q`: Rotate left (yaw rate for `omni_angular`)
+- `e`: Rotate right (yaw rate for `omni_angular`)
+- `z` / `c`: Decrease / increase maximum angular velocity (`key_ang_max`)
+- `shift+z` / `shift+c`: Decrease / increase maximum linear velocity (`key_lv_max`)
+- `alt+num`: Change Current Control Robot ID
+- `r`: Reset the Environment
+- `space`: Toggle Pause/Resume Environment
+- `esc`: Quit the Environment (sets quit flag)
+- `x`: Switch Keyboard/Auto Control
+- `l`: Reload the Environment
+- `F5`: Debug the Environment (fn+f5 for mac)
+- `v`: Save the current figure
+- `y`: Toggle display render window
 
 ```{tip}
 Debug mode lets you step the simulation frame-by-frame for inspection:
@@ -1579,10 +1579,10 @@ Notes:
   ````{note}
   **Mouse Actions:**
 
-  - **Mouse Movement** — Track mouse position and update display coordinates
-  - **Middle Click** — Reset zoom to default view
-  - **Scroll Up** — Zoom in (centered on mouse position)
-  - **Scroll Down** — Zoom out (centered on mouse position)
+  - **Mouse Movement**: Track mouse position and update display coordinates
+  - **Middle Click**: Reset zoom to default view
+  - **Scroll Up**: Zoom in (centered on mouse position)
+  - **Scroll Down**: Zoom out (centered on mouse position)
 
   **Mouse Position Attributes:**
   - `left_click_pos` (`tuple`): Position of left click (x, y).

@@ -34,13 +34,20 @@ YAML file (same name as the python script):
 
 ```yaml
 world:
-  height: 10  
-  width: 10   
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'auto'
 
 robot:
-  - kinematics: {name: 'diff'}  # omni, diff, acker
-    shape: {name: 'circle', radius: 0.2}  # radius
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
     goal: [9, 9, 0]
+    behavior: {name: 'dash'}
 
     sensors:
       - name: 'lidar2d'
@@ -49,17 +56,28 @@ robot:
         angle_range: 3.14 
         number: 200
         noise: False
-        alpha: 0.3
+        std: 0.2
+        angle_std: 0.2
+        offset: [0.1, 0.1, 0.5]
+        plot:
+          alpha: 0.3
       
 obstacle:
-  - shape: {name: 'circle', radius: 1.0}  # radius
-    state: [5, 5, 0]  
+  - shape: {name: 'circle', radius: 1.0, center: [1, 1]}
+    state: [5, 5, 0]
+    unobstructed: True
   
-  - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # length, width
-    state: [6, 5, 1] 
+  - shape: {name: 'rectangle', length: 1.5, width: 1.2}
+    state: [6, 5, 1]
   
-  - shape: {name: 'linestring', vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
-    state: [0, 0, 0] 
+  - shape: {name: 'linestring', vertices: [[10, 5], [4, 0]]}
+    state: [0, 0, 0]
+
+  - shape: {name: 'linestring', vertices: [[4, 0], [6, 7]]}
+    state: [0, 0, 0]
+    unobstructed: True
+    plot:
+      obj_linestyle: '--'
 ```
 
 :::
@@ -124,19 +142,29 @@ env.end()
 
 ```yaml
 world:
-  height: 10  
-  width: 10   
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'auto'
 
 robot:
-  - kinematics: {name: 'diff'}  # omni, diff, acker
-    shape: {name: 'circle', radius: 0.2}  # radius
+  - kinematics: {name: 'diff', noise: True, alpha: [0.1, 0, 0, 0.3]}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
     goal: [9, 9, 0]
+    behavior: {name: 'dash', wander: True}
+
+    plot:
+      show_trajectory: True
 
     sensors:
-      - name: 'lidar2d'
+      - type: 'lidar2d'
         range_min: 0
         range_max: 5
-        angle_range: 3.14 #  4.7123
+        angle_range: 3.14
         number: 200
         noise: True
         std: 0.1
@@ -145,14 +173,8 @@ robot:
         alpha: 0.3
       
 obstacle:
-  - shape: {name: 'circle', radius: 1.0}  # radius
-    state: [5, 5, 0]  
-  
-  - shape: {name: 'rectangle', length: 1.5, width: 1.2}  # length, width
-    state: [6, 5, 1] 
-  
-  - shape: {name: 'linestring', vertices: [[10, 5], [4, 0], [6, 7]]}  # vertices
-    state: [0, 0, 0] 
+  - shape: {name: 'circle', radius: 1.0}
+    state: [5, 5, 0]
 
 ```
 
@@ -212,29 +234,100 @@ env.end(3)
 :::{tab-item} YAML Configuration
 
 ```yaml
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
 robot:
   - kinematics: {name: 'diff'}
     shape: {name: 'circle', radius: 0.2}
     state: [2.0, 5.0, 0.0]
-    goal: [2.0, 5.0, 0.0]
-    vel_min: [0.0, 0.0]
-    vel_max: [0.0, 0.0]
+    goal: [20.0, 5.0, 0.0]
+    vel_min: [-2, -2.0]
+    vel_max: [2, 2.0]
     behavior: {name: 'dash'}
+    static: true
 
     sensors:
-      - name: 'fmcw_lidar2d'
+      - type: 'fmcw_lidar2d'
         range_min: 0.0
         range_max: 8.0
-        angle_range: 2.0944
-        number: 121
+        angle_range: 2.0944   # 120 degrees
+        number: 121           # approximately 1 degree per beam, including center beam
         motion_compensate: False
         noise: False
-        plot:                     # visualization params under `plot:`
+        offset: [0.0, 0.0, 0.0]
+        plot:
+          alpha: 0.8
+          color: 'cyan'
           velocity_linewidth: 2.0
+          no_hit_linewidth: 0.25
+          no_hit_alpha: 0.01
+          show_velocity_markers: True
           velocity_marker_size: 45
+          velocity_marker_edge_color: 'black'
+          velocity_marker_edge_width: 0.5
+          zero_velocity_color: 'cyan'
+          positive_velocity_color: 'red'
+          negative_velocity_color: 'blue'
           velocity_color_max: 0.6
+
+obstacle:
+  - kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.25}
+    state: [8.0, 5.0, 0.0]
+    goal: [3.0, 5.0, 0.0]
+    vel_min: [-0.8, -0.8]
+    vel_max: [0.8, 0.8]
+    behavior: {name: 'dash'}
+    color: 'orangered'
+    plot: {show_goal: True}
+
+  - kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.22}
+    state: [7.5, 6.8, 0.0]
+    goal: [3.2, 4.8, 0.0]
+    vel_min: [-0.4, -0.4]
+    vel_max: [0.4, 0.4]
+    behavior: {name: 'dash'}
+    color: 'gold'
+    plot: {show_goal: True}
+
+  - kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.20}
+    state: [8.6, 3.8, 0.0]
+    goal: [3.5, 5.6, 0.0]
+    vel_min: [-1.2, -1.2]
+    vel_max: [1.2, 1.2]
+    behavior: {name: 'dash'}
+    color: 'limegreen'
+    plot: {show_goal: True}
+
+  - kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.24}
+    state: [6.8, 7.6, 0.0]
+    goal: [4.6, 6.4, 0.0]
+    vel_min: [-0.2, -0.2]
+    vel_max: [0.2, 0.2]
+    behavior: {name: 'dash'}
+    color: 'mediumorchid'
+    plot: {show_goal: True}
 ```
 
+:::
+
+:::{tab-item} Demonstration
+
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/fmcw_lidar2d.gif
+:alt: FMCW LiDAR beams colored by the radial velocity of moving obstacles
+:width: 400px
+:align: center
+```
 :::
 ::::
 

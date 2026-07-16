@@ -158,6 +158,19 @@ html[data-theme="dark"] {
     max-width: 94rem;
     margin-inline: auto;
 }
+/* The landing hero introduces the simulator before readers choose a path.
+   Center its title, while keeping its summary and the reference-style
+   sections below left-aligned for scanning. */
+.bd-article .landing-hero > h1 {
+    text-align: center;
+    margin-inline: auto;
+}
+/* The landing summary follows the full width of the home-page content shell,
+   rather than the narrower reading measure used by regular prose. */
+.bd-page-width:not(:has(.bd-sidebar-secondary))
+    .bd-article .landing-hero > p:first-of-type {
+    max-width: none;
+}
 /* Measured prose: paragraphs and bullet lists stay readable
    (~72ch) even though the shell is wide. Card text lives in
    .sd-card-body (not a <section>), so it's untouched. */
