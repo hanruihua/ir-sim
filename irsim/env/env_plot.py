@@ -782,6 +782,7 @@ def draw_patch(
     Draw a geometric element (patch or line) on the given axes.
 
     Supported shapes and expected inputs (refer to irsim.world.object_base plotting patterns):
+
     - circle: use ``state`` (x,y,theta), ``radius``, and optional ``center`` (body-frame
       offset); created in the body frame and transformed, matching the collision geometry
     - rectangle: prefer ``vertices`` (2xN) else use ``width``/``height`` with ``state`` transform
@@ -792,6 +793,7 @@ def draw_patch(
     - line|linestring: use ``vertices`` (2xN) to draw a line element
 
     Styling:
+
     - color/edgecolor/facecolor, alpha, zorder, linestyle are respected when applicable.
 
     Returns the created matplotlib artist (patch, line, or list from ax.plot).
