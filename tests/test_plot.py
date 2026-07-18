@@ -10,11 +10,13 @@ from unittest.mock import Mock
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from matplotlib.colors import to_rgba
 
 import irsim
 import irsim.env.env_plot as env_plot_module
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
+from irsim.world.object_base import ObjectBase
 
 
 class TestEnvPlot2D:
@@ -374,6 +376,41 @@ class TestGoalText:
 
         assert hasattr(robot, "_goal_text")
         assert robot._goal_text is not None
+        plt.close(fig)
+
+
+class TestObjectPlot:
+    """Tests for the object-owned renderer boundary."""
+
+    def test_artist_state_stays_on_owner(self, env_factory):
+        env = env_factory("test_all_objects.yaml")
+        robot = env.robot
+
+        assert robot._object_plot._owner is robot
+        assert "object_patch" in vars(robot)
+        assert "object_patch" not in vars(robot._object_plot)
+
+    def test_goal_text_is_optional_without_goal(self):
+        obj = ObjectBase(shape={"name": "circle", "radius": 0.2}, goal=None)
+        obj.show_goal = True
+        obj.show_goal_text = True
+
+        fig, ax = plt.subplots()
+        obj.plot_text(ax)
+
+        assert hasattr(obj, "_text")
+        assert not hasattr(obj, "_goal_text")
+        plt.close(fig)
+
+    def test_initial_object_style_uses_plot_overrides(self):
+        obj = ObjectBase(shape={"name": "circle", "radius": 0.2})
+
+        fig, ax = plt.subplots()
+        obj.plot_object(ax, obj_color="magenta", obj_alpha=0.25)
+
+        np.testing.assert_allclose(
+            obj.object_patch.get_facecolor(), to_rgba("magenta", alpha=0.25)
+        )
         plt.close(fig)
 
 

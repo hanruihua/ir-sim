@@ -1136,7 +1136,7 @@ class ObjectBase:
         **kwargs: Any,
     ) -> list[str]:
         """Create this object's configured Matplotlib artists."""
-        return self._object_plot._plot(ax, state, vertices, initial=initial, **kwargs)
+        return self._object_plot.draw(ax, state, vertices, initial=initial, **kwargs)
 
     def _step_plot(self, **kwargs: Any) -> None:
         """Update this object's Matplotlib artists."""
