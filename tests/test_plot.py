@@ -5,6 +5,7 @@ Covers 2D and 3D plotting, trajectory drawing, quiver drawing, and shape patches
 """
 
 import os
+from dataclasses import FrozenInstanceError
 from unittest.mock import Mock
 
 import matplotlib.pyplot as plt
@@ -17,6 +18,7 @@ import irsim.env.env_plot as env_plot_module
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
 from irsim.world.object_base import ObjectBase
+from irsim.world.object_plot import ObjectPlotOptions
 
 
 class TestEnvPlot2D:
@@ -386,7 +388,7 @@ class TestObjectPlot:
         env = env_factory("test_all_objects.yaml")
         robot = env.robot
 
-        assert robot._object_plot._owner is robot
+        assert robot._object_plot.owner is robot
         assert "object_patch" in vars(robot)
         assert "object_patch" not in vars(robot._object_plot)
 
@@ -411,6 +413,61 @@ class TestObjectPlot:
         np.testing.assert_allclose(
             obj.object_patch.get_facecolor(), to_rgba("magenta", alpha=0.25)
         )
+        plt.close(fig)
+
+    def test_plot_options_are_grouped_immutable_values(self):
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            color="navy",
+            plot={
+                "show_goal": True,
+                "obj_alpha": 0.3,
+                "keep_traj_length": 12,
+                "text_position": [0.4, 0.6],
+                "keep_trail_length": 8,
+                "arrow_length": 0.9,
+                "fov_color": "cyan",
+            },
+        )
+
+        options = obj._object_plot.options
+
+        assert isinstance(options, ObjectPlotOptions)
+        assert options.visibility.goal
+        assert options.object.alpha == 0.3
+        assert options.goal.color == "navy"
+        assert options.trajectory.keep_length == 12
+        assert options.text.position == (0.4, 0.6)
+        assert options.trail.keep_length == 8
+        assert options.arrow.length == 0.9
+        assert options.fov.color == "cyan"
+        assert not hasattr(options, "__dict__")
+
+        with pytest.raises(FrozenInstanceError):
+            options.object.alpha = 0.8
+
+        overridden = options.with_overrides({"obj_alpha": 0.8})
+        assert options.object.alpha == 0.3
+        assert overridden.object.alpha == 0.8
+
+    def test_runtime_overrides_do_not_mutate_stored_plot_config(self):
+        stored_options = {"obj_color": "blue"}
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            plot=stored_options,
+        )
+
+        fig, ax = plt.subplots()
+        obj._init_plot(ax, obj_color="magenta")
+
+        assert obj.plot_kwargs == stored_options
+        assert obj._object_plot.options.object.color == "magenta"
+
+        obj._step_plot(obj_color="red")
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("red"))
+
+        obj._step_plot()
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("magenta"))
         plt.close(fig)
 
 

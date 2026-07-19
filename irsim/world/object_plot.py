@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 from math import pi
 from typing import TYPE_CHECKING, Any
 
@@ -17,6 +19,265 @@ from irsim.util.util import file_check
 
 if TYPE_CHECKING:
     from irsim.world.object_base import ObjectBase
+
+
+@dataclass(frozen=True, slots=True)
+class VisibilityOptions:
+    """Control which components of an object are rendered."""
+
+    goal: bool = False  # Draw the goal geometry.
+    goal_text: bool = False  # Draw the goal label with object text.
+    goals: bool = False  # Preserve the legacy multi-goal flag.
+    text: bool = False  # Draw the object label.
+    arrow: bool = False  # Draw the velocity-direction arrow.
+    trajectory: bool = False  # Draw the continuous trajectory line.
+    trail: bool = False  # Draw historical shape snapshots.
+    sensor: bool = True  # Draw attached sensor overlays.
+    fov: bool = False  # Draw the field-of-view region.
+
+
+@dataclass(frozen=True, slots=True)
+class PatchStyle:
+    """Style shared by object and goal patches."""
+
+    color: Any  # Matplotlib-compatible color.
+    alpha: float | None  # Opacity; None keeps the artist default.
+    zorder: int | None  # Layer order; larger values render above.
+    linestyle: str | None = None  # Patch boundary style.
+
+
+@dataclass(frozen=True, slots=True)
+class LineStyle:
+    """Style and history length for a trajectory line."""
+
+    color: Any  # Matplotlib-compatible line color.
+    style: str  # Line style, such as "-" or "--".
+    width: float  # Width in environment data units.
+    alpha: float | None  # Opacity; None keeps the artist default.
+    zorder: int | None  # Matplotlib layer order.
+    keep_length: int = 0  # Recent states retained; 0 keeps all.
+
+
+@dataclass(frozen=True, slots=True)
+class TextStyle:
+    """Style and offset for object and goal labels."""
+
+    color: Any  # Matplotlib-compatible text color.
+    size: float  # Font size in points.
+    position: tuple[float, float]  # Label offset in data coordinates.
+    alpha: float | None  # Opacity; None keeps the artist default.
+    zorder: int | None  # Matplotlib layer order.
+
+
+@dataclass(frozen=True, slots=True)
+class TrailStyle:
+    """Style, frequency, and retention policy for object trails."""
+
+    shape: str  # Geometry used for each snapshot.
+    edge_color: Any  # Matplotlib-compatible boundary color.
+    line_width: float  # Boundary width passed to Matplotlib.
+    alpha: float | None  # Snapshot opacity.
+    fill: bool  # Fill the snapshot interior when true.
+    color: Any  # Matplotlib-compatible interior color.
+    zorder: int | None  # Matplotlib layer order.
+    frequency: int = 2  # Simulation steps between snapshots.
+    keep_length: int = 0  # Maximum snapshots; 0 keeps all.
+
+
+@dataclass(frozen=True, slots=True)
+class ArrowStyle:
+    """Style and dimensions for the velocity arrow."""
+
+    color: Any  # Matplotlib-compatible arrow color.
+    alpha: float | None  # Opacity; None keeps the artist default.
+    zorder: int | None  # Matplotlib layer order.
+    length: float = 0.4  # Length in environment data units.
+    width: float = 0.6  # Arrow-head width in data units.
+
+
+@dataclass(frozen=True, slots=True)
+class FovStyle:
+    """Style for the field-of-view patch."""
+
+    color: Any  # Matplotlib-compatible interior color.
+    edge_color: Any  # Matplotlib-compatible boundary color.
+    alpha: float | None  # Region opacity.
+    zorder: int | None  # Matplotlib layer order.
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectPlotOptions:
+    """Complete immutable plotting configuration for one object."""
+
+    visibility: VisibilityOptions  # Component visibility switches.
+    object: PatchStyle  # Physical object patch style.
+    goal: PatchStyle  # Goal marker patch style.
+    trajectory: LineStyle  # Trajectory style and retention.
+    text: TextStyle  # Object and goal label style.
+    trail: TrailStyle  # Snapshot style and retention.
+    arrow: ArrowStyle  # Velocity-arrow style and dimensions.
+    fov: FovStyle  # Field-of-view region style.
+
+    @classmethod
+    def defaults(
+        cls,
+        *,
+        color: Any,
+        width: float,
+        radius: float,
+        shape: str,
+        object_zorder: int,
+    ) -> ObjectPlotOptions:
+        """Create owner-dependent plotting defaults."""
+        return cls(
+            visibility=VisibilityOptions(),
+            object=PatchStyle(color, None, object_zorder, "-"),
+            goal=PatchStyle(color, 0.5, 1),
+            trajectory=LineStyle(color, "-", width, 0.5, 0),
+            text=TextStyle(
+                color="k",
+                size=10,
+                position=(-radius - 0.1, radius + 0.1),
+                alpha=1,
+                zorder=2,
+            ),
+            trail=TrailStyle(
+                shape=shape,
+                edge_color=color,
+                line_width=0.8,
+                alpha=0.7,
+                fill=False,
+                color=color,
+                zorder=0,
+            ),
+            arrow=ArrowStyle("gold", None, 3),
+            fov=FovStyle("lightblue", "blue", 0.5, 1),
+        )
+
+    def with_overrides(self, values: Mapping[str, Any]) -> ObjectPlotOptions:
+        """Return a new options value with legacy keyword overrides applied."""
+        visibility = _replace_fields(
+            self.visibility,
+            values,
+            {
+                "show_goal": "goal",
+                "show_goal_text": "goal_text",
+                "show_goals": "goals",
+                "show_text": "text",
+                "show_arrow": "arrow",
+                "show_trajectory": "trajectory",
+                "show_trail": "trail",
+                "show_sensor": "sensor",
+                "show_fov": "fov",
+            },
+        )
+        object_style = _replace_fields(
+            self.object,
+            values,
+            {
+                "obj_color": "color",
+                "obj_alpha": "alpha",
+                "obj_zorder": "zorder",
+                "obj_linestyle": "linestyle",
+            },
+        )
+        goal = _replace_fields(
+            self.goal,
+            values,
+            {
+                "goal_color": "color",
+                "goal_alpha": "alpha",
+                "goal_zorder": "zorder",
+            },
+        )
+        trajectory = _replace_fields(
+            self.trajectory,
+            values,
+            {
+                "traj_color": "color",
+                "traj_style": "style",
+                "traj_width": "width",
+                "traj_alpha": "alpha",
+                "traj_zorder": "zorder",
+                "keep_traj_length": "keep_length",
+            },
+        )
+        text = _replace_fields(
+            self.text,
+            values,
+            {
+                "text_color": "color",
+                "text_size": "size",
+                "text_alpha": "alpha",
+                "text_zorder": "zorder",
+            },
+        )
+        if "text_position" in values:
+            text = replace(text, position=tuple(values["text_position"]))
+
+        trail = _replace_fields(
+            self.trail,
+            values,
+            {
+                "trail_type": "shape",
+                "trail_edgecolor": "edge_color",
+                "trail_linewidth": "line_width",
+                "trail_alpha": "alpha",
+                "trail_fill": "fill",
+                "trail_color": "color",
+                "trail_zorder": "zorder",
+                "trail_freq": "frequency",
+                "keep_trail_length": "keep_length",
+            },
+        )
+        arrow = _replace_fields(
+            self.arrow,
+            values,
+            {
+                "arrow_color": "color",
+                "arrow_alpha": "alpha",
+                "arrow_zorder": "zorder",
+                "arrow_length": "length",
+                "arrow_width": "width",
+            },
+        )
+        fov = _replace_fields(
+            self.fov,
+            values,
+            {
+                "fov_color": "color",
+                "fov_edge_color": "edge_color",
+                "fov_alpha": "alpha",
+                "fov_zorder": "zorder",
+            },
+        )
+
+        return replace(
+            self,
+            visibility=visibility,
+            object=object_style,
+            goal=goal,
+            trajectory=trajectory,
+            text=text,
+            trail=trail,
+            arrow=arrow,
+            fov=fov,
+        )
+
+
+def _replace_fields(
+    value: Any,
+    options: Mapping[str, Any],
+    field_names: Mapping[str, str],
+) -> Any:
+    """Replace dataclass fields whose legacy option keys are present."""
+    changes = {
+        field_name: options[option_name]
+        for option_name, field_name in field_names.items()
+        if option_name in options
+    }
+    return replace(value, **changes) if changes else value
+
 
 _PLOT_ATTRIBUTES = (
     "object_patch",
@@ -34,18 +295,20 @@ _PLOT_ATTRIBUTES = (
 class ObjectPlot:
     """Render and update the Matplotlib artists for one simulation object.
 
-    Artist attributes intentionally remain on ``ObjectBase`` during this
-    refactor. This preserves the existing plotting API while moving rendering
-    behavior out of the simulation model.
+    Simulation and artist state is accessed explicitly through ``owner``.
+    Artist attributes intentionally remain on ``ObjectBase`` to preserve the
+    existing plotting API while moving rendering behavior out of the model.
     """
 
     def __init__(self, owner: ObjectBase) -> None:
-        self._owner = owner
-
-    def __getattr__(self, name: str) -> Any:
-        """Read simulation and compatibility state from the owning object."""
-        owner = object.__getattribute__(self, "_owner")
-        return getattr(owner, name)
+        self.owner: ObjectBase = owner
+        self.options = ObjectPlotOptions.defaults(
+            color=owner.color,
+            width=owner.width,
+            radius=owner.radius,
+            shape=owner.shape,
+            object_zorder=3 if owner.role == "robot" else 1,
+        ).with_overrides(owner.plot_kwargs)
 
     def plot(
         self,
@@ -55,24 +318,24 @@ class ObjectPlot:
         **kwargs: Any,
     ) -> None:
         """Plot the object on ``ax`` using optional state and vertices."""
-        state = self.state if state is None else state
-        vertices = self.vertices if vertices is None else vertices
+        state = self.owner.state if state is None else state
+        vertices = self.owner.vertices if vertices is None else vertices
         self.draw(ax, state, vertices, **kwargs)
 
     def init(self, ax: Any, **kwargs: Any) -> list[str]:
         """Create the object's artists at its original state."""
         if (
-            self.kf is not None
-            and not self.static
-            and "show_arrow" not in self.plot_kwargs
+            self.owner.kf is not None
+            and not self.owner.static
+            and "show_arrow" not in self.owner.plot_kwargs
             and "show_arrow" not in kwargs
         ):
-            kwargs.setdefault("show_arrow", self.kf.show_arrow)
+            kwargs.setdefault("show_arrow", self.owner.kf.show_arrow)
 
         return self.draw(
             ax,
-            self.original_state,
-            self.original_vertices,
+            self.owner.original_state,
+            self.owner.original_vertices,
             initial=True,
             **kwargs,
         )
@@ -86,102 +349,111 @@ class ObjectPlot:
         **kwargs: Any,
     ) -> list[str]:
         """Create the configured artists for one object."""
-        owner = self._owner
-        owner.plot_attr_list = list(_PLOT_ATTRIBUTES)
+        owner = self.owner
+        options = self.options.with_overrides(kwargs)
+        if initial:
+            self.options = options
 
-        self.plot_kwargs.update(kwargs)
+        owner.plot_attr_list = list(_PLOT_ATTRIBUTES)
         owner.ax = ax
 
-        owner.show_goal = self.plot_kwargs.get("show_goal", False)
-        owner.show_goal_text = self.plot_kwargs.get("show_goal_text", False)
-        owner.show_goals = self.plot_kwargs.get("show_goals", False)
-        show_text = self.plot_kwargs.get("show_text", False)
-        show_arrow = self.plot_kwargs.get("show_arrow", False)
-        show_trajectory = self.plot_kwargs.get("show_trajectory", False)
-        owner.show_trail = self.plot_kwargs.get("show_trail", False)
-        owner.show_sensor = self.plot_kwargs.get("show_sensor", True)
-        show_fov = self.plot_kwargs.get("show_fov", False)
-        owner.trail_freq = self.plot_kwargs.get("trail_freq", 2)
+        visibility = options.visibility
+        owner.show_goal = visibility.goal
+        owner.show_goal_text = visibility.goal_text
+        owner.show_goals = visibility.goals
+        owner.show_trail = visibility.trail
+        owner.show_sensor = visibility.sensor
+        owner.trail_freq = options.trail.frequency
 
-        if self.shape != "map":
-            self.plot_object(ax, state, vertices, **self.plot_kwargs)
+        if owner.shape != "map":
+            self.plot_object(ax, state, vertices, _options=options)
 
-        if self.show_goal:
-            goal_state = state if initial else self.goal
-            goal_vertices = vertices if initial else self.goal_vertices
-            self.plot_goal(ax, goal_state, goal_vertices, **self.plot_kwargs)
+        if visibility.goal:
+            goal_state = state if initial else owner.goal
+            goal_vertices = vertices if initial else owner.goal_vertices
+            self.plot_goal(ax, goal_state, goal_vertices, _options=options)
 
-        if show_text:
-            self.plot_text(ax, state, **self.plot_kwargs)
+        if visibility.text:
+            self.plot_text(ax, state, _options=options)
 
-        if show_arrow:
-            current_velocity = self.velocity_xy if np.any(state) else np.zeros((2, 1))
-            arrow_theta = 0.0 if initial else self.heading
+        if visibility.arrow:
+            current_velocity = owner.velocity_xy if np.any(state) else np.zeros((2, 1))
+            arrow_theta = 0.0 if initial else owner.heading
             self.plot_arrow(
-                ax, state, current_velocity, arrow_theta, **self.plot_kwargs
+                ax,
+                state,
+                current_velocity,
+                arrow_theta,
+                _options=options,
             )
 
-        if show_trajectory:
-            trajectory_data = self.trajectory if np.any(state) else []
-            self.plot_trajectory(ax, trajectory_data, **self.plot_kwargs)
+        if visibility.trajectory:
+            trajectory_data = owner.trajectory if np.any(state) else []
+            self.plot_trajectory(ax, trajectory_data, _options=options)
 
         if (
-            self.show_trail
-            and self._world_param.count % self.trail_freq == 0
-            and self._world_param.count > 0
+            visibility.trail
+            and owner._world_param.count % options.trail.frequency == 0
+            and owner._world_param.count > 0
         ):
-            self.plot_trail(ax, state, self.vertices, **self.plot_kwargs)
+            self.plot_trail(ax, state, owner.vertices, _options=options)
 
-        if self.show_sensor:
-            for sensor in self.sensors:
-                sensor.plot(ax, state, **self.plot_kwargs)
+        if visibility.sensor:
+            sensor_options = {**owner.plot_kwargs, **kwargs}
+            for sensor in owner.sensors:
+                sensor.plot(ax, state, **sensor_options)
 
-        if show_fov:
-            self.plot_fov(ax, **self.plot_kwargs)
+        if visibility.fov:
+            self.plot_fov(ax, _options=options)
 
         return owner.plot_attr_list
 
     def step(self, **kwargs: Any) -> None:
         """Update existing artists from the owner's current state."""
-        state = self.state
+        owner = self.owner
+        options = self.options.with_overrides(kwargs)
+        state = owner.state
         x = float(state[0, 0])
         y = float(state[1, 0])
         heading = float(state[2, 0])
 
-        self._update_object_patch(kwargs)
-        self._update_object_line(x, y, heading, kwargs)
+        self._update_object_patch(options.object)
+        self._update_object_line(x, y, heading, options.object)
         self._update_object_image(heading)
-        self._update_goal_patch(kwargs)
-        self._update_arrow_patch(x, y, kwargs)
-        self._update_trajectory(kwargs)
-        self._update_fov_patch(x, y, heading, kwargs)
-        self._update_text(x, y, kwargs)
-        self._update_goal_text(kwargs)
+        self._update_goal_patch(options.goal)
+        self._update_arrow_patch(x, y, options.arrow)
+        self._update_trajectory(options.trajectory)
+        self._update_fov_patch(x, y, heading, options.fov)
+        self._update_text(x, y, options.text)
+        self._update_goal_text(options.text)
 
-        if self.show_trail and self._world_param.count % self.trail_freq == 0:
-            self.plot_trail(self.ax, state, self.original_vertices, **self.plot_kwargs)
+        if (
+            options.visibility.trail
+            and owner._world_param.count % options.trail.frequency == 0
+        ):
+            self.plot_trail(owner.ax, state, owner.original_vertices, _options=options)
 
-        if self.show_sensor:
-            for sensor in self.sensors:
+        if options.visibility.sensor:
+            for sensor in owner.sensors:
                 sensor.step_plot()
 
     def _artist(self, name: str) -> Any | None:
         """Return an artist stored on the owner, if it has been created."""
-        return getattr(self._owner, name, None)
+        return getattr(self.owner, name, None)
 
-    def _update_object_patch(self, kwargs: dict[str, Any]) -> None:
+    def _update_object_patch(self, style: PatchStyle) -> None:
         element = self._artist("object_patch")
         if element is None:
             return
 
         set_patch_property(
             element,
-            self.ax,
-            state=self.state,
-            color=kwargs.get("obj_color", self.color),
-            alpha=kwargs.get("obj_alpha"),
-            zorder=kwargs.get("obj_zorder"),
-            linestyle=kwargs.get("obj_linestyle"),
+            self.owner.ax,
+            state=self.owner.state,
+            color=style.color,
+            alpha=style.alpha,
+            zorder=style.zorder,
+            linestyle=style.linestyle,
         )
 
     def _update_object_line(
@@ -189,7 +461,7 @@ class ObjectPlot:
         x: float,
         y: float,
         heading: float,
-        kwargs: dict[str, Any],
+        style: PatchStyle,
     ) -> None:
         element = self._artist("object_line")
         if element is None:
@@ -198,81 +470,77 @@ class ObjectPlot:
         cos_heading = np.cos(heading)
         sin_heading = np.sin(heading)
         rotation = np.array([[cos_heading, -sin_heading], [sin_heading, cos_heading]])
-        vertices = rotation @ self.vertices + np.array([[x], [y]])
+        vertices = rotation @ self.owner.vertices + np.array([[x], [y]])
         element.set_data(vertices[0, :], vertices[1, :])
 
-        if "obj_linestyle" in kwargs:
-            element.set_linestyle(kwargs["obj_linestyle"])
-        if "obj_color" in kwargs:
-            element.set_color(kwargs["obj_color"])
-        if "obj_alpha" in kwargs:
-            element.set_alpha(kwargs["obj_alpha"])
-        if "obj_zorder" in kwargs:
-            element.set_zorder(kwargs["obj_zorder"])
+        element.set_linestyle(style.linestyle)
+        element.set_color(style.color)
+        element.set_alpha(style.alpha)
+        element.set_zorder(style.zorder)
 
     def _update_object_image(self, heading: float) -> None:
         element = self._artist("object_img")
-        if element is None or isinstance(self.ax, Axes3D):
+        if element is None or isinstance(self.owner.ax, Axes3D):
             return
 
-        start_x = float(self.vertices[0, 0])
-        start_y = float(self.vertices[1, 0])
+        start_x = float(self.owner.vertices[0, 0])
+        start_y = float(self.owner.vertices[1, 0])
         element.set_extent(
             [
                 start_x,
-                start_x + self.length,
+                start_x + self.owner.length,
                 start_y,
-                start_y + self.width,
+                start_y + self.owner.width,
             ]
         )
         transform = (
             mtransforms.Affine2D().rotate_around(start_x, start_y, heading)
-            + self.ax.transData
+            + self.owner.ax.transData
         )
         element.set_transform(transform)
 
-    def _update_goal_patch(self, kwargs: dict[str, Any]) -> None:
+    def _update_goal_patch(self, style: PatchStyle) -> None:
         element = self._artist("goal_patch")
         if element is None:
             return
 
-        if self.goal is None:
+        if self.owner.goal is None:
             element.set_visible(False)
             return
 
         element.set_visible(True)
         goal_state = (
-            self.goal
-            if self.goal.shape[0] > 2
-            else np.pad(self.goal, (0, 1), "constant", constant_values=0)
+            self.owner.goal
+            if self.owner.goal.shape[0] > 2
+            else np.pad(self.owner.goal, (0, 1), "constant", constant_values=0)
         )
         set_patch_property(
             element,
-            self.ax,
+            self.owner.ax,
             state=goal_state,
-            color=kwargs.get("goal_color"),
-            alpha=kwargs.get("goal_alpha"),
-            zorder=kwargs.get("goal_zorder"),
+            color=style.color,
+            alpha=style.alpha,
+            zorder=style.zorder,
         )
 
     def _update_arrow_patch(
         self,
         x: float,
         y: float,
-        kwargs: dict[str, Any],
+        style: ArrowStyle,
     ) -> None:
         element = self._artist("arrow_patch")
         if not isinstance(element, Arrow):
             return
 
-        arrow_state = np.array([[x], [y], [self.heading]])
+        arrow_state = np.array([[x], [y], [self.owner.heading]])
         set_patch_property(
             element,
-            self.ax,
+            self.owner.ax,
             state=arrow_state,
-            color=kwargs.get("arrow_color"),
-            alpha=kwargs.get("arrow_alpha"),
-            zorder=kwargs.get("arrow_zorder"),
+            color=style.color,
+            alpha=style.alpha,
+            zorder=style.zorder,
         )
 
     def _update_fov_patch(
@@ -280,138 +548,129 @@ class ObjectPlot:
         x: float,
         y: float,
         heading: float,
-        kwargs: dict[str, Any],
+        style: FovStyle,
     ) -> None:
         element = self._artist("fov_patch")
         if not isinstance(element, Wedge | Circle):
             return
 
-        direction = heading if self.state_dim >= 3 else 0.0
+        direction = heading if self.owner.state_dim >= 3 else 0.0
         set_patch_property(
             element,
-            self.ax,
+            self.owner.ax,
             state=np.array([[x], [y], [direction]]),
-            facecolor=kwargs.get("fov_color"),
-            edgecolor=kwargs.get("fov_edge_color"),
-            alpha=kwargs.get("fov_alpha"),
-            zorder=kwargs.get("fov_zorder"),
+            facecolor=style.color,
+            edgecolor=style.edge_color,
+            alpha=style.alpha,
+            zorder=style.zorder,
         )
 
-    def _update_trajectory(self, kwargs: dict[str, Any]) -> None:
+    def _update_trajectory(self, style: LineStyle) -> None:
         """Update a trajectory line and its runtime style properties."""
         element = self._artist("trajectory_line")
         if not isinstance(element, list) or not element:
             return
 
         line = element[0]
-        trajectory = self.trajectory[-self.keep_traj_length :]
+        trajectory = self.owner.trajectory[-style.keep_length :]
         x_list = [state[0, 0] for state in trajectory]
         y_list = [state[1, 0] for state in trajectory]
 
-        if isinstance(self.ax, Axes3D):
+        if isinstance(self.owner.ax, Axes3D):
             line.set_data_3d(x_list, y_list, [0] * len(x_list))
         else:
             line.set_data(x_list, y_list)
 
         ax = line.axes
         if ax is not None:
-            width = kwargs.get("traj_width", self.width)
-            line.set_linewidth(linewidth_from_data_units(width, ax, "y"))
+            line.set_linewidth(linewidth_from_data_units(style.width, ax, "y"))
 
-        if "traj_color" in kwargs:
-            line.set_color(kwargs["traj_color"])
-        if "traj_style" in kwargs:
-            line.set_linestyle(kwargs["traj_style"])
-        if "traj_alpha" in kwargs:
-            line.set_alpha(kwargs["traj_alpha"])
-        if "traj_zorder" in kwargs:
-            line.set_zorder(kwargs["traj_zorder"])
+        line.set_color(style.color)
+        line.set_linestyle(style.style)
+        line.set_alpha(style.alpha)
+        line.set_zorder(style.zorder)
 
-    def _update_text(self, x: float, y: float, kwargs: dict[str, Any]) -> None:
+    def _update_text(self, x: float, y: float, style: TextStyle) -> None:
         """Update the object label when it exists."""
-        if not hasattr(self, "_text"):
+        owner = self.owner
+        if not hasattr(owner, "_text"):
             return
 
-        text = self._text
-        default_position = [-self.radius - 0.1, self.radius + 0.1]
-        text_position = kwargs.get(
-            "text_position",
-            self.plot_kwargs.get("text_position", default_position),
-        )
-        text.set_position((x + text_position[0], y + text_position[1]))
-        text.set_text(self._get_text())
-        self._set_text_properties(text, kwargs)
+        text = owner._text
+        text.set_position((x + style.position[0], y + style.position[1]))
+        text.set_text(owner._get_text())
+        self._set_text_properties(text, style)
 
-    def _update_goal_text(self, kwargs: dict[str, Any]) -> None:
+    def _update_goal_text(self, style: TextStyle) -> None:
         """Update the goal label when the object has a goal."""
-        if self.goal is None or not hasattr(self, "_goal_text"):
+        owner = self.owner
+        if owner.goal is None or not hasattr(owner, "_goal_text"):
             return
 
-        default_position = [-self.radius - 0.1, self.radius + 0.1]
-        text_position = kwargs.get(
-            "text_position",
-            self.plot_kwargs.get("text_position", default_position),
-        )
-        goal_text = self._goal_text
+        goal_text = owner._goal_text
         goal_text.set_position(
             (
-                self.goal[0, 0] + text_position[0],
-                self.goal[1, 0] + text_position[1],
+                owner.goal[0, 0] + style.position[0],
+                owner.goal[1, 0] + style.position[1],
             )
         )
-        goal_text.set_text(self._get_goal_text())
-        self._set_text_properties(goal_text, kwargs)
+        goal_text.set_text(owner._get_goal_text())
+        self._set_text_properties(goal_text, style)
 
     @staticmethod
-    def _set_text_properties(text: Any, kwargs: dict[str, Any]) -> None:
-        """Apply supplied runtime properties to a Matplotlib text artist."""
-        if "text_color" in kwargs:
-            text.set_color(kwargs["text_color"])
-        if "text_size" in kwargs:
-            text.set_fontsize(kwargs["text_size"])
-        if "text_alpha" in kwargs:
-            text.set_alpha(kwargs["text_alpha"])
-        if "text_zorder" in kwargs:
-            text.set_zorder(kwargs["text_zorder"])
+    def _set_text_properties(text: Any, style: TextStyle) -> None:
+        """Apply resolved properties to a Matplotlib text artist."""
+        text.set_color(style.color)
+        text.set_fontsize(style.size)
+        text.set_alpha(style.alpha)
+        text.set_zorder(style.zorder)
 
     def plot_object(
         self,
         ax: Any,
         state: np.ndarray | None = None,
         vertices: np.ndarray | None = None,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw the object's geometry or configured description image."""
-        obj_linestyle = kwargs.get("obj_linestyle", "-")
-        obj_zorder = kwargs.get("obj_zorder", 3) if self.role == "robot" else 1
-        obj_color = kwargs.get("obj_color", self.color)
-        obj_alpha = kwargs.get("obj_alpha")
-        state = self.state if state is None else state
-        vertices = self.vertices if vertices is None else vertices
+        options = self.options.with_overrides(kwargs) if _options is None else _options
+        state = self.owner.state if state is None else state
+        vertices = self.owner.vertices if vertices is None else vertices
 
-        if self.description is None or isinstance(ax, Axes3D):
+        if self.owner.description is None or isinstance(ax, Axes3D):
             try:
-                if self.shape != "map":
-                    self._owner.object_patch = draw_patch(
+                if self.owner.shape != "map":
+                    self.owner.object_patch = draw_patch(
                         ax,
-                        shape=self.shape,
+                        shape=self.owner.shape,
                         state=state,
-                        radius=self.radius,
+                        radius=self.owner.radius,
                         center=(
-                            self.original_centroid if self.shape == "circle" else None
+                            self.owner.original_centroid
+                            if self.owner.shape == "circle"
+                            else None
                         ),
                         vertices=vertices,
-                        color=obj_color,
-                        alpha=obj_alpha,
-                        linestyle=obj_linestyle,
-                        zorder=obj_zorder,
+                        color=options.object.color,
+                        alpha=options.object.alpha,
+                        linestyle=options.object.linestyle,
+                        zorder=options.object.zorder,
                     )
-                    self.plot_patch_list.append(self.object_patch)
+                    self.owner.plot_patch_list.append(self.owner.object_patch)
             except Exception as exc:
-                self.logger.error(f"Error occurred while plotting object: {exc!s}")
+                self.owner.logger.error(
+                    f"Error occurred while plotting object: {exc!s}"
+                )
                 raise
         else:
-            self.plot_object_image(ax, state, vertices, self.description, **kwargs)
+            self.plot_object_image(
+                ax,
+                state,
+                vertices,
+                self.owner.description,
+                _options=options,
+            )
 
     def plot_object_image(
         self,
@@ -419,11 +678,14 @@ class ObjectPlot:
         state: np.ndarray | None = None,
         vertices: np.ndarray | None = None,
         description: str | None = None,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw an image description at the object's pose."""
         if vertices is None or state is None:
             return
+
+        options = self.options.with_overrides(kwargs) if _options is None else _options
 
         image_path = file_check(
             description,
@@ -435,18 +697,17 @@ class ObjectPlot:
         start_x = float(vertices[0, 0])
         start_y = float(vertices[1, 0])
         angle_degrees = 180 * float(state[2, 0]) / pi
-        obj_zorder = kwargs.get("obj_zorder", 2)
         image_data = image.imread(image_path)
 
         object_image = ax.imshow(
             image_data,
             extent=[
                 start_x,
-                start_x + self.length,
+                start_x + self.owner.length,
                 start_y,
-                start_y + self.width,
+                start_y + self.owner.width,
             ],
-            zorder=obj_zorder,
+            zorder=options.object.zorder,
         )
         transform = (
             mtransforms.Affine2D().rotate_deg_around(start_x, start_y, angle_degrees)
@@ -454,47 +715,48 @@ class ObjectPlot:
         )
         object_image.set_transform(transform)
 
-        self.plot_patch_list.append(object_image)
-        self._owner.object_img = object_image
+        self.owner.plot_patch_list.append(object_image)
+        self.owner.object_img = object_image
 
     def plot_trajectory(
         self,
         ax: Any,
         trajectory: list[Any] | None = None,
         keep_traj_length: int = 0,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw the object's trajectory."""
-        trajectory = self.trajectory if trajectory is None else trajectory
-        self._owner.keep_traj_length = keep_traj_length
+        if _options is None:
+            options = self.options.with_overrides(
+                {**kwargs, "keep_traj_length": keep_traj_length}
+            )
+        else:
+            options = _options
+        trajectory = self.owner.trajectory if trajectory is None else trajectory
+        self.owner.keep_traj_length = options.trajectory.keep_length
 
-        traj_color = kwargs.get("traj_color", self.color)
-        traj_style = kwargs.get("traj_style", "-")
-        traj_width = kwargs.get("traj_width", self.width)
-        traj_alpha = kwargs.get("traj_alpha", 0.5)
-        traj_zorder = kwargs.get("traj_zorder", 0)
-
-        kept_trajectory = trajectory[-self.keep_traj_length :]
+        kept_trajectory = trajectory[-options.trajectory.keep_length :]
         x_list = [state[0, 0] for state in kept_trajectory]
         y_list = [state[1, 0] for state in kept_trajectory]
 
-        linewidth = linewidth_from_data_units(traj_width, ax, "y")
+        linewidth = linewidth_from_data_units(options.trajectory.width, ax, "y")
         if isinstance(ax, Axes3D):
-            linewidth = traj_width * 10
+            linewidth = options.trajectory.width * 10
 
-        solid_capstyle = "round" if self.shape == "circle" else "butt"
-        self._owner.trajectory_line = ax.plot(
+        solid_capstyle = "round" if self.owner.shape == "circle" else "butt"
+        self.owner.trajectory_line = ax.plot(
             x_list,
             y_list,
-            color=traj_color,
-            linestyle=traj_style,
+            color=options.trajectory.color,
+            linestyle=options.trajectory.style,
             linewidth=linewidth,
             solid_joinstyle="round",
             solid_capstyle=solid_capstyle,
-            alpha=traj_alpha,
-            zorder=traj_zorder,
+            alpha=options.trajectory.alpha,
+            zorder=options.trajectory.zorder,
         )
-        self.plot_line_list.append(self.trajectory_line)
+        self.owner.plot_line_list.append(self.owner.trajectory_line)
 
     def plot_goal(
         self,
@@ -504,102 +766,102 @@ class ObjectPlot:
         goal_color: str | None = None,
         goal_zorder: int | None = 1,
         goal_alpha: float | None = 0.5,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw the object's goal geometry."""
         if goal_state is None:
             return
 
-        goal_color = self.color if goal_color is None else goal_color
-        self._owner.goal_patch = draw_patch(
+        if _options is None:
+            overrides = {
+                **kwargs,
+                "goal_zorder": goal_zorder,
+                "goal_alpha": goal_alpha,
+            }
+            if goal_color is not None:
+                overrides["goal_color"] = goal_color
+            options = self.options.with_overrides(overrides)
+        else:
+            options = _options
+
+        self.owner.goal_patch = draw_patch(
             ax,
-            shape=self.shape,
+            shape=self.owner.shape,
             state=goal_state,
-            radius=self.radius,
+            radius=self.owner.radius,
             vertices=vertices,
-            color=goal_color,
-            alpha=goal_alpha,
-            zorder=goal_zorder,
+            color=options.goal.color,
+            alpha=options.goal.alpha,
+            zorder=options.goal.zorder,
         )
-        self.plot_patch_list.append(self.goal_patch)
+        self.owner.plot_patch_list.append(self.owner.goal_patch)
 
     def plot_text(
         self,
         ax: Any,
         state: np.ndarray | None = None,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw the object label and optional goal label."""
-        state = self.state if state is None else state
-        text_color = kwargs.get("text_color", "k")
-        text_size = kwargs.get("text_size", 10)
-        text_position = kwargs.get(
-            "text_position", [-self.radius - 0.1, self.radius + 0.1]
-        )
-        text_zorder = kwargs.get("text_zorder", 2)
-        text_alpha = kwargs.get("text_alpha", 1)
+        options = self.options.with_overrides(kwargs) if _options is None else _options
+        state = self.owner.state if state is None else state
         x, y = state[0, 0], state[1, 0]
 
         if isinstance(ax, Axes3D):
-            self._owner._text = ax.text(
-                x + text_position[0],
-                y + text_position[1],
-                self.z,
-                self._get_text(),
-                fontsize=text_size,
-                color=text_color,
-                zorder=text_zorder,
-                alpha=text_alpha,
+            self.owner._text = ax.text(
+                x + options.text.position[0],
+                y + options.text.position[1],
+                self.owner.z,
+                self.owner._get_text(),
+                fontsize=options.text.size,
+                color=options.text.color,
+                zorder=options.text.zorder,
+                alpha=options.text.alpha,
             )
         else:
-            self._owner._text = ax.text(
-                x + text_position[0],
-                y + text_position[1],
-                self._get_text(),
-                fontsize=text_size,
-                color=text_color,
-                zorder=text_zorder,
-                alpha=text_alpha,
+            self.owner._text = ax.text(
+                x + options.text.position[0],
+                y + options.text.position[1],
+                self.owner._get_text(),
+                fontsize=options.text.size,
+                color=options.text.color,
+                zorder=options.text.zorder,
+                alpha=options.text.alpha,
             )
-        self.plot_text_list.append(self._text)
+        self.owner.plot_text_list.append(self.owner._text)
 
-        if self.show_goal and self.show_goal_text and self.goal is not None:
-            self._plot_goal_text(
-                ax,
-                text_position,
-                text_color,
-                text_size,
-                text_zorder,
-                text_alpha,
-            )
+        if (
+            getattr(self.owner, "show_goal", options.visibility.goal)
+            and getattr(self.owner, "show_goal_text", options.visibility.goal_text)
+            and self.owner.goal is not None
+        ):
+            self._plot_goal_text(ax, options.text)
 
     def _plot_goal_text(
         self,
         ax: Any,
-        text_position: list[float],
-        text_color: str,
-        text_size: int,
-        text_zorder: int,
-        text_alpha: float,
+        style: TextStyle,
     ) -> None:
         """Create the goal label for ``plot_text``."""
-        goal_x, goal_y = self.goal[0, 0], self.goal[1, 0]
+        goal_x, goal_y = self.owner.goal[0, 0], self.owner.goal[1, 0]
         args = [
-            goal_x + text_position[0],
-            goal_y + text_position[1],
+            goal_x + style.position[0],
+            goal_y + style.position[1],
         ]
         if isinstance(ax, Axes3D):
-            args.append(self.z)
+            args.append(self.owner.z)
 
-        self._owner._goal_text = ax.text(
+        self.owner._goal_text = ax.text(
             *args,
-            self._get_goal_text(),
-            fontsize=text_size,
-            color=text_color,
-            zorder=text_zorder,
-            alpha=text_alpha,
+            self.owner._get_goal_text(),
+            fontsize=style.size,
+            color=style.color,
+            zorder=style.zorder,
+            alpha=style.alpha,
         )
-        self.plot_text_list.append(self._goal_text)
+        self.owner.plot_text_list.append(self.owner._goal_text)
 
     def plot_arrow(
         self,
@@ -611,24 +873,36 @@ class ObjectPlot:
         arrow_width: float = 0.6,
         arrow_color: str | None = None,
         arrow_zorder: int = 3,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw an arrow indicating the object's velocity orientation."""
-        state = self.state if state is None else state
-        arrow_color = "gold" if arrow_color is None else arrow_color
+        if _options is None:
+            overrides = {
+                **kwargs,
+                "arrow_length": arrow_length,
+                "arrow_width": arrow_width,
+                "arrow_zorder": arrow_zorder,
+            }
+            if arrow_color is not None:
+                overrides["arrow_color"] = arrow_color
+            options = self.options.with_overrides(overrides)
+        else:
+            options = _options
+        state = self.owner.state if state is None else state
 
-        self._owner.arrow_patch = draw_patch(
+        self.owner.arrow_patch = draw_patch(
             ax,
             shape="arrow",
             state=state,
-            color=arrow_color,
-            alpha=kwargs.get("arrow_alpha"),
-            zorder=arrow_zorder,
-            arrow_length=arrow_length,
-            arrow_width=arrow_width,
+            color=options.arrow.color,
+            alpha=options.arrow.alpha,
+            zorder=options.arrow.zorder,
+            arrow_length=options.arrow.length,
+            arrow_width=options.arrow.width,
             theta=arrow_theta,
         )
-        self.plot_patch_list.append(self.arrow_patch)
+        self.owner.plot_patch_list.append(self.owner.arrow_patch)
 
     def plot_trail(
         self,
@@ -636,86 +910,95 @@ class ObjectPlot:
         state: np.ndarray | None = None,
         vertices: np.ndarray | None = None,
         keep_trail_length: int = 0,
+        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw a historical outline of the object."""
-        vertices = self.original_vertices if vertices is None else vertices
-        trail_type = kwargs.get("trail_type", self.shape)
-        trail_edgecolor = kwargs.get("trail_edgecolor", self.color)
-        trail_linewidth = kwargs.get("trail_linewidth", 0.8)
-        trail_alpha = kwargs.get("trail_alpha", 0.7)
-        trail_fill = kwargs.get("trail_fill", False)
-        trail_color = kwargs.get("trail_color", self.color)
-        trail_zorder = kwargs.get("trail_zorder", 0)
+        if _options is None:
+            options = self.options.with_overrides(
+                {**kwargs, "keep_trail_length": keep_trail_length}
+            )
+        else:
+            options = _options
+        vertices = self.owner.original_vertices if vertices is None else vertices
 
         trail = draw_patch(
             ax,
-            shape=trail_type,
+            shape=options.trail.shape,
             state=state,
             vertices=vertices,
-            radius=self.radius,
-            center=(self.original_centroid if trail_type == "circle" else None),
-            width=self.length,
-            height=self.width,
-            edgecolor=trail_edgecolor,
-            facecolor=trail_color,
-            fill=trail_fill,
-            alpha=trail_alpha,
-            linewidth=trail_linewidth,
-            zorder=trail_zorder,
+            radius=self.owner.radius,
+            center=(
+                self.owner.original_centroid
+                if options.trail.shape == "circle"
+                else None
+            ),
+            width=self.owner.length,
+            height=self.owner.width,
+            edgecolor=options.trail.edge_color,
+            facecolor=options.trail.color,
+            fill=options.trail.fill,
+            alpha=options.trail.alpha,
+            linewidth=options.trail.line_width,
+            zorder=options.trail.zorder,
         )
-        self.plot_trail_list.append(trail)
+        self.owner.plot_trail_list.append(trail)
 
-        if len(self.plot_trail_list) > keep_trail_length and keep_trail_length > 0:
-            self.plot_trail_list.pop(0).remove()
+        if (
+            len(self.owner.plot_trail_list) > options.trail.keep_length
+            and options.trail.keep_length > 0
+        ):
+            self.owner.plot_trail_list.pop(0).remove()
 
-    def plot_fov(self, ax: Any, **kwargs: Any) -> None:
+    def plot_fov(
+        self,
+        ax: Any,
+        _options: ObjectPlotOptions | None = None,
+        **kwargs: Any,
+    ) -> None:
         """Draw the object's configured field of view."""
-        if self.fov is None or self.fov_radius is None:
+        if self.owner.fov is None or self.owner.fov_radius is None:
             return
 
-        fov_color = kwargs.get("fov_color", "lightblue")
-        fov_edge_color = kwargs.get("fov_edge_color", "blue")
-        fov_zorder = kwargs.get("fov_zorder", 1)
-        fov_alpha = kwargs.get("fov_alpha", 0.5)
-        start_degree = -180 * self.fov / (2 * pi)
-        end_degree = 180 * self.fov / (2 * pi)
-        shape = "circle" if abs(self.fov - 2 * pi) < 0.01 else "wedge"
+        options = self.options.with_overrides(kwargs) if _options is None else _options
+        start_degree = -180 * self.owner.fov / (2 * pi)
+        end_degree = 180 * self.owner.fov / (2 * pi)
+        shape = "circle" if abs(self.owner.fov - 2 * pi) < 0.01 else "wedge"
 
-        self._owner.fov_patch = draw_patch(
+        self.owner.fov_patch = draw_patch(
             ax,
             shape=shape,
             state=np.zeros((3, 1)),
-            radius=self.fov_radius,
+            radius=self.owner.fov_radius,
             theta1=start_degree,
             theta2=end_degree,
-            facecolor=fov_color,
-            edgecolor=fov_edge_color,
-            alpha=fov_alpha,
-            zorder=fov_zorder,
+            facecolor=options.fov.color,
+            edgecolor=options.fov.edge_color,
+            alpha=options.fov.alpha,
+            zorder=options.fov.zorder,
         )
-        self.plot_patch_list.append(self.fov_patch)
+        self.owner.plot_patch_list.append(self.owner.fov_patch)
 
     def plot_uncertainty(self, ax: Any, **kwargs: Any) -> None:
         """Reserved for future uncertainty rendering."""
 
     def clear(self, all: bool = False) -> None:
         """Remove this object's artists, optionally including its trails."""
-        for patch in self.plot_patch_list:
+        for patch in self.owner.plot_patch_list:
             patch.remove()
-        for line in self.plot_line_list:
+        for line in self.owner.plot_line_list:
             line.pop(0).remove()
-        for text in self.plot_text_list:
+        for text in self.owner.plot_text_list:
             text.remove()
 
         if all:
-            for trail in self.plot_trail_list:
+            for trail in self.owner.plot_trail_list:
                 trail.remove()
-            self._owner.plot_trail_list = []
+            self.owner.plot_trail_list = []
 
-        self._owner.plot_patch_list = []
-        self._owner.plot_line_list = []
-        self._owner.plot_text_list = []
+        self.owner.plot_patch_list = []
+        self.owner.plot_line_list = []
+        self.owner.plot_text_list = []
 
-        for sensor in self.sensors:
+        for sensor in self.owner.sensors:
             sensor.plot_clear()
