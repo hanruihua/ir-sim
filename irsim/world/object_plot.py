@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from math import pi
 from typing import TYPE_CHECKING, Any
 
@@ -40,21 +40,29 @@ class VisibilityOptions:
 class PatchStyle:
     """Style shared by object and goal patches."""
 
-    color: Any  # Matplotlib-compatible color.
-    alpha: float | None  # Opacity; None keeps the artist default.
-    zorder: int | None  # Layer order; larger values render above.
-    linestyle: str | None = None  # Patch boundary style.
+    color: Any = "k"  # Matplotlib-compatible color.
+    alpha: float = 1.0  # Opacity from fully transparent to opaque.
+    zorder: int = 1  # Layer order; larger values render above.
+    linestyle: str = "-"  # Patch boundary style.
+    line_width: float = 1.0  # Boundary width in Matplotlib points.
+
+
+@dataclass(frozen=True, slots=True)
+class ImageStyle:
+    """Style specific to an object's description image."""
+
+    zorder: int = 2  # Preserve the legacy image layer default.
 
 
 @dataclass(frozen=True, slots=True)
 class LineStyle:
     """Style and history length for a trajectory line."""
 
-    color: Any  # Matplotlib-compatible line color.
-    style: str  # Line style, such as "-" or "--".
-    width: float  # Width in environment data units.
-    alpha: float | None  # Opacity; None keeps the artist default.
-    zorder: int | None  # Matplotlib layer order.
+    color: Any = "k"  # Matplotlib-compatible line color.
+    style: str = "-"  # Line style, such as "-" or "--".
+    width: float = 1.0  # Width in environment data units.
+    alpha: float = 0.5  # Line opacity.
+    zorder: int = 0  # Matplotlib layer order.
     keep_length: int = 0  # Recent states retained; 0 keeps all.
 
 
@@ -62,24 +70,24 @@ class LineStyle:
 class TextStyle:
     """Style and offset for object and goal labels."""
 
-    color: Any  # Matplotlib-compatible text color.
-    size: float  # Font size in points.
-    position: tuple[float, float]  # Label offset in data coordinates.
-    alpha: float | None  # Opacity; None keeps the artist default.
-    zorder: int | None  # Matplotlib layer order.
+    color: Any = "k"  # Matplotlib-compatible text color.
+    size: float = 10.0  # Font size in points.
+    position: tuple[float, float] = (0.0, 0.0)  # Label offset.
+    alpha: float = 1.0  # Text opacity.
+    zorder: int = 2  # Matplotlib layer order.
 
 
 @dataclass(frozen=True, slots=True)
 class TrailStyle:
     """Style, frequency, and retention policy for object trails."""
 
-    shape: str  # Geometry used for each snapshot.
-    edge_color: Any  # Matplotlib-compatible boundary color.
-    line_width: float  # Boundary width passed to Matplotlib.
-    alpha: float | None  # Snapshot opacity.
-    fill: bool  # Fill the snapshot interior when true.
-    color: Any  # Matplotlib-compatible interior color.
-    zorder: int | None  # Matplotlib layer order.
+    shape: str = "circle"  # Geometry used for each snapshot.
+    edge_color: Any = "k"  # Matplotlib-compatible boundary color.
+    line_width: float = 0.8  # Boundary width passed to Matplotlib.
+    alpha: float = 0.7  # Snapshot opacity.
+    fill: bool = False  # Fill the snapshot interior when true.
+    color: Any = "k"  # Matplotlib-compatible interior color.
+    zorder: int = 0  # Matplotlib layer order.
     frequency: int = 2  # Simulation steps between snapshots.
     keep_length: int = 0  # Maximum snapshots; 0 keeps all.
 
@@ -88,9 +96,9 @@ class TrailStyle:
 class ArrowStyle:
     """Style and dimensions for the velocity arrow."""
 
-    color: Any  # Matplotlib-compatible arrow color.
-    alpha: float | None  # Opacity; None keeps the artist default.
-    zorder: int | None  # Matplotlib layer order.
+    color: Any = "gold"  # Matplotlib-compatible arrow color.
+    alpha: float = 1.0  # Arrow opacity.
+    zorder: int = 3  # Matplotlib layer order.
     length: float = 0.4  # Length in environment data units.
     width: float = 0.6  # Arrow-head width in data units.
 
@@ -99,24 +107,25 @@ class ArrowStyle:
 class FovStyle:
     """Style for the field-of-view patch."""
 
-    color: Any  # Matplotlib-compatible interior color.
-    edge_color: Any  # Matplotlib-compatible boundary color.
-    alpha: float | None  # Region opacity.
-    zorder: int | None  # Matplotlib layer order.
+    color: Any = "lightblue"  # Matplotlib-compatible interior color.
+    edge_color: Any = "blue"  # Matplotlib-compatible boundary color.
+    alpha: float = 0.5  # Region opacity.
+    zorder: int = 1  # Matplotlib layer order.
 
 
 @dataclass(frozen=True, slots=True)
 class ObjectPlotOptions:
     """Complete immutable plotting configuration for one object."""
 
-    visibility: VisibilityOptions  # Component visibility switches.
-    object: PatchStyle  # Physical object patch style.
-    goal: PatchStyle  # Goal marker patch style.
-    trajectory: LineStyle  # Trajectory style and retention.
-    text: TextStyle  # Object and goal label style.
-    trail: TrailStyle  # Snapshot style and retention.
-    arrow: ArrowStyle  # Velocity-arrow style and dimensions.
-    fov: FovStyle  # Field-of-view region style.
+    visibility: VisibilityOptions = field(default_factory=VisibilityOptions)
+    object: PatchStyle = field(default_factory=PatchStyle)
+    image: ImageStyle = field(default_factory=ImageStyle)
+    goal: PatchStyle = field(default_factory=lambda: PatchStyle(alpha=0.5, zorder=1))
+    trajectory: LineStyle = field(default_factory=LineStyle)
+    text: TextStyle = field(default_factory=TextStyle)
+    trail: TrailStyle = field(default_factory=TrailStyle)
+    arrow: ArrowStyle = field(default_factory=ArrowStyle)
+    fov: FovStyle = field(default_factory=FovStyle)
 
     @classmethod
     def defaults(
@@ -130,28 +139,15 @@ class ObjectPlotOptions:
     ) -> ObjectPlotOptions:
         """Create owner-dependent plotting defaults."""
         return cls(
-            visibility=VisibilityOptions(),
-            object=PatchStyle(color, None, object_zorder, "-"),
-            goal=PatchStyle(color, 0.5, 1),
-            trajectory=LineStyle(color, "-", width, 0.5, 0),
-            text=TextStyle(
-                color="k",
-                size=10,
-                position=(-radius - 0.1, radius + 0.1),
-                alpha=1,
-                zorder=2,
-            ),
+            object=PatchStyle(color=color, zorder=object_zorder),
+            goal=PatchStyle(color=color, alpha=0.5, zorder=1),
+            trajectory=LineStyle(color=color, width=width),
+            text=TextStyle(position=(-radius - 0.1, radius + 0.1)),
             trail=TrailStyle(
                 shape=shape,
                 edge_color=color,
-                line_width=0.8,
-                alpha=0.7,
-                fill=False,
                 color=color,
-                zorder=0,
             ),
-            arrow=ArrowStyle("gold", None, 3),
-            fov=FovStyle("lightblue", "blue", 0.5, 1),
         )
 
     def with_overrides(self, values: Mapping[str, Any]) -> ObjectPlotOptions:
@@ -179,7 +175,13 @@ class ObjectPlotOptions:
                 "obj_alpha": "alpha",
                 "obj_zorder": "zorder",
                 "obj_linestyle": "linestyle",
+                "obj_linewidth": "line_width",
             },
+        )
+        image = _replace_fields(
+            self.image,
+            values,
+            {"obj_zorder": "zorder"},
         )
         goal = _replace_fields(
             self.goal,
@@ -256,6 +258,7 @@ class ObjectPlotOptions:
             self,
             visibility=visibility,
             object=object_style,
+            image=image,
             goal=goal,
             trajectory=trajectory,
             text=text,
@@ -301,14 +304,37 @@ class ObjectPlot:
     """
 
     def __init__(self, owner: ObjectBase) -> None:
-        self.owner: ObjectBase = owner
-        self.options = ObjectPlotOptions.defaults(
+        self._owner: ObjectBase = owner
+        self.options = self._resolve_options()
+
+    @property
+    def owner(self) -> ObjectBase:
+        """Return the owner through the explicit renderer interface."""
+        return self._owner
+
+    @owner.setter
+    def owner(self, value: ObjectBase) -> None:
+        """Keep explicit owner assignment synchronized with legacy ``_owner``."""
+        self._owner = value
+
+    def __getattr__(self, name: str) -> Any:
+        """Delegate legacy renderer attribute reads to the owning object."""
+        owner = object.__getattribute__(self, "_owner")
+        return getattr(owner, name)
+
+    def _resolve_options(
+        self, overrides: Mapping[str, Any] | None = None
+    ) -> ObjectPlotOptions:
+        """Resolve live owner defaults, stored configuration, and call overrides."""
+        owner = self.owner
+        options = ObjectPlotOptions.defaults(
             color=owner.color,
             width=owner.width,
             radius=owner.radius,
             shape=owner.shape,
             object_zorder=3 if owner.role == "robot" else 1,
         ).with_overrides(owner.plot_kwargs)
+        return options.with_overrides(overrides) if overrides else options
 
     def plot(
         self,
@@ -350,9 +376,9 @@ class ObjectPlot:
     ) -> list[str]:
         """Create the configured artists for one object."""
         owner = self.owner
-        options = self.options.with_overrides(kwargs)
-        if initial:
-            self.options = options
+        owner.plot_kwargs.update(kwargs)
+        options = self._resolve_options()
+        self.options = options
 
         owner.plot_attr_list = list(_PLOT_ATTRIBUTES)
         owner.ax = ax
@@ -411,7 +437,8 @@ class ObjectPlot:
     def step(self, **kwargs: Any) -> None:
         """Update existing artists from the owner's current state."""
         owner = self.owner
-        options = self.options.with_overrides(kwargs)
+        options = self._resolve_options(kwargs)
+        self.options = options
         state = owner.state
         x = float(state[0, 0])
         y = float(state[1, 0])
@@ -454,6 +481,7 @@ class ObjectPlot:
             alpha=style.alpha,
             zorder=style.zorder,
             linestyle=style.linestyle,
+            linewidth=style.line_width,
         )
 
     def _update_object_line(
@@ -477,6 +505,7 @@ class ObjectPlot:
         element.set_color(style.color)
         element.set_alpha(style.alpha)
         element.set_zorder(style.zorder)
+        element.set_linewidth(style.line_width)
 
     def _update_object_image(self, heading: float) -> None:
         element = self._artist("object_img")
@@ -634,7 +663,7 @@ class ObjectPlot:
         **kwargs: Any,
     ) -> None:
         """Draw the object's geometry or configured description image."""
-        options = self.options.with_overrides(kwargs) if _options is None else _options
+        options = self._resolve_options(kwargs) if _options is None else _options
         state = self.owner.state if state is None else state
         vertices = self.owner.vertices if vertices is None else vertices
 
@@ -657,6 +686,7 @@ class ObjectPlot:
                         linestyle=options.object.linestyle,
                         zorder=options.object.zorder,
                     )
+                    self.owner.object_patch.set_linewidth(options.object.line_width)
                     self.owner.plot_patch_list.append(self.owner.object_patch)
             except Exception as exc:
                 self.owner.logger.error(
@@ -669,7 +699,7 @@ class ObjectPlot:
                 state,
                 vertices,
                 self.owner.description,
-                _options=options,
+                **kwargs,
             )
 
     def plot_object_image(
@@ -678,14 +708,11 @@ class ObjectPlot:
         state: np.ndarray | None = None,
         vertices: np.ndarray | None = None,
         description: str | None = None,
-        _options: ObjectPlotOptions | None = None,
         **kwargs: Any,
     ) -> None:
         """Draw an image description at the object's pose."""
         if vertices is None or state is None:
             return
-
-        options = self.options.with_overrides(kwargs) if _options is None else _options
 
         image_path = file_check(
             description,
@@ -698,6 +725,7 @@ class ObjectPlot:
         start_y = float(vertices[1, 0])
         angle_degrees = 180 * float(state[2, 0]) / pi
         image_data = image.imread(image_path)
+        options = self._resolve_options(kwargs)
 
         object_image = ax.imshow(
             image_data,
@@ -707,7 +735,7 @@ class ObjectPlot:
                 start_y,
                 start_y + self.owner.width,
             ],
-            zorder=options.object.zorder,
+            zorder=options.image.zorder,
         )
         transform = (
             mtransforms.Affine2D().rotate_deg_around(start_x, start_y, angle_degrees)
@@ -728,7 +756,7 @@ class ObjectPlot:
     ) -> None:
         """Draw the object's trajectory."""
         if _options is None:
-            options = self.options.with_overrides(
+            options = self._resolve_options(
                 {**kwargs, "keep_traj_length": keep_traj_length}
             )
         else:
@@ -781,7 +809,7 @@ class ObjectPlot:
             }
             if goal_color is not None:
                 overrides["goal_color"] = goal_color
-            options = self.options.with_overrides(overrides)
+            options = self._resolve_options(overrides)
         else:
             options = _options
 
@@ -805,7 +833,7 @@ class ObjectPlot:
         **kwargs: Any,
     ) -> None:
         """Draw the object label and optional goal label."""
-        options = self.options.with_overrides(kwargs) if _options is None else _options
+        options = self._resolve_options(kwargs) if _options is None else _options
         state = self.owner.state if state is None else state
         x, y = state[0, 0], state[1, 0]
 
@@ -886,7 +914,7 @@ class ObjectPlot:
             }
             if arrow_color is not None:
                 overrides["arrow_color"] = arrow_color
-            options = self.options.with_overrides(overrides)
+            options = self._resolve_options(overrides)
         else:
             options = _options
         state = self.owner.state if state is None else state
@@ -915,7 +943,7 @@ class ObjectPlot:
     ) -> None:
         """Draw a historical outline of the object."""
         if _options is None:
-            options = self.options.with_overrides(
+            options = self._resolve_options(
                 {**kwargs, "keep_trail_length": keep_trail_length}
             )
         else:
@@ -960,7 +988,7 @@ class ObjectPlot:
         if self.owner.fov is None or self.owner.fov_radius is None:
             return
 
-        options = self.options.with_overrides(kwargs) if _options is None else _options
+        options = self._resolve_options(kwargs) if _options is None else _options
         start_degree = -180 * self.owner.fov / (2 * pi)
         end_degree = 180 * self.owner.fov / (2 * pi)
         shape = "circle" if abs(self.owner.fov - 2 * pi) < 0.01 else "wedge"

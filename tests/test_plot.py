@@ -389,8 +389,29 @@ class TestObjectPlot:
         robot = env.robot
 
         assert robot._object_plot.owner is robot
+        assert robot._object_plot._owner is robot
         assert "object_patch" in vars(robot)
         assert "object_patch" not in vars(robot._object_plot)
+
+    def test_legacy_renderer_attributes_delegate_to_owner(self):
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            color="navy",
+            plot={"show_goal": True},
+        )
+
+        assert obj._object_plot.color == "navy"
+        assert obj._object_plot.plot_kwargs == {"show_goal": True}
+
+    def test_owner_aliases_stay_synchronized(self):
+        first = ObjectBase(shape={"name": "circle", "radius": 0.2})
+        second = ObjectBase(shape={"name": "circle", "radius": 0.3})
+
+        first._object_plot.owner = second
+
+        assert first._object_plot.owner is second
+        assert first._object_plot._owner is second
+        assert first._object_plot.radius == second.radius
 
     def test_goal_text_is_optional_without_goal(self):
         obj = ObjectBase(shape={"name": "circle", "radius": 0.2}, goal=None)
@@ -408,10 +429,44 @@ class TestObjectPlot:
         obj = ObjectBase(shape={"name": "circle", "radius": 0.2})
 
         fig, ax = plt.subplots()
-        obj.plot_object(ax, obj_color="magenta", obj_alpha=0.25)
+        obj.plot_object(
+            ax,
+            obj_color="magenta",
+            obj_alpha=0.25,
+            obj_linewidth=2.5,
+        )
 
         np.testing.assert_allclose(
             obj.object_patch.get_facecolor(), to_rgba("magenta", alpha=0.25)
+        )
+        assert obj.object_patch.get_linewidth() == 2.5
+        plt.close(fig)
+
+    @pytest.mark.parametrize(
+        ("plot", "render_options", "expected_zorder"),
+        [
+            ({}, {}, 2),
+            ({"obj_zorder": 7}, {}, 7),
+            ({}, {"obj_zorder": 9}, 9),
+        ],
+    )
+    def test_object_image_preserves_legacy_zorder(
+        self, plot, render_options, expected_zorder
+    ):
+        obj = ObjectBase(
+            shape={"name": "rectangle", "length": 0.5, "width": 0.2},
+            role="robot",
+            description="diff_robot0.png",
+            plot=plot,
+        )
+
+        fig, ax = plt.subplots()
+        obj.plot_object(ax, **render_options)
+
+        assert obj.object_img.get_zorder() == expected_zorder
+        assert (
+            obj._object_plot._resolve_options(render_options).image.zorder
+            == expected_zorder
         )
         plt.close(fig)
 
@@ -435,6 +490,7 @@ class TestObjectPlot:
         assert isinstance(options, ObjectPlotOptions)
         assert options.visibility.goal
         assert options.object.alpha == 0.3
+        assert options.image.zorder == 2
         assert options.goal.color == "navy"
         assert options.trajectory.keep_length == 12
         assert options.text.position == (0.4, 0.6)
@@ -450,7 +506,22 @@ class TestObjectPlot:
         assert options.object.alpha == 0.3
         assert overridden.object.alpha == 0.8
 
-    def test_runtime_overrides_do_not_mutate_stored_plot_config(self):
+    def test_plot_dataclasses_have_fully_resolved_defaults(self):
+        options = ObjectPlotOptions()
+
+        assert options.object.alpha == 1.0
+        assert options.object.zorder == 1
+        assert options.object.linestyle == "-"
+        assert options.object.line_width == 1.0
+        assert options.image.zorder == 2
+        assert options.goal.alpha == 0.5
+        assert options.trajectory.alpha == 0.5
+        assert options.text.alpha == 1.0
+        assert options.trail.alpha == 0.7
+        assert options.arrow.alpha == 1.0
+        assert options.fov.alpha == 0.5
+
+    def test_initial_overrides_update_live_plot_config(self):
         stored_options = {"obj_color": "blue"}
         obj = ObjectBase(
             shape={"name": "circle", "radius": 0.2},
@@ -460,7 +531,8 @@ class TestObjectPlot:
         fig, ax = plt.subplots()
         obj._init_plot(ax, obj_color="magenta")
 
-        assert obj.plot_kwargs == stored_options
+        assert stored_options["obj_color"] == "magenta"
+        assert obj.plot_kwargs["obj_color"] == "magenta"
         assert obj._object_plot.options.object.color == "magenta"
 
         obj._step_plot(obj_color="red")
@@ -468,6 +540,42 @@ class TestObjectPlot:
 
         obj._step_plot()
         np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("magenta"))
+        plt.close(fig)
+
+    def test_owner_defaults_are_resolved_at_render_time(self):
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            color="blue",
+        )
+        obj.color = "red"
+
+        fig, ax = plt.subplots()
+        obj._init_plot(ax)
+
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("red"))
+        assert obj._object_plot.options.object.color == "red"
+
+        obj.color = "orange"
+        obj._step_plot()
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("orange"))
+        plt.close(fig)
+
+    def test_plot_config_changes_are_resolved_at_render_time(self):
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            plot={"obj_color": "blue"},
+        )
+        obj.plot_kwargs["obj_color"] = "green"
+
+        fig, ax = plt.subplots()
+        obj._init_plot(ax)
+
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("green"))
+        assert obj._object_plot.options.object.color == "green"
+
+        obj.plot_kwargs["obj_color"] = "purple"
+        obj._step_plot()
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("purple"))
         plt.close(fig)
 
 

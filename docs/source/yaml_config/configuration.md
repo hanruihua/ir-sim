@@ -291,8 +291,8 @@ A complete IR-SIM scene is described by up to four top-level keys: `world`, `rob
           <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">object's color</span><span class="yt-desc">outline / fill colour</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span><span class="yt-desc">transparency 0–1</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_linestyle</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"-"</span><span class="yt-desc">outline line style</span></div>
-          <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">object's width</span></div>
-          <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_zorder</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">3 / 1</span><span class="yt-desc">draw order (robot / obstacle)</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">obj_zorder</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">3 / 1; image 2</span><span class="yt-desc">draw order (robot / obstacle / image)</span></div>
         </div>
         <div class="yt-utabpanel">
           <input type="checkbox" class="yt-gate" id="yt-g-goal">
@@ -1361,10 +1361,10 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 
   **Object Visualization Properties:**
   - `obj_linestyle` (str/`'-'`): Line style for object outline (e.g., '-', '--', ':', '-.').
-  - `obj_zorder` (int/`3`): Z-order (drawing layer) for object elements. Default is 3 for robots, 1 for obstacles.
+  - `obj_zorder` (int): Z-order (drawing layer) for object elements. Default is 3 for robot patches, 1 for obstacle patches, and 2 for description images.
   - `obj_color` (str): Color of the object. Default is the object's color property.
   - `obj_alpha` (float/`1.0`): Transparency of the object (0.0 to 1.0).
-  - `obj_linewidth` (float/`None`): Width of the object outline. Default varies by object type.
+  - `obj_linewidth` (float/`1.0`): Width of the object outline in Matplotlib points.
 
   **Goal Visualization:**
   - `show_goal` (bool/`False`): Whether to show the goal position.
@@ -1389,13 +1389,13 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - `arrow_length` (float/`0.4`): Length of the arrow.
     - `arrow_width` (float/`0.6`): Width of the arrow.
     - `arrow_alpha` (float/`1.0`): Transparency of the arrow (0.0 to 1.0).
-    - `arrow_zorder` (int/`4`): Z-order of the arrow.
+    - `arrow_zorder` (int/`3`): Z-order of the arrow.
 
   **Trajectory Path Visualization:**
   - `show_trajectory` (bool/`False`): Whether to show the trajectory line.
     - `traj_color` (str): Color of the trajectory. Default is the object's color.
     - `traj_style` (str): Line style of the trajectory (e.g., '-', '--', ':', '-.'). Default is "-".
-    - `traj_width` (float/`None`): Width of the trajectory line. Default is the object's width.
+    - `traj_width` (float/object width): Width of the trajectory line. Default is the object's width.
     - `traj_alpha` (float/`0.5`): Transparency of the trajectory (0.0 to 1.0).
     - `traj_zorder` (int/`0`): Z-order for trajectory elements.
     - `keep_traj_length` (int/`0`): Number of steps to keep from the end of trajectory. Default is 0 (keep all steps).
