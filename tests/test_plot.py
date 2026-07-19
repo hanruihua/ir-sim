@@ -578,6 +578,128 @@ class TestObjectPlot:
         np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("purple"))
         plt.close(fig)
 
+    def test_legacy_plot_helpers_resolve_direct_call_options(self):
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            state=[0.0, 0.0, 0.0],
+            goal=[1.0, 1.0, 0.0],
+            color="navy",
+        )
+        trajectory = [obj.state.copy(), np.array([[0.5], [0.25], [0.0]])]
+
+        fig, ax = plt.subplots()
+        obj._plot(ax, obj.state, obj.vertices)
+
+        obj.plot_trajectory(
+            ax,
+            trajectory,
+            keep_traj_length=1,
+            traj_color="red",
+            traj_style="--",
+            traj_alpha=0.4,
+            traj_zorder=6,
+        )
+        trajectory_line = obj.trajectory_line[0]
+        assert obj.keep_traj_length == 1
+        assert trajectory_line.get_color() == "red"
+        assert trajectory_line.get_linestyle() == "--"
+        assert trajectory_line.get_alpha() == 0.4
+        assert trajectory_line.get_zorder() == 6
+
+        obj.plot_goal(ax)
+        obj.plot_goal(
+            ax,
+            obj.goal,
+            obj.goal_vertices,
+            goal_color="green",
+            goal_zorder=7,
+            goal_alpha=0.3,
+        )
+        np.testing.assert_allclose(
+            obj.goal_patch.get_facecolor(), to_rgba("green", alpha=0.3)
+        )
+        assert obj.goal_patch.get_zorder() == 7
+
+        obj.plot_arrow(
+            ax,
+            obj.state,
+            arrow_theta=0.0,
+            arrow_length=0.7,
+            arrow_width=0.2,
+            arrow_color="orange",
+            arrow_zorder=8,
+            arrow_alpha=0.6,
+        )
+        np.testing.assert_allclose(
+            obj.arrow_patch.get_facecolor(), to_rgba("orange", alpha=0.6)
+        )
+        assert obj.arrow_patch.get_zorder() == 8
+
+        obj.plot_trail(
+            ax,
+            obj.state,
+            obj.original_vertices,
+            keep_trail_length=1,
+            trail_color="yellow",
+        )
+        first_trail = obj.plot_trail_list[0]
+        obj.plot_trail(
+            ax,
+            obj.state,
+            obj.original_vertices,
+            keep_trail_length=1,
+            trail_color="cyan",
+        )
+        assert len(obj.plot_trail_list) == 1
+        assert obj.plot_trail_list[0] is not first_trail
+        plt.close(fig)
+
+    def test_legacy_plot_helper_guard_paths(self):
+        obj = ObjectBase(shape={"name": "circle", "radius": 0.2})
+
+        fig, ax = plt.subplots()
+        obj.plot_object_image(ax)
+        obj.plot_object_image(
+            ax,
+            obj.state,
+            obj.vertices,
+            description="__missing_plot_image__.png",
+        )
+        obj.plot_fov(ax)
+        obj.plot_uncertainty(ax)
+
+        assert not hasattr(obj, "object_img")
+        assert not hasattr(obj, "fov_patch")
+        plt.close(fig)
+
+    def test_object_line_update_applies_geometry_and_style(self):
+        obj = ObjectBase(
+            shape={"name": "linestring", "vertices": [[-1.0, 0.0], [1.0, 0.0]]}
+        )
+        obj.object_line = Mock()
+        style = obj._object_plot._resolve_options(
+            {
+                "obj_color": "purple",
+                "obj_alpha": 0.4,
+                "obj_zorder": 9,
+                "obj_linestyle": "--",
+                "obj_linewidth": 2.5,
+            }
+        ).object
+
+        obj._object_plot._update_object_line(2.0, 3.0, np.pi / 2, style)
+
+        rotation = np.array([[0.0, -1.0], [1.0, 0.0]])
+        expected_vertices = rotation @ obj.vertices + np.array([[2.0], [3.0]])
+        x_data, y_data = obj.object_line.set_data.call_args.args
+        np.testing.assert_allclose(x_data, expected_vertices[0, :], atol=1e-12)
+        np.testing.assert_allclose(y_data, expected_vertices[1, :], atol=1e-12)
+        obj.object_line.set_linestyle.assert_called_once_with("--")
+        obj.object_line.set_color.assert_called_once_with("purple")
+        obj.object_line.set_alpha.assert_called_once_with(0.4)
+        obj.object_line.set_zorder.assert_called_once_with(9)
+        obj.object_line.set_linewidth.assert_called_once_with(2.5)
+
 
 class TestSaveFigure:
     """Tests for figure saving functionality."""
