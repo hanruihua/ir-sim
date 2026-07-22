@@ -2361,9 +2361,11 @@ msgstr "`obj_linestyle`（str）：对象轮廓线型（如 '-', '--', ':', '-.'
 
 #: ../../source/yaml_config/configuration.md:1348
 msgid ""
-"`obj_zorder` (int/`3`): Z-order (drawing layer) for object elements. Default"
-" is 3 for robots, 1 for obstacles."
-msgstr "`obj_zorder`（int）：对象元素的绘制层级，机器人默认 3、障碍物默认 1。"
+"`obj_zorder` (int): Z-order (drawing layer) for object elements. Default is "
+"3 for robot patches, 1 for obstacle patches, and 2 for description images."
+msgstr ""
+"`obj_zorder`（int）：对象元素的绘制层级。机器人图形默认 3，障碍物图形默认 1，"
+"描述图片默认 2。"
 
 #: ../../source/yaml_config/configuration.md:1349
 msgid ""
@@ -2376,10 +2378,8 @@ msgid "`obj_alpha` (float/`1.0`): Transparency of the object (0.0 to 1.0)."
 msgstr "`obj_alpha`（float）：对象透明度（0.0-1.0），默认 1.0。"
 
 #: ../../source/yaml_config/configuration.md:1351
-msgid ""
-"`obj_linewidth` (float/`None`): Width of the object outline. Default varies "
-"by object type."
-msgstr "`obj_linewidth`（float）：轮廓线宽，默认随对象类型而定。"
+msgid "`obj_linewidth` (float/`1.0`): Width of the object outline in Matplotlib points."
+msgstr "`obj_linewidth`（float/`1.0`）：对象轮廓线宽，单位为 Matplotlib 点。"
 
 #: ../../source/yaml_config/configuration.md:1353
 msgid "**Goal Visualization:**"
@@ -2475,8 +2475,8 @@ msgid "`arrow_alpha` (float/`1.0`): Transparency of the arrow (0.0 to 1.0)."
 msgstr "`arrow_alpha`（float）：箭头透明度，默认 1.0。"
 
 #: ../../source/yaml_config/configuration.md:1376
-msgid "`arrow_zorder` (int/`4`): Z-order of the arrow."
-msgstr "`arrow_zorder`（int）：箭头层级，默认 4。"
+msgid "`arrow_zorder` (int/`3`): Z-order of the arrow."
+msgstr "`arrow_zorder`（int/`3`）：箭头的绘制层级。"
 
 #: ../../source/yaml_config/configuration.md:1378
 msgid "**Trajectory Path Visualization:**"
@@ -2499,9 +2499,9 @@ msgstr "`traj_style`（str）：路径线型（如 '-', '--', ':', '-.'），默
 
 #: ../../source/yaml_config/configuration.md:1382
 msgid ""
-"`traj_width` (float/`None`): Width of the trajectory line. Default is the "
-"object's width."
-msgstr "`traj_width`（float）：路径线宽，默认为对象宽度。"
+"`traj_width` (float/object width): Width of the trajectory line. Default is "
+"the object's width."
+msgstr "`traj_width`（float/对象宽度）：轨迹线宽，默认为对象宽度。"
 
 #: ../../source/yaml_config/configuration.md:1383
 msgid ""
