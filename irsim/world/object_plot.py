@@ -541,7 +541,9 @@ class ObjectPlot:
         goal_state = (
             self.owner.goal
             if self.owner.goal.shape[0] > 2
-            else np.pad(self.owner.goal, (0, 1), "constant", constant_values=0)
+            else np.pad(
+                self.owner.goal, ((0, 1), (0, 0)), "constant", constant_values=0
+            )
         )
         set_patch_property(
             element,
