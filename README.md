@@ -12,6 +12,7 @@
 <a href="https://ir-sim.readthedocs.io/en/stable/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs"></a>
 <a href="https://github.com/hanruihua/ir-sim?tab=MIT-1-ov-file"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
 <a href="https://pepy.tech/project/ir-sim"><img src="https://img.shields.io/pepy/dt/ir-sim?style=for-the-badge" alt="Downloads"></a>
+<a href="https://github.com/knmcguire/best-of-robot-simulators?tab=readme-ov-file#robotic-simulators-in-2d"><img src="https://img.shields.io/badge/2D%20Robotics%20Simulators-%F0%9F%A5%87%20Rank%20%231-success?style=for-the-badge" alt="Ranked #1 among 2D Robotics Simulators in best-of-robot-simulators"></a>
 
 </div>
 
