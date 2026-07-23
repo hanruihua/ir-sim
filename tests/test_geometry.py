@@ -445,3 +445,28 @@ class TestCircleCenterConsistency:
             assert r >= obj.radius
 
         env.end()
+
+
+class TestGeometryHandler3D:
+    """The 3D geometry ABC transforms local geometry by a 6D state."""
+
+    def test_step_transforms_geometry(self):
+        import shapely
+
+        from irsim.lib.handler.geometry_handler import geometry_handler3d
+
+        class SquareGeometry3D(geometry_handler3d):
+            def construct_original_geometry(self, **kwargs):
+                return shapely.Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+
+            def cal_length_width(self, geometry):
+                min_x, min_y, max_x, max_y = geometry.bounds
+                return max_x - min_x, max_y - min_y, 1.0
+
+        handler = SquareGeometry3D("square3d")
+        assert (handler.length, handler.width, handler.depth) == (1.0, 1.0, 1.0)
+
+        state = np.array([[2.0], [3.0], [0.0], [0.0], [0.0], [0.0]])
+        moved = handler.step(state)
+        assert moved.centroid.x == pytest.approx(2.5)
+        assert moved.centroid.y == pytest.approx(3.5)

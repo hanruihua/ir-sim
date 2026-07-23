@@ -4,13 +4,16 @@ Tests for plotting functionality (EnvPlot, EnvPlot3D, draw_patch).
 Covers 2D and 3D plotting, trajectory drawing, quiver drawing, and shape patches.
 """
 
+import contextlib
 import os
 from dataclasses import FrozenInstanceError
+from pathlib import Path
 from unittest.mock import Mock
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import yaml
 from matplotlib.colors import to_rgba
 
 import irsim
@@ -55,6 +58,10 @@ class TestEnvPlot2D:
             np.array([[2.0], [3.0], [0.5]]),
         ]
         plot_2d.draw_trajectory(traj_list, show_direction=True, refresh=True)
+
+    def test_draw_points_none(self, plot_2d):
+        """draw_points(None) is a no-op."""
+        assert plot_2d.draw_points(None) is None
 
     def test_draw_points_list(self, plot_2d):
         """Test draw_points with list of points."""
@@ -1092,3 +1099,296 @@ class TestCircleCenterRender:
         np.testing.assert_allclose(second, expected, atol=1e-6)
 
         env.end()
+
+
+# ---------------------------------------------------------------------------
+# Default `show_arrow` behavior across robots and obstacles.
+#
+# Regression (#237, v2.9.2): YAML obstacles without a `kinematics:` block were
+# unintentionally inheriting `show_arrow=True` because the kinematics factory
+# falls back to a DifferentialKinematics handler. The handler-derived default
+# applies only when the object is dynamic: `kf is not None` and not static.
+# ---------------------------------------------------------------------------
+
+
+def _write_yaml(path: Path, data: dict) -> Path:
+    path.write_text(yaml.safe_dump(data, sort_keys=False))
+    return path
+
+
+def _has_arrow(obj) -> bool:
+    """Return True if the object actually drew an arrow patch."""
+    return getattr(obj, "arrow_patch", None) is not None
+
+
+@pytest.fixture
+def scenario_factory(tmp_path):
+    """Build a minimal irsim env from an inline scenario dict."""
+    created = []
+
+    def _make(scenario: dict) -> object:
+        yaml_path = _write_yaml(tmp_path / "scenario.yaml", scenario)
+        env = irsim.make(str(yaml_path), save_ani=False, display=False)
+        created.append(env)
+        return env
+
+    yield _make
+
+    for env in created:
+        with contextlib.suppress(Exception):
+            env.end()
+
+
+BASE_WORLD = {
+    "height": 10,
+    "width": 10,
+    "step_time": 0.1,
+    "sample_time": 0.1,
+    "offset": [0, 0],
+}
+
+ROBOT_DIFF = {
+    "kinematics": {"name": "diff"},
+    "shape": {"name": "circle", "radius": 0.2},
+    "state": [1, 1, 0],
+    "goal": [9, 9, 0],
+}
+
+
+def test_robot_diff_has_arrow_by_default(scenario_factory):
+    """A diff-drive robot should show an arrow by default."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+        }
+    )
+    env.render()
+    assert _has_arrow(env.robot), "diff robot should draw arrow by default"
+
+
+def test_static_obstacle_has_no_arrow(scenario_factory):
+    """A static YAML obstacle (no `kinematics:` block) should not draw an
+    arrow, even though the kinematics factory secretly attaches a fallback
+    DifferentialKinematics handler."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+            "obstacle": [
+                {
+                    "shape": {"name": "circle", "radius": 1.0},
+                    "state": [5, 5, 0],
+                },
+                {
+                    "shape": {"name": "rectangle", "length": 1.5, "width": 1.2},
+                    "state": [6, 5, 1],
+                },
+            ],
+        }
+    )
+    env.render()
+    for obs in env.obstacle_list:
+        assert obs.static, f"YAML static obstacle {obs.name} should be flagged static"
+        assert not _has_arrow(obs), (
+            f"static obstacle {obs.name} should not draw an arrow by default"
+        )
+
+
+def test_dynamic_diff_obstacle_has_arrow_by_default(scenario_factory):
+    """A genuinely dynamic obstacle (diff kinematics declared in YAML) should
+    draw an arrow by default — it has a real kinematics handler with
+    `show_arrow=True` and is not flagged static."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+            "obstacle": [
+                {
+                    "kinematics": {"name": "diff"},
+                    "shape": {"name": "circle", "radius": 0.3},
+                    "state": [3, 3, 0],
+                },
+            ],
+        }
+    )
+    env.render()
+    obs = env.obstacle_list[0]
+    assert not obs.static, "diff obstacle should not be flagged static"
+    assert _has_arrow(obs), "dynamic diff obstacle should draw arrow by default"
+
+
+def test_dynamic_omni_obstacle_has_no_arrow_by_default(scenario_factory):
+    """Omni kinematics defaults `show_arrow=False` at the handler level, so
+    even a dynamic omni obstacle should not draw an arrow."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+            "obstacle": [
+                {
+                    "kinematics": {"name": "omni"},
+                    "shape": {"name": "circle", "radius": 0.3},
+                    "state": [3, 7, 0],
+                },
+            ],
+        }
+    )
+    env.render()
+    obs = env.obstacle_list[0]
+    assert not obs.static
+    assert not _has_arrow(obs), (
+        "dynamic omni obstacle should not draw arrow (handler default False)"
+    )
+
+
+def test_obstacle_arrow_explicit_false(scenario_factory):
+    """`plot.show_arrow: False` on a dynamic diff obstacle suppresses arrow."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+            "obstacle": [
+                {
+                    "kinematics": {"name": "diff"},
+                    "shape": {"name": "circle", "radius": 0.3},
+                    "state": [3, 3, 0],
+                    "plot": {"show_arrow": False},
+                }
+            ],
+        }
+    )
+    env.render()
+    obs = env.obstacle_list[0]
+    assert not _has_arrow(obs), (
+        "obstacle with plot.show_arrow=False should not draw arrow"
+    )
+
+
+def test_static_obstacle_arrow_explicit_true(scenario_factory):
+    """Users can still opt static obstacles into arrows via `plot.show_arrow`."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [ROBOT_DIFF],
+            "obstacle": [
+                {
+                    "shape": {"name": "circle", "radius": 0.5},
+                    "state": [5, 5, 0],
+                    "plot": {"show_arrow": True},
+                }
+            ],
+        }
+    )
+    env.render()
+    obs = env.obstacle_list[0]
+    assert _has_arrow(obs), (
+        "static obstacle with plot.show_arrow=True should draw arrow"
+    )
+
+
+def test_robot_arrow_explicit_false(scenario_factory):
+    """Users can suppress the robot arrow via `plot.show_arrow: False`."""
+    robot = dict(ROBOT_DIFF)
+    robot["plot"] = {"show_arrow": False}
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [robot],
+        }
+    )
+    env.render()
+    assert not _has_arrow(env.robot), (
+        "robot with plot.show_arrow=False should not draw arrow"
+    )
+
+
+def test_kf_none_robot_has_no_arrow():
+    """A robot constructed with `kinematics=None` (i.e. `kf is None`) gets
+    `self.static = True` from ObjectBase, so the dynamic-only handler
+    default does not apply and no arrow is drawn."""
+    obj = ObjectBase(
+        kinematics=None,
+        shape={"name": "circle", "radius": 0.2},
+        state=[1, 1, 0],
+        role="robot",
+    )
+    assert obj.kf is None
+    assert obj.static is True
+
+    fig, ax = plt.subplots()
+    try:
+        obj._init_plot(ax)
+        assert not _has_arrow(obj), (
+            "robot with kf=None should not draw arrow by default"
+        )
+    finally:
+        plt.close(fig)
+
+
+class TestObjectText:
+    """Custom object and goal text overrides."""
+
+    def test_set_text(self, env_factory):
+        """set_text overrides the default abbreviation and can be reset."""
+        robot = env_factory("test_all_objects.yaml").robot
+
+        assert robot._get_text() == robot.abbr
+        robot.set_text("hello")
+        assert robot._get_text() == "hello"
+        robot.set_text(None)
+        assert robot._get_text() == robot.abbr
+
+    def test_set_text_updates_artist(self, env_factory):
+        """set_text pushes the new text to an existing matplotlib artist."""
+        robot = env_factory("test_all_objects.yaml").robot
+        mock_text = Mock()
+        robot._text = mock_text
+
+        robot.set_text("custom")
+        mock_text.set_text.assert_called_with("custom")
+        robot.set_text(None)
+        mock_text.set_text.assert_called_with(robot.abbr)
+
+    def test_set_goal_text(self, env_factory):
+        """set_goal_text overrides the goal abbreviation and can be reset."""
+        robot = env_factory("test_all_objects.yaml").robot
+
+        assert robot._get_goal_text() == robot.goal_abbr
+        robot.set_goal_text("target")
+        assert robot._get_goal_text() == "target"
+        robot.set_goal_text(None)
+        assert robot._get_goal_text() == robot.goal_abbr
+
+    def test_set_goal_text_updates_artist(self, env_factory):
+        """set_goal_text pushes the new text to an existing matplotlib artist."""
+        robot = env_factory("test_all_objects.yaml").robot
+        mock_text = Mock()
+        robot._goal_text = mock_text
+
+        robot.set_goal_text("my goal")
+        mock_text.set_text.assert_called_with("my goal")
+        robot.set_goal_text(None)
+        mock_text.set_text.assert_called_with(robot.goal_abbr)
+
+
+class TestGoalPatchVisibility:
+    """The goal patch hides when the goal is cleared."""
+
+    def test_goal_patch_hidden_when_goal_none(self, scenario_factory):
+        env = scenario_factory(
+            {
+                "world": BASE_WORLD,
+                "robot": [{**ROBOT_DIFF, "plot": {"show_goal": True}}],
+            }
+        )
+        env.render(0.01)
+        robot = env.robot
+
+        goal_patch = robot._object_plot._artist("goal_patch")
+        assert goal_patch is not None
+        assert goal_patch.get_visible() is True
+
+        robot.set_goal(None)
+        env.render(0.01)
+        assert goal_patch.get_visible() is False

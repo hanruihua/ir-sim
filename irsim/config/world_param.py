@@ -10,7 +10,9 @@ Attributes:
     count: count of the simulation, time = count * step_time
 """
 
-from dataclasses import dataclass
+import sys
+from dataclasses import dataclass, fields
+from types import ModuleType
 
 
 @dataclass
@@ -36,6 +38,8 @@ class WorldParam:
 _instances: list[WorldParam] = [WorldParam()]
 _current = _instances[0]
 
+_PARAM_FIELDS = frozenset(f.name for f in fields(WorldParam))
+
 
 def bind(instance: WorldParam) -> None:
     """Bind instance to default index 0 and update current alias."""
@@ -47,25 +51,38 @@ def bind(instance: WorldParam) -> None:
     _current = instance
 
 
-def __getattr__(name: str):
-    return getattr(_current, name)
+class _ParamModule(ModuleType):
+    """Route param-field access on the module to the bound instance.
+
+    PEP 562 lets a module define ``__getattr__`` only; plain assignment
+    (``world_param.count = x``) would create a real module attribute that
+    permanently shadows the proxy. Swapping the module class makes
+    attribute reads, writes, and index access all resolve against the
+    currently bound :class:`WorldParam` instance.
+    """
+
+    def __getattr__(self, name: str):
+        return getattr(_current, name)
+
+    def __setattr__(self, name: str, value) -> None:
+        if name in _PARAM_FIELDS:
+            setattr(_current, name, value)
+        else:
+            super().__setattr__(name, value)
+
+    def __getitem__(self, index: int) -> WorldParam:
+        return _instances[index]
+
+    def __setitem__(self, index: int, instance: WorldParam) -> None:
+        """Assign a WorldParam at a specific index. Extends list if needed."""
+        global _current
+        if index < 0:
+            raise IndexError("world_param index must be non-negative")
+        if index >= len(_instances):
+            _instances.extend(WorldParam() for _ in range(index - len(_instances) + 1))
+        _instances[index] = instance
+        if index == 0:
+            _current = instance
 
 
-def __setattr__(name: str, value):
-    setattr(_current, name, value)
-
-
-def __getitem__(index: int) -> WorldParam:
-    return _instances[index]
-
-
-def __setitem__(index: int, instance: WorldParam) -> None:
-    """Assign a WorldParam at a specific index. Extends list if needed."""
-    global _current
-    if index < 0:
-        raise IndexError("world_param index must be non-negative")
-    if index >= len(_instances):
-        _instances.extend(WorldParam() for _ in range(index - len(_instances) + 1))
-    _instances[index] = instance
-    if index == 0:
-        _current = instance
+sys.modules[__name__].__class__ = _ParamModule

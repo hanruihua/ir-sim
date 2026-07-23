@@ -38,14 +38,14 @@ jobs:
     - name: Test with pytest (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        xvfb-run -s "-screen 0 1024x768x24" uv run pytest --cov . --cov-report=xml --cov-report=html
+        xvfb-run -s "-screen 0 1024x768x24" uv run pytest --cov-report=xml --cov-report=html
 
     - name: Test with pytest (macOS)
       if: startsWith(matrix.os, 'macos')
       env:
         MPLBACKEND: Agg
       run: |
-        uv run pytest --cov . --cov-report=xml --cov-report=html
+        uv run pytest --cov-report=xml --cov-report=html
 
     - name: Upload coverage information
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'

@@ -1350,3 +1350,188 @@ class TestMidProcessEdgeCases:
         if robot.state_dim > 3:
             result = robot.mid_process(small_state)
             assert result.shape[0] == robot.state_dim
+
+
+class Test3DEnvironment:
+    """3D-projection environment behavior (EnvBase3D / EnvPlot3D)."""
+
+    def test_simulation_loop_with_drawing_3d(self, env_factory):
+        """Step a 3D env while drawing trajectories with direction markers."""
+        env = env_factory("test_collision_avoidance.yaml", projection="3d")
+        for _ in range(20):
+            env.step()
+            env.render(0.01)
+            env.draw_trajectory(env.robot.trajectory, show_direction=True)
+            if env.done():
+                break
+        assert len(env.robot.trajectory) > 0
+
+    def test_polygon_and_lidar_3d(self, env_factory):
+        """Lidar access, point drawing, and object deletion work in 3D."""
+        env = env_factory("test_all_objects.yaml", projection="3d")
+        env.random_polygon_shape()
+        points = env.robot.get_lidar_points()
+        env.draw_points(points)
+
+        assert env.robot.get_lidar_scan() is not None
+        assert env.robot.get_lidar_offset() is not None
+        assert env.get_obstacle_info_list()
+        assert env.get_robot_info_list()
+
+        n_before = len(env.objects)
+        env.delete_objects([1, 2])
+        assert len(env.objects) == n_before - 2
+
+        for _ in range(5):
+            env.step()
+            env.render(0.01)
+
+    def test_grid_map_3d(self, env_factory):
+        """Grid-map worlds render in 3D and objects expose G/h matrices."""
+        env = env_factory("test_grid_map.yaml", projection="3d")
+        for _ in range(3):
+            env.step()
+            env.render(0.01)
+        assert env.robot.get_init_Gh() is not None
+
+
+class TestLoadBehaviorReinitialization:
+    """EnvBase.load_behavior reinitializes object and group behaviors."""
+
+    def test_load_behavior_with_group_behaviors_mock(self):
+        """load_behavior reinitializes both object and group behaviors."""
+        from unittest.mock import MagicMock, patch
+
+        from irsim.env.env_base import EnvBase
+
+        mock_env = MagicMock()
+        mock_obj = MagicMock()
+        mock_obj.obj_behavior = MagicMock()
+        mock_env.objects = [mock_obj]
+
+        mock_group = MagicMock()
+        mock_group.group_behavior = MagicMock()
+        mock_env._object_groups = [mock_group]
+
+        with patch("importlib.import_module"):
+            EnvBase.load_behavior(mock_env, "test_module")
+
+        mock_obj.obj_behavior._init_behavior_class.assert_called_once()
+        mock_group.group_behavior._init_group_behavior_class.assert_called_once()
+
+    def test_load_behavior_import_error_mock(self):
+        """load_behavior logs an error and returns early on import error."""
+        from unittest.mock import MagicMock, patch
+
+        from irsim.env.env_base import EnvBase
+
+        mock_env = MagicMock()
+        mock_env.objects = []
+        mock_env._object_groups = []
+
+        with patch(
+            "importlib.import_module", side_effect=ImportError("Module not found")
+        ):
+            EnvBase.load_behavior(mock_env, "nonexistent_module")
+
+        mock_env.logger.error.assert_called_once()
+        assert "Failed to load module" in mock_env.logger.error.call_args[0][0]
+
+    def test_load_behavior_skips_none_behaviors(self):
+        """load_behavior tolerates objects and groups without behaviors."""
+        from unittest.mock import MagicMock, patch
+
+        from irsim.env.env_base import EnvBase
+
+        mock_env = MagicMock()
+        mock_obj_no_attr = MagicMock(spec=[])
+        mock_obj_none = MagicMock()
+        mock_obj_none.obj_behavior = None
+        mock_obj_valid = MagicMock()
+        mock_obj_valid.obj_behavior = MagicMock()
+        mock_env.objects = [mock_obj_no_attr, mock_obj_none, mock_obj_valid]
+
+        mock_group_no_attr = MagicMock(spec=[])
+        mock_group_none = MagicMock()
+        mock_group_none.group_behavior = None
+        mock_env._object_groups = [mock_group_no_attr, mock_group_none]
+
+        with patch("importlib.import_module"):
+            EnvBase.load_behavior(mock_env, "test_module")
+
+        mock_obj_valid.obj_behavior._init_behavior_class.assert_called_once()
+
+
+class TestEnvConfigInvalidKey:
+    """EnvConfig.load_yaml reports invalid top-level YAML keys."""
+
+    def test_invalid_yaml_key_close_match(self, tmp_path, dummy_logger):
+        """A close typo raises KeyError (with a suggested key)."""
+        from irsim.env.env_config import EnvConfig
+
+        yaml_file = tmp_path / "bad.yaml"
+        yaml_file.write_text("wrold:\n  height: 10\n")
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+    def test_invalid_yaml_key_no_match(self, tmp_path, dummy_logger):
+        """An unrecognised key raises KeyError listing the valid keys."""
+        from irsim.env.env_config import EnvConfig
+
+        yaml_file = tmp_path / "bad2.yaml"
+        yaml_file.write_text("zzzzz:\n  foo: bar\n")
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+
+class TestBackendAndLoggerSetup:
+    """Matplotlib backend selection and file-based logging."""
+
+    def test_set_matplotlib_backend_fallback(self):
+        """An unusable backend list falls back to Agg and returns False."""
+        from irsim.env.env_base import _set_matplotlib_backend
+
+        assert _set_matplotlib_backend(["definitely_not_a_backend"]) is False
+
+    def test_env_logger_with_file(self, tmp_path):
+        """EnvLogger writes to the log file when one is given."""
+        from irsim.env.env_logger import EnvLogger
+
+        log_file = tmp_path / "sim.log"
+        logger = EnvLogger(str(log_file), "WARNING")
+        logger.warning("file sink test")
+        assert log_file.exists()
+        assert "file sink test" in log_file.read_text()
+
+
+class TestStatusAndActionEdgeCases:
+    """Status stepping without robots and action normalization variants."""
+
+    def test_status_step_no_robots(self, tmp_path, env_factory):
+        """A world without robots still reports Running after a step."""
+        config = tmp_path / "no_robot.yaml"
+        config.write_text(
+            "world:\n  height: 10\n  width: 10\n"
+            "obstacle:\n  - shape: {name: 'circle', radius: 1.0}\n"
+            "    state: [5, 5, 0]\n"
+        )
+        env = env_factory(str(config))
+        env.step()
+        assert env.status == "Running"
+
+    def test_yaml_config_failure_raises(self, tmp_path):
+        """An invalid top-level YAML key is logged critical and re-raised."""
+        bad = tmp_path / "bad_key.yaml"
+        bad.write_text("wrold:\n  height: 10\n")
+        with pytest.raises(KeyError):
+            irsim.make(str(bad), display=False)
+
+    def test_step_ndarray_action_with_id_list(self, env_factory):
+        """A single ndarray action can be routed to robots by an id list."""
+        env = env_factory("test_multi_objects_world.yaml")
+        action = np.array([[0.5], [0.0]])
+        env.step(action, action_id=[0])
+        assert env.robot.velocity.shape == (2, 1)
+        assert np.linalg.norm(env.robot.velocity) > 0

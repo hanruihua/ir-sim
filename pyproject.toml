@@ -77,6 +77,19 @@ dev = [
 ]
 
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=irsim --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["irsim"]
+
+[tool.coverage.report]
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+]
+
 [tool.setuptools.packages.find]
 include = ["irsim*"]
 exclude = ["docs*", "tests*"]
