@@ -15,8 +15,8 @@ uv sync
 # Run all tests
 pytest
 
-# Run tests with coverage
-pytest --cov . --cov-report=html
+# Run tests with coverage report (coverage of irsim/ is on by default via pyproject)
+pytest --cov-report=html
 
 # Run a single test file
 pytest tests/test_kinematics.py
@@ -130,7 +130,7 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (25 test files)
+tests/                  # Pytest test suite (13 test files)
 usage/                  # Example YAML configs and scripts (24 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```

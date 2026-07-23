@@ -7,6 +7,7 @@ from shapely import STRtree
 from irsim.util.random import set_seed
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
+from irsim.world.sensors.lidar2d import Lidar2D
 from irsim.world.sensors.sensor_factory import SensorFactory
 
 
@@ -599,3 +600,226 @@ class TestFMCWLidar2D:
         sensor._update_velocity_markers()
         assert not hasattr(sensor, "laser_LineCollection")
         assert not hasattr(sensor, "velocity_marker_plot")
+
+
+# ---------------------------------------------------------------------------
+# Lidar2D grouped-difference scan (issue #302): linestrings and polygons are
+# differenced separately for speed; both must still block beams in one scan.
+# ---------------------------------------------------------------------------
+
+
+class _EnvParam:
+    def __init__(self, objects, tree):
+        self.objects = objects
+        self.GeometryTree = tree
+
+
+class _Env:
+    def __init__(self, env_param):
+        self._env_param = env_param
+
+
+class _Parent:
+    def __init__(self, env_param):
+        self._env = _Env(env_param)
+
+
+class _MapObject:
+    """Mimics a grid-map object: linestrings + an STRtree (``shape == 'map'``)."""
+
+    def __init__(self, obj_id, linestrings):
+        self._id = obj_id
+        self.linestrings = list(linestrings)
+        self._geometry = shapely.MultiLineString(self.linestrings)
+        self._geometry_valid = True
+        self.shape = "map"
+        self.unobstructed = False
+        self.geometry_tree = STRtree(self.linestrings)
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+
+class _Obstacle:
+    """Mimics a dynamic obstacle with a polygon geometry."""
+
+    def __init__(self, obj_id, geometry, shape="circle"):
+        self._id = obj_id
+        self._geometry = geometry
+        self._geometry_valid = True
+        self.shape = shape
+        self.unobstructed = False
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+
+def test_lidar_subtracts_map_lines_and_dynamic_polygon():
+    """A static map linestring and a dynamic polygon must both block beams in one
+    scan, exercising the grouped-difference path added for issue #302."""
+    range_max = 10.0
+    # static map: a short vertical wall at x = -3
+    map_obj = _MapObject(2, [shapely.LineString([(-3.0, -0.5), (-3.0, 0.5)])])
+    # dynamic obstacle: a circle (polygon) centred at x = 2, radius 0.5
+    circle = _Obstacle(3, shapely.Point(2.0, 0.0).buffer(0.5))
+    env_param = _EnvParam(
+        [map_obj, circle], STRtree([map_obj.geometry, circle.geometry])
+    )
+
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=36,
+        angle_range=6.283185,
+        range_max=range_max,
+    )
+    lidar.parent = _Parent(env_param)
+    lidar.step(lidar.state)
+
+    ranges = np.asarray(lidar.get_scan()["ranges"])
+    blocked = ranges[ranges < range_max - 1e-6]
+
+    # both kinds of obstacle were subtracted: the nearest hit is the polygon
+    # (circle, near edge at x=1.5) and a farther hit is the line (wall at x=-3).
+    assert len(blocked) >= 2
+    assert ranges.min() == pytest.approx(1.5, abs=0.3)  # circle -> polygon group
+    assert blocked.max() == pytest.approx(3.0, abs=0.3)  # wall   -> line group
+
+
+# ---------------------------------------------------------------------------
+# Lidar2D geometry normalization, noise, and pointcloud conversion
+# ---------------------------------------------------------------------------
+
+
+class TestLidar2DEnsureMultiLineString:
+    """Tests for Lidar2D._ensure_multi_linestring normalization."""
+
+    @pytest.fixture
+    def lidar(self):
+        """Create a minimal Lidar2D instance for testing."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        return Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+
+    def test_linestring_input(self, lidar):
+        """A LineString is wrapped in a MultiLineString."""
+        line = shapely.LineString([(0, 0), (1, 1)])
+        result = lidar._ensure_multi_linestring(line)
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert len(result.geoms) == 1
+        assert result.geoms[0].equals(line)
+
+    def test_multilinestring_input(self, lidar):
+        """A MultiLineString is returned unchanged."""
+        lines = shapely.MultiLineString([[(0, 0), (1, 1)], [(2, 2), (3, 3)]])
+        result = lidar._ensure_multi_linestring(lines)
+
+        assert result is lines
+        assert len(result.geoms) == 2
+
+    def test_empty_geometry(self, lidar):
+        """An empty geometry returns an empty MultiLineString."""
+        # An empty MultiPolygon hits the is_empty branch (an empty LineString
+        # would hit the LineString branch first).
+        result = lidar._ensure_multi_linestring(shapely.MultiPolygon())
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert result.is_empty
+
+    def test_geometry_collection_with_linestrings(self, lidar):
+        """A GeometryCollection of LineStrings is flattened."""
+        line1 = shapely.LineString([(0, 0), (1, 1)])
+        line2 = shapely.LineString([(2, 2), (3, 3)])
+        result = lidar._ensure_multi_linestring(
+            shapely.GeometryCollection([line1, line2])
+        )
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert len(result.geoms) == 2
+
+    def test_geometry_collection_with_nested_multilinestring(self, lidar):
+        """Nested MultiLineStrings inside a GeometryCollection are flattened."""
+        line1 = shapely.LineString([(0, 0), (1, 1)])
+        multi = shapely.MultiLineString([[(2, 2), (3, 3)], [(4, 4), (5, 5)]])
+        result = lidar._ensure_multi_linestring(
+            shapely.GeometryCollection([line1, multi])
+        )
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert len(result.geoms) == 3  # 1 from line1 + 2 from multi
+
+    def test_geometry_collection_empty(self, lidar):
+        """An empty GeometryCollection returns an empty MultiLineString."""
+        result = lidar._ensure_multi_linestring(shapely.GeometryCollection())
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert result.is_empty
+
+    def test_unsupported_point_geometry(self, lidar):
+        """A Point geometry returns an empty MultiLineString."""
+        result = lidar._ensure_multi_linestring(shapely.Point(1, 1))
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert result.is_empty
+
+    def test_unsupported_polygon_geometry(self, lidar):
+        """A Polygon geometry returns an empty MultiLineString."""
+        polygon = shapely.Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+        result = lidar._ensure_multi_linestring(polygon)
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert result.is_empty
+
+    def test_geometry_collection_mixed_types(self, lidar):
+        """Mixed GeometryCollections keep only the line components."""
+        line = shapely.LineString([(0, 0), (1, 1)])
+        point = shapely.Point(5, 5)  # ignored
+        result = lidar._ensure_multi_linestring(
+            shapely.GeometryCollection([line, point])
+        )
+
+        assert isinstance(result, shapely.MultiLineString)
+        assert len(result.geoms) == 1
+
+
+class TestLidar2DNoise:
+    """Lidar2D range computation with measurement noise enabled."""
+
+    def test_lidar_with_noise(self):
+        """calculate_range with noise=True still produces range data."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
+        assert lidar.noise is True
+        lidar.calculate_range()
+        assert lidar.range_data is not None
+
+    def test_lidar_calculate_range_vel_with_noise(self):
+        """calculate_range_vel with noise=True still produces range data."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
+        lidar.calculate_range_vel(intersect_index=[])
+        assert lidar.range_data is not None
+
+
+class TestLidar2DScanToPointcloud:
+    """Lidar2D conversion from a scan to a 2D point cloud."""
+
+    def test_scan_to_pointcloud_with_hits(self):
+        """Beams shorter than range_max convert into 2D points."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        lidar.range_data[:5] = 2.0  # half of the beams hit something
+        result = lidar.scan_to_pointcloud()
+        assert result is not None
+        assert result.shape[0] == 2  # 2D points
+        assert result.shape[1] == 5  # 5 hit points
+
+    def test_scan_to_pointcloud_no_hits(self):
+        """A scan with every beam at range_max converts to None."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
+        lidar.range_data[:] = 5.0
+        result = lidar.scan_to_pointcloud()
+        assert result is None

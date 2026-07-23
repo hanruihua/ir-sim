@@ -673,3 +673,61 @@ def test_find_file_returns_absolute(tmp_path):
     result = util.find_file(str(tmp_path), "target.txt")
     assert result is not None
     assert os.path.isabs(result)
+
+
+class TestLibLazyExports:
+    """irsim.lib exposes GroupBehavior and planners via lazy __getattr__."""
+
+    def test_group_behavior_lazy_import(self):
+        import irsim.lib as lib
+        from irsim.lib.behavior.group_behavior import GroupBehavior
+
+        assert lib.GroupBehavior is GroupBehavior
+
+    def test_path_planners_lazy_import(self):
+        import irsim.lib as lib
+
+        for name in (
+            "AStarPlanner",
+            "InformedRRTStar",
+            "JPSPlanner",
+            "PRMPlanner",
+            "RRT",
+            "RRTStar",
+        ):
+            assert getattr(lib, name) is not None
+
+    def test_unknown_attribute_raises(self):
+        import irsim.lib as lib
+
+        with pytest.raises(AttributeError, match="has no attribute"):
+            _ = lib.nonexistent_thing
+
+
+def test_get_affine_transform():
+    state = np.array([[1.0], [2.0], [0.5]])
+    params = util.get_affine_transform(state)
+    assert params == [
+        math.cos(0.5),
+        -math.sin(0.5),
+        math.sin(0.5),
+        math.cos(0.5),
+        1.0,
+        2.0,
+    ]
+
+
+def test_time_it_function_decorator(capsys):
+    @util.time_it("timed_fn")
+    def sample():
+        return 42
+
+    assert sample() == 42
+    assert sample.count == 1
+    assert "timed_fn execute time" in capsys.readouterr().out
+
+
+def test_convert_list_length_dict_non_dict_list():
+    # A plain (non-dict) list is extended with its last element or truncated.
+    assert util.convert_list_length_dict([1, 2], 3) == [1, 2, 2]
+    assert util.convert_list_length_dict([1, 2, 3], 1) == [1]
