@@ -232,7 +232,7 @@ def is_list_of_numbers(lst: Any) -> bool:
     Returns:
         bool: True if all elements are numbers, False otherwise.
     """
-    return isinstance(lst, list) and all(isinstance(sub, (int, float)) for sub in lst)
+    return isinstance(lst, list) and all(isinstance(sub, int | float) for sub in lst)
 
 
 def is_list_of_lists(lst: Any) -> bool:
@@ -629,7 +629,7 @@ def is_2d_list(data: list | deque) -> bool:
     # Check if data is a list and is not empty.
     if data:
         first_element = data[0]
-        if isinstance(first_element, (list, tuple)):
+        if isinstance(first_element, list | tuple):
             return True
 
     return False
