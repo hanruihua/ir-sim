@@ -27,7 +27,7 @@ A complete IR-SIM scene is described by up to four top-level keys: `world`, `rob
   <div class="yt-leaf"><a class="yt-key" href="#p-w-offset">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0]</span><span class="yt-desc">world origin offset [x, y]</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-control-mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">Running | Pause | Arrived | Collision</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">initial display label</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle-map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-mdownsample">mdownsample</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">obstacle-map downsample factor</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-fog-map">fog_map</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">fog-of-map overlay</span></div>
@@ -533,7 +533,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
-| `status`         | `str`             | `"None"`    | Initial status of the simulation environment (supports `"None"`, `"Running"`, `"Arrived"`, `"Collision"`, and `"Pause"`) |
+| `status`         | `str`             | `"None"`    | Initial display label; replaced by the runtime status after the first completed step |
 | `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](../usage/configure_grid_map.md). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
 | `fog_map`        | `bool`            | `false`     | Enable a fog-of-map overlay: the world starts grey (unexplored) and is revealed by each lidar's line of sight as the robot explores. See [`fog_map`](#p-w-fog-map) below. |
@@ -594,16 +594,11 @@ This section outlines the configuration parameters available for the `world` sec
 
 (p-w-status)=
 **`status`** (`str`, default: `"None"`)
-: Sets the initial status of the simulation environment:
+: Sets the label displayed before the first completed simulation step. It accepts any string and defaults to the `"None"` sentinel.
 
-  **Options:**
-  - `"None"`: Initial sentinel value (default). After the first completed step, IR-SIM changes it to `"Running"` unless another status applies.
-  - `"Running"`: The simulation runs normally.
-  - `"Pause"`: The simulation starts in a paused state.
-  - `"Arrived"`: The simulation stops when the robot arrives at the goal.
-  - `"Collision"`: The simulation stops when the robot collides with an obstacle.
-  
-  **Note**: The status can be dynamically changed during simulation using keyboard controls (space key) or programmatically.
+  After each completed step, IR-SIM replaces this label with the computed runtime status, such as `"Running"`, `"Arrived"`, or `"Collision"`.
+
+  **Note**: This setting does not control execution. In particular, `status: "Pause"` does not start a paused simulation. Use `env.pause()` and `env.resume()` to control execution, and `env.done()` to check completion.
 ::::
 
 (world-map)=
@@ -691,7 +686,7 @@ world:
   collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
-  status: "Running"                   # Initial simulation status
+  status: "Ready"                     # Initial display label (does not control execution)
   plot:                               # Plotting configuration
     show_title: true                  # Show plot title
     title: "Custom Simulation Title"  # Custom title (optional)

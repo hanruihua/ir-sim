@@ -188,12 +188,13 @@ for i in range(50):
 env.end()
 ```
 
-### Available Status Values
+### Runtime Status Values
+
+IR-SIM updates `env.status` as the simulation runs. The YAML `world.status` setting only supplies the initial display label; it does not pause, resume, or stop execution.
 
 - **`"Running"`**: The environment is running in auto control mode
 - **`"Running (keyboard)"`**: The environment is running in keyboard control mode
 - **`"Pause"`**: Simulation is paused
-- **`"Done"`**: Simulation has completed
 - **`"Arrived"`**: All robots have arrived at their goals
 - **`"Collision"`**: A collision has occurred
 - **`"Pause (Debugging)"`**: Debugging mode (when `F5` key is pressed)

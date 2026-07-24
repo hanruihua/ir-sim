@@ -3,18 +3,17 @@
 # This file is distributed under the same license as the IR-SIM package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-17 00:42+0800\n"
+"POT-Creation-Date: 2026-07-24 20:39+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
@@ -24,15 +23,15 @@ msgid "Concepts"
 msgstr "核心概念"
 
 #: ../../source/concepts.md:3
-#, python-brace-format
 msgid ""
-"This page explains the **mental model** behind IR-SIM — how the pieces fit "
-"together and why the API looks the way it does. Read it once; the {doc}`User"
-" Guide <usage/index>` then shows how to do specific tasks, and the "
-"{doc}`Configuration <yaml_config/index>` reference documents every key."
+"This page explains the **mental model** behind IR-SIM: how the pieces fit "
+"together and why the API looks the way it does. Read it once; the {doc}`User "
+"Guide <usage/index>` then shows how to do specific tasks, and the {doc}"
+"`Configuration <yaml_config/index>` reference documents every key."
 msgstr ""
-"本页讲解 IR-SIM 背后的**思维模型**——各部分如何协作，以及 API 为何如此设计。建议先通读一遍；之后 {doc}`用户指南 "
-"<usage/index>` 会演示如何完成具体任务，而 {doc}`配置 <yaml_config/index>` 参考则记录了每一个配置键。"
+"本页讲解 IR-SIM 背后的**思维模型**——各部分如何协作，以及 API 为何如此设计。建"
+"议先通读一遍；之后 {doc}`用户指南 <usage/index>` 会演示如何完成具体任务，而 "
+"{doc}`配置 <yaml_config/index>` 参考则记录了每一个配置键。"
 
 #: ../../source/concepts.md:5
 msgid "The big picture"
@@ -45,9 +44,9 @@ msgid ""
 "You describe the whole scene declaratively in YAML, create it with "
 "`irsim.make()`, and advance it one time step at a time."
 msgstr ""
-"IR-SIM "
-"中的一个场景由一个**世界**（World）和一组**对象**（机器人与障碍物）组成。对象可以携带**传感器**，并由**行为**驱动。你以声明式的方式在"
-" YAML 中描述整个场景，用 `irsim.make()` 创建它，然后逐个时间步推进。"
+"IR-SIM 中的一个场景由一个**世界**（World）和一组**对象**（机器人与障碍物）组"
+"成。对象可以携带**传感器**，并由**行为**驱动。你以声明式的方式在 YAML 中描述"
+"整个场景，用 `irsim.make()` 创建它，然后逐个时间步推进。"
 
 #: ../../source/concepts.md:26
 msgid "The environment"
@@ -55,45 +54,48 @@ msgstr "环境"
 
 #: ../../source/concepts.md:28
 msgid ""
-"The **environment** (`EnvBase`) is the object you interact with. It owns the"
-" world and every object, and it exposes the simulation **lifecycle**:"
-msgstr "**环境**（`EnvBase`）是你直接交互的对象。它拥有世界和每一个对象，并暴露仿真的**生命周期**："
+"The **environment** (`EnvBase`) is the object you interact with. It owns the "
+"world and every object, and it exposes the simulation **lifecycle**:"
+msgstr ""
+"**环境**（`EnvBase`）是你直接交互的对象。它拥有世界和每一个对象，并暴露仿真的"
+"**生命周期**："
 
 #: ../../source/concepts.md:30
-msgid ""
-"**`make()`** — parse the YAML scenario and build the world and objects."
+msgid "**`make()`**: parse the YAML scenario and build the world and objects."
 msgstr "**`make()`** —— 解析 YAML 场景并构建世界与对象。"
 
 #: ../../source/concepts.md:31
 msgid ""
-"**`step()`** — advance every object by one time step: resolve external "
+"**`step()`**: advance every object by one time step: resolve external "
 "actions or behaviors, integrate object states and geometry, refresh sensors, "
 "advance the world clock and fog map, then update arrival and collision "
 "status."
 msgstr ""
-"**`step()`** —— 将每个对象推进一个时间步：解析外部动作或行为，积分对象状态并更新几何形状，"
-"刷新传感器，推进世界时钟与迷雾地图，最后更新到达和碰撞状态。"
+"**`step()`** —— 将每个对象推进一个时间步：解析外部动作或行为，积分对象状态并"
+"更新几何形状，刷新传感器，推进世界时钟与迷雾地图，最后更新到达和碰撞状态。"
 
 #: ../../source/concepts.md:32
-msgid "**`render()`** — draw the current state with Matplotlib."
+msgid "**`render()`**: draw the current state with Matplotlib."
 msgstr "**`render()`** —— 用 Matplotlib 绘制当前状态。"
 
 #: ../../source/concepts.md:33
 msgid ""
-"**`done()`** — report whether a terminal condition has been reached (e.g. "
-"all robots arrived, or a collision)."
-msgstr "**`done()`** —— 报告是否达到终止条件（例如所有机器人到达目标，或发生碰撞）。"
+"**`done()`**: report whether a terminal condition has been reached (e.g. all "
+"robots arrived, or a collision)."
+msgstr ""
+"**`done()`** —— 报告是否达到终止条件（例如所有机器人到达目标，或发生碰撞）。"
 
 #: ../../source/concepts.md:34
 msgid ""
-"**`reset()` / `reload()`** — restore objects to their initial states, or "
+"**`reset()` / `reload()`**: restore objects to their initial states, or "
 "rebuild the scene from YAML."
-msgstr "**`reset()` / `reload()`** —— 将对象恢复到初始状态，或从 YAML 重新构建场景。"
+msgstr ""
+"**`reset()` / `reload()`** —— 将对象恢复到初始状态，或从 YAML 重新构建场景。"
 
 #: ../../source/concepts.md:35
 msgid ""
-"**`end()`** — close the window and release resources (and write the "
-"animation if `save_ani=True`)."
+"**`end()`**: close the window and release resources (and write the animation "
+"if `save_ani=True`)."
 msgstr "**`end()`** —— 关闭窗口并释放资源（若 `save_ani=True` 则写出动画）。"
 
 #: ../../source/concepts.md:37
@@ -109,13 +111,14 @@ msgid ""
 "The **World** holds the global state that objects live in: the size "
 "(`width`, `height`), the clock (`step_time` for physics, `sample_time` for "
 "rendering), the coordinate frame (`offset`), an optional **obstacle map** "
-"(an occupancy grid), and the **collision detector**. Collision checking uses"
-" [Shapely](https://shapely.readthedocs.io/) geometry with a spatial index, "
-"so it scales to many objects."
+"(an occupancy grid), and the **collision detector**. Collision checking uses "
+"[Shapely](https://shapely.readthedocs.io/) geometry with a spatial index, so "
+"it scales to many objects."
 msgstr ""
-"**世界**（World）保存着对象所处的全局状态：尺寸（`width`、`height`）、时钟（用于物理的 `step_time` 与用于渲染的 "
-"`sample_time`）、坐标系（`offset`）、可选的**障碍物地图**（占据栅格），以及**碰撞检测器**。碰撞检测使用 "
-"[Shapely](https://shapely.readthedocs.io/) 几何与空间索引，因此可扩展到大量对象。"
+"**世界**（World）保存着对象所处的全局状态：尺寸（`width`、`height`）、时钟"
+"（用于物理的 `step_time` 与用于渲染的 `sample_time`）、坐标系（`offset`）、可"
+"选的**障碍物地图**（占据栅格），以及**碰撞检测器**。碰撞检测使用 [Shapely]"
+"(https://shapely.readthedocs.io/) 几何与空间索引，因此可扩展到大量对象。"
 
 #: ../../source/concepts.md:43
 msgid "Objects: robots and obstacles"
@@ -124,39 +127,44 @@ msgstr "对象：机器人与障碍物"
 #: ../../source/concepts.md:45
 msgid ""
 "Everything placed in the scene is an **object**. Robots and obstacles share "
-"the same machinery — the difference is mostly their *role* and whether they "
+"the same machinery; the difference is mostly their *role* and whether they "
 "are actively controlled. Each object has:"
-msgstr "场景中放置的一切都是**对象**。机器人和障碍物共享同一套机制——区别主要在于它们的*角色*以及是否被主动控制。每个对象都有："
+msgstr ""
+"场景中放置的一切都是**对象**。机器人和障碍物共享同一套机制——区别主要在于它们"
+"的*角色*以及是否被主动控制。每个对象都有："
 
 #: ../../source/concepts.md:47
 msgid ""
-"**State** — its pose, stored as a column vector. Differential and "
+"**State**: its pose, stored as a column vector. Differential and "
 "omnidirectional models use `[x, y, theta]`; Ackermann models add steering "
 "angle as `[x, y, theta, steer]`. This is what `step()` integrates and what "
 "sensors and collisions are computed from."
 msgstr ""
-"**状态** —— 对象的位姿，以列向量存储。差速与全向模型使用 `[x, y, theta]`；"
-"阿克曼模型增加转向角，使用 `[x, y, theta, steer]`。这正是 `step()` 所积分的量，"
+"**状态** —— 对象的位姿，以列向量存储。差速与全向模型使用 `[x, y, theta]`；阿"
+"克曼模型增加转向角，使用 `[x, y, theta, steer]`。这正是 `step()` 所积分的量，"
 "也是传感器与碰撞计算的依据。"
 
 #: ../../source/concepts.md:48
 msgid ""
-"**Kinematics** — how a velocity command turns into motion: `diff` "
+"**Kinematics**: how a velocity command turns into motion: `diff` "
 "(differential drive), `omni` (omnidirectional), `omni_angular`, or `acker` "
 "(Ackermann / car-like). An object with no kinematics is *static*."
 msgstr ""
-"**运动学** —— 速度指令如何转化为运动：`diff`（差速驱动）、`omni`（全向）、`omni_angular` 或 `acker`（阿克曼 "
-"/ 类汽车）。没有运动学的对象即为*静态*对象。"
+"**运动学** —— 速度指令如何转化为运动：`diff`（差速驱动）、`omni`（全向）、"
+"`omni_angular` 或 `acker`（阿克曼 / 类汽车）。没有运动学的对象即为*静态*对"
+"象。"
 
 #: ../../source/concepts.md:49
 msgid ""
-"**Shape** — `circle`, `rectangle`, `polygon`, or `linestring`, used for both"
-" collision and drawing."
-msgstr "**形状** —— `circle`、`rectangle`、`polygon` 或 `linestring`，同时用于碰撞与绘制。"
+"**Shape**: `circle`, `rectangle`, `polygon`, or `linestring`, used for both "
+"collision and drawing."
+msgstr ""
+"**形状** —— `circle`、`rectangle`、`polygon` 或 `linestring`，同时用于碰撞与"
+"绘制。"
 
 #: ../../source/concepts.md:50
 msgid ""
-"**Goal** — an optional target pose; arrival is detected within a distance "
+"**Goal**: an optional target pose; arrival is detected within a distance "
 "threshold."
 msgstr "**目标** —— 可选的目标位姿；在一定距离阈值内即判定为到达。"
 
@@ -173,147 +181,146 @@ msgstr ""
 "YAML 使用一维列表表示状态和速度；在 Python 内部，IR-SIM 将它们存储为列数组。"
 "动作的含义取决于运动学模型："
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "Kinematics"
 msgstr "运动学"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "State"
 msgstr "状态"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "Action / velocity"
 msgstr "动作 / 速度"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`diff`"
 msgstr "`diff`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`[x, y, theta]`"
 msgstr "`[x, y, theta]`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`[linear, angular]`"
 msgstr "`[linear, angular]`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`omni`"
 msgstr "`omni`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "Body-frame `[forward, lateral]`; `theta` is preserved"
 msgstr "机体坐标系 `[forward, lateral]`；`theta` 保持不变"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`omni_angular`"
 msgstr "`omni_angular`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "Body-frame `[forward, lateral, yaw_rate]`"
 msgstr "机体坐标系 `[forward, lateral, yaw_rate]`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`acker`"
 msgstr "`acker`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid "`[x, y, theta, steer]`"
 msgstr "`[x, y, theta, steer]`"
 
-#: ../../source/concepts.md
+#: ../../source/concepts.md:0
 msgid ""
 "`[linear, steer]` in `steer` mode, or `[linear, angular]` in `angular` mode"
 msgstr ""
-"在 `steer` 模式下为 `[linear, steer]`，在 `angular` 模式下为 `[linear, angular]`"
+"在 `steer` 模式下为 `[linear, steer]`，在 `angular` 模式下为 `[linear, "
+"angular]`"
 
 #: ../../source/concepts.md:64
-#, python-brace-format
 msgid ""
 "Positions are measured in metres, angles in radians, linear velocities in "
-"metres per second, and angular velocities in radians per second. See "
-"{doc}`Configure robots and obstacles <usage/configure_robots_obstacles>` for "
+"metres per second, and angular velocities in radians per second. See {doc}"
+"`Configure robots and obstacles <usage/configure_robots_obstacles>` for "
 "configuration examples and velocity limits."
 msgstr ""
-"位置单位为米，角度单位为弧度，线速度单位为米每秒，角速度单位为弧度每秒。"
-"配置示例和速度限制请参见 {doc}`配置机器人和障碍物 <usage/configure_robots_obstacles>`。"
+"位置单位为米，角度单位为弧度，线速度单位为米每秒，角速度单位为弧度每秒。配置"
+"示例和速度限制请参见 {doc}`配置机器人和障碍物 <usage/"
+"configure_robots_obstacles>`。"
 
-#: ../../source/concepts.md:52
+#: ../../source/concepts.md:69
 msgid "Behaviors: deciding what to do"
 msgstr "行为：决定要做什么"
 
-#: ../../source/concepts.md:54
-#, python-brace-format
+#: ../../source/concepts.md:71
 msgid ""
 "A **behavior** maps an object's state (and, for reactive ones, its "
 "neighbours) to a velocity command on every step. The built-ins are `dash` "
 "(head straight to the goal), `rvo` (reciprocal velocity obstacles), and "
 "`sfm` (social force model), plus the group behavior `orca` (optimal "
-"reciprocal collision avoidance). You don't have to use a behavior at all — "
-"you can drive an object yourself by passing a command to `env.step(action)`,"
-" or {doc}`register your own behavior <usage/configure_behavior>`."
+"reciprocal collision avoidance). You don't have to use a behavior at all; "
+"instead, drive an object yourself by passing a command to "
+"`env.step(action)`, or {doc}`register your own behavior <usage/"
+"configure_behavior>`."
 msgstr ""
-"**行为**在每一步将对象的状态（对于反应式行为，还包括其邻居）映射为速度指令。内置行为有 `dash`（直奔目标）、`rvo`（互惠速度障碍）和 "
-"`sfm`（社会力模型），以及群体行为 `orca`（最优互惠避碰）。你也完全可以不使用行为——通过向 `env.step(action)` "
-"传入指令来自行驱动对象，或 {doc}`注册自定义行为 <usage/configure_behavior>`。"
+"**行为**在每一步将对象的状态（对于反应式行为，还包括其邻居）映射为速度指令。"
+"内置行为有 `dash`（直奔目标）、`rvo`（互惠速度障碍）和 `sfm`（社会力模型），"
+"以及群体行为 `orca`（最优互惠避碰）。你也完全可以不使用行为——通过向 "
+"`env.step(action)` 传入指令来自行驱动对象，或 {doc}`注册自定义行为 <usage/"
+"configure_behavior>`。"
 
-#: ../../source/concepts.md:56
+#: ../../source/concepts.md:73
 msgid "Sensors: perceiving the world"
 msgstr "传感器：感知世界"
 
-#: ../../source/concepts.md:58
+#: ../../source/concepts.md:75
 msgid ""
 "**Sensors** are attached to objects and produce measurements from the world "
 "each step: a 2D LiDAR, a 2D FMCW LiDAR (range *and* per-beam radial "
 "velocity), and a field-of-view detector. Sensors are refreshed **after** "
 "objects move, so a reading always reflects the latest world state."
 msgstr ""
-"**传感器**附着在对象上，每一步从世界产生测量：2D 激光雷达、2D FMCW "
-"激光雷达（距离*以及*每束的径向速度）和视场检测器。传感器在对象移动**之后**刷新，因此读数始终反映最新的世界状态。"
+"**传感器**附着在对象上，每一步从世界产生测量：2D 激光雷达、2D FMCW 激光雷达"
+"（距离*以及*每束的径向速度）和视场检测器。传感器在对象移动**之后**刷新，因此"
+"读数始终反映最新的世界状态。"
 
-#: ../../source/concepts.md:60
+#: ../../source/concepts.md:77
 msgid "From YAML to a running scene"
 msgstr "从 YAML 到运行的场景"
 
-#: ../../source/concepts.md:62
-#, python-brace-format
+#: ../../source/concepts.md:79
 msgid ""
 "IR-SIM is **declarative**. The `world`, `robot`, and `obstacle` blocks in "
 "your YAML are turned into `World` and object instances by an internal "
-"factory — which is why you rarely write imperative setup code. You "
-"*describe* the scene and IR-SIM builds it, so the same scenario file can be "
-"shared, version-controlled, and reused across experiments. The "
-"{doc}`Configuration <yaml_config/configuration>` reference documents every "
-"available key."
+"factory, which is why you rarely write imperative setup code. You *describe* "
+"the scene and IR-SIM builds it, so the same scenario file can be shared, "
+"version-controlled, and reused across experiments. The {doc}`Configuration "
+"<yaml_config/configuration>` reference documents every available key."
 msgstr ""
-"IR-SIM 是**声明式**的。YAML 中的 `world`、`robot` 与 `obstacle` 块由内部工厂转化为 `World` "
-"与对象实例——因此你很少需要编写命令式的初始化代码。你*描述*场景，IR-SIM "
-"负责构建，于是同一个场景文件可以被共享、纳入版本控制，并在不同实验间复用。{doc}`配置 <yaml_config/configuration>` "
-"参考记录了每一个可用的配置键。"
+"IR-SIM 是**声明式**的。YAML 中的 `world`、`robot` 与 `obstacle` 块由内部工厂"
+"转化为 `World` 与对象实例——因此你很少需要编写命令式的初始化代码。你*描述*场"
+"景，IR-SIM 负责构建，于是同一个场景文件可以被共享、纳入版本控制，并在不同实验"
+"间复用。{doc}`配置 <yaml_config/configuration>` 参考记录了每一个可用的配置"
+"键。"
 
-#: ../../source/concepts.md:64
+#: ../../source/concepts.md:81
 msgid "Where to go next"
 msgstr "下一步去哪里"
 
-#: ../../source/concepts.md:66
-#, python-brace-format
+#: ../../source/concepts.md:83
 msgid ""
-"{doc}`Getting Started <get_started/index>` — install IR-SIM and run your "
+"{doc}`Getting Started <get_started/index>`: install IR-SIM and run your "
 "first scene."
-msgstr "{doc}`快速开始 <get_started/index>` —— 安装 IR-SIM 并运行你的第一个场景。"
+msgstr ""
+"{doc}`快速开始 <get_started/index>` —— 安装 IR-SIM 并运行你的第一个场景。"
 
-#: ../../source/concepts.md:67
-#, python-brace-format
-msgid "{doc}`User Guide <usage/index>` — task-focused how-to guides."
+#: ../../source/concepts.md:84
+msgid "{doc}`User Guide <usage/index>`: task-focused how-to guides."
 msgstr "{doc}`用户指南 <usage/index>` —— 以任务为导向的操作指南。"
 
-#: ../../source/concepts.md:68
-#, python-brace-format
-msgid ""
-"{doc}`Configuration <yaml_config/configuration>` — the full YAML schema."
+#: ../../source/concepts.md:85
+msgid "{doc}`Configuration <yaml_config/configuration>`: the full YAML schema."
 msgstr "{doc}`配置 <yaml_config/configuration>` —— 完整的 YAML 模式。"
 
-#: ../../source/concepts.md:69
-#, python-brace-format
-msgid "{doc}`API Reference <api/index>` — classes and methods."
+#: ../../source/concepts.md:86
+msgid "{doc}`API Reference <api/index>`: classes and methods."
 msgstr "{doc}`API 参考 <api/index>` —— 类与方法。"
