@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 15:28+0800\n"
+"POT-Creation-Date: 2026-07-24 20:39+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
@@ -30,9 +30,9 @@ msgid ""
 "robot's state to its goal, and (optionally) let the robot follow it with a "
 "`dash` behavior or your own controller."
 msgstr ""
-"IR-SIM "
-"内置了基于栅格和基于采样的路径规划器，用于在占据地图上计算无碰撞路径。规划器以**编程方式**使用：你从世界构建地图，规划一条从机器人当前状态到目标的路径，并（可选）让机器人用"
-" `dash` 行为或你自己的控制器去跟随它。"
+"IR-SIM 内置了基于栅格和基于采样的路径规划器，用于在占据地图上计算无碰撞路径。"
+"规划器以**编程方式**使用：你从世界构建地图，规划一条从机器人当前状态到目标的"
+"路径，并（可选）让机器人用 `dash` 行为或你自己的控制器去跟随它。"
 
 #: ../../source/usage/configure_path_planning.md:5
 msgid "Overview"
@@ -44,144 +44,147 @@ msgstr "每个规划器都遵循相同的四步流程："
 
 #: ../../source/usage/configure_path_planning.md:9
 msgid ""
-"**Build the map** — `env.get_map(resolution=...)` returns the occupancy grid"
-" the planner searches (`resolution` is the planning cell size in meters)."
+"**Build the map**: `env.get_map(resolution=...)` returns the occupancy grid "
+"the planner searches (`resolution` is the planning cell size in meters)."
 msgstr ""
-"**构建地图** —— `env.get_map(resolution=...)` 返回规划器搜索所用的占据栅格（`resolution` "
-"是规划单元的尺寸，单位为米）。"
+"**构建地图** —— `env.get_map(resolution=...)` 返回规划器搜索所用的占据栅格"
+"（`resolution` 是规划单元的尺寸，单位为米）。"
 
 #: ../../source/usage/configure_path_planning.md:10
 msgid ""
-"**Create the planner** — instantiate one planner from "
+"**Create the planner**: instantiate one planner from "
 "`irsim.lib.path_planners`."
 msgstr "**创建规划器** —— 从 `irsim.lib.path_planners` 实例化一个规划器。"
 
 #: ../../source/usage/configure_path_planning.md:11
 msgid ""
-"**Plan** — `planner.planning(start, goal)` returns a trajectory (list of "
-"`[x, y]` points), or `None` if no path is found."
+"**Plan**: `planner.planning(start, goal)` returns a trajectory (list of `[x, "
+"y]` points), or `None` if no path is found."
 msgstr ""
-"**规划** —— `planner.planning(start, goal)` 返回一条轨迹（`[x, y]` 点的列表），若找不到路径则返回 "
-"`None`。"
+"**规划** —— `planner.planning(start, goal)` 返回一条轨迹（`[x, y]` 点的列"
+"表），若找不到路径则返回 `None`。"
 
 #: ../../source/usage/configure_path_planning.md:12
 msgid ""
-"**Draw / follow** — `env.draw_trajectory(trajectory)` overlays the path; "
-"feed it to a controller to follow it."
-msgstr "**绘制 / 跟随** —— `env.draw_trajectory(trajectory)` 叠加显示路径；将其传给控制器即可跟随。"
+"**Draw / follow**: `env.draw_trajectory(trajectory)` overlays the path; feed "
+"it to a controller to follow it."
+msgstr ""
+"**绘制 / 跟随** —— `env.draw_trajectory(trajectory)` 叠加显示路径；将其传给控"
+"制器即可跟随。"
 
 #: ../../source/usage/configure_path_planning.md:14
 msgid ""
 "The start and goal come from the scene: `env.get_robot_state()` and "
 "`env.get_robot_info().goal`."
-msgstr "起点和目标来自场景：`env.get_robot_state()` 与 `env.get_robot_info().goal`。"
+msgstr ""
+"起点和目标来自场景：`env.get_robot_state()` 与 `env.get_robot_info().goal`。"
 
 #: ../../source/usage/configure_path_planning.md:16
 msgid "Supported algorithms"
 msgstr "支持的算法"
 
-#: ../../source/usage/configure_path_planning.md
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:0
+#: ../../source/usage/configure_path_planning.md:88
 msgid "Planner"
 msgstr "规划器"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "Import from `irsim.lib.path_planners`"
 msgstr "从 `irsim.lib.path_planners` 导入"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "Type"
 msgstr "类型"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "Use when"
 msgstr "适用场景"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**A\\***"
 msgstr "**A\\***"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`AStarPlanner`"
 msgstr "`AStarPlanner`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "grid, 8-neighbour"
 msgstr "栅格，8 邻域"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "you want a fast, optimal grid path"
 msgstr "需要快速、最优的栅格路径"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**JPS**"
 msgstr "**JPS**"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`JPSPlanner`"
 msgstr "`JPSPlanner`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "grid (optimised A\\*)"
 msgstr "栅格（优化的 A\\*）"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "same paths as A\\*, faster on open grids"
 msgstr "与 A\\* 路径相同，在开阔栅格上更快"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**RRT**"
 msgstr "**RRT**"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`RRT`"
 msgstr "`RRT`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "sampling"
 msgstr "采样"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "non-grid / Shapely obstacles; a feasible (not optimal) path"
 msgstr "非栅格 / Shapely 障碍物；可行（非最优）路径"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**RRT\\***"
 msgstr "**RRT\\***"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`RRTStar`"
 msgstr "`RRTStar`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "shorter, optimised paths via rewiring"
 msgstr "通过重连得到更短的优化路径"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**Informed RRT\\***"
 msgstr "**Informed RRT\\***"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`InformedRRTStar`"
 msgstr "`InformedRRTStar`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "faster convergence to the optimum after a first solution"
 msgstr "得到首个解后更快收敛到最优"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "**PRM**"
 msgstr "**PRM**"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "`PRMPlanner`"
 msgstr "`PRMPlanner`"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "sampling roadmap"
 msgstr "采样路图"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "many queries against the same static map"
 msgstr "在同一张静态地图上多次查询"
 
@@ -191,8 +194,8 @@ msgid ""
 "`obstacle_map`; RRT / RRT\\* / Informed RRT\\* can use the same grid or "
 "Shapely obstacle geometry."
 msgstr ""
-"栅格规划器（A\\*、JPS）和 PRM 在 `obstacle_map` 的栅格占据上搜索；RRT / RRT\\* / Informed "
-"RRT\\* 既可使用同一栅格，也可使用 Shapely 障碍物几何。"
+"栅格规划器（A\\*、JPS）和 PRM 在 `obstacle_map` 的栅格占据上搜索；RRT / "
+"RRT\\* / Informed RRT\\* 既可使用同一栅格，也可使用 Shapely 障碍物几何。"
 
 #: ../../source/usage/configure_path_planning.md:29
 msgid "Quick example"
@@ -202,159 +205,124 @@ msgstr "快速示例"
 msgid ""
 "Plan an A\\* path on a Perlin-noise grid and draw it. Pass "
 "`show_animation=True` to watch the search expand live."
-msgstr "在 Perlin 噪声栅格上规划一条 A\\* 路径并绘制出来。传入 `show_animation=True` 即可实时观看搜索扩展过程。"
+msgstr ""
+"在 Perlin 噪声栅格上规划一条 A\\* 路径并绘制出来。传入 `show_animation=True` "
+"即可实时观看搜索扩展过程。"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "Python"
 msgstr "Python"
 
-#: ../../source/usage/configure_path_planning.md
+#: ../../source/usage/configure_path_planning.md:0
 msgid "YAML (path_planning.yaml)"
 msgstr "YAML (path_planning.yaml)"
 
-#: ../../source/usage/configure_path_planning.md:87
+#: ../../source/usage/configure_path_planning.md:0
+msgid "Demonstration"
+msgstr "演示"
+
+#: ../../source/usage/configure_path_planning.md:88
 msgid ""
-"Swap `AStarPlanner` for any other planner — only the constructor changes; "
+"A-star search expanding over an occupancy map before drawing its final path"
+msgstr "A* 搜索在占据地图上扩展，并绘制最终路径"
+
+#: ../../source/usage/configure_path_planning.md:96
+msgid ""
+"Swap `AStarPlanner` for any other planner: only the constructor changes; "
 "`planning()` and `draw_trajectory()` stay the same."
 msgstr ""
-"把 `AStarPlanner` 换成任意其他规划器 —— 只有构造函数不同；`planning()` 和 `draw_trajectory()` "
-"保持一致。"
+"把 `AStarPlanner` 换成任意其他规划器 —— 只有构造函数不同；`planning()` 和 "
+"`draw_trajectory()` 保持一致。"
 
-#: ../../source/usage/configure_path_planning.md:89
+#: ../../source/usage/configure_path_planning.md:98
 msgid "Planner constructors"
 msgstr "规划器构造函数"
 
-#: ../../source/usage/configure_path_planning.md:91
+#: ../../source/usage/configure_path_planning.md:100
 msgid ""
 "The first argument is always the map; sampling planners also take the robot "
 "(for collision radius) and tuning parameters."
-msgstr "第一个参数始终是地图；采样规划器还需要传入机器人（用于碰撞半径）和调参参数。"
+msgstr ""
+"第一个参数始终是地图；采样规划器还需要传入机器人（用于碰撞半径）和调参参数。"
 
-#: ../../source/usage/configure_path_planning.md:108
+#: ../../source/usage/configure_path_planning.md:117
 msgid ""
 "`planning(start, goal, show_animation=False)` returns a list of `[x, y]` "
 "points or `None`. For the sampling planners, `planner.end.cost` and "
 "`len(planner.node_list)` report the path cost and tree size."
 msgstr ""
 "`planning(start, goal, show_animation=False)` 返回 `[x, y]` 点的列表或 "
-"`None`。对于采样规划器，`planner.end.cost` 和 `len(planner.node_list)` 给出路径代价和树的规模。"
+"`None`。对于采样规划器，`planner.end.cost` 和 `len(planner.node_list)` 给出路"
+"径代价和树的规模。"
 
-#: ../../source/usage/configure_path_planning.md:110
+#: ../../source/usage/configure_path_planning.md:119
 msgid "Runnable examples"
 msgstr "可运行示例"
 
-#: ../../source/usage/configure_path_planning.md:112
+#: ../../source/usage/configure_path_planning.md:121
 msgid ""
 "Scripts under **`usage/20path_planning`** run every planner on the shared "
 "`path_planning.yaml`:"
-msgstr "**`usage/20path_planning`** 下的脚本在共享的 `path_planning.yaml` 上运行每个规划器："
+msgstr ""
+"**`usage/20path_planning`** 下的脚本在共享的 `path_planning.yaml` 上运行每个"
+"规划器："
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "Script"
 msgstr "脚本"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_astar.py`"
 msgstr "`path_planning_astar.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "A\\*"
 msgstr "A\\*"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_jps.py`"
 msgstr "`path_planning_jps.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "Jump Point Search"
 msgstr "跳点搜索（Jump Point Search）"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_rrt.py`"
 msgstr "`path_planning_rrt.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "RRT"
 msgstr "RRT"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_rrt_star.py`"
 msgstr "`path_planning_rrt_star.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "RRT\\*"
 msgstr "RRT\\*"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_informed_rrt_star.py`"
 msgstr "`path_planning_informed_rrt_star.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "Informed RRT\\*"
 msgstr "Informed RRT\\*"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "`path_planning_prm.py`"
 msgstr "`path_planning_prm.py`"
 
-#: ../../source/usage/configure_path_planning.md:62
+#: ../../source/usage/configure_path_planning.md:88
 msgid "PRM"
 msgstr "PRM"
 
-#: ../../source/usage/configure_path_planning.md:123
-#, python-brace-format
+#: ../../source/usage/configure_path_planning.md:132
 msgid ""
-"See the `irsim.lib.path_planners` section of the {doc}`API Reference "
-"<../api/index>` for the full planner API."
+"See the `irsim.lib.path_planners` section of the {doc}`API Reference <../api/"
+"index>` for the full planner API."
 msgstr ""
-"完整的规划器 API 见 {doc}`API 参考 <../api/index>` 中的 `irsim.lib.path_planners` 部分。"
-
-#~ msgid "**A\\*** — Classic grid A* with 8-neighbourhood."
-#~ msgstr "**A\\*** — 经典栅格 A* 算法，8 邻域搜索。"
-
-#~ msgid ""
-#~ "**JPS (Jump Point Search)** — Faster grid search with equivalent optimal "
-#~ "paths."
-#~ msgstr "**JPS（跳点搜索）** — 更快的栅格搜索，保证最优路径。"
-
-#~ msgid ""
-#~ "**RRT** — Rapidly-exploring Random Tree; no grid required, works with "
-#~ "Shapely obstacles."
-#~ msgstr "**RRT** — 快速探索随机树；无需栅格，可直接使用 Shapely 障碍物。"
-
-#~ msgid "**RRT\\*** — Optimised RRT with rewiring for shorter paths."
-#~ msgstr "**RRT\\*** — 带重连优化的 RRT，可获得更短路径。"
-
-#~ msgid ""
-#~ "**Informed RRT\\*** — RRT* with an informed search heuristic (ellipsoid) "
-#~ "once an initial solution exists."
-#~ msgstr "**Informed RRT\\*** — 在获得初始解后使用椭球启发式搜索的 RRT*。"
-
-#~ msgid ""
-#~ "**PRM (Probabilistic Road Map)** — Sample-based graph search; builds a "
-#~ "roadmap of random samples and runs Dijkstra over it."
-#~ msgstr "**PRM（概率路图）** — 基于采样的图搜索：在自由空间中采样节点构建路图，再使用 Dijkstra 求最短路径。"
-
-#~ msgid "Example usage"
-#~ msgstr "示例用法"
-
-#~ msgid "``path_planning_astar.py`` — A* on a Perlin grid."
-#~ msgstr "``path_planning_astar.py`` — 在 Perlin 栅格上运行 A*。"
-
-#~ msgid "``path_planning_jps.py`` — Jump Point Search on the same setup."
-#~ msgstr "``path_planning_jps.py`` — 在相同配置下运行跳点搜索。"
-
-#~ msgid "``path_planning_rrt.py`` — RRT with optional grid + obstacles."
-#~ msgstr "``path_planning_rrt.py`` — 带可选栅格和障碍物的 RRT。"
-
-#~ msgid "``path_planning_prm.py`` — Probabilistic Road Map."
-#~ msgstr "``path_planning_prm.py`` — 概率路图（PRM）。"
-
-#~ msgid ""
-#~ "Use the shared ``path_planning.yaml`` (or equivalent) for world and robot; "
-#~ "each script selects the planner and computes a path from the robot’s initial"
-#~ " state to its goal. See the scripts and ``irsim.lib.path_planners`` for API "
-#~ "details."
-#~ msgstr ""
-#~ "使用共享的 ``path_planning.yaml``（或等效配置）定义世界和机器人；每个脚本选择规划器并计算从机器人初始状态到目标的路径。详细 "
-#~ "API 请参阅脚本和 ``irsim.lib.path_planners``。"
+"完整的规划器 API 见 {doc}`API 参考 <../api/index>` 中的 "
+"`irsim.lib.path_planners` 部分。"

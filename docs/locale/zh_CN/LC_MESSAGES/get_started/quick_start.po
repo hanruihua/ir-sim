@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-17 12:07+0800\n"
+"POT-Creation-Date: 2026-07-24 20:39+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
@@ -31,7 +31,7 @@ msgstr ""
 "本示例让一个差速驱动机器人从起始位姿运动到目标。在继续之前，请先[安装 IR-SIM]"
 "(install.rst)，并确认可以成功导入。"
 
-#: ../../source/get_started/quick_start.md:5
+#: ../../source/get_started/quick_start.md:6
 msgid "Create a Python file named `quick_start.py`:"
 msgstr "创建名为 `quick_start.py` 的 Python 文件："
 
@@ -45,54 +45,56 @@ msgid ""
 "customize the scene."
 msgstr "该 YAML 文件描述世界和机器人。之后可修改这些值来自定义场景。"
 
-#: ../../source/get_started/quick_start.md:44
+#: ../../source/get_started/quick_start.md:47
 msgid "Run the Python file from that directory:"
 msgstr "在该目录中运行 Python 文件："
 
-#: ../../source/get_started/quick_start.md:44
+#: ../../source/get_started/quick_start.md:53
 msgid ""
 "Run the script and a window opens showing the differential-drive robot "
 "navigating from its start to the goal:"
 msgstr "运行脚本后会弹出一个窗口，显示差速驱动机器人从起点导航到目标："
 
-#: ../../source/get_started/quick_start.md:46
+#: ../../source/get_started/quick_start.md:55
 msgid ""
-"Quick-start simulation — a differential-drive robot navigating to its goal"
+"Quick-start simulation: a differential-drive robot navigating to its goal"
 msgstr "快速开始仿真 —— 差速驱动机器人导航到目标"
 
-#: ../../source/get_started/quick_start.md:58
+#: ../../source/get_started/quick_start.md:61
 msgid ""
 "The loop advances the simulation by `0.1` seconds per step, renders the "
 "latest state, and stops early when the environment reports that it is done. "
 "For a server or batch job, create the environment with `display=False` and "
 "omit the `env.render()` call."
 msgstr ""
-"该循环每步将仿真推进 `0.1` 秒、渲染最新状态，并在环境报告结束时提前停止。"
-"在服务器或批处理任务中，请使用 `display=False` 创建环境，并省略 `env.render()` 调用。"
+"该循环每步将仿真推进 `0.1` 秒、渲染最新状态，并在环境报告结束时提前停止。在服"
+"务器或批处理任务中，请使用 `display=False` 创建环境，并省略 `env.render()` 调"
+"用。"
 
-#: ../../source/get_started/quick_start.md:52
+#: ../../source/get_started/quick_start.md:66
 msgid "Next steps"
 msgstr "后续步骤"
 
-#: ../../source/get_started/quick_start.md:54
+#: ../../source/get_started/quick_start.md:68
 msgid ""
-"[Make Environment](../usage/make_environment.md) — the simulation loop, "
+"[Make Environment](../usage/make_environment.md): the simulation loop, "
 "status control, and dynamic objects in depth."
 msgstr ""
-"[Make Environment](../usage/make_environment.md) —— 深入了解仿真循环、状态控制和动态对象。"
+"[Make Environment](../usage/make_environment.md) —— 深入了解仿真循环、状态控"
+"制和动态对象。"
 
-#: ../../source/get_started/quick_start.md:55
+#: ../../source/get_started/quick_start.md:69
 msgid ""
-"[Configure robots and obstacles](../usage/configure_robots_obstacles.md) — "
+"[Configure robots and obstacles](../usage/configure_robots_obstacles.md): "
 "kinematics, shapes, and multi-object scenes."
 msgstr ""
 "[Configure robots and obstacles](../usage/configure_robots_obstacles.md) —— "
 "运动学、形状和多对象场景。"
 
-#: ../../source/get_started/quick_start.md:56
+#: ../../source/get_started/quick_start.md:70
 msgid ""
-"[YAML Configuration](../yaml_config/configuration.md) — the full "
+"[YAML Configuration](../yaml_config/configuration.md): the full "
 "configuration reference with an interactive schema explorer."
 msgstr ""
-"[YAML Configuration](../yaml_config/configuration.md) —— 完整的配置参考，附带交互式 "
-"schema 浏览器。"
+"[YAML Configuration](../yaml_config/configuration.md) —— 完整的配置参考，附带"
+"交互式 schema 浏览器。"
