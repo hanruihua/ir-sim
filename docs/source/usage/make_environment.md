@@ -14,7 +14,7 @@ Create your environment with a simple Python script:
 ```python
 import irsim
 
-env = irsim.make('basic_world.yaml')
+env = irsim.make("basic_world.yaml")
 ```
 The `make` function creates an environment from a configuration file. Supported parameters include:
 
@@ -122,14 +122,14 @@ After creating an environment, you'll typically run a simulation loop:
 ```python
 import irsim
 
-env = irsim.make('config.yaml')
+env = irsim.make("config.yaml")
 
 # Main simulation loop
 for i in range(1000):
-    env.step()        # Update simulation state
+    env.step()  # Update simulation state
     env.render(0.05)  # Render with 0.05 second interval (20Hz)
-    
-    if env.done():    # Check if simulation should end
+
+    if env.done():  # Check if simulation should end
         break
 
 env.end()  # Clean up resources
@@ -159,15 +159,15 @@ The environment advances all objects first, then updates all sensors. This two-p
 ```python
 import irsim
 
-env = irsim.make('config.yaml')
+env = irsim.make("config.yaml")
 
 # Check current status
 print(f"Current status: {env.status}")
 print(f"Current time: {env.time}")
 
 # Control simulation state
-env.pause()    # Pause the simulation
-env.resume()   # Resume the simulation
+env.pause()  # Pause the simulation
+env.resume()  # Resume the simulation
 
 # Simulation loop with status checking
 for i in range(50):
@@ -178,10 +178,10 @@ for i in range(50):
         env.pause()
     elif i > 20 and i < 30:
         env.resume()
-    
+
     if env.status == "Pause":
         print("Environment is paused")
-    
+
     if env.done():
         print("Simulation completed successfully")
 
@@ -214,7 +214,7 @@ By default, the simulation time and status are shown in the environment title. Y
 ```python
 import irsim
 
-env = irsim.make('config.yaml')
+env = irsim.make("config.yaml")
 
 # Set custom title
 env.set_title("Multi-Robot Navigation Simulation")
@@ -222,11 +222,11 @@ env.set_title("Multi-Robot Navigation Simulation")
 # Update title dynamically
 for i in range(100):
     env.step()
-    
+
     # Update title every 10 steps
     if i % 10 == 0:
         env.set_title(f"Simulation Step: {i}")
-    
+
     env.render(0.05)
 
 env.end()
@@ -259,7 +259,7 @@ Use `env.create_robot()` and `env.create_obstacle()` to create objects with keyw
 ```python
 import irsim
 
-env = irsim.make('empty_world.yaml')
+env = irsim.make("empty_world.yaml")
 
 # Create a differential-drive robot
 robot = env.create_robot(

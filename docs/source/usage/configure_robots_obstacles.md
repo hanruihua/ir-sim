@@ -14,10 +14,9 @@ The python script and YAML configuration file:
 ```python
 import irsim
 
-env = irsim.make('robot_world.yaml')
+env = irsim.make("robot_world.yaml")
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 
@@ -112,13 +111,11 @@ The parameters of obstacles in the simulation are similar to those of robots. Be
 :::{tab-item} Python Script
 
 ```python
-
 import irsim
 
-env = irsim.make('robot_world.yaml')
+env = irsim.make("robot_world.yaml")
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 
@@ -214,13 +211,11 @@ To simulate multiple robots and obstacles within the same environment, simply ad
 :::{tab-item} Python Script
 
 ```python
-
 import irsim
 
-env = irsim.make('robot_world.yaml')
+env = irsim.make("robot_world.yaml")
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 

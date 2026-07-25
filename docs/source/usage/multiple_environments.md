@@ -12,8 +12,8 @@ IR-SIM supports creating and running multiple environments simultaneously. Each 
 import irsim
 
 # Create two separate environments
-env1 = irsim.make('scenario_a.yaml')
-env2 = irsim.make('scenario_b.yaml')
+env1 = irsim.make("scenario_a.yaml")
+env2 = irsim.make("scenario_b.yaml")
 
 # Each environment has its own state
 print(f"Env1 robots: {env1.robot_number}")
@@ -27,11 +27,11 @@ Each environment has completely separate parameter instances:
 ```python
 import irsim
 
-env1 = irsim.make('world1.yaml')
-env2 = irsim.make('world2.yaml')
+env1 = irsim.make("world1.yaml")
+env2 = irsim.make("world2.yaml")
 
 # World parameters are isolated
-env1.world_param.control_mode = 'keyboard'
+env1.world_param.control_mode = "keyboard"
 print(f"Env1 control mode: {env1.world_param.control_mode}")  # keyboard
 print(f"Env2 control mode: {env2.world_param.control_mode}")  # auto (unchanged)
 
@@ -55,8 +55,8 @@ print(f"Env2 time: {env2.time}")  # 0.5 (5 steps * 0.1)
 ```python
 import irsim
 
-env1 = irsim.make('scenario_a.yaml', display=True)
-env2 = irsim.make('scenario_b.yaml', display=True)
+env1 = irsim.make("scenario_a.yaml", display=True)
+env2 = irsim.make("scenario_b.yaml", display=True)
 
 # Run both environments in the same loop
 for i in range(500):
@@ -85,8 +85,7 @@ import irsim
 # Create multiple headless environments for training
 num_envs = 4
 envs = [
-    irsim.make(f'training_world.yaml', display=False, seed=i)
-    for i in range(num_envs)
+    irsim.make(f"training_world.yaml", display=False, seed=i) for i in range(num_envs)
 ]
 
 # Run training loop

@@ -31,10 +31,9 @@ The example of RVO behavior is shown below:
 ```python
 import irsim
 
-env = irsim.make()   
+env = irsim.make()
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 
@@ -512,9 +511,7 @@ class FormationGroupBehavior:
         else:
             self._offsets = []
 
-    def __call__(
-        self, members: list[ObjectBase], **kwargs: Any
-    ) -> list[np.ndarray]:
+    def __call__(self, members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:
         """
         Generate velocities for all members to maintain formation.
 
@@ -542,7 +539,11 @@ class FormationGroupBehavior:
 
         for i, member in enumerate(members):
             # Desired position in formation
-            desired_pos = centroid + self._offsets[i] if i < len(self._offsets) else member.state[:2, 0]
+            desired_pos = (
+                centroid + self._offsets[i]
+                if i < len(self._offsets)
+                else member.state[:2, 0]
+            )
 
             # Formation keeping velocity
             formation_vel = self._formation_gain * (desired_pos - member.state[:2, 0])
@@ -633,9 +634,7 @@ from irsim.world.object_base import ObjectBase
 
 
 @register_group_behavior("omni", "swarm")
-def beh_omni_swarm(
-    members: list[ObjectBase], **kwargs: Any
-) -> list[np.ndarray]:
+def beh_omni_swarm(members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:
     """
     Simple swarm behavior - all members move toward group centroid.
 
@@ -697,6 +696,7 @@ from irsim.lib import register_behavior
 from irsim.util.util import relative_position, WrapToPi
 import numpy as np
 
+
 @register_behavior("diff", "dash_custom")
 def beh_diff_dash(ego_object, objects, **kwargs):
 
@@ -727,7 +727,6 @@ def DiffDash2(state, goal, max_vel, goal_threshold=0.1, angle_tolerance=0.2):
         angular = max_vel[1, 0] * np.sign(diff_radian)
 
     return np.array([[linear], [angular]])
-
 ```
 
 The `ego_object` is the object that you want to control, and the `objects` is the list of all objects in the simulation. The custom behavior function should return the velocity of the object. You can obtain the state, goal, and other properties from the objects. `DiffDash2` is the custom behavior function that calculates the dash velocity of the object. 
@@ -750,10 +749,9 @@ env = irsim.make()
 env.load_behavior("custom_behavior_methods")
 
 for i in range(1000):
-
     env.step()
     env.render(0.01)
-    
+
     if env.done():
         break
 
@@ -927,14 +925,15 @@ class SmoothDashBehavior:
             diff_angle = np.arctan2(np.sin(diff_angle), np.cos(diff_angle))
 
             linear = max_vel[0, 0] * np.cos(diff_angle)
-            angular = max_vel[1, 0] * np.sign(diff_angle) if abs(diff_angle) > 0.1 else 0
+            angular = (
+                max_vel[1, 0] * np.sign(diff_angle) if abs(diff_angle) > 0.1 else 0
+            )
 
             target_vel = np.array([[linear], [angular]])
 
         # Apply smoothing (exponential moving average)
         smoothed_vel = (
-            self._smoothing * self._prev_vel +
-            (1 - self._smoothing) * target_vel
+            self._smoothing * self._prev_vel + (1 - self._smoothing) * target_vel
         )
         self._prev_vel = smoothed_vel
 
