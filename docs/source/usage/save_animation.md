@@ -19,13 +19,11 @@ You can save the animation of the simulation as a gif file very easily by settin
 :::{tab-item} Python Script
 
 ```python
-
 import irsim
 
 env = irsim.make(save_ani=True)
 
 for i in range(300):
-
     env.step()
     env.render(0.05)
 
@@ -114,20 +112,18 @@ The principle of the animation generation is to save the images of each frame an
 You can save the animation of the simulation as a video file such as mp4 file by setting the suffix of the file to `.mp4` in the {py:meth}`~irsim.env.env_base.EnvBase.end` function. Please make sure you have the `ffmpeg` installed in your system by `pip install imageio[ffmpeg]`. The example is shown below:
 
 ```python 
-
 import irsim
 
 env = irsim.make(save_ani=True)
 
 for i in range(300):
-
     env.step()
     env.render(0.05)
 
     if env.done():
         break
 
-env.end(ending_time=3, suffix='.mp4')
+env.end(ending_time=3, suffix=".mp4")
 ```
 
 :::{tip}
@@ -144,13 +140,11 @@ You can simply set the `projection` parameter to `3d` in `irsim.make` function t
 :::{tab-item} Python Script
 
 ```python
-
 import irsim
 
-env = irsim.make(projection='3d')
+env = irsim.make(projection="3d")
 
 for i in range(300):
-
     env.step()
     env.render(0.05)
 

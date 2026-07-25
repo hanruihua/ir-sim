@@ -101,10 +101,15 @@ The first argument is always the map; sampling planners also take the robot (for
 
 ```python
 from irsim.lib.path_planners import (
-    AStarPlanner, JPSPlanner, RRT, RRTStar, InformedRRTStar, PRMPlanner,
+    AStarPlanner,
+    JPSPlanner,
+    RRT,
+    RRTStar,
+    InformedRRTStar,
+    PRMPlanner,
 )
 
-env_map = env.get_map(resolution=0.2)   # 0.1 is typical for the RRT family
+env_map = env.get_map(resolution=0.2)  # 0.1 is typical for the RRT family
 
 AStarPlanner(env_map)
 JPSPlanner(env_map)

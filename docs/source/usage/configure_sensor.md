@@ -13,10 +13,9 @@ The YAML configuration file and Python Script below shows an example of a robot 
 ```python
 import irsim
 
-env = irsim.make()   
+env = irsim.make()
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 
@@ -123,10 +122,9 @@ To add noise to the LiDAR sensor, you can set the `noise` parameter to `True`.
 ```python
 import irsim
 
-env = irsim.make()   
+env = irsim.make()
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 
@@ -365,15 +363,16 @@ import irsim
 env = irsim.make()
 
 for i in range(200):
-
     env.step()
 
     for obs in env.obstacle_list:
         if obs.fov_detect_object(env.robot):
-            print(f'The robot is in the FOV of the {obs.name}. The parameters of this obstacle are: state [x, y, theta]: {obs.state.flatten()}, velocity [linear, angular]: {obs.velocity.flatten()}, fov in radian: {obs.fov}.')
+            print(
+                f"The robot is in the FOV of the {obs.name}. The parameters of this obstacle are: state [x, y, theta]: {obs.state.flatten()}, velocity [linear, angular]: {obs.velocity.flatten()}, fov in radian: {obs.fov}."
+            )
 
-    env.render(figure_kwargs={'dpi': 100})
-    
+    env.render(figure_kwargs={"dpi": 100})
+
 env.end()
 ```
 

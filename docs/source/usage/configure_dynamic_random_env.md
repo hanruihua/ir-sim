@@ -12,10 +12,9 @@ The dynamic, random, and clutter environment is useful to test the navigation an
 ```python
 import irsim
 
-env = irsim.make()   
+env = irsim.make()
 
 for i in range(1000):
-
     env.step()
     env.render(0.05)
 

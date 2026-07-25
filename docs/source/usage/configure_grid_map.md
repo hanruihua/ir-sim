@@ -209,11 +209,14 @@ world:
 from .grid_map_generator_base import GridMapGenerator
 import numpy as np
 
+
 class MazeGridGenerator(GridMapGenerator):
     name = "maze"
     yaml_param_names = ("seed", "density")
 
-    def __init__(self, width: int, height: int, seed: int = 0, density: float = 0.3, **kwargs):
+    def __init__(
+        self, width: int, height: int, seed: int = 0, density: float = 0.3, **kwargs
+    ):
         super().__init__(**kwargs)
         self.width = width
         self.height = height
