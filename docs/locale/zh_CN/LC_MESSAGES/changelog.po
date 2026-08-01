@@ -22,6 +22,34 @@ msgid "Changelog"
 msgstr "更新日志"
 
 #: ../../../changelog.md:4
+msgid "2.10.2 (2026-08-01)"
+msgstr "2.10.2 (2026-08-01)"
+
+#: ../../../changelog.md:6
+msgid "Apply body-frame circle-center offsets consistently across collision geometry, rendering, convex `G/h` constraints, and RVO neighbor state, and clamp the HRVO inverse-sine input. Keeps offset and Ackermann circles aligned across representations and prevents math-domain failures. ([#344](https://github.com/hanruihua/ir-sim/pull/344))"
+msgstr "在碰撞几何、渲染、凸 `G/h` 约束和 RVO 邻居状态中一致应用机体坐标系下的圆心偏移，并对 HRVO 反正弦函数的输入进行截断。这样可确保带偏移的圆和阿克曼模型圆在各种表示中保持对齐，并避免数学定义域错误。([#344](https://github.com/hanruihua/ir-sim/pull/344))"
+
+#: ../../../changelog.md:9
+msgid "Extract object rendering from `ObjectBase` into a dedicated `ObjectPlot` class and encapsulate plotting options in dataclasses while preserving the public API and option precedence. Separates rendering responsibilities without breaking existing callers. ([#345](https://github.com/hanruihua/ir-sim/pull/345))"
+msgstr "将对象渲染从 `ObjectBase` 抽取到专用的 `ObjectPlot` 类，并用数据类封装绘图选项，同时保持公共 API 和选项优先级不变。这样可分离渲染职责，且不破坏现有调用方。([#345](https://github.com/hanruihua/ir-sim/pull/345))"
+
+#: ../../../changelog.md:12
+msgid "Move 17 documentation GIFs (~64 MB) to the dedicated IR-SIM-GIFs repository and replace local paths with remote URLs. Keeps the source tree lightweight without losing visual examples. ([#341](https://github.com/hanruihua/ir-sim/pull/341))"
+msgstr "将 17 个文档 GIF（约 64 MB）迁移到专用的 IR-SIM-GIFs 仓库，并用远程 URL 替换本地路径。这样可在保留可视化示例的同时减小源码树体积。([#341](https://github.com/hanruihua/ir-sim/pull/341))"
+
+#: ../../../changelog.md:13
+msgid "Align usage and YAML documentation with runtime defaults, expand public API docstrings, and improve API navigation in English and Chinese. Keeps documented behavior and entry points consistent with the implementation. ([#343](https://github.com/hanruihua/ir-sim/pull/343))"
+msgstr "使使用说明和 YAML 文档与运行时默认值保持一致，补充公共 API 文档字符串，并改进中英文 API 导航。这样可使文档中的行为和入口点与实现保持一致。([#343](https://github.com/hanruihua/ir-sim/pull/343))"
+
+#: ../../../changelog.md:14
+msgid "Refresh Chinese translation catalogs, clarify `world.status` semantics, remove the undocumented \"Done\" value from the documented runtime-status list, and upgrade Ruff to 0.16.0 with reformatted Markdown code blocks. Keeps bilingual documentation and linted examples synchronized. ([#347](https://github.com/hanruihua/ir-sim/pull/347))"
+msgstr "更新中文翻译目录，明确 `world.status` 的语义，从文档中的运行状态列表移除未记录的 `\"Done\"` 值，并将 Ruff 升级至 0.16.0，同时重新格式化 Markdown 代码块。这样可保持双语文档与经过检查的示例同步。([#347](https://github.com/hanruihua/ir-sim/pull/347))"
+
+#: ../../../changelog.md:17
+msgid "Consolidate 25 test files into 13, raise `irsim/` coverage from 96.7% to 97.3%, and reduce the local suite runtime from 3:02 to 2:08. Route environment and world parameter module access through their bound instances to prevent leaked global state while making the suite smaller and more reliable. ([#346](https://github.com/hanruihua/ir-sim/pull/346))"
+msgstr "将 25 个测试文件整合为 13 个，将 `irsim/` 覆盖率从 96.7% 提升至 97.3%，并将本地测试套件运行时间从 3:02 缩短至 2:08。通过绑定实例路由环境和世界参数模块的访问，以防止全局状态泄漏，同时使测试套件更精简、更可靠。([#346](https://github.com/hanruihua/ir-sim/pull/346))"
+
+#: ../../../changelog.md:4
 msgid "2.10.1 (2026-07-01)"
 msgstr "2.10.1 (2026-07-01)"
 

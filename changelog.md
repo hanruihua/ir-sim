@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.10.2 (2026-08-01)
+
+- Fix:
+  - Apply body-frame circle-center offsets consistently across collision geometry, rendering, convex `G/h` constraints, and RVO neighbor state, and clamp the HRVO inverse-sine input. Keeps offset and Ackermann circles aligned across representations and prevents math-domain failures. ([#344](https://github.com/hanruihua/ir-sim/pull/344))
+
+- Refactor:
+  - Extract object rendering from `ObjectBase` into a dedicated `ObjectPlot` class and encapsulate plotting options in dataclasses while preserving the public API and option precedence. Separates rendering responsibilities without breaking existing callers. ([#345](https://github.com/hanruihua/ir-sim/pull/345))
+
+- Docs:
+  - Move 17 documentation GIFs (~64 MB) to the dedicated IR-SIM-GIFs repository and replace local paths with remote URLs. Keeps the source tree lightweight without losing visual examples. ([#341](https://github.com/hanruihua/ir-sim/pull/341))
+  - Align usage and YAML documentation with runtime defaults, expand public API docstrings, and improve API navigation in English and Chinese. Keeps documented behavior and entry points consistent with the implementation. ([#343](https://github.com/hanruihua/ir-sim/pull/343))
+  - Refresh Chinese translation catalogs, clarify `world.status` semantics, remove the undocumented `"Done"` value from the documented runtime-status list, and upgrade Ruff to 0.16.0 with reformatted Markdown code blocks. Keeps bilingual documentation and linted examples synchronized. ([#347](https://github.com/hanruihua/ir-sim/pull/347))
+
+- Tests:
+  - Consolidate 25 test files into 13, raise `irsim/` coverage from 96.7% to 97.3%, and reduce the local suite runtime from 3:02 to 2:08. Route environment and world parameter module access through their bound instances to prevent leaked global state while making the suite smaller and more reliable. ([#346](https://github.com/hanruihua/ir-sim/pull/346))
+
 ## 2.10.1 (2026-07-01)
 
 - Features:
