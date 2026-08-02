@@ -169,9 +169,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 
 ## Citation
 
-If you use IR-SIM in a scientific publication, please cite the following paper:
-
-**Paper:** [IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking](https://arxiv.org/abs/2606.08729) (arXiv:2606.08729, 2026).
+If you find IR-SIM useful, please consider starring ⭐ this project and citing our paper:
 
 ```bibtex
 @article{han2026ir,
