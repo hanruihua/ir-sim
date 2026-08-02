@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 type: software
 title: "IR-SIM: An Open-Source Lightweight Simulator for Robot Navigation, Control, and Learning"
-message: "If you use IR-SIM in your work, please cite it as follows."
+message: "If you use IR-SIM in academic work, please cite the preferred paper below."
 version: 2.10.2
 date-released: 2026-08-01
 authors:
@@ -10,3 +10,33 @@ authors:
 repository-code: https://github.com/hanruihua/ir-sim
 url: https://github.com/hanruihua/ir-sim
 license: MIT
+preferred-citation:
+  type: article
+  title: "IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking"
+  authors:
+    - family-names: Han
+      given-names: Ruihua
+    - family-names: Wang
+      given-names: Shuai
+    - family-names: Li
+      given-names: Chengyang
+    - family-names: Gao
+      given-names: Rui
+    - family-names: Wang
+      given-names: Xinyi
+    - family-names: Liu
+      given-names: Zhe
+    - family-names: Li
+      given-names: Guoliang
+    - family-names: Lu
+      given-names: Yupu
+    - family-names: Hao
+      given-names: Qi
+    - family-names: Pan
+      given-names: Jia
+    - family-names: Zhao
+      given-names: Hengshuang
+  year: 2026
+  journal: "arXiv preprint arXiv:2606.08729"
+  doi: "10.48550/arXiv.2606.08729"
+  url: https://arxiv.org/abs/2606.08729
