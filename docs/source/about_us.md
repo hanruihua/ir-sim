@@ -24,7 +24,9 @@ See the full, always up-to-date list on the [GitHub contributors page](https://g
 
 ## Citation
 
-If you find IR-SIM useful, please consider starring ⭐ the project on GitHub and citing our paper:
+If you use IR-SIM in a scientific publication, please cite the following paper:
+
+**Paper:** [IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking](https://arxiv.org/abs/2606.08729) (arXiv:2606.08729, 2026).
 
 ```bibtex
 @article{han2026ir,

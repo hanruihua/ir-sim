@@ -54,10 +54,18 @@ msgid "Citation"
 msgstr "引用"
 
 #: ../../source/about_us.md:27
+msgid "If you use IR-SIM in a scientific publication, please cite the following paper:"
+msgstr "如果您在学术论文中使用 IR-SIM，请引用以下论文："
+
+#: ../../source/about_us.md:29
 msgid ""
-"If you find IR-SIM useful, please consider starring ⭐ the project on "
-"GitHub and citing our paper:"
-msgstr "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 ⭐ Star，并引用我们的论文："
+"**Paper:** [IR-SIM: A Lightweight Skill-Native Simulator for Navigation, "
+"Learning, and Benchmarking](https://arxiv.org/abs/2606.08729) "
+"(arXiv:2606.08729, 2026)."
+msgstr ""
+"**论文：** [IR-SIM: A Lightweight Skill-Native Simulator for Navigation, "
+"Learning, and Benchmarking](https://arxiv.org/abs/2606.08729) "
+"（arXiv:2606.08729，2026）。"
 
 #~ msgid "[@reiniscimurs](https://github.com/reiniscimurs)"
 #~ msgstr "[@reiniscimurs](https://github.com/reiniscimurs)"
@@ -170,4 +178,3 @@ msgstr "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 �
 #~ "发现了 Bug 或有新想法？欢迎在 [IR-SIM "
 #~ "仓库](https://github.com/hanruihua/ir-sim/issues) 提交 "
 #~ "issue，或参阅[贡献指南](contributing.md)。我们欢迎各种形式的贡献。"
-

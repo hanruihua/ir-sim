@@ -315,9 +315,15 @@ msgid "Citation"
 msgstr "引用"
 
 #: ../../source/index.rst:246
+msgid "If you use IR-SIM in a scientific publication, please cite the following paper:"
+msgstr "如果您在学术论文中使用 IR-SIM，请引用以下论文："
+
+#: ../../source/index.rst:248
 msgid ""
-"If you find IR-SIM useful, please consider starring ⭐ the project on GitHub "
-"and citing our paper:"
+"**Paper:** `IR-SIM: A Lightweight Skill-Native Simulator for Navigation, "
+"Learning, and Benchmarking <https://arxiv.org/abs/2606.08729>`_ "
+"(arXiv:2606.08729, 2026)."
 msgstr ""
-"如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 ⭐ Star，并引用我们的论"
-"文："
+"**论文：** `IR-SIM: A Lightweight Skill-Native Simulator for Navigation, "
+"Learning, and Benchmarking <https://arxiv.org/abs/2606.08729>`_ "
+"（arXiv:2606.08729，2026）。"
