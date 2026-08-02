@@ -5,6 +5,7 @@
 *A lightweight, YAML-driven robot simulator for navigation, control, and learning*
 
 <a href="https://arxiv.org/pdf/2606.08729"><img src="https://img.shields.io/badge/arXiv-2606.08729-b31b1b?style=for-the-badge" alt="arXiv Paper"></a>
+<a href="#citation" title="View the IR-SIM BibTeX citation"><img src="https://img.shields.io/badge/Cite-IR--SIM-2ea44f?style=for-the-badge" alt="Cite IR-SIM"></a>
 <a href="https://pypi.org/project/ir-sim/"><img src="https://img.shields.io/pypi/v/ir-sim?color=orange&style=for-the-badge" alt="PyPI Version"></a>
 <a href="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?style=for-the-badge" alt="Python Version"></a>
 <a href="https://github.com/hanruihua/ir-sim/actions/workflows/python-version-test.yml"><img src="https://img.shields.io/github/actions/workflow/status/hanruihua/ir-sim/python-version-test.yml?branch=main&style=for-the-badge&label=CI" alt="CI"></a>
@@ -175,7 +176,12 @@ If you find IR-SIM useful, please consider starring ⭐ this project and citing 
   title={IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking},
   author={Han, Ruihua and Wang, Shuai and Li, Chengyang and Gao, Rui and Wang, Xinyi and Liu, Zhe and Li, Guoliang and Lu, Yupu and Hao, Qi and Pan, Jia and Zhao, Hengshuang},
   journal={arXiv preprint arXiv:2606.08729},
-  year={2026}
+  year={2026},
+  doi={10.48550/arXiv.2606.08729},
+  url={https://arxiv.org/abs/2606.08729},
+  eprint={2606.08729},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO}
 }
 ```
 
