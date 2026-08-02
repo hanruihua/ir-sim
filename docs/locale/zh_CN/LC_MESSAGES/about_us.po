@@ -170,3 +170,4 @@ msgstr "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 �
 #~ "发现了 Bug 或有新想法？欢迎在 [IR-SIM "
 #~ "仓库](https://github.com/hanruihua/ir-sim/issues) 提交 "
 #~ "issue，或参阅[贡献指南](contributing.md)。我们欢迎各种形式的贡献。"
+
