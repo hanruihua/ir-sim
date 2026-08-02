@@ -72,7 +72,7 @@ test = [
 dev = [
     {include-group = "lint"},
     {include-group = "test"},
-    "pre-commit==4.6.0",
+    "pre-commit==4.6.1",
     "ty>=0.0.1a17",
 ]
 
