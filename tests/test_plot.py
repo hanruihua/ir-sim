@@ -304,6 +304,8 @@ class TestDrawPatch:
             draw_patch(ax_2d, "compound")
         with pytest.raises(ValueError, match="Polygon or MultiPolygon"):
             draw_patch(ax_2d, "compound", geometry=shapely.Point(0, 0))
+        with pytest.raises(ValueError, match="non-empty geometry"):
+            draw_patch(ax_2d, "compound", geometry=shapely.MultiPolygon())
 
     def test_draw_ellipse(self, ax_2d):
         """Test drawing ellipse patch."""

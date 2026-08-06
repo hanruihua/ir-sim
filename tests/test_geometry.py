@@ -191,6 +191,16 @@ class TestCompoundGeometry:
                 r"finite \[x, y, theta\]",
             ),
             (
+                [{"name": "rectangle", "pose": [0, 0, "invalid"]}],
+                ValueError,
+                "pose must contain three numbers",
+            ),
+            (
+                [{"name": "circle", "radius": 0.0}],
+                ValueError,
+                "non-empty Polygon or MultiPolygon",
+            ),
+            (
                 [{"name": "rectangle", "color": "red"}],
                 ValueError,
                 "do not support individual colors",
@@ -230,6 +240,8 @@ class TestCompoundGeometry:
             shape={"name": "circle", "radius": 0.2}, state=[1.5, 0.0, 0.0]
         )
 
+        assert len(compound.part_vertices) == 2
+        assert len(compound.original_part_vertices) == 2
         assert not compound.check_collision(in_gap)
         assert compound.check_collision(on_part)
 
