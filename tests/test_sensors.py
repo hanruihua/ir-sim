@@ -4,6 +4,7 @@ import pytest
 import shapely
 from shapely import STRtree
 
+from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.util.random import set_seed
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
@@ -686,6 +687,41 @@ def test_lidar_subtracts_map_lines_and_dynamic_polygon():
     assert len(blocked) >= 2
     assert ranges.min() == pytest.approx(1.5, abs=0.3)  # circle -> polygon group
     assert blocked.max() == pytest.approx(3.0, abs=0.3)  # wall   -> line group
+
+
+def test_lidar_detects_disjoint_compound_geometry():
+    """A MultiPolygon compound is treated as one obstacle without filling gaps."""
+    compound = GeometryFactory.create_geometry(
+        "compound",
+        parts=[
+            {
+                "name": "rectangle",
+                "length": 0.5,
+                "width": 1.0,
+                "pose": [2.0, 0.0, 0.0],
+            },
+            {
+                "name": "rectangle",
+                "length": 0.5,
+                "width": 1.0,
+                "pose": [4.0, 0.0, 0.0],
+            },
+        ],
+    )
+    obstacle = _Obstacle(2, compound.geometry, shape="compound")
+    env_param = _EnvParam([obstacle], STRtree([obstacle.geometry]))
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=6.0,
+    )
+    lidar.parent = _Parent(env_param)
+
+    lidar.step(lidar.state)
+
+    assert lidar.range_data[0] == pytest.approx(1.75, abs=1e-6)
 
 
 # ---------------------------------------------------------------------------

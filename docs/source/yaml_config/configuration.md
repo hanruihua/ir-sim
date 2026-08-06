@@ -133,8 +133,9 @@ A complete IR-SIM scene is described by up to four top-level keys: `world`, `rob
       <input class="yt-utab-radio" type="radio" name="yt-v-shape" id="yt-v-shape-circle" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-shape" id="yt-v-shape-rect">
       <input class="yt-utab-radio" type="radio" name="yt-v-shape" id="yt-v-shape-poly">
+      <input class="yt-utab-radio" type="radio" name="yt-v-shape" id="yt-v-shape-compound">
       <input class="yt-utab-radio" type="radio" name="yt-v-shape" id="yt-v-shape-line">
-      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-shape">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-shape-circle">circle</label><label for="yt-v-shape-rect">rectangle</label><label for="yt-v-shape-poly">polygon</label><label for="yt-v-shape-line">linestring</label></span></div>
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-shape">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-shape-circle">circle</label><label for="yt-v-shape-rect">rectangle</label><label for="yt-v-shape-poly">polygon</label><label for="yt-v-shape-compound">compound</label><label for="yt-v-shape-line">linestring</label></span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.2</span><span class="yt-desc">circle radius</span></div>
@@ -153,6 +154,10 @@ A complete IR-SIM scene is described by up to four top-level keys: `world`, `rob
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">random_shape</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">generate random polygons</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">is_convex</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">force convex when random</span></div>
           <div class="yt-leaf yt-uvar-note"><span class="yt-desc">Random-gen extras: <code>number</code>, <code>center_range</code>, <code>avg_radius_range</code>, … (see full docs).</span></div>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">parts</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">unset</span><span class="yt-desc">non-empty list of circle, rectangle, or polygon shape dicts</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">parts[].pose</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0, 0]</span><span class="yt-desc">fixed body-frame [x, y, theta] for each part</span></div>
         </div>
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-shape">vertices</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">unset</span><span class="yt-desc">[[x, y], …] body frame</span></div>
@@ -717,7 +722,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
 | `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Supported names: `diff`, `acker`, `omni`, `omni_angular`. An object without kinematics is static. |
-| `shape`          | `dict`                                           | `None`           | Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, `rectangle`, `polygon`, `linestring`. |
+| `shape`          | `dict`                                           | `None`           | Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, `rectangle`, `polygon`, `linestring`, `compound`. |
 | `state`          | `list` of `float`                                | `[1, 1, 0]` for manual distribution | Initial state vector of the object.                                                                                |
 | `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[1, 9, 0]` for manual distribution | Goal state(s) vector.                                                                                              |
@@ -1018,6 +1023,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`circle`**: Round shape (`radius`, `center`)
 - **`rectangle`**: Rectangular shape (`length`, `width`, `wheelbase`)
 - **`polygon`**: Custom shape (`vertices`, `is_convex`)
+- **`compound`**: Fixed collection of solid parts (`parts`, `pose`)
 - **`linestring`**: Line segments (`vertices`)
 ```
 
@@ -1053,7 +1059,6 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the polygon in the format `[[x1, y1], [x2, y2], ...]`, if not provided, a random polygon will be generated.
     - **`random_shape`** (`bool`): Whether to generate a series of random polygons. Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex polygons. Default is `False`.
-    - parameters for random polygon generation, see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
       
     ```yaml
     # Example usage
@@ -1071,12 +1076,24 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     shape:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]} 
     ```
+
+  - **`'compound'`**: Represents one rigid shape assembled from fixed solid parts.
+    - **`parts`** (`list`): Non-empty list of `circle`, `rectangle`, or `polygon` shape dictionaries.
+    - **`pose`** (`list`): Optional `[x, y, theta]` pose of a part relative to the owning object's coordinate-frame origin. Default is `[0, 0, 0]`, and `theta` is in radians.
+
+    ```yaml
+    # Example usage - compound robot body
+    shape:
+      name: compound
+      parts:
+        - {name: rectangle, length: 0.8, width: 0.3}
+        - {name: rectangle, length: 0.3, width: 0.8, pose: [-0.25, 0, 0]}
+    ```
   
   - **`'linestring'`**: Represents a line string shape defined by a list of vertices. Similar to a polygon but generates a line string.
     - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
     - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `True`.
-    - parameters for random line string generation (polygon), see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
 
     ```yaml
     # Example usage

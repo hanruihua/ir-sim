@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
-from math import pi
+from math import cos, pi, sin
 from typing import TYPE_CHECKING, Any
 
 import matplotlib.transforms as mtransforms
@@ -14,7 +14,11 @@ from matplotlib.patches import Arrow, Circle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 
 from irsim.config.path_param import path_manager
-from irsim.env.env_plot import draw_patch, linewidth_from_data_units, set_patch_property
+from irsim.env.env_plot import (
+    draw_patch,
+    linewidth_from_data_units,
+    set_patch_property,
+)
 from irsim.util.util import file_check
 
 if TYPE_CHECKING:
@@ -358,6 +362,15 @@ class ObjectPlot:
         ):
             kwargs.setdefault("show_arrow", self.owner.kf.show_arrow)
 
+        if self.owner.shape == "compound":
+            return self.draw(
+                ax,
+                self.owner.state,
+                None,
+                initial=True,
+                **kwargs,
+            )
+
         return self.draw(
             ax,
             self.owner.original_state,
@@ -370,7 +383,7 @@ class ObjectPlot:
         self,
         ax: Any,
         state: np.ndarray,
-        vertices: np.ndarray,
+        vertices: np.ndarray | None,
         initial: bool = False,
         **kwargs: Any,
     ) -> list[str]:
@@ -604,8 +617,7 @@ class ObjectPlot:
 
         line = element[0]
         trajectory = self.owner.trajectory[-style.keep_length :]
-        x_list = [state[0, 0] for state in trajectory]
-        y_list = [state[1, 0] for state in trajectory]
+        x_list, y_list = self._trajectory_coordinates(trajectory)
 
         if isinstance(self.owner.ax, Axes3D):
             line.set_data_3d(x_list, y_list, [0] * len(x_list))
@@ -620,6 +632,28 @@ class ObjectPlot:
         line.set_linestyle(style.style)
         line.set_alpha(style.alpha)
         line.set_zorder(style.zorder)
+
+    def _trajectory_coordinates(
+        self, trajectory: list[Any]
+    ) -> tuple[list[float], list[float]]:
+        if self.owner.shape == "compound":
+            _, min_y, _, max_y = self.owner.original_geometry.bounds
+            center_y = (min_y + max_y) / 2
+            return (
+                [
+                    float(state[0, 0] - sin(float(state[2, 0])) * center_y)
+                    for state in trajectory
+                ],
+                [
+                    float(state[1, 0] + cos(float(state[2, 0])) * center_y)
+                    for state in trajectory
+                ],
+            )
+
+        return (
+            [float(state[0, 0]) for state in trajectory],
+            [float(state[1, 0]) for state in trajectory],
+        )
 
     def _update_text(self, x: float, y: float, style: TextStyle) -> None:
         """Update the object label when it exists."""
@@ -669,7 +703,11 @@ class ObjectPlot:
         state = self.owner.state if state is None else state
         vertices = self.owner.vertices if vertices is None else vertices
 
-        if self.owner.description is None or isinstance(ax, Axes3D):
+        if (
+            self.owner.shape == "compound"
+            or self.owner.description is None
+            or isinstance(ax, Axes3D)
+        ):
             try:
                 if self.owner.shape != "map":
                     self.owner.object_patch = draw_patch(
@@ -683,6 +721,11 @@ class ObjectPlot:
                             else None
                         ),
                         vertices=vertices,
+                        geometry=(
+                            self.owner.original_geometry
+                            if self.owner.shape == "compound"
+                            else None
+                        ),
                         color=options.object.color,
                         alpha=options.object.alpha,
                         linestyle=options.object.linestyle,
@@ -767,8 +810,7 @@ class ObjectPlot:
         self.owner.keep_traj_length = options.trajectory.keep_length
 
         kept_trajectory = trajectory[-options.trajectory.keep_length :]
-        x_list = [state[0, 0] for state in kept_trajectory]
-        y_list = [state[1, 0] for state in kept_trajectory]
+        x_list, y_list = self._trajectory_coordinates(kept_trajectory)
 
         linewidth = linewidth_from_data_units(options.trajectory.width, ax, "y")
         if isinstance(ax, Axes3D):
@@ -821,6 +863,9 @@ class ObjectPlot:
             state=goal_state,
             radius=self.owner.radius,
             vertices=vertices,
+            geometry=(
+                self.owner.original_geometry if self.owner.shape == "compound" else None
+            ),
             color=options.goal.color,
             alpha=options.goal.alpha,
             zorder=options.goal.zorder,
@@ -957,6 +1002,11 @@ class ObjectPlot:
             shape=options.trail.shape,
             state=state,
             vertices=vertices,
+            geometry=(
+                self.owner.original_geometry
+                if options.trail.shape == "compound"
+                else None
+            ),
             radius=self.owner.radius,
             center=(
                 self.owner.original_centroid

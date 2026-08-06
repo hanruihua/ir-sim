@@ -862,10 +862,11 @@ msgstr "`shape`"
 msgid ""
 "Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an "
 "explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, "
-"`rectangle`, `polygon`, `linestring`."
+"`rectangle`, `polygon`, `linestring`, `compound`."
 msgstr ""
 "对象的几何形状。省略时，IR-SIM 创建半径为 `1` 的圆；显式指定 `{name: circle}"
-"` 时使用半径 `0.2`。支持 `circle`、`rectangle`、`polygon`、`linestring`。"
+"` 时使用半径 `0.2`。支持 `circle`、`rectangle`、`polygon`、`linestring`、"
+"`compound`。"
 
 #: ../../source/yaml_config/configuration.md:700
 msgid "`state`"
@@ -1713,6 +1714,10 @@ msgid "**`polygon`**: Custom shape (`vertices`, `is_convex`)"
 msgstr "**`polygon`** — 自定义多边形（`vertices`、`is_convex`）"
 
 #: ../../source/yaml_config/configuration.md:1021
+msgid "**`compound`**: Fixed collection of solid parts (`parts`, `pose`)"
+msgstr "**`compound`** — 固定实体部件的组合（`parts`、`pose`）"
+
+#: ../../source/yaml_config/configuration.md:1021
 msgid "**`linestring`**: Line segments (`vertices`)"
 msgstr "**`linestring`** — 线段（`vertices`）"
 
@@ -1819,17 +1824,28 @@ msgid ""
 "polygons. Default is `False`."
 msgstr "**`is_convex`**（`bool`）：是否生成一系列随机凸多边形，默认 `False`。"
 
-#: ../../source/yaml_config/configuration.md:1056
+#: ../../source/yaml_config/configuration.md:1076
 msgid ""
-"parameters for random polygon generation, see {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. "
-"Parameters include `number `, `center_range `, `avg_radius_range `, "
-"`irregularity_range `, `spikeyness_range `, `num_vertices_range `."
+"**`'compound'`**: Represents one rigid shape assembled from fixed solid "
+"parts."
+msgstr "**`'compound'`**：表示由固定实体部件组合而成的一个刚性形状。"
+
+#: ../../source/yaml_config/configuration.md:1077
+msgid ""
+"**`parts`** (`list`): Non-empty list of `circle`, `rectangle`, or `polygon` "
+"shape dictionaries."
 msgstr ""
-"随机多边形生成的参数，更多细节参见 {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon`。参数包括 `number "
-"`、`center_range `、`avg_radius_range `、`irregularity_range `、"
-"`spikeyness_range `、`num_vertices_range `。"
+"**`parts`**（`list`）：由 `circle`、`rectangle` 或 `polygon` 形状字典组成的"
+"非空列表。"
+
+#: ../../source/yaml_config/configuration.md:1078
+msgid ""
+"**`pose`** (`list`): Optional `[x, y, theta]` pose of a part relative to the "
+"owning object's coordinate-frame origin. Default is `[0, 0, 0]`, and "
+"`theta` is in radians."
+msgstr ""
+"**`pose`**（`list`）：部件相对于所属对象坐标系原点的可选 `[x, y, theta]` "
+"位姿。默认值为 `[0, 0, 0]`，`theta` 使用弧度。"
 
 #: ../../source/yaml_config/configuration.md:1075
 msgid ""
@@ -1855,18 +1871,6 @@ msgid ""
 "**`is_convex`** (`bool`): Whether to generate a series of random convex line "
 "strings (polygons). Default is `True`."
 msgstr "**`is_convex`**（`bool`）：是否生成随机凸线串（多边形），默认 `True`。"
-
-#: ../../source/yaml_config/configuration.md:1079
-msgid ""
-"parameters for random line string generation (polygon), see {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. "
-"Parameters include `number `, `center_range `, `avg_radius_range `, "
-"`irregularity_range `, `spikeyness_range `, `num_vertices_range `."
-msgstr ""
-"随机折线（多边形）生成的参数，更多细节参见 {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon`。参数包括 `number "
-"`、`center_range `、`avg_radius_range `、`irregularity_range `、"
-"`spikeyness_range `、`num_vertices_range `。"
 
 #: ../../source/yaml_config/configuration.md:0
 msgid "**object behavior**"
