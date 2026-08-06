@@ -169,13 +169,14 @@ msgstr "`[v, φ]` —— 线速度与转向角"
 msgid "Cars, car-like robots"
 msgstr "汽车及车式机器人"
 
-#: ../../source/usage/configure_robots_obstacles.md:77
+#: ../../source/usage/configure_robots_obstacles.md:76
 msgid ""
 "**`shape`:** Specifies the physical shape and size of the robot. Name "
-"options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`."
+"options include `'circle'`, `'rectangle'`, `'polygon'`, `'compound'`, and "
+"`linestring`."
 msgstr ""
 "**`shape`：** 指定机器人的物理形状与尺寸，可选 `'circle'`、`'rectangle'`、"
-"`'polygon'`、`linestring`。"
+"`'polygon'`、`'compound'`、`linestring`。"
 
 #: ../../source/usage/configure_robots_obstacles.md:78
 msgid "`circle`: A circular robot with a specified radius."
@@ -188,6 +189,10 @@ msgstr "`rectangle`：具有特定长宽的矩形机器人。"
 #: ../../source/usage/configure_robots_obstacles.md:80
 msgid "`polygon`: A polygonal robot."
 msgstr "`polygon`：多边形机器人。"
+
+#: ../../source/usage/configure_robots_obstacles.md:80
+msgid "`compound`: A rigid combination of circle, rectangle, or polygon parts."
+msgstr "`compound`：由圆形、矩形或多边形部件组成的刚性组合形状。"
 
 #: ../../source/usage/configure_robots_obstacles.md:81
 msgid "`linestring`: list of lines."
@@ -221,6 +226,23 @@ msgid ""
 msgstr ""
 "**`plot`**（可选）：设置机器人的可视化样式。参见 {py:meth}"
 "`~irsim.world.object_base.ObjectBase.plot`。"
+
+#: ../../source/usage/configure_robots_obstacles.md:88
+msgid ""
+"For a `compound` shape, the object's `state` moves the complete body. Each "
+"part's optional `pose: [x, y, theta]` is fixed relative to the object frame "
+"and defaults to `[0, 0, 0]`. All parts use the owning object's color. "
+"`show_trajectory` uses the same path-line renderer as other shapes. By "
+"default, its width is the compound's local-y extent and the line follows the "
+"midpoint of that extent, keeping the trajectory and body widths aligned. The "
+"line does not reproduce concave or disjoint footprint gaps; use `show_trail` "
+"for exact historical shape snapshots."
+msgstr ""
+"对于 `compound` 形状，对象的 `state` 驱动整个刚体运动。每个部件可选的 `pose: "
+"[x, y, theta]` 固定在对象坐标系中，默认值为 `[0, 0, 0]`。所有部件使用所属对象"
+"的颜色。`show_trajectory` 与其他形状一样使用路径线渲染。默认宽度为组合体在局部 "
+"y 方向上的范围，路径线沿该范围的中点移动，使轨迹宽度与本体宽度对齐。路径线不会"
+"还原凹形或分离足迹中的空白；如需精确的历史形状快照，请使用 `show_trail`。"
 
 #: ../../source/usage/configure_robots_obstacles.md:89
 msgid ""

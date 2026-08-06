@@ -1,0 +1,20 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+
+robot:
+  kinematics: {name: diff}
+  shape:
+    name: compound
+    parts:
+      - {name: rectangle, length: 0.8, width: 0.3}
+      - {name: rectangle, length: 0.3, width: 0.8, pose: [-0.25, 0.3, 0]}
+  behavior: {name: dash}
+  state: [1, 1, 0]
+  goal: [9, 9, 0]
+  color: g
+  plot:
+    show_trajectory: true

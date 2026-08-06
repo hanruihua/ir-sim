@@ -717,7 +717,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `number`         | `int`                                            | `1`              | Number of objects to create.                                                                                       |
 | `distribution`   | `dict`                                           | `{name: manual}` | Defines how multiple objects are distributed. Support name: `manual`, `random`, `circle`                           |
 | `kinematics`     | `dict`                                           | `None`           | Kinematic model of the object. Supported names: `diff`, `acker`, `omni`, `omni_angular`. An object without kinematics is static. |
-| `shape`          | `dict`                                           | `None`           | Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, `rectangle`, `polygon`, `linestring`. |
+| `shape`          | `dict`                                           | `None`           | Shape of the object. If omitted, IR-SIM creates a circle with radius `1`; an explicit `{name: circle}` uses radius `0.2`. Supported names: `circle`, `rectangle`, `polygon`, `linestring`, `compound`. |
 | `state`          | `list` of `float`                                | `[1, 1, 0]` for manual distribution | Initial state vector of the object.                                                                                |
 | `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[1, 9, 0]` for manual distribution | Goal state(s) vector.                                                                                              |
@@ -1018,6 +1018,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`circle`**: Round shape (`radius`, `center`)
 - **`rectangle`**: Rectangular shape (`length`, `width`, `wheelbase`)
 - **`polygon`**: Custom shape (`vertices`, `is_convex`)
+- **`compound`**: Fixed collection of solid parts (`parts`, `pose`)
 - **`linestring`**: Line segments (`vertices`)
 ```
 
@@ -1070,6 +1071,22 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     # Example usage - random polygon
     shape:
       - {name: 'polygon', random_shape: true, center_range: [5, 10, 40, 30], avg_radius_range: [0.5, 2], irregularity_range: [0, 1], spikeyness_range: [0, 1], num_vertices_range: [4, 5]} 
+    ```
+
+  - **`'compound'`**: Represents one rigid shape assembled from fixed solid parts.
+    - **`parts`** (`list`): Non-empty list of `circle`, `rectangle`, or `polygon` shape dictionaries.
+    - **`pose`** (`list`): Optional `[x, y, theta]` pose of a part relative to the owning object's coordinate-frame origin. Default is `[0, 0, 0]`, and `theta` is in radians.
+    - The object's `state` moves the complete compound body; parts cannot move independently.
+    - All parts inherit the owning object's color. Overlapping parts are merged for collision detection and visualization, while gaps between disjoint parts remain collision-free.
+    - `show_trajectory` uses the same path-line renderer as other shapes. By default, its width is the compound's local-y extent and the line follows the midpoint of that extent, keeping the trajectory and body widths aligned. The line does not reproduce concave or disjoint footprint gaps; use `show_trail` for exact historical shape snapshots.
+
+    ```yaml
+    # Example usage - compound robot body
+    shape:
+      name: compound
+      parts:
+        - {name: rectangle, length: 0.8, width: 0.3}
+        - {name: rectangle, length: 0.3, width: 0.8, pose: [-0.25, 0, 0]}
     ```
   
   - **`'linestring'`**: Represents a line string shape defined by a list of vertices. Similar to a polygon but generates a line string.

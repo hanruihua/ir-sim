@@ -19,8 +19,20 @@ import matplotlib.transforms as mtransforms
 import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
 from matplotlib.lines import Line2D
-from matplotlib.patches import Arrow, Circle, Ellipse, Polygon, Rectangle, Wedge
+from matplotlib.patches import (
+    Arrow,
+    Circle,
+    Ellipse,
+    PathPatch,
+    Polygon,
+    Rectangle,
+    Wedge,
+)
+from matplotlib.path import Path
 from mpl_toolkits.mplot3d import Axes3D
+from shapely.geometry import MultiPolygon as ShapelyMultiPolygon
+from shapely.geometry import Polygon as ShapelyPolygon
+from shapely.geometry.polygon import orient
 
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
@@ -767,6 +779,44 @@ def linewidth_from_data_units(
     return linewidth * (length / value_range)
 
 
+def geometry_to_path(geometry: Any) -> Path:
+    """Convert a Shapely polygonal geometry to a Matplotlib path.
+
+    Polygon interiors are preserved as oppositely oriented subpaths, allowing
+    one ``PathPatch`` to render Polygon and MultiPolygon geometries including
+    holes.
+
+    Args:
+        geometry: Shapely Polygon or MultiPolygon in local coordinates.
+
+    Returns:
+        matplotlib.path.Path: Compound path containing every polygon ring.
+
+    Raises:
+        ValueError: If the geometry is empty or not polygonal.
+    """
+    if isinstance(geometry, ShapelyPolygon):
+        polygons = [geometry]
+    elif isinstance(geometry, ShapelyMultiPolygon):
+        polygons = list(geometry.geoms)
+    else:
+        raise ValueError("compound rendering requires a Polygon or MultiPolygon")
+
+    paths = []
+    for polygon in polygons:
+        polygon = orient(polygon, sign=1.0)
+        for ring in (polygon.exterior, *polygon.interiors):
+            vertices = np.asarray(ring.coords, dtype=float)
+            codes = np.full(len(vertices), Path.LINETO, dtype=np.uint8)
+            codes[0] = Path.MOVETO
+            codes[-1] = Path.CLOSEPOLY
+            paths.append(Path(vertices, codes))
+
+    if not paths:
+        raise ValueError("compound rendering requires a non-empty geometry")
+    return Path.make_compound_path(*paths)
+
+
 def draw_patch(
     ax: Any,
     shape: str,
@@ -776,6 +826,7 @@ def draw_patch(
     color: str | None = None,
     zorder: int | None = None,
     linestyle: str | None = None,
+    geometry: Any | None = None,
     **kwargs: Any,
 ) -> Any:
     """
@@ -787,6 +838,7 @@ def draw_patch(
       offset); created in the body frame and transformed, matching the collision geometry
     - rectangle: prefer ``vertices`` (2xN) else use ``width``/``height`` with ``state`` transform
     - polygon: use ``vertices`` (2xN)
+    - compound: use a local-frame Shapely Polygon or MultiPolygon as ``geometry``
     - ellipse: use ``width``/``height`` with ``state`` transform
     - wedge: use ``radius`` and either ``theta1``/``theta2`` (deg) or ``fov`` (rad); transformed by ``state``
     - arrow: use ``state`` for position/orientation or provide ``theta``; supports ``arrow_length`` and ``arrow_width``
@@ -887,6 +939,25 @@ def draw_patch(
             created_element,
             ax,
             state=state,  # vertices are absolute
+            color=color,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            alpha=alpha,
+            zorder=zorder,
+            linestyle=linestyle,
+            fill=fill,
+        )
+
+    # Compound Polygon / MultiPolygon
+    elif shape == "compound":
+        if geometry is None:
+            raise ValueError("compound requires a Polygon or MultiPolygon geometry")
+        patch = PathPatch(geometry_to_path(geometry))
+        created_element = ax.add_patch(patch)
+        set_patch_property(
+            created_element,
+            ax,
+            state=state,
             color=color,
             facecolor=facecolor,
             edgecolor=edgecolor,

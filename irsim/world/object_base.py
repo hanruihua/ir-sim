@@ -63,7 +63,7 @@ class ObstacleInfo:
     """Geometry and motion snapshot exposed for collision-aware behaviors."""
 
     center: np.ndarray
-    vertex: np.ndarray
+    vertex: np.ndarray | None
     velocity: np.ndarray
     radius: float
     G: np.ndarray
@@ -1131,7 +1131,7 @@ class ObjectBase:
         self,
         ax: Any,
         state: np.ndarray,
-        vertices: np.ndarray,
+        vertices: np.ndarray | None,
         initial: bool = False,
         **kwargs: Any,
     ) -> list[str]:
@@ -1598,7 +1598,7 @@ class ObjectBase:
         return np.c_[self._goal[0]]
 
     @property
-    def goal_vertices(self) -> np.ndarray:
+    def goal_vertices(self) -> np.ndarray | None:
         """
         Get the goal vertices of the object.
 
@@ -1697,25 +1697,42 @@ class ObjectBase:
         return self.collision_flag
 
     @property
-    def vertices(self) -> np.ndarray:
+    def vertices(self) -> np.ndarray | None:
         """
         Get the vertices of the object.
 
         Returns:
-            np.ndarray: The vertices of the object.
+            np.ndarray | None: The single-boundary vertices, or ``None`` for
+            compound geometry.
         """
 
         return self.gf.vertices
 
     @property
-    def original_vertices(self) -> np.ndarray:
+    def original_vertices(self) -> np.ndarray | None:
         """
         Get the original vertices of the object.
 
         Returns:
-            np.ndarray: The original vertices of the object before any transformations.
+            np.ndarray | None: Original single-boundary vertices, or ``None``
+            for compound geometry.
         """
         return self.gf.original_vertices
+
+    @property
+    def part_vertices(self) -> list[np.ndarray] | None:
+        """Return current vertices for each compound part.
+
+        Returns:
+            list[np.ndarray] | None: One ``(2, N)`` array per compound part,
+            or ``None`` for non-compound shapes.
+        """
+        return getattr(self.gf, "part_vertices", None)
+
+    @property
+    def original_part_vertices(self) -> list[np.ndarray] | None:
+        """Return body-frame vertices for each compound part."""
+        return getattr(self.gf, "original_part_vertices", None)
 
     @property
     def original_geometry(self) -> BaseGeometry:

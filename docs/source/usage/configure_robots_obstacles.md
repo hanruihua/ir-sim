@@ -73,16 +73,19 @@ robot:
 | `omni_angular` | `[forward, lateral, yaw_rate]` - body-frame velocity + yaw | Holonomic robots with rotation | ✓ Yes |
 | `diff`     | `[v, ω]` - linear & angular velocity | Two-wheeled robots | ✓ Yes |
 | `acker`    | `[v, φ]` - linear velocity & steering angle | Cars, car-like robots | ✗ No |
-- **`shape`:** Specifies the physical shape and size of the robot. Name options include `'circle'`, `'rectangle'`, `'polygon'`, and `linestring`.
+- **`shape`:** Specifies the physical shape and size of the robot. Name options include `'circle'`, `'rectangle'`, `'polygon'`, `'compound'`, and `linestring`.
     - `circle`: A circular robot with a specified radius.
     - `rectangle`: A rectangular robot with specified length and width.
     - `polygon`: A polygonal robot.
+    - `compound`: A rigid combination of circle, rectangle, or polygon parts.
     - `linestring`: list of lines.
  
 - **`state`:** Defines the initial position and orientation of the robot in the environment.
 - **`goal`:** Specifies the target position and orientation for the robot.
 - **`behavior`:** Specifies how the robot generates velocity in `env.step()` when no external command is provided. If omitted, the robot remains static unless a velocity command is passed to `env.step(velocity)`.
 - **`plot`** (optional): Specifies the visualization settings for the robot. See {py:meth}`~irsim.world.object_base.ObjectBase.plot` for more details.
+
+For a `compound` shape, the object's `state` moves the complete body. Each part's optional `pose: [x, y, theta]` is fixed relative to the object frame and defaults to `[0, 0, 0]`. All parts use the owning object's color. `show_trajectory` uses the same path-line renderer as other shapes. By default, its width is the compound's local-y extent and the line follows the midpoint of that extent, keeping the trajectory and body widths aligned. The line does not reproduce concave or disjoint footprint gaps; use `show_trail` for exact historical shape snapshots.
 
 
 The example above explicitly sets `behavior: {name: 'dash'}` so the robot moves from its initial state toward its goal when `env.step()` is called without an input velocity.

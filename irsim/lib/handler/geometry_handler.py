@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import ClassVar
 
 import numpy as np
 import shapely as shp
@@ -92,6 +93,8 @@ class geometry_handler(ABC):
                 cone_type = "Rpositive"
             else:
                 G, h, cone_type = None, None, None
+        elif self.name == "compound":
+            G, h, cone_type, convex_flag = None, None, None, False
         else:
             G, h, cone_type, convex_flag = None, None, None, None
 
@@ -109,6 +112,8 @@ class geometry_handler(ABC):
             tuple: ``(G, h, cone_type, convex_flag)`` where unavailable
             constraints are returned as ``None`` values.
         """
+        G, h, cone_type, convex_flag = None, None, None, None
+
         if self.name == "polygon" or self.name == "rectangle":
             G, h, cone_type, convex_flag = self.get_polygon_Gh(kwargs.get("vertices"))
 
@@ -116,6 +121,9 @@ class geometry_handler(ABC):
             G, h, cone_type, convex_flag = self.get_circle_Gh(
                 kwargs.get("center"), kwargs.get("radius")
             )
+
+        elif self.name == "compound":
+            convex_flag = False
 
         return G, h, cone_type, convex_flag
 
@@ -370,6 +378,142 @@ class RectangleGeometry(geometry_handler):
         return Polygon(vertices)
 
 
+class CompoundGeometry(geometry_handler):
+    """Compound geometry assembled from fixed solid parts.
+
+    Each part is defined in the owning object's body frame. Its optional
+    ``pose`` is ``[x, y, theta]`` relative to that frame and defaults to the
+    identity pose. The exact collision geometry is the union of all transformed
+    parts, so overlapping parts do not introduce internal collision boundaries.
+    """
+
+    _SUPPORTED_PARTS: ClassVar[set[str]] = {"circle", "polygon", "rectangle"}
+
+    def __init__(self, name: str = "compound", **kwargs):
+        super().__init__(name, **kwargs)
+
+    def construct_original_geometry(self, parts: list[dict] | None = None, **kwargs):
+        """Construct a compound geometry in the owning object's body frame.
+
+        Args:
+            parts: Non-empty list of shape dictionaries. Each dictionary uses
+                the existing primitive shape parameters and may include a local
+                ``pose`` of ``[x, y, theta]``.
+            **kwargs: Reserved for future compound-level options.
+
+        Returns:
+            shapely.geometry.Polygon | shapely.geometry.MultiPolygon: Union of
+            all locally transformed part geometries.
+
+        Raises:
+            ValueError: If parts are missing, unsupported, empty, or have an
+                invalid pose.
+            TypeError: If a part is not a dictionary.
+        """
+        self.part_handlers = []
+        self.part_poses = []
+        self._original_part_geometries = []
+
+        for part_config, pose_array in self._validate_parts(parts):
+            handler = GeometryFactory.create_geometry(**part_config)
+            local_geometry = geometry_transform(
+                handler._original_geometry, pose_array.reshape(3, 1)
+            )
+
+            self.part_handlers.append(handler)
+            self.part_poses.append(pose_array)
+            self._original_part_geometries.append(local_geometry)
+
+        geometry = unary_union(self._original_part_geometries)
+        if geometry.is_empty or geometry.geom_type not in {"Polygon", "MultiPolygon"}:
+            raise ValueError(
+                "compound parts must produce a non-empty Polygon or MultiPolygon"
+            )
+
+        self.part_geometries = list(self._original_part_geometries)
+        return geometry
+
+    @classmethod
+    def _validate_parts(cls, parts: list[dict] | None) -> list[tuple[dict, np.ndarray]]:
+        """Validate and normalize compound part configurations."""
+        if not isinstance(parts, list) or not parts:
+            raise ValueError("compound shape requires a non-empty 'parts' list")
+
+        validated = []
+        for index, part in enumerate(parts):
+            if not isinstance(part, dict):
+                raise TypeError(f"compound parts[{index}] must be a dictionary")
+
+            part_config = part.copy()
+            if "color" in part_config:
+                raise ValueError(
+                    "compound parts do not support individual colors; "
+                    "set color on the owning object"
+                )
+
+            try:
+                pose = np.asarray(part_config.pop("pose", [0, 0, 0]), dtype=float)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"compound parts[{index}].pose must contain three numbers"
+                ) from exc
+            if pose.shape != (3,) or not np.all(np.isfinite(pose)):
+                raise ValueError(
+                    f"compound parts[{index}].pose must be finite [x, y, theta]"
+                )
+
+            name = part_config.get("name")
+            if not isinstance(name, str):
+                raise ValueError(f"compound parts[{index}] requires a shape name")
+            name = name.lower()
+            if name not in cls._SUPPORTED_PARTS:
+                supported = ", ".join(sorted(cls._SUPPORTED_PARTS))
+                raise ValueError(
+                    f"unsupported compound part '{name}' at parts[{index}]; "
+                    f"supported parts are: {supported}"
+                )
+
+            part_config["name"] = name
+            validated.append((part_config, pose))
+
+        return validated
+
+    def step(self, state):
+        """Transform the compound and its individual parts to ``state``."""
+        self.geometry = geometry_transform(self._original_geometry, state)
+        self.part_geometries = [
+            geometry_transform(geometry, state)
+            for geometry in self._original_part_geometries
+        ]
+        return self.geometry
+
+    @property
+    def vertices(self) -> None:
+        """A compound has no single exact vertex matrix."""
+        return None
+
+    @property
+    def original_vertices(self) -> None:
+        """A compound has no single exact original vertex matrix."""
+        return None
+
+    @property
+    def part_vertices(self) -> list[np.ndarray]:
+        """Current exterior vertices for each part as ``(2, N)`` arrays."""
+        return [
+            geometry.exterior.coords._coords.T[:, :-1]
+            for geometry in self.part_geometries
+        ]
+
+    @property
+    def original_part_vertices(self) -> list[np.ndarray]:
+        """Body-frame exterior vertices for each part as ``(2, N)`` arrays."""
+        return [
+            geometry.exterior.coords._coords.T[:, :-1]
+            for geometry in self._original_part_geometries
+        ]
+
+
 class LinestringGeometry(geometry_handler):
     """LineString geometry handler for wall or boundary segments."""
 
@@ -495,7 +639,7 @@ class GeometryFactory:
 
         Args:
             name: Shape name. Supported values are ``circle``, ``polygon``,
-                ``rectangle``, ``linestring``, and ``map``.
+                ``rectangle``, ``compound``, ``linestring``, and ``map``.
             **kwargs: Shape-specific parameters forwarded to the handler.
 
         Returns:
@@ -514,6 +658,9 @@ class GeometryFactory:
 
         if name == "rectangle":
             return RectangleGeometry(name, **kwargs)
+
+        if name == "compound":
+            return CompoundGeometry(name, **kwargs)
 
         if name == "linestring":
             return LinestringGeometry(name, **kwargs)

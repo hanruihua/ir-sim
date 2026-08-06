@@ -83,6 +83,157 @@ class TestGeometryStep:
         assert geometry is not None
 
 
+class TestCompoundGeometry:
+    """Tests for fixed primitive parts assembled into one object geometry."""
+
+    def test_disjoint_parts_create_exact_multipolygon(self):
+        compound = GeometryFactory.create_geometry(
+            "compound",
+            parts=[
+                {"name": "rectangle", "length": 1.0, "width": 1.0},
+                {
+                    "name": "rectangle",
+                    "length": 1.0,
+                    "width": 1.0,
+                    "pose": [2.0, 0.0, 0.0],
+                },
+            ],
+        )
+
+        assert compound.geometry.geom_type == "MultiPolygon"
+        assert compound.geometry.area == pytest.approx(2.0)
+        assert compound.geometry.bounds == pytest.approx((-0.5, -0.5, 2.5, 0.5))
+        assert compound.vertices is None
+        assert compound.original_vertices is None
+        assert len(compound.part_vertices) == 2
+        assert len(compound.original_part_vertices) == 2
+        assert compound.get_init_Gh() == (None, None, None, False)
+        assert compound.get_Gh() == (None, None, None, False)
+
+    def test_overlapping_parts_are_unioned_without_internal_area(self):
+        compound = GeometryFactory.create_geometry(
+            "compound",
+            parts=[
+                {"name": "rectangle", "length": 2.0, "width": 1.0},
+                {
+                    "name": "rectangle",
+                    "length": 2.0,
+                    "width": 1.0,
+                    "pose": [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+
+        assert compound.geometry.geom_type == "Polygon"
+        assert compound.geometry.area == pytest.approx(3.0)
+
+    def test_part_pose_rotation_is_relative_to_body_frame(self):
+        compound = GeometryFactory.create_geometry(
+            "compound",
+            parts=[
+                {
+                    "name": "rectangle",
+                    "length": 2.0,
+                    "width": 1.0,
+                    "pose": [1.0, 0.0, np.pi / 2],
+                }
+            ],
+        )
+
+        assert compound.geometry.bounds == pytest.approx((0.5, -1.0, 1.5, 1.0))
+
+    def test_object_state_transforms_union_and_parts_together(self):
+        compound = GeometryFactory.create_geometry(
+            "compound",
+            parts=[
+                {"name": "rectangle", "length": 1.0, "width": 0.4},
+                {
+                    "name": "circle",
+                    "radius": 0.2,
+                    "pose": [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        original_distances = [
+            part.centroid.distance(compound.geometry.centroid)
+            for part in compound.part_geometries
+        ]
+
+        compound.step(np.array([[3.0], [4.0], [np.pi / 2]]))
+
+        transformed_distances = [
+            part.centroid.distance(compound.geometry.centroid)
+            for part in compound.part_geometries
+        ]
+        assert transformed_distances == pytest.approx(original_distances)
+        assert len(compound.part_vertices) == 2
+
+    @pytest.mark.parametrize(
+        ("parts", "error", "message"),
+        [
+            (None, ValueError, "non-empty 'parts'"),
+            ([], ValueError, "non-empty 'parts'"),
+            (["rectangle"], TypeError, r"parts\[0\] must be a dictionary"),
+            ([{"length": 1.0}], ValueError, "requires a shape name"),
+            (
+                [{"name": "linestring", "vertices": [[0, 0], [1, 0]]}],
+                ValueError,
+                "unsupported compound part",
+            ),
+            (
+                [{"name": "rectangle", "pose": [0, 0]}],
+                ValueError,
+                r"finite \[x, y, theta\]",
+            ),
+            (
+                [{"name": "rectangle", "pose": [0, 0, np.nan]}],
+                ValueError,
+                r"finite \[x, y, theta\]",
+            ),
+            (
+                [{"name": "rectangle", "color": "red"}],
+                ValueError,
+                "do not support individual colors",
+            ),
+        ],
+    )
+    def test_invalid_parts_are_rejected(self, parts, error, message):
+        with pytest.raises(error, match=message):
+            GeometryFactory.create_geometry("compound", parts=parts)
+
+    def test_collision_uses_exact_disjoint_geometry(self):
+        from irsim.world.object_base import ObjectBase
+
+        compound = ObjectBase(
+            shape={
+                "name": "compound",
+                "parts": [
+                    {
+                        "name": "rectangle",
+                        "length": 1.0,
+                        "width": 1.0,
+                        "pose": [-1.5, 0.0, 0.0],
+                    },
+                    {
+                        "name": "rectangle",
+                        "length": 1.0,
+                        "width": 1.0,
+                        "pose": [1.5, 0.0, 0.0],
+                    },
+                ],
+            }
+        )
+        in_gap = ObjectBase(
+            shape={"name": "circle", "radius": 0.2}, state=[0.0, 0.0, 0.0]
+        )
+        on_part = ObjectBase(
+            shape={"name": "circle", "radius": 0.2}, state=[1.5, 0.0, 0.0]
+        )
+
+        assert not compound.check_collision(in_gap)
+        assert compound.check_collision(on_part)
+
+
 class TestGeometryHandlerCoverage:
     """Additional tests to cover remaining lines in geometry_handler.py"""
 

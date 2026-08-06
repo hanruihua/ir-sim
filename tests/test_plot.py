@@ -13,8 +13,10 @@ from unittest.mock import Mock
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import shapely
 import yaml
 from matplotlib.colors import to_rgba
+from matplotlib.lines import Line2D
 
 import irsim
 import irsim.env.env_plot as env_plot_module
@@ -278,6 +280,31 @@ class TestDrawPatch:
         )
         assert poly is not None
 
+    def test_draw_compound_multipolygon(self, ax_2d):
+        """Compound rendering keeps disjoint polygon components in one patch."""
+        geometry = shapely.union_all(
+            [
+                shapely.box(-0.5, -0.5, 0.5, 0.5),
+                shapely.box(1.5, -0.5, 2.5, 0.5),
+            ]
+        )
+        patch = draw_patch(
+            ax_2d,
+            "compound",
+            state=np.array([[1.0], [2.0], [0.0]]),
+            geometry=geometry,
+            color="teal",
+        )
+
+        assert patch is not None
+        assert len(patch.get_path().vertices) == 10
+
+    def test_draw_compound_requires_polygonal_geometry(self, ax_2d):
+        with pytest.raises(ValueError, match="compound requires"):
+            draw_patch(ax_2d, "compound")
+        with pytest.raises(ValueError, match="Polygon or MultiPolygon"):
+            draw_patch(ax_2d, "compound", geometry=shapely.Point(0, 0))
+
     def test_draw_ellipse(self, ax_2d):
         """Test drawing ellipse patch."""
         state = np.array([[0.0], [0.0], [0.0]])
@@ -447,6 +474,110 @@ class TestObjectPlot:
             obj.object_patch.get_facecolor(), to_rgba("magenta", alpha=0.25)
         )
         assert obj.object_patch.get_linewidth() == 2.5
+        plt.close(fig)
+
+    def test_compound_object_render_matches_collision_geometry(self):
+        obj = ObjectBase(
+            shape={
+                "name": "compound",
+                "parts": [
+                    {"name": "rectangle", "length": 1.0, "width": 0.4},
+                    {
+                        "name": "circle",
+                        "radius": 0.2,
+                        "pose": [1.0, 0.0, 0.0],
+                    },
+                ],
+            },
+            state=[2.0, 3.0, np.pi / 2],
+            color="teal",
+        )
+
+        fig, ax = plt.subplots()
+        obj._init_plot(ax)
+
+        display_vertices = obj.object_patch.get_transform().transform(
+            obj.object_patch.get_path().vertices
+        )
+        data_vertices = ax.transData.inverted().transform(display_vertices)
+        rendered_bounds = (
+            data_vertices[:, 0].min(),
+            data_vertices[:, 1].min(),
+            data_vertices[:, 0].max(),
+            data_vertices[:, 1].max(),
+        )
+
+        assert rendered_bounds == pytest.approx(obj.geometry.bounds, abs=1e-6)
+        np.testing.assert_allclose(obj.object_patch.get_facecolor(), to_rgba("teal"))
+        plt.close(fig)
+
+    def test_compound_goal_and_trail_use_original_geometry(self):
+        obj = ObjectBase(
+            shape={
+                "name": "compound",
+                "parts": [
+                    {"name": "rectangle", "length": 1.0, "width": 0.4},
+                    {
+                        "name": "rectangle",
+                        "length": 0.4,
+                        "width": 1.0,
+                        "pose": [0.3, 0.0, 0.0],
+                    },
+                ],
+            },
+            goal=[4.0, 5.0, 0.5],
+        )
+
+        fig, ax = plt.subplots()
+        obj.plot_goal(ax, obj.goal)
+        obj.plot_trail(ax, np.array([[1.0], [2.0], [0.25]]))
+
+        assert obj.goal_patch.get_path().vertices.size > 0
+        assert obj.plot_trail_list[-1].get_path().vertices.size > 0
+        plt.close(fig)
+
+    def test_compound_trajectory_aligns_with_geometry_width(self):
+        obj = ObjectBase(
+            shape={
+                "name": "compound",
+                "parts": [
+                    {"name": "rectangle", "length": 0.8, "width": 0.3},
+                    {
+                        "name": "rectangle",
+                        "length": 0.3,
+                        "width": 0.8,
+                        "pose": [-0.25, 0.3, 0.0],
+                    },
+                ],
+            },
+            state=[1.0, 0.0, 0.0],
+            plot={"show_trajectory": True},
+        )
+        obj.trajectory = [
+            np.array([[1.0], [0.0], [0.0]]),
+            np.array([[2.0], [0.0], [0.0]]),
+        ]
+
+        fig, ax = plt.subplots()
+        obj._init_plot(ax)
+
+        trajectory_line = obj.trajectory_line[0]
+        _, min_y, _, max_y = obj.original_geometry.bounds
+        center_y = (min_y + max_y) / 2
+        assert isinstance(trajectory_line, Line2D)
+        assert obj._object_plot.options.trajectory.width == pytest.approx(obj.width)
+        np.testing.assert_allclose(trajectory_line.get_xdata(), [1.0, 2.0])
+        np.testing.assert_allclose(trajectory_line.get_ydata(), [center_y, center_y])
+
+        obj.trajectory.append(np.array([[3.0], [0.0], [np.pi / 2]]))
+        obj._step_plot()
+
+        np.testing.assert_allclose(
+            trajectory_line.get_xdata(), [1.0, 2.0, 3.0 - center_y]
+        )
+        np.testing.assert_allclose(
+            trajectory_line.get_ydata(), [center_y, center_y, 0.0], atol=1e-15
+        )
         plt.close(fig)
 
     @pytest.mark.parametrize(
