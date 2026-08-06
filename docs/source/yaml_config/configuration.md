@@ -1054,7 +1054,6 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the polygon in the format `[[x1, y1], [x2, y2], ...]`, if not provided, a random polygon will be generated.
     - **`random_shape`** (`bool`): Whether to generate a series of random polygons. Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex polygons. Default is `False`.
-    - parameters for random polygon generation, see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
       
     ```yaml
     # Example usage
@@ -1076,9 +1075,6 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
   - **`'compound'`**: Represents one rigid shape assembled from fixed solid parts.
     - **`parts`** (`list`): Non-empty list of `circle`, `rectangle`, or `polygon` shape dictionaries.
     - **`pose`** (`list`): Optional `[x, y, theta]` pose of a part relative to the owning object's coordinate-frame origin. Default is `[0, 0, 0]`, and `theta` is in radians.
-    - The object's `state` moves the complete compound body; parts cannot move independently.
-    - All parts inherit the owning object's color. Overlapping parts are merged for collision detection and visualization, while gaps between disjoint parts remain collision-free.
-    - `show_trajectory` uses the same path-line renderer as other shapes. By default, its width is the compound's local-y extent and the line follows the midpoint of that extent, keeping the trajectory and body widths aligned. The line does not reproduce concave or disjoint footprint gaps; use `show_trail` for exact historical shape snapshots.
 
     ```yaml
     # Example usage - compound robot body
@@ -1093,7 +1089,6 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
     - **`vertices`** (`list`): List of vertices defining the line string in the format `[[x1, y1], [x2, y2], ...]`.
     - **`random_shape`** (`bool`): Whether to generate a series of random line strings (polygon). Default is `False`.
     - **`is_convex`** (`bool`): Whether to generate a series of random convex line strings (polygons). Default is `True`.
-    - parameters for random line string generation (polygon), see {py:func}`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. Parameters include `number `, `center_range `, `avg_radius_range `, `irregularity_range `, `spikeyness_range `, `num_vertices_range `.
 
     ```yaml
     # Example usage

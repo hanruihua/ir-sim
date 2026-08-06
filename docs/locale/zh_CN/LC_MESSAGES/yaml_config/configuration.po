@@ -1824,18 +1824,6 @@ msgid ""
 "polygons. Default is `False`."
 msgstr "**`is_convex`**（`bool`）：是否生成一系列随机凸多边形，默认 `False`。"
 
-#: ../../source/yaml_config/configuration.md:1056
-msgid ""
-"parameters for random polygon generation, see {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. "
-"Parameters include `number `, `center_range `, `avg_radius_range `, "
-"`irregularity_range `, `spikeyness_range `, `num_vertices_range `."
-msgstr ""
-"随机多边形生成的参数，更多细节参见 {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon`。参数包括 `number "
-"`、`center_range `、`avg_radius_range `、`irregularity_range `、"
-"`spikeyness_range `、`num_vertices_range `。"
-
 #: ../../source/yaml_config/configuration.md:1076
 msgid ""
 "**`'compound'`**: Represents one rigid shape assembled from fixed solid "
@@ -1858,33 +1846,6 @@ msgid ""
 msgstr ""
 "**`pose`**（`list`）：部件相对于所属对象坐标系原点的可选 `[x, y, theta]` "
 "位姿。默认值为 `[0, 0, 0]`，`theta` 使用弧度。"
-
-#: ../../source/yaml_config/configuration.md:1079
-msgid ""
-"The object's `state` moves the complete compound body; parts cannot move "
-"independently."
-msgstr "对象的 `state` 驱动整个组合刚体运动；各部件不能独立运动。"
-
-#: ../../source/yaml_config/configuration.md:1080
-msgid ""
-"All parts inherit the owning object's color. Overlapping parts are merged "
-"for collision detection and visualization, while gaps between disjoint "
-"parts remain collision-free."
-msgstr ""
-"所有部件继承所属对象的颜色。重叠部件会合并用于碰撞检测和可视化，而分离部件之间"
-"的空隙仍为无碰撞区域。"
-
-#: ../../source/yaml_config/configuration.md:1081
-msgid ""
-"`show_trajectory` uses the same path-line renderer as other shapes. By "
-"default, its width is the compound's local-y extent and the line follows the "
-"midpoint of that extent, keeping the trajectory and body widths aligned. The "
-"line does not reproduce concave or disjoint footprint gaps; use `show_trail` "
-"for exact historical shape snapshots."
-msgstr ""
-"`show_trajectory` 与其他形状一样使用路径线渲染。默认宽度为组合体在局部 y 方向"
-"上的范围，路径线沿该范围的中点移动，使轨迹宽度与本体宽度对齐。路径线不会还原"
-"凹形或分离足迹中的空白；如需精确的历史形状快照，请使用 `show_trail`。"
 
 #: ../../source/yaml_config/configuration.md:1075
 msgid ""
@@ -1910,18 +1871,6 @@ msgid ""
 "**`is_convex`** (`bool`): Whether to generate a series of random convex line "
 "strings (polygons). Default is `True`."
 msgstr "**`is_convex`**（`bool`）：是否生成随机凸线串（多边形），默认 `True`。"
-
-#: ../../source/yaml_config/configuration.md:1079
-msgid ""
-"parameters for random line string generation (polygon), see {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon` for more details. "
-"Parameters include `number `, `center_range `, `avg_radius_range `, "
-"`irregularity_range `, `spikeyness_range `, `num_vertices_range `."
-msgstr ""
-"随机折线（多边形）生成的参数，更多细节参见 {py:func}"
-"`~irsim.lib.algorithm.generation.random_generate_polygon`。参数包括 `number "
-"`、`center_range `、`avg_radius_range `、`irregularity_range `、"
-"`spikeyness_range `、`num_vertices_range `。"
 
 #: ../../source/yaml_config/configuration.md:0
 msgid "**object behavior**"
