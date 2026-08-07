@@ -1,6 +1,6 @@
 <div align="center">
 
-# Intelligent Robot Simulator (IR-SIM)
+<img src="docs/source/_static/ir-sim-logo-horizontal.png" alt="IR-SIM — Intelligent Robot Simulator" width="760">
 
 *A lightweight, YAML-driven robot simulator for navigation, control, and learning*
 
