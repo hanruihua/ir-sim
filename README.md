@@ -1,6 +1,10 @@
 <div align="center">
 
-<img src="docs/source/_static/ir-sim-logo-horizontal.png" alt="IR-SIM — Intelligent Robot Simulator" width="760">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/hanruihua/ir-sim/main/branding/ir-sim-logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/hanruihua/ir-sim/main/branding/ir-sim-logo-light.png">
+  <img src="https://raw.githubusercontent.com/hanruihua/ir-sim/main/branding/ir-sim-logo-light.png" alt="IR-SIM — Intelligent Robot Simulator" width="560">
+</picture>
 
 *A lightweight, YAML-driven robot simulator for navigation, control, and learning*
 
