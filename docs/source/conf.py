@@ -191,6 +191,7 @@ def autoapi_skip_member(app, what, name, obj, skip, options):
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_favicon = "_static/ir-sim-favicon.png"
 
 # html_theme = "sphinx_rtd_theme"
 html_theme = "pydata_sphinx_theme"
@@ -254,7 +255,9 @@ html_theme_options = {
         },
     ],
     "logo": {
-        "text": "IR-SIM documentation",
+        "image_light": "_static/ir-sim-logo-navbar.png",
+        "image_dark": "_static/ir-sim-logo-navbar-dark.png",
+        "alt_text": "IR-SIM — Intelligent Robot Simulator",
     },
     "navbar_start": ["navbar-logo"],
     "navbar_center": ["navbar-nav"],
@@ -305,9 +308,11 @@ sitemap_url_scheme = "{link}"
 ogp_site_url = html_baseurl
 ogp_enable_meta_description = True
 ogp_description_length = 200
-# Fallback preview image (the signature multi-robot RVO demo) used on pages
-# whose first image is externally hosted — most importantly the landing page.
-ogp_image = "https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b"
+# Branded fallback preview image used when a page has no suitable first image.
+# The relative path is resolved against ``ogp_site_url``, keeping version and
+# language URLs correct on Read the Docs.
+ogp_image = "_static/ir-sim-social-card.png"
+ogp_image_alt = "IR-SIM — Intelligent Robot Simulator"
 # Prefer each page's own first image as its preview card when one is available
 # (guide pages with local gifs); otherwise fall back to `ogp_image` above.
 ogp_use_first_image = True

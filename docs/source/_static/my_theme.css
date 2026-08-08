@@ -131,6 +131,21 @@ html[data-theme="dark"] {
     max-width: 100rem;
     padding-inline: 1.5rem;
 }
+.bd-header .navbar-brand.logo {
+    padding-block: 0.4rem;
+}
+.bd-header .navbar-brand.logo img.logo__image {
+    width: auto;
+    height: 2.25rem;
+    max-width: 10rem;
+    border-radius: 0.25rem;
+}
+@media (max-width: 959.98px) {
+    .bd-header .navbar-brand.logo img.logo__image {
+        height: 2rem;
+        max-width: 8.5rem;
+    }
+}
 /* ============================================================
    Landing page (the Welcome page drops the right "On this page"
    TOC, so we key off its absence). Goal: a wide, generous shell
