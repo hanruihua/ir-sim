@@ -1,0 +1,106 @@
+# Chinese translations for the IR-SIM documentation.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-08 17:45+0800\n"
+"PO-Revision-Date: 2026-08-08 17:45+0800\n"
+"Last-Translator: Ruihua Han\n"
+"Language-Team: zh_CN\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/usage/torch_wrapper.md:1
+msgid "PyTorch wrapper"
+msgstr "PyTorch 包装器"
+
+#: ../../source/usage/torch_wrapper.md:3
+msgid "`TorchWrapper` connects the existing NumPy-based IR-SIM environment to a custom PyTorch training loop. The simulation still runs on the CPU; the wrapper only converts actions and observation arrays between NumPy and PyTorch."
+msgstr "`TorchWrapper` 将现有的 NumPy IR-SIM 环境连接到自定义 PyTorch 训练循环。仿真仍在 CPU 上运行；包装器只负责在 NumPy 与 PyTorch 之间转换动作和观测数组。"
+
+#: ../../source/usage/torch_wrapper.md:7
+msgid "Installation"
+msgstr "安装"
+
+#: ../../source/usage/torch_wrapper.md:9
+msgid "PyTorch is optional and is imported only when the wrapper is created:"
+msgstr "PyTorch 是可选依赖，仅在创建包装器时导入："
+
+#: ../../source/usage/torch_wrapper.md:15
+msgid "Basic usage"
+msgstr "基本用法"
+
+#: ../../source/usage/torch_wrapper.md:31
+msgid "`step()` accepts Tensor actions and moves them to CPU NumPy arrays before calling the original environment. `get_robot_state()`, `get_lidar_scan()`, and `get_lidar_offset()` return tensors on the configured device. Floating arrays use `float32` by default; pass `dtype=None` to preserve their NumPy dtype."
+msgstr "`step()` 接受 Tensor 动作，并在调用原环境前将其转换为 CPU NumPy 数组。`get_robot_state()`、`get_lidar_scan()` 和 `get_lidar_offset()` 返回位于指定设备上的 Tensor。浮点数组默认使用 `float32`；传入 `dtype=None` 可保留其 NumPy 数据类型。"
+
+#: ../../source/usage/torch_wrapper.md:36
+msgid "Multi-robot training"
+msgstr "多机器人训练"
+
+#: ../../source/usage/torch_wrapper.md:38
+msgid "Training code commonly needs one leading robot dimension. The plural getters collect the same fields that would otherwise require loops over `robot_list`:"
+msgstr "训练代码通常需要一个以机器人数量为首维的批量维度。复数形式的 getter 会收集原本需要循环访问 `robot_list` 才能取得的相同字段："
+
+#: ../../source/usage/torch_wrapper.md:51
+msgid "Pass `ids=[...]` to select robots. Homogeneous values are stacked by default. If robots have different state dimensions or some goals are `None`, pass `stack=False` to keep a list of tensors."
+msgstr "传入 `ids=[...]` 可选择机器人。同构数据默认堆叠；如果机器人的状态维度不同，或部分目标为 `None`，可传入 `stack=False` 以保留 Tensor 列表。"
+
+#: ../../source/usage/torch_wrapper.md:55
+msgid "A policy may return actions as `(num_robots, action_dim)` or `(num_robots, action_dim, 1)`. The wrapper converts either layout to IR-SIM's per-robot action list:"
+msgstr "策略可以返回 `(num_robots, action_dim)` 或 `(num_robots, action_dim, 1)` 形状的动作。包装器会将这两种布局转换为 IR-SIM 的逐机器人动作列表："
+
+#: ../../source/usage/torch_wrapper.md:65
+msgid "A single column action with shape `(action_dim, 1)` keeps its original meaning."
+msgstr "形状为 `(action_dim, 1)` 的单个列向量动作仍保持原有含义。"
+
+#: ../../source/usage/torch_wrapper.md:67
+msgid "API compatibility"
+msgstr "API 兼容性"
+
+#: ../../source/usage/torch_wrapper.md:69
+msgid "The wrapper preserves the existing IR-SIM lifecycle:"
+msgstr "包装器保留现有的 IR-SIM 生命周期："
+
+#: ../../source/usage/torch_wrapper.md:71
+msgid "`step()` and `reset()` keep their original return values."
+msgstr "`step()` 和 `reset()` 保持原有返回值。"
+
+#: ../../source/usage/torch_wrapper.md:72
+msgid "`render()`, `done()`, `close()`, and other attributes are delegated to the wrapped environment."
+msgstr "`render()`、`done()`、`close()` 及其他属性均代理给被包装的环境。"
+
+#: ../../source/usage/torch_wrapper.md:74
+msgid "Singular getters do not add a batch dimension. `get_robot_state()` therefore keeps `(state_dim, 1)`, while `get_robot_states()` explicitly adds the leading robot dimension."
+msgstr "单数形式的 getter 不增加 batch 维度，因此 `get_robot_state()` 保持 `(state_dim, 1)`；`get_robot_states()` 则显式增加机器人首维。"
+
+#: ../../source/usage/torch_wrapper.md:77
+msgid "`env.unwrapped` returns the original IR-SIM environment."
+msgstr "`env.unwrapped` 返回原始 IR-SIM 环境。"
+
+#: ../../source/usage/torch_wrapper.md:79
+msgid "For heterogeneous robot actions, pass a list of tensors just as the NumPy API expects a list of arrays:"
+msgstr "对于异构机器人的动作，请传入 Tensor 列表，与 NumPy API 接收数组列表的方式一致："
+
+#: ../../source/usage/torch_wrapper.md:88
+msgid "`TorchWrapper` enables GPU policy inference and training, but it does not move IR-SIM kinematics, collision detection, or sensors to the GPU."
+msgstr "`TorchWrapper` 支持在 GPU 上进行策略推理和训练，但不会将 IR-SIM 的运动学、碰撞检测或传感器计算迁移到 GPU。"
+
+#: ../../source/usage/torch_wrapper.md:92
+msgid "Wrapper construction"
+msgstr "包装器构造"
+
+#: ../../source/usage/torch_wrapper.md:94
+msgid "Wrappers are composed explicitly and do not require registration:"
+msgstr "包装器采用显式组合，无需注册："
+
+#: ../../source/usage/torch_wrapper.md:100
+msgid "Explicit construction keeps runtime options such as `device` and `dtype` visible and allows future wrappers to be nested. Environment registration and wrapper composition therefore remain separate concerns."
+msgstr "显式构造使 `device`、`dtype` 等运行时选项保持可见，也允许未来嵌套多个包装器。因此，环境注册与包装器组合保持为两个独立概念。"

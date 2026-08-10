@@ -96,6 +96,7 @@ Contents
    :caption: Basic Usage
 
    make_environment
+   torch_wrapper
    configure_robots_obstacles
    configure_sensor
    configure_keyboard_Mouse_control
