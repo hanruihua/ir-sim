@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import importlib
 from collections import Counter
-from typing import Any, Literal
+from typing import Any, Literal, cast
+from math import atan, atan2, hypot
 
 import matplotlib
 import numpy as np
@@ -28,6 +29,7 @@ from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.msg import ObjectState, Odometry, WorldState
 from irsim.util.random import rng, set_seed
 from irsim.util.util import normalize_actions, to_numpy
 from irsim.world import ObjectBase, ObjectFactory
@@ -1148,6 +1150,244 @@ class EnvBase:
 
         return self.robot._state
 
+    def get_msg(self) -> WorldState:
+        """Get a ROS-style snapshot of the complete simulation environment.
+
+        The returned message owns copies of all state and sensor arrays. It
+        therefore remains a stable point-in-time record when the environment
+        advances or its objects are modified later.
+
+        Returns:
+            WorldState: Current world metadata with ROS-style ``odom`` and
+            ``scan`` messages for each object.
+
+        Example:
+            >>> msg = env.get_msg()
+            >>> msg.header.stamp
+            0.0
+            >>> msg.robots[0].odom.pose.pose.position.x
+            1.0
+            >>> msg.robots[0].scan.ranges
+            array([...])
+        """
+
+        return WorldState.from_env(self)
+
+    def receive_msg(
+        self,
+        msg: WorldState | ObjectState | Odometry,
+        *,
+        object_name: str | None = None,
+        object_id: int | None = None,
+        refresh: bool = True,
+    ) -> int:
+        """Apply ROS-style odometry messages to simulation objects.
+
+        ``WorldState`` updates every contained object, while ``ObjectState``
+        uses its embedded name and id. A standalone IR-SIM or native ROS-style
+        ``Odometry`` message targets the primary robot unless ``object_name``
+        or ``object_id`` is supplied. World/object metadata, goals, scans, and
+        the simulation clock remain owned by the receiving environment.
+
+        Object poses are matched by name first and id second. The incoming
+        planar pose and body-frame twist are converted to the target object's
+        local state and velocity layout. All messages are validated before any
+        object is changed, so a failed receive does not partially update the
+        environment.
+
+        Args:
+            msg: A :class:`~irsim.msg.WorldState`,
+                :class:`~irsim.msg.ObjectState`, or ROS-compatible
+                ``nav_msgs/Odometry`` object.
+            object_name: Explicit target name for a standalone odometry or
+                object message.
+            object_id: Explicit target object id for a standalone odometry or
+                object message. Names take precedence when both are provided.
+            refresh: Recompute geometry, sensors, collision tree, and status
+                after applying all updates. Set ``False`` when batching manual
+                changes and call :meth:`refresh` afterwards. Default is True.
+
+        Returns:
+            int: Number of simulation objects updated.
+
+        Raises:
+            TypeError: If ``msg`` is not a supported message shape.
+            ValueError: If a target cannot be found, a target appears more
+                than once, or odometry contains an invalid planar pose.
+
+        Example:
+            >>> external_odom = source_env.get_msg().robots[0].odom
+            >>> target_env.receive_msg(
+            ...     external_odom, object_name="message_robot"
+            ... )
+            1
+        """
+
+        updates = self._resolve_received_updates(msg, object_name, object_id)
+        prepared: list[tuple[ObjectBase, np.ndarray, np.ndarray]] = []
+        seen_targets: set[int] = set()
+
+        for target, odom in updates:
+            target_key = id(target)
+            if target_key in seen_targets:
+                raise ValueError(
+                    f"Received more than one state for object '{target.name}'."
+                )
+            seen_targets.add(target_key)
+            state, velocity = self._state_velocity_from_odometry(target, odom)
+            prepared.append((target, state, velocity))
+
+        for target, state, velocity in prepared:
+            target.set_state(state)
+            target.set_velocity(velocity)
+
+        if refresh and prepared:
+            self.refresh()
+
+        return len(prepared)
+
+    def _resolve_received_updates(
+        self,
+        msg: WorldState | ObjectState | Odometry,
+        object_name: str | None,
+        object_id: int | None,
+    ) -> list[tuple[ObjectBase, Any]]:
+        """Resolve incoming messages to local objects without mutating them."""
+        if isinstance(msg, WorldState):
+            if object_name is not None or object_id is not None:
+                raise ValueError(
+                    "object_name and object_id cannot be used with WorldState."
+                )
+            return [
+                (
+                    self._find_received_object(obj_msg.name, obj_msg.id),
+                    obj_msg.odom,
+                )
+                for obj_msg in msg.objects
+            ]
+
+        if isinstance(msg, ObjectState):
+            if object_name is not None or object_id is not None:
+                target = self._find_received_object(object_name, object_id)
+            else:
+                target = self._find_received_object(msg.name, msg.id)
+            return [
+                (
+                    target,
+                    msg.odom,
+                )
+            ]
+
+        if object_name is None and object_id is None:
+            return [(self.robot, msg)]
+
+        return [(self._find_received_object(object_name, object_id), msg)]
+
+    def _find_received_object(
+        self, object_name: str | None, object_id: int | None
+    ) -> ObjectBase:
+        """Find an incoming message target by stable name, then by id."""
+        if object_name:
+            target = next(
+                (obj for obj in self.objects if obj.name == object_name), None
+            )
+            if target is not None:
+                return target
+
+        if object_id is not None:
+            target = next((obj for obj in self.objects if obj.id == object_id), None)
+            if target is not None:
+                return target
+
+        identity = (
+            f"name={object_name!r}, id={object_id}"
+            if object_name or object_id is not None
+            else "without a name or id"
+        )
+        raise ValueError(f"No simulation object matches received message {identity}.")
+
+    @staticmethod
+    def _state_velocity_from_odometry(
+        target: ObjectBase, odom: Any
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Convert ROS-compatible planar odometry to local state arrays."""
+        try:
+            position = odom.pose.pose.position
+            orientation = odom.pose.pose.orientation
+            twist = odom.twist.twist
+            x = float(position.x)
+            y = float(position.y)
+            qx = float(orientation.x)
+            qy = float(orientation.y)
+            qz = float(orientation.z)
+            qw = float(orientation.w)
+            linear_x = float(twist.linear.x)
+            linear_y = float(twist.linear.y)
+            angular_z = float(twist.angular.z)
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise TypeError(
+                "msg must be WorldState, ObjectState, or a ROS-compatible "
+                "nav_msgs/Odometry object."
+            ) from exc
+
+        values = np.array(
+            [x, y, qx, qy, qz, qw, linear_x, linear_y, angular_z], dtype=float
+        )
+        if not np.all(np.isfinite(values)):
+            raise ValueError("Received odometry values must all be finite.")
+
+        quaternion_norm = hypot(hypot(qx, qy), hypot(qz, qw))
+        if quaternion_norm <= np.finfo(float).eps:
+            raise ValueError("Received odometry orientation must be non-zero.")
+        qx /= quaternion_norm
+        qy /= quaternion_norm
+        qz /= quaternion_norm
+        qw /= quaternion_norm
+        yaw = atan2(
+            2.0 * (qw * qz + qx * qy),
+            1.0 - 2.0 * (qy * qy + qz * qz),
+        )
+
+        state = np.array(target.state, dtype=float, copy=True)
+        if state.shape[0] < 3:
+            raise ValueError(
+                f"Object '{target.name}' needs at least three state values "
+                "to receive planar odometry."
+            )
+        state[0, 0] = x
+        state[1, 0] = y
+        state[2, 0] = yaw
+
+        velocity = np.zeros(target.vel_shape, dtype=float)
+        kinematics = target.kinematics
+        if kinematics == "diff":
+            velocity[0, 0] = linear_x
+            velocity[1, 0] = angular_z
+        elif kinematics == "omni":
+            velocity[0, 0] = linear_x
+            velocity[1, 0] = linear_y
+        elif kinematics == "omni_angular":
+            velocity[0, 0] = linear_x
+            velocity[1, 0] = linear_y
+            velocity[2, 0] = angular_z
+        elif kinematics == "acker":
+            steering = float(state[3, 0])
+            if abs(linear_x) > np.finfo(float).eps:
+                steering = atan(angular_z * target.wheelbase / linear_x)
+                state[3, 0] = steering
+            velocity[0, 0] = linear_x
+            velocity[1, 0] = (
+                steering
+                if getattr(target.kf, "mode", "steer") == "steer"
+                else angular_z
+            )
+        elif kinematics is not None:
+            components = (linear_x, linear_y, angular_z)
+            for index, value in enumerate(components[: target.vel_shape[0]]):
+                velocity[index, 0] = value
+
+        return state, velocity
+
     def get_lidar_scan(self, id: int = 0) -> dict[str, Any]:
         """
         Get the LiDAR scan of the robot with the given id.
@@ -1493,7 +1733,7 @@ class EnvBase:
         Returns:
             EnvLogger: The logger instance for the environment.
         """
-        return self._env_param.logger  # type: ignore[return-value]
+        return cast(EnvLogger, self._env_param.logger)
 
     @property
     def key_vel(self) -> Any:

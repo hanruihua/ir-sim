@@ -1,3 +1,5 @@
+from dataclasses import fields
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -161,6 +163,21 @@ def _legacy_fmcw_scan(sensor):
 
 
 class TestFMCWLidar2D:
+    def test_laser_scan_message_matches_ros_noetic_fields(self):
+        """LaserScan should contain exactly the ROS Noetic message fields."""
+        assert [item.name for item in fields(LaserScan)] == [
+            "header",
+            "angle_min",
+            "angle_max",
+            "angle_increment",
+            "time_increment",
+            "scan_time",
+            "range_min",
+            "range_max",
+            "ranges",
+            "intensities",
+        ]
+
     def test_factory_creates_fmcw_sensor(self):
         """SensorFactory should create the simplified FMCW lidar."""
         factory = SensorFactory()
@@ -264,6 +281,21 @@ class TestFMCWLidar2D:
         assert scan["ranges"][0] == pytest.approx(1.8, abs=1e-3)
         assert scan["radial_velocity"][0] == pytest.approx(-1.0, abs=1e-6)
         assert scan["intensities"] is None
+
+        msg = LaserScan.from_sensor(
+            sensor, stamp=1.2, seq=12, frame_id="robot/fmcw_lidar2d_0"
+        )
+        assert msg.header.stamp == pytest.approx(1.2)
+        assert msg.header.seq == 12
+        assert msg.header.frame_id == "robot/fmcw_lidar2d_0"
+        assert msg.ros_type == "sensor_msgs/LaserScan"
+        assert msg.ranges.dtype == np.float32
+        assert msg.ranges[0] == pytest.approx(1.8, abs=1e-3)
+        assert msg.intensities.dtype == np.float32
+        assert msg.intensities.size == 0
+
+        sensor.range_data[0] = 4.0
+        assert msg.ranges[0] == pytest.approx(1.8, abs=1e-3)
 
     def test_motion_compensation_removes_ego_velocity(self):
         """Motion compensation should report world-frame radial target speed."""

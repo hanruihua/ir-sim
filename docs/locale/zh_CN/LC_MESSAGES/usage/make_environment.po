@@ -319,6 +319,14 @@ msgstr ""
 "建世界/对象。"
 
 #: ../../source/usage/make_environment.md:146
+msgid "**`env.get_msg()`**: Captures a dependency-free ROS-style snapshot of the world."
+msgstr "**`env.get_msg()`**：捕获无需额外依赖的 ROS 风格世界快照。"
+
+#: ../../source/usage/make_environment.md:147
+msgid "**`env.receive_msg(...)`**: Applies external ROS-style odometry to IR-SIM objects and refreshes their derived state."
+msgstr "**`env.receive_msg(...)`**：将外部 ROS 风格里程计应用到 IR-SIM 对象，并刷新其派生状态。"
+
+#: ../../source/usage/make_environment.md:148
 msgid "**`env.end()`**: Properly closes the environment and releases resources"
 msgstr "**`env.end()`**：正确关闭环境并释放资源"
 
@@ -345,7 +353,98 @@ msgstr ""
 "最新世界状态。若手动推进对象，请在 `ObjectBase.step(...)` 传入 "
 "`sensor_step=True`，或在更新对象状态后调用 `obj.sensor_step()`。"
 
-#: ../../source/usage/make_environment.md:155
+#: ../../source/usage/make_environment.md:157
+msgid "Exchange simulation messages"
+msgstr "交换仿真消息"
+
+#: ../../source/usage/make_environment.md:157
+msgid ""
+"Use `env.get_msg()` when a controller, logger, bridge, or learning pipeline "
+"needs one consistent snapshot of the simulator. The returned "
+"{py:class}`~irsim.msg.WorldState` groups each object's data under "
+"conventional ROS topic names: `robot.odom` is a "
+"{py:class}`~irsim.msg.Odometry` message and `robot.scan` is its primary "
+"{py:class}`~irsim.msg.LaserScan` message."
+msgstr ""
+"当控制器、日志记录器、桥接程序或学习流程需要一致的仿真器快照时，可使用 "
+"`env.get_msg()`。返回的 {py:class}`~irsim.msg.WorldState` 按照常见 ROS "
+"话题名称组织每个对象的数据：`robot.odom` 是 "
+"{py:class}`~irsim.msg.Odometry` 消息，`robot.scan` 是其主 "
+"{py:class}`~irsim.msg.LaserScan` 消息。"
+
+#: ../../source/usage/make_environment.md:175
+msgid ""
+"The message types declare their ROS counterparts through `ros_type`, for "
+"example `robot.odom.ros_type == \"nav_msgs/Odometry\"` and "
+"`robot.scan.ros_type == \"sensor_msgs/LaserScan\"`. The `scans` list "
+"contains every LiDAR reading, and `scan` aliases its first item as the "
+"primary reading."
+msgstr ""
+"消息类型通过 `ros_type` 声明对应的 ROS 类型，例如 "
+"`robot.odom.ros_type == \"nav_msgs/Odometry\"` 和 "
+"`robot.scan.ros_type == \"sensor_msgs/LaserScan\"`。`scans` 列表包含所有 "
+"LiDAR 读数，`scan` 是其中第一项（主读数）的别名。"
+
+#: ../../source/usage/make_environment.md:177
+msgid ""
+"{py:class}`~irsim.msg.LaserScan` contains only the fields defined by ROS "
+"Noetic `sensor_msgs/LaserScan`; when intensity data is unavailable, "
+"`intensities` is an empty array. IR-SIM-specific sensor metadata such as "
+"offsets, Cartesian target velocity, FMCW radial velocity, and validity "
+"remains available from `sensor.get_scan()` or `env.get_lidar_scan()`."
+msgstr ""
+"{py:class}`~irsim.msg.LaserScan` 仅包含 ROS Noetic "
+"`sensor_msgs/LaserScan` 定义的字段；没有强度数据时，`intensities` 为空数组。"
+"偏移、笛卡尔目标速度、FMCW 径向速度和有效性等 IR-SIM 专用传感器元数据仍可通过 "
+"`sensor.get_scan()` 或 `env.get_lidar_scan()` 获取。"
+
+#: ../../source/usage/make_environment.md:179
+msgid ""
+"Messages are point-in-time copies: later calls to `env.step()` or object "
+"setters do not mutate a message you already captured. The message classes "
+"are dependency-free and do not require ROS; a ROS bridge can map them to "
+"native ROS messages at its boundary."
+msgstr ""
+"消息是特定时刻的副本：之后调用 `env.step()` 或对象设置方法，不会修改已经捕获"
+"的消息。这些消息类无需额外依赖，也不要求安装 ROS；ROS 桥接程序可在边界处将它"
+"们映射为原生 ROS 消息。"
+
+#: ../../source/usage/make_environment.md:183
+msgid ""
+"Use `env.receive_msg(...)` to drive IR-SIM from another simulator or a ROS "
+"bridge. It accepts a complete {py:class}`~irsim.msg.WorldState`, one "
+"{py:class}`~irsim.msg.ObjectState`, or an IR-SIM/native ROS-style "
+"{py:class}`~irsim.msg.Odometry`. A standalone odometry message updates the "
+"primary robot by default; select another local object by its stable name or "
+"IR-SIM object ID:"
+msgstr ""
+"使用 `env.receive_msg(...)` 可由其他仿真器或 ROS 桥接程序驱动 IR-SIM。该方法"
+"接受完整的 {py:class}`~irsim.msg.WorldState`、单个 "
+"{py:class}`~irsim.msg.ObjectState`，或 IR-SIM/原生 ROS 风格的 "
+"{py:class}`~irsim.msg.Odometry`。独立的里程计消息默认更新主机器人；也可以通过"
+"稳定的对象名称或 IR-SIM 对象 ID 选择其他本地对象："
+
+#: ../../source/usage/make_environment.md:192
+msgid ""
+"For a `WorldState`, incoming objects are matched to local objects by name "
+"first and ID second. IR-SIM applies the planar pose and body-frame twist, "
+"while the receiving environment retains its own configuration, goals, "
+"scans, and simulation clock. By default, one call also refreshes geometry, "
+"locally simulated sensors, collisions, and arrival status. Pass "
+"`refresh=False` only when batching updates, then call `env.refresh()` once "
+"afterwards. All incoming updates are validated before any object is changed."
+msgstr ""
+"对于 `WorldState`，传入对象会先按名称、再按 ID 与本地对象匹配。IR-SIM 应用二维"
+"位姿和机体坐标系 twist，而接收环境保留自己的配置、目标、扫描数据和仿真时钟。"
+"默认情况下，每次调用还会刷新几何、本地仿真的传感器、碰撞和到达状态。仅在批量"
+"更新时传入 `refresh=False`，随后统一调用一次 `env.refresh()`。任何对象被修改"
+"之前，所有传入更新都会先完成验证。"
+
+#: ../../source/usage/make_environment.md:179
+msgid "The complete runnable example is available under `usage/25msg_world/`."
+msgstr "完整的可运行示例位于 `usage/25msg_world/`。"
+
+#: ../../source/usage/make_environment.md:177
 msgid "Environment Control and Status"
 msgstr "环境控制与状态"
 

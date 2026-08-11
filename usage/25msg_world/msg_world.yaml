@@ -1,0 +1,40 @@
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - name: 'message_robot'
+    kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.25}
+    state: [1, 1, 0]
+    goal: [9, 9, 0]
+    behavior: {name: 'dash'}
+    color: 'royalblue'
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.05
+        range_max: 5.0
+        angle_range: 6.283185
+        number: 72
+        noise: False
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.25
+          color: 'deepskyblue'
+    plot:
+      show_goal: True
+      show_trajectory: True
+
+obstacle:
+  - shape: {name: 'rectangle', length: 1.2, width: 1.0}
+    state: [3.0, 6.0, 0.3]
+    color: 'darkorange'
+
+  - shape: {name: 'circle', radius: 0.6}
+    state: [6.5, 3.0, 0]
+    color: 'seagreen'
