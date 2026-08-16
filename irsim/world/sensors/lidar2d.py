@@ -7,8 +7,9 @@ import shapely
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from shapely import MultiLineString, prepare
+from shapely import MultiLineString
 
+from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
 from irsim.util.util import (
     WrapTo2Pi,
@@ -146,35 +147,6 @@ class Lidar2D:
 
         return env_param
 
-    def _ensure_multi_linestring(self, geometry):
-        """
-        Ensure geometry is a MultiLineString, converting if necessary.
-
-        Args:
-            geometry: Shapely geometry object.
-
-        Returns:
-            MultiLineString: Geometry as MultiLineString.
-        """
-        if geometry.geom_type == "LineString":
-            return MultiLineString([geometry])
-        if geometry.geom_type == "MultiLineString":
-            return geometry
-        if geometry.is_empty:
-            return MultiLineString()
-        if geometry.geom_type == "GeometryCollection":
-            # Extract LineString components (and any lines from nested MultiLineStrings)
-            linestrings = []
-            for g in geometry.geoms:
-                if g.geom_type == "LineString":
-                    linestrings.append(g)
-                elif g.geom_type == "MultiLineString":
-                    linestrings.extend(list(g.geoms))
-            return MultiLineString(linestrings) if linestrings else MultiLineString()
-
-        # For unsupported geometry types (e.g., Point, Polygon), return an empty MultiLineString
-        return MultiLineString()
-
     def init_geometry(self, state):
         """
         Initialize the Lidar's scanning geometry.
@@ -203,139 +175,72 @@ class Lidar2D:
         self._geometry = geometry_transform(self._original_geometry, state)
         self._init_geometry = self._geometry
 
-    def step(self, state):
+    def step(self, state: np.ndarray) -> None:
         """
-        Update the Lidar's state and process intersections with environment objects.
+        Update the Lidar's state and compute per-beam ranges via ray casting.
+
+        Each beam is intersected analytically against the boundary segments of
+        nearby obstacles (polygons, linestrings, and map segments); the nearest
+        hit along the beam is its range. This reproduces the previous geometry
+        ``difference`` result to floating-point precision when the sensor origin
+        is in free space, while avoiding the expensive GEOS overlay.
 
         Args:
             state (np.ndarray): New state of the sensor.
         """
         self._state = state
 
-        self.lidar_origin = transform_point_with_state(self.offset, self._state)
-        new_geometry = geometry_transform(self._original_geometry, self._state)
-        prepare(new_geometry)
+        lidar_geometry = self._world_geometry(state)
+        env_param = self._env_param
+        objects = env_param.objects
+        ranges, hit_objects, origin, directions = cast_rays(
+            lidar_geometry,
+            objects,
+            env_param.GeometryTree,
+            self.obj_id,
+            self.range_max,
+        )
 
-        new_geometry, intersect_indices = self.laser_geometry_process(new_geometry)
-
-        if len(intersect_indices) == 0:
-            self._geometry = self._ensure_multi_linestring(new_geometry)
-            self.calculate_range()
-        else:
-            origin_pt = shapely.points(self.lidar_origin[0, 0], self.lidar_origin[1, 0])
-            parts = shapely.get_parts(new_geometry)
-            self._geometry = MultiLineString(
-                list(parts[shapely.intersects(parts, origin_pt)])
-            )
-            self.calculate_range_vel(intersect_indices)
-
-    def laser_geometry_process(self, lidar_geometry):
-        """
-        Find the intersected objects and return the intersected indices with the lidar geometry
-
-        Args:
-            lidar_geometry (shapely.geometry.MultiLineString): The geometry of the lidar.
-
-        Returns:
-            list: The indices of the intersected objects.
-        """
-
-        object_tree = self._env_param.GeometryTree
-        objects = self._env_param.objects
-        geometries = [obj._geometry for obj in objects]
-
-        # Guard against missing geometry index
-        if object_tree is None:
-            return lidar_geometry, []
-
-        potential_geometries_index = object_tree.query(lidar_geometry)
-
-        geometries_to_subtract = []
-        intersect_indices = []
-
-        for geom_index in potential_geometries_index:
-            geo = geometries[geom_index]
-            obj = objects[geom_index]
-
-            if obj._id == self.obj_id or not obj._geometry_valid or obj.unobstructed:
-                continue
-
-            if obj.shape == "map":
-                intersecting_indices = obj.geometry_tree.query(
-                    lidar_geometry, predicate="intersects"
-                )
-                if len(intersecting_indices) > 0:
-                    filtered_lines = [obj.linestrings[i] for i in intersecting_indices]
-                    geometries_to_subtract.extend(filtered_lines)
-                    intersect_indices.append(geom_index)
-
-            else:
-                if lidar_geometry.intersects(geo):
-                    geometries_to_subtract.append(geo)
-                    intersect_indices.append(geom_index)
-
-        if geometries_to_subtract:
-            # Subtract linestrings (e.g. the static map) and polygons (e.g. moving
-            # obstacles) as separate, merged groups. Putting both kinds into one
-            # GeometryCollection makes GEOS's difference 2-3x slower, so adding a
-            # single dynamic obstacle on top of a map stalls the lidar (issue #302).
-            polygons = []
-            lines = []
-            for g in geometries_to_subtract:
-                bucket = (
-                    polygons if g.geom_type in ("Polygon", "MultiPolygon") else lines
-                )
-                bucket.append(g)
-            for group in (lines, polygons):
-                if group:
-                    obstacle = group[0] if len(group) == 1 else shapely.union_all(group)
-                    lidar_geometry = lidar_geometry.difference(obstacle)
-            lidar_geometry = self._ensure_multi_linestring(lidar_geometry)
-
-        return lidar_geometry, intersect_indices
-
-    def calculate_range(self):
-        """
-        Calculate the range data from the current geometry.
-        """
-        # Reset all beams to the default maximum range to avoid stale values
-        self.range_data[:] = self.range_max
-
-        parts = shapely.get_parts(self._geometry)
-        lengths = shapely.length(parts)
         if self.noise:
-            self.range_data[: len(lengths)] = lengths + rng.normal(
-                0, self.std, len(lengths)
-            )
+            self.range_data[:] = ranges + rng.normal(0, self.std, self.number)
         else:
-            self.range_data[: len(lengths)] = lengths
+            self.range_data[:] = ranges
 
-    def calculate_range_vel(self, intersect_index):
-        """
-        Calculate the range data and velocities from intersected geometries.
-
-        Args:
-            intersect_index (list): List of intersected object indices.
-        """
-        parts = shapely.get_parts(self._geometry)
-        lengths = shapely.length(parts)
-        if self.noise:
-            self.range_data[: len(lengths)] = lengths + rng.normal(
-                0, self.std, len(lengths)
-            )
-        else:
-            self.range_data[: len(lengths)] = lengths
+        self._rebuild_scan_geometry(origin, directions)
 
         if self.has_velocity:
-            # Reset all beam velocities to avoid carrying over stale values
-            self.velocity[:] = 0.0
-            for index, (line, length) in enumerate(zip(parts, lengths, strict=True)):
-                if length < self.range_max - 0.02:
-                    for index_obj in intersect_index:
-                        obj = self._env_param.objects[index_obj]
-                        if obj.geometry.distance(line) < 0.1:
-                            self.velocity[:, index : index + 1] = obj.velocity_xy
-                            break
+            self._assign_velocities(hit_objects, objects)
+
+    def _world_geometry(self, state: np.ndarray) -> MultiLineString:
+        """Build the max-range beam geometry in world coordinates."""
+        self.lidar_origin = transform_point_with_state(self.offset, state)
+        return geometry_transform(self._original_geometry, state)
+
+    def _rebuild_scan_geometry(
+        self, origin: np.ndarray, directions: np.ndarray
+    ) -> None:
+        """Rebuild each clipped beam from its origin and measured range."""
+        endpoints = origin + self.range_data[:, None] * directions
+        origins = np.broadcast_to(origin, endpoints.shape)
+        beam_coordinates = np.stack([origins, endpoints], axis=1)
+        self._geometry = shapely.multilinestrings(
+            shapely.linestrings(beam_coordinates),
+        )
+
+    def _assign_velocities(
+        self,
+        hit_objects: np.ndarray,
+        objects,
+    ) -> None:
+        """Assign velocity when ray casting reports an actual object hit.
+
+        ``hit_objects`` distinguishes a hit from a max-range miss directly, so
+        no range margin is needed near ``range_max``.
+        """
+        self.velocity[:] = 0.0
+        for beam_index in np.flatnonzero(hit_objects >= 0):
+            object_velocity = objects[hit_objects[beam_index]].velocity_xy
+            self.velocity[:, beam_index : beam_index + 1] = object_velocity
 
     def get_scan(self):
         """

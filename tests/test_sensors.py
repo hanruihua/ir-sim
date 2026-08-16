@@ -4,8 +4,9 @@ import pytest
 import shapely
 from shapely import STRtree
 
+from irsim.lib.algorithm.ray_casting_2d import cast_ray_segments
 from irsim.lib.handler.geometry_handler import GeometryFactory
-from irsim.util.random import set_seed
+from irsim.util.random import rng, set_seed
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
 from irsim.world.sensors.lidar2d import Lidar2D
@@ -79,6 +80,83 @@ class _DummyMapObject:
     @property
     def velocity_xy(self):
         return self._velocity_xy
+
+
+def _legacy_intersection_points(geometry):
+    """Yield the representative points used by the previous FMCW scanner."""
+    if geometry.is_empty:
+        return
+    if geometry.geom_type == "Point":
+        yield geometry
+    elif geometry.geom_type == "MultiPoint":
+        yield from geometry.geoms
+    elif geometry.geom_type in {"LineString", "LinearRing"}:
+        for coordinate in geometry.coords:
+            yield shapely.Point(coordinate)
+    elif geometry.geom_type in {"MultiLineString", "GeometryCollection"}:
+        for part in geometry.geoms:
+            yield from _legacy_intersection_points(part)
+
+
+def _legacy_fmcw_scan(sensor):
+    """Run the pre-vectorization per-beam FMCW measurement algorithm."""
+    origin = np.array([sensor.lidar_origin[0, 0], sensor.lidar_origin[1, 0]])
+    origin_point = shapely.Point(*origin)
+    sensor_theta = float(sensor.lidar_origin[2, 0])
+    objects = sensor._env_param.objects
+    tree = sensor._env_param.GeometryTree
+
+    ranges = np.full(sensor.number, sensor.range_max, dtype=float)
+    velocities = np.zeros(sensor.number)
+    valid = np.zeros(sensor.number, dtype=bool)
+    if tree is None:
+        return ranges, velocities, valid
+
+    for beam, beam_angle in enumerate(sensor.angle_list):
+        world_angle = sensor_theta + beam_angle
+        direction = np.array([np.cos(world_angle), np.sin(world_angle)])
+        ray = shapely.LineString([origin, origin + sensor.range_max * direction])
+        best_distance = None
+        best_object = None
+
+        for geom_index in tree.query(ray):
+            obj = objects[geom_index]
+            if obj._id == sensor.obj_id or not obj._geometry_valid or obj.unobstructed:
+                continue
+            if obj.shape == "map":
+                indices = obj.geometry_tree.query(ray, predicate="intersects")
+                if len(indices) == 0:
+                    continue
+                geometry = shapely.MultiLineString(
+                    [obj.linestrings[index] for index in indices]
+                )
+            else:
+                if not ray.intersects(obj.geometry):
+                    continue
+                geometry = obj.geometry
+
+            intersection = ray.intersection(geometry)
+            for point in _legacy_intersection_points(intersection):
+                distance = origin_point.distance(point)
+                if distance <= 1e-9 or distance > sensor.range_max + 1e-9:
+                    continue
+                if best_distance is None or distance < best_distance:
+                    best_distance = distance
+                    best_object = obj
+
+        if best_distance is None:
+            continue
+        if sensor.noise:
+            best_distance += rng.normal(0, sensor.std)
+        if sensor.range_min <= best_distance <= sensor.range_max:
+            ranges[beam] = best_distance
+            valid[beam] = True
+            velocity = sensor._compute_radial_velocity(best_object, direction)
+            if sensor.velocity_noise_std > 0:
+                velocity += rng.normal(0, sensor.velocity_noise_std)
+            velocities[beam] = velocity
+
+    return ranges, velocities, valid
 
 
 class TestFMCWLidar2D:
@@ -406,8 +484,8 @@ class TestFMCWLidar2D:
 
         assert invalidated_at_max > 0  # the failure mode is actually exercised
 
-    def test_find_nearest_hit_skips_invalid_candidates(self):
-        """``_find_nearest_hit`` must skip self, invalid, and unobstructed objects."""
+    def test_step_skips_invalid_candidates(self):
+        """A scan must skip self, invalid, and unobstructed objects."""
         circle = shapely.Point(2.0, 0.0).buffer(0.2)
         self_obj = _DummyObstacleObject(obj_id=1, geometry=circle)
         invalid_obj = _DummyObstacleObject(
@@ -490,42 +568,6 @@ class TestFMCWLidar2D:
         assert not sensor.valid[0]
         assert sensor.range_data[0] == pytest.approx(5.0, abs=1e-6)
 
-    def test_iter_intersection_points_handles_geometry_types(self):
-        """Helper should yield points for every Shapely geometry kind it knows."""
-        sensor = FMCWLidar2D(
-            state=np.array([[0.0], [0.0], [0.0]]),
-            obj_id=1,
-            number=1,
-            angle_range=0.0,
-            range_max=5.0,
-        )
-
-        empty = list(sensor._iter_intersection_points(shapely.Point()))
-        assert empty == []
-
-        single = list(sensor._iter_intersection_points(shapely.Point(1.0, 2.0)))
-        assert len(single) == 1
-        assert single[0].geom_type == "Point"
-
-        multipoint = shapely.MultiPoint([(0.0, 0.0), (1.0, 1.0)])
-        assert len(list(sensor._iter_intersection_points(multipoint))) == 2
-
-        line = shapely.LineString([(0.0, 0.0), (1.0, 0.0)])
-        assert len(list(sensor._iter_intersection_points(line))) == 2
-
-        ring = shapely.LinearRing([(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)])
-        assert len(list(sensor._iter_intersection_points(ring))) == 4
-
-        multiline = shapely.MultiLineString(
-            [[(0.0, 0.0), (1.0, 0.0)], [(2.0, 0.0), (3.0, 0.0)]]
-        )
-        assert len(list(sensor._iter_intersection_points(multiline))) == 4
-
-        collection = shapely.GeometryCollection(
-            [shapely.Point(0.0, 0.0), shapely.Point(1.0, 1.0)]
-        )
-        assert len(list(sensor._iter_intersection_points(collection))) == 2
-
     def test_sensor_velocity_xy_falls_back_when_parent_missing(self):
         """``_sensor_velocity_xy`` should default to zeros without a parent."""
         sensor = FMCWLidar2D(
@@ -602,6 +644,226 @@ class TestFMCWLidar2D:
         assert not hasattr(sensor, "laser_LineCollection")
         assert not hasattr(sensor, "velocity_marker_plot")
 
+    def test_noise_is_seeded_reproducible(self):
+        """Seeded range + velocity noise must reproduce run-to-run.
+
+        The per-beam draw order (range noise, then velocity noise) is what keeps
+        a seeded FMCW scan reproducible; batching the draws would silently change
+        the noise sequence. Regression lock for that draw order.
+        """
+        from irsim.util.random import set_seed
+
+        obstacle = _DummyObstacleObject(
+            obj_id=2,
+            geometry=shapely.Point(2.0, 0.0).buffer(0.6),
+            velocity_xy=(1.0, -0.5),
+        )
+        env = _DummySensorEnvParam([obstacle], STRtree([obstacle.geometry]))
+
+        def run(noise):
+            set_seed(5)
+            sensor = FMCWLidar2D(
+                state=np.array([[0.0], [0.0], [0.0]]),
+                obj_id=1,
+                number=64,
+                angle_range=6.283185,
+                range_max=5.0,
+                noise=noise,
+                std=0.1,
+                velocity_noise_std=0.2,
+            )
+            sensor.parent = _DummySensorParent([0.3, 0.0], env)
+            sensor.step(sensor.state)
+            return sensor
+
+        a = run(True)
+        b = run(True)
+        np.testing.assert_array_equal(a.range_data, b.range_data)
+        np.testing.assert_array_equal(a.radial_velocity, b.radial_velocity)
+        np.testing.assert_array_equal(a.valid, b.valid)
+
+        # Noise actually perturbed the hits vs the clean scan.
+        clean = run(False)
+        hit = a.valid
+        assert hit.any()
+        assert np.any(a.range_data[hit] != clean.range_data[hit])
+
+    def test_scan_matches_legacy_fmcw_with_noise_map_and_motion(self):
+        """All FMCW measurement fields match the previous per-beam scanner."""
+        wall = shapely.LineString([(-2.0, -2.0), (-2.0, 2.0)])
+        map_obj = _DummyMapObject(obj_id=2, linestrings=[wall])
+        moving = _DummyObstacleObject(
+            obj_id=3,
+            geometry=shapely.Point(2.0, 0.0).buffer(0.6),
+            velocity_xy=(1.0, -0.5),
+        )
+        objects = [map_obj, moving]
+        env = _DummySensorEnvParam(objects, STRtree([obj.geometry for obj in objects]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.2]]),
+            obj_id=1,
+            number=64,
+            angle_range=6.283185,
+            range_min=0.1,
+            range_max=5.0,
+            offset=[0.2, -0.1, 0.15],
+            noise=True,
+            std=0.05,
+            velocity_noise_std=0.02,
+        )
+        sensor.parent = _DummySensorParent([0.3, 0.1], env)
+
+        set_seed(123)
+        expected_ranges, expected_velocity, expected_valid = _legacy_fmcw_scan(sensor)
+        set_seed(123)
+        sensor.step(sensor.state)
+        scan = sensor.get_scan()
+
+        np.testing.assert_array_equal(scan["valid"], expected_valid)
+        np.testing.assert_allclose(scan["ranges"], expected_ranges, atol=1e-12, rtol=0)
+        np.testing.assert_allclose(
+            scan["radial_velocity"], expected_velocity, atol=1e-12, rtol=0
+        )
+        assert tuple(scan) == (
+            "angle_min",
+            "angle_max",
+            "angle_increment",
+            "time_increment",
+            "scan_time",
+            "range_min",
+            "range_max",
+            "ranges",
+            "intensities",
+            "radial_velocity",
+            "valid",
+        )
+        assert scan["intensities"] is None
+
+    def test_collinear_wall_matches_legacy_fmcw(self):
+        """A beam aligned with a wall must hit its nearest overlapping endpoint."""
+        wall = shapely.LineString([(2.0, 0.0), (4.0, 0.0)])
+        obstacle = _DummyObstacleObject(
+            obj_id=2,
+            geometry=wall,
+            velocity_xy=(0.5, 0.0),
+            shape="linestring",
+        )
+        env = _DummySensorEnvParam([obstacle], STRtree([wall]))
+        sensor = FMCWLidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=1,
+            angle_range=0.0,
+            range_max=5.0,
+        )
+        sensor.parent = _DummySensorParent([0.0, 0.0], env)
+
+        expected_ranges, expected_velocity, expected_valid = _legacy_fmcw_scan(sensor)
+        sensor.step(sensor.state)
+
+        np.testing.assert_array_equal(sensor.valid, expected_valid)
+        np.testing.assert_allclose(sensor.range_data, expected_ranges, atol=1e-12)
+        np.testing.assert_allclose(
+            sensor.radial_velocity, expected_velocity, atol=1e-12
+        )
+        assert sensor.range_data[0] == pytest.approx(2.0)
+
+    def test_scan_matches_legacy_fmcw_in_randomized_free_space(self):
+        """Random poses, offsets, shapes, motion, and noise match legacy GEOS."""
+        random = np.random.default_rng(20260817)
+
+        for scene in range(20):
+            state = np.array(
+                [
+                    [random.uniform(-2.0, 2.0)],
+                    [random.uniform(-2.0, 2.0)],
+                    [random.uniform(-np.pi, np.pi)],
+                ]
+            )
+            offset = [
+                random.uniform(-0.3, 0.3),
+                random.uniform(-0.3, 0.3),
+                random.uniform(-0.4, 0.4),
+            ]
+            number = int(random.choice([1, 31, 64, 181]))
+            angle_range = (
+                0.0 if number == 1 else float(random.choice([0.7, 3.14, 6.283185]))
+            )
+            sensor = FMCWLidar2D(
+                state=state,
+                obj_id=1,
+                number=number,
+                angle_range=angle_range,
+                range_min=0.05,
+                range_max=8.0,
+                offset=offset,
+                noise=scene % 2 == 0,
+                std=0.03,
+                velocity_noise_std=0.02,
+            )
+
+            origin = sensor.lidar_origin[:2, 0]
+            objects = []
+            for object_id in range(2, 10):
+                bearing = random.uniform(-np.pi, np.pi)
+                center = origin + random.uniform(1.2, 6.5) * np.array(
+                    [np.cos(bearing), np.sin(bearing)]
+                )
+                velocity = random.uniform(-0.8, 0.8, size=2)
+                if object_id % 2:
+                    geometry = shapely.Point(center).buffer(
+                        random.uniform(0.1, 0.55), quad_segs=8
+                    )
+                    shape = "circle"
+                else:
+                    tangent = np.array([-np.sin(bearing), np.cos(bearing)])
+                    half_length = random.uniform(0.15, 0.8)
+                    geometry = shapely.LineString(
+                        [center - half_length * tangent, center + half_length * tangent]
+                    )
+                    shape = "linestring"
+                objects.append(
+                    _DummyObstacleObject(
+                        object_id,
+                        geometry,
+                        velocity_xy=velocity,
+                        shape=shape,
+                    )
+                )
+
+            env = _DummySensorEnvParam(
+                objects,
+                STRtree([obj.geometry for obj in objects]),
+            )
+            sensor.parent = _DummySensorParent(random.uniform(-0.5, 0.5, size=2), env)
+
+            set_seed(1000 + scene)
+            expected_ranges, expected_velocity, expected_valid = _legacy_fmcw_scan(
+                sensor
+            )
+            set_seed(1000 + scene)
+            sensor.step(sensor.state)
+
+            np.testing.assert_array_equal(sensor.valid, expected_valid)
+            np.testing.assert_allclose(
+                sensor.range_data,
+                expected_ranges,
+                atol=1e-11,
+                rtol=0,
+            )
+            np.testing.assert_allclose(
+                sensor.radial_velocity,
+                expected_velocity,
+                atol=1e-12,
+                rtol=0,
+            )
+            np.testing.assert_allclose(
+                shapely.length(shapely.get_parts(sensor._geometry)),
+                sensor.range_data,
+                atol=1e-12,
+                rtol=0,
+            )
+
 
 # ---------------------------------------------------------------------------
 # Lidar2D grouped-difference scan (issue #302): linestrings and polygons are
@@ -645,16 +907,21 @@ class _MapObject:
 class _Obstacle:
     """Mimics a dynamic obstacle with a polygon geometry."""
 
-    def __init__(self, obj_id, geometry, shape="circle"):
+    def __init__(self, obj_id, geometry, shape="circle", velocity_xy=(0.0, 0.0)):
         self._id = obj_id
         self._geometry = geometry
         self._geometry_valid = True
         self.shape = shape
         self.unobstructed = False
+        self._velocity_xy = np.asarray(velocity_xy, dtype=float).reshape(2, 1)
 
     @property
     def geometry(self):
         return self._geometry
+
+    @property
+    def velocity_xy(self):
+        return self._velocity_xy
 
 
 def test_lidar_subtracts_map_lines_and_dynamic_polygon():
@@ -724,119 +991,414 @@ def test_lidar_detects_disjoint_compound_geometry():
     assert lidar.range_data[0] == pytest.approx(1.75, abs=1e-6)
 
 
+def test_lidar_single_beam_tof():
+    """A single-beam (1D ToF) lidar produces a valid MultiLineString scan.
+
+    PR #200 added number=1 (1D ToF) support and needed a MultiLineString
+    normalization workaround because the old GEOS ``difference`` returned a bare
+    LineString for one beam. The ray-cast path builds the scan geometry natively
+    as a MultiLineString, so the ToF case stays correct without that workaround.
+    """
+    obstacle = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    env_param = _EnvParam([obstacle], STRtree([obstacle.geometry]))
+    tof = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+    )
+    tof.parent = _Parent(env_param)
+    tof.step(tof.state)
+
+    assert tof.range_data.shape == (1,)
+    assert tof.range_data[0] == pytest.approx(2.0, abs=1e-6)
+    assert tof._geometry.geom_type == "MultiLineString"
+    assert len(shapely.get_parts(tof._geometry)) == 1
+    assert np.asarray(tof.get_scan()["ranges"]).shape == (1,)
+    assert tof.get_points().shape == (2, 1)
+
+
+def _geos_difference_ranges(lidar, obstacle_geometries):
+    """Reference range_data via the pre-ray-cast whole-geometry difference.
+
+    Reproduces the previous GEOS approach: subtract linestrings and polygons as
+    two merged groups, keep the origin-connected beam parts, and read their
+    lengths. Used to prove the ray-cast reproduces that result.
+    """
+    from irsim.util.util import geometry_transform
+
+    geom = geometry_transform(lidar._original_geometry, lidar._state)
+    lines, polygons = [], []
+    for g in obstacle_geometries:
+        bucket = polygons if g.geom_type in ("Polygon", "MultiPolygon") else lines
+        bucket.append(g)
+    for group in (lines, polygons):
+        if group:
+            obstacle = group[0] if len(group) == 1 else shapely.union_all(group)
+            geom = geom.difference(obstacle)
+    origin = shapely.points(lidar.lidar_origin[0, 0], lidar.lidar_origin[1, 0])
+    parts = shapely.get_parts(geom)
+    kept = parts[shapely.intersects(parts, origin)]
+    ranges = np.full(lidar.number, lidar.range_max, dtype=float)
+    lengths = shapely.length(kept)
+    ranges[: len(lengths)] = lengths
+    return ranges
+
+
+def test_cast_ray_segments_detects_collinear_segment():
+    """The analytic kernel must preserve GEOS collinear-overlap behavior."""
+    ranges, hit = cast_ray_segments(
+        origin=np.array([0.0, 0.0]),
+        directions=np.array([[1.0, 0.0]]),
+        seg_start=np.array([[2.0, 0.0]]),
+        seg_end=np.array([[4.0, 0.0]]),
+        max_range=5.0,
+    )
+
+    np.testing.assert_allclose(ranges, [2.0], atol=1e-12)
+    np.testing.assert_array_equal(hit, [0])
+
+
+def test_lidar_collinear_wall_matches_geos_difference():
+    """A beam running along a wall keeps the same range as the GEOS overlay."""
+    wall = shapely.LineString([(2.0, 0.0), (4.0, 0.0)])
+    obstacle = _Obstacle(2, wall, shape="linestring")
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+    )
+    lidar.parent = _Parent(_EnvParam([obstacle], STRtree([wall])))
+
+    lidar.step(lidar.state)
+    expected = _geos_difference_ranges(lidar, [wall])
+
+    np.testing.assert_allclose(lidar.range_data, expected, atol=1e-12, rtol=0)
+    assert lidar.range_data[0] == pytest.approx(2.0)
+
+
+@pytest.mark.parametrize(
+    "state",
+    [
+        [0.0, 0.0, 0.0],
+        [-0.5, 0.5, 0.3],
+        [0.25, -0.75, -0.4],
+    ],
+)
+def test_lidar_map_contours_match_geos_per_beam(state):
+    """Multi-segment map contours preserve every beam's legacy range index."""
+    contours = [
+        shapely.LineString([(2.0, -4.0), (2.0, 4.0), (4.0, 4.0)]),
+        shapely.LineString([(-4.0, -3.0), (-1.0, -3.0), (-1.0, 3.0), (-4.0, 3.0)]),
+        shapely.LineString([(4.0, -2.0), (5.0, 0.0), (4.0, 2.0)]),
+    ]
+    map_obj = _MapObject(2, contours)
+    lidar = Lidar2D(
+        state=np.c_[state],
+        obj_id=1,
+        number=181,
+        angle_range=6.283185,
+        range_max=8.0,
+    )
+    lidar.parent = _Parent(_EnvParam([map_obj], STRtree([map_obj.geometry])))
+
+    lidar.step(lidar.state)
+    expected = _geos_difference_ranges(lidar, contours)
+
+    np.testing.assert_allclose(lidar.range_data, expected, atol=1e-9, rtol=0)
+
+
+def test_lidar_scan_fields_velocity_and_geometry_are_beam_aligned():
+    """Ranges, velocity, metadata, and beam geometry describe the same scan."""
+    obstacle = _Obstacle(
+        2,
+        shapely.Point(2.0, 0.0).buffer(0.7),
+        velocity_xy=(0.4, -0.2),
+    )
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=91,
+        angle_range=3.14,
+        range_max=5.0,
+        has_velocity=True,
+    )
+    lidar.parent = _Parent(_EnvParam([obstacle], STRtree([obstacle.geometry])))
+
+    lidar.step(lidar.state)
+    scan = lidar.get_scan()
+    expected = _geos_difference_ranges(lidar, [obstacle.geometry])
+
+    np.testing.assert_allclose(scan["ranges"], expected, atol=1e-9, rtol=0)
+    assert tuple(scan) == (
+        "angle_min",
+        "angle_max",
+        "angle_increment",
+        "time_increment",
+        "scan_time",
+        "range_min",
+        "range_max",
+        "ranges",
+        "intensities",
+        "velocity",
+    )
+    assert scan["intensities"] is None
+    assert scan["angle_min"] == lidar.angle_min
+    assert scan["angle_max"] == lidar.angle_max
+    assert scan["angle_increment"] == lidar.angle_inc
+    assert scan["time_increment"] == lidar.time_inc
+    assert scan["scan_time"] == lidar.scan_time
+    assert scan["range_min"] == lidar.range_min
+    assert scan["range_max"] == lidar.range_max
+
+    hit = scan["ranges"] < lidar.range_max - 1e-9
+    np.testing.assert_allclose(
+        scan["velocity"][:, hit],
+        np.broadcast_to(obstacle.velocity_xy, (2, int(hit.sum()))),
+    )
+    np.testing.assert_array_equal(scan["velocity"][:, ~hit], 0.0)
+
+    parts = shapely.get_parts(lidar._geometry)
+    np.testing.assert_allclose(shapely.length(parts), scan["ranges"], atol=1e-12)
+    starts = shapely.get_coordinates(parts)[::2]
+    np.testing.assert_allclose(starts, np.zeros((lidar.number, 2)), atol=1e-12)
+
+
+def test_lidar_velocity_uses_explicit_hit_near_max_range():
+    """A real hit near range_max carries velocity instead of looking like a miss."""
+    wall = shapely.LineString([(4.99, -1.0), (4.99, 1.0)])
+    obstacle = _Obstacle(
+        2,
+        wall,
+        shape="linestring",
+        velocity_xy=(0.7, -0.2),
+    )
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+        has_velocity=True,
+    )
+    lidar.parent = _Parent(_EnvParam([obstacle], STRtree([wall])))
+
+    lidar.step(lidar.state)
+
+    assert lidar.range_data[0] == pytest.approx(4.99, abs=1e-12)
+    np.testing.assert_allclose(lidar.velocity, obstacle.velocity_xy)
+
+
+def _raycast_case(kind):
+    """Build (obstacle objects, flat geometry list) for one obstacle type."""
+    if kind == "rectangle":
+        obs = _Obstacle(2, shapely.box(2.0, -1.0, 3.0, 1.0), shape="rectangle")
+        return [obs], [obs.geometry]
+    if kind == "circle":  # a circle is a buffer polygon
+        obs = _Obstacle(2, shapely.Point(3.0, 0.0).buffer(0.8))
+        return [obs], [obs.geometry]
+    if kind == "linestring":
+        obs = _Obstacle(
+            2, shapely.LineString([(3.0, -2.0), (3.0, 2.0)]), shape="linestring"
+        )
+        return [obs], [obs.geometry]
+    if kind == "polygon_with_hole":
+        shell = shapely.box(2.0, -1.5, 4.0, 1.5)
+        hole = shapely.box(2.7, -0.5, 3.3, 0.5)
+        obs = _Obstacle(2, shell.difference(hole), shape="polygon")
+        return [obs], [obs.geometry]
+    if kind == "map":  # grid-map style: many short linestrings
+        walls = [
+            shapely.LineString([(3.0, y), (3.0, y + 0.1)])
+            for y in np.arange(-1.0, 1.0, 0.1)
+        ]
+        return [_MapObject(2, walls)], list(walls)
+    if kind == "compound":  # disjoint MultiPolygon (issue #350)
+        compound = GeometryFactory.create_geometry(
+            "compound",
+            parts=[
+                {
+                    "name": "rectangle",
+                    "length": 0.5,
+                    "width": 1.0,
+                    "pose": [2.0, 0.0, 0.0],
+                },
+                {
+                    "name": "rectangle",
+                    "length": 0.5,
+                    "width": 1.0,
+                    "pose": [4.0, 0.0, 0.0],
+                },
+            ],
+        )
+        obs = _Obstacle(2, compound.geometry, shape="compound")
+        return [obs], [obs.geometry]
+    if kind == "mixed":  # map + dynamic polygon in one scan (issue #302 layout)
+        walls = [
+            shapely.LineString([(-3.0, y), (-3.0, y + 0.1)])
+            for y in np.arange(-1.0, 1.0, 0.1)
+        ]
+        circle = _Obstacle(3, shapely.Point(3.0, 0.0).buffer(0.7))
+        return [_MapObject(2, walls), circle], [*walls, circle.geometry]
+    raise ValueError(kind)
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "rectangle",
+        "circle",
+        "linestring",
+        "polygon_with_hole",
+        "map",
+        "compound",
+        "mixed",
+    ],
+)
+def test_lidar_raycast_matches_geos_difference(kind):
+    """Ray-cast range_data reproduces the GEOS difference for every obstacle type.
+
+    The sensor sits in free space so both approaches agree to floating-point
+    precision (the analytic ray-cast uses the same obstacle edges GEOS does).
+    """
+    objects, geometries = _raycast_case(kind)
+    env_param = _EnvParam(objects, STRtree([o.geometry for o in objects]))
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=180,
+        angle_range=6.283185,
+        range_max=8.0,
+    )
+    lidar.parent = _Parent(env_param)
+
+    lidar.step(lidar.state)
+    expected = _geos_difference_ranges(lidar, geometries)
+
+    # Beam order is part of the LaserScan contract: ranges[i] belongs to
+    # angle_min + i * angle_increment, so a permutation is not acceptable.
+    np.testing.assert_allclose(lidar.range_data, expected, atol=1e-9, rtol=0)
+    assert (lidar.range_data < lidar.range_max - 1e-6).any()  # obstacle was seen
+
+
+def test_lidar_raycast_matches_geos_in_randomized_free_space():
+    """Random poses, offsets, and mixed shapes retain every GEOS beam range."""
+    random = np.random.default_rng(20260816)
+
+    for _ in range(20):
+        state = np.array(
+            [
+                [random.uniform(-2.0, 2.0)],
+                [random.uniform(-2.0, 2.0)],
+                [random.uniform(-np.pi, np.pi)],
+            ]
+        )
+        offset = [
+            random.uniform(-0.3, 0.3),
+            random.uniform(-0.3, 0.3),
+            random.uniform(-0.4, 0.4),
+        ]
+        number = int(random.choice([1, 31, 90, 181]))
+        angle_range = (
+            0.0 if number == 1 else float(random.choice([0.7, 3.14, 6.283185]))
+        )
+        lidar = Lidar2D(
+            state=state,
+            obj_id=1,
+            number=number,
+            angle_range=angle_range,
+            range_max=8.0,
+            offset=offset,
+        )
+        origin = lidar.lidar_origin[:2, 0]
+        objects = []
+        geometries = []
+        for obj_id in range(2, 8):
+            bearing = random.uniform(-np.pi, np.pi)
+            distance = random.uniform(1.5, 6.0)
+            center = origin + distance * np.array([np.cos(bearing), np.sin(bearing)])
+            if obj_id % 3 == 0:
+                geometry = shapely.Point(center).buffer(
+                    random.uniform(0.15, 0.6), quad_segs=8
+                )
+                shape = "circle"
+            elif obj_id % 3 == 1:
+                tangent = np.array([-np.sin(bearing), np.cos(bearing)])
+                half_length = random.uniform(0.2, 0.8)
+                geometry = shapely.LineString(
+                    [center - half_length * tangent, center + half_length * tangent]
+                )
+                shape = "linestring"
+            else:
+                half_size = random.uniform(0.15, 0.5, size=2)
+                geometry = shapely.box(
+                    center[0] - half_size[0],
+                    center[1] - half_size[1],
+                    center[0] + half_size[0],
+                    center[1] + half_size[1],
+                )
+                shape = "rectangle"
+            geometries.append(geometry)
+            objects.append(_Obstacle(obj_id, geometry, shape=shape))
+
+        lidar.parent = _Parent(
+            _EnvParam(objects, STRtree([obj.geometry for obj in objects]))
+        )
+
+        lidar.step(lidar.state)
+        expected = _geos_difference_ranges(lidar, geometries)
+
+        np.testing.assert_allclose(lidar.range_data, expected, atol=1e-9, rtol=0)
+        np.testing.assert_allclose(
+            shapely.length(shapely.get_parts(lidar._geometry)),
+            expected,
+            atol=1e-9,
+            rtol=0,
+        )
+
+
 # ---------------------------------------------------------------------------
-# Lidar2D geometry normalization, noise, and pointcloud conversion
+# Lidar2D range noise and pointcloud conversion
 # ---------------------------------------------------------------------------
-
-
-class TestLidar2DEnsureMultiLineString:
-    """Tests for Lidar2D._ensure_multi_linestring normalization."""
-
-    @pytest.fixture
-    def lidar(self):
-        """Create a minimal Lidar2D instance for testing."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        return Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
-
-    def test_linestring_input(self, lidar):
-        """A LineString is wrapped in a MultiLineString."""
-        line = shapely.LineString([(0, 0), (1, 1)])
-        result = lidar._ensure_multi_linestring(line)
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert len(result.geoms) == 1
-        assert result.geoms[0].equals(line)
-
-    def test_multilinestring_input(self, lidar):
-        """A MultiLineString is returned unchanged."""
-        lines = shapely.MultiLineString([[(0, 0), (1, 1)], [(2, 2), (3, 3)]])
-        result = lidar._ensure_multi_linestring(lines)
-
-        assert result is lines
-        assert len(result.geoms) == 2
-
-    def test_empty_geometry(self, lidar):
-        """An empty geometry returns an empty MultiLineString."""
-        # An empty MultiPolygon hits the is_empty branch (an empty LineString
-        # would hit the LineString branch first).
-        result = lidar._ensure_multi_linestring(shapely.MultiPolygon())
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert result.is_empty
-
-    def test_geometry_collection_with_linestrings(self, lidar):
-        """A GeometryCollection of LineStrings is flattened."""
-        line1 = shapely.LineString([(0, 0), (1, 1)])
-        line2 = shapely.LineString([(2, 2), (3, 3)])
-        result = lidar._ensure_multi_linestring(
-            shapely.GeometryCollection([line1, line2])
-        )
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert len(result.geoms) == 2
-
-    def test_geometry_collection_with_nested_multilinestring(self, lidar):
-        """Nested MultiLineStrings inside a GeometryCollection are flattened."""
-        line1 = shapely.LineString([(0, 0), (1, 1)])
-        multi = shapely.MultiLineString([[(2, 2), (3, 3)], [(4, 4), (5, 5)]])
-        result = lidar._ensure_multi_linestring(
-            shapely.GeometryCollection([line1, multi])
-        )
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert len(result.geoms) == 3  # 1 from line1 + 2 from multi
-
-    def test_geometry_collection_empty(self, lidar):
-        """An empty GeometryCollection returns an empty MultiLineString."""
-        result = lidar._ensure_multi_linestring(shapely.GeometryCollection())
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert result.is_empty
-
-    def test_unsupported_point_geometry(self, lidar):
-        """A Point geometry returns an empty MultiLineString."""
-        result = lidar._ensure_multi_linestring(shapely.Point(1, 1))
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert result.is_empty
-
-    def test_unsupported_polygon_geometry(self, lidar):
-        """A Polygon geometry returns an empty MultiLineString."""
-        polygon = shapely.Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
-        result = lidar._ensure_multi_linestring(polygon)
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert result.is_empty
-
-    def test_geometry_collection_mixed_types(self, lidar):
-        """Mixed GeometryCollections keep only the line components."""
-        line = shapely.LineString([(0, 0), (1, 1)])
-        point = shapely.Point(5, 5)  # ignored
-        result = lidar._ensure_multi_linestring(
-            shapely.GeometryCollection([line, point])
-        )
-
-        assert isinstance(result, shapely.MultiLineString)
-        assert len(result.geoms) == 1
 
 
 class TestLidar2DNoise:
-    """Lidar2D range computation with measurement noise enabled."""
+    """Lidar2D range noise via the ray-cast step path."""
 
-    def test_lidar_with_noise(self):
-        """calculate_range with noise=True still produces range data."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
-        assert lidar.noise is True
-        lidar.calculate_range()
-        assert lidar.range_data is not None
+    def test_step_noise_applied_and_reproducible(self):
+        """Seeded range noise perturbs the scan and reproduces run-to-run."""
+        from irsim.util.random import set_seed
 
-    def test_lidar_calculate_range_vel_with_noise(self):
-        """calculate_range_vel with noise=True still produces range data."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0, noise=True)
-        lidar.calculate_range_vel(intersect_index=[])
-        assert lidar.range_data is not None
+        obstacle = _Obstacle(2, shapely.box(2.0, -3.0, 2.5, 3.0), shape="rectangle")
+        env_param = _EnvParam([obstacle], STRtree([obstacle.geometry]))
+
+        def run(noise):
+            set_seed(9)
+            lidar = Lidar2D(
+                state=np.array([[0.0], [0.0], [0.0]]),
+                obj_id=1,
+                number=120,
+                angle_range=6.283185,
+                range_max=8.0,
+                noise=noise,
+                std=0.2,
+            )
+            lidar.parent = _Parent(env_param)
+            lidar.step(lidar.state)
+            return lidar.range_data.copy()
+
+        noisy_a = run(True)
+        noisy_b = run(True)
+        clean = run(False)
+        np.testing.assert_array_equal(noisy_a, noisy_b)  # seeded reproducible
+        set_seed(9)
+        expected = clean + rng.normal(0, 0.2, len(clean))
+        np.testing.assert_allclose(noisy_a, expected, atol=1e-12, rtol=0)
+        assert np.any(noisy_a != clean)  # noise actually changed the scan
+        assert np.all(np.isfinite(noisy_a))
 
 
 class TestLidar2DScanToPointcloud:
