@@ -1046,6 +1046,37 @@ def _geos_difference_ranges(lidar, obstacle_geometries):
     return ranges
 
 
+def test_lidar_origin_uses_exact_world_geometry_coordinate(monkeypatch):
+    """The reported origin and transformed beam start must be bit-identical."""
+    import irsim.world.sensors.lidar2d as lidar_module
+
+    point_transform = lidar_module.transform_point_with_state
+
+    def slightly_shifted_origin(point, state):
+        origin = point_transform(point, state)
+        origin[0, 0] = np.nextafter(origin[0, 0], np.inf)
+        return origin
+
+    monkeypatch.setattr(
+        lidar_module,
+        "transform_point_with_state",
+        slightly_shifted_origin,
+    )
+    lidar = Lidar2D(
+        state=np.array([[1.2], [-0.7], [0.9]]),
+        obj_id=1,
+        number=31,
+        angle_range=3.14,
+        range_max=5.0,
+        offset=[0.2, -0.1, 0.3],
+    )
+
+    world_geometry = lidar._world_geometry(lidar.state)
+    geometry_origin = shapely.get_coordinates(world_geometry)[0]
+
+    np.testing.assert_array_equal(lidar.lidar_origin[:2, 0], geometry_origin)
+
+
 def test_cast_ray_segments_detects_collinear_segment():
     """The analytic kernel must preserve GEOS collinear-overlap behavior."""
     ranges, hit = cast_ray_segments(

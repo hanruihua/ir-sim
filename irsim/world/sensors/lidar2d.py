@@ -213,8 +213,13 @@ class Lidar2D:
 
     def _world_geometry(self, state: np.ndarray) -> MultiLineString:
         """Build the max-range beam geometry in world coordinates."""
+        world_geometry = geometry_transform(self._original_geometry, state)
         self.lidar_origin = transform_point_with_state(self.offset, state)
-        return geometry_transform(self._original_geometry, state)
+        # Use the beam geometry's exact start coordinate. Computing the same
+        # point through a separate transform can differ by one floating-point
+        # step across platforms, which breaks exact GEOS origin predicates.
+        self.lidar_origin[:2, 0] = shapely.get_coordinates(world_geometry)[0]
+        return world_geometry
 
     def _rebuild_scan_geometry(
         self, origin: np.ndarray, directions: np.ndarray
