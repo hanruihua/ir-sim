@@ -4,6 +4,7 @@ import pytest
 import shapely
 from shapely import STRtree
 
+import irsim.lib.algorithm.ray_casting_2d as ray_casting_2d
 from irsim.lib.algorithm.ray_casting_2d import cast_ray_segments
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.util.random import rng, set_seed
@@ -1089,6 +1090,54 @@ def test_cast_ray_segments_detects_collinear_segment():
 
     np.testing.assert_allclose(ranges, [2.0], atol=1e-12)
     np.testing.assert_array_equal(hit, [0])
+
+
+def test_cast_ray_segments_chunks_large_segment_sets(monkeypatch):
+    """Chunking bounds each matrix and preserves ranges and global hit indices."""
+    random = np.random.default_rng(20260817)
+    angles = np.linspace(-np.pi, np.pi, 181)
+    directions = np.column_stack((np.cos(angles), np.sin(angles)))
+    segment_start = random.uniform(-8.0, 8.0, size=(5000, 2))
+    segment_end = segment_start + random.uniform(-0.5, 0.5, size=(5000, 2))
+
+    monkeypatch.setattr(ray_casting_2d, "SEGMENT_CHUNK_SIZE", len(segment_start))
+    expected_ranges, expected_hits = cast_ray_segments(
+        np.zeros(2), directions, segment_start, segment_end, 10.0
+    )
+
+    block_sizes = []
+    original = ray_casting_2d._nonparallel_hit_distances
+
+    def track_block_size(directions, segment_vectors, start_to_origin, max_range):
+        block_sizes.append(len(segment_vectors))
+        return original(directions, segment_vectors, start_to_origin, max_range)
+
+    monkeypatch.setattr(ray_casting_2d, "SEGMENT_CHUNK_SIZE", 64)
+    monkeypatch.setattr(
+        ray_casting_2d,
+        "_nonparallel_hit_distances",
+        track_block_size,
+    )
+    ranges, hits = cast_ray_segments(
+        np.zeros(2), directions, segment_start, segment_end, 10.0
+    )
+
+    assert len(block_sizes) > 1
+    assert max(block_sizes) <= 64
+    np.testing.assert_array_equal(ranges, expected_ranges)
+    np.testing.assert_array_equal(hits, expected_hits)
+
+    # Two equal nearest walls straddle a chunk boundary. The original full
+    # argmin keeps the lower global segment index, and chunk merging must too.
+    tie_start = np.tile([4.0, -1.0], (65, 1))
+    tie_end = np.tile([4.0, 1.0], (65, 1))
+    tie_start[63:] = [1.0, -1.0]
+    tie_end[63:] = [1.0, 1.0]
+    tie_ranges, tie_hits = cast_ray_segments(
+        np.zeros(2), np.array([[1.0, 0.0]]), tie_start, tie_end, 10.0
+    )
+    np.testing.assert_array_equal(tie_ranges, [1.0])
+    np.testing.assert_array_equal(tie_hits, [63])
 
 
 def test_lidar_collinear_wall_matches_geos_difference():

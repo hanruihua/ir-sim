@@ -25,6 +25,11 @@ import shapely
 # which drops such coincident intersections topologically.
 ORIGIN_EPS = 1e-9
 
+# Limit the ray/segment matrix to a predictable size. Large point-based maps
+# can contribute tens of thousands of boundary segments; processing all of
+# them at once would make every temporary matrix scale with segments * beams.
+SEGMENT_CHUNK_SIZE = 1024
+
 
 def _empty_scan(number: int, max_range: float) -> tuple[np.ndarray, np.ndarray]:
     """Return the range and hit-index arrays for a scan with no hits."""
@@ -274,10 +279,11 @@ def cast_ray_segments(
     """Nearest ray-segment hit distance and segment index per ray (vectorized).
 
     Solves, for every ray ``origin + t * direction`` against every segment
-    ``seg_start + u * (seg_end - seg_start)``, the intersection in one broadcast
-    pass and keeps the nearest valid hit (``0 < t <= max_range``, ``0 <= u <=
-    1``) per ray. Collinear overlaps are handled separately because their
-    standard intersection denominator is zero.
+    ``seg_start + u * (seg_end - seg_start)``, the intersection in vectorized
+    segment blocks and keeps the nearest valid hit (``0 < t <= max_range``,
+    ``0 <= u <= 1``) per ray. Blocking bounds peak matrix memory by
+    ``SEGMENT_CHUNK_SIZE * number_of_rays``. Collinear overlaps are handled
+    separately because their standard intersection denominator is zero.
 
     Args:
         origin (np.ndarray): Shared ray origin ``(2,)``.
@@ -294,31 +300,43 @@ def cast_ray_segments(
     if len(seg_start) == 0:
         return _empty_scan(len(directions), max_range)
 
-    segment_vectors = seg_end - seg_start
-    start_to_origin = origin - seg_start
+    ranges, hit_index = _empty_scan(len(directions), max_range)
 
-    # 1. Solve the ordinary ray/segment intersections in one vectorized pass.
-    hit_distances, denominator, line_cross = _nonparallel_hit_distances(
-        directions,
-        segment_vectors,
-        start_to_origin,
-        max_range,
-    )
+    for chunk_start in range(0, len(seg_start), SEGMENT_CHUNK_SIZE):
+        chunk_end = min(chunk_start + SEGMENT_CHUNK_SIZE, len(seg_start))
+        chunk_segment_start = seg_start[chunk_start:chunk_end]
+        chunk_segment_end = seg_end[chunk_start:chunk_end]
+        segment_vectors = chunk_segment_end - chunk_segment_start
+        start_to_origin = origin - chunk_segment_start
 
-    # 2. Fill in overlapping pairs that the zero denominator cannot solve.
-    segment_index, ray_index, distance = _find_collinear_hits(
-        origin,
-        directions,
-        seg_start,
-        seg_end,
-        denominator,
-        line_cross,
-        max_range,
-    )
-    hit_distances[segment_index, ray_index] = distance
+        # 1. Solve ordinary intersections for this bounded segment block.
+        hit_distances, denominator, line_cross = _nonparallel_hit_distances(
+            directions,
+            segment_vectors,
+            start_to_origin,
+            max_range,
+        )
 
-    # 3. Select the closest segment independently for every beam.
-    return _nearest_hits(hit_distances, max_range)
+        # 2. Fill in overlapping pairs that the zero denominator cannot solve.
+        segment_index, ray_index, distance = _find_collinear_hits(
+            origin,
+            directions,
+            chunk_segment_start,
+            chunk_segment_end,
+            denominator,
+            line_cross,
+            max_range,
+        )
+        hit_distances[segment_index, ray_index] = distance
+
+        # 3. Merge this block's nearest hits into the per-beam result. A strict
+        # comparison preserves np.argmin's original first-segment tie behavior.
+        chunk_ranges, chunk_hit_index = _nearest_hits(hit_distances, max_range)
+        nearer = (chunk_hit_index >= 0) & ((hit_index < 0) | (chunk_ranges < ranges))
+        ranges[nearer] = chunk_ranges[nearer]
+        hit_index[nearer] = chunk_start + chunk_hit_index[nearer]
+
+    return ranges, hit_index
 
 
 def cast_rays(
