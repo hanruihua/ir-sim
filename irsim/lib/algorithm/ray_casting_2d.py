@@ -2,8 +2,8 @@
 
 Shared by the lidar sensors (:class:`~irsim.world.sensors.lidar2d.Lidar2D` and
 :class:`~irsim.world.sensors.fmcw_lidar2d.FMCWLidar2D`). The high-level
-:func:`cast_rays` function selects nearby objects, flattens their boundaries,
-and returns the nearest object hit by every beam. The lower-level
+:func:`cast_rays` function flattens already-detected object boundaries and
+returns the nearest object hit by every beam. The lower-level
 :func:`cast_ray_segments` function performs the vectorized numerical kernel.
 
 For a sensor origin in free space, this reproduces a GEOS ``difference`` scan
@@ -12,8 +12,8 @@ hits also remain compatible when the origin is inside an obstacle.
 
 Typical use::
 
-    ranges, hit_objects, origin, directions = cast_rays(
-        lidar_geometry, objects, geometry_tree, sensor_id, range_max
+    ranges, hit_object_indices, origin, directions = cast_rays(
+        lidar_geometry, detected_objects, range_max
     )
 """
 
@@ -217,30 +217,21 @@ def _empty_segments() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
 def _gather_obstacle_edges(
     lidar_geometry,
-    objects,
-    geometry_tree,
-    sensor_id: int,
+    detected_objects,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Select nearby objects and flatten their boundaries into line segments.
+    """Flatten detected-object boundaries into line segments.
 
-    ``objects`` and ``geometry_tree`` must use the same ordering because tree
-    query indices are also returned as segment-owner indices. Map objects keep
-    their own spatial query so only map lines touched by the scan are expanded.
+    The caller has already selected detectable scene objects. Map objects keep
+    their internal spatial query here so only map lines touched by the scan are
+    expanded. Owner indices refer to ``detected_objects``.
 
     Returns:
         tuple[np.ndarray, np.ndarray, np.ndarray]: Segment starts, segment ends,
         and the owning object index for every segment, with shapes ``(M, 2)``,
         ``(M, 2)``, and ``(M,)``.
     """
-    if geometry_tree is None:
-        return _empty_segments()
-
     starts, ends, owners = [], [], []
-    for object_index in geometry_tree.query(lidar_geometry):
-        obj = objects[object_index]
-        if obj._id == sensor_id or not obj._geometry_valid or obj.unobstructed:
-            continue
-
+    for object_index, obj in enumerate(detected_objects):
         if obj.shape == "map":
             hits = obj.geometry_tree.query(lidar_geometry, predicate="intersects")
             geometries = [obj.linestrings[index] for index in hits]
@@ -341,37 +332,31 @@ def cast_ray_segments(
 
 def cast_rays(
     lidar_geometry,
-    objects,
-    geometry_tree,
-    sensor_id: int,
+    detected_objects,
     max_range: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Cast a 2D lidar geometry against all relevant simulation objects.
+    """Cast a 2D lidar geometry against already-detected objects.
 
-    This is the sensor-facing ray-casting operation. It owns the complete
-    geometry pipeline: deriving ray parameters, querying nearby objects,
-    gathering their boundary segments, running the numerical kernel, and
-    mapping segment hits back to object indices.
+    This geometry-only operation derives ray parameters, gathers boundary
+    segments from the supplied objects, runs the numerical kernel, and maps
+    segment hits back to indices in ``detected_objects``. Scene lookup remains
+    the sensor's responsibility.
 
     Args:
         lidar_geometry: Max-range beams in world coordinates as a Shapely
             multiline geometry.
-        objects: Simulation objects in the same order as ``geometry_tree``.
-        geometry_tree: STRtree containing the object geometries, or ``None``.
-        sensor_id: Parent object ID; its own geometry is ignored.
+        detected_objects: Objects selected by the sensor's scene query.
         max_range: Maximum ray length; misses return this value.
 
     Returns:
         tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: Ranges,
-        hit-object indices, origin, and directions.
+        indices into ``detected_objects``, origin, and directions.
     """
     shapely.prepare(lidar_geometry)
     origin, directions = _ray_parameters(lidar_geometry, max_range)
     segment_start, segment_end, segment_owner = _gather_obstacle_edges(
         lidar_geometry,
-        objects,
-        geometry_tree,
-        sensor_id,
+        detected_objects,
     )
     ranges, hit_segments = cast_ray_segments(
         origin,
@@ -381,7 +366,7 @@ def cast_rays(
         max_range,
     )
 
-    hit_objects = np.full(len(directions), -1, dtype=int)
+    hit_object_indices = np.full(len(directions), -1, dtype=int)
     has_hit = hit_segments >= 0
-    hit_objects[has_hit] = segment_owner[hit_segments[has_hit]]
-    return ranges, hit_objects, origin, directions
+    hit_object_indices[has_hit] = segment_owner[hit_segments[has_hit]]
+    return ranges, hit_object_indices, origin, directions

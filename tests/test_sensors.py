@@ -5,7 +5,7 @@ import shapely
 from shapely import STRtree
 
 import irsim.lib.algorithm.ray_casting_2d as ray_casting_2d
-from irsim.lib.algorithm.ray_casting_2d import cast_ray_segments
+from irsim.lib.algorithm.ray_casting_2d import cast_ray_segments, cast_rays
 from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.util.random import rng, set_seed
 from irsim.world.object_factory import ObjectFactory
@@ -1076,6 +1076,33 @@ def test_lidar_origin_uses_exact_world_geometry_coordinate(monkeypatch):
     geometry_origin = shapely.get_coordinates(world_geometry)[0]
 
     np.testing.assert_array_equal(lidar.lidar_origin[:2, 0], geometry_origin)
+
+
+def test_cast_rays_only_requires_detected_objects():
+    """The geometry algorithm does not require the environment or its STRtree."""
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+    )
+    detected_object = _Obstacle(
+        2,
+        shapely.LineString([(2.0, -1.0), (2.0, 1.0)]),
+        shape="linestring",
+    )
+
+    ranges, hit_object_indices, origin, directions = cast_rays(
+        lidar._world_geometry(lidar.state),
+        [detected_object],
+        lidar.range_max,
+    )
+
+    np.testing.assert_allclose(ranges, [2.0], atol=1e-12)
+    np.testing.assert_array_equal(hit_object_indices, [0])
+    np.testing.assert_array_equal(origin, [0.0, 0.0])
+    np.testing.assert_array_equal(directions, [[1.0, 0.0]])
 
 
 def test_cast_ray_segments_detects_collinear_segment():

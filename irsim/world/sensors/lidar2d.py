@@ -191,13 +191,11 @@ class Lidar2D:
         self._state = state
 
         lidar_geometry = self._world_geometry(state)
-        env_param = self._env_param
-        objects = env_param.objects
-        ranges, hit_objects, origin, directions = cast_rays(
+        detected_objects = self._get_detected_objects(lidar_geometry)
+
+        ranges, hit_object_indices, origin, directions = cast_rays(
             lidar_geometry,
-            objects,
-            env_param.GeometryTree,
-            self.obj_id,
+            detected_objects,
             self.range_max,
         )
 
@@ -209,7 +207,28 @@ class Lidar2D:
         self._rebuild_scan_geometry(origin, directions)
 
         if self.has_velocity:
-            self._assign_velocities(hit_objects, objects)
+            self._assign_velocities(hit_object_indices, detected_objects)
+
+    def _get_detected_objects(self, lidar_geometry) -> list:
+        """Select objects that may produce a return for this lidar geometry.
+
+        This is the environment-facing broad-phase operation. It owns access to
+        the scene's complete object list and geometry tree, and filters objects
+        that sensors must ignore. Exact boundary intersections remain in the
+        geometry-only ray-casting operation.
+        """
+        objects = self._env_param.objects
+        geometry_tree = self._env_param.GeometryTree
+        if geometry_tree is None:
+            return []
+
+        detected_objects = []
+        for object_index in geometry_tree.query(lidar_geometry):
+            obj = objects[object_index]
+            if obj._id == self.obj_id or not obj._geometry_valid or obj.unobstructed:
+                continue
+            detected_objects.append(obj)
+        return detected_objects
 
     def _world_geometry(self, state: np.ndarray) -> MultiLineString:
         """Build the max-range beam geometry in world coordinates."""
@@ -234,17 +253,20 @@ class Lidar2D:
 
     def _assign_velocities(
         self,
-        hit_objects: np.ndarray,
-        objects,
+        hit_object_indices: np.ndarray,
+        detected_objects,
     ) -> None:
         """Assign velocity when ray casting reports an actual object hit.
 
-        ``hit_objects`` distinguishes a hit from a max-range miss directly, so
-        no range margin is needed near ``range_max``.
+        ``hit_object_indices`` refers to ``detected_objects`` and distinguishes
+        a hit from a max-range miss, so no range margin is needed near
+        ``range_max``.
         """
         self.velocity[:] = 0.0
-        for beam_index in np.flatnonzero(hit_objects >= 0):
-            object_velocity = objects[hit_objects[beam_index]].velocity_xy
+        for beam_index in np.flatnonzero(hit_object_indices >= 0):
+            object_velocity = detected_objects[
+                hit_object_indices[beam_index]
+            ].velocity_xy
             self.velocity[:, beam_index : beam_index + 1] = object_velocity
 
     def get_scan(self):

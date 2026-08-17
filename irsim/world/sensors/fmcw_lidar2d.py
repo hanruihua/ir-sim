@@ -92,13 +92,10 @@ class FMCWLidar2D(Lidar2D):
         """
         self._state = state
         lidar_geometry = self._world_geometry(state)
-        env_param = self._env_param
-        objects = env_param.objects
-        ranges, hit_objects, origin, directions = cast_rays(
+        detected_objects = self._get_detected_objects(lidar_geometry)
+        ranges, hit_object_indices, origin, directions = cast_rays(
             lidar_geometry,
-            objects,
-            env_param.GeometryTree,
-            self.obj_id,
+            detected_objects,
             self.range_max,
         )
 
@@ -107,13 +104,19 @@ class FMCWLidar2D(Lidar2D):
         self.radial_velocity[:] = 0.0
         self._resolve_hits(
             ranges,
-            hit_objects,
+            hit_object_indices,
             directions,
-            objects,
+            detected_objects,
         )
         self._rebuild_scan_geometry(origin, directions)
 
-    def _resolve_hits(self, ranges, hit_objects, directions, objects):
+    def _resolve_hits(
+        self,
+        ranges,
+        hit_object_indices,
+        directions,
+        detected_objects,
+    ):
         """Apply range noise, validity, and radial velocity for each hit beam.
 
         Draws range noise then (for in-band beams) velocity noise in beam order,
@@ -121,7 +124,7 @@ class FMCWLidar2D(Lidar2D):
         the old noisy scan bit-for-bit. Ray casting stays vectorized; only this
         cheap arithmetic pass is per-beam, and only over beams that hit.
         """
-        for beam in np.nonzero(hit_objects >= 0)[0]:
+        for beam in np.nonzero(hit_object_indices >= 0)[0]:
             distance = ranges[beam]
             if self.noise:
                 distance += rng.normal(0, self.std)
@@ -131,7 +134,7 @@ class FMCWLidar2D(Lidar2D):
                 self.range_data[beam] = distance
                 self.valid[beam] = True
                 velocity = self._compute_radial_velocity(
-                    objects[hit_objects[beam]], directions[beam]
+                    detected_objects[hit_object_indices[beam]], directions[beam]
                 )
                 if self.velocity_noise_std > 0:
                     velocity += rng.normal(0, self.velocity_noise_std)
