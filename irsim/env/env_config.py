@@ -34,10 +34,12 @@ class EnvConfig:
         world_name: str | None,
         env_param_instance: EnvParam | None = None,
         world_param_instance: WorldParam | None = None,
+        step_mode: str | None = None,
     ) -> None:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
         self._world_param = world_param_instance
+        self._step_mode = step_mode
         self.load_yaml(world_name)
 
     def load_yaml(self, world_name: str | None = None) -> None:
@@ -87,9 +89,8 @@ class EnvConfig:
                 f"{self.world_name} YAML File not found!, using default world config as alternative."
             )
 
-    def _world_kwargs(self) -> dict[str, Any]:
-        """World constructor kwargs from the ``world`` section."""
-        return dict(self.parse["world"])
+        if self._step_mode is not None:
+            self._kwargs_parse["world"]["step_mode"] = self._step_mode
 
     def initialize_objects(self) -> Any:
         """Construct world, objects and plot from the current parsed config.
@@ -105,7 +106,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self._world_kwargs(),
+            **self.parse["world"],
         )
         self.object_factory.world = world
 
@@ -166,7 +167,7 @@ class EnvConfig:
         world = World(
             self.world_name,
             world_param_instance=self._world_param,
-            **self._world_kwargs(),
+            **self.parse["world"],
         )
         self.object_factory.world = world
 

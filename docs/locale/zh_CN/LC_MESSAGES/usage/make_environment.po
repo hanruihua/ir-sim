@@ -537,3 +537,35 @@ msgid ""
 msgstr ""
 "[多环境](multiple_environments.md) —— 以相互隔离的状态同时运行多个场景，适用"
 "于对比研究或强化学习训练。"
+
+#: ../../source/usage/make_environment.md:24
+msgid "**`step_mode`** (`\"internal\"` or `\"external\"`, optional): Overrides `world.step_mode` for this environment. If omitted, the YAML value is used."
+msgstr "**`step_mode`**（`\"internal\"` 或 `\"external\"`，可选）：覆盖当前环境的 `world.step_mode`；若省略，则使用 YAML 中的值。"
+
+#: ../../source/usage/make_environment.md:87
+msgid "**`step_mode`**: Determines who advances object states"
+msgstr "**`step_mode`**：决定由谁推进对象状态"
+
+#: ../../source/usage/make_environment.md:88
+msgid "`'internal'`: IR-SIM integrates states from actions or configured behaviors"
+msgstr "`'internal'`：IR-SIM 根据动作或已配置的行为积分更新状态"
+
+#: ../../source/usage/make_environment.md:89
+msgid "`'external'`: External code supplies states; IR-SIM synchronizes derived data"
+msgstr "`'external'`：外部代码提供状态，IR-SIM 同步派生数据"
+
+#: ../../source/usage/make_environment.md:161
+msgid "Internal and External Step Modes"
+msgstr "内部与外部步进模式"
+
+#: ../../source/usage/make_environment.md:163
+msgid "The default `internal` mode preserves the normal IR-SIM loop. Actions may be provided explicitly, or omitted so configured behaviors generate them:"
+msgstr "默认的 `internal` 模式保持 IR-SIM 的常规循环。可以显式提供动作，也可以省略动作，由已配置的行为生成动作："
+
+#: ../../source/usage/make_environment.md:171
+msgid "In `external` mode, another simulator or system owns the state update. Supply the new state and velocity first, then call `env.step()` without an action:"
+msgstr "在 `external` 模式下，状态由另一个仿真器或外部系统更新。请先提供新的状态和速度，再调用不带动作的 `env.step()`："
+
+#: ../../source/usage/make_environment.md:185
+msgid "The external step does not execute IR-SIM kinematics or behaviors. It refreshes all object geometries from one state snapshot, rebuilds the collision index, updates sensors and status, records trajectories, and advances the world clock. Passing `action` to `env.step()` in this mode raises `ValueError`, preventing accidental mixing of internal and external state advancement."
+msgstr "外部步进不会执行 IR-SIM 的运动学或行为逻辑。它基于同一状态快照刷新所有对象的几何信息、重建碰撞索引、更新传感器和状态、记录轨迹，并推进世界时钟。在此模式下向 `env.step()` 传入 `action` 会引发 `ValueError`，以防意外混用内部和外部状态推进方式。"

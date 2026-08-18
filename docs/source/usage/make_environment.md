@@ -20,6 +20,8 @@ The `make` function creates an environment from a configuration file. Supported 
 
 - **`world_name`** (str, optional): Path to the world YAML configuration file
 - **`projection`** (str, optional): Projection type ("3d" for 3D environment, None for 2D)
+- **`step_mode`** (`"internal"` or `"external"`, optional): Overrides
+  `world.step_mode` for this environment. If omitted, the YAML value is used.
 - **`display`** (bool): Whether to display the environment visualization (default: True)
 - **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
 - **`log_level`** (str): Logging level for the environment (default: "INFO")
@@ -43,6 +45,7 @@ world:
   step_time: 0.1  # simulation time step (seconds) - 10Hz
   sample_time: 0.1  # rendering frequency (seconds) - 10Hz
   offset: [0, 0] # the offset of the world origin [x, y]
+  step_mode: 'internal' # state advancement: 'internal' or 'external'
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
   collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
   obstacle_map: null # path to obstacle map file (optional)
@@ -81,6 +84,9 @@ The configuration file defines the world and the robot that the main loop advanc
 - **`step_time`**: Controls simulation accuracy and speed (smaller = more accurate, slower)
 - **`sample_time`**: Controls rendering frequency (larger = faster simulation, less smooth visualization)
 - **`offset`**: Shifts the world coordinate system origin [x, y] in meters
+- **`step_mode`**: Determines who advances object states
+  - `'internal'`: IR-SIM integrates states from actions or configured behaviors
+  - `'external'`: External code supplies states; IR-SIM synchronizes derived data
 - **`control_mode`**: Determines how the simulation is controlled
   - `'auto'`: Automatic simulation execution
   - `'keyboard'`: Manual keyboard control
@@ -151,6 +157,36 @@ Update order
 
 The environment advances all objects first, then updates all sensors. This two-phase update ensures sensors read the latest world state consistently. If you step objects manually, either pass `sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` after updating states.
 ::::
+
+### Internal and External Step Modes
+
+The default `internal` mode preserves the normal IR-SIM loop. Actions may be
+provided explicitly, or omitted so configured behaviors generate them:
+
+```python
+env = irsim.make("config.yaml")
+env.step(action=[1.0, 0.0], action_id=0)
+```
+
+In `external` mode, another simulator or system owns the state update. Supply
+the new state and velocity first, then call `env.step()` without an action:
+
+```python
+env = irsim.make("config.yaml", step_mode="external")
+robot = env.robot
+
+while not env.done():
+    state, velocity = external_system.read_robot()
+    robot.set_state(state)
+    robot.set_velocity(velocity)
+    env.step()
+```
+
+The external step does not execute IR-SIM kinematics or behaviors. It refreshes
+all object geometries from one state snapshot, rebuilds the collision index,
+updates sensors and status, records trajectories, and advances the world clock.
+Passing `action` to `env.step()` in this mode raises `ValueError`, preventing
+accidental mixing of internal and external state advancement.
 
 ## Environment Control and Status
 

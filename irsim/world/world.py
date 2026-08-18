@@ -27,6 +27,7 @@ class World:
         step_time (float): Time interval between steps.
         sample_time (float): Time interval between samples.
         offset (list): Offset for the world's position.
+        step_mode (str): State advancement mode ('internal' or 'external').
         control_mode (str): Control mode ('auto' or 'keyboard').
         collision_mode (str): Collision mode ('stop',  , 'unobstructed').
         obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
@@ -42,6 +43,7 @@ class World:
         "step_time",
         "sample_time",
         "offset",
+        "step_mode",
         "control_mode",
         "collision_mode",
         "obstacle_map",
@@ -60,6 +62,7 @@ class World:
         step_time: float = 0.1,
         sample_time: float | None = None,
         offset: list[float] | None = None,
+        step_mode: str = "internal",
         control_mode: str = "auto",
         collision_mode: str = "stop",
         obstacle_map: Any | None = None,
@@ -81,6 +84,9 @@ class World:
             step_time (float): Time interval between steps.
             sample_time (float): Time interval between samples.
             offset (list): Offset for the world's position.
+            step_mode (str): ``internal`` lets IR-SIM advance object states;
+                ``external`` expects callers to update states before each
+                environment step.
             control_mode (str): Control mode ('auto' or 'keyboard').
             collision_mode (str): Collision mode ('stop',  , 'unobstructed').
             obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
@@ -151,12 +157,28 @@ class World:
         self.status = status
 
         # mode
+        self.step_mode = self._validate_step_mode(step_mode)
+        self._wp.step_mode = self.step_mode
         self._wp.control_mode = control_mode
         self._wp.collision_mode = collision_mode
 
         check_unknown_kwargs(
             kwargs, self._VALID_PARAMS, context=" in 'world' config", logger=self.logger
         )
+
+    @staticmethod
+    def _validate_step_mode(step_mode: str) -> str:
+        """Normalize and validate the world state-advancement mode."""
+        if not isinstance(step_mode, str):
+            raise TypeError("step_mode must be a string: 'internal' or 'external'")
+
+        normalized = step_mode.strip().lower()
+        if normalized not in {"internal", "external"}:
+            raise ValueError(
+                f"Unsupported step_mode {step_mode!r}. "
+                "Supported modes are 'internal' and 'external'."
+            )
+        return normalized
 
     def step(self, objects: list[Any] | None = None) -> None:
         """

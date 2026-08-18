@@ -3,6 +3,8 @@ World parameters.
 
 Attributes:
     time: time elapse of the simulation
+    step_mode: 'internal' (IR-SIM advances object states) or 'external'
+        (an external system supplies object states)
     control_mode: 'auto' (robot controlled automatically) or 'keyboard' (robot controlled by keyboard)
     collision_mode: 'stop' (default, all objects stop on collision), 'unobstructed' (no collision check),
         or 'unobstructed_obstacles' (only obstacles pass through each other)
@@ -21,6 +23,8 @@ class WorldParam:
 
     Attributes:
         time: Elapsed simulation time.
+        step_mode: ``internal`` when IR-SIM advances object states or
+            ``external`` when an external system supplies object states.
         control_mode: ``auto`` for automatic control or ``keyboard`` for manual control.
         collision_mode: Collision handling mode.
         step_time: Simulation time step.
@@ -28,6 +32,7 @@ class WorldParam:
     """
 
     time: float = 0.0
+    step_mode: str = "internal"
     control_mode: str = "auto"
     collision_mode: str = "stop"
     step_time: float = 0.1

@@ -1274,16 +1274,23 @@ class ObjectBase:
         self.trajectory = []
         self._invalidate_reactive_cache()
 
-    def refresh(self):
+    def refresh(self, sensor_step: bool = True):
         """
         Refresh state-derived attributes (geometry and sensors) without
         advancing the simulation. Used after ``reset`` so geometry/sensor
         readings reflect the current state without running a kinematic
         step (which would clobber ``_velocity`` and add noise drift).
+
+        Args:
+            sensor_step: Whether to update attached sensors immediately.
+                Environments pass ``False`` while refreshing all object
+                geometries, rebuild the spatial index, then update all sensors
+                from the same state snapshot.
         """
         self._geometry = self.gf.step(self.state)
         self._geometry_valid = shapely.is_valid(self._geometry)
-        self.sensor_step()
+        if sensor_step:
+            self.sensor_step()
         self._invalidate_reactive_cache()
 
     def _invalidate_reactive_cache(self) -> None:
