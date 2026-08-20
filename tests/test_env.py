@@ -1717,8 +1717,49 @@ class TestLoadBehaviorReinitialization:
         mock_obj_valid.obj_behavior._init_behavior_class.assert_called_once()
 
 
+class TestEnvConfigNamespace:
+    """EnvConfig supports IR-SIM embedded in a combined YAML file."""
+
+    def test_make_and_reload_namespaced_yaml(self, tmp_path, env_factory):
+        """make(path) selects the irsim section and reloads the same file."""
+        yaml_file = tmp_path / "combined.yaml"
+        yaml_file.write_text(
+            "irsim:\n"
+            "  world: {height: 10, width: 12}\n"
+            "  robot: []\n"
+            "habitat:\n"
+            "  scene: example.glb\n"
+        )
+
+        env = env_factory(str(yaml_file))
+
+        assert env.env_config.parse["world"]["height"] == 10
+        assert env.env_config.parse["robot"] == []
+
+        yaml_file.write_text(
+            "irsim:\n"
+            "  world: {height: 20, width: 12}\n"
+            "  robot: []\n"
+            "habitat:\n"
+            "  scene: example.glb\n"
+        )
+        env.reload()
+
+        assert env.env_config.parse["world"]["height"] == 20
+
+    def test_invalid_key_inside_irsim_section(self, tmp_path, dummy_logger):
+        """Unknown keys remain errors inside the selected irsim section."""
+        from irsim.env.env_config import EnvConfig
+
+        yaml_file = tmp_path / "bad_nested.yaml"
+        yaml_file.write_text("irsim:\n  wrold:\n    height: 10\nhabitat: {}\n")
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+
 class TestEnvConfigInvalidKey:
-    """EnvConfig.load_yaml reports invalid top-level YAML keys."""
+    """EnvConfig.load_yaml reports invalid legacy top-level YAML keys."""
 
     def test_invalid_yaml_key_close_match(self, tmp_path, dummy_logger):
         """A close typo raises KeyError (with a suggested key)."""

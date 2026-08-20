@@ -53,6 +53,18 @@ msgstr "``gui`` —— 可选的渲染与交互选项。"
 
 #: ../../source/yaml_config/index.rst:11
 msgid ""
+"For integration with another simulator, these blocks may instead be nested "
+"under an optional ``irsim`` top-level block. When present, IR-SIM reads and "
+"validates only that mapping; sibling blocks remain available to the other "
+"simulator. ``irsim.make(\"combined.yaml\")`` and ``env.reload()`` continue to "
+"use the same YAML filename."
+msgstr ""
+"与其他模拟器集成时，这些块可以嵌套在可选的 ``irsim`` 顶层块下。存在该块时，"
+"IR-SIM 只读取并验证其中的映射；同级块仍可供其他模拟器使用。"
+"``irsim.make(\"combined.yaml\")`` 和 ``env.reload()`` 继续使用同一个 YAML 文件名。"
+
+#: ../../source/yaml_config/index.rst:11
+msgid ""
 "The full reference below documents every key, with its default, and includes "
 "an interactive schema explorer."
 msgstr "下方的完整参考记录了每一个键及其默认值，并提供交互式的模式浏览器。"
