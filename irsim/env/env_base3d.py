@@ -28,7 +28,11 @@ class EnvBase3D(EnvBase):
 
         object_factory = ObjectFactory()
 
-        self._world = World3D(world_name, **self.env_config.parse["world"])
+        self._world = World3D(
+            world_name,
+            world_param_instance=self._world_param,
+            **self.env_config.parse["world"],
+        )
 
         ObjectBase.id_iter = itertools.count()
 

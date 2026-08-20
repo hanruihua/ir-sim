@@ -25,6 +25,7 @@ A complete IR-SIM scene is described by up to four top-level keys: `world`, `rob
   <div class="yt-leaf"><a class="yt-key" href="#p-w-step-time">step_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span><span class="yt-desc">simulation step (s)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-sample-time">sample_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">step_time</span><span class="yt-desc">render / sample step (s)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-offset">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0]</span><span class="yt-desc">world origin offset [x, y]</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-step-mode">step_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"internal"</span><span class="yt-desc">internal | external</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-control-mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">initial display label</span></div>
@@ -473,6 +474,7 @@ world:
   step_time: 0.1  # 10Hz calculate each step
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
+  step_mode: 'internal'  # 'internal' or 'external'
   collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles'
   plot:
     show_title: true
@@ -536,6 +538,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `step_time`      | `float`           | `0.1`       | Time interval between simulation steps (in seconds)                                                        |
 | `sample_time`    | `float`           | `step_time` | Time interval between samples for rendering and data extraction (in seconds). Defaults to `step_time` if not specified. |
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
+| `step_mode`      | `str`             | `"internal"` | State advancement mode. Support mode: `internal` or `external`                                          |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
 | `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
 | `status`         | `str`             | `"None"`    | Initial display label; replaced by the runtime status after the first completed step |
@@ -579,6 +582,16 @@ This section outlines the configuration parameters available for the `world` sec
 
 (world-mode)=
 ::::{dropdown} **world mode**
+
+(p-w-step-mode)=
+**`step_mode`** (`str`, default: `"internal"`)
+: Defines who advances object states during `env.step()`:
+
+  **Options:**
+  - `internal`: IR-SIM advances states through its kinematics using explicit actions, keyboard commands, group behaviors, or object behaviors.
+  - `external`: An external system owns the state update. Set each object's state and velocity with `set_state()` and `set_velocity()`, then call `env.step()` without an action. IR-SIM synchronizes geometry and sensors, rebuilds collision data, updates status, and advances the world clock without running its kinematics or behaviors.
+
+  `irsim.make("world.yaml", step_mode="...")` can override the YAML value for a particular run. The override remains active across `env.reload()` and `env.reset(random=True)`.
 
 (p-w-control-mode)=
 **`control_mode`** (`str`, default: `"auto"`)
@@ -687,6 +700,7 @@ world:
   step_time: 0.1                      # Time interval between steps (10 Hz)
   sample_time: 0.1                    # Time interval for rendering and data extraction (10 Hz)
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
+  step_mode: 'internal'               # State advancement mode ('internal' or 'external')
   control_mode: 'keyboard'            # Control mode ('auto' or 'keyboard')
   collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file

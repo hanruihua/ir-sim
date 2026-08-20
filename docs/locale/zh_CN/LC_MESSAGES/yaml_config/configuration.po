@@ -3070,3 +3070,35 @@ msgid ""
 msgstr ""
 "**绘图选项**：若 `plot` 位于对象配置内部，可为单个对象定制可视化；若位于对象"
 "配置的根级，则应用于所有对象。"
+
+#: ../../source/yaml_config/configuration.md:513
+msgid "`step_mode`"
+msgstr "`step_mode`"
+
+#: ../../source/yaml_config/configuration.md:513
+msgid "`\"internal\"`"
+msgstr "`\"internal\"`"
+
+#: ../../source/yaml_config/configuration.md:513
+msgid "State advancement mode. Support mode: `internal` or `external`"
+msgstr "状态推进模式，支持 `internal` 或 `external`"
+
+#: ../../source/yaml_config/configuration.md:587
+msgid "**`step_mode`** (`str`, default: `\"internal\"`)"
+msgstr "**`step_mode`**（`str`，默认：`\"internal\"`）"
+
+#: ../../source/yaml_config/configuration.md:588
+msgid "Defines who advances object states during `env.step()`:"
+msgstr "定义在 `env.step()` 期间由谁推进对象状态："
+
+#: ../../source/yaml_config/configuration.md:591
+msgid "`internal`: IR-SIM advances states through its kinematics using explicit actions, keyboard commands, group behaviors, or object behaviors."
+msgstr "`internal`：IR-SIM 使用显式动作、键盘命令、群组行为或对象行为，通过自身运动学推进状态。"
+
+#: ../../source/yaml_config/configuration.md:592
+msgid "`external`: An external system owns the state update. Set each object's state and velocity with `set_state()` and `set_velocity()`, then call `env.step()` without an action. IR-SIM synchronizes geometry and sensors, rebuilds collision data, updates status, and advances the world clock without running its kinematics or behaviors."
+msgstr "`external`：由外部系统负责更新状态。使用 `set_state()` 和 `set_velocity()` 设置每个对象的状态和速度，然后调用不带动作的 `env.step()`。IR-SIM 会同步几何信息和传感器、重建碰撞数据、更新状态并推进世界时钟，但不运行自身的运动学或行为逻辑。"
+
+#: ../../source/yaml_config/configuration.md:594
+msgid "`irsim.make(\"world.yaml\", step_mode=\"...\")` can override the YAML value for a particular run. The override remains active across `env.reload()` and `env.reset(random=True)`."
+msgstr "`irsim.make(\"world.yaml\", step_mode=\"...\")` 可以为特定运行覆盖 YAML 中的值；该覆盖在 `env.reload()` 和 `env.reset(random=True)` 后仍然有效。"

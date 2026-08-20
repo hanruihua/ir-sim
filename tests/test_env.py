@@ -24,6 +24,7 @@ class TestEnvironmentCreation:
         env = env_factory("test_collision_world.yaml")
         assert env is not None
         assert env.robot is not None
+        assert env.step_mode == "internal"
 
     def test_make_with_full_flag(self, env_factory):
         """Test environment creation with full=True for complete setup."""
@@ -36,6 +37,49 @@ class TestEnvironmentCreation:
         """Test environment creation with different projections."""
         env = env_factory("test_multi_objects_world.yaml", projection=projection)
         assert env is not None
+
+    @pytest.mark.parametrize("projection", ["2d", "3d"])
+    def test_make_step_mode_overrides_yaml(self, env_factory, tmp_path, projection):
+        """make(step_mode=...) takes precedence for both projections."""
+        yaml_file = tmp_path / "external_step.yaml"
+        yaml_file.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_mode: external\n"
+            "robot:\n"
+            "  - kinematics: {name: diff}\n"
+            "    state: [1, 1, 0]\n"
+            "    goal: [9, 1, 0]\n"
+            "    behavior: {name: dash}\n"
+        )
+
+        env = env_factory(str(yaml_file), projection=projection, step_mode="internal")
+
+        assert env.step_mode == "internal"
+        assert env.world_param.step_mode == "internal"
+
+    def test_make_step_mode_override_survives_reload(self, env_factory, tmp_path):
+        """The runtime override remains active across reload and random reset."""
+        yaml_file = tmp_path / "internal_step.yaml"
+        yaml_file.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_mode: internal\n"
+            "robot:\n"
+            "  - kinematics: {name: diff}\n"
+            "    state: [1, 1, 0]\n"
+            "    goal: [9, 1, 0]\n"
+            "    behavior: {name: dash}\n"
+        )
+        env = env_factory(str(yaml_file), step_mode="external")
+
+        env.reload()
+        assert env.step_mode == "external"
+
+        env.reset(random=True)
+        assert env.step_mode == "external"
 
     def test_invalid_projection_raises(self):
         """Test that invalid projection raises ValueError."""
@@ -283,6 +327,7 @@ class TestEnvironmentProperties:
         assert wp is not None
         assert hasattr(wp, "control_mode")
         assert hasattr(wp, "collision_mode")
+        assert hasattr(wp, "step_mode")
         assert hasattr(wp, "step_time")
         assert hasattr(wp, "count")
         assert wp.step_time > 0
@@ -391,6 +436,61 @@ class TestSimulationLoop:
         action_list = [[1, 0], [2, 0]]
         action_id = 1
         env.step(action_list, action_id)
+
+    def test_external_step_synchronizes_supplied_state(self, env_factory, tmp_path):
+        """External mode refreshes supplied states without running behaviors."""
+        yaml_file = tmp_path / "external_step.yaml"
+        yaml_file.write_text(
+            "world:\n"
+            "  height: 10\n"
+            "  width: 10\n"
+            "  step_time: 0.1\n"
+            "  step_mode: external\n"
+            "  collision_mode: stop\n"
+            "robot:\n"
+            "  - kinematics: {name: diff}\n"
+            "    shape: {name: circle, radius: 0.5}\n"
+            "    state: [1, 1, 0]\n"
+            "    goal: [9, 1, 0]\n"
+            "    behavior: {name: dash}\n"
+            "obstacle:\n"
+            "  - shape: {name: circle, radius: 0.5}\n"
+            "    state: [3, 3, 0]\n"
+        )
+        env = env_factory(str(yaml_file))
+        robot = env.robot
+        initial_state = robot.state.copy()
+
+        with patch.object(robot, "step", wraps=robot.step) as robot_step:
+            env.step()
+
+        robot_step.assert_not_called()
+        np.testing.assert_allclose(robot.state, initial_state)
+        assert env.time == pytest.approx(0.1)
+        assert len(robot.trajectory) == 1
+
+        robot.set_state([3, 3, 0])
+        robot.set_velocity([0.4, 0.0])
+        env.step()
+
+        np.testing.assert_allclose(robot.state[:, 0], [3, 3, 0])
+        np.testing.assert_allclose(robot.velocity[:, 0], [0.4, 0.0])
+        assert robot.collision is True
+        assert robot.stop_flag is True
+        assert env.time == pytest.approx(0.2)
+        assert len(robot.trajectory) == 2
+
+        env.step()
+
+        assert env.time == pytest.approx(0.3)
+        assert len(robot.trajectory) == 2
+
+    def test_external_step_rejects_actions(self, env_factory):
+        """External state mode cannot also run IR-SIM action integration."""
+        env = env_factory("test_collision_world.yaml", step_mode="external")
+
+        with pytest.raises(ValueError, match="step_mode='external'"):
+            env.step(np.array([1.0, 0.0]))
 
     def test_objects_step(self, env_factory):
         """Test internal _objects_step method."""

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import importlib
 from collections import Counter
-from typing import Any
+from typing import Any, Literal
 
 import matplotlib
 import numpy as np
@@ -105,6 +105,11 @@ class EnvBase:
         seed (int, optional): Seed for the random number generator. Default is None.
             If None, the seed will be set to a random value, which will make the simulation non-reproducible.
             If a fixed seed is provided, the random simulation scenario will be reproducible.
+        step_mode ({"internal", "external"}, optional): Override the mode from
+            ``world.step_mode`` in YAML. ``internal`` runs the normal IR-SIM
+            kinematics step. ``external`` expects callers to update object
+            states and velocities before calling :meth:`step`. Default is None,
+            which uses the YAML value (or ``internal`` when omitted there).
 
     Attributes:
         display (bool): Whether to display the environment visualization.
@@ -149,6 +154,7 @@ class EnvBase:
         log_file: str | None = None,
         log_level: str = "INFO",
         seed: int | None = None,
+        step_mode: Literal["internal", "external"] | None = None,
     ) -> None:
         # Reset object ID counter so each environment starts from 0
         ObjectBase.reset_id_iter()
@@ -181,6 +187,7 @@ class EnvBase:
                 world_name,
                 env_param_instance=self._env_param,
                 world_param_instance=self._world_param,
+                step_mode=step_mode,
             )
         except Exception as e:
             self.logger.critical(f"YAML Configuration load failed: {e}")
@@ -321,11 +328,20 @@ class EnvBase:
         ) or self.pause_flag:
             return
 
-        # assign the keyboard and group action to the action list in a priority order
-        action = self._assign_keyboard_action(action)
-        action = self._assign_group_action(action)
+        if self.step_mode == "external":
+            if any(item is not None for item in action):
+                raise ValueError(
+                    "env.step(action=...) is unavailable when step_mode='external'. "
+                    "Update object states with set_state()/set_velocity(), then call "
+                    "env.step() without an action."
+                )
+            self._objects_refresh(record_trajectory=True)
+        else:
+            # assign keyboard and group actions in priority order
+            action = self._assign_keyboard_action(action)
+            action = self._assign_group_action(action)
+            self._objects_step(action, sensor_step=False)
 
-        self._objects_step(action, sensor_step=False)
         self._objects_sensor_step()
         self._world.step(self.objects)
         self._status_step()
@@ -345,6 +361,22 @@ class EnvBase:
             for obj, action in zip(self.objects, action, strict=True)
         ]
 
+        self.build_tree()
+
+    def _objects_refresh(self, record_trajectory: bool = False) -> None:
+        """Synchronize geometry with externally supplied object states.
+
+        Geometry for every object is refreshed before rebuilding the spatial
+        index, so the subsequent sensor phase observes one consistent state
+        snapshot.
+
+        Args:
+            record_trajectory: Append dynamic-object states to their trajectories.
+        """
+        for obj in self.objects:
+            obj.refresh(sensor_step=False)
+            if record_trajectory and not obj.static and not obj.stop_flag:
+                obj.trajectory.append(obj.state.copy())
         self.build_tree()
 
     def _objects_sensor_step(self) -> None:
@@ -796,9 +828,8 @@ class EnvBase:
         views (geometry, sensors, collisions) brought up to date.
         """
 
-        for obj in self.objects:
-            obj.refresh()
-        self.build_tree()
+        self._objects_refresh()
+        self._objects_sensor_step()
         self._status_step()
 
     def reset_plot(self) -> None:
@@ -1369,13 +1400,18 @@ class EnvBase:
         return self._world.step_time
 
     @property
+    def step_mode(self) -> str:
+        """Get the active state-advancement mode."""
+        return self._world_param.step_mode
+
+    @property
     def world_param(self):
         """
         Get the world parameters of the simulation.
 
         Returns:
             WorldParam: World parameters including time, control_mode,
-                collision_mode, step_time, and count.
+                collision_mode, step_mode, step_time, and count.
         """
         return self._world_param
 

@@ -1,7 +1,7 @@
 import os
 import sys
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from irsim.env import EnvBase, EnvBase3D
 
@@ -58,7 +58,10 @@ _env_factory = _EnvFactory()
 
 
 def make(
-    world_name: str | None = None, projection: str | None = None, **kwargs: Any
+    world_name: str | None = None,
+    projection: str | None = None,
+    step_mode: Literal["internal", "external"] | None = None,
+    **kwargs: Any,
 ) -> EnvBase:
     """
     Create an environment by the given world file and projection.
@@ -73,6 +76,11 @@ def make(
         projection (str, optional): The projection type of the environment.
             Default is None for 2D environment. If set to "3d", creates a 3D
             plot environment.
+        step_mode ({"internal", "external"}, optional): Override the
+            ``world.step_mode`` value from YAML. ``internal`` lets IR-SIM
+            integrate object states. ``external`` expects callers to update
+            object states before each :py:meth:`.EnvBase.step` call. If None,
+            the YAML value is used (defaulting to ``internal``).
         **kwargs: Additional keyword arguments passed to :py:class:`.EnvBase`
             or :py:class:`.EnvBase3D`. Common options include:
 
@@ -95,5 +103,9 @@ def make(
         >>>
         >>> # Create environment with additional options
         >>> env = make("world.yaml", display=True, save_ani=False)
+        >>> # Override the YAML state-advancement mode
+        >>> env = make("world.yaml", step_mode="external")
     """
+    if step_mode is not None:
+        kwargs["step_mode"] = step_mode
     return _env_factory.create(world_name=world_name, projection=projection, **kwargs)

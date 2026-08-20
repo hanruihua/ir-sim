@@ -1781,6 +1781,18 @@ class TestWorldUnknownKwargs:
         w = World(name="test")
         assert w.logger is w._env_param.logger
 
+    def test_world_step_mode_default_and_normalization(self):
+        """World defaults to internal stepping and normalizes explicit values."""
+        assert World(name="default").step_mode == "internal"
+        assert World(name="external", step_mode=" EXTERNAL ").step_mode == "external"
+
+    def test_world_invalid_step_mode_raises(self):
+        """World rejects unknown or non-string step modes."""
+        with pytest.raises(ValueError, match="Unsupported step_mode"):
+            World(name="invalid", step_mode="automatic")
+        with pytest.raises(TypeError, match="step_mode must be a string"):
+            World(name="invalid", step_mode=1)
+
 
 class TestWorld3D:
     """World3D depth and offset handling."""
