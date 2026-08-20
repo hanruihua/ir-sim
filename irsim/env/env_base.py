@@ -375,7 +375,7 @@ class EnvBase:
         """
         for obj in self.objects:
             obj.refresh(sensor_step=False)
-            if record_trajectory and not obj.static:
+            if record_trajectory and not obj.static and not obj.stop_flag:
                 obj.trajectory.append(obj.state.copy())
         self.build_tree()
 

@@ -446,7 +446,7 @@ class TestSimulationLoop:
             "  width: 10\n"
             "  step_time: 0.1\n"
             "  step_mode: external\n"
-            "  collision_mode: unobstructed\n"
+            "  collision_mode: stop\n"
             "robot:\n"
             "  - kinematics: {name: diff}\n"
             "    shape: {name: circle, radius: 0.5}\n"
@@ -476,7 +476,13 @@ class TestSimulationLoop:
         np.testing.assert_allclose(robot.state[:, 0], [3, 3, 0])
         np.testing.assert_allclose(robot.velocity[:, 0], [0.4, 0.0])
         assert robot.collision is True
+        assert robot.stop_flag is True
         assert env.time == pytest.approx(0.2)
+        assert len(robot.trajectory) == 2
+
+        env.step()
+
+        assert env.time == pytest.approx(0.3)
         assert len(robot.trajectory) == 2
 
     def test_external_step_rejects_actions(self, env_factory):
