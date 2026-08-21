@@ -54,5 +54,5 @@ msgid ":py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`, :py:c
 msgstr ":py:class:`~irsim.msg.WorldState`、:py:class:`~irsim.msg.Odometry`、:py:class:`~irsim.msg.LaserScan`"
 
 #: ../../source/api/index.rst:56
-msgid "Dependency-free ``odom`` and ``scan`` topics with snapshot serialization and state reception."
-msgstr "无需额外依赖的 ``odom`` 和 ``scan`` 话题，并支持快照序列化与状态接收。"
+msgid "Version-neutral snapshots for bridge-side serialization and state reception."
+msgstr "与 ROS 版本无关的快照，用于桥接端序列化和状态接收。"

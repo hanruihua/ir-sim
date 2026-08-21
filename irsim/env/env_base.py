@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import importlib
 from collections import Counter
-from typing import Any, Literal, cast
 from math import atan, atan2, hypot
+from typing import Any, Literal, cast
 
 import matplotlib
 import numpy as np

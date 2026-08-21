@@ -196,8 +196,8 @@ Use `env.get_msg()` when a controller, logger, bridge, or learning pipeline need
 ```python
 msg = env.get_msg()
 
-print(msg.header.seq)          # simulation step count
-print(msg.header.stamp)        # simulation time in seconds
+print(msg.header.seq)  # simulation step count
+print(msg.header.stamp)  # simulation time in seconds
 robot = msg.robots[0]
 
 print(robot.odom.pose.pose.position.x)
@@ -206,12 +206,14 @@ print(robot.odom.twist.twist.linear.x)
 if robot.scan is not None:
     print(robot.scan.ranges)
 
-payload = msg.to_dict()        # JSON-compatible lists and scalar values
+payload = msg.to_dict()  # JSON-compatible lists and scalar values
 ```
 
-The message types declare their ROS counterparts through `ros_type`, for example `robot.odom.ros_type == "nav_msgs/Odometry"` and `robot.scan.ros_type == "sensor_msgs/LaserScan"`. The `scans` list contains every LiDAR reading, and `scan` aliases its first item as the primary reading.
+Message types expose a stable logical `ros_type` hint, for example `robot.odom.ros_type == "nav_msgs/Odometry"`. Its slash form is retained for compatibility and does not select ROS 1. The bridge chooses the native ROS 1 or ROS 2 class and converts IR-SIM's floating-point timestamp and sequence number to the corresponding Header layout. The `scans` list contains every LiDAR reading, and `scan` aliases its first item as the primary reading.
 
-{py:class}`~irsim.msg.LaserScan` contains only the fields defined by ROS Noetic `sensor_msgs/LaserScan`; when intensity data is unavailable, `intensities` is an empty array. IR-SIM-specific sensor metadata such as offsets, Cartesian target velocity, FMCW radial velocity, and validity remains available from `sensor.get_scan()` or `env.get_lidar_scan()`.
+{py:class}`~irsim.msg.LaserScan` contains only the shared `sensor_msgs/LaserScan` data fields; when intensity data is unavailable, `intensities` is an empty array. Its angle metadata exactly reconstructs the simulated beam directions. Because IR-SIM evaluates all beams from one geometry snapshot, `time_increment` is zero; `scan_time` is the configured interval between scans. IR-SIM-specific measurements such as Cartesian target velocity, FMCW radial velocity, and validity remain available from `sensor.get_scan()` or `env.get_lidar_scan()`.
+
+Odometry and scan messages use conventional `world`, `base_link`, and sensor frame names. A ROS bridge remains responsible for publishing the corresponding `/tf`, `/tf_static`, and `/clock` messages.
 
 Messages are point-in-time copies: later calls to `env.step()` or object setters do not mutate a message you already captured. The message classes are dependency-free and do not require ROS; a ROS bridge can map them to native ROS messages at its boundary.
 

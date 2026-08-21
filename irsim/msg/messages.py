@@ -3,6 +3,7 @@
 The classes in this module are plain dataclasses. They intentionally do not
 depend on ROS, which keeps them usable in regular Python, learning, and batch
 simulation workflows while providing familiar topic names and message shapes.
+Native ROS types and field layouts are chosen by a bridge, not IR-SIM.
 """
 
 from __future__ import annotations
@@ -57,7 +58,7 @@ class Message:
 
 @dataclass(slots=True)
 class Header(Message):
-    """Metadata shared by all IR-SIM messages."""
+    """Version-neutral metadata shared by all IR-SIM messages."""
 
     ros_type: ClassVar[str] = "std_msgs/Header"
 
@@ -201,7 +202,7 @@ class Odometry(Message):
 
 @dataclass(slots=True)
 class LaserScan(Message):
-    """ROS Noetic ``sensor_msgs/LaserScan`` fields for a LiDAR snapshot."""
+    """Shared ``sensor_msgs/LaserScan`` fields for a LiDAR snapshot."""
 
     ros_type: ClassVar[str] = "sensor_msgs/LaserScan"
 

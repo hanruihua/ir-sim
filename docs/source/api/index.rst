@@ -54,7 +54,7 @@ level modules when extending IR-SIM itself.
    * - Exchange simulation messages
      - :py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`,
        :py:class:`~irsim.msg.LaserScan`
-     - Dependency-free ``odom`` and ``scan`` topics with snapshot serialization and state reception.
+     - Version-neutral snapshots for bridge-side serialization and state reception.
    * - Use path planners
      - :mod:`irsim.lib.path_planners`
      - Grid and sampling planners operate on :class:`~irsim.world.map.EnvGridMap`.
