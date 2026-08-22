@@ -5,10 +5,9 @@ from math import cos, sin
 import numpy as np
 from matplotlib.colors import to_rgb
 from mpl_toolkits.mplot3d import Axes3D
-from shapely.geometry import LineString, MultiLineString, Point
 
+from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
-from irsim.util.util import transform_point_with_state
 from irsim.world.sensors.lidar2d import Lidar2D
 
 
@@ -85,52 +84,61 @@ class FMCWLidar2D(Lidar2D):
         self.valid = np.zeros(self.number, dtype=bool)
 
     def step(self, state):
-        """Update ranges, validity flags, and radial velocities for every beam."""
-        self._state = state
-        self.lidar_origin = transform_point_with_state(self.offset, self._state)
+        """Update ranges, validity flags, and radial velocities for every beam.
 
-        origin_xy = np.array([self.lidar_origin[0, 0], self.lidar_origin[1, 0]])
-        sensor_theta = (
-            float(self.lidar_origin[2, 0]) if self.lidar_origin.shape[0] > 2 else 0.0
+        Beams are cast against obstacle boundary segments in one vectorized pass
+        (:func:`irsim.lib.algorithm.ray_casting_2d.cast_rays`), then each valid
+        beam's hit object supplies the Doppler (radial) velocity.
+        """
+        self._state = state
+        lidar_geometry = self._world_geometry(state)
+        detected_objects = self._get_detected_objects(lidar_geometry)
+        ranges, hit_object_indices, origin, directions = cast_rays(
+            lidar_geometry,
+            detected_objects,
+            self.range_max,
         )
 
         self.range_data[:] = self.range_max
-        self.radial_velocity[:] = 0.0
         self.valid[:] = False
+        self.radial_velocity[:] = 0.0
+        self._resolve_hits(
+            ranges,
+            hit_object_indices,
+            directions,
+            detected_objects,
+        )
+        self._rebuild_scan_geometry(origin, directions)
 
-        segments = []
-        for index, beam_angle in enumerate(self.angle_list):
-            # Cast each beam independently so the sensor can keep the closest hit
-            # object and project that object's motion onto the beam direction.
-            world_angle = sensor_theta + beam_angle
-            direction = np.array([cos(world_angle), sin(world_angle)])
-            ray_end = origin_xy + self.range_max * direction
-            ray = LineString([tuple(origin_xy), tuple(ray_end)])
+    def _resolve_hits(
+        self,
+        ranges,
+        hit_object_indices,
+        directions,
+        detected_objects,
+    ):
+        """Apply range noise, validity, and radial velocity for each hit beam.
 
-            hit_distance, hit_object = self._find_nearest_hit(ray, origin_xy)
-            if hit_distance is not None:
-                if self.noise:
-                    hit_distance += rng.normal(0, self.std)
-
-                # Treat noise-induced out-of-range measurements as invalid so
-                # ``valid`` stays consistent with ``range_data`` and downstream
-                # consumers (e.g. ``get_points``) cannot silently drop a beam
-                # that is still flagged as a hit.
-                if self.range_min <= hit_distance <= self.range_max:
-                    self.range_data[index] = hit_distance
-                    self.valid[index] = True
-
-                    radial_velocity = self._compute_radial_velocity(
-                        hit_object, direction
-                    )
-                    if self.velocity_noise_std > 0:
-                        radial_velocity += rng.normal(0, self.velocity_noise_std)
-                    self.radial_velocity[index] = radial_velocity
-
-            segment_end = origin_xy + self.range_data[index] * direction
-            segments.append([tuple(origin_xy), tuple(segment_end)])
-
-        self._geometry = MultiLineString(segments)
+        Draws range noise then (for in-band beams) velocity noise in beam order,
+        matching the previous per-beam implementation so a seeded run reproduces
+        the old noisy scan bit-for-bit. Ray casting stays vectorized; only this
+        cheap arithmetic pass is per-beam, and only over beams that hit.
+        """
+        for beam in np.nonzero(hit_object_indices >= 0)[0]:
+            distance = ranges[beam]
+            if self.noise:
+                distance += rng.normal(0, self.std)
+            # A hit counts only if its (possibly noisy) range stays in band, so
+            # range_data/valid stay consistent for get_points.
+            if self.range_min <= distance <= self.range_max:
+                self.range_data[beam] = distance
+                self.valid[beam] = True
+                velocity = self._compute_radial_velocity(
+                    detected_objects[hit_object_indices[beam]], directions[beam]
+                )
+                if self.velocity_noise_std > 0:
+                    velocity += rng.normal(0, self.velocity_noise_std)
+                self.radial_velocity[beam] = velocity
 
     def _plot(self, ax, state, **kwargs):
         """Plot beams, then color them from radial velocity for visualization."""
@@ -143,92 +151,6 @@ class FMCWLidar2D(Lidar2D):
         super()._step_plot()
         self._apply_velocity_visuals()
         self._update_velocity_markers()
-
-    def _find_nearest_hit(self, ray: LineString, origin_xy: np.ndarray):
-        """Return the nearest intersected object and hit distance for one beam."""
-        object_tree = self._env_param.GeometryTree
-        objects = self._env_param.objects
-
-        if object_tree is None:
-            return None, None
-
-        origin_point = Point(*origin_xy)
-        best_distance = None
-        best_object = None
-
-        for geom_index in object_tree.query(ray):
-            obj = objects[geom_index]
-            if obj._id == self.obj_id or not obj._geometry_valid or obj.unobstructed:
-                continue
-
-            geometry = self._get_candidate_geometry(obj, ray)
-            if geometry is None:
-                continue
-
-            distance = self._nearest_intersection_distance(ray, geometry, origin_point)
-            if distance is None:
-                continue
-
-            if best_distance is None or distance < best_distance:
-                best_distance = distance
-                best_object = obj
-
-        return best_distance, best_object
-
-    def _get_candidate_geometry(self, obj, ray: LineString):
-        """Return the geometry subset that should be tested against a beam ray."""
-        if obj.shape == "map":
-            intersecting_indices = obj.geometry_tree.query(ray, predicate="intersects")
-            if len(intersecting_indices) == 0:
-                return None
-            return MultiLineString([obj.linestrings[i] for i in intersecting_indices])
-
-        if not ray.intersects(obj.geometry):
-            return None
-        return obj.geometry
-
-    def _nearest_intersection_distance(
-        self,
-        ray: LineString,
-        geometry,
-        origin_point: Point,
-    ) -> float | None:
-        """Return the closest intersection distance along a beam ray."""
-        intersection = ray.intersection(geometry)
-
-        best_distance = None
-        for point in self._iter_intersection_points(intersection):
-            distance = origin_point.distance(point)
-            if distance <= 1e-9 or distance > self.range_max + 1e-9:
-                continue
-            if best_distance is None or distance < best_distance:
-                best_distance = distance
-
-        return best_distance
-
-    def _iter_intersection_points(self, geometry):
-        """Yield representative points from a Shapely intersection result."""
-        if geometry.is_empty:
-            return
-
-        geom_type = geometry.geom_type
-        if geom_type == "Point":
-            yield geometry
-            return
-        if geom_type == "MultiPoint":
-            yield from geometry.geoms
-            return
-        if geom_type in {"LineString", "LinearRing"}:
-            for coord in geometry.coords:
-                yield Point(coord)
-            return
-        if geom_type == "MultiLineString":
-            for part in geometry.geoms:
-                yield from self._iter_intersection_points(part)
-            return
-        if geom_type == "GeometryCollection":
-            for part in geometry.geoms:
-                yield from self._iter_intersection_points(part)
 
     def _compute_radial_velocity(self, obj, direction: np.ndarray) -> float:
         """Project the target motion onto the beam direction."""

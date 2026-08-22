@@ -7,7 +7,7 @@ world:
   sample_time: 0.1  # 10Hz for render and data extraction
   offset: [0, 0]  # world origin offset
   collision_mode: 'stop'  # 'stop', 'unobstructed'
-  control_mode: 'auto'  # 'keyboard', 'auto'
+  control_mode: 'keyboard'  # 'keyboard', 'auto'
   mdownsample: 1
   obstacle_map:
     name: perlin
@@ -20,10 +20,10 @@ world:
 
 robot:
   - kinematics: {name: 'diff'}  # differential drive robot
-    shape: {name: 'circle', radius: 0.3}
-    state: [2, 2, 0]  # initial state [x, y, theta]
-    goal: [16, 18, 0]  # goal position
-    vel_max: [3, 1]  # max linear and angular velocity
+    shape: {name: 'circle', radius: 0.1}
+    state: [5.3, 5.5, 0]  # initial state [x, y, theta] (free cell for seed 48)
+    goal: [15.5, 17.9, 0]  # goal position (free cell for seed 48)
+    vel_max: [1, 1]  # max linear and angular velocity
     behavior: {name: 'dash'}  # move toward goal directly
 
     plot:
