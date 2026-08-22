@@ -8,6 +8,7 @@ import contextlib
 import json
 import re
 import warnings
+from dataclasses import dataclass
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -16,7 +17,14 @@ import pytest
 
 import irsim
 from irsim.env.env_base import EnvBase
-from irsim.msg import LaserScan, Odometry, Quaternion, WorldState
+from irsim.msg import LaserScan, Message, Odometry, Quaternion, WorldState
+
+
+@dataclass
+class _PayloadMessage(Message):
+    """Message fixture with mapping and NumPy scalar payloads."""
+
+    payload: dict[str, object]
 
 
 class TestEnvironmentCreation:
@@ -270,6 +278,31 @@ class TestStateQueries:
         assert "scan" in payload["objects"][0]
         assert json.loads(json.dumps(payload))["header"]["seq"] == 1
 
+    def test_message_serialization_handles_optional_and_numpy_values(self, env_factory):
+        """Public message conversion handles missing goals and NumPy scalars."""
+        env = env_factory("test_collision_world.yaml")
+        env.robot._goal = None
+
+        assert env.get_msg().robots[0].goal is None
+        assert _PayloadMessage({"scalar": np.float32(1.25)}).to_dict() == {
+            "payload": {"scalar": 1.25}
+        }
+
+    def test_odometry_from_omni_angular_object(self):
+        """Omni-angular objects expose planar and angular velocity."""
+        obj = SimpleNamespace(
+            state=np.array([[1.0], [2.0], [0.3]]),
+            velocity=np.array([[0.4], [0.5], [0.6]]),
+            kinematics="omni_angular",
+            name="omni-angular",
+        )
+
+        odom = Odometry.from_object(obj)
+
+        assert odom.twist.twist.linear.x == pytest.approx(0.4)
+        assert odom.twist.twist.linear.y == pytest.approx(0.5)
+        assert odom.twist.twist.angular.z == pytest.approx(0.6)
+
     def test_receive_ros_style_odometry_updates_primary_robot(self, env_factory):
         """Native ROS-shaped odometry updates pose, twist, and derived sensors."""
         env = env_factory("test_all_objects.yaml")
@@ -342,6 +375,31 @@ class TestStateQueries:
         for obj in env.objects:
             np.testing.assert_array_equal(obj.state, states_before[obj.name])
 
+    def test_receive_world_message_rejects_selectors_and_duplicates(self, env_factory):
+        """World messages cannot override or repeat resolved local targets."""
+        env = env_factory("test_all_objects.yaml")
+        world_msg = env.get_msg()
+
+        with pytest.raises(ValueError, match="cannot be used with WorldState"):
+            env.receive_msg(world_msg, object_name=env.robot.name)
+
+        world_msg.objects.append(world_msg.objects[0])
+        states_before = {obj.name: obj.state.copy() for obj in env.objects}
+        with pytest.raises(ValueError, match="more than one state"):
+            env.receive_msg(world_msg)
+
+        for obj in env.objects:
+            np.testing.assert_array_equal(obj.state, states_before[obj.name])
+
+    def test_receive_object_message_accepts_explicit_id(self, env_factory):
+        """An explicit id can select the target for an ObjectState message."""
+        env = env_factory("test_all_objects.yaml")
+        object_msg = env.get_msg().robots[0]
+        object_msg.odom.pose.pose.position.x = 2.75
+
+        assert env.receive_msg(object_msg, object_id=env.robot.id, refresh=False) == 1
+        assert env.robot.state[0, 0] == pytest.approx(2.75)
+
     def test_receive_odometry_converts_ackermann_twist(self, env_factory):
         """Ackermann yaw rate is converted back to the local steering layout."""
         env = env_factory("test_all_objects.yaml")
@@ -370,6 +428,54 @@ class TestStateQueries:
             env.receive_msg(object())
 
         np.testing.assert_array_equal(env.robot.state, state_before)
+
+    def test_receive_msg_rejects_nonfinite_odometry(self, env_factory):
+        """Non-finite odometry values are rejected before object mutation."""
+        env = env_factory("test_collision_world.yaml")
+        odom = env.get_msg().robots[0].odom
+        odom.pose.pose.position.x = np.inf
+
+        with pytest.raises(ValueError, match="must all be finite"):
+            env.receive_msg(odom, refresh=False)
+
+    def test_receive_msg_rejects_zero_quaternion(self, env_factory):
+        """A zero quaternion cannot define the received planar yaw."""
+        env = env_factory("test_collision_world.yaml")
+        odom = env.get_msg().robots[0].odom
+        odom.pose.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=0.0)
+
+        with pytest.raises(ValueError, match="orientation must be non-zero"):
+            env.receive_msg(odom, refresh=False)
+
+    def test_odometry_requires_three_target_state_values(self):
+        """Planar odometry cannot update a target without x, y, and yaw."""
+        target = SimpleNamespace(
+            state=np.zeros((2, 1)),
+            vel_shape=(2, 1),
+            kinematics="diff",
+            name="short-state",
+        )
+
+        with pytest.raises(ValueError, match="at least three state values"):
+            EnvBase._state_velocity_from_odometry(target, Odometry())
+
+    @pytest.mark.parametrize("kinematics", ["omni_angular", "custom"])
+    def test_odometry_maps_extended_velocity_layouts(self, kinematics):
+        """Angular omni and extension kinematics receive all twist components."""
+        target = SimpleNamespace(
+            state=np.zeros((3, 1)),
+            vel_shape=(3, 1),
+            kinematics=kinematics,
+            name=kinematics,
+        )
+        odom = Odometry()
+        odom.twist.twist.linear.x = 0.4
+        odom.twist.twist.linear.y = 0.5
+        odom.twist.twist.angular.z = 0.6
+
+        _, velocity = EnvBase._state_velocity_from_odometry(target, odom)
+
+        np.testing.assert_allclose(velocity[:, 0], [0.4, 0.5, 0.6])
 
     def test_get_lidar_scan(self, env_factory):
         """Test getting lidar scan data."""
