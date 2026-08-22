@@ -9,6 +9,7 @@ from shapely import STRtree
 import irsim.lib.algorithm.ray_casting_2d as ray_casting_2d
 from irsim.lib.algorithm.ray_casting_2d import cast_ray_segments, cast_rays
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.msg import LaserScan
 from irsim.util.random import rng, set_seed
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.sensors.fmcw_lidar2d import FMCWLidar2D
