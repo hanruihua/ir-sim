@@ -4,7 +4,8 @@ import math
 import os
 import sys
 import time
-from collections import deque
+from collections import Counter, deque
+from collections.abc import Iterable
 from functools import wraps
 from math import atan2, cos, pi, sin
 from typing import Any
@@ -259,6 +260,51 @@ def is_list_not_list_of_lists(lst: Any) -> bool:
         bool: True if no elements are lists, False otherwise.
     """
     return isinstance(lst, list) and all(not isinstance(sub, list) for sub in lst)
+
+
+def find_duplicates(values: Iterable[Any]) -> list[Any]:
+    """
+    Find the values that appear more than once.
+
+    Args:
+        values (Iterable): Values to inspect, such as object names.
+
+    Returns:
+        list: The repeated values, in first-seen order.
+    """
+
+    return [value for value, count in Counter(values).items() if count > 1]
+
+
+def find_object_by_identity(
+    objects: Iterable[Any],
+    name: str | None = None,
+    object_id: int | None = None,
+) -> Any | None:
+    """
+    Find the first object matching a stable name, then an id.
+
+    Names are matched first, because they are the identity shared across
+    simulators; ids are only used as a fallback.
+
+    Args:
+        objects (Iterable): Objects to search, each with ``name`` and ``id``.
+        name (str): Name to look for. Ignored when None or empty.
+        object_id (int): Id to look for when the name does not match.
+
+    Returns:
+        The matching object, or None if neither identity matches.
+    """
+
+    id_match = None
+
+    for obj in objects:
+        if name and obj.name == name:
+            return obj
+        if object_id is not None and id_match is None and obj.id == object_id:
+            id_match = obj
+
+    return id_match
 
 
 def relative_position(

@@ -5,8 +5,11 @@ Covers environment creation, object management, state queries, and flags.
 """
 
 import contextlib
+import json
 import re
 import warnings
+from dataclasses import dataclass
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
@@ -14,6 +17,14 @@ import pytest
 
 import irsim
 from irsim.env.env_base import EnvBase
+from irsim.msg import LaserScan, Message, Odometry, Quaternion, WorldState
+
+
+@dataclass
+class _PayloadMessage(Message):
+    """Message fixture with mapping and NumPy scalar payloads."""
+
+    payload: dict[str, object]
 
 
 class TestEnvironmentCreation:
@@ -215,6 +226,256 @@ class TestStateQueries:
         state = env.get_robot_state()
         assert state is not None
         assert isinstance(state, np.ndarray)
+
+    def test_get_msg_returns_independent_world_snapshot(self, env_factory):
+        """World messages include object/sensor data and own their arrays."""
+        env = env_factory("test_all_objects.yaml")
+
+        msg = env.get_msg()
+
+        assert isinstance(msg, WorldState)
+        assert msg.header.seq == 0
+        assert msg.header.stamp == 0.0
+        assert msg.header.frame_id == "world"
+        assert len(msg.objects) == len(env.objects)
+        assert len(msg.robots) == len(env.robot_list)
+        assert len(msg.obstacles) == len(env.obstacle_list)
+        robot = msg.robots[0]
+        assert isinstance(robot.odom, Odometry)
+        assert robot.odom.ros_type == "nav_msgs/Odometry"
+        assert robot.odom.child_frame_id == "testtest/base_link"
+        assert isinstance(robot.scan, LaserScan)
+        assert robot.scan.ros_type == "sensor_msgs/LaserScan"
+        assert robot.scan.header.frame_id == "testtest/laser"
+        assert robot.scans == [robot.scan]
+        assert robot.scan is robot.scans[0]
+        assert robot.sensors == [robot.scan]
+
+        captured_x = robot.odom.pose.pose.position.x
+        captured_ranges = robot.scan.ranges.copy()
+        env.robot.set_state([3.0, 4.0, 0.5])
+        env.robot.lidar.range_data[:] = 1.25
+
+        assert robot.odom.pose.pose.position.x == captured_x
+        np.testing.assert_array_equal(robot.scan.ranges, captured_ranges)
+
+    def test_get_msg_tracks_simulation_time_and_serializes(self, env_factory):
+        """Each message is timestamped and can become a JSON payload."""
+        env = env_factory("test_collision_world.yaml")
+        env.step(np.array([[0.2], [0.0]]))
+
+        msg = env.get_msg()
+        payload = msg.to_dict()
+
+        assert msg.header.seq == 1
+        assert msg.header.stamp == pytest.approx(0.1)
+        position = msg.robots[0].odom.pose.pose.position
+        payload_position = payload["objects"][0]["odom"]["pose"]["pose"]["position"]
+        assert payload_position == {"x": position.x, "y": position.y, "z": position.z}
+        assert msg.robots[0].odom.twist.twist.linear.x == pytest.approx(0.2)
+        assert msg.robots[0].scan is None
+        assert msg.robots[0].scans == []
+        assert "scan" in payload["objects"][0]
+        assert json.loads(json.dumps(payload))["header"]["seq"] == 1
+
+    def test_message_serialization_handles_optional_and_numpy_values(self, env_factory):
+        """Public message conversion handles missing goals and NumPy scalars."""
+        env = env_factory("test_collision_world.yaml")
+        env.robot._goal = None
+
+        assert env.get_msg().robots[0].goal is None
+        assert _PayloadMessage({"scalar": np.float32(1.25)}).to_dict() == {
+            "payload": {"scalar": 1.25}
+        }
+
+    def test_odometry_from_omni_angular_object(self):
+        """Omni-angular objects expose planar and angular velocity."""
+        obj = SimpleNamespace(
+            state=np.array([[1.0], [2.0], [0.3]]),
+            velocity=np.array([[0.4], [0.5], [0.6]]),
+            kinematics="omni_angular",
+            name="omni-angular",
+        )
+
+        odom = Odometry.from_object(obj)
+
+        assert odom.twist.twist.linear.x == pytest.approx(0.4)
+        assert odom.twist.twist.linear.y == pytest.approx(0.5)
+        assert odom.twist.twist.angular.z == pytest.approx(0.6)
+
+    def test_receive_ros_style_odometry_updates_primary_robot(self, env_factory):
+        """Native ROS-shaped odometry updates pose, twist, and derived sensors."""
+        env = env_factory("test_all_objects.yaml")
+        yaw = 0.7
+        orientation = Quaternion.from_yaw(yaw)
+        odom = SimpleNamespace(
+            pose=SimpleNamespace(
+                pose=SimpleNamespace(
+                    position=SimpleNamespace(x=2.5, y=3.5),
+                    orientation=orientation,
+                )
+            ),
+            twist=SimpleNamespace(
+                twist=SimpleNamespace(
+                    linear=SimpleNamespace(x=0.4, y=9.0),
+                    angular=SimpleNamespace(z=-0.2),
+                )
+            ),
+        )
+
+        updated = env.receive_msg(odom)
+
+        assert updated == 1
+        np.testing.assert_allclose(env.robot.state[:3, 0], [2.5, 3.5, yaw])
+        np.testing.assert_allclose(env.robot.velocity[:, 0], [0.4, -0.2])
+        np.testing.assert_allclose(env.robot.lidar.state, env.robot.state[:3])
+        np.testing.assert_allclose(env.robot.geometry.centroid.coords[0], [2.5, 3.5])
+
+    def test_receive_object_and_world_messages(self, env_factory):
+        """ObjectState and WorldState use embedded identity and preserve local time."""
+        env = env_factory("test_all_objects.yaml")
+        object_msg = env.get_msg().robots[0]
+        object_msg.id = -1  # name is the stable cross-simulator identity
+        object_msg.odom.pose.pose.position.x = 2.25
+
+        assert env.receive_msg(object_msg, refresh=False) == 1
+        assert env.robot.state[0, 0] == pytest.approx(2.25)
+
+        world_msg = env.get_msg()
+        expected_x = {}
+        for index, obj_msg in enumerate(world_msg.objects):
+            obj_msg.odom.pose.pose.position.x += 0.01 * (index + 1)
+            expected_x[obj_msg.name] = obj_msg.odom.pose.pose.position.x
+        time_before = env.time
+        goals_before = {
+            obj.name: None if obj.goal is None else obj.goal.copy()
+            for obj in env.objects
+        }
+
+        assert env.receive_msg(world_msg) == len(env.objects)
+        assert env.time == time_before
+        for obj in env.objects:
+            assert obj.state[0, 0] == pytest.approx(expected_x[obj.name])
+            if goals_before[obj.name] is None:
+                assert obj.goal is None
+            else:
+                np.testing.assert_array_equal(obj.goal, goals_before[obj.name])
+
+    def test_receive_world_message_is_atomic_on_unknown_object(self, env_factory):
+        """An unresolved WorldState target leaves every local object unchanged."""
+        env = env_factory("test_all_objects.yaml")
+        world_msg = env.get_msg()
+        world_msg.objects[-1].name = "external-only-object"
+        world_msg.objects[-1].id = -1
+        states_before = {obj.name: obj.state.copy() for obj in env.objects}
+
+        with pytest.raises(ValueError, match="No simulation object matches"):
+            env.receive_msg(world_msg)
+
+        for obj in env.objects:
+            np.testing.assert_array_equal(obj.state, states_before[obj.name])
+
+    def test_receive_world_message_rejects_selectors_and_duplicates(self, env_factory):
+        """World messages cannot override or repeat resolved local targets."""
+        env = env_factory("test_all_objects.yaml")
+        world_msg = env.get_msg()
+
+        with pytest.raises(ValueError, match="cannot be used with WorldState"):
+            env.receive_msg(world_msg, object_name=env.robot.name)
+
+        world_msg.objects.append(world_msg.objects[0])
+        states_before = {obj.name: obj.state.copy() for obj in env.objects}
+        with pytest.raises(ValueError, match="more than one state"):
+            env.receive_msg(world_msg)
+
+        for obj in env.objects:
+            np.testing.assert_array_equal(obj.state, states_before[obj.name])
+
+    def test_receive_object_message_accepts_explicit_id(self, env_factory):
+        """An explicit id can select the target for an ObjectState message."""
+        env = env_factory("test_all_objects.yaml")
+        object_msg = env.get_msg().robots[0]
+        object_msg.odom.pose.pose.position.x = 2.75
+
+        assert env.receive_msg(object_msg, object_id=env.robot.id, refresh=False) == 1
+        assert env.robot.state[0, 0] == pytest.approx(2.75)
+
+    def test_receive_odometry_converts_ackermann_twist(self, env_factory):
+        """Ackermann yaw rate is converted back to the local steering layout."""
+        env = env_factory("test_all_objects.yaml")
+        car = next(obj for obj in env.objects if obj.kinematics == "acker")
+        odom = next(
+            obj_msg.odom
+            for obj_msg in env.get_msg().objects
+            if obj_msg.name == car.name
+        )
+        odom.pose.pose.orientation = Quaternion.from_yaw(-0.4)
+        odom.twist.twist.linear.x = 0.5
+        odom.twist.twist.angular.z = 0.25
+        expected_steering = np.arctan(0.25 * car.wheelbase / 0.5)
+
+        assert env.receive_msg(odom, object_name=car.name, refresh=False) == 1
+        assert car.state[2, 0] == pytest.approx(-0.4)
+        assert car.state[3, 0] == pytest.approx(expected_steering)
+        np.testing.assert_allclose(car.velocity[:, 0], [0.5, expected_steering])
+
+    def test_receive_msg_rejects_invalid_input_without_mutation(self, env_factory):
+        """Malformed odometry fails before changing the selected object."""
+        env = env_factory("test_collision_world.yaml")
+        state_before = env.robot.state.copy()
+
+        with pytest.raises(TypeError, match="ROS-compatible"):
+            env.receive_msg(object())
+
+        np.testing.assert_array_equal(env.robot.state, state_before)
+
+    def test_receive_msg_rejects_nonfinite_odometry(self, env_factory):
+        """Non-finite odometry values are rejected before object mutation."""
+        env = env_factory("test_collision_world.yaml")
+        odom = env.get_msg().robots[0].odom
+        odom.pose.pose.position.x = np.inf
+
+        with pytest.raises(ValueError, match="must all be finite"):
+            env.receive_msg(odom, refresh=False)
+
+    def test_receive_msg_rejects_zero_quaternion(self, env_factory):
+        """A zero quaternion cannot define the received planar yaw."""
+        env = env_factory("test_collision_world.yaml")
+        odom = env.get_msg().robots[0].odom
+        odom.pose.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=0.0)
+
+        with pytest.raises(ValueError, match="orientation must be non-zero"):
+            env.receive_msg(odom, refresh=False)
+
+    def test_odometry_requires_three_target_state_values(self):
+        """Planar odometry cannot update a target without x, y, and yaw."""
+        target = SimpleNamespace(
+            state=np.zeros((2, 1)),
+            vel_shape=(2, 1),
+            kinematics="diff",
+            name="short-state",
+        )
+
+        with pytest.raises(ValueError, match="at least three state values"):
+            Odometry().to_state_velocity(target)
+
+    @pytest.mark.parametrize("kinematics", ["omni_angular", "custom"])
+    def test_odometry_maps_extended_velocity_layouts(self, kinematics):
+        """Angular omni and extension kinematics receive all twist components."""
+        target = SimpleNamespace(
+            state=np.zeros((3, 1)),
+            vel_shape=(3, 1),
+            kinematics=kinematics,
+            name=kinematics,
+        )
+        odom = Odometry()
+        odom.twist.twist.linear.x = 0.4
+        odom.twist.twist.linear.y = 0.5
+        odom.twist.twist.angular.z = 0.6
+
+        _, velocity = odom.to_state_velocity(target)
+
+        np.testing.assert_allclose(velocity[:, 0], [0.4, 0.5, 0.6])
 
     def test_get_lidar_scan(self, env_factory):
         """Test getting lidar scan data."""
@@ -1562,8 +1823,49 @@ class TestLoadBehaviorReinitialization:
         mock_obj_valid.obj_behavior._init_behavior_class.assert_called_once()
 
 
+class TestEnvConfigNamespace:
+    """EnvConfig supports IR-SIM embedded in a combined YAML file."""
+
+    def test_make_and_reload_namespaced_yaml(self, tmp_path, env_factory):
+        """make(path) selects the irsim section and reloads the same file."""
+        yaml_file = tmp_path / "combined.yaml"
+        yaml_file.write_text(
+            "irsim:\n"
+            "  world: {height: 10, width: 12}\n"
+            "  robot: []\n"
+            "habitat:\n"
+            "  scene: example.glb\n"
+        )
+
+        env = env_factory(str(yaml_file))
+
+        assert env.env_config.parse["world"]["height"] == 10
+        assert env.env_config.parse["robot"] == []
+
+        yaml_file.write_text(
+            "irsim:\n"
+            "  world: {height: 20, width: 12}\n"
+            "  robot: []\n"
+            "habitat:\n"
+            "  scene: example.glb\n"
+        )
+        env.reload()
+
+        assert env.env_config.parse["world"]["height"] == 20
+
+    def test_invalid_key_inside_irsim_section(self, tmp_path, dummy_logger):
+        """Unknown keys remain errors inside the selected irsim section."""
+        from irsim.env.env_config import EnvConfig
+
+        yaml_file = tmp_path / "bad_nested.yaml"
+        yaml_file.write_text("irsim:\n  wrold:\n    height: 10\nhabitat: {}\n")
+
+        with pytest.raises(KeyError):
+            EnvConfig(str(yaml_file))
+
+
 class TestEnvConfigInvalidKey:
-    """EnvConfig.load_yaml reports invalid top-level YAML keys."""
+    """EnvConfig.load_yaml reports invalid legacy top-level YAML keys."""
 
     def test_invalid_yaml_key_close_match(self, tmp_path, dummy_logger):
         """A close typo raises KeyError (with a suggested key)."""

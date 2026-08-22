@@ -67,6 +67,7 @@ class EnvConfig:
         if self.world_file_path is not None:
             with open(self.world_file_path) as file:
                 com_list = yaml.safe_load(file)
+                com_list = com_list.get("irsim", com_list)
 
                 for key in com_list:
                     if key in self._kwargs_parse:

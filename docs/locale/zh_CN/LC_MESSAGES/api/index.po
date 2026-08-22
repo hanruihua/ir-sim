@@ -37,3 +37,22 @@ msgid ""
 "package."
 msgstr "欢迎阅读 IR-SIM API 参考。本节提供该软件包中所有模块、类与函数的详细说明。"
 
+#: ../../source/api/index.rst:19
+msgid ":py:meth:`~irsim.env.env_base.EnvBase.get_msg`: capture a complete ROS-style simulation message."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.get_msg`：捕获完整的 ROS 风格仿真消息。"
+
+#: ../../source/api/index.rst:20
+msgid ":py:meth:`~irsim.env.env_base.EnvBase.receive_msg`: apply external ROS-style odometry to simulation objects."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.receive_msg`：将外部 ROS 风格里程计应用到仿真对象。"
+
+#: ../../source/api/index.rst:53
+msgid "Exchange simulation messages"
+msgstr "交换仿真消息"
+
+#: ../../source/api/index.rst:54
+msgid ":py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`, :py:class:`~irsim.msg.LaserScan`"
+msgstr ":py:class:`~irsim.msg.WorldState`、:py:class:`~irsim.msg.Odometry`、:py:class:`~irsim.msg.LaserScan`"
+
+#: ../../source/api/index.rst:56
+msgid "Version-neutral snapshots for bridge-side serialization and state reception."
+msgstr "与 ROS 版本无关的快照，用于桥接端序列化和状态接收。"

@@ -49,7 +49,7 @@ class Lidar2D:
         - angle_range (float): Total angle range of the sensor in radians. Default is pi. WrapTo2Pi is applied.
         - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
         - angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
-        - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / number.
+        - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / (number - 1) when multiple beams are used.
         - number (int): Number of laser beams. Default is 100.
         - scan_time (float): Time taken to complete one full scan in seconds. Default is 0.1.
         - noise (bool): Whether to add noise to the measurements. Default is False.
@@ -100,9 +100,9 @@ class Lidar2D:
         self.range_max = range_max
 
         self.angle_range = WrapTo2Pi(angle_range)
-        self.angle_min = -self.angle_range / 2
-        self.angle_max = self.angle_range / 2
-        self.angle_inc = self.angle_range / number
+        self.angle_min = -self.angle_range / 2 if number > 1 else 0.0
+        self.angle_max = self.angle_range / 2 if number > 1 else 0.0
+        self.angle_inc = self.angle_range / (number - 1) if number > 1 else 0.0
 
         self.number = number
         self.scan_time = scan_time
@@ -119,7 +119,8 @@ class Lidar2D:
         self.has_velocity = has_velocity
         self.velocity = np.zeros((2, number))
 
-        self.time_inc = (self.angle_range / (2 * pi)) * scan_time / number
+        # All beams use one instantaneous geometry snapshot.
+        self.time_inc = 0.0
         self.range_data = range_max * np.ones(number)
 
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)

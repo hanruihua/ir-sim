@@ -149,6 +149,8 @@ env.end()  # Clean up resources
 - **`env.reset(random=False)`**: Restores objects to their initial states. With `random=True`, rebuilds the world from the cached YAML parse so any randomized elements (e.g. `distribution: random`, random shape generators) are re-sampled from the current RNG state. Use it together with `irsim.util.random.set_seed(seed)` for reproducible fresh scenes. The YAML file on disk is **not** re-read; to pick up on-disk edits, use `env.reload()` instead.
 - **`env.refresh()`**: Refreshes state-derived attributes (geometry, sensor readings, collision tree, and status) without advancing the simulation. Useful after mutating object states directly (e.g. `robot.set_state(...)`) when you need sensors and collisions brought up to date before the next `env.step()`.
 - **`env.reload(world_name=None)`**: Re-parses the YAML file (optionally a different one) and rebuilds world/objects.
+- **`env.get_msg()`**: Captures a dependency-free ROS-style snapshot of the world.
+- **`env.receive_msg(...)`**: Applies external ROS-style odometry to IR-SIM objects and refreshes their derived state.
 - **`env.end()`**: Properly closes the environment and releases resources
 - **`env.close()`**: Alias for `env.end()`, provided for [Gym](https://gymnasium.farama.org/)-style API compatibility
 
@@ -187,6 +189,47 @@ all object geometries from one state snapshot, rebuilds the collision index,
 updates sensors and status, records trajectories, and advances the world clock.
 Passing `action` to `env.step()` in this mode raises `ValueError`, preventing
 accidental mixing of internal and external state advancement.
+## Exchange simulation messages
+
+Use `env.get_msg()` when a controller, logger, bridge, or learning pipeline needs one consistent snapshot of the simulator. The returned {py:class}`~irsim.msg.WorldState` groups each object's data under conventional ROS topic names: `robot.odom` is a {py:class}`~irsim.msg.Odometry` message and `robot.scan` is its primary {py:class}`~irsim.msg.LaserScan` message.
+
+```python
+msg = env.get_msg()
+
+print(msg.header.seq)  # simulation step count
+print(msg.header.stamp)  # simulation time in seconds
+robot = msg.robots[0]
+
+print(robot.odom.pose.pose.position.x)
+print(robot.odom.twist.twist.linear.x)
+
+if robot.scan is not None:
+    print(robot.scan.ranges)
+
+payload = msg.to_dict()  # JSON-compatible lists and scalar values
+```
+
+Message types expose a stable logical `ros_type` hint, for example `robot.odom.ros_type == "nav_msgs/Odometry"`. Its slash form is retained for compatibility and does not select ROS 1. The bridge chooses the native ROS 1 or ROS 2 class and converts IR-SIM's floating-point timestamp and sequence number to the corresponding Header layout. The `scans` list contains every LiDAR reading, and `scan` aliases its first item as the primary reading.
+
+{py:class}`~irsim.msg.LaserScan` contains only the shared `sensor_msgs/LaserScan` data fields; when intensity data is unavailable, `intensities` is an empty array. Its angle metadata exactly reconstructs the simulated beam directions. Because IR-SIM evaluates all beams from one geometry snapshot, `time_increment` is zero; `scan_time` is the configured interval between scans. IR-SIM-specific measurements such as Cartesian target velocity, FMCW radial velocity, and validity remain available from `sensor.get_scan()` or `env.get_lidar_scan()`.
+
+Odometry and scan messages use conventional `world`, `base_link`, and sensor frame names. A ROS bridge remains responsible for publishing the corresponding `/tf`, `/tf_static`, and `/clock` messages.
+
+Messages are point-in-time copies: later calls to `env.step()` or object setters do not mutate a message you already captured. The message classes are dependency-free and do not require ROS; a ROS bridge can map them to native ROS messages at its boundary.
+
+Use `env.receive_msg(...)` to drive IR-SIM from another simulator or a ROS bridge. It accepts a complete {py:class}`~irsim.msg.WorldState`, one {py:class}`~irsim.msg.ObjectState`, or an IR-SIM/native ROS-style {py:class}`~irsim.msg.Odometry`. A standalone odometry message updates the primary robot by default; select another local object by its stable name or IR-SIM object ID:
+
+```python
+external_odom = source_env.get_msg().robots[0].odom
+updated = env.receive_msg(external_odom, object_name="message_robot")
+assert updated == 1
+```
+
+For a `WorldState`, incoming objects are matched to local objects by name first and ID second. IR-SIM applies the planar pose and body-frame twist, while the receiving environment retains its own configuration, goals, scans, and simulation clock. By default, one call also refreshes geometry, locally simulated sensors, collisions, and arrival status. Pass `refresh=False` only when batching updates, then call `env.refresh()` once afterwards. All incoming updates are validated before any object is changed.
+
+A bridge can also reuse that conversion on its own: {py:meth}`~irsim.msg.Odometry.from_msg` adopts a native ROS odometry message as a validated IR-SIM one, and {py:meth}`~irsim.msg.Odometry.to_state_velocity` returns the `(state, velocity)` arrays it implies for a given object, without modifying that object. Both are the inverse of {py:meth}`~irsim.msg.Odometry.from_object`, so pose and twist survive a capture/apply round trip.
+
+The complete runnable example is available under `usage/25msg_world/`.
 
 ## Environment Control and Status
 
