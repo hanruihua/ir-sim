@@ -457,7 +457,7 @@ class TestStateQueries:
         )
 
         with pytest.raises(ValueError, match="at least three state values"):
-            EnvBase._state_velocity_from_odometry(target, Odometry())
+            Odometry().to_state_velocity(target)
 
     @pytest.mark.parametrize("kinematics", ["omni_angular", "custom"])
     def test_odometry_maps_extended_velocity_layouts(self, kinematics):
@@ -473,7 +473,7 @@ class TestStateQueries:
         odom.twist.twist.linear.y = 0.5
         odom.twist.twist.angular.z = 0.6
 
-        _, velocity = EnvBase._state_velocity_from_odometry(target, odom)
+        _, velocity = odom.to_state_velocity(target)
 
         np.testing.assert_allclose(velocity[:, 0], [0.4, 0.5, 0.6])
 

@@ -9,10 +9,23 @@ Native ROS types and field layouts are chosen by a bridge, not IR-SIM.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields, is_dataclass
-from math import cos, sin, tan
+from math import atan, atan2, cos, hypot, isfinite, sin, tan
 from typing import Any, ClassVar
 
 import numpy as np
+
+_EPS = float(np.finfo(float).eps)
+
+# For each kinematics model, the body-frame twist component held by each
+# velocity row, as an index into ``(linear.x, linear.y, angular.z)``. Ackermann
+# steering is an angle rather than a twist component, so its second velocity
+# row is converted separately.
+_TWIST_LAYOUT: dict[str, tuple[int, ...]] = {
+    "diff": (0, 2),
+    "omni": (0, 1),
+    "omni_angular": (0, 1, 2),
+    "acker": (0,),
+}
 
 
 def _copy_array(value: Any) -> np.ndarray | None:
@@ -106,6 +119,18 @@ class Quaternion(Message):
         half_yaw = float(yaw) / 2.0
         return cls(z=sin(half_yaw), w=cos(half_yaw))
 
+    def to_yaw(self) -> float:
+        """Return the planar yaw angle in radians, from a normalized copy.
+
+        Raises:
+            ValueError: If the quaternion is zero and defines no rotation.
+        """
+        norm = hypot(hypot(self.x, self.y), hypot(self.z, self.w))
+        if norm <= _EPS:
+            raise ValueError("Quaternion orientation must be non-zero to define a yaw.")
+        x, y, z, w = (value / norm for value in (self.x, self.y, self.z, self.w))
+        return atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+
 
 @dataclass(slots=True)
 class Pose(Message):
@@ -172,20 +197,15 @@ class Odometry(Message):
         velocity = np.asarray(obj.velocity).reshape(-1)
         yaw = float(state[2]) if state.size > 2 else 0.0
 
-        linear = Vector3()
-        angular = Vector3()
         kinematics = obj.kinematics
-
-        if velocity.size:
-            linear.x = float(velocity[0])
-        if kinematics in {"omni", "omni_angular"} and velocity.size > 1:
-            linear.y = float(velocity[1])
-        if kinematics == "diff" and velocity.size > 1:
-            angular.z = float(velocity[1])
-        elif kinematics == "omni_angular" and velocity.size > 2:
-            angular.z = float(velocity[2])
-        elif kinematics == "acker" and state.size > 3 and velocity.size:
-            angular.z = float(velocity[0]) * tan(float(state[3])) / obj.wheelbase
+        # Body-frame (linear.x, linear.y, angular.z); an unknown model is only
+        # trusted for its leading forward-velocity row.
+        twist_values = [0.0, 0.0, 0.0]
+        for row, component in enumerate(_TWIST_LAYOUT.get(kinematics, (0,))):
+            if row < velocity.size:
+                twist_values[component] = float(velocity[row])
+        if kinematics == "acker" and state.size > 3 and velocity.size:
+            twist_values[2] = float(velocity[0]) * tan(float(state[3])) / obj.wheelbase
 
         return cls(
             header=Header(seq=int(seq), stamp=float(stamp), frame_id=frame_id),
@@ -196,8 +216,124 @@ class Odometry(Message):
                     orientation=Quaternion.from_yaw(yaw),
                 )
             ),
-            twist=TwistWithCovariance(twist=Twist(linear=linear, angular=angular)),
+            twist=TwistWithCovariance(
+                twist=Twist(
+                    linear=Vector3(x=twist_values[0], y=twist_values[1]),
+                    angular=Vector3(z=twist_values[2]),
+                )
+            ),
         )
+
+    @classmethod
+    def from_msg(cls, msg: Any) -> Odometry:
+        """Adopt any ROS-compatible ``nav_msgs/Odometry``-shaped message.
+
+        Only the planar fields IR-SIM uses are read, so native ROS messages and
+        partial stand-ins are both accepted. Header metadata is left out, since
+        its layout is ROS-version specific and belongs to the receiver.
+
+        Args:
+            msg: An object exposing ``pose.pose`` and ``twist.twist``.
+
+        Returns:
+            Odometry: An independent, validated IR-SIM odometry message.
+
+        Raises:
+            TypeError: If ``msg`` does not expose ROS odometry pose and twist.
+            ValueError: If any planar value is not finite.
+        """
+        try:
+            position = msg.pose.pose.position
+            orientation = msg.pose.pose.orientation
+            twist = msg.twist.twist
+            values = [
+                float(position.x),
+                float(position.y),
+                float(orientation.x),
+                float(orientation.y),
+                float(orientation.z),
+                float(orientation.w),
+                float(twist.linear.x),
+                float(twist.linear.y),
+                float(twist.angular.z),
+            ]
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise TypeError(
+                "Expected a ROS-compatible nav_msgs/Odometry message, got "
+                f"{type(msg).__name__}."
+            ) from exc
+
+        if not all(isfinite(value) for value in values):
+            raise ValueError("Odometry values must all be finite.")
+
+        x, y, qx, qy, qz, qw, linear_x, linear_y, angular_z = values
+        return cls(
+            pose=PoseWithCovariance(
+                pose=Pose(
+                    position=Point(x=x, y=y),
+                    orientation=Quaternion(x=qx, y=qy, z=qz, w=qw),
+                )
+            ),
+            twist=TwistWithCovariance(
+                twist=Twist(
+                    linear=Vector3(x=linear_x, y=linear_y),
+                    angular=Vector3(z=angular_z),
+                )
+            ),
+        )
+
+    def to_state_velocity(self, obj: Any) -> tuple[np.ndarray, np.ndarray]:
+        """Convert this odometry into state and velocity arrays for ``obj``.
+
+        The inverse of :meth:`from_object`: the planar pose replaces the first
+        three state values, and the body-frame twist is mapped onto the
+        velocity layout of the object's kinematics. ``obj`` is only read, so a
+        caller can validate several updates before applying any of them.
+
+        Args:
+            obj: The simulation object whose layout the arrays must match.
+
+        Returns:
+            tuple: The new ``(state, velocity)`` arrays for ``obj``.
+
+        Raises:
+            ValueError: If ``obj`` has fewer than three state values, or the
+                orientation defines no rotation.
+        """
+        state = np.array(obj.state, dtype=float, copy=True)
+        if state.shape[0] < 3:
+            raise ValueError(
+                f"Object '{obj.name}' needs at least three state values "
+                "to receive planar odometry."
+            )
+        state[0, 0] = self.pose.pose.position.x
+        state[1, 0] = self.pose.pose.position.y
+        state[2, 0] = self.pose.pose.orientation.to_yaw()
+
+        twist = self.twist.twist
+        velocity = np.zeros(obj.vel_shape, dtype=float)
+        kinematics = obj.kinematics
+
+        if kinematics == "acker":
+            # A car reports a yaw rate; recover the steering angle it implies.
+            steering = float(state[3, 0])
+            if abs(twist.linear.x) > _EPS:
+                steering = atan(twist.angular.z * obj.wheelbase / twist.linear.x)
+                state[3, 0] = steering
+            velocity[0, 0] = twist.linear.x
+            velocity[1, 0] = (
+                steering
+                if getattr(obj.kf, "mode", "steer") == "steer"
+                else twist.angular.z
+            )
+        elif kinematics is not None:
+            # An unknown model receives as many planar components as it has rows.
+            twist_values = (twist.linear.x, twist.linear.y, twist.angular.z)
+            layout = _TWIST_LAYOUT.get(kinematics, (0, 1, 2))
+            for row, component in enumerate(layout[: obj.vel_shape[0]]):
+                velocity[row, 0] = twist_values[component]
+
+        return state, velocity
 
 
 @dataclass(slots=True)

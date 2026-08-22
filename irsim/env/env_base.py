@@ -12,8 +12,6 @@ Author: Ruihua Han
 from __future__ import annotations
 
 import importlib
-from collections import Counter
-from math import atan, atan2, hypot
 from typing import Any, Literal, cast
 
 import matplotlib
@@ -30,8 +28,14 @@ from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
 from irsim.msg import ObjectState, Odometry, WorldState
+from irsim.util.message import resolve_message_targets
 from irsim.util.random import rng, set_seed
-from irsim.util.util import normalize_actions, to_numpy
+from irsim.util.util import (
+    find_duplicates,
+    find_object_by_identity,
+    normalize_actions,
+    to_numpy,
+)
 from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
@@ -1050,7 +1054,7 @@ class EnvBase:
         Args:
             obj (ObjectBase): The object to be added to the environment.
         """
-        if any(existing.name == obj.name for existing in self.objects):
+        if find_object_by_identity(self.objects, obj.name) is not None:
             raise ValueError(f"Object name '{obj.name}' already exists.")
         obj._env = self
         self._objects.append(obj)
@@ -1068,7 +1072,7 @@ class EnvBase:
             objs (list): List of objects to be added to the environment.
         """
         new_names = [o.name for o in objs]
-        dupes_in_new = [n for n, c in Counter(new_names).items() if c > 1]
+        dupes_in_new = find_duplicates(new_names)
         if dupes_in_new:
             raise ValueError(f"Duplicate names within new objects: {dupes_in_new}")
         existing_names = {o.name for o in self.objects}
@@ -1091,11 +1095,11 @@ class EnvBase:
             target_id (int): ID of the object to be deleted.
         """
 
-        for obj in self._objects:
-            if obj.id == target_id:
-                obj.plot_clear()
-                self._objects.remove(obj)
-                break
+        target = find_object_by_identity(self._objects, object_id=target_id)
+
+        if target is not None:
+            target.plot_clear()
+            self._objects.remove(target)
 
         self.build_tree()
 
@@ -1128,8 +1132,7 @@ class EnvBase:
         Raises:
             ValueError: If duplicates exist.
         """
-        names = [obj.name for obj in self.objects]
-        duplicates = [n for n, c in Counter(names).items() if c > 1]
+        duplicates = find_duplicates(obj.name for obj in self.objects)
         if duplicates:
             raise ValueError(f"Duplicate object names: {duplicates}")
 
@@ -1223,19 +1226,17 @@ class EnvBase:
             1
         """
 
-        updates = self._resolve_received_updates(msg, object_name, object_id)
-        prepared: list[tuple[ObjectBase, np.ndarray, np.ndarray]] = []
-        seen_targets: set[int] = set()
-
-        for target, odom in updates:
-            target_key = id(target)
-            if target_key in seen_targets:
-                raise ValueError(
-                    f"Received more than one state for object '{target.name}'."
-                )
-            seen_targets.add(target_key)
-            state, velocity = self._state_velocity_from_odometry(target, odom)
-            prepared.append((target, state, velocity))
+        updates = resolve_message_targets(
+            self.objects,
+            msg,
+            object_name,
+            object_id,
+            default_target=lambda: self.robot,
+        )
+        prepared = [
+            (target, *Odometry.from_msg(odom).to_state_velocity(target))
+            for target, odom in updates
+        ]
 
         for target, state, velocity in prepared:
             target.set_state(state)
@@ -1245,148 +1246,6 @@ class EnvBase:
             self.refresh()
 
         return len(prepared)
-
-    def _resolve_received_updates(
-        self,
-        msg: WorldState | ObjectState | Odometry,
-        object_name: str | None,
-        object_id: int | None,
-    ) -> list[tuple[ObjectBase, Any]]:
-        """Resolve incoming messages to local objects without mutating them."""
-        if isinstance(msg, WorldState):
-            if object_name is not None or object_id is not None:
-                raise ValueError(
-                    "object_name and object_id cannot be used with WorldState."
-                )
-            return [
-                (
-                    self._find_received_object(obj_msg.name, obj_msg.id),
-                    obj_msg.odom,
-                )
-                for obj_msg in msg.objects
-            ]
-
-        if isinstance(msg, ObjectState):
-            if object_name is not None or object_id is not None:
-                target = self._find_received_object(object_name, object_id)
-            else:
-                target = self._find_received_object(msg.name, msg.id)
-            return [
-                (
-                    target,
-                    msg.odom,
-                )
-            ]
-
-        if object_name is None and object_id is None:
-            return [(self.robot, msg)]
-
-        return [(self._find_received_object(object_name, object_id), msg)]
-
-    def _find_received_object(
-        self, object_name: str | None, object_id: int | None
-    ) -> ObjectBase:
-        """Find an incoming message target by stable name, then by id."""
-        if object_name:
-            target = next(
-                (obj for obj in self.objects if obj.name == object_name), None
-            )
-            if target is not None:
-                return target
-
-        if object_id is not None:
-            target = next((obj for obj in self.objects if obj.id == object_id), None)
-            if target is not None:
-                return target
-
-        identity = (
-            f"name={object_name!r}, id={object_id}"
-            if object_name or object_id is not None
-            else "without a name or id"
-        )
-        raise ValueError(f"No simulation object matches received message {identity}.")
-
-    @staticmethod
-    def _state_velocity_from_odometry(
-        target: ObjectBase, odom: Any
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Convert ROS-compatible planar odometry to local state arrays."""
-        try:
-            position = odom.pose.pose.position
-            orientation = odom.pose.pose.orientation
-            twist = odom.twist.twist
-            x = float(position.x)
-            y = float(position.y)
-            qx = float(orientation.x)
-            qy = float(orientation.y)
-            qz = float(orientation.z)
-            qw = float(orientation.w)
-            linear_x = float(twist.linear.x)
-            linear_y = float(twist.linear.y)
-            angular_z = float(twist.angular.z)
-        except (AttributeError, TypeError, ValueError) as exc:
-            raise TypeError(
-                "msg must be WorldState, ObjectState, or a ROS-compatible "
-                "nav_msgs/Odometry object."
-            ) from exc
-
-        values = np.array(
-            [x, y, qx, qy, qz, qw, linear_x, linear_y, angular_z], dtype=float
-        )
-        if not np.all(np.isfinite(values)):
-            raise ValueError("Received odometry values must all be finite.")
-
-        quaternion_norm = hypot(hypot(qx, qy), hypot(qz, qw))
-        if quaternion_norm <= np.finfo(float).eps:
-            raise ValueError("Received odometry orientation must be non-zero.")
-        qx /= quaternion_norm
-        qy /= quaternion_norm
-        qz /= quaternion_norm
-        qw /= quaternion_norm
-        yaw = atan2(
-            2.0 * (qw * qz + qx * qy),
-            1.0 - 2.0 * (qy * qy + qz * qz),
-        )
-
-        state = np.array(target.state, dtype=float, copy=True)
-        if state.shape[0] < 3:
-            raise ValueError(
-                f"Object '{target.name}' needs at least three state values "
-                "to receive planar odometry."
-            )
-        state[0, 0] = x
-        state[1, 0] = y
-        state[2, 0] = yaw
-
-        velocity = np.zeros(target.vel_shape, dtype=float)
-        kinematics = target.kinematics
-        if kinematics == "diff":
-            velocity[0, 0] = linear_x
-            velocity[1, 0] = angular_z
-        elif kinematics == "omni":
-            velocity[0, 0] = linear_x
-            velocity[1, 0] = linear_y
-        elif kinematics == "omni_angular":
-            velocity[0, 0] = linear_x
-            velocity[1, 0] = linear_y
-            velocity[2, 0] = angular_z
-        elif kinematics == "acker":
-            steering = float(state[3, 0])
-            if abs(linear_x) > np.finfo(float).eps:
-                steering = atan(angular_z * target.wheelbase / linear_x)
-                state[3, 0] = steering
-            velocity[0, 0] = linear_x
-            velocity[1, 0] = (
-                steering
-                if getattr(target.kf, "mode", "steer") == "steer"
-                else angular_z
-            )
-        elif kinematics is not None:
-            components = (linear_x, linear_y, angular_z)
-            for index, value in enumerate(components[: target.vel_shape[0]]):
-                velocity[index, 0] = value
-
-        return state, velocity
 
     def get_lidar_scan(self, id: int = 0) -> dict[str, Any]:
         """
@@ -1476,13 +1335,13 @@ class EnvBase:
         """
         Get the object with the given name.
         """
-        return next((obj for obj in self.objects if obj.name == name), None)
+        return find_object_by_identity(self.objects, name=name)
 
     def get_object_by_id(self, target_id: int) -> ObjectBase | None:
         """
         Get the object with the given id.
         """
-        return next((obj for obj in self.objects if obj.id == target_id), None)
+        return find_object_by_identity(self.objects, object_id=target_id)
 
     # endregion: get information
 

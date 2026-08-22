@@ -227,6 +227,8 @@ assert updated == 1
 
 For a `WorldState`, incoming objects are matched to local objects by name first and ID second. IR-SIM applies the planar pose and body-frame twist, while the receiving environment retains its own configuration, goals, scans, and simulation clock. By default, one call also refreshes geometry, locally simulated sensors, collisions, and arrival status. Pass `refresh=False` only when batching updates, then call `env.refresh()` once afterwards. All incoming updates are validated before any object is changed.
 
+A bridge can also reuse that conversion on its own: {py:meth}`~irsim.msg.Odometry.from_msg` adopts a native ROS odometry message as a validated IR-SIM one, and {py:meth}`~irsim.msg.Odometry.to_state_velocity` returns the `(state, velocity)` arrays it implies for a given object, without modifying that object. Both are the inverse of {py:meth}`~irsim.msg.Odometry.from_object`, so pose and twist survive a capture/apply round trip.
+
 The complete runnable example is available under `usage/25msg_world/`.
 
 ## Environment Control and Status

@@ -1,11 +1,14 @@
 import math
 import os
 import time
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
+from irsim.msg import Header, ObjectState, Odometry, WorldState
 from irsim.util import util
+from irsim.util.message import resolve_message_targets
 
 
 def test_WrapToPi():
@@ -731,3 +734,98 @@ def test_convert_list_length_dict_non_dict_list():
     # A plain (non-dict) list is extended with its last element or truncated.
     assert util.convert_list_length_dict([1, 2], 3) == [1, 2, 2]
     assert util.convert_list_length_dict([1, 2, 3], 1) == [1]
+
+
+def test_find_duplicates():
+    assert util.find_duplicates(["a", "b", "a", "c", "b", "a"]) == ["a", "b"]
+    assert util.find_duplicates(["a", "b"]) == []
+    assert util.find_duplicates(obj for obj in []) == []
+
+
+def test_find_object_by_identity():
+    objects = [
+        SimpleNamespace(name="robot_0", id=0),
+        SimpleNamespace(name="robot_1", id=1),
+        SimpleNamespace(name="robot_1", id=2),
+    ]
+
+    # Name wins over id, and the first match wins over later duplicates.
+    assert util.find_object_by_identity(objects, "robot_1", 0) is objects[1]
+    # An id is only a fallback for an unmatched (or missing) name.
+    assert util.find_object_by_identity(objects, "absent", 2) is objects[2]
+    assert util.find_object_by_identity(objects, object_id=0) is objects[0]
+    assert util.find_object_by_identity(objects, "absent") is None
+    assert util.find_object_by_identity(objects) is None
+
+
+def _target(name, object_id):
+    return SimpleNamespace(name=name, id=object_id)
+
+
+def _object_msg(name, object_id):
+    return ObjectState(
+        header=Header(),
+        id=object_id,
+        name=name,
+        role="robot",
+        kinematics="diff",
+        shape="circle",
+        odom=Odometry(),
+        scan=None,
+        goal=None,
+        static=False,
+        arrive=False,
+        collision=False,
+    )
+
+
+def test_resolve_message_targets_uses_default_only_when_unselected():
+    objects = [_target("robot_0", 0), _target("car", 1)]
+    odom = Odometry()
+
+    def default_target():
+        return objects[0]
+
+    assert resolve_message_targets(objects, odom, default_target=default_target) == [
+        (objects[0], odom)
+    ]
+    assert resolve_message_targets(
+        objects, odom, "car", default_target=default_target
+    ) == [(objects[1], odom)]
+
+    # A selected target must never fall back to the default.
+    def fail():
+        raise AssertionError("default_target must not be called")
+
+    assert resolve_message_targets(objects, odom, object_id=1, default_target=fail) == [
+        (objects[1], odom)
+    ]
+
+
+def test_resolve_message_targets_reports_unresolved_and_repeated_objects():
+    objects = [_target("robot_0", 0)]
+    world = WorldState(
+        header=Header(),
+        name="world",
+        status="Running",
+        step_time=0.1,
+        objects=[_object_msg("robot_0", 0), _object_msg("robot_0", 0)],
+    )
+
+    def default_target():
+        raise AssertionError("default_target must not be called")
+
+    with pytest.raises(ValueError, match="more than one state"):
+        resolve_message_targets(objects, world, default_target=default_target)
+
+    with pytest.raises(ValueError, match="cannot be used with WorldState"):
+        resolve_message_targets(
+            objects, world, "robot_0", default_target=default_target
+        )
+
+    with pytest.raises(ValueError, match="No simulation object matches"):
+        resolve_message_targets(
+            objects,
+            _object_msg("absent", 9),
+            default_target=default_target,
+        )
