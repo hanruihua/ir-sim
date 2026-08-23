@@ -229,8 +229,6 @@ class PRMPlanner:
 
             road_map.append(edge_id)
 
-        # self.plot_road_map(road_map, sample_x, sample_y)
-
         return road_map
 
     @staticmethod

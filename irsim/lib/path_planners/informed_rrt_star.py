@@ -120,13 +120,7 @@ class InformedRRTStar(RRTStar):
         Returns:
             ``(2, N)`` waypoint array or *None*.
         """
-        start_pose = np.asarray(start_pose, dtype=float).flatten()
-        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
-        sx, sy = float(start_pose[0]), float(start_pose[1])
-        gx, gy = float(goal_pose[0]), float(goal_pose[1])
-
-        self.start = TreeNode(x=sx, y=sy, cost=0.0)
-        self.end = TreeNode(x=gx, y=gy, cost=float("inf"))
+        sx, sy, gx, gy = self._init_search(start_pose, goal_pose)
 
         # -- ellipse invariants --
         self._c_min = math.hypot(gx - sx, gy - sy)
@@ -151,10 +145,6 @@ class InformedRRTStar(RRTStar):
         self._ellipse_line = None
         self._best_path_line = None
         self._vis_setup_done = False
-
-        # -- reset tree --
-        self.node_list = [self.start]
-        self._kd_dirty = True
 
         goal_found = False
 

@@ -17,18 +17,18 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 
 from __future__ import annotations
 
-import contextlib
 import math
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
+from irsim.lib.path_planners.grid_planner_base import GridPlannerBase
 from irsim.util.util import to_numpy
 from irsim.world.map import EnvGridMap
 
 
-class AStarPlanner:
+class AStarPlanner(GridPlannerBase):
     """Grid-based A* planner over an :class:`~irsim.world.map.EnvGridMap`.
 
     The planner uses the map grid when available and falls back to Shapely
@@ -46,29 +46,7 @@ class AStarPlanner:
                 compatible object).
         """
 
-        self._map = env_map
-        self.obstacle_list = env_map.obstacle_list[:]
-        off = np.asarray(env_map.world_offset, dtype=float).flatten()
-        self.origin_x = float(off[0])
-        self.origin_y = float(off[1])
-        self.min_x, self.min_y = 0, 0  # grid indices are 0-based
-        self.max_x = self.origin_x + env_map.width
-        self.max_y = self.origin_y + env_map.height
-        # When map has a grid, use its actual resolution and shape so planner grid
-        # matches collision lookups (avoids "Open set is empty" on resolution mismatch).
-        grid = getattr(env_map, "grid", None)
-        gr = None
-        if grid is not None and hasattr(env_map, "grid_resolution"):
-            with contextlib.suppress(Exception):
-                gr = env_map.grid_resolution
-        if grid is not None and gr is not None:
-            self.resolution = gr[0]  # m/cell; assume square cells (gr[0]==gr[1])
-            self.x_width = grid.shape[0]
-            self.y_width = grid.shape[1]
-        else:
-            self.resolution = env_map.resolution
-            self.x_width = round((self.max_x - self.origin_x) / self.resolution)
-            self.y_width = round((self.max_y - self.origin_y) / self.resolution)
+        super().__init__(env_map)
         self.motion = self.get_motion_model()
 
     class Node:
