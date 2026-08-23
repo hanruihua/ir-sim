@@ -19,6 +19,8 @@ from irsim.util.util import (
     random_point_range,
     relative_position,
     to_numpy,
+    vel_world2diff,
+    vel_world2omni,
     vertices_transform,
 )
 from irsim.world.object_plot import ObjectPlot
@@ -1943,6 +1945,50 @@ class ObjectBase:
             out = np.zeros((2, 1))
         self._velocity_xy_cache = out
         return out
+
+    def vel_world2body(self, velocity_xy: np.ndarray) -> np.ndarray:
+        """
+        Convert a world-frame velocity into this object's own command frame.
+
+        Velocity commands are given in the object's own frame, while holonomic
+        planners such as RVO, SFM and ORCA produce a world-frame velocity. This
+        converts one into the other using the object's current state, so the
+        caller does not have to.
+
+        ``omni`` rotates the velocity into its own frame; ``diff`` turns it
+        into ``[linear, angular]`` through :func:`~irsim.util.util.vel_world2diff`,
+        using this object's angular limit and step time.
+
+        Args:
+            velocity_xy: World-frame velocity ``[vx, vy]`` (2x1).
+
+        Returns:
+            np.ndarray: Velocity in the object's command frame, shaped for its
+            kinematics.
+
+        Raises:
+            NotImplementedError: For a model whose command a world-frame
+                velocity does not determine.
+
+        Example:
+            >>> action = env.robot.vel_world2body(world_vel)
+            >>> env.step(action)
+        """
+        if self.kinematics == "omni":
+            return vel_world2omni(self.state[2, 0], velocity_xy)
+
+        if self.kinematics == "diff":
+            return vel_world2diff(
+                self.state[2, 0],
+                velocity_xy,
+                w_max=float(self.vel_max[1, 0]),
+                guarantee_time=self._world_param.step_time,
+            )
+
+        raise NotImplementedError(
+            f"'{self.kinematics}' is commanded directly, and a world-frame "
+            "velocity does not determine its command."
+        )
 
     @property
     def max_speed(self):

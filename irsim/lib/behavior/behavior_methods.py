@@ -4,7 +4,12 @@ from typing import Any
 import numpy as np
 
 from irsim.lib import reciprocal_vel_obs, register_behavior, social_force_model
-from irsim.util.util import WrapToPi, omni_to_diff, relative_position
+from irsim.util.util import (
+    WrapToPi,
+    relative_position,
+    vel_world2diff,
+    vel_world2omni,
+)
 
 """
 Behavior Methods Module
@@ -211,7 +216,7 @@ def beh_omni_rvo(
     factor = kwargs.get("factor", 1.0)
     mode = kwargs.get("mode", "rvo")
     neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
-    return OmniRVO(
+    world_vel = OmniRVO(
         rvo_state,
         rvo_neighbor,
         vxmax,
@@ -222,6 +227,7 @@ def beh_omni_rvo(
         neighbor_threshold,
         line_segments=line_segments,
     )
+    return vel_world2omni(ego_object.state[2, 0], world_vel)
 
 
 @register_behavior("diff", "sfm")
@@ -264,10 +270,10 @@ def beh_diff_sfm(
     )
     # SFM produces a holonomic ``(vx, vy)``; track it tightly so the small
     # sideways component from anisotropic social/obstacle forces doesn't
-    # get clipped by ``omni_to_diff``'s default deadband.
+    # get clipped by ``vel_world2diff``'s default deadband.
     _, vmax_pair = ego_object.get_vel_range()
     w_max = float(vmax_pair[1, 0])
-    return omni_to_diff(
+    return vel_world2diff(
         ego_object.rvo_state[-1],
         [vx, vy],
         w_max=w_max,
@@ -314,7 +320,7 @@ def beh_omni_sfm(
         step_time=ego_object._world_param.step_time,
         **kwargs,
     )
-    return np.array([[vx], [vy]])
+    return vel_world2omni(ego_object.state[2, 0], np.array([[vx], [vy]]))
 
 
 @register_behavior("omni_angular", "dash")
@@ -575,7 +581,7 @@ def DiffRVO(
         line_obs_list=line_segments,
     )
     rvo_vel = rvo_behavior.cal_vel(mode)
-    diff_vel = omni_to_diff(state_tuple[-1], rvo_vel)
+    diff_vel = vel_world2diff(state_tuple[-1], rvo_vel)
 
     if not diff_vel.any() and not filtered_neighbor_list and not line_segments:
         # With no neighbors or obstacles in range, a fully frozen command means
@@ -583,10 +589,10 @@ def DiffRVO(
         # goal lies behind the robot (it cannot represent a reversal), so the
         # diff robot would freeze forever instead of turning around. Rotate in
         # place toward the desired heading; forward speed stays zero and
-        # ``omni_to_diff`` naturally stops the rotation once the robot faces its
+        # ``vel_world2diff`` naturally stops the rotation once the robot faces its
         # goal. When neighbors are present the freeze is collision avoidance and
         # the robot must keep waiting, so this branch is skipped entirely.
-        diff_vel = omni_to_diff(state_tuple[-1], [state_tuple[5], state_tuple[6]])
+        diff_vel = vel_world2diff(state_tuple[-1], [state_tuple[5], state_tuple[6]])
         diff_vel[0, 0] = 0.0
 
     return diff_vel

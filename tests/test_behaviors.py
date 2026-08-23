@@ -691,7 +691,7 @@ class TestOrcaGroupBehavior:
         def make_member(x, y, vx, vy):
             m = Mock(spec=ObjectBase)
             m.kinematics = "omni"
-            m.state = np.array([[x], [y]])
+            m.state = np.array([[x], [y], [0.0]])
             m.radius = 0.5
             m.max_speed = 1.0
             m.get_desired_omni_vel = Mock(return_value=np.array([[vx], [vy]]))
@@ -818,6 +818,137 @@ class TestOrcaGroupBehavior:
 
         # ORCA produced non-zero diff velocities, so the robots moved.
         assert np.linalg.norm(end - start, axis=1).max() > 0.1
+
+
+class TestOmniVelocityFrame:
+    """Holonomic planners emit world-frame velocity; omni is commanded in body frame."""
+
+    @staticmethod
+    def _two_headings(tmp_path, behavior, group=False):
+        """One omni robot facing along +x and one facing backwards, same goal."""
+        key = "group_behavior" if group else "behavior"
+        config = tmp_path / f"omni_{behavior}_{key}.yaml"
+        robots = "".join(
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            f"    state: [2, {y}, {theta}]\n"
+            f"    goal: [18, {y}, {theta}]\n"
+            f"    {key}: {{name: '{behavior}'}}\n"
+            "    vel_max: [2, 2]\n"
+            "    vel_min: [-2, -2]\n"
+            for y, theta in ((10, 0.0), (5, 3.1416))
+        )
+        config.write_text(
+            "world:\n  height: 20\n  width: 20\n  step_time: 0.1\nrobot:\n" + robots
+        )
+        return config
+
+    @pytest.mark.parametrize("behavior", ["dash", "rvo", "sfm"])
+    def test_behavior_is_independent_of_heading(self, tmp_path, behavior):
+        """A holonomic robot travels the same way whichever direction it faces."""
+        import irsim
+
+        env = irsim.make(
+            str(self._two_headings(tmp_path, behavior)), display=False, save_ani=False
+        )
+        try:
+            for _ in range(40):
+                env.step()
+            forward, backward = (float(r.state[0, 0]) for r in env.robot_list)
+        finally:
+            env.end()
+
+        assert forward > 5.0
+        # rotating by pi leaks a ~1e-16 lateral component, so allow a little drift
+        assert backward == pytest.approx(forward, abs=1e-3)
+
+    def test_vel_world2omni_inverts_vel_omni2world(self):
+        """The util takes a planner's world velocity back into the omni frame."""
+        from irsim.lib.handler.kinematics_handler import KinematicsFactory
+        from irsim.util.util import vel_world2omni
+
+        kf = KinematicsFactory.create_kinematics("omni", False, None)
+        state = np.array([[0.0], [0.0], [np.pi / 3]])
+        world = np.array([[1.5], [-0.4]])
+
+        body = vel_world2omni(state[2, 0], world)
+
+        assert body.shape == (2, 1)
+        np.testing.assert_allclose(kf.velocity_to_xy(state, body), world, atol=1e-12)
+
+    def test_vel_world2body_dispatches_on_kinematics(self, tmp_path, env_factory):
+        """Each robot converts with the util its own model is commanded through."""
+        from irsim.util.util import vel_world2diff, vel_world2omni
+
+        config = tmp_path / "mixed.yaml"
+        config.write_text(
+            "world:\n  height: 20\n  width: 20\n  step_time: 0.1\nrobot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [2, 2, 1.5708]\n    goal: [8, 8, 0]\n"
+            "    vel_max: [2, 2]\n"
+            "  - kinematics: {name: 'diff'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [2, 6, 1.5708]\n    goal: [8, 8, 0]\n"
+            "    vel_max: [2, 1.5]\n"
+        )
+        env = env_factory(str(config))
+        omni_robot, diff_robot = env.robot_list
+        world_vel = np.array([[1.0], [0.0]])
+
+        np.testing.assert_allclose(
+            omni_robot.vel_world2body(world_vel),
+            vel_world2omni(omni_robot.state[2, 0], world_vel),
+        )
+        np.testing.assert_allclose(
+            diff_robot.vel_world2body(world_vel),
+            vel_world2diff(
+                diff_robot.state[2, 0],
+                world_vel,
+                w_max=float(diff_robot.vel_max[1, 0]),
+                guarantee_time=env.step_time,
+            ),
+        )
+
+    def test_omni_angular_refuses_to_invent_a_yaw_rate(self, tmp_path, env_factory):
+        """A world translation does not determine the yaw this model is given."""
+        config = tmp_path / "omni_angular.yaml"
+        config.write_text(
+            "world:\n  height: 20\n  width: 20\nrobot:\n"
+            "  - kinematics: {name: 'omni_angular'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [2, 2, 0]\n    goal: [8, 8, 0]\n"
+        )
+        env = env_factory(str(config))
+
+        with pytest.raises(NotImplementedError, match="does not determine its command"):
+            env.robot.vel_world2body(np.array([[1.0], [0.0]]))
+
+    def test_orca_rotates_world_velocity_into_the_body_frame(self):
+        """An ORCA velocity is expressed in the frame the member is commanded in."""
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+        from irsim.util.util import vel_omni2world
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "omni"
+        member.state = np.array([[0.0], [0.0], [np.pi]])
+        member.radius = 0.5
+        member.max_speed = 1.0
+        member.get_desired_omni_vel = Mock(return_value=np.array([[1.0], [0.0]]))
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        behavior = OrcaGroupBehavior([member])
+        action = behavior._to_action(member, (1.0, 0.0))
+
+        # facing backwards, driving +x in the world means driving -x in the body
+        np.testing.assert_allclose(action.flatten(), [-1.0, 0.0], atol=1e-9)
+        np.testing.assert_allclose(
+            vel_omni2world(member.state[2, 0], action).flatten(),
+            [1.0, 0.0],
+            atol=1e-9,
+        )
 
 
 class TestCustomBehavior:

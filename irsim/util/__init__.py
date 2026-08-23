@@ -27,6 +27,10 @@ from .util import (
     time_it,
     time_it2,
     transform_point_with_state,
+    vel_diff2world,
+    vel_omni2world,
+    vel_world2diff,
+    vel_world2omni,
     vertices_transform,
 )
 
@@ -49,5 +53,9 @@ __all__ = [
     "time_it",
     "time_it2",
     "transform_point_with_state",
+    "vel_diff2world",
+    "vel_omni2world",
+    "vel_world2diff",
+    "vel_world2omni",
     "vertices_transform",
 ]
