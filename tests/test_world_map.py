@@ -7,7 +7,7 @@ Covers:
 - GridMapGenerator base (grid property, preview)
 - resolve_obstacle_map and build_grid_from_generator
 - Map (grid_occupied, grid_resolution, is_collision)
-- _grid_collision_geometry (grid vs geometry collision)
+- grid_collision_geometry (grid vs geometry collision)
 - FogMap (fog-of-map overlay) and its world/env integration
 """
 
@@ -692,21 +692,17 @@ class TestMapIsCollision:
         assert m.is_collision(ShapelyPoint(1, 1)) is False
 
     def test_grid_collision_geometry_none_grid_returns_false(self):
-        """_grid_collision_geometry with grid=None returns False."""
+        """grid_collision_geometry with grid=None returns False."""
         pt = ShapelyPoint(1, 1)
-        out = world_map_module._grid_collision_geometry(
-            None, (1.0, 1.0), pt, (0.0, 0.0)
-        )
+        out = world_map_module.grid_collision_geometry(None, (1.0, 1.0), pt, (0.0, 0.0))
         assert out is False
 
     def test_grid_collision_geometry_bounds_outside_grid(self):
-        """_grid_collision_geometry returns False when geometry bounds outside grid."""
+        """grid_collision_geometry returns False when geometry bounds outside grid."""
         # Grid 10x10, reso 1.0, offset 0,0. Geometry at 100,100 -> i_min > i_max
         grid = np.zeros((10, 10), dtype=np.float64)
         pt = ShapelyPoint(100, 100)
-        out = world_map_module._grid_collision_geometry(
-            grid, (1.0, 1.0), pt, (0.0, 0.0)
-        )
+        out = world_map_module.grid_collision_geometry(grid, (1.0, 1.0), pt, (0.0, 0.0))
         assert out is False
 
     def test_map_world_offset_accepts_list(self):

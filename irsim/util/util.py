@@ -720,7 +720,6 @@ def is_2d_list(data: list | deque) -> bool:
     if isinstance(data, np.ndarray):
         return False
 
-    # assert isinstance(data, list)
     # Check if data is a list and is not empty.
     if data:
         first_element = data[0]

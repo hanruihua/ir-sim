@@ -53,7 +53,6 @@ class MouseControl:
         """
         if event.inaxes:
             self.mouse_pos = (event.xdata, event.ydata)
-            # self.current_axes = event.inaxes
 
         else:
             self.mouse_pos = None

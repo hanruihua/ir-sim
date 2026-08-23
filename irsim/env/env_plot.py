@@ -232,11 +232,16 @@ class EnvPlot:
         if objects is None:
             objects = []
         if mode == "static":
-            [obj.plot(self.ax, **kwargs) for obj in objects if obj.static]
+            for obj in objects:
+                if obj.static:
+                    obj.plot(self.ax, **kwargs)
         elif mode == "dynamic":
-            [obj.plot(self.ax, **kwargs) for obj in objects if not obj.static]
+            for obj in objects:
+                if not obj.static:
+                    obj.plot(self.ax, **kwargs)
         elif mode == "all":
-            [obj.plot(self.ax, **kwargs) for obj in objects]
+            for obj in objects:
+                obj.plot(self.ax, **kwargs)
         else:
             self.logger.error("Error: Invalid draw mode")
 
@@ -252,29 +257,35 @@ class EnvPlot:
         """
         if objects is None:
             objects = []
-        if mode == "dynamic":
-            [obj.plot_clear() for obj in objects if not obj.static]
-            [line.pop(0).remove() for line in self.dyna_line_list]
-            [points.remove() for points in self.dyna_point_list]
-            [quiver.remove() for quiver in self.dyna_quiver_list]
 
-            self.dyna_line_list = []
-            self.dyna_point_list = []
-            self.dyna_quiver_list = []
+        if mode == "dynamic":
+            for obj in objects:
+                if not obj.static:
+                    obj.plot_clear()
+            self._clear_dynamic_artists()
 
         elif mode == "static":
-            [obj.plot_clear() for obj in objects if obj.static]
+            for obj in objects:
+                if obj.static:
+                    obj.plot_clear()
 
         elif mode == "all":
-            [obj.plot_clear(all=True) for obj in objects]
+            for obj in objects:
+                obj.plot_clear(all=True)
+            self._clear_dynamic_artists()
 
-            [line.pop(0).remove() for line in self.dyna_line_list]
-            [points.remove() for points in self.dyna_point_list]
-            [quiver.remove() for quiver in self.dyna_quiver_list]
+    def _clear_dynamic_artists(self) -> None:
+        """Remove the per-step lines, points, and quivers, then forget them."""
+        for line in self.dyna_line_list:
+            line.pop(0).remove()
+        for points in self.dyna_point_list:
+            points.remove()
+        for quiver in self.dyna_quiver_list:
+            quiver.remove()
 
-            self.dyna_line_list = []
-            self.dyna_point_list = []
-            self.dyna_quiver_list = []
+        self.dyna_line_list = []
+        self.dyna_point_list = []
+        self.dyna_quiver_list = []
 
     def draw_grid_map(self, grid_map: Any | None = None, **kwargs: Any) -> None:
         """

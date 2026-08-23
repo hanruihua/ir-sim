@@ -162,14 +162,6 @@ class KeyboardControl:
 
             headers = ["Key", "Function"]
             print(self._format_grid_table(headers, commands))
-        # else:
-        #     commands = [
-        #         ["r", "reset the environment"],
-        #         ["space", "pause/resume the environment"],
-        #         ["esc", "quit the environment"],
-        #         ["x", "switch keyboard control and auto control"],
-        #         ["l", "reload the environment"],
-        #     ]
 
         if self.backend == "pynput" and not _PYNPUT_AVAILABLE:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
@@ -219,6 +211,15 @@ class KeyboardControl:
             self._mpl_release_cid = fig.canvas.mpl_connect(
                 "key_release_event", self._on_mpl_release
             )
+
+    def _toggle_control_mode(self) -> None:
+        """Switch between keyboard and automatic control, and log the new mode."""
+        if self._world_param.control_mode == "keyboard":
+            self._world_param.control_mode = "auto"
+            self.logger.info("switch to auto control")
+        else:
+            self._world_param.control_mode = "keyboard"
+            self.logger.info("switch to keyboard control")
 
     def _on_pynput_press(self, key: Any) -> None:
         """
@@ -320,12 +321,7 @@ class KeyboardControl:
 
             # Switch control mode with 'x'
             if key.char == "x":
-                if self._world_param.control_mode == "keyboard":
-                    self._world_param.control_mode = "auto"
-                    self.logger.info("switch to auto control")
-                else:
-                    self._world_param.control_mode = "keyboard"
-                    self.logger.info("switch to keyboard control")
+                self._toggle_control_mode()
 
             if key.char == "v":
                 self.logger.info("save the figure")
@@ -463,12 +459,7 @@ class KeyboardControl:
 
         # Switch control mode with 'x'
         if base == "x":
-            if self._world_param.control_mode == "keyboard":
-                self._world_param.control_mode = "auto"
-                self.logger.info("switch to auto control")
-            else:
-                self._world_param.control_mode = "keyboard"
-                self.logger.info("switch to keyboard control")
+            self._toggle_control_mode()
 
         if base == "l":
             self.env_ref.reload_flag = True
