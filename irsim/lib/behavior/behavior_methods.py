@@ -43,6 +43,51 @@ details.
 """
 
 
+def _goal_pending(ego_object: Any, behavior: str) -> bool:
+    """
+    Report whether a behavior is still waiting for a goal to be configured.
+
+    Args:
+        ego_object: The ego robot object.
+        behavior (str): Behavior name, used in the periodic warning.
+
+    Returns:
+        bool: True while ``ego_object`` has no goal, in which case the caller
+        should return a zero velocity of its own shape.
+    """
+
+    if ego_object.goal is not None:
+        return False
+
+    if ego_object._world_param.count % 10 == 0:
+        ego_object.logger.warning(
+            f"Goal is currently None. This {behavior} behavior is waiting for goal configuration"
+        )
+
+    return True
+
+
+def _rvo_params(kwargs: dict[str, Any]) -> tuple[Any, ...]:
+    """
+    Read the shared RVO tuning parameters, in the order the solvers take them.
+
+    Args:
+        kwargs (dict): Behavior keyword arguments.
+
+    Returns:
+        tuple: ``(vxmax, vymax, acce, factor, mode, neighbor_threshold)``.
+    """
+
+    return (
+        kwargs.get("vxmax", 1.5),
+        kwargs.get("vymax", 1.5),
+        kwargs.get("acce", 1.0),
+        kwargs.get("factor", 1.0),
+        kwargs.get("mode", "rvo"),
+        kwargs.get("neighbor_threshold", 3.0),
+    )
+
+
 @register_behavior("diff", "rvo")
 def beh_diff_rvo(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
@@ -65,11 +110,7 @@ def beh_diff_rvo(
         np.array: Velocity [linear, angular] (2x1) for differential drive.
     """
 
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This rvo behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "rvo"):
         return np.zeros((2, 1))
 
     rvo_neighbor = []
@@ -81,12 +122,7 @@ def beh_diff_rvo(
         else:
             rvo_neighbor.append(obj.rvo_neighbor_state)
     rvo_state = ego_object.rvo_state
-    vxmax = kwargs.get("vxmax", 1.5)
-    vymax = kwargs.get("vymax", 1.5)
-    acce = kwargs.get("acce", 1.0)
-    factor = kwargs.get("factor", 1.0)
-    mode = kwargs.get("mode", "rvo")
-    neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
+    vxmax, vymax, acce, factor, mode, neighbor_threshold = _rvo_params(kwargs)
     return DiffRVO(
         rvo_state,
         rvo_neighbor,
@@ -125,12 +161,7 @@ def beh_diff_dash(
     angular_acce = ego_object.info.acce[1, 0]
     dt = ego_object._world_param.step_time
 
-    if goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This dash behavior is waiting for goal configuration"
-            )
-
+    if _goal_pending(ego_object, "dash"):
         return np.zeros((2, 1))
 
     vel = DiffDash(
@@ -156,11 +187,7 @@ def beh_omni_dash(
         np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
     """
 
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This dash behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "dash"):
         return np.zeros((2, 1))
 
     state = ego_object.state
@@ -194,11 +221,7 @@ def beh_omni_rvo(
         np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
     """
 
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This rvo behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "rvo"):
         return np.zeros((2, 1))
 
     rvo_neighbor = []
@@ -210,12 +233,7 @@ def beh_omni_rvo(
         else:
             rvo_neighbor.append(obj.rvo_neighbor_state)
     rvo_state = ego_object.rvo_state
-    vxmax = kwargs.get("vxmax", 1.5)
-    vymax = kwargs.get("vymax", 1.5)
-    acce = kwargs.get("acce", 1.0)
-    factor = kwargs.get("factor", 1.0)
-    mode = kwargs.get("mode", "rvo")
-    neighbor_threshold = kwargs.get("neighbor_threshold", 3.0)
+    vxmax, vymax, acce, factor, mode, neighbor_threshold = _rvo_params(kwargs)
     world_vel = OmniRVO(
         rvo_state,
         rvo_neighbor,
@@ -245,11 +263,7 @@ def beh_diff_sfm(
     Returns:
         np.array: Velocity [linear, angular] (2x1) for differential drive.
     """
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This sfm behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "sfm"):
         return np.zeros((2, 1))
 
     neighbors = []
@@ -297,11 +311,7 @@ def beh_omni_sfm(
     Returns:
         np.array: Velocity [vx, vy] (2x1) for omnidirectional drive.
     """
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This sfm behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "sfm"):
         return np.zeros((2, 1))
 
     neighbors = []
@@ -340,11 +350,7 @@ def beh_omni_angular_dash(
         np.array: Velocity [forward, lateral, yaw_rate] (3x1) in body frame.
     """
 
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This dash behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "dash"):
         return np.zeros((3, 1))
 
     state = ego_object.state
@@ -379,11 +385,7 @@ def beh_acker_dash(
         np.array: Velocity [linear, steering angle] (2x1) for Ackermann drive.
     """
 
-    if ego_object.goal is None:
-        if ego_object._world_param.count % 10 == 0:
-            ego_object.logger.warning(
-                "Goal is currently None. This dash behavior is waiting for goal configuration"
-            )
+    if _goal_pending(ego_object, "dash"):
         return np.zeros((2, 1))
 
     state = ego_object.state

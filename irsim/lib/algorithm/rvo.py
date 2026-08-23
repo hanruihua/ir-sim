@@ -83,6 +83,47 @@ class reciprocal_vel_obs:
         vo_outside, vo_inside = self.vel_candidate(rvo_list)
         return self.vel_select(vo_outside, vo_inside)
 
+    @staticmethod
+    def _cone_angles(
+        x: float, y: float, r: float, mx: float, my: float, mr: float
+    ) -> tuple[float, float, float]:
+        """
+        Compute the edges of the velocity-obstacle cone towards one obstacle.
+
+        The cone spans the directions from ``(x, y)`` that touch the obstacle
+        disc at ``(mx, my)`` inflated by the combined radius. Obstacles closer
+        than that combined radius are treated as tangent, giving a half cone of
+        90 degrees instead of an undefined one.
+
+        Args:
+            x (float): Ego x position.
+            y (float): Ego y position.
+            r (float): Ego radius.
+            mx (float): Obstacle x position.
+            my (float): Obstacle y position.
+            mr (float): Obstacle radius.
+
+        Returns:
+            tuple: ``(line_left_ori, line_right_ori, half_angle)`` in radians.
+        """
+
+        dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
+        angle_mr = atan2(my - y, mx - x)
+
+        if dis_mr < r + mr:
+            dis_mr = r + mr
+
+        ratio = (r + mr) / dis_mr
+
+        if ratio > 1:
+            ratio = 1
+        if ratio < -1:
+            ratio = -1
+
+        half_angle = asin(ratio)
+
+        return angle_mr + half_angle, angle_mr - half_angle, half_angle
+
     def config_rvo(self):
         """Build reciprocal velocity-obstacle cones for all obstacles."""
         rvo_list = []
@@ -134,27 +175,9 @@ class reciprocal_vel_obs:
         else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
             log_error("wrong rvo mode")
 
-        dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
-        angle_mr = atan2(my - y, mx - x)
-
-        if dis_mr < r + mr:
-            dis_mr = r + mr
-
-        ratio = (r + mr) / dis_mr
-
-        if ratio > 1:
-            ratio = 1
-        if ratio < -1:
-            ratio = -1
-
-        half_angle = asin(ratio)
-        line_left_ori = angle_mr + half_angle
-        line_right_ori = angle_mr - half_angle
-
+        line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
-
-        # return [rvo_apex, line_left_ori, line_right_ori]
 
         return [rvo_apex, line_left_vector, line_right_vector]
 
@@ -209,23 +232,9 @@ class reciprocal_vel_obs:
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
         vo_apex = [mvx, mvy]
 
-        dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
-        angle_mr = atan2(my - y, mx - x)
-
-        if dis_mr < r + mr:
-            dis_mr = r + mr
-
-        ratio = (r + mr) / dis_mr
-
-        if ratio > 1:
-            ratio = 1
-        if ratio < -1:
-            ratio = -1
-
-        half_angle = asin(ratio)
-        line_left_ori = angle_mr + half_angle
-        line_right_ori = angle_mr - half_angle
-
+        line_left_ori, line_right_ori, half_angle = self._cone_angles(
+            x, y, r, mx, my, mr
+        )
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
 
@@ -311,23 +320,7 @@ class reciprocal_vel_obs:
             log_error("wrong obstacle mode")
 
         vo_apex = [mvx, mvy]
-        dis_mr = np.sqrt((my - y) ** 2 + (mx - x) ** 2)
-        angle_mr = atan2(my - y, mx - x)
-
-        if dis_mr < r + mr:
-            dis_mr = r + mr
-
-        ratio = (r + mr) / dis_mr
-
-        if ratio > 1:
-            ratio = 1
-        if ratio < -1:
-            ratio = -1
-
-        half_angle = asin(ratio)
-        line_left_ori = angle_mr + half_angle
-        line_right_ori = angle_mr - half_angle
-
+        line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
 
@@ -434,7 +427,6 @@ class reciprocal_vel_obs:
             rel_vx = vx - rvo[0][0]
             rel_vy = vy - rvo[0][1]
 
-            # rel_radians = atan2(rel_vy, rel_vx)
             rel_vector = [rel_vx, rel_vy]
 
             if reciprocal_vel_obs.between_vector(rvo[1], rvo[2], rel_vector):

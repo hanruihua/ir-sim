@@ -12,6 +12,40 @@ from irsim.util.random import rng
 from irsim.util.util import WrapToPi, validate_shape
 
 
+def _apply_velocity_noise(
+    velocity: np.ndarray, noise: bool, alpha: list[float]
+) -> np.ndarray:
+    """
+    Sample a velocity from the noise model of a [linear, angular] command.
+
+    Args:
+        velocity: A 2x1 vector [linear, angular] representing the commanded velocities.
+        noise: Whether to sample; when False the command is returned unchanged.
+        alpha: Noise parameters; alpha[0:2] scale the linear standard deviation
+            and alpha[2:4] the angular one.
+
+    Returns:
+        np.ndarray: The velocity actually executed by the model.
+
+    Raises:
+        ValueError: If noise is requested with fewer than four parameters.
+    """
+    if not noise:
+        return velocity
+
+    if len(alpha) < 4:
+        raise ValueError("Parameter 'alpha' must have length >= 4 when noise=True")
+
+    std_linear = np.sqrt(
+        alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2)
+    )
+    std_angular = np.sqrt(
+        alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2)
+    )
+
+    return velocity + rng.normal([[0], [0]], scale=[[std_linear], [std_angular]])
+
+
 @validate_shape(state=3, velocity=2)
 def differential_kinematics(
     state: np.ndarray,
@@ -36,20 +70,7 @@ def differential_kinematics(
     if alpha is None:
         alpha = [0.03, 0, 0, 0.03]
 
-    if noise:
-        if len(alpha) < 4:
-            raise ValueError("Parameter 'alpha' must have length >= 4 when noise=True")
-        std_linear = np.sqrt(
-            alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2)
-        )
-        std_angular = np.sqrt(
-            alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2)
-        )
-        real_velocity = velocity + rng.normal(
-            [[0], [0]], scale=[[std_linear], [std_angular]]
-        )
-    else:
-        real_velocity = velocity
+    real_velocity = _apply_velocity_noise(velocity, noise, alpha)
 
     phi = state[2, 0]
     co_matrix = np.array([[cos(phi), 0], [sin(phi), 0], [0, 1]])
@@ -93,20 +114,7 @@ def ackermann_kinematics(
     phi = state[2, 0]
     psi = state[3, 0]
 
-    if noise:
-        if len(alpha) < 4:
-            raise ValueError("Parameter 'alpha' must have length >= 4 when noise=True")
-        std_linear = np.sqrt(
-            alpha[0] * (velocity[0, 0] ** 2) + alpha[1] * (velocity[1, 0] ** 2)
-        )
-        std_angular = np.sqrt(
-            alpha[2] * (velocity[0, 0] ** 2) + alpha[3] * (velocity[1, 0] ** 2)
-        )
-        real_velocity = velocity + rng.normal(
-            [[0], [0]], scale=[[std_linear], [std_angular]]
-        )
-    else:
-        real_velocity = velocity
+    real_velocity = _apply_velocity_noise(velocity, noise, alpha)
 
     if mode == "steer" or mode == "angular":
         co_matrix = np.array(

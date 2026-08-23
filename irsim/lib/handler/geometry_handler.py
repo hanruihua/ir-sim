@@ -668,9 +668,4 @@ class GeometryFactory:
         if name == "map":
             return PointsGeometry(name, **kwargs)
 
-        # elif name == 'sphere3d':
-        #     return Sphere3DGeometry(name, **kwargs)
-        # elif name == 'cuboid3d':
-        #     return Cuboid3DGeometry(name, **kwargs)
-
         raise ValueError(f"Invalid geometry name: {name}")
