@@ -862,183 +862,22 @@ def draw_patch(
     Returns the created matplotlib artist (patch, line, or list from ax.plot).
     """
 
-    created_element = None
+    state = state if state is not None else np.zeros((3, 1))
 
     # Normalize some common styling kwargs
     facecolor = kwargs.pop("facecolor", None)
     edgecolor = kwargs.pop("edgecolor", None)
     alpha = kwargs.pop("alpha", None)
     fill = kwargs.pop("fill", None)
-    center = kwargs.pop("center", None)
 
-    state = state if state is not None else np.zeros((3, 1))
+    if shape in ("line", "linestring"):
+        # Lines are artists rather than patches, so they are styled directly.
+        return _draw_line(ax, vertices, color, alpha, zorder, linestyle, fill, kwargs)
 
-    # Circle
-    if shape == "circle":
-        if radius is None:
-            raise ValueError("circle requires radius")
-
-        use_radius = radius
-
-        if center is None:
-            xy = (0.0, 0.0)
-        else:
-            c = np.asarray(center, dtype=float).flatten()
-            xy = (c[0], c[1])
-        # Create at the body-frame center; translate/rotate with transform
-        patch = Circle(xy, use_radius)
-        created_element = ax.add_patch(patch)
-        set_patch_property(
-            created_element,
-            ax,
-            state=state,
-            color=color,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            alpha=alpha,
-            zorder=zorder,
-            linestyle=linestyle,
-            fill=fill,
-        )
-
-    # Rectangle (prefer vertices; otherwise width/height + transform)
-    elif shape == "rectangle":
-        if vertices is not None:
-            patch = Polygon(vertices.T)
-            created_element = ax.add_patch(patch)
-            set_patch_property(
-                created_element,
-                ax,
-                state=state,  # vertices are absolute
-                color=color,
-                facecolor=facecolor,
-                edgecolor=edgecolor,
-                alpha=alpha,
-                zorder=zorder,
-                linestyle=linestyle,
-                fill=fill,
-            )
-        else:
-            width = kwargs.pop("width", None)
-            height = kwargs.pop("height", None)
-            if width is None or height is None:
-                raise ValueError("rectangle requires either vertices or width/height")
-
-            xy = (float(vertices[0, 0]), float(vertices[1, 0]))
-            patch = Rectangle(xy, width, height)
-            created_element = ax.add_patch(patch)
-            set_patch_property(
-                created_element,
-                ax,
-                state=state,
-                color=color,
-                facecolor=facecolor,
-                edgecolor=edgecolor,
-                alpha=alpha,
-                zorder=zorder,
-                linestyle=linestyle,
-                fill=fill,
-            )
-
-    # Polygon
-    elif shape == "polygon":
-        if vertices is None:
-            raise ValueError("polygon requires vertices (2xN)")
-        patch = Polygon(vertices.T)
-        created_element = ax.add_patch(patch)
-        set_patch_property(
-            created_element,
-            ax,
-            state=state,  # vertices are absolute
-            color=color,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            alpha=alpha,
-            zorder=zorder,
-            linestyle=linestyle,
-            fill=fill,
-        )
-
-    # Compound Polygon / MultiPolygon
-    elif shape == "compound":
-        if geometry is None:
-            raise ValueError("compound requires a Polygon or MultiPolygon geometry")
-        patch = PathPatch(geometry_to_path(geometry))
-        created_element = ax.add_patch(patch)
-        set_patch_property(
-            created_element,
-            ax,
-            state=state,
-            color=color,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            alpha=alpha,
-            zorder=zorder,
-            linestyle=linestyle,
-            fill=fill,
-        )
-
-    # Ellipse
-    elif shape == "ellipse":
-        width = kwargs.pop("width", None)
-        height = kwargs.pop("height", None)
-        if width is None or height is None:
-            raise ValueError("ellipse requires width and height")
-        patch = Ellipse((0.0, 0.0), width, height, angle=0.0)
-        created_element = ax.add_patch(patch)
-        set_patch_property(
-            created_element,
-            ax,
-            state=state,
-            color=color,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            alpha=alpha,
-            zorder=zorder,
-            linestyle=linestyle,
-            fill=fill,
-        )
-
-    # Wedge (FOV)
-    elif shape == "wedge":
-        use_radius = radius if radius is not None else kwargs.pop("radius", None)
-        if use_radius is None:
-            raise ValueError("wedge requires radius")
-        if "theta1" in kwargs and "theta2" in kwargs:
-            theta1 = kwargs.pop("theta1")
-            theta2 = kwargs.pop("theta2")
-        else:
-            # build from fov in radians centered at 0
-            fov = kwargs.pop("fov", np.pi)
-            theta1 = -180 * fov / (2 * np.pi)
-            theta2 = 180 * fov / (2 * np.pi)
-        patch = Wedge((0.0, 0.0), use_radius, theta1, theta2)
-        created_element = ax.add_patch(patch)
-        set_patch_property(
-            created_element,
-            ax,
-            state=state,
-            color=color,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
-            alpha=alpha,
-            zorder=zorder,
-            linestyle=linestyle,
-            fill=fill,
-        )
-
-    # Arrow (velocity/heading)
-    elif shape == "arrow":
-        arrow_length = kwargs.pop("arrow_length", 0.4)
-        arrow_width = kwargs.pop("arrow_width", 0.6)
-        # Orientation: use provided theta or state[2]
-        theta = kwargs.pop("theta", float(state[2, 0]) if state.shape[0] >= 3 else 0.0)
-        x = float(state[0, 0])
-        y = float(state[1, 0])
-        dx = float(arrow_length * cos(theta))
-        dy = float(arrow_length * sin(theta))
-        patch = Arrow(x, y, dx, dy, width=arrow_width)
-        created_element = ax.add_patch(patch)
+    if shape == "arrow":
+        # The arrow is built in absolute coordinates and has its own color and
+        # zorder fallbacks, so it is styled without a state transform.
+        created_element = ax.add_patch(_arrow_patch(state, kwargs))
         set_patch_property(
             created_element,
             ax,
@@ -1048,50 +887,180 @@ def draw_patch(
             zorder=zorder if zorder is not None else kwargs.pop("arrow_zorder", None),
             fill=fill,
         )
-
-    # Line / LineString
-    elif shape in ("line", "linestring"):
-        if vertices is None:
-            raise ValueError("line/linestring requires vertices (2xN)")
-        if isinstance(ax, Axes3D):
-            line3d = art3d.Line3D(
-                vertices[0, :], vertices[1, :], zs=kwargs.pop("z", np.zeros((3,)))
-            )
-            if color is not None:
-                line3d.set_color(color)
-            if alpha is not None:
-                line3d.set_alpha(alpha)
-            if zorder is not None:
-                line3d.set_zorder(zorder)
-            if fill is not None:
-                line3d.set_fill(fill)
-            ax.add_line(line3d)
-            created_element = line3d
-        else:
-            line2d = Line2D(vertices[0, :], vertices[1, :])
-            if linestyle is not None:
-                line2d.set_linestyle(linestyle)
-            if color is not None:
-                line2d.set_color(color)
-            if alpha is not None:
-                line2d.set_alpha(alpha)
-            if zorder is not None:
-                line2d.set_zorder(zorder)
-            ax.add_line(line2d)
-            created_element = line2d
-
     else:
-        raise ValueError(f"Unsupported shape type: {shape}")
+        builder = _PATCH_BUILDERS.get(shape)
+        if builder is None:
+            raise ValueError(f"Unsupported shape type: {shape}")
+
+        created_element = ax.add_patch(
+            builder(radius=radius, vertices=vertices, geometry=geometry, **kwargs)
+        )
+        set_patch_property(
+            created_element,
+            ax,
+            state=state,
+            color=color,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            alpha=alpha,
+            zorder=zorder,
+            linestyle=linestyle,
+            fill=fill,
+        )
 
     # 3D conversion for patches if needed
-    if (
-        isinstance(ax, Axes3D)
-        and created_element is not None
-        and shape not in ("line", "linestring")
-    ):
+    if isinstance(ax, Axes3D) and created_element is not None:
         art3d.patch_2d_to_3d(created_element, z=kwargs.pop("z", 0), zdir="z")
 
     return created_element
+
+
+def _circle_patch(radius: float | None = None, center: Any = None, **_: Any) -> Circle:
+    """Build a circle at the body-frame center, ready for the state transform."""
+    if radius is None:
+        raise ValueError("circle requires radius")
+
+    if center is None:
+        xy = (0.0, 0.0)
+    else:
+        c = np.asarray(center, dtype=float).flatten()
+        xy = (c[0], c[1])
+
+    return Circle(xy, radius)
+
+
+def _rectangle_patch(
+    vertices: np.ndarray | None = None,
+    width: float | None = None,
+    height: float | None = None,
+    **_: Any,
+) -> Any:
+    """Build a rectangle from absolute vertices, or from width and height."""
+    if vertices is not None:
+        return Polygon(vertices.T)
+
+    if width is None or height is None:
+        raise ValueError("rectangle requires either vertices or width/height")
+
+    xy = (float(vertices[0, 0]), float(vertices[1, 0]))
+    return Rectangle(xy, width, height)
+
+
+def _polygon_patch(vertices: np.ndarray | None = None, **_: Any) -> Polygon:
+    """Build a polygon from absolute vertices."""
+    if vertices is None:
+        raise ValueError("polygon requires vertices (2xN)")
+
+    return Polygon(vertices.T)
+
+
+def _compound_patch(geometry: Any = None, **_: Any) -> PathPatch:
+    """Build one patch for a Polygon or MultiPolygon, holes included."""
+    if geometry is None:
+        raise ValueError("compound requires a Polygon or MultiPolygon geometry")
+
+    return PathPatch(geometry_to_path(geometry))
+
+
+def _ellipse_patch(
+    width: float | None = None, height: float | None = None, **_: Any
+) -> Ellipse:
+    """Build a body-frame ellipse, ready for the state transform."""
+    if width is None or height is None:
+        raise ValueError("ellipse requires width and height")
+
+    return Ellipse((0.0, 0.0), width, height, angle=0.0)
+
+
+def _wedge_patch(
+    radius: float | None = None,
+    theta1: float | None = None,
+    theta2: float | None = None,
+    fov: float | None = None,
+    **_: Any,
+) -> Wedge:
+    """Build a field-of-view wedge from explicit angles, or from an fov."""
+    if radius is None:
+        raise ValueError("wedge requires radius")
+
+    if theta1 is None or theta2 is None:
+        # build from fov in radians centered at 0
+        fov = np.pi if fov is None else fov
+        theta1 = -180 * fov / (2 * np.pi)
+        theta2 = 180 * fov / (2 * np.pi)
+
+    return Wedge((0.0, 0.0), radius, theta1, theta2)
+
+
+# Shapes drawn as a patch: each builder takes what it needs and ignores the rest,
+# after which draw_patch adds and styles the patch the same way for all of them.
+_PATCH_BUILDERS = {
+    "circle": _circle_patch,
+    "rectangle": _rectangle_patch,
+    "polygon": _polygon_patch,
+    "compound": _compound_patch,
+    "ellipse": _ellipse_patch,
+    "wedge": _wedge_patch,
+}
+
+
+def _arrow_patch(state: np.ndarray, kwargs: dict[str, Any]) -> Arrow:
+    """Build a heading arrow in absolute coordinates."""
+    arrow_length = kwargs.pop("arrow_length", 0.4)
+    arrow_width = kwargs.pop("arrow_width", 0.6)
+    # Orientation: use provided theta or state[2]
+    theta = kwargs.pop("theta", float(state[2, 0]) if state.shape[0] >= 3 else 0.0)
+
+    return Arrow(
+        float(state[0, 0]),
+        float(state[1, 0]),
+        float(arrow_length * cos(theta)),
+        float(arrow_length * sin(theta)),
+        width=arrow_width,
+    )
+
+
+def _draw_line(
+    ax: Any,
+    vertices: np.ndarray | None,
+    color: str | None,
+    alpha: float | None,
+    zorder: int | None,
+    linestyle: str | None,
+    fill: bool | None,
+    kwargs: dict[str, Any],
+) -> Any:
+    """Add a 2D or 3D line for the given vertices and style it directly."""
+    if vertices is None:
+        raise ValueError("line/linestring requires vertices (2xN)")
+
+    if isinstance(ax, Axes3D):
+        line3d = art3d.Line3D(
+            vertices[0, :], vertices[1, :], zs=kwargs.pop("z", np.zeros((3,)))
+        )
+        if color is not None:
+            line3d.set_color(color)
+        if alpha is not None:
+            line3d.set_alpha(alpha)
+        if zorder is not None:
+            line3d.set_zorder(zorder)
+        if fill is not None:
+            line3d.set_fill(fill)
+        ax.add_line(line3d)
+        return line3d
+
+    line2d = Line2D(vertices[0, :], vertices[1, :])
+    if linestyle is not None:
+        line2d.set_linestyle(linestyle)
+    if color is not None:
+        line2d.set_color(color)
+    if alpha is not None:
+        line2d.set_alpha(alpha)
+    if zorder is not None:
+        line2d.set_zorder(zorder)
+    ax.add_line(line2d)
+
+    return line2d
 
 
 def set_patch_property(
