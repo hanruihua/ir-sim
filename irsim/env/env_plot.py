@@ -933,18 +933,29 @@ def _rectangle_patch(
     vertices: np.ndarray | None = None,
     width: float | None = None,
     height: float | None = None,
+    center: Any = None,
     **_: Any,
 ) -> Any:
-    """Build a rectangle from absolute vertices, or from width and height."""
+    """Build a rectangle from its vertices, or from width and height.
+
+    ``center`` is the body-frame center of the box, as it is for a circle. It
+    defaults to the origin, which matches the collision geometry of a plain
+    rectangle; an Ackermann box, offset from the origin by half a wheelbase,
+    passes its own centroid so the two still coincide.
+    """
     if vertices is not None:
         return Polygon(vertices.T)
 
     if width is None or height is None:
         raise ValueError("rectangle requires either vertices or width/height")
 
-    # Centered on the body-frame origin, like the collision geometry, so the
-    # state transform places it the same way.
-    return Rectangle((-width / 2.0, -height / 2.0), width, height)
+    if center is None:
+        cx, cy = 0.0, 0.0
+    else:
+        c = np.asarray(center, dtype=float).flatten()
+        cx, cy = float(c[0]), float(c[1])
+
+    return Rectangle((cx - width / 2.0, cy - height / 2.0), width, height)
 
 
 def _polygon_patch(vertices: np.ndarray | None = None, **_: Any) -> Polygon:

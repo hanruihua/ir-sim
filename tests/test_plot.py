@@ -289,6 +289,36 @@ class TestDrawPatch:
             atol=1e-9,
         )
 
+    def test_draw_rectangle_width_height_honors_center(self, ax_2d):
+        """An Ackermann box is offset from the origin, and center reproduces it."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        handler = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0, wheelbase=1.0
+        )
+        geometry = handler.step(state)
+        rect = draw_patch(
+            ax_2d,
+            "rectangle",
+            state=state,
+            width=2.0,
+            height=1.0,
+            center=handler.original_vertices.mean(axis=1),
+        )
+
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
+
     def test_draw_polygon(self, ax_2d):
         """Test drawing polygon patch."""
         state = np.array([[0.0], [0.0], [0.0]])
