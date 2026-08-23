@@ -96,6 +96,44 @@ class TestEnvPlot2D:
         """Test clearing all dynamic components."""
         plot_2d.clear_components("all", [])
 
+    def test_clear_components_removes_dynamic_artists(self, plot_2d):
+        """Lines, points and quivers drawn this step are removed and forgotten."""
+        plot_2d.draw_trajectory(np.array([[0.0, 1.0], [0.0, 1.0]]), refresh=True)
+        plot_2d.draw_points(np.array([[0.0], [1.0]]), refresh=True)
+        plot_2d.draw_quiver(np.array([[0.0], [0.0], [1.0], [1.0]]), refresh=True)
+        assert plot_2d.dyna_line_list
+        assert plot_2d.dyna_point_list
+        assert plot_2d.dyna_quiver_list
+
+        plot_2d.clear_components("dynamic", [])
+
+        assert plot_2d.dyna_line_list == []
+        assert plot_2d.dyna_point_list == []
+        assert plot_2d.dyna_quiver_list == []
+
+    def test_static_mode_touches_only_static_objects(self, plot_2d):
+        """Static mode draws and clears the static objects and leaves the rest."""
+
+        class FakeObject:
+            def __init__(self, static):
+                self.static = static
+                self.drawn = self.cleared = 0
+
+            def plot(self, ax, **kwargs):
+                self.drawn += 1
+
+            def plot_clear(self, all=False):
+                self.cleared += 1
+
+        static_obj, moving_obj = FakeObject(True), FakeObject(False)
+        objects = [static_obj, moving_obj]
+
+        plot_2d.draw_components("static", objects)
+        plot_2d.clear_components("static", objects)
+
+        assert (static_obj.drawn, static_obj.cleared) == (1, 1)
+        assert (moving_obj.drawn, moving_obj.cleared) == (0, 0)
+
     def test_set_ax_viewpoint_none_objects(self, dummy_world_2d, dummy_logger):
         """Test set_ax_viewpoint with None objects."""
         plot = EnvPlot(
@@ -446,6 +484,19 @@ class TestDrawPatch:
         ls = draw_patch(ax_2d, "linestring", vertices=line_vertices, color="k")
         assert ls is not None
 
+    def test_shape_builders_require_their_inputs(self, ax_2d):
+        """Each shape reports the input it is missing."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        for shape, match in (
+            ("circle", "circle requires radius"),
+            ("polygon", "polygon requires vertices"),
+            ("ellipse", "ellipse requires width and height"),
+            ("wedge", "wedge requires radius"),
+            ("line", "line/linestring requires vertices"),
+        ):
+            with pytest.raises(ValueError, match=match):
+                draw_patch(ax_2d, shape, state=state)
+
     def test_draw_unknown_shape_raises(self, ax_2d):
         """Test unknown shape type raises ValueError."""
         state = np.array([[0.0], [0.0], [0.0]])
@@ -459,6 +510,19 @@ class TestDrawPatch:
             ax_3d, "line", vertices=line_vertices, color="k", alpha=0.8, zorder=2
         )
         assert line3d is not None
+
+    def test_draw_line_3d_ignores_fill(self, ax_3d):
+        """A line has no fill to set, so the flag is ignored rather than applied."""
+        line3d = draw_patch(
+            ax_3d,
+            "line",
+            vertices=np.array([[0.0, 1.0], [0.0, 1.0]]),
+            color="k",
+            fill=False,
+        )
+
+        assert line3d is not None
+        assert not hasattr(line3d, "set_fill")
 
     def test_draw_circle_3d(self, ax_3d):
         """Test drawing circle on 3D axes (patch_2d_to_3d conversion)."""

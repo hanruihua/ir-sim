@@ -46,6 +46,47 @@ class TestKeyboardControlPynput:
         env.keyboard._on_pynput_release(mock_keyboard_key("l"))
         assert len(env.names) == len(pre_names)
 
+    def test_reset_without_env_reference_warns(self, env_factory, mock_keyboard_key):
+        """Releasing 'r' without an environment reference warns instead of failing."""
+        env = env_factory("test_keyboard_control.yaml")
+        keyboard_control = env.keyboard
+        keyboard_control._active_only = False
+        keyboard_control.env_ref = None
+
+        keyboard_control._reset_env()
+
+        assert keyboard_control.env_ref is None
+
+    def test_escape_key_quits_pynput(self, env_factory):
+        """ESC has no character, so it is handled as a special key release."""
+        env = env_factory("test_keyboard_control.yaml")
+        env.keyboard._active_only = False
+
+        class EscKeyMock:
+            name = "esc"
+
+            def __eq__(self, other):
+                return other == keyboard.Key.esc
+
+        env.keyboard._on_pynput_release(EscKeyMock())
+
+        assert env.quit_flag is True
+
+    def test_special_release_without_pynput(self, env_factory, monkeypatch):
+        """Without pynput there are no key constants to compare, so nothing runs."""
+        env = env_factory("test_keyboard_control.yaml")
+        env.keyboard._active_only = False
+        monkeypatch.setattr(irsim.gui.keyboard_control, "keyboard", None)
+
+        class AltKeyMock:
+            name = "alt"
+
+        env.keyboard.alt_flag = True
+        env.keyboard._on_pynput_release(AltKeyMock())
+
+        assert env.keyboard.alt_flag is False
+        assert env.quit_flag is False
+
     def test_alt_key_robot_selection(self, env_factory):
         """Test Alt+number selects robot."""
         env = env_factory("test_keyboard_control.yaml")
@@ -439,6 +480,17 @@ class TestKeyboardControlMpl:
         assert env.keyboard._world_param.control_mode != mode0
         env.keyboard._on_mpl_release(mock_mpl_event("x"))
         assert env.keyboard._world_param.control_mode == mode0
+
+    def test_space_key_normalized_from_blank(self, env_factory, mock_mpl_event):
+        """Matplotlib spells the space key both ways; both pause the environment."""
+        env = env_factory("test_keyboard_control.yaml")
+        env.keyboard._active_only = False
+
+        env.keyboard._on_mpl_release(mock_mpl_event(" "))
+        assert "Pause" in env.status
+
+        env.keyboard._on_mpl_release(mock_mpl_event("space"))
+        assert "Pause" not in env.status
 
     def test_escape_key_quit(self, env_factory, mock_mpl_event):
         """Test escape key sets quit flag in mpl backend."""

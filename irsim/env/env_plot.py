@@ -885,7 +885,7 @@ def draw_patch(
 
     if shape in ("line", "linestring"):
         # Lines are artists rather than patches, so they are styled directly.
-        return _draw_line(ax, vertices, color, alpha, zorder, linestyle, fill, kwargs)
+        return _draw_line(ax, vertices, color, alpha, zorder, linestyle, kwargs)
 
     if shape == "arrow":
         # The arrow is built in world coordinates and has its own color and
@@ -1052,14 +1052,13 @@ def _draw_line(
     alpha: float | None,
     zorder: int | None,
     linestyle: str | None,
-    fill: bool | None,
     kwargs: dict[str, Any],
 ) -> Any:
     """Add a 2D or 3D line and style it directly.
 
     The vertices are used as data coordinates: a line carries no patch
     transform, so ``state`` never reaches it and the vertices must be in world
-    coordinates.
+    coordinates. ``fill`` does not apply to a line and is ignored.
     """
     if vertices is None:
         raise ValueError("line/linestring requires vertices (2xN)")
@@ -1074,8 +1073,6 @@ def _draw_line(
             line3d.set_alpha(alpha)
         if zorder is not None:
             line3d.set_zorder(zorder)
-        if fill is not None:
-            line3d.set_fill(fill)
         ax.add_line(line3d)
         return line3d
 

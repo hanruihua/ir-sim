@@ -113,13 +113,7 @@ class reciprocal_vel_obs:
         if dis_mr < r + mr:
             dis_mr = r + mr
 
-        ratio = (r + mr) / dis_mr
-
-        if ratio > 1:
-            ratio = 1
-        if ratio < -1:
-            ratio = -1
-
+        ratio = min(max((r + mr) / dis_mr, -1.0), 1.0)
         half_angle = asin(ratio)
 
         return angle_mr + half_angle, angle_mr - half_angle, half_angle
