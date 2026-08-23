@@ -22,6 +22,7 @@ import irsim
 import irsim.env.env_plot as env_plot_module
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
+from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.world.object_base import ObjectBase
 from irsim.world.object_plot import ObjectPlotOptions
 
@@ -265,11 +266,28 @@ class TestDrawPatch:
         ):
             draw_patch(ax_2d, "rectangle", state=state)
 
-    def test_draw_rectangle_partial_params_raises(self, ax_2d):
-        """Test rectangle with width/height but no vertices raises."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        with pytest.raises(TypeError):
-            draw_patch(ax_2d, "rectangle", state=state, width=1.0, height=0.5)
+    def test_draw_rectangle_from_width_height(self, ax_2d):
+        """A width/height rectangle lands where the collision geometry does."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        rect = draw_patch(ax_2d, "rectangle", state=state, width=2.0, height=1.0)
+
+        assert rect is not None
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+        geometry = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0
+        ).step(state)
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
 
     def test_draw_polygon(self, ax_2d):
         """Test drawing polygon patch."""

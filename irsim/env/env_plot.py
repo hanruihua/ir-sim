@@ -942,8 +942,9 @@ def _rectangle_patch(
     if width is None or height is None:
         raise ValueError("rectangle requires either vertices or width/height")
 
-    xy = (float(vertices[0, 0]), float(vertices[1, 0]))
-    return Rectangle(xy, width, height)
+    # Centered on the body-frame origin, like the collision geometry, so the
+    # state transform places it the same way.
+    return Rectangle((-width / 2.0, -height / 2.0), width, height)
 
 
 def _polygon_patch(vertices: np.ndarray | None = None, **_: Any) -> Polygon:
