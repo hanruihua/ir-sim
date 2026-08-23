@@ -847,13 +847,26 @@ def draw_patch(
 
     - circle: use ``state`` (x,y,theta), ``radius``, and optional ``center`` (body-frame
       offset); created in the body frame and transformed, matching the collision geometry
-    - rectangle: prefer ``vertices`` (2xN) else use ``width``/``height`` with ``state`` transform
-    - polygon: use ``vertices`` (2xN)
+    - rectangle: prefer body-frame ``vertices`` (2xN) else use ``width``/``height``
+      with an optional ``center``; transformed by ``state``
+    - polygon: use body-frame ``vertices`` (2xN); transformed by ``state``
     - compound: use a local-frame Shapely Polygon or MultiPolygon as ``geometry``
     - ellipse: use ``width``/``height`` with ``state`` transform
     - wedge: use ``radius`` and either ``theta1``/``theta2`` (deg) or ``fov`` (rad); transformed by ``state``
     - arrow: use ``state`` for position/orientation or provide ``theta``; supports ``arrow_length`` and ``arrow_width``
-    - line|linestring: use ``vertices`` (2xN) to draw a line element
+    - line|linestring: use ``vertices`` (2xN) in world coordinates; ``state`` is not
+      applied to them
+
+    Coordinate frames:
+
+    - A patch is built in the object's body frame and placed by ``state``, which
+      rotates by theta and then translates by (x, y). Pass body-frame vertices -
+      :py:attr:`~irsim.world.object_base.ObjectBase.original_vertices` - together
+      with the pose, as ``ObjectPlot`` does; passing vertices that already carry
+      the pose applies it twice. Pass ``state=None`` for vertices that are
+      already in world coordinates.
+    - A line is added with its vertices as data coordinates and receives no
+      transform, so its vertices are always world coordinates.
 
     Styling:
 
@@ -875,13 +888,13 @@ def draw_patch(
         return _draw_line(ax, vertices, color, alpha, zorder, linestyle, fill, kwargs)
 
     if shape == "arrow":
-        # The arrow is built in absolute coordinates and has its own color and
+        # The arrow is built in world coordinates and has its own color and
         # zorder fallbacks, so it is styled without a state transform.
         created_element = ax.add_patch(_arrow_patch(state, kwargs))
         set_patch_property(
             created_element,
             ax,
-            state=None,  # absolute coords already applied
+            state=None,  # world coords already applied
             color=color if color is not None else kwargs.pop("arrow_color", None),
             alpha=alpha,
             zorder=zorder if zorder is not None else kwargs.pop("arrow_zorder", None),
@@ -936,7 +949,7 @@ def _rectangle_patch(
     center: Any = None,
     **_: Any,
 ) -> Any:
-    """Build a rectangle from its vertices, or from width and height.
+    """Build a rectangle from its body-frame vertices, or from width and height.
 
     ``center`` is the body-frame center of the box, as it is for a circle. It
     defaults to the origin, which matches the collision geometry of a plain
@@ -959,7 +972,7 @@ def _rectangle_patch(
 
 
 def _polygon_patch(vertices: np.ndarray | None = None, **_: Any) -> Polygon:
-    """Build a polygon from absolute vertices."""
+    """Build a polygon from its body-frame vertices, placed later by ``state``."""
     if vertices is None:
         raise ValueError("polygon requires vertices (2xN)")
 
@@ -1017,7 +1030,7 @@ _PATCH_BUILDERS = {
 
 
 def _arrow_patch(state: np.ndarray, kwargs: dict[str, Any]) -> Arrow:
-    """Build a heading arrow in absolute coordinates."""
+    """Build a heading arrow in world coordinates, from the pose in ``state``."""
     arrow_length = kwargs.pop("arrow_length", 0.4)
     arrow_width = kwargs.pop("arrow_width", 0.6)
     # Orientation: use provided theta or state[2]
@@ -1042,7 +1055,12 @@ def _draw_line(
     fill: bool | None,
     kwargs: dict[str, Any],
 ) -> Any:
-    """Add a 2D or 3D line for the given vertices and style it directly."""
+    """Add a 2D or 3D line and style it directly.
+
+    The vertices are used as data coordinates: a line carries no patch
+    transform, so ``state`` never reaches it and the vertices must be in world
+    coordinates.
+    """
     if vertices is None:
         raise ValueError("line/linestring requires vertices (2xN)")
 

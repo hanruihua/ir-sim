@@ -344,6 +344,22 @@ class TestDrawPatch:
             atol=1e-9,
         )
 
+    def test_state_transforms_patches_but_not_lines(self, ax_2d):
+        """The documented frame contract: a patch follows state, a line does not."""
+        state = np.array([[10.0], [20.0], [0.0]])
+        vertices = np.array([[0.0, 1.0, 1.0], [0.0, 0.0, 1.0]])
+
+        polygon = draw_patch(ax_2d, "polygon", state=state, vertices=vertices)
+        line = draw_patch(ax_2d, "linestring", state=state, vertices=vertices)
+
+        drawn = ax_2d.transData.inverted().transform(
+            polygon.get_transform().transform(polygon.get_path().vertices)
+        )
+        np.testing.assert_allclose(drawn[0], [10.0, 20.0], atol=1e-9)
+        np.testing.assert_allclose(
+            np.asarray(line.get_xydata())[0], [0.0, 0.0], atol=1e-9
+        )
+
     def test_draw_polygon(self, ax_2d):
         """Test drawing polygon patch."""
         state = np.array([[0.0], [0.0], [0.0]])
