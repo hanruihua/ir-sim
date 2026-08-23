@@ -259,16 +259,65 @@ class TestDrawPatch:
         assert rect is not None
 
     def test_draw_rectangle_missing_params_raises(self, ax_2d):
-        """Test rectangle without vertices raises."""
+        """Test rectangle without vertices or width/height raises."""
         state = np.array([[0.0], [0.0], [0.0]])
-        with pytest.raises(ValueError, match="rectangle requires vertices"):
+        with pytest.raises(
+            ValueError, match="rectangle requires either vertices or width/height"
+        ):
             draw_patch(ax_2d, "rectangle", state=state)
 
-    def test_draw_rectangle_requires_vertices(self, ax_2d):
-        """A rectangle is described by its vertices, as a polygon is."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        with pytest.raises(ValueError, match="rectangle requires vertices"):
-            draw_patch(ax_2d, "rectangle", state=state, width=1.0, height=0.5)
+    def test_draw_rectangle_from_width_height(self, ax_2d):
+        """A width/height rectangle lands where the collision geometry does."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        rect = draw_patch(ax_2d, "rectangle", state=state, width=2.0, height=1.0)
+
+        assert rect is not None
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+        geometry = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0
+        ).step(state)
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
+
+    def test_draw_rectangle_width_height_honors_center(self, ax_2d):
+        """An Ackermann box is offset from the origin, and center reproduces it."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        handler = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0, wheelbase=1.0
+        )
+        geometry = handler.step(state)
+        rect = draw_patch(
+            ax_2d,
+            "rectangle",
+            state=state,
+            width=2.0,
+            height=1.0,
+            center=handler.original_vertices.mean(axis=1),
+        )
+
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
 
     def test_draw_rectangle_matches_collision_geometry(self, ax_2d):
         """Body-frame vertices plus the state transform land on the geometry."""
