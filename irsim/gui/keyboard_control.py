@@ -391,8 +391,10 @@ class KeyboardControl:
         try:
             # Keys are matched as typed here: 'Z'/'C' carry the shift variant.
             char = key.char or ""
-            self._release_motion_key(char)
-            self._adjust_speed_limit(char.lower(), char.isupper())
+            if self._world_param.control_mode == "keyboard":
+                self._release_motion_key(char)
+                self._adjust_speed_limit(char.lower(), char.isupper())
+
             self._run_command_key(char)
             self._update_key_vel()
 
