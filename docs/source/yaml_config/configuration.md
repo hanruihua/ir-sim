@@ -8,6 +8,8 @@ The configuration file is a YAML file to initialize the environment. It contains
 
 A complete IR-SIM scene is described by up to four top-level keys: `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `unset`. Click a section's **full docs ›** link to jump to the detailed description.
 
+In a combined configuration for multiple simulators, these keys may be nested under an optional top-level `irsim` mapping. IR-SIM reads and validates that mapping while leaving sibling simulator sections untouched. The filename passed to `irsim.make()` and used by `env.reload()` does not change.
+
 ```{raw} html
 <div class="yaml-tree">
 <div class="yt-controls">

@@ -5,6 +5,7 @@ from typing import Any, Literal, Optional
 
 from irsim.env import EnvBase, EnvBase3D
 
+from . import msg
 from .version import __version__
 
 
