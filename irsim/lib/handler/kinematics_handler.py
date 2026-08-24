@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from math import atan2, cos, sin
+from math import atan2
 from typing import ClassVar
 
 import numpy as np
@@ -10,7 +10,7 @@ from irsim.lib.algorithm.kinematics import (
     omni_angular_kinematics,
     omni_kinematics,
 )
-from irsim.util.util import log_warning
+from irsim.util.util import log_warning, vel_diff2world, vel_omni2world
 
 # ---------------------------------------------------------------------------
 # Registry
@@ -51,6 +51,11 @@ def register_kinematics(name: str):
 # ---------------------------------------------------------------------------
 # Base class
 # ---------------------------------------------------------------------------
+
+
+def _heading(state: np.ndarray) -> float:
+    """Read the heading from a state that may not carry one."""
+    return state[2, 0] if state.shape[0] > 2 else 0.0
 
 
 class KinematicsHandler(ABC):
@@ -109,8 +114,9 @@ class KinematicsHandler(ABC):
 
         The default implementation follows differential-drive conventions:
         ``velocity[0]`` is the linear speed projected through the heading
-        angle ``state[2]``. Subclasses with different velocity semantics
-        (e.g. omnidirectional) should override this.
+        angle ``state[2]``, which is what :func:`~irsim.util.util.vel_diff2world`
+        does. Subclasses with different velocity semantics (e.g.
+        omnidirectional) should override this.
 
         Args:
             state (np.ndarray): Current state vector.
@@ -121,11 +127,8 @@ class KinematicsHandler(ABC):
         """
         if len(velocity.shape) == 0:
             return np.zeros((2, 1))
-        vel_linear = velocity[0, 0]
-        theta = state[2, 0]
-        vx = vel_linear * cos(theta)
-        vy = vel_linear * sin(theta)
-        return np.array([[vx], [vy]])
+
+        return vel_diff2world(state[2, 0], velocity)
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         """Compute the scalar maximum speed from the vel_max vector.
@@ -214,13 +217,7 @@ class OmniKinematics(KinematicsHandler):
         Returns:
             np.ndarray: ``(2, 1)`` world-frame velocity.
         """
-        theta = state[2, 0] if state.shape[0] > 2 else 0.0
-        cos_t, sin_t = np.cos(theta), np.sin(theta)
-        fwd = velocity[0, 0]
-        lat = velocity[1, 0]
-        vx = fwd * cos_t - lat * sin_t
-        vy = fwd * sin_t + lat * cos_t
-        return np.array([[vx], [vy]])
+        return vel_omni2world(_heading(state), velocity[0:2])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         """Compute translational speed limit from forward/lateral limits.
@@ -306,13 +303,7 @@ class OmniAngularKinematics(KinematicsHandler):
         Returns:
             np.ndarray: ``(2, 1)`` world-frame velocity.
         """
-        theta = state[2, 0]
-        cos_t, sin_t = np.cos(theta), np.sin(theta)
-        fwd = velocity[0, 0]
-        lat = velocity[1, 0]
-        vx = fwd * cos_t - lat * sin_t
-        vy = fwd * sin_t + lat * cos_t
-        return np.array([[vx], [vy]])
+        return vel_omni2world(_heading(state), velocity[0:2])
 
     def compute_max_speed(self, vel_max: np.ndarray) -> float:
         """Compute translational speed limit from the first two components.

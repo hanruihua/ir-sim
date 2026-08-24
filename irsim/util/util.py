@@ -396,7 +396,55 @@ def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray | 
     return rot @ vertices + trans
 
 
-def omni_to_diff(
+def vel_world2omni(state_ori: float, vel_world: np.ndarray) -> np.ndarray:
+    """
+    Convert a world-frame velocity to an omni command.
+
+    ``[vx, vy]`` describes the rigid-body motion in the world, which is what
+    holonomic planners such as RVO, SFM and ORCA produce, while a robot is
+    commanded in its own frame. For ``omni`` this rotation is the whole
+    conversion; a model that also steers, such as ``omni_angular``, gets only
+    its translation from here and needs a yaw rate of its own.
+    :func:`vel_world2diff` does the equivalent for a differential robot.
+
+    Args:
+        state_ori (float): Orientation angle.
+        vel_world (np.array): World-frame velocity [vx, vy] (2x1).
+
+    Returns:
+        np.array: Body-frame velocity [forward, lateral] (2x1).
+    """
+    vel_world = np.asarray(vel_world, dtype=float).reshape(-1)
+    cos_t, sin_t = cos(state_ori), sin(state_ori)
+    forward = vel_world[0] * cos_t + vel_world[1] * sin_t
+    lateral = -vel_world[0] * sin_t + vel_world[1] * cos_t
+
+    return np.array([[forward], [lateral]])
+
+
+def vel_omni2world(state_ori: float, vel_body: np.ndarray) -> np.ndarray:
+    """
+    Convert an omni command to a world-frame velocity.
+
+    The inverse of :func:`vel_world2omni`; :func:`vel_diff2world` does the
+    equivalent for a differential robot.
+
+    Args:
+        state_ori (float): Orientation angle.
+        vel_body (np.array): Body-frame velocity [forward, lateral] (2x1).
+
+    Returns:
+        np.array: World-frame velocity [vx, vy] (2x1).
+    """
+    vel_body = np.asarray(vel_body, dtype=float).reshape(-1)
+    cos_t, sin_t = cos(state_ori), sin(state_ori)
+    vx = vel_body[0] * cos_t - vel_body[1] * sin_t
+    vy = vel_body[0] * sin_t + vel_body[1] * cos_t
+
+    return np.array([[vx], [vy]])
+
+
+def vel_world2diff(
     state_ori: float,
     vel_omni: np.ndarray,
     w_max: float = 1.5,
@@ -405,11 +453,12 @@ def omni_to_diff(
     mini_speed: float = 0.02,
 ) -> np.ndarray:
     """
-    Convert omnidirectional velocity to differential velocity.
+    Convert a world-frame velocity to a differential command.
 
     Args:
         state_ori (float): Orientation angle.
-        vel_omni (np.array): Omnidirectional velocity [vx, vy] (2x1).
+        vel_omni (np.array): World-frame velocity [vx, vy] (2x1). The name is
+            kept from ``omni_to_diff`` so existing keyword callers still work.
         w_max (float): Maximum angular velocity.
         guarantee_time (float): Time to guarantee velocity.
         tolerance (float): Angular tolerance.
@@ -450,9 +499,9 @@ def omni_to_diff(
     return np.array([[v], [w]])
 
 
-def diff_to_omni(state_ori: float, vel_diff: np.ndarray) -> np.ndarray:
+def vel_diff2world(state_ori: float, vel_diff: np.ndarray) -> np.ndarray:
     """
-    Convert differential velocity to omnidirectional velocity.
+    Convert a differential command to a world-frame velocity.
 
     Args:
         state_ori (float): Orientation angle.
@@ -1061,3 +1110,8 @@ def check_unknown_kwargs(
         if logger:
             logger.warning(msg)
     return messages
+
+
+# Previous names, kept so existing code keeps working.
+omni_to_diff = vel_world2diff
+diff_to_omni = vel_diff2world

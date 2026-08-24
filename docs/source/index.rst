@@ -232,6 +232,12 @@ Projects using IR-SIM
         * `rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_ - Reinforcement learning-based RVO behavior for multi-robot navigation.
         * `RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_ - Accelerated collision-free motion planner for cluttered environments.
         * `NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_ - Direct point robot navigation with end-to-end model-based learning.
+        * `MfNeuPAN (ROBIO 2025) <https://doi.org/10.1109/ROBIO66223.2025.11377233>`_ - Proactive end-to-end navigation in dynamic environments using direct multi-frame point constraints.
+        * `SDLW (IROS 2026) <https://github.com/williamleong/sdlw>`_ - Decentralized scalable exploration using sensor-driven Lévy walks for minimal-sensing robot teams.
+        * `PPO-GAT-Follow (Sensors 2026) <https://doi.org/10.3390/s26154711>`_ - Graph-attention reinforcement learning for robot person following in dense crowds.
+        * `Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large IoT Networks (TWC 2026) <https://doi.org/10.1109/TWC.2026.3683911>`_ - Federated edge learning validated through autonomous navigation and collision avoidance in IR-SIM.
+
+        If your publication uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
 
     .. grid-item-card:: Community Projects
         :shadow: md
@@ -239,6 +245,7 @@ Projects using IR-SIM
         * `DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM>`_ - Deep reinforcement learning for robot navigation.
         * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - Autonomous navigation using reinforcement learning.
         * `IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
+        * `EdgeVox <https://github.com/nrl-ai/edgevox>`_ - Offline voice-agent framework with an IR-SIM mobile-navigation backend.
 
 Citation
 ========

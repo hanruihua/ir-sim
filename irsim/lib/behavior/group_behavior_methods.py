@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from irsim.lib.behavior.behavior_registry import register_group_behavior_class
-from irsim.util.util import omni_to_diff, relative_position
+from irsim.util.util import relative_position, vel_world2diff, vel_world2omni
 from irsim.world.object_base import ObjectBase
 
 
@@ -29,9 +29,10 @@ class OrcaGroupBehavior:
     """
     Class-based ORCA group behavior with one-time initialization.
 
-    ORCA plans a collision-free holonomic velocity ``(vx, vy)`` for every
-    member. ``omni`` members use it directly; ``diff`` members map it to a
-    ``(linear, angular)`` command via :func:`omni_to_diff`.
+    ORCA plans a collision-free holonomic velocity ``(vx, vy)`` in the world
+    frame for every member. ``omni`` members have it rotated into their body
+    frame; ``diff`` members map it to a ``(linear, angular)`` command via
+    :func:`vel_world2diff`.
     """
 
     def __init__(
@@ -117,16 +118,22 @@ class OrcaGroupBehavior:
     def _to_action(self, member: ObjectBase, vel_xy: tuple[float, float]) -> np.ndarray:
         """Convert an ORCA world-frame velocity into a member control input.
 
-        ``omni`` members consume ``(vx, vy)`` directly; ``diff`` members get the
-        holonomic velocity mapped to ``(linear, angular)``.
+        ``diff`` members get the holonomic velocity mapped to ``(linear,
+        angular)``; every other model converts it through its own kinematics,
+        which for ``omni`` means rotating it into the body frame the model is
+        commanded in.
         """
         if self._kinematics == "diff":
-            return omni_to_diff(
+            return vel_world2diff(
                 member.state[2, 0],
                 [vel_xy[0], vel_xy[1]],
                 w_max=float(member.vel_max[1, 0]),
                 guarantee_time=member._world_param.step_time,
             )
+
+        if self._kinematics == "omni":
+            return vel_world2omni(member.state[2, 0], [vel_xy[0], vel_xy[1]])
+
         return np.c_[list(vel_xy)]
 
     def __call__(self, members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:

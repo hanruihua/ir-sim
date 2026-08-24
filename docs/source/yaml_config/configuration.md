@@ -953,6 +953,14 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 - **`omni`**: Omnidirectional, controlled by body-frame forward and lateral speed (`[forward, lateral]`)
 - **`omni_angular`**: Omnidirectional with angular control, controlled by body-frame speeds and yaw rate (`[forward, lateral, yaw_rate]`)
 - **`acker`**: Ackermann steering, controlled by linear speed and steering angle (`[v, phi]`)
+
+Velocity commands are expressed in the robot's own frame, while `[vx, vy]` describes the rigid-body motion in the world frame. A holonomic planner such as RVO, SFM or ORCA plans in the world frame, so its velocity is converted at that boundary. An external controller that plans in the world frame converts the same way:
+
+```python
+env.step(env.robot.vel_world2body(world_vel))
+```
+
+`omni` rotates `[vx, vy]` into `[forward, lateral]`, and `diff` maps it to `[linear, angular]` using the robot's angular limit and the world step time. `acker` and `omni_angular` are commanded directly, and a world-frame translation does not determine their command, so the conversion raises for them.
 ```
 
 (p-o-kinematics)=

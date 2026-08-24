@@ -1517,6 +1517,30 @@ msgstr "**object 运动学**"
 msgid "Kinematics Models"
 msgstr "运动学模型"
 
+#: ../../source/yaml_config/configuration.md:938
+msgid ""
+"Velocity commands are expressed in the robot's own frame, while `[vx, vy]` "
+"describes the rigid-body motion in the world frame. A holonomic planner such "
+"as RVO, SFM or ORCA plans in the world frame, so its velocity is converted "
+"at that boundary. An external controller that plans in the world frame "
+"converts the same way:"
+msgstr ""
+"速度指令在机器人自身坐标系下表示，而 `[vx, vy]` 描述的是世界坐标系下的刚体运"
+"动。RVO、SFM、ORCA 等全向规划器在世界坐标系下求解，因此其速度会在该边界处完成"
+"转换。在世界坐标系下规划的外部控制器同样按此转换："
+
+#: ../../source/yaml_config/configuration.md:944
+msgid ""
+"`omni` rotates `[vx, vy]` into `[forward, lateral]`, and `diff` maps it to "
+"`[linear, angular]` using the robot's angular limit and the world step time. "
+"`acker` and `omni_angular` are commanded directly, and a world-frame "
+"translation does not determine their command, so the conversion raises for "
+"them."
+msgstr ""
+"`omni` 将 `[vx, vy]` 旋转为 `[forward, lateral]`；`diff` 则依据机器人的角速度上"
+"限与世界步长，将其映射为 `[linear, angular]`。`acker` 与 `omni_angular` 由指令"
+"直接控制，世界坐标系下的平移速度无法确定其指令，因此该转换会抛出异常。"
+
 #: ../../source/yaml_config/configuration.md:933
 msgid ""
 "**`diff`**: Differential drive, controlled by linear speed and angular "

@@ -356,6 +356,7 @@ class TestBehFunctionsLineSeparation:
         ego = Mock()
         ego.goal = np.array([[5.0], [5.0]])
         ego.rvo_state = (0.0, 0.0, 0.0, 0.0, 0.3, 1.0, 0.0, 0.0)
+        ego.state = np.zeros((3, 1))
         ego._world_param = Mock()
         ego._world_param.count = 1
         ego.logger = Mock()
