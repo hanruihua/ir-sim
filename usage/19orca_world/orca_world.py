@@ -24,7 +24,7 @@ while True:
         orca.set_agent_position(i, robot.state[:2, 0].tolist())
 
     orca.do_step()
-    # ORCA plans a velocity in the world frame; a robot is commanded in its own.
+    # ORCA plans a velocity in the world frame; a robot is commanded in its own frame.
     action_list = [
         robot.vel_world2body(orca.get_agent_velocity(i).to_tuple())
         for i, robot in enumerate(env.robot_list)

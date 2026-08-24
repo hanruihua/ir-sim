@@ -1531,15 +1531,15 @@ msgstr ""
 
 #: ../../source/yaml_config/configuration.md:944
 msgid ""
-"For `diff` and `acker` the conversion passes the velocity through, since "
-"those models are commanded with a speed rather than a frame-dependent "
-"vector. `omni_angular` is commanded directly with `[forward, lateral, "
-"yaw_rate]`, which a world-frame translation does not determine, so it has no "
-"conversion."
+"`omni` rotates `[vx, vy]` into `[forward, lateral]`, and `diff` maps it to "
+"`[linear, angular]` using the robot's angular limit and the world step time. "
+"`acker` and `omni_angular` are commanded directly, and a world-frame "
+"translation does not determine their command, so the conversion raises for "
+"them."
 msgstr ""
-"对于 `diff` 和 `acker`，该转换直接返回原速度：这两种模型由速度标量控制，而非依"
-"赖坐标系的向量。`omni_angular` 直接由 `[forward, lateral, yaw_rate]` 控制，而世"
-"界坐标系下的平移速度无法确定其偏航角速度，因此不提供该转换。"
+"`omni` 将 `[vx, vy]` 旋转为 `[forward, lateral]`；`diff` 则依据机器人的角速度上"
+"限与世界步长，将其映射为 `[linear, angular]`。`acker` 与 `omni_angular` 由指令"
+"直接控制，世界坐标系下的平移速度无法确定其指令，因此该转换会抛出异常。"
 
 #: ../../source/yaml_config/configuration.md:933
 msgid ""

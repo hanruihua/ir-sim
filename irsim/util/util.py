@@ -402,8 +402,9 @@ def vel_world2omni(state_ori: float, vel_world: np.ndarray) -> np.ndarray:
 
     ``[vx, vy]`` describes the rigid-body motion in the world, which is what
     holonomic planners such as RVO, SFM and ORCA produce, while a robot is
-    commanded in its own frame. For a model whose command carries translation
-    directly - ``omni`` and ``omni_angular`` - this rotation is the conversion;
+    commanded in its own frame. For ``omni`` this rotation is the whole
+    conversion; a model that also steers, such as ``omni_angular``, gets only
+    its translation from here and needs a yaw rate of its own.
     :func:`vel_world2diff` does the equivalent for a differential robot.
 
     Args:
@@ -456,7 +457,8 @@ def vel_world2diff(
 
     Args:
         state_ori (float): Orientation angle.
-        vel_omni (np.array): Omnidirectional velocity [vx, vy] (2x1).
+        vel_omni (np.array): World-frame velocity [vx, vy] (2x1). The name is
+            kept from ``omni_to_diff`` so existing keyword callers still work.
         w_max (float): Maximum angular velocity.
         guarantee_time (float): Time to guarantee velocity.
         tolerance (float): Angular tolerance.

@@ -960,7 +960,7 @@ Velocity commands are expressed in the robot's own frame, while `[vx, vy]` descr
 env.step(env.robot.vel_world2body(world_vel))
 ```
 
-For `diff` and `acker` the conversion passes the velocity through, since those models are commanded with a speed rather than a frame-dependent vector. `omni_angular` is commanded directly with `[forward, lateral, yaw_rate]`, which a world-frame translation does not determine, so it has no conversion.
+`omni` rotates `[vx, vy]` into `[forward, lateral]`, and `diff` maps it to `[linear, angular]` using the robot's angular limit and the world step time. `acker` and `omni_angular` are commanded directly, and a world-frame translation does not determine their command, so the conversion raises for them.
 ```
 
 (p-o-kinematics)=
