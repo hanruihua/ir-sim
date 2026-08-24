@@ -281,6 +281,52 @@ msgstr ""
 "型学习的点云直接驱动机器人导航。"
 
 #: ../../source/index.rst:236
+msgid ""
+"`MfNeuPAN (ROBIO 2025) <https://doi.org/10.1109/ROBIO66223.2025.11377233>`_ "
+"- Proactive end-to-end navigation in dynamic environments using direct multi-"
+"frame point constraints."
+msgstr ""
+"`MfNeuPAN（ROBIO 2025） <https://doi.org/10.1109/ROBIO66223.2025.11377233>`_ "
+"- 基于直接多帧点约束的动态环境前瞻式端到端导航。"
+
+#: ../../source/index.rst:238
+msgid ""
+"`SDLW (IROS 2026) <https://github.com/williamleong/sdlw>`_ - Decentralized "
+"scalable exploration using sensor-driven Lévy walks for minimal-sensing robot "
+"teams."
+msgstr ""
+"`SDLW（IROS 2026） <https://github.com/williamleong/sdlw>`_ - 面向最小感知机"
+"器人团队的基于传感器驱动列维游走的分布式可扩展探索。"
+
+#: ../../source/index.rst:238
+msgid ""
+"`PPO-GAT-Follow (Sensors 2026) <https://doi.org/10.3390/s26154711>`_ - "
+"Graph-attention reinforcement learning for robot person following in dense "
+"crowds."
+msgstr ""
+"`PPO-GAT-Follow（Sensors 2026） <https://doi.org/10.3390/s26154711>`_ - 面"
+"向密集人群中机器人跟随任务的图注意力强化学习方法。"
+
+#: ../../source/index.rst:239
+msgid ""
+"`Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large "
+"IoT Networks (TWC 2026) <https://doi.org/10.1109/TWC.2026.3683911>`_ - "
+"Federated edge learning validated through autonomous navigation and collision "
+"avoidance in IR-SIM."
+msgstr ""
+"`面向大规模物联网小规模数据集的节能联邦边缘学习（TWC 2026） <https://doi.org/"
+"10.1109/TWC.2026.3683911>`_ - 通过 IR-SIM 中的自主导航与避障验证联邦边缘"
+"学习方法。"
+
+#: ../../source/index.rst:240
+msgid ""
+"If your publication uses IR-SIM, we welcome you to propose it for inclusion "
+"via an issue or pull request."
+msgstr ""
+"如果您的论文使用了 IR-SIM，欢迎通过 issue 或 pull request 提交收录"
+"建议。"
+
+#: ../../source/index.rst:236
 msgid "Community Projects"
 msgstr "社区项目"
 
@@ -309,6 +355,14 @@ msgstr ""
 "`IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - 一座"
 "闭环桥梁，将三维高斯泼溅（3D Gaussian Splatting）场景接入 IR-SIM 进行规划与跟"
 "随，再返回 Habitat-GS 进行轨迹回放。"
+
+#: ../../source/index.rst:242
+msgid ""
+"`EdgeVox <https://github.com/nrl-ai/edgevox>`_ - Offline voice-agent framework "
+"with an IR-SIM mobile-navigation backend."
+msgstr ""
+"`EdgeVox <https://github.com/nrl-ai/edgevox>`_ - 以 IR-SIM 移动导航后端为基础的"
+"离线语音智能体框架。"
 
 #: ../../source/index.rst:244
 msgid "Citation"

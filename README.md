@@ -164,12 +164,19 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 - **[RAL & ICRA 2023]** [rl-rvo-nav](https://github.com/hanruihua/rl_rvo_nav) -- Reinforcement learning-based RVO behavior for multi-robot navigation.
 - **[RAL & IROS 2023]** [RDA_planner](https://github.com/hanruihua/RDA_planner) -- Accelerated collision-free motion planner for cluttered environments.
 - **[T-RO 2025]** [NeuPAN](https://github.com/hanruihua/NeuPAN) -- Direct point robot navigation with end-to-end model-based learning.
+- **[ROBIO 2025]** [MfNeuPAN](https://doi.org/10.1109/ROBIO66223.2025.11377233) -- Proactive end-to-end navigation in dynamic environments using direct multi-frame point constraints.
+- **[IROS 2026]** [SDLW](https://github.com/williamleong/sdlw) -- Decentralized scalable exploration using sensor-driven Lévy walks for minimal-sensing robot teams.
+- **[Sensors 2026]** [PPO-GAT-Follow](https://doi.org/10.3390/s26154711) -- Graph-attention reinforcement learning for robot person following in dense crowds.
+- **[TWC 2026]** [Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large IoT Networks](https://doi.org/10.1109/TWC.2026.3683911)
 
 ### Community Projects
 
 - [DRL-robot-navigation-IR-SIM](https://github.com/reiniscimurs/DRL-robot-navigation-IR-SIM) -- Deep reinforcement learning for robot navigation.
 - [AutoNavRL](https://github.com/harshmahesheka/AutoNavRL) -- Autonomous navigation using reinforcement learning.
 - [IRSIM-3DGS-Bridge](https://github.com/Wayneyujie/IRSIM-3DGS-Bridge) -- A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
+- [EdgeVox](https://github.com/nrl-ai/edgevox) -- Offline voice-agent framework with an IR-SIM mobile-navigation backend.
+
+*If your publication or project use IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.*
 
 ## Citation
 
