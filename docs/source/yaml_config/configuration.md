@@ -6,7 +6,7 @@ The configuration file is a YAML file to initialize the environment. It contains
 
 ## Configuration Overview
 
-A complete IR-SIM scene is described by up to four top-level keys: `world`, `robot`, `obstacle`, and `gui`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `unset`. Click a section's **full docs ›** link to jump to the detailed description.
+A complete IR-SIM scene is described by up to five top-level keys: `world`, `robot`, `obstacle`, `gui`, and `custom`. **`robot` and `obstacle` accept the same per-object keys**, while factory defaults can differ by object type and kinematics, such as `role`, color, state dimension, and image description. Expand the interactive tree below to explore every key with its type and default; every key is optional unless its default is `unset`. Click a section's **full docs ›** link to jump to the detailed description.
 
 In a combined configuration for multiple simulators, these keys may be nested under an optional top-level `irsim` mapping. IR-SIM reads and validates that mapping while leaving sibling simulator sections untouched. The filename passed to `irsim.make()` and used by `env.reload()` does not change.
 
@@ -1628,6 +1628,40 @@ Notes:
 :::::
 
 ---
+
+## Custom Configuration
+
+(custom-parameters)=
+### Custom Parameters
+
+`custom` is read from the YAML and handed back untouched. IR-SIM never interprets it, so a scenario can carry the values its own code needs - tolerances, planner weights, anything - beside the ones the simulator reads, and both are edited in the same file.
+
+```yaml
+world:
+  height: 20
+  width: 20
+  step_time: 0.1
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.35}
+
+custom:
+  safe_margin: 0.15
+  planner: {horizon: 20, weights: [1.0, 0.5]}
+```
+
+Read it through {py:attr}`~irsim.env.env_base.EnvBase.config`, which returns every parsed section, so a value defined next to the robot radius is available without opening the file again:
+
+```python
+env = irsim.make("world.yaml")
+
+margin = env.config["custom"]["safe_margin"] + env.robot.radius
+horizon = env.config["custom"]["planner"]["horizon"]
+step_time = env.config["world"]["step_time"]
+```
+
+Nothing inside `custom` is validated, nesting is free, and the section defaults to `{}` when the scenario omits it. `env.reload()` re-reads it with the rest of the file.
 
 ## Configuration Examples
 

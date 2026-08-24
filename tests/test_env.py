@@ -1908,6 +1908,66 @@ class TestEnvConfigNamespace:
             EnvConfig(str(yaml_file))
 
 
+class TestCustomConfigSection:
+    """A scenario can carry values IR-SIM stores but never interprets."""
+
+    def test_custom_section_is_returned_as_written(self, tmp_path, env_factory):
+        """Nested custom values come back through env.config, unchanged."""
+        yaml_file = tmp_path / "custom.yaml"
+        yaml_file.write_text(
+            "world: {height: 20, width: 20, step_time: 0.1}\n"
+            "robot: []\n"
+            "custom:\n"
+            "  safe_margin: 0.15\n"
+            "  planner: {horizon: 20, weights: [1.0, 0.5]}\n"
+        )
+
+        env = env_factory(str(yaml_file))
+
+        assert env.config["custom"]["safe_margin"] == 0.15
+        assert env.config["custom"]["planner"] == {"horizon": 20, "weights": [1.0, 0.5]}
+        # the interpreted sections stay readable from the same place
+        assert env.config["world"]["step_time"] == 0.1
+
+    def test_custom_section_defaults_to_empty(self, tmp_path, env_factory):
+        """A scenario without the section still has somewhere to look."""
+        yaml_file = tmp_path / "plain.yaml"
+        yaml_file.write_text("world: {height: 20, width: 20}\nrobot: []\n")
+
+        env = env_factory(str(yaml_file))
+
+        assert env.config["custom"] == {}
+
+    def test_custom_section_is_reparsed_on_reload(self, tmp_path, env_factory):
+        """Reload re-reads the file, so custom values follow the YAML."""
+        yaml_file = tmp_path / "live.yaml"
+        yaml_file.write_text(
+            "world: {height: 20, width: 20}\nrobot: []\ncustom: {margin: 0.1}\n"
+        )
+        env = env_factory(str(yaml_file))
+        assert env.config["custom"]["margin"] == 0.1
+
+        yaml_file.write_text(
+            "world: {height: 20, width: 20}\nrobot: []\ncustom: {margin: 0.9}\n"
+        )
+        env.reload()
+
+        assert env.config["custom"]["margin"] == 0.9
+
+    def test_custom_section_is_not_validated(self, tmp_path, env_factory):
+        """Whatever the section holds is the scenario's business, not IR-SIM's."""
+        yaml_file = tmp_path / "free.yaml"
+        yaml_file.write_text(
+            "world: {height: 20, width: 20}\nrobot: []\n"
+            "custom:\n  wrold: 1\n  anything: [{deep: {nested: true}}]\n"
+        )
+
+        env = env_factory(str(yaml_file))
+
+        assert env.config["custom"]["wrold"] == 1
+        assert env.config["custom"]["anything"][0]["deep"]["nested"] is True
+
+
 class TestEnvConfigInvalidKey:
     """EnvConfig.load_yaml reports invalid legacy top-level YAML keys."""
 
