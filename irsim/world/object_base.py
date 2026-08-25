@@ -277,7 +277,35 @@ class ObjectBase:
         self.description = description
         self.color = color
 
-        # --- 2. Geometry & kinematics handlers ---
+        # --- 2-4. Handlers, and the dimensions and limits derived from them ---
+        self._init_handlers(shape, kinematics, role)
+        action_dim = self._init_dimensions(state_dim, vel_dim)
+        acce, vel_max, vel_min, angle_range = self._resolve_limits(
+            acce, vel_max, vel_min, angle_range
+        )
+
+        # --- 5-7. Motion state, goal, and geometry ---
+        self._init_motion_state(state, velocity, vel_min, vel_max, static, action_dim)
+        self._init_goal(goal, goal_threshold, arrive_mode)
+        self._init_geometry()
+
+        # --- 8. ObjectInfo ---
+        self._init_info(role, color, static, goal, acce, angle_range, goal_threshold)
+
+        # --- 9-10. Sensors and behavior ---
+        self._init_sensors(sensors, fov, fov_radius)
+        self._init_behavior(behavior, group_behavior)
+
+        # --- 11-12. Runtime flags and plot state ---
+        self._init_runtime_state(unobstructed, kwargs)
+
+        # --- 13. Validate kwargs ---
+        check_unknown_kwargs(kwargs, self._VALID_PARAMS, context=f" in '{role}' config")
+
+    def _init_handlers(
+        self, shape: dict | None, kinematics: dict | None, role: str
+    ) -> None:
+        """Create the geometry and kinematics handlers and their collision cone."""
         if shape is None:
             self.logger.warning(
                 f"No shape provided for object {self._id}, using default circle"
@@ -298,7 +326,8 @@ class ObjectBase:
         else:
             self.G, self.h, self.cone_type, self.convex_flag = None, None, None, None
 
-        # --- 3. Dimensions (derived from handlers) ---
+    def _init_dimensions(self, state_dim: int | None, vel_dim: int | None) -> int:
+        """Set the state and velocity shapes, and return the kinematics action dim."""
         action_dim = self.kf.action_dim if self.kf else 2
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
@@ -307,7 +336,21 @@ class ObjectBase:
         self.vel_dim = vel_dim if vel_dim is not None else action_dim
         self.vel_shape = (self.vel_dim, 1)
 
-        # --- 4. Resolve defaults from kf ---
+        return action_dim
+
+    def _resolve_limits(
+        self,
+        acce: list | None,
+        vel_max: list | None,
+        vel_min: list | None,
+        angle_range: list | None,
+    ) -> tuple[list, list, list, list]:
+        """Fill in acceleration, velocity, and angle limits left unset by the config.
+
+        The kinematics model supplies the defaults when there is one; otherwise
+        the object is treated as unconstrained in acceleration and unit-limited
+        in velocity.
+        """
         if angle_range is None:
             angle_range = [-pi, pi]
 
@@ -320,7 +363,18 @@ class ObjectBase:
             vel_max = vel_max or [1, 1]
             vel_min = vel_min or [-1, -1]
 
-        # --- 5. State & velocity ---
+        return acce, vel_max, vel_min, angle_range
+
+    def _init_motion_state(
+        self,
+        state: list | None,
+        velocity: list | None,
+        vel_min: list,
+        vel_max: list,
+        static: bool,
+        action_dim: int,
+    ) -> None:
+        """Set the current and initial state, velocity, and velocity limits."""
         if state is None:
             state = [0, 0, 0]
         if velocity is None:
@@ -337,7 +391,10 @@ class ObjectBase:
         self.vel_max = np.c_[vel_max]
         self.static = static if self.kf is not None else True
 
-        # --- 6. Goal ---
+    def _init_goal(
+        self, goal: list | None, goal_threshold: float, arrive_mode: str
+    ) -> None:
+        """Store the goal queue, its footprint, and how arrival is judged."""
         self._goal = (
             deque(goal)
             if goal is not None and is_2d_list(goal)
@@ -357,13 +414,24 @@ class ObjectBase:
         self.goal_threshold = goal_threshold
         self.arrive_mode = arrive_mode
 
-        # --- 7. Geometry instance ---
+    def _init_geometry(self) -> None:
+        """Place the geometry at the current state and record its validity."""
         self._geometry = self.gf.step(self.state) if self.gf is not None else None
         self._geometry_valid = (
             shapely.is_valid(self._geometry) if self._geometry is not None else False
         )
 
-        # --- 8. ObjectInfo ---
+    def _init_info(
+        self,
+        role: str,
+        color: str,
+        static: bool,
+        goal: list | None,
+        acce: list,
+        angle_range: list,
+        goal_threshold: float,
+    ) -> None:
+        """Bundle the values behaviors and plots read into an ObjectInfo."""
         self.info = ObjectInfo(
             self._id,
             self.shape,
@@ -387,7 +455,10 @@ class ObjectBase:
         self.obstacle_info = None
         self.trajectory = []
 
-        # --- 9. Sensors ---
+    def _init_sensors(
+        self, sensors: dict | None, fov: float | None, fov_radius: float | None
+    ) -> None:
+        """Create the configured sensors and the field of view they imply."""
         sf = SensorFactory()
         self.lidar = None
         if sensors is not None:
@@ -418,7 +489,10 @@ class ObjectBase:
             self.fov = WrapTo2Pi(fov)
             self.fov_radius = fov_radius
 
-        # --- 10. Behavior ---
+    def _init_behavior(
+        self, behavior: dict | None, group_behavior: dict | None
+    ) -> None:
+        """Set up the behavior handlers and the goal sampling they may need."""
         self.obj_behavior = Behavior(self.info, behavior)
         self.group_behavior_dict = group_behavior if group_behavior is not None else {}
 
@@ -437,13 +511,13 @@ class ObjectBase:
         if self.wander:
             self._goal = deque([random_point_range(self.rl, self.rh)])
 
-        # --- 11. Flags ---
+    def _init_runtime_state(self, unobstructed: bool, kwargs: dict) -> None:
+        """Initialize the per-step flags and the plotting state."""
         self.stop_flag = False
         self.arrive_flag = False
         self.collision_flag = False
         self.unobstructed = unobstructed
 
-        # --- 12. Plot state ---
         self.plot_kwargs = kwargs.get("plot", {})
         self.plot_patch_list = []
         self.plot_line_list = []
@@ -453,9 +527,6 @@ class ObjectBase:
         self.collision_obj = []
         self.plot_trail_list = []
         self._object_plot = ObjectPlot(self)
-
-        # --- 13. Validate kwargs ---
-        check_unknown_kwargs(kwargs, self._VALID_PARAMS, context=f" in '{role}' config")
 
     def __eq__(self, o: "ObjectBase") -> bool:
         if isinstance(o, ObjectBase):

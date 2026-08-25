@@ -21,7 +21,6 @@ References
 
 from __future__ import annotations
 
-import contextlib
 import itertools
 import math
 from dataclasses import dataclass
@@ -30,7 +29,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from irsim.lib.handler.geometry_handler import GeometryFactory
-from irsim.world.map import EnvGridMap
+from irsim.lib.path_planners.grid_planner_base import GridPlannerBase
 
 # Type alias: ((jx, jy, dx, dy), cost) for each jump successor
 JpsSuccessor = tuple[tuple[int, int, int, int], float]
@@ -128,46 +127,13 @@ def _dir_id(dx: int, dy: int) -> int:
     return (dx + 1) + 3 * (dy + 1)
 
 
-class JPSPlanner:
+class JPSPlanner(GridPlannerBase):
     """Jump Point Search planner for uniform-cost 8-connected grids.
 
     When the environment map carries an occupancy grid (``env_map.grid``),
     collision checks use a fast O(1) grid lookup.  Otherwise, the planner
     falls back to Shapely geometry intersection (same as :class:`AStarPlanner`).
     """
-
-    def __init__(self, env_map: EnvGridMap) -> None:
-        """
-        Initialize JPS planner.
-
-        Args:
-            env_map: Environment map (any :class:`~irsim.world.map.EnvGridMap`
-                compatible object).  Resolution and bounds are taken from the
-                map (same as :class:`AStarPlanner`).
-        """
-        self._map = env_map
-        off = np.asarray(env_map.world_offset, dtype=float).flatten()
-        self.origin_x = float(off[0])
-        self.origin_y = float(off[1])
-        self.min_x, self.min_y = 0, 0  # grid indices are 0-based
-        self.max_x = self.origin_x + env_map.width
-        self.max_y = self.origin_y + env_map.height
-        # When map has a grid, use its actual resolution and shape so planner grid
-        # matches collision lookups (avoids "Open set is empty" on resolution mismatch).
-        grid = getattr(env_map, "grid", None)
-        gr = None
-        if grid is not None and hasattr(env_map, "grid_resolution"):
-            with contextlib.suppress(Exception):
-                gr = env_map.grid_resolution
-        if grid is not None and gr is not None:
-            self.resolution = gr[0]  # m/cell; assume square cells (gr[0]==gr[1])
-            self.x_width = grid.shape[0]
-            self.y_width = grid.shape[1]
-        else:
-            self.resolution = env_map.resolution
-            self.x_width = round((self.max_x - self.origin_x) / self.resolution)
-            self.y_width = round((self.max_y - self.origin_y) / self.resolution)
-        self.obstacle_list = env_map.obstacle_list[:]
 
     def planning(
         self,

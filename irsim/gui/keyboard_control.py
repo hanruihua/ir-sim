@@ -39,7 +39,8 @@ class KeyboardControl:
     Control mode gating:
         - Robot control keys (w/s/a/d, q/e, z/c, alt+number) only take effect when
           ``world_param.control_mode == "keyboard"``.
-        - Environment keys (space to pause/resume, r to reset, esc to quit) are always active.
+        - Environment keys (space to pause/resume, r to reset, esc to quit) are active
+          in either control mode, and are ignored when no ``env_ref`` was given.
 
     Key mappings (both backends):
         - w/s: Increase/decrease linear velocity (forward/backward)
@@ -66,7 +67,9 @@ class KeyboardControl:
         Initialize keyboard control for the environment.
 
         Args:
-            env_ref: Reference to the environment instance. Used for pause/resume and reset.
+            env_ref: Reference to the environment instance, used by the command
+                keys - reset, pause/resume, reload, debug, save figure, display
+                and quit. Those keys are ignored when it is omitted.
             keyboard_kwargs (dict): Optional settings for keyboard control.
 
                 - key_lv_max (float): Maximum linear velocity. Default is 3.0.
@@ -162,14 +165,6 @@ class KeyboardControl:
 
             headers = ["Key", "Function"]
             print(self._format_grid_table(headers, commands))
-        # else:
-        #     commands = [
-        #         ["r", "reset the environment"],
-        #         ["space", "pause/resume the environment"],
-        #         ["esc", "quit the environment"],
-        #         ["x", "switch keyboard control and auto control"],
-        #         ["l", "reload the environment"],
-        #     ]
 
         if self.backend == "pynput" and not _PYNPUT_AVAILABLE:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
@@ -220,6 +215,148 @@ class KeyboardControl:
                 "key_release_event", self._on_mpl_release
             )
 
+    # ------------------------------------------------------------------
+    # Shared key actions (both backends)
+    # ------------------------------------------------------------------
+
+    def _select_robot_id(self, digit: str) -> None:
+        """Point keyboard control at the robot with the given id."""
+        target = int(digit)
+        if self.env_ref and target >= self.env_ref.robot_number:
+            self.logger.warning(
+                f"{target} over the maximum id: {self.env_ref.robot_number - 1}"
+            )
+        else:
+            self.logger.info(f"Current control id: {target}")
+        self.key_id = target
+
+    def _press_motion_key(self, key: str) -> None:
+        """Apply the velocity a motion key commands while it is held."""
+        if key == "w":
+            self.key_lv = self.key_lv_max
+        elif key == "s":
+            self.key_lv = -self.key_lv_max
+        elif key == "a":
+            self.key_ang = self.key_ang_max
+        elif key == "d":
+            self.key_ang = -self.key_ang_max
+        elif key == "q":
+            self.key_rot = self.key_ang_max
+        elif key == "e":
+            self.key_rot = -self.key_ang_max
+
+    def _release_motion_key(self, key: str) -> None:
+        """Stop the motion a released key was commanding."""
+        if key in ("w", "s"):
+            self.key_lv = 0
+        elif key in ("a", "d"):
+            self.key_ang = 0
+        elif key in ("q", "e"):
+            self.key_rot = 0
+
+    def _adjust_speed_limit(self, key: str, shift: bool) -> None:
+        """Step the linear (with shift) or angular speed limit by 0.2."""
+        if key not in ("z", "c"):
+            return
+
+        step = -0.2 if key == "z" else 0.2
+        if shift:
+            self.key_lv_max = self.key_lv_max + step
+            self.logger.info(f"current linear velocity: {self.key_lv_max}")
+        else:
+            self.key_ang_max = self.key_ang_max + step
+            self.logger.info(f"current angular velocity: {self.key_ang_max}")
+
+    def _update_key_vel(self) -> None:
+        """Publish the current keyboard velocity command."""
+        self.key_vel = np.array([[self.key_lv], [self.key_ang], [self.key_rot]])
+
+    def _reset_env(self) -> None:
+        """Ask the environment to reset on its next step."""
+        self.logger.info("reset the environment")
+        if self.env_ref is not None:
+            self.env_ref.reset_flag = True
+        else:
+            self.logger.warning("Environment reference not set. Cannot reset.")
+
+    def _toggle_pause(self) -> None:
+        """Pause a running environment, or resume a paused one."""
+        if "Pause" not in self.env_ref.status:
+            self.logger.info("pause the environment")
+            self.env_ref.pause()
+        else:
+            self.logger.info("resume the environment")
+            self.env_ref.resume()
+
+    def _step_debug(self) -> None:
+        """Enter single-step debug mode, or advance it by one step."""
+        if not self.env_ref.debug_flag:
+            self.env_ref.debug_flag = True
+            self.env_ref.debug_count = self._world_param.count
+            self.env_ref.pause_flag = False
+        else:
+            self.env_ref.debug_count += 1
+
+    def _save_figure(self) -> None:
+        """Ask the environment to save the current figure."""
+        self.logger.info("save the figure")
+        self.env_ref.save_figure_flag = True
+
+    def _reload_env(self) -> None:
+        """Ask the environment to reload its YAML configuration."""
+        self.env_ref.reload_flag = True
+        self.logger.info("reload the environment")
+
+    def _toggle_display(self) -> None:
+        """Turn rendering of the environment on or off."""
+        self.env_ref.display = not self.env_ref.display
+        state = "on" if self.env_ref.display else "off"
+        self.logger.info(f"toggle display: {state}")
+
+    def _quit_env(self) -> None:
+        """Ask the environment to quit."""
+        self.env_ref.quit_flag = True
+
+    def _toggle_control_mode(self) -> None:
+        """Switch between keyboard and automatic control, and log the new mode."""
+        if self._world_param.control_mode == "keyboard":
+            self._world_param.control_mode = "auto"
+            self.logger.info("switch to auto control")
+        else:
+            self._world_param.control_mode = "keyboard"
+            self.logger.info("switch to keyboard control")
+
+    def _run_command_key(self, key: str) -> None:
+        """Run the environment command bound to a released key, if any.
+
+        A command that acts on the environment is ignored when the control was
+        built without a reference to one.
+        """
+        commands = {
+            "r": self._reset_env,
+            "space": self._toggle_pause,
+            "x": self._toggle_control_mode,
+            "l": self._reload_env,
+            "f5": self._step_debug,
+            "v": self._save_figure,
+            "y": self._toggle_display,
+            "escape": self._quit_env,
+        }
+        command = commands.get(key)
+        if command is None:
+            return
+
+        # Every command but the control-mode switch acts on the environment.
+        if self.env_ref is None and command != self._toggle_control_mode:
+            self.logger.warning(f"Environment reference not set. Ignoring '{key}'.")
+            return
+
+        command()
+
+    # ------------------------------------------------------------------
+    # pynput key event handlers (backend = 'pynput')
+    # ------------------------------------------------------------------
+
     def _on_pynput_press(self, key: Any) -> None:
         """
         Handle key press events (pynput backend).
@@ -244,29 +381,10 @@ class KeyboardControl:
         try:
             if self._world_param.control_mode == "keyboard":
                 if key.char.isdigit() and self.alt_flag:
-                    if self.env_ref and int(key.char) >= self.env_ref.robot_number:
-                        self.logger.warning(
-                            f"{int(key.char)} over the maximum id: {self.env_ref.robot_number - 1}"
-                        )
-                        self.key_id = int(key.char)
-                    else:
-                        self.logger.info(f"Current control id: {int(key.char)}")
-                        self.key_id = int(key.char)
+                    self._select_robot_id(key.char)
 
-                if key.char == "w":
-                    self.key_lv = self.key_lv_max
-                if key.char == "s":
-                    self.key_lv = -self.key_lv_max
-                if key.char == "a":
-                    self.key_ang = self.key_ang_max
-                if key.char == "d":
-                    self.key_ang = -self.key_ang_max
-                if key.char == "q":
-                    self.key_rot = self.key_ang_max
-                if key.char == "e":
-                    self.key_rot = -self.key_ang_max
-
-                self.key_vel = np.array([[self.key_lv], [self.key_ang], [self.key_rot]])
+                self._press_motion_key(key.char)
+                self._update_key_vel()
 
         except AttributeError:
             # Handle other special keys that don't have char attribute
@@ -285,89 +403,39 @@ class KeyboardControl:
             return
 
         try:
-            if key.char == "w":
-                self.key_lv = 0
-            if key.char == "s":
-                self.key_lv = 0
-            if key.char == "a":
-                self.key_ang = 0
-            if key.char == "d":
-                self.key_ang = 0
-            if key.char == "q":
-                self.key_rot = 0
-            if key.char == "e":
-                self.key_rot = 0
+            # Keys are matched as typed here: 'Z'/'C' carry the shift variant.
+            char = key.char or ""
+            if self._world_param.control_mode == "keyboard":
+                self._release_motion_key(char)
+                self._adjust_speed_limit(char.lower(), char.isupper())
 
-            if key.char == "z":
-                self.key_ang_max = self.key_ang_max - 0.2
-                self.logger.info(f"current angular velocity: {self.key_ang_max}")
-            if key.char == "c":
-                self.key_ang_max = self.key_ang_max + 0.2
-                self.logger.info(f"current angular velocity: {self.key_ang_max}")
-            if key.char == "Z":
-                self.key_lv_max = self.key_lv_max - 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
-            if key.char == "C":
-                self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
-
-            if key.char == "r":
-                self.logger.info("reset the environment")
-                if self.env_ref is not None:
-                    self.env_ref.reset_flag = True
-                else:
-                    self.logger.warning("Environment reference not set. Cannot reset.")
-
-            # Switch control mode with 'x'
-            if key.char == "x":
-                if self._world_param.control_mode == "keyboard":
-                    self._world_param.control_mode = "auto"
-                    self.logger.info("switch to auto control")
-                else:
-                    self._world_param.control_mode = "keyboard"
-                    self.logger.info("switch to keyboard control")
-
-            if key.char == "v":
-                self.logger.info("save the figure")
-                self.env_ref.save_figure_flag = True
-
-            if key.char == "l":
-                self.env_ref.reload_flag = True
-                self.logger.info("reload the environment")
-
-            if key.char == "y":
-                self.env_ref.display = not self.env_ref.display
-                state = "on" if self.env_ref.display else "off"
-                self.logger.info(f"toggle display: {state}")
-
-            self.key_vel = np.array([[self.key_lv], [self.key_ang], [self.key_rot]])
+            self._run_command_key(char)
+            self._update_key_vel()
 
         except AttributeError:
-            if "alt" in key.name:
-                self.alt_flag = False
+            self._on_pynput_special_release(key)
 
-            if keyboard is not None and key == keyboard.Key.space:
-                if "Pause" not in self.env_ref.status:
-                    self.logger.info("pause the environment")
-                    self.env_ref.pause()
-                else:
-                    self.logger.info("resume the environment")
-                    self.env_ref.resume()
+    def _on_pynput_special_release(self, key: Any) -> None:
+        """Handle release of keys that carry no character (alt, space, F5, ESC)."""
+        if "alt" in key.name:
+            self.alt_flag = False
 
-            # Single-step debug on F5
-            if keyboard is not None and key == keyboard.Key.f5:
-                if not self.env_ref.debug_flag:
-                    self.env_ref.debug_flag = True
-                    self.env_ref.debug_count = self._world_param.count
-                    self.env_ref.pause_flag = False
-                else:
-                    self.env_ref.debug_count += 1
+        if keyboard is None:
+            return
 
-            # Quit environment on ESC
-            if keyboard is not None and key == keyboard.Key.esc:
-                self.env_ref.quit_flag = True
+        # Named after the matplotlib keys so both backends dispatch through
+        # _run_command_key, and share its missing-environment guard.
+        if key == keyboard.Key.space:
+            self._run_command_key("space")
+        elif key == keyboard.Key.f5:
+            self._run_command_key("f5")
+        elif key == keyboard.Key.esc:
+            self._run_command_key("escape")
 
+    # ------------------------------------------------------------------
     # Matplotlib key event handlers (backend = 'mpl')
+    # ------------------------------------------------------------------
+
     def _on_mpl_press(self, event: Any) -> None:
         """
         Handle Matplotlib figure key press events.
@@ -381,33 +449,14 @@ class KeyboardControl:
         self.alt_flag = key.startswith("alt+") or key == "alt"
 
         # Extract base key without modifiers
-        base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
+        base = self._mpl_base_key(key)
 
         if self._world_param.control_mode == "keyboard":
             if base.isdigit() and self.alt_flag:
-                if self.env_ref and int(base) >= self.env_ref.robot_number:
-                    self.logger.warning(
-                        f"{int(base)} over the maximum id: {self.env_ref.robot_number - 1}"
-                    )
-                    self.key_id = int(base)
-                else:
-                    self.logger.info(f"Current control id: {int(base)}")
-                    self.key_id = int(base)
+                self._select_robot_id(base)
 
-            if base == "w":
-                self.key_lv = self.key_lv_max
-            if base == "s":
-                self.key_lv = -self.key_lv_max
-            if base == "a":
-                self.key_ang = self.key_ang_max
-            if base == "d":
-                self.key_ang = -self.key_ang_max
-            if base == "q":
-                self.key_rot = self.key_ang_max
-            if base == "e":
-                self.key_rot = -self.key_ang_max
-
-            self.key_vel = np.array([[self.key_lv], [self.key_ang], [self.key_rot]])
+            self._press_motion_key(base)
+            self._update_key_vel()
 
     def _on_mpl_release(self, event: Any) -> None:
         """
@@ -418,85 +467,24 @@ class KeyboardControl:
         """
         key = (event.key or "").lower()
         has_shift = "shift+" in key
-        base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
+        base = self._mpl_base_key(key)
 
         if self._world_param.control_mode == "keyboard":
-            if base == "w":
-                self.key_lv = 0
-            if base == "s":
-                self.key_lv = 0
-            if base == "a":
-                self.key_ang = 0
-            if base == "d":
-                self.key_ang = 0
-            if base == "q":
-                self.key_rot = 0
-            if base == "e":
-                self.key_rot = 0
-            if base == "z" and has_shift:
-                self.key_lv_max = self.key_lv_max - 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
-            elif base == "z":
-                self.key_ang_max = self.key_ang_max - 0.2
-                self.logger.info(f"current angular velocity: {self.key_ang_max}")
-            if base == "c" and has_shift:
-                self.key_lv_max = self.key_lv_max + 0.2
-                self.logger.info(f"current linear velocity: {self.key_lv_max}")
-            elif base == "c":
-                self.key_ang_max = self.key_ang_max + 0.2
-                self.logger.info(f"current angular velocity: {self.key_ang_max}")
+            self._release_motion_key(base)
+            self._adjust_speed_limit(base, has_shift)
 
-        if base == "r":
-            self.logger.info("reset the environment")
-            if self.env_ref is not None:
-                self.env_ref.reset_flag = True
-            else:
-                self.logger.warning("Environment reference not set. Cannot reset.")
+        self._run_command_key(base)
+        self._update_key_vel()
 
-        if base in ("space", " "):
-            if "Pause" not in self.env_ref.status:
-                self.logger.info("pause the environment")
-                self.env_ref.pause()
-            else:
-                self.logger.info("resume the environment")
-                self.env_ref.resume()
-
-        # Switch control mode with 'x'
-        if base == "x":
-            if self._world_param.control_mode == "keyboard":
-                self._world_param.control_mode = "auto"
-                self.logger.info("switch to auto control")
-            else:
-                self._world_param.control_mode = "keyboard"
-                self.logger.info("switch to keyboard control")
-
-        if base == "l":
-            self.env_ref.reload_flag = True
-            self.logger.info("reload the environment")
-
-        # Single-step debug on F5
-        if base == "f5":
-            if not self.env_ref.debug_flag:
-                self.env_ref.debug_flag = True
-                self.env_ref.debug_count = self._world_param.count
-                self.env_ref.pause_flag = False
-            else:
-                self.env_ref.debug_count += 1
-
-        if base == "v":
-            self.logger.info("save the figure")
-            self.env_ref.save_figure_flag = True
-
-        if base == "y":
-            self.env_ref.display = not self.env_ref.display
-            state = "on" if self.env_ref.display else "off"
-            self.logger.info(f"toggle display: {state}")
-
-        # Quit environment on ESC/escape
-        if base in ("escape", "esc"):
-            self.env_ref.quit_flag = True
-
-        self.key_vel = np.array([[self.key_lv], [self.key_ang], [self.key_rot]])
+    @staticmethod
+    def _mpl_base_key(key: str) -> str:
+        """Strip modifiers from a Matplotlib key name and normalize its spelling."""
+        base = key.replace("alt+", "").replace("shift+", "").replace("ctrl+", "")
+        if base == " ":
+            return "space"
+        if base == "esc":
+            return "escape"
+        return base
 
     # Minimal grid table formatter to avoid external dependency
     def _format_grid_table(self, headers: list[str], rows: list[list[Any]]) -> str:
@@ -564,8 +552,14 @@ class KeyboardControl:
         Get the environment logger.
 
         Returns:
-            EnvLogger: The logger instance for the environment.
+            EnvLogger: The environment logger, or the default loguru logger
+            when the control runs without an environment to borrow one from.
         """
+        if self._env_param.logger is None:
+            from loguru import logger
+
+            return logger
+
         return self._env_param.logger
 
     # Window focus helpers (used to gate pynput when active_only=True)

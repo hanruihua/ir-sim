@@ -20,8 +20,10 @@ from matplotlib.lines import Line2D
 
 import irsim
 import irsim.env.env_plot as env_plot_module
+from irsim.config import env_param
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
+from irsim.lib.handler.geometry_handler import GeometryFactory
 from irsim.world.object_base import ObjectBase
 from irsim.world.object_plot import ObjectPlotOptions
 
@@ -94,6 +96,53 @@ class TestEnvPlot2D:
     def test_clear_components(self, plot_2d):
         """Test clearing all dynamic components."""
         plot_2d.clear_components("all", [])
+
+    def test_clear_components_removes_dynamic_artists(self, plot_2d):
+        """Lines, points and quivers drawn this step are removed and forgotten."""
+        plot_2d.draw_trajectory(np.array([[0.0, 1.0], [0.0, 1.0]]), refresh=True)
+        plot_2d.draw_points(np.array([[0.0], [1.0]]), refresh=True)
+        plot_2d.draw_quiver(np.array([[0.0], [0.0], [1.0], [1.0]]), refresh=True)
+        assert plot_2d.dyna_line_list
+        assert plot_2d.dyna_point_list
+        assert plot_2d.dyna_quiver_list
+
+        plot_2d.clear_components("dynamic", [])
+
+        assert plot_2d.dyna_line_list == []
+        assert plot_2d.dyna_point_list == []
+        assert plot_2d.dyna_quiver_list == []
+
+    def test_clear_components_reports_invalid_mode(self, plot_2d, monkeypatch):
+        """An unknown mode is reported rather than silently doing nothing."""
+        logger = Mock()
+        monkeypatch.setattr(env_param, "logger", logger)
+
+        plot_2d.clear_components("bogus", [])
+
+        logger.error.assert_called_once()
+
+    def test_static_mode_touches_only_static_objects(self, plot_2d):
+        """Static mode draws and clears the static objects and leaves the rest."""
+
+        class FakeObject:
+            def __init__(self, static):
+                self.static = static
+                self.drawn = self.cleared = 0
+
+            def plot(self, ax, **kwargs):
+                self.drawn += 1
+
+            def plot_clear(self, all=False):
+                self.cleared += 1
+
+        static_obj, moving_obj = FakeObject(True), FakeObject(False)
+        objects = [static_obj, moving_obj]
+
+        plot_2d.draw_components("static", objects)
+        plot_2d.clear_components("static", objects)
+
+        assert (static_obj.drawn, static_obj.cleared) == (1, 1)
+        assert (moving_obj.drawn, moving_obj.cleared) == (0, 0)
 
     def test_set_ax_viewpoint_none_objects(self, dummy_world_2d, dummy_logger):
         """Test set_ax_viewpoint with None objects."""
@@ -265,11 +314,99 @@ class TestDrawPatch:
         ):
             draw_patch(ax_2d, "rectangle", state=state)
 
-    def test_draw_rectangle_partial_params_raises(self, ax_2d):
-        """Test rectangle with width/height but no vertices raises."""
-        state = np.array([[0.0], [0.0], [0.0]])
-        with pytest.raises(TypeError):
-            draw_patch(ax_2d, "rectangle", state=state, width=1.0, height=0.5)
+    def test_draw_rectangle_from_width_height(self, ax_2d):
+        """A width/height rectangle lands where the collision geometry does."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        rect = draw_patch(ax_2d, "rectangle", state=state, width=2.0, height=1.0)
+
+        assert rect is not None
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+        geometry = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0
+        ).step(state)
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
+
+    def test_draw_rectangle_width_height_honors_center(self, ax_2d):
+        """An Ackermann box is offset from the origin, and center reproduces it."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        handler = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0, wheelbase=1.0
+        )
+        geometry = handler.step(state)
+        rect = draw_patch(
+            ax_2d,
+            "rectangle",
+            state=state,
+            width=2.0,
+            height=1.0,
+            center=handler.original_vertices.mean(axis=1),
+        )
+
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
+
+    def test_draw_rectangle_matches_collision_geometry(self, ax_2d):
+        """Body-frame vertices plus the state transform land on the geometry."""
+        state = np.array([[1.0], [2.0], [0.4]])
+        handler = GeometryFactory.create_geometry(
+            name="rectangle", length=2.0, width=1.0, wheelbase=1.0
+        )
+        geometry = handler.step(state)
+        rect = draw_patch(
+            ax_2d, "rectangle", state=state, vertices=handler.original_vertices
+        )
+
+        drawn = ax_2d.transData.inverted().transform(
+            rect.get_transform().transform(rect.get_path().vertices)
+        )
+
+        def ordered(points):
+            points = np.unique(np.round(np.asarray(points, dtype=float), 9), axis=0)
+            return points[np.lexsort((points[:, 1], points[:, 0]))]
+
+        np.testing.assert_allclose(
+            ordered(drawn),
+            ordered(np.asarray(geometry.exterior.coords)[:-1]),
+            atol=1e-9,
+        )
+
+    def test_state_transforms_patches_but_not_lines(self, ax_2d):
+        """The documented frame contract: a patch follows state, a line does not."""
+        state = np.array([[10.0], [20.0], [0.0]])
+        vertices = np.array([[0.0, 1.0, 1.0], [0.0, 0.0, 1.0]])
+
+        polygon = draw_patch(ax_2d, "polygon", state=state, vertices=vertices)
+        line = draw_patch(ax_2d, "linestring", state=state, vertices=vertices)
+
+        drawn = ax_2d.transData.inverted().transform(
+            polygon.get_transform().transform(polygon.get_path().vertices)
+        )
+        np.testing.assert_allclose(drawn[0], [10.0, 20.0], atol=1e-9)
+        np.testing.assert_allclose(
+            np.asarray(line.get_xydata())[0], [0.0, 0.0], atol=1e-9
+        )
 
     def test_draw_polygon(self, ax_2d):
         """Test drawing polygon patch."""
@@ -357,6 +494,19 @@ class TestDrawPatch:
         ls = draw_patch(ax_2d, "linestring", vertices=line_vertices, color="k")
         assert ls is not None
 
+    def test_shape_builders_require_their_inputs(self, ax_2d):
+        """Each shape reports the input it is missing."""
+        state = np.array([[0.0], [0.0], [0.0]])
+        for shape, match in (
+            ("circle", "circle requires radius"),
+            ("polygon", "polygon requires vertices"),
+            ("ellipse", "ellipse requires width and height"),
+            ("wedge", "wedge requires radius"),
+            ("line", "line/linestring requires vertices"),
+        ):
+            with pytest.raises(ValueError, match=match):
+                draw_patch(ax_2d, shape, state=state)
+
     def test_draw_unknown_shape_raises(self, ax_2d):
         """Test unknown shape type raises ValueError."""
         state = np.array([[0.0], [0.0], [0.0]])
@@ -371,11 +521,79 @@ class TestDrawPatch:
         )
         assert line3d is not None
 
+    def test_draw_line_3d_ignores_fill(self, ax_3d):
+        """A line has no fill to set, so the flag is ignored rather than applied."""
+        line3d = draw_patch(
+            ax_3d,
+            "line",
+            vertices=np.array([[0.0, 1.0], [0.0, 1.0]]),
+            color="k",
+            fill=False,
+        )
+
+        assert line3d is not None
+        assert not hasattr(line3d, "set_fill")
+
+    @pytest.mark.parametrize("num_points", [2, 3, 5])
+    def test_draw_line_3d_matches_vertex_count(self, ax_3d, num_points):
+        """The default z carries one height per vertex, so the line can draw."""
+        vertices = np.vstack(
+            [np.linspace(0.0, 1.0, num_points), np.linspace(0.0, 1.0, num_points)]
+        )
+        line3d = draw_patch(ax_3d, "line", vertices=vertices, color="k")
+
+        assert line3d.get_data_3d()[2].shape == (num_points,)
+        ax_3d.figure.canvas.draw()
+
+    def test_draw_line_3d_explicit_z(self, ax_3d):
+        """An explicit z overrides the flat default."""
+        line3d = draw_patch(
+            ax_3d,
+            "line",
+            vertices=np.array([[0.0, 1.0], [0.0, 1.0]]),
+            z=np.array([2.0, 3.0]),
+        )
+
+        assert list(line3d.get_data_3d()[2]) == [2.0, 3.0]
+
     def test_draw_circle_3d(self, ax_3d):
         """Test drawing circle on 3D axes (patch_2d_to_3d conversion)."""
         state = np.array([[0.0], [0.0], [0.0]])
         circ3d = draw_patch(ax_3d, "circle", state=state, radius=0.2, color="r")
         assert circ3d is not None
+
+
+class TestViewpoint:
+    """Tests for the camera centre set by the ``viewpoint`` plot option."""
+
+    @staticmethod
+    def _center(env):
+        x_lim, y_lim = env._env_plot.ax.get_xlim(), env._env_plot.ax.get_ylim()
+        return ((x_lim[0] + x_lim[1]) / 2, (y_lim[0] + y_lim[1]) / 2)
+
+    def test_follow_viewpoint_centred_before_first_render(self, env_factory):
+        """A followed object is framed at creation, not after the first step."""
+        env = env_factory("test_multi_objects_world.yaml")
+
+        assert self._center(env) == pytest.approx(tuple(env.robot.state[:2, 0]))
+
+    def test_follow_viewpoint_centred_after_reset(self, env_factory):
+        """Reset re-frames the followed object without a jump via the world centre."""
+        env = env_factory("test_multi_objects_world.yaml")
+        for _ in range(10):
+            env.step()
+            env.render(0.0)
+
+        env.reset()
+
+        # No render in between: the reset frame is already on the robot.
+        assert self._center(env) == pytest.approx(tuple(env.robot.state[:2, 0]))
+
+    def test_fixed_viewpoint_centred_before_first_render(self, env_factory):
+        """A fixed [x, y] viewpoint is applied at creation too."""
+        env = env_factory("test_all_objects.yaml")
+
+        assert self._center(env) == pytest.approx((3.0, 3.0))
 
 
 class TestGoalText:

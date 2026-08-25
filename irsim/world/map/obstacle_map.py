@@ -16,6 +16,57 @@ CELL_CENTER_OFFSET = 0.5
 COLLISION_RADIUS_FACTOR = 0.5
 
 
+def grid_collision_geometry(
+    grid: np.ndarray | None,
+    grid_reso: tuple[float, float],
+    geometry,
+    world_offset: tuple[float, float] = (0.0, 0.0),
+) -> bool:
+    """Check collision of a Shapely geometry against an occupancy grid.
+
+    Uses a two-phase approach:
+    1. Quick bounding box check for early rejection
+    2. Precise check: verify if geometry actually intersects occupied cells
+
+    Args:
+        grid: Occupancy grid, or None when the map carries no grid.
+        grid_reso: Cell size ``(x_reso, y_reso)`` in meters.
+        geometry: Shapely geometry object to check collision for.
+        world_offset: World coordinates of the grid origin.
+
+    Returns:
+        bool: True if collision detected, False otherwise.
+    """
+    if grid is None:
+        return False
+
+    minx, miny, maxx, maxy = geometry.bounds
+    x_reso, y_reso = grid_reso
+    offset_x, offset_y = world_offset
+
+    # Convert world coordinates to grid indices (clamped to valid range)
+    i_min = max(0, int((minx - offset_x) / x_reso))
+    i_max = min(grid.shape[0] - 1, int((maxx - offset_x) / x_reso))
+    j_min = max(0, int((miny - offset_y) / y_reso))
+    j_max = min(grid.shape[1] - 1, int((maxy - offset_y) / y_reso))
+
+    if i_min > i_max or j_min > j_max:
+        return False
+
+    collision_radius = max(x_reso, y_reso) * COLLISION_RADIUS_FACTOR
+
+    for i in range(i_min, i_max + 1):
+        for j in range(j_min, j_max + 1):
+            if grid[i, j] > OCCUPANCY_THRESHOLD:
+                # Geometry within the collision radius of an occupied cell center
+                cell_x = offset_x + (i + CELL_CENTER_OFFSET) * x_reso
+                cell_y = offset_y + (j + CELL_CENTER_OFFSET) * y_reso
+                if geometry.distance(Point(cell_x, cell_y)) <= collision_radius:
+                    return True
+
+    return False
+
+
 class ObstacleMap(ObjectBase):
     """Static obstacle object backed by map line segments and optional grid data."""
 
@@ -64,52 +115,18 @@ class ObstacleMap(ObjectBase):
     def check_grid_collision(self, geometry) -> bool:
         """Check collision using grid array lookup.
 
-        Uses a two-phase approach:
-        1. Quick bounding box check for early rejection
-        2. Precise check: verify if geometry actually intersects occupied cells
-
         Args:
             geometry: Shapely geometry object to check collision for.
 
         Returns:
             bool: True if collision detected, False otherwise.
         """
-        if self.grid_map is None:
-            return False
-
-        # Get bounding box of the geometry
-        minx, miny, maxx, maxy = geometry.bounds
-
-        # Convert world coordinates to grid indices
-        x_reso = self.grid_reso[0, 0]
-        y_reso = self.grid_reso[1, 0]
-        offset_x, offset_y = self.world_offset
-
-        # Calculate grid indices (clamp to valid range)
-        i_min = max(0, int((minx - offset_x) / x_reso))
-        i_max = min(self.grid_map.shape[0] - 1, int((maxx - offset_x) / x_reso))
-        j_min = max(0, int((miny - offset_y) / y_reso))
-        j_max = min(self.grid_map.shape[1] - 1, int((maxy - offset_y) / y_reso))
-
-        if i_min > i_max or j_min > j_max:
-            return False
-
-        # Check each occupied cell in bounding box region
-        collision_radius = max(x_reso, y_reso) * COLLISION_RADIUS_FACTOR
-
-        for i in range(i_min, i_max + 1):
-            for j in range(j_min, j_max + 1):
-                if self.grid_map[i, j] > OCCUPANCY_THRESHOLD:
-                    # Get cell center in world coordinates
-                    cell_x = offset_x + (i + CELL_CENTER_OFFSET) * x_reso
-                    cell_y = offset_y + (j + CELL_CENTER_OFFSET) * y_reso
-                    cell_center = Point(cell_x, cell_y)
-
-                    # Check if geometry is within or exactly at the collision radius of the cell center
-                    if geometry.distance(cell_center) <= collision_radius:
-                        return True
-
-        return False
+        return grid_collision_geometry(
+            self.grid_map,
+            (self.grid_reso[0, 0], self.grid_reso[1, 0]),
+            geometry,
+            self.world_offset,
+        )
 
     def is_collision(self, geometry) -> bool:
         """Check collision against grid (if present) and map geometry."""

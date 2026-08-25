@@ -11,6 +11,7 @@ Author: Ruihua Han
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 from typing import Any, Literal, cast
 
@@ -40,12 +41,8 @@ from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
 
-try:
+with contextlib.suppress(ImportError):  # KeyboardControl needs pynput or an MPL backend
     from irsim.gui.keyboard_control import KeyboardControl
-
-    keyboard_module = True
-except ImportError:
-    keyboard_module = False
 
 # Define backend preferences for different operating systems
 BACKEND_PREFERENCES = {
@@ -72,8 +69,7 @@ def _set_matplotlib_backend(backend_list: list[str]) -> bool:
 
 
 # Get the current operating system from env_param and set backend
-backends = BACKEND_PREFERENCES.get(env_param.platform_name, ["Agg"])
-backend_set = _set_matplotlib_backend(backends)
+_set_matplotlib_backend(BACKEND_PREFERENCES.get(env_param.platform_name, ["Agg"]))
 
 
 class EnvBase:
@@ -169,9 +165,7 @@ class EnvBase:
         self._env_param = EnvParam()
         self._world_param = WorldParam()
         self._path_manager = PathManager()
-        env_param.bind(self._env_param)
-        world_param.bind(self._world_param)
-        path_param.bind(self._path_manager)
+        self._bind_config()
 
         # init env setting
         self.display = display

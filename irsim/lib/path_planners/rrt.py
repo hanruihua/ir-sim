@@ -272,6 +272,31 @@ class RRT:
     # Planning
     # ------------------------------------------------------------------
 
+    def _init_search(
+        self, start_pose: list[float], goal_pose: list[float]
+    ) -> tuple[float, float, float, float]:
+        """Set the start and goal nodes and reset the tree for a new run.
+
+        Args:
+            start_pose: Start position ``[x, y]``.
+            goal_pose: Goal position ``[x, y]``.
+
+        Returns:
+            tuple: The planar ``(sx, sy, gx, gy)`` the nodes were built from.
+        """
+        start_pose = np.asarray(start_pose, dtype=float).flatten()
+        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
+        sx, sy = float(start_pose[0]), float(start_pose[1])
+        gx, gy = float(goal_pose[0]), float(goal_pose[1])
+
+        self.start = TreeNode(x=sx, y=sy, cost=0.0)
+        self.end = TreeNode(x=gx, y=gy, cost=float("inf"))
+
+        self.node_list = [self.start]
+        self._kd_dirty = True
+
+        return sx, sy, gx, gy
+
     def planning(
         self,
         start_pose: list[float],
@@ -288,17 +313,9 @@ class RRT:
         Returns:
             ``(2, N)`` numpy array ``[rx, ry]`` or *None*.
         """
-        start_pose = np.asarray(start_pose, dtype=float).flatten()
-        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
-        sx, sy = float(start_pose[0]), float(start_pose[1])
-        gx, gy = float(goal_pose[0]), float(goal_pose[1])
+        self._init_search(start_pose, goal_pose)
 
-        self.start = TreeNode(x=sx, y=sy, cost=0.0)
-        self.end = TreeNode(x=gx, y=gy, cost=float("inf"))
-
-        # Reset
-        self.node_list = [self.start]
-        self._kd_dirty = True
+        # Reset visuals
         self._vis_setup_done = False
         self._tree_line = None
         self._vis_temp = []
@@ -518,24 +535,6 @@ class RRT:
             self._tree_line.set_data(xs, ys)
 
         plt.pause(0.01)
-
-    @staticmethod
-    def _plot_circle(
-        x: float,
-        y: float,
-        size: float,
-        color: str = "-b",
-        ax: plt.Axes | None = None,
-    ) -> Line2D:
-        """Plot a circle and return the ``Line2D`` artist."""
-        if ax is None:
-            ax = plt.gca()
-        deg = list(range(0, 360, 5))
-        deg.append(0)
-        xl = [x + size * math.cos(np.deg2rad(d)) for d in deg]
-        yl = [y + size * math.sin(np.deg2rad(d)) for d in deg]
-        (line,) = ax.plot(xl, yl, color)
-        return line
 
     # ------------------------------------------------------------------
     # Utility

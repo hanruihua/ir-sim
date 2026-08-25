@@ -92,17 +92,9 @@ class RRTStar(RRT):
         Returns:
             ``(2, N)`` waypoint array or *None*.
         """
-        start_pose = np.asarray(start_pose, dtype=float).flatten()
-        goal_pose = np.asarray(goal_pose, dtype=float).flatten()
-        sx, sy = float(start_pose[0]), float(start_pose[1])
-        gx, gy = float(goal_pose[0]), float(goal_pose[1])
+        self._init_search(start_pose, goal_pose)
 
-        self.start = TreeNode(x=sx, y=sy, cost=0.0)
-        self.end = TreeNode(x=gx, y=gy, cost=float("inf"))
-
-        # Reset
-        self.node_list = [self.start]
-        self._kd_dirty = True
+        # Reset visuals
         self._vis_setup_done = False
         self._tree_line = None
         self._vis_temp = []

@@ -108,56 +108,12 @@ class EnvConfig:
               during in-place reloads.
         """
 
-        world = World(
-            self.world_name,
-            world_param_instance=self._world_param,
-            **self.parse["world"],
-        )
-        self.object_factory.world = world
+        world, objects, robots, obstacles, maps, groups = self._build_scene()
 
-        robot_collection = self.object_factory.create_from_parse(
-            self.parse["robot"], "robot"
-        )
-        obstacle_collection = self.object_factory.create_from_parse(
-            self.parse["obstacle"],
-            "obstacle",
-            group_start_index=(
-                max((obj.group for obj in robot_collection), default=-1) + 1
-            ),
-        )
-        map_collection = self.object_factory.create_from_map(
-            world.obstacle_positions,
-            world.reso,
-            grid_map=world.grid_map,
-            world_offset=world.offset,
-        )
-
-        objects = robot_collection + obstacle_collection + map_collection
-
-        objects.sort(key=attrgetter("id"))
-
-        # Initialize groups (unique and inclusive)
-        group_ids = sorted({obj.group for obj in objects})
-        object_groups = [
-            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
-            for gid in group_ids
-        ]
-
-        env_plot = EnvPlot(world, objects)
-
-        # cache for in-place reload
-        self._env_plot = env_plot
+        self._env_plot = EnvPlot(world, objects)
         self._objects = objects
 
-        return (
-            world,
-            objects,
-            self._env_plot,
-            robot_collection,
-            obstacle_collection,
-            map_collection,
-            object_groups,
-        )
+        return world, objects, self._env_plot, robots, obstacles, maps, groups
 
     def reload_objects(self) -> Any:
         """Rebuild world/objects and update the current figure in-place.
@@ -169,55 +125,15 @@ class EnvConfig:
             Tuple: ``(world, objects, env_plot, robot_collection, obstacle_collection, map_collection)``
         """
 
-        world = World(
-            self.world_name,
-            world_param_instance=self._world_param,
-            **self.parse["world"],
-        )
-        self.object_factory.world = world
+        world, objects, robots, obstacles, maps, groups = self._build_scene()
 
-        robot_collection = self.object_factory.create_from_parse(
-            self.parse["robot"], "robot"
-        )
-        obstacle_collection = self.object_factory.create_from_parse(
-            self.parse["obstacle"],
-            "obstacle",
-            group_start_index=(
-                max((obj.group for obj in robot_collection), default=-1) + 1
-            ),
-        )
-        map_collection = self.object_factory.create_from_map(
-            world.obstacle_positions,
-            world.reso,
-            grid_map=world.grid_map,
-            world_offset=world.offset,
-        )
-
-        objects = robot_collection + obstacle_collection + map_collection
-        objects.sort(key=attrgetter("id"))
-
-        group_ids = sorted({obj.group for obj in objects})
-        object_groups = [
-            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
-            for gid in group_ids
-        ]
-
-        # env_plot = EnvPlot(world, objects, **world.plot_parse)
         self._env_plot.clear_components("all", self._objects)
         self._env_plot._init_plot(world, objects)
 
         # Refresh cached objects so subsequent reloads clear the right set
         self._objects = objects
 
-        return (
-            world,
-            objects,
-            self._env_plot,
-            robot_collection,
-            obstacle_collection,
-            map_collection,
-            object_groups,
-        )
+        return world, objects, self._env_plot, robots, obstacles, maps, groups
 
     def reload_yaml_objects(self, world_name) -> Any:
         """Reload YAML and update the scene using the existing figure.
@@ -233,22 +149,58 @@ class EnvConfig:
             Tuple: ``(world, objects, env_plot, robot_collection, obstacle_collection, map_collection)``
         """
 
-        reload_world_name = world_name if world_name is not None else self.world_name
-        self.load_yaml(reload_world_name)
-        (
-            world,
-            objects,
-            env_plot,
-            robot_collection,
-            obstacle_collection,
-            map_collection,
-            object_groups,
-        ) = self.reload_objects()
+        self.load_yaml(world_name if world_name is not None else self.world_name)
+
+        return self.reload_objects()
+
+    def _build_scene(self) -> Any:
+        """Create the world, its objects, and their groups from the parsed config.
+
+        Shared by :py:meth:`initialize_objects` and :py:meth:`reload_objects`,
+        which differ only in how the resulting scene is drawn.
+
+        Returns:
+            Tuple: ``(world, objects, robot_collection, obstacle_collection,
+            map_collection, object_groups)``
+        """
+
+        world = World(
+            self.world_name,
+            world_param_instance=self._world_param,
+            **self.parse["world"],
+        )
+        self.object_factory.world = world
+
+        robot_collection = self.object_factory.create_from_parse(
+            self.parse["robot"], "robot"
+        )
+        obstacle_collection = self.object_factory.create_from_parse(
+            self.parse["obstacle"],
+            "obstacle",
+            group_start_index=(
+                max((obj.group for obj in robot_collection), default=-1) + 1
+            ),
+        )
+        map_collection = self.object_factory.create_from_map(
+            world.obstacle_positions,
+            world.reso,
+            grid_map=world.grid_map,
+            world_offset=world.offset,
+        )
+
+        objects = robot_collection + obstacle_collection + map_collection
+        objects.sort(key=attrgetter("id"))
+
+        # Initialize groups (unique and inclusive)
+        group_ids = sorted({obj.group for obj in objects})
+        object_groups = [
+            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
+            for gid in group_ids
+        ]
 
         return (
             world,
             objects,
-            env_plot,
             robot_collection,
             obstacle_collection,
             map_collection,

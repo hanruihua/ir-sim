@@ -5,16 +5,10 @@ from typing import Any, Optional, Protocol, Union, runtime_checkable
 
 import numpy as np
 import shapely
-from shapely.geometry import Point
 
 from .grid_map_generator_base import GridMapGenerator
 from .image_map_generator import ImageGridGenerator
-from .obstacle_map import (
-    CELL_CENTER_OFFSET,
-    COLLISION_RADIUS_FACTOR,
-    OCCUPANCY_THRESHOLD,
-    ObstacleMap,
-)
+from .obstacle_map import ObstacleMap, grid_collision_geometry
 from .perlin_map_generator import PerlinGridGenerator
 
 # ---------------------------------------------------------------------------
@@ -106,45 +100,6 @@ def _downsample_occupancy_grid(
             j_hi = min(j_hi, fine_ny)
             out[ic, jc] = np.max(grid[i_lo:i_hi, j_lo:j_hi])
     return out
-
-
-def _grid_collision_geometry(
-    grid: np.ndarray,
-    grid_reso: tuple[float, float],
-    geometry,
-    world_offset: tuple[float, float] = (0.0, 0.0),
-) -> bool:
-    """Check collision of a Shapely geometry against an occupancy grid.
-
-    Uses the same logic as ObstacleMap.check_grid_collision.
-    """
-    if grid is None:
-        return False
-
-    minx, miny, maxx, maxy = geometry.bounds
-    x_reso, y_reso = grid_reso
-    offset_x, offset_y = world_offset
-
-    i_min = max(0, int((minx - offset_x) / x_reso))
-    i_max = min(grid.shape[0] - 1, int((maxx - offset_x) / x_reso))
-    j_min = max(0, int((miny - offset_y) / y_reso))
-    j_max = min(grid.shape[1] - 1, int((maxy - offset_y) / y_reso))
-
-    if i_min > i_max or j_min > j_max:
-        return False
-
-    collision_radius = max(x_reso, y_reso) * COLLISION_RADIUS_FACTOR
-
-    for i in range(i_min, i_max + 1):
-        for j in range(j_min, j_max + 1):
-            if grid[i, j] > OCCUPANCY_THRESHOLD:
-                cell_x = offset_x + (i + CELL_CENTER_OFFSET) * x_reso
-                cell_y = offset_y + (j + CELL_CENTER_OFFSET) * y_reso
-                cell_center = Point(cell_x, cell_y)
-                if geometry.distance(cell_center) <= collision_radius:
-                    return True
-
-    return False
 
 
 def resolve_obstacle_map(
@@ -373,7 +328,7 @@ class Map:
             return True
         if self.grid is not None:
             gr = self.grid_resolution
-            if gr is not None and _grid_collision_geometry(
+            if gr is not None and grid_collision_geometry(
                 self.grid, gr, geometry, world_offset=self.world_offset
             ):
                 return True
