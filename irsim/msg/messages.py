@@ -1,9 +1,8 @@
-"""ROS-style, dependency-free messages for simulation snapshots.
+"""ROS-style, dependency-free messages for simulation snapshots. Used for exchanging data with ROS and other simulators, and for logging and playback.
 
 The classes in this module are plain dataclasses. They intentionally do not
 depend on ROS, which keeps them usable in regular Python, learning, and batch
 simulation workflows while providing familiar topic names and message shapes.
-Native ROS types and field layouts are chosen by a bridge, not IR-SIM.
 """
 
 from __future__ import annotations
