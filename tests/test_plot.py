@@ -20,6 +20,7 @@ from matplotlib.lines import Line2D
 
 import irsim
 import irsim.env.env_plot as env_plot_module
+from irsim.config import env_param
 from irsim.env.env_plot import EnvPlot, draw_patch
 from irsim.env.env_plot3d import EnvPlot3D
 from irsim.lib.handler.geometry_handler import GeometryFactory
@@ -110,6 +111,15 @@ class TestEnvPlot2D:
         assert plot_2d.dyna_line_list == []
         assert plot_2d.dyna_point_list == []
         assert plot_2d.dyna_quiver_list == []
+
+    def test_clear_components_reports_invalid_mode(self, plot_2d, monkeypatch):
+        """An unknown mode is reported rather than silently doing nothing."""
+        logger = Mock()
+        monkeypatch.setattr(env_param, "logger", logger)
+
+        plot_2d.clear_components("bogus", [])
+
+        logger.error.assert_called_once()
 
     def test_static_mode_touches_only_static_objects(self, plot_2d):
         """Static mode draws and clears the static objects and leaves the rest."""
@@ -524,11 +534,66 @@ class TestDrawPatch:
         assert line3d is not None
         assert not hasattr(line3d, "set_fill")
 
+    @pytest.mark.parametrize("num_points", [2, 3, 5])
+    def test_draw_line_3d_matches_vertex_count(self, ax_3d, num_points):
+        """The default z carries one height per vertex, so the line can draw."""
+        vertices = np.vstack(
+            [np.linspace(0.0, 1.0, num_points), np.linspace(0.0, 1.0, num_points)]
+        )
+        line3d = draw_patch(ax_3d, "line", vertices=vertices, color="k")
+
+        assert line3d.get_data_3d()[2].shape == (num_points,)
+        ax_3d.figure.canvas.draw()
+
+    def test_draw_line_3d_explicit_z(self, ax_3d):
+        """An explicit z overrides the flat default."""
+        line3d = draw_patch(
+            ax_3d,
+            "line",
+            vertices=np.array([[0.0, 1.0], [0.0, 1.0]]),
+            z=np.array([2.0, 3.0]),
+        )
+
+        assert list(line3d.get_data_3d()[2]) == [2.0, 3.0]
+
     def test_draw_circle_3d(self, ax_3d):
         """Test drawing circle on 3D axes (patch_2d_to_3d conversion)."""
         state = np.array([[0.0], [0.0], [0.0]])
         circ3d = draw_patch(ax_3d, "circle", state=state, radius=0.2, color="r")
         assert circ3d is not None
+
+
+class TestViewpoint:
+    """Tests for the camera centre set by the ``viewpoint`` plot option."""
+
+    @staticmethod
+    def _center(env):
+        x_lim, y_lim = env._env_plot.ax.get_xlim(), env._env_plot.ax.get_ylim()
+        return ((x_lim[0] + x_lim[1]) / 2, (y_lim[0] + y_lim[1]) / 2)
+
+    def test_follow_viewpoint_centred_before_first_render(self, env_factory):
+        """A followed object is framed at creation, not after the first step."""
+        env = env_factory("test_multi_objects_world.yaml")
+
+        assert self._center(env) == pytest.approx(tuple(env.robot.state[:2, 0]))
+
+    def test_follow_viewpoint_centred_after_reset(self, env_factory):
+        """Reset re-frames the followed object without a jump via the world centre."""
+        env = env_factory("test_multi_objects_world.yaml")
+        for _ in range(10):
+            env.step()
+            env.render(0.0)
+
+        env.reset()
+
+        # No render in between: the reset frame is already on the robot.
+        assert self._center(env) == pytest.approx(tuple(env.robot.state[:2, 0]))
+
+    def test_fixed_viewpoint_centred_before_first_render(self, env_factory):
+        """A fixed [x, y] viewpoint is applied at creation too."""
+        env = env_factory("test_all_objects.yaml")
+
+        assert self._center(env) == pytest.approx((3.0, 3.0))
 
 
 class TestGoalText:

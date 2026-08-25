@@ -149,6 +149,10 @@ class EnvPlot:
 
         self.ax.set_xlim(self.world.x_range)
         self.ax.set_ylim(self.world.y_range)
+        # Centre the camera before the first frame is drawn: the limits above
+        # frame the whole world, so a follow viewpoint would otherwise show one
+        # frame at the world centre and only jump to its target on the next step.
+        self.set_ax_viewpoint(objects)
 
         self.ax.set_xlabel("x [m]")
         self.ax.set_ylabel("y [m]")
@@ -273,6 +277,9 @@ class EnvPlot:
             for obj in objects:
                 obj.plot_clear(all=True)
             self._clear_dynamic_artists()
+
+        else:
+            self.logger.error("Error: Invalid clear mode")
 
     def _clear_dynamic_artists(self) -> None:
         """Remove the per-step lines, points, and quivers, then forget them."""
@@ -1064,9 +1071,11 @@ def _draw_line(
         raise ValueError("line/linestring requires vertices (2xN)")
 
     if isinstance(ax, Axes3D):
-        line3d = art3d.Line3D(
-            vertices[0, :], vertices[1, :], zs=kwargs.pop("z", np.zeros((3,)))
-        )
+        zs = kwargs.pop("z", None)
+        if zs is None:
+            # One height per vertex: a shorter default breaks the draw.
+            zs = np.zeros(vertices.shape[1])
+        line3d = art3d.Line3D(vertices[0, :], vertices[1, :], zs=zs)
         if color is not None:
             line3d.set_color(color)
         if alpha is not None:
