@@ -39,7 +39,8 @@ class KeyboardControl:
     Control mode gating:
         - Robot control keys (w/s/a/d, q/e, z/c, alt+number) only take effect when
           ``world_param.control_mode == "keyboard"``.
-        - Environment keys (space to pause/resume, r to reset, esc to quit) are always active.
+        - Environment keys (space to pause/resume, r to reset, esc to quit) are active
+          in either control mode, and are ignored when no ``env_ref`` was given.
 
     Key mappings (both backends):
         - w/s: Increase/decrease linear velocity (forward/backward)
@@ -66,7 +67,9 @@ class KeyboardControl:
         Initialize keyboard control for the environment.
 
         Args:
-            env_ref: Reference to the environment instance. Used for pause/resume and reset.
+            env_ref: Reference to the environment instance, used by the command
+                keys - reset, pause/resume, reload, debug, save figure, display
+                and quit. Those keys are ignored when it is omitted.
             keyboard_kwargs (dict): Optional settings for keyboard control.
 
                 - key_lv_max (float): Maximum linear velocity. Default is 3.0.
@@ -324,7 +327,11 @@ class KeyboardControl:
             self.logger.info("switch to keyboard control")
 
     def _run_command_key(self, key: str) -> None:
-        """Run the environment command bound to a released key, if any."""
+        """Run the environment command bound to a released key, if any.
+
+        A command that acts on the environment is ignored when the control was
+        built without a reference to one.
+        """
         commands = {
             "r": self._reset_env,
             "space": self._toggle_pause,
