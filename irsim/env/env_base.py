@@ -1534,6 +1534,27 @@ class EnvBase:
         return self._path_manager
 
     @property
+    def config(self) -> dict[str, Any]:
+        """
+        Get the parsed YAML configuration of the environment.
+
+        The sections are returned as they were read, so a value can be looked
+        up without opening the file again. ``custom`` holds whatever the
+        scenario defines for its own use; IR-SIM stores it and nothing more.
+
+        Returns:
+            dict: Parsed configuration, keyed by section - ``world``, ``gui``,
+            ``robot``, ``obstacle`` and ``custom``.
+
+        Example:
+            >>> env.config["world"]["step_time"]
+            0.1
+            >>> env.config["custom"]["safe_margin"]
+            0.15
+        """
+        return self.env_config.parse
+
+    @property
     def time(self) -> float:
         """
         Get the time of the simulation.

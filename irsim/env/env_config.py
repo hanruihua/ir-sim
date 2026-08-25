@@ -59,6 +59,10 @@ class EnvConfig:
             "gui": {},
             "robot": None,
             "obstacle": None,
+            # Read from the YAML and handed back untouched, so a scenario can
+            # carry the values a user's own code needs beside the ones IR-SIM
+            # interprets.
+            "custom": {},
         }
 
         self.world_file_path = self.world_file_path
