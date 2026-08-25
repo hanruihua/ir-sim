@@ -241,6 +241,31 @@ class TestKeyboardControlPynput:
         env.step()
         assert env.time > t1
 
+    def test_special_keys_without_env_are_ignored(self):
+        """Space/F5/ESC go through the guard, so a missing env is not a crash."""
+        # mpl backend: no environment means no display to gate on, and the
+        # pynput handlers stay directly callable regardless of backend.
+        kb = irsim.gui.keyboard_control.KeyboardControl(env_ref=None, backend="mpl")
+
+        for special in (keyboard.Key.space, keyboard.Key.f5, keyboard.Key.esc):
+            kb._on_pynput_special_release(special)  # must not raise
+
+    def test_special_keys_run_commands_with_env(self):
+        """With an environment attached the same keys reach their commands."""
+        kb = irsim.gui.keyboard_control.KeyboardControl(env_ref=None, backend="mpl")
+        kb.env_ref = Mock()
+        kb._toggle_pause = Mock()
+        kb._step_debug = Mock()
+        kb._quit_env = Mock()
+
+        kb._on_pynput_special_release(keyboard.Key.space)
+        kb._on_pynput_special_release(keyboard.Key.f5)
+        kb._on_pynput_special_release(keyboard.Key.esc)
+
+        kb._toggle_pause.assert_called_once()
+        kb._step_debug.assert_called_once()
+        kb._quit_env.assert_called_once()
+
     def test_invalid_backend_falls_back_to_mpl(self, env_factory):
         """Test invalid backend falls back to mpl."""
         env = env_factory("test_keyboard_control.yaml")

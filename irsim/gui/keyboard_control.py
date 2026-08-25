@@ -423,12 +423,14 @@ class KeyboardControl:
         if keyboard is None:
             return
 
+        # Named after the matplotlib keys so both backends dispatch through
+        # _run_command_key, and share its missing-environment guard.
         if key == keyboard.Key.space:
-            self._toggle_pause()
+            self._run_command_key("space")
         elif key == keyboard.Key.f5:
-            self._step_debug()
+            self._run_command_key("f5")
         elif key == keyboard.Key.esc:
-            self._quit_env()
+            self._run_command_key("escape")
 
     # ------------------------------------------------------------------
     # Matplotlib key event handlers (backend = 'mpl')
@@ -550,8 +552,14 @@ class KeyboardControl:
         Get the environment logger.
 
         Returns:
-            EnvLogger: The logger instance for the environment.
+            EnvLogger: The environment logger, or the default loguru logger
+            when the control runs without an environment to borrow one from.
         """
+        if self._env_param.logger is None:
+            from loguru import logger
+
+            return logger
+
         return self._env_param.logger
 
     # Window focus helpers (used to gate pynput when active_only=True)
