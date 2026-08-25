@@ -46,16 +46,21 @@ class TestKeyboardControlPynput:
         env.keyboard._on_pynput_release(mock_keyboard_key("l"))
         assert len(env.names) == len(pre_names)
 
-    def test_reset_without_env_reference_warns(self, env_factory, mock_keyboard_key):
-        """Releasing 'r' without an environment reference warns instead of failing."""
+    def test_commands_without_env_reference_warn(self, env_factory):
+        """Command keys need the environment, and are ignored when it is unset."""
         env = env_factory("test_keyboard_control.yaml")
         keyboard_control = env.keyboard
         keyboard_control._active_only = False
         keyboard_control.env_ref = None
 
-        keyboard_control._reset_env()
+        for key in ("r", "space", "l", "f5", "v", "y", "escape"):
+            keyboard_control._run_command_key(key)  # ignored, never raises
+
+        # the control mode needs no environment, so it still switches
+        keyboard_control._run_command_key("x")
 
         assert keyboard_control.env_ref is None
+        assert env._world_param.control_mode == "auto"
 
     def test_escape_key_quits_pynput(self, env_factory):
         """ESC has no character, so it is handled as a special key release."""

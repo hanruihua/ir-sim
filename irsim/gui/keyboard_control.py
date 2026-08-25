@@ -336,8 +336,15 @@ class KeyboardControl:
             "escape": self._quit_env,
         }
         command = commands.get(key)
-        if command is not None:
-            command()
+        if command is None:
+            return
+
+        # Every command but the control-mode switch acts on the environment.
+        if self.env_ref is None and command != self._toggle_control_mode:
+            self.logger.warning(f"Environment reference not set. Ignoring '{key}'.")
+            return
+
+        command()
 
     # ------------------------------------------------------------------
     # pynput key event handlers (backend = 'pynput')
