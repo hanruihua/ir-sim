@@ -21,6 +21,16 @@
 
 </div>
 
+## Contents
+
+- [Overview](#overview)
+- [Demonstrations](#demonstrations)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Support](#support)
+- [Projects Using IR-SIM](#projects-using-ir-sim)
+- [Citation](#citation)
+
 ## Overview
 
 **IR-SIM** is an open-source, Python-based, lightweight robot simulator designed for navigation, control, and learning. It provides a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments. Ideal for academic and educational use, IR-SIM enables rapid prototyping of robotics and learning algorithms in custom scenarios with minimal coding and hardware requirements.
@@ -29,9 +39,9 @@
 
 - Simulate robot platforms with diverse kinematics, sensors, and behaviors  ([support](#support)). 
 - Quickly configure and customize scenarios using straightforward YAML files. No complex coding required.
-- Visualize simulation outcomes using a naive visualizer matplotlib for immediate debugging.
+- Visualize simulation results with a lightweight Matplotlib-based renderer for rapid debugging.
 - Support collision detection and customizable behavior policies for each object.
-- Suitable for mutli-agent/robot learning ([Projects](#projects-using-ir-sim)).
+- Suitable for multi-agent and robot-learning research ([Projects](#projects-using-ir-sim)).
 
 ## Demonstrations
 
@@ -165,9 +175,10 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 - **[RAL & IROS 2023]** [RDA_planner](https://github.com/hanruihua/RDA_planner) -- Accelerated collision-free motion planner for cluttered environments.
 - **[T-RO 2025]** [NeuPAN](https://github.com/hanruihua/NeuPAN) -- Direct point robot navigation with end-to-end model-based learning.
 - **[ROBIO 2025]** [MfNeuPAN](https://doi.org/10.1109/ROBIO66223.2025.11377233) -- Proactive end-to-end navigation in dynamic environments using direct multi-frame point constraints.
+- **[WCL 2025]** [Robotic Sensor Network: Achieving Mutual Communication Control Assistance With Fast Cross-Layer Optimization](https://doi.org/10.1109/LWC.2024.3502757) -- Cross-layer communication and control optimization evaluated on IR-SIM.
 - **[IROS 2026]** [SDLW](https://github.com/williamleong/sdlw) -- Decentralized scalable exploration using sensor-driven Lévy walks for minimal-sensing robot teams.
 - **[Sensors 2026]** [PPO-GAT-Follow](https://doi.org/10.3390/s26154711) -- Graph-attention reinforcement learning for robot person following in dense crowds.
-- **[TWC 2026]** [Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large IoT Networks](https://doi.org/10.1109/TWC.2026.3683911)
+- **[TWC 2026]** [Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large IoT Networks](https://doi.org/10.1109/TWC.2026.3683911) -- Energy-efficient federated edge learning evaluated through IR-SIM autonomous-navigation experiments and CARLA validation.
 
 ### Community Projects
 
@@ -176,7 +187,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 - [IRSIM-3DGS-Bridge](https://github.com/Wayneyujie/IRSIM-3DGS-Bridge) -- A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
 - [EdgeVox](https://github.com/nrl-ai/edgevox) -- Offline voice-agent framework with an IR-SIM mobile-navigation backend.
 
-*If your publication or project use IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.*
+*If your publication or project uses IR-SIM, we welcome proposals for inclusion via an issue or pull request.*
 
 ## Citation
 
