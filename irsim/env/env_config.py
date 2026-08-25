@@ -68,6 +68,11 @@ class EnvConfig:
             with open(self.world_file_path) as file:
                 com_list = yaml.safe_load(file)
 
+                # The blocks may be nested under an optional 'irsim' key when
+                # the file is shared with another simulator.
+                if isinstance(com_list.get("irsim"), dict):
+                    com_list = com_list["irsim"]
+
                 for key in com_list:
                     if key in self._kwargs_parse:
                         self._kwargs_parse[key] = com_list[key]

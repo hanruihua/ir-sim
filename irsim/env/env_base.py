@@ -12,8 +12,7 @@ Author: Ruihua Han
 from __future__ import annotations
 
 import importlib
-from collections import Counter
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import matplotlib
 import numpy as np
@@ -28,8 +27,15 @@ from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.msg import ObjectState, Odometry, WorldState
+from irsim.util.message import resolve_message_targets
 from irsim.util.random import rng, set_seed
-from irsim.util.util import normalize_actions, to_numpy
+from irsim.util.util import (
+    find_duplicates,
+    find_object_by_identity,
+    normalize_actions,
+    to_numpy,
+)
 from irsim.world import ObjectBase, ObjectFactory
 
 from .env_logger import EnvLogger
@@ -1048,7 +1054,7 @@ class EnvBase:
         Args:
             obj (ObjectBase): The object to be added to the environment.
         """
-        if any(existing.name == obj.name for existing in self.objects):
+        if find_object_by_identity(self.objects, obj.name) is not None:
             raise ValueError(f"Object name '{obj.name}' already exists.")
         obj._env = self
         self._objects.append(obj)
@@ -1066,7 +1072,7 @@ class EnvBase:
             objs (list): List of objects to be added to the environment.
         """
         new_names = [o.name for o in objs]
-        dupes_in_new = [n for n, c in Counter(new_names).items() if c > 1]
+        dupes_in_new = find_duplicates(new_names)
         if dupes_in_new:
             raise ValueError(f"Duplicate names within new objects: {dupes_in_new}")
         existing_names = {o.name for o in self.objects}
@@ -1089,11 +1095,11 @@ class EnvBase:
             target_id (int): ID of the object to be deleted.
         """
 
-        for obj in self._objects:
-            if obj.id == target_id:
-                obj.plot_clear()
-                self._objects.remove(obj)
-                break
+        target = find_object_by_identity(self._objects, object_id=target_id)
+
+        if target is not None:
+            target.plot_clear()
+            self._objects.remove(target)
 
         self.build_tree()
 
@@ -1126,8 +1132,7 @@ class EnvBase:
         Raises:
             ValueError: If duplicates exist.
         """
-        names = [obj.name for obj in self.objects]
-        duplicates = [n for n, c in Counter(names).items() if c > 1]
+        duplicates = find_duplicates(obj.name for obj in self.objects)
         if duplicates:
             raise ValueError(f"Duplicate object names: {duplicates}")
 
@@ -1147,6 +1152,104 @@ class EnvBase:
         """
 
         return self.robot._state
+
+    def get_msg(self) -> WorldState:
+        """Get a snapshot of the complete simulation environment.
+
+        The returned message owns copies of all state and sensor arrays. It
+        therefore remains a stable point-in-time record when the environment
+        advances or its objects are modified later.
+
+        Returns:
+            WorldState: Current world metadata with ``odom`` and
+            ``scan`` messages for each object.
+
+        Example:
+            >>> msg = env.get_msg()
+            >>> msg.header.stamp
+            0.0
+            >>> msg.robots[0].odom.pose.pose.position.x
+            1.0
+            >>> msg.robots[0].scan.ranges
+            array([...])
+        """
+
+        return WorldState.from_env(self)
+
+    def receive_msg(
+        self,
+        msg: WorldState | ObjectState | Any,
+        *,
+        object_name: str | None = None,
+        object_id: int | None = None,
+        refresh: bool = True,
+    ) -> int:
+        """Apply odometry messages to simulation objects.
+
+        ``WorldState`` updates every contained object, while ``ObjectState``
+        uses its embedded name and id. A standalone IR-SIM or native ROS
+        ``Odometry`` message targets the primary robot unless ``object_name``
+        or ``object_id`` is supplied. World/object metadata, goals, scans, and
+        the simulation clock remain owned by the receiving environment.
+
+        Object poses are matched by name first and id second. The incoming
+        planar pose and body-frame twist are converted to the target object's
+        local state and velocity layout. All messages are validated before any
+        object is changed, so a failed receive does not partially update the
+        environment.
+
+        An Ackermann object carries its steering as a yaw rate, which vanishes
+        at zero speed: a stopped car conveys no steering angle, so the local
+        object keeps the one it already had.
+
+        Args:
+            msg: A :class:`~irsim.msg.WorldState`,
+                :class:`~irsim.msg.ObjectState`, or ROS-compatible
+                ``nav_msgs/Odometry`` object.
+            object_name: Explicit target name for a standalone odometry or
+                object message.
+            object_id: Explicit target object id for a standalone odometry or
+                object message. Names take precedence when both are provided.
+            refresh: Recompute geometry, sensors, collision tree, and status
+                after applying all updates. Set ``False`` when batching manual
+                changes and call :meth:`refresh` afterwards. Default is True.
+
+        Returns:
+            int: Number of simulation objects updated.
+
+        Raises:
+            TypeError: If ``msg`` is not a supported message shape.
+            ValueError: If a target cannot be found, a target appears more
+                than once, or odometry contains an invalid planar pose.
+
+        Example:
+            >>> external_odom = source_env.get_msg().robots[0].odom
+            >>> target_env.receive_msg(
+            ...     external_odom, object_name="message_robot"
+            ... )
+            1
+        """
+
+        updates = resolve_message_targets(
+            self.objects,
+            msg,
+            object_name,
+            object_id,
+            default_target=lambda: self.robot,
+        )
+        prepared = [
+            (target, *Odometry.from_msg(odom).to_state_velocity(target))
+            for target, odom in updates
+        ]
+
+        for target, state, velocity in prepared:
+            target.set_state(state)
+            target.set_velocity(velocity)
+
+        if refresh and prepared:
+            self.refresh()
+
+        return len(prepared)
 
     def get_lidar_scan(self, id: int = 0) -> dict[str, Any]:
         """
@@ -1236,13 +1339,13 @@ class EnvBase:
         """
         Get the object with the given name.
         """
-        return next((obj for obj in self.objects if obj.name == name), None)
+        return find_object_by_identity(self.objects, name=name)
 
     def get_object_by_id(self, target_id: int) -> ObjectBase | None:
         """
         Get the object with the given id.
         """
-        return next((obj for obj in self.objects if obj.id == target_id), None)
+        return find_object_by_identity(self.objects, object_id=target_id)
 
     # endregion: get information
 
@@ -1493,7 +1596,7 @@ class EnvBase:
         Returns:
             EnvLogger: The logger instance for the environment.
         """
-        return self._env_param.logger  # type: ignore[return-value]
+        return cast(EnvLogger, self._env_param.logger)
 
     @property
     def key_vel(self) -> Any:

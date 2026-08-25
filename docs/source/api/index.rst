@@ -16,6 +16,8 @@ The handful of entry points you will use most; everything else is reachable from
 - :py:meth:`~irsim.env.env_base.EnvBase.end`: close the environment and release resources.
 - :py:meth:`~irsim.env.env_base.EnvBase.get_robot_state`: read the primary robot's state.
 - :py:meth:`~irsim.env.env_base.EnvBase.get_lidar_scan`: read a robot's LiDAR scan.
+- :py:meth:`~irsim.env.env_base.EnvBase.get_msg`: capture a complete simulation message.
+- :py:meth:`~irsim.env.env_base.EnvBase.receive_msg`: apply external odometry to simulation objects.
 
 How to read this reference
 --------------------------
@@ -49,6 +51,10 @@ level modules when extending IR-SIM itself.
    * - Add sensors
      - :py:class:`~irsim.world.sensors.sensor_factory.SensorFactory`
      - Creates concrete sensors from YAML ``sensors`` entries.
+   * - Exchange simulation messages
+     - :py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`,
+       :py:class:`~irsim.msg.LaserScan`
+     - Version-neutral snapshots for bridge-side serialization and state reception.
    * - Use path planners
      - :mod:`irsim.lib.path_planners`
      - Grid and sampling planners operate on :class:`~irsim.world.map.EnvGridMap`.
@@ -63,6 +69,7 @@ the API reference documents the direct Python constructor behavior.
    :caption: API Documentation
 
    Overview (irsim.make, EnvBase) <irsim/index>
+   irsim/msg/index
    irsim/env/index
    irsim/world/index
    irsim/lib/index

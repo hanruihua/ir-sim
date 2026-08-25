@@ -51,6 +51,18 @@ msgstr ""
 "可浏览每个键及其类型和默认值；除非默认值为 `unset`，否则所有键均为可选。点击"
 "各部分的 **full docs ›** 链接可跳转到详细说明。"
 
+#: ../../source/yaml_config/configuration.md:11
+msgid ""
+"In a combined configuration for multiple simulators, these keys may be "
+"nested under an optional top-level `irsim` mapping. IR-SIM reads and "
+"validates that mapping while leaving sibling simulator sections untouched. "
+"The filename passed to `irsim.make()` and used by `env.reload()` does not "
+"change."
+msgstr ""
+"在多模拟器的组合配置中，这些键可以嵌套在可选的顶层 `irsim` 映射下。IR-SIM "
+"读取并验证该映射，同时保持同级的其他模拟器部分不变。传递给 `irsim.make()` "
+"并由 `env.reload()` 使用的文件名无需改变。"
+
 #: ../../source/yaml_config/configuration.md:452
 msgid ""
 "This tree is a quick map: click any key to jump to its full description. For "
