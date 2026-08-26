@@ -987,6 +987,53 @@ class TestFOVDetection:
             )
         assert isinstance(detected, list)
 
+    @staticmethod
+    def _viewer(fov=1.57, fov_radius=5.0):
+        """Build a viewer at the origin facing +x with the given view cone."""
+        return ObjectBase(
+            shape={"name": "circle", "radius": 0.4},
+            state=[0, 0, 0],
+            fov=fov,
+            fov_radius=fov_radius,
+        )
+
+    @staticmethod
+    def _target(x, y, radius=0.5):
+        """Build a circular object centred on ``(x, y)``."""
+        return ObjectBase(shape={"name": "circle", "radius": radius}, state=[x, y, 0])
+
+    @pytest.mark.parametrize("distance", [0.8, 0.7, 0.6, 0.5, 0.4, 0.2])
+    def test_close_object_on_axis_stays_detected(self, distance):
+        """An object on the view axis stays detected as it closes in.
+
+        Below ``radius / sin(fov / 2)`` (~0.707 m here) its angular half
+        width exceeds ``fov / 2``, which must not push it back out of the
+        cone it is centred in.
+        """
+        viewer = self._viewer()
+        assert viewer.fov_detect_object(self._target(distance, 0.0))
+
+    def test_object_enclosing_view_point_is_detected(self):
+        """An object covering the view point spans every bearing."""
+        viewer = self._viewer()
+        assert viewer.fov_detect_object(self._target(0.0, 0.0, radius=1.0))
+
+    def test_object_wider_than_cone_is_detected(self):
+        """A narrow cone still sees an object that straddles its axis."""
+        viewer = self._viewer(fov=0.2)
+        assert viewer.fov_detect_object(self._target(2.0, 0.0))
+
+    @pytest.mark.parametrize(("x", "y"), [(-2.0, 0.0), (0.0, 3.0), (-1.0, 1.0)])
+    def test_object_outside_cone_is_not_detected(self, x, y):
+        """Objects off to the side or behind are still rejected."""
+        viewer = self._viewer()
+        assert not viewer.fov_detect_object(self._target(x, y))
+
+    def test_object_beyond_fov_radius_is_not_detected(self):
+        """The range limit still applies on the view axis."""
+        viewer = self._viewer()
+        assert not viewer.fov_detect_object(self._target(8.0, 0.0))
+
 
 def _loop_world(tmp_path, kinematics="diff", goal=None, behavior=None):
     """Write a minimal loop-behavior world YAML and return its path."""
