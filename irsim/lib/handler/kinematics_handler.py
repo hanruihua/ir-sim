@@ -10,7 +10,7 @@ from irsim.lib.algorithm.kinematics import (
     omni_angular_kinematics,
     omni_kinematics,
 )
-from irsim.util.util import log_warning, vel_diff2world, vel_omni2world
+from irsim.util.util import vel_diff2world, vel_omni2world
 
 # ---------------------------------------------------------------------------
 # Registry
@@ -427,33 +427,37 @@ class KinematicsFactory:
 
         Args:
             name: Registered kinematics name, such as ``diff``, ``omni``,
-                ``omni_angular``, or ``acker``. ``None`` uses the fallback.
+                ``omni_angular``, or ``acker``. ``None`` defaults to ``diff``;
+                ``static`` is retained as the static-object sentinel.
             noise: Whether to apply motion noise.
             alpha: Noise parameters passed to the handler.
             mode: Ackermann mode, used only by ``acker``.
             wheelbase: Ackermann wheelbase; defaults to ``1.0`` for ``acker``.
-            role: Object role used for warnings.
+            role: Object role, retained for API compatibility.
 
         Returns:
             KinematicsHandler: Registered handler instance, or a differential
-            handler fallback when the name is missing or unknown.
-        """
-        name = name.lower() if name else None
+            handler when the name is missing.
 
-        handler_cls = _kinematics_registry.get(name) if name else None
+        Raises:
+            NotImplementedError: If a non-empty name other than ``static`` is
+                not registered.
+        """
+        if name is None:
+            return DifferentialKinematics("diff", noise, alpha)
+
+        name = name.lower()
+        if name == "static":
+            return DifferentialKinematics("static", noise, alpha)
+
+        handler_cls = _kinematics_registry.get(name)
 
         if handler_cls is not None:
             # AckermannKinematics accepts extra kwargs
             if issubclass(handler_cls, AckermannKinematics):
                 return handler_cls(name, noise, alpha, mode, wheelbase or 1.0)
             return handler_cls(name, noise, alpha)
-        if role == "robot":
-            log_warning(
-                f"Unknown kinematics type: {name}, the robot will be stationary."
-            )
-
-        # Fallback to a stationary kinematics handler (differential with zero wheelbase)
-        return DifferentialKinematics(name or "diff", noise, alpha)
+        raise NotImplementedError(f"Kinematics {name!r} is not registered")
 
     @staticmethod
     def get_handler_class(name: str) -> type[KinematicsHandler] | None:

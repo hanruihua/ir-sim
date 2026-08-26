@@ -225,6 +225,20 @@ class TestKinematicsRegistry:
         handler = KinematicsFactory.create_kinematics(name="acker")
         assert isinstance(handler, AckermannKinematics)
 
+    def test_create_kinematics_defaults_to_diff_only_when_name_is_missing(self):
+        handler = KinematicsFactory.create_kinematics(name=None)
+        assert isinstance(handler, DifferentialKinematics)
+        assert handler.name == "diff"
+
+        static_handler = KinematicsFactory.create_kinematics(name="static")
+        assert isinstance(static_handler, DifferentialKinematics)
+        assert static_handler.name == "static"
+
+        with pytest.raises(NotImplementedError, match="not registered"):
+            KinematicsFactory.create_kinematics(name="nonexistent")
+        with pytest.raises(NotImplementedError, match="not registered"):
+            KinematicsFactory.create_kinematics(name="")
+
     def test_register_custom_kinematics(self):
         """A custom kinematics type can be registered and created."""
 
