@@ -468,10 +468,11 @@ msgstr "**`sample_time`**（`float`，默认与 `step_time` 相同）"
 msgid ""
 "Defines the time interval for rendering the simulation and extracting data. "
 "This controls how frequently visual updates and data recordings occur. If "
-"not specified, defaults to the value of `step_time`."
+"not specified, defaults to the value of `step_time`. The ratio to "
+"`step_time` is rounded to a whole number of steps (at least one)."
 msgstr ""
 "定义渲染与数据采集的时间间隔，决定可视化更新与记录的频率。未指定时默认等于 "
-"`step_time`。"
+"`step_time`；与 `step_time` 的比值会四舍五入为整数步数（至少为 1）。"
 
 #: ../../source/yaml_config/configuration.md:571
 msgid "**`offset`** (`list` of `float`, default: `[0, 0]`)"

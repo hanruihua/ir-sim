@@ -575,7 +575,7 @@ This section outlines the configuration parameters available for the `world` sec
 
 (p-w-sample-time)=
 **`sample_time`** (`float`, default: `step_time`)
-: Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur. If not specified, defaults to the value of `step_time`.
+: Defines the time interval for rendering the simulation and extracting data. This controls how frequently visual updates and data recordings occur. If not specified, defaults to the value of `step_time`. The ratio to `step_time` is rounded to a whole number of steps (at least one).
 
 (p-w-offset)=
 **`offset`** (`list` of `float`, default: `[0, 0]`)

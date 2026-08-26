@@ -119,6 +119,8 @@ class World:
         self.width = width
         self.step_time = step_time
         self.sample_time = sample_time if sample_time is not None else step_time
+        # at least one step per sample; round, not int(): 0.3 / 0.1 is 2.999...
+        self.sample_steps = max(1, round(self.sample_time / step_time))
         self.offset = offset
 
         self.count = 0
@@ -190,7 +192,7 @@ class World:
                 Pass ``None`` or an empty list to skip the fog update.
         """
         self.count += 1
-        self.sampling = self.count % (int(self.sample_time / self.step_time)) == 0
+        self.sampling = self.count % self.sample_steps == 0
 
         self._wp.time = self.time
         self._wp.count = self.count

@@ -1815,3 +1815,26 @@ class TestWorld3D:
         w = World3D(name="w3", depth=5.0, offset=[1, 2, 3])
         assert w.offset == [1, 2, 3]
         assert w.z_range == [3, 8]
+
+
+class TestWorldTimeValidation:
+    """The steps per sample are resolved once at construction."""
+
+    def test_sample_time_below_step_time_samples_every_step(self):
+        """Was a ZeroDivisionError on the first step()."""
+        world = World(name="test", step_time=0.1, sample_time=0.05)
+        assert world.sample_steps == 1
+        world.step([])
+        assert world.sampling
+
+    @pytest.mark.parametrize(("sample_time", "steps"), [(0.3, 3), (0.7, 7)])
+    def test_sample_steps_round_float_ratio(self, sample_time, steps):
+        """0.3 / 0.1 is 2.999... in floating point: rounded, not truncated."""
+        world = World(name="test", step_time=0.1, sample_time=sample_time)
+        assert world.sample_steps == steps
+
+        for _ in range(steps - 1):
+            world.step([])
+            assert not world.sampling
+        world.step([])
+        assert world.sampling
