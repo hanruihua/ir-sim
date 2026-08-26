@@ -6,19 +6,23 @@ import numpy as np
 if TYPE_CHECKING:
     pass
 
-# Optional pynput import (allows fallback to Matplotlib key events)
-# Predeclare for type checkers
+# pynput is optional and costs ~85 ms to import, so it is loaded on first use:
+# only when a keyboard controller with the pynput backend is created.
 keyboard: Any | None = None
-try:  # pragma: no cover - availability depends on environment
-    from pynput import keyboard as _pynput_keyboard
 
-    if getattr(_pynput_keyboard, "Listener", None) is not None:
-        keyboard = _pynput_keyboard
-        _PYNPUT_AVAILABLE = True
-    else:
-        _PYNPUT_AVAILABLE = False
-except Exception:  # pragma: no cover
-    _PYNPUT_AVAILABLE = False
+
+def _load_pynput() -> Any | None:
+    """Import ``pynput.keyboard`` on demand; ``None`` when it is unavailable."""
+    global keyboard
+    if keyboard is None:
+        try:  # pragma: no cover - availability depends on environment
+            from pynput import keyboard as pynput_keyboard
+        except Exception:
+            return None
+        if getattr(pynput_keyboard, "Listener", None) is not None:
+            keyboard = pynput_keyboard
+    return keyboard
+
 
 # Global registry to track which KeyboardControl instance is currently active
 # This ensures only one environment responds to keyboard input at a time
@@ -166,7 +170,7 @@ class KeyboardControl:
             headers = ["Key", "Function"]
             print(self._format_grid_table(headers, commands))
 
-        if self.backend == "pynput" and not _PYNPUT_AVAILABLE:
+        if self.backend == "pynput" and _load_pynput() is None:
             self.logger.warning("pynput is not available. Using matplotlib backend.")
             self.backend = "mpl"
 
@@ -198,7 +202,7 @@ class KeyboardControl:
 
         if not interactive:
             self.listener = None
-        elif self.backend == "pynput" and _PYNPUT_AVAILABLE:
+        elif self.backend == "pynput":
             # Use pynput global keyboard listener
             self.listener = keyboard.Listener(
                 on_press=self._on_pynput_press, on_release=self._on_pynput_release

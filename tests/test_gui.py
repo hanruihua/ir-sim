@@ -293,7 +293,7 @@ class TestKeyboardControlPynput:
         """Test pynput unavailable falls back to mpl."""
         env = env_factory("test_keyboard_control.yaml")
         with (
-            patch("irsim.gui.keyboard_control._PYNPUT_AVAILABLE", False),
+            patch("irsim.gui.keyboard_control._load_pynput", lambda: None),
             patch.object(env._env_param.logger, "warning") as mock_warning,
         ):
             kb = irsim.gui.keyboard_control.KeyboardControl(env, backend="pynput")
@@ -851,3 +851,37 @@ class TestMouseControl:
         mock_release.button = MouseButton.RIGHT
         mouse_control.on_release(mock_release)
         assert mouse_control.right_click_pos is None
+
+
+class TestPynputIsImportedLazily:
+    """pynput (an input-device library, ~85 ms to import) must only load when used."""
+
+    @staticmethod
+    def _modules_after(code):
+        import subprocess
+        import sys
+
+        script = f"import sys\n{code}\nprint('pynput' in sys.modules)"
+        out = subprocess.run(
+            [sys.executable, "-c", script], capture_output=True, text=True, check=True
+        )
+        return out.stdout.strip().splitlines()[-1] == "True"
+
+    def test_import_and_headless_env_do_not_load_pynput(self, tmp_path):
+        assert not self._modules_after("import irsim")
+        yaml_file = tmp_path / "w.yaml"
+        yaml_file.write_text(
+            "world: {height: 5, width: 5}\nrobot:\n  - {kinematics: {name: diff}, shape: {name: circle, radius: 0.2}, state: [1, 1, 0]}\n"
+        )
+        assert not self._modules_after(
+            f"import irsim\nenv = irsim.make({str(yaml_file)!r}, headless=True, log_level='ERROR')\nenv.step()\nenv.end()"
+        )
+
+    @requires_pynput
+    def test_pynput_backend_loads_it(self):
+        import os
+
+        yaml_file = os.path.abspath("test_keyboard_control.yaml")
+        assert self._modules_after(
+            f"import irsim\nenv = irsim.make({yaml_file!r}, display=False, log_level='ERROR')\nenv.end()"
+        )
