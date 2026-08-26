@@ -207,6 +207,7 @@ class KeyboardControl:
 
         else:
             # Fallback to matplotlib figure key events
+            self.listener = None
             fig = plt.gcf()
             self._mpl_press_cid = fig.canvas.mpl_connect(
                 "key_press_event", self._on_mpl_press
@@ -572,11 +573,21 @@ class KeyboardControl:
         if _active_keyboard_instance is self:
             self._is_active = False
 
-    def _on_mpl_close(self, event: Any) -> None:
+    def close(self) -> None:
+        """Release the controller: stop the pynput listener and deactivate it."""
+        if self.listener is not None:
+            self.listener.stop()
+        self._deactivate()
+
+    def _deactivate(self) -> None:
         global _active_keyboard_instance
         self._is_active = False
         if _active_keyboard_instance is self:
             _active_keyboard_instance = None
+
+    def _on_mpl_close(self, event: Any) -> None:
+        """Matplotlib ``close_event`` handler; the event itself is not needed."""
+        self._deactivate()
 
     def _set_active(self) -> None:
         """Set this instance as the active keyboard controller."""

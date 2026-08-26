@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -1457,19 +1458,70 @@ class TestObjectsCheckStatus:
         env._object_step(None)
 
 
-class TestEndDisableAllPlot:
-    """Test end() with disable_all_plot=True (line 524)."""
+class TestEndReleasesFigure:
+    """end() must not leave figures or global state behind in headless loops."""
 
-    def test_end_with_disable_all_plot(self):
-        """end() returns early when disable_all_plot is True."""
+    @pytest.mark.parametrize("projection", ["2d", "3d"])
+    @pytest.mark.parametrize("disable_all_plot", [True, False])
+    def test_end_releases_figure(self, disable_all_plot, projection):
+        """Every env owns one figure; end() must close it and create no other.
+
+        Without this, headless episodic loops (e.g. RL training) leak one
+        figure per environment: the ``disable_all_plot`` path never closed
+        it, and the keyboard cleanup re-created one via ``plt.gcf()``. The 3D
+        env replaces the base 2D figure with its own and must not leak either.
+        """
+        plt.close("all")
+        for _ in range(3):
+            env = irsim.make(
+                "test_collision_world.yaml",
+                save_ani=False,
+                display=False,
+                disable_all_plot=disable_all_plot,
+                projection=projection,
+            )
+            env.step()
+            assert len(plt.get_fignums()) == 1
+            env.end()
+            assert plt.get_fignums() == []
+
+    def test_end_spares_other_figures_and_releases_keyboard(self):
+        """end() is idempotent, closes only its own figure, and frees the keyboard."""
+        import irsim.gui.keyboard_control as kb_module
+
         env = irsim.make(
             "test_collision_world.yaml",
             save_ani=False,
             display=False,
             disable_all_plot=True,
         )
+        env_fig = env._env_plot.fig
+        unrelated_fig = plt.figure()
+        env.keyboard._set_active()
         env.step()
-        env.end()  # Should return immediately
+        env.end()
+        env.end()
+
+        assert not plt.fignum_exists(env_fig.number)
+        assert plt.fignum_exists(unrelated_fig.number)
+        assert env._env_param.objects == []
+        assert not env.keyboard._is_active
+        assert kb_module._active_keyboard_instance is None
+
+    def test_ending_one_environment_does_not_reset_ids_for_another(self):
+        env_a = irsim.make(
+            "test_collision_world.yaml", display=False, disable_all_plot=True
+        )
+        env_b = irsim.make(
+            "test_collision_world.yaml", display=False, disable_all_plot=True
+        )
+        existing_ids = {obj.id for obj in env_b.objects}
+
+        env_a.end()
+        new_obstacle = env_b.create_obstacle(shape={"name": "circle", "radius": 0.2})
+
+        assert new_obstacle.id not in existing_ids
+        env_b.end()
 
 
 class TestStatusArrived:

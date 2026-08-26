@@ -211,6 +211,7 @@ class EnvBase:
         self.validate_unique_names()
 
         # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
+        self.keyboard = None
         try:
             keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
             self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
@@ -595,42 +596,30 @@ class EnvBase:
             **kwargs: Additional keyword arguments for saving the animation, see :py:meth:`.EnvPlot.save_animate` for detail.
         """
 
-        if self.disable_all_plot:
-            return
+        if not self.disable_all_plot:
+            if self.save_ani:
+                # precedence: call kwargs > env ani_kwargs > world-named default
+                self._env_plot.save_animate(
+                    **{
+                        "ani_name": f"animation_{self._world.name}",
+                        **self.ani_kwargs,
+                        **kwargs,
+                    }
+                )
 
-        if self.save_ani:
-            kwargs = {**self.ani_kwargs, **kwargs}
-            if "ani_name" not in kwargs:
-                kwargs["ani_name"] = f"animation_{self._world.name}"
+            if self.display:
+                plt.pause(ending_time)
+                self.logger.info(
+                    f"Simulation Environment '{self._world.name}' closing in {ending_time:.2f} seconds."
+                )
 
-            self._env_plot.save_animate(**kwargs)
+        if self.keyboard is not None:
+            self.keyboard.close()
 
-        if self.display:
-            plt.pause(ending_time)
-            self.logger.info(
-                f"Simulation Environment '{self._world.name}' closing in {ending_time:.2f} seconds."
-            )
-
-        plt.close("all")
+        # The figure exists even when plotting is disabled; close it so that
+        # headless episodic loops do not leak one figure per environment.
+        self._env_plot.close()
         self._env_param.objects = []
-        ObjectBase.reset_id_iter()
-
-        if hasattr(self, "keyboard"):
-            # Stop pynput listener if present; otherwise disconnect MPL callbacks
-            try:
-                if (
-                    hasattr(self.keyboard, "listener")
-                    and self.keyboard.listener is not None
-                ):
-                    self.keyboard.listener.stop()
-                else:
-                    fig = plt.gcf()
-                    if hasattr(self.keyboard, "_mpl_press_cid"):
-                        fig.canvas.mpl_disconnect(self.keyboard._mpl_press_cid)
-                    if hasattr(self.keyboard, "_mpl_release_cid"):
-                        fig.canvas.mpl_disconnect(self.keyboard._mpl_release_cid)
-            except Exception:
-                pass
 
         self.logger.info(
             f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."
