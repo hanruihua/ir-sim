@@ -1,4 +1,5 @@
 import difflib
+import functools
 import inspect
 import math
 import os
@@ -1007,6 +1008,23 @@ def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
         return [position(i) for i in action_id]
     start = 0 if action_id is None else position(action_id)
     return list(range(start, min(start + count, len(objects))))
+
+
+def plot_only(method):
+    """Decorator making an env plotting helper a no-op when the env has no figure.
+
+    ``EnvBase`` creates no ``EnvPlot`` in headless mode, so
+    rendering, drawing, and saving helpers decorated with this simply return
+    ``None`` in that case.
+    """
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if self._env_plot is None:
+            return None
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 def normalize_actions(func):

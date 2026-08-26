@@ -49,8 +49,10 @@ class EnvBase3D(EnvBase):
             world_offset=self._world.offset[:2],
         )
 
-        self._env_plot.close()
-
-        self._env_plot = EnvPlot3D(self._world, self.objects, **self._world.plot_parse)
+        if self._env_plot is not None:
+            self._env_plot.close()
+            self._env_plot = EnvPlot3D(
+                self._world, self.objects, **self._world.plot_parse
+            )
 
         env_param.objects = self.objects

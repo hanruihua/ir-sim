@@ -82,10 +82,10 @@ env2.end()
 ```python
 import irsim
 
-# Create multiple headless environments for training
+# Create multiple headless environments for training (no figures or input devices)
 num_envs = 4
 envs = [
-    irsim.make(f"training_world.yaml", display=False, seed=i) for i in range(num_envs)
+    irsim.make(f"training_world.yaml", headless=True, seed=i) for i in range(num_envs)
 ]
 
 # Run training loop

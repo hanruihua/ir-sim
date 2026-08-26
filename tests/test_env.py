@@ -1526,7 +1526,7 @@ class TestEndReleasesFigure:
                 projection=projection,
             )
             env.step()
-            assert len(plt.get_fignums()) == 1
+            assert len(plt.get_fignums()) == (0 if disable_all_plot else 1)
             env.end()
             assert plt.get_fignums() == []
 
@@ -1534,12 +1534,7 @@ class TestEndReleasesFigure:
         """end() is idempotent, closes only its own figure, and frees the keyboard."""
         import irsim.gui.keyboard_control as kb_module
 
-        env = irsim.make(
-            "test_collision_world.yaml",
-            save_ani=False,
-            display=False,
-            disable_all_plot=True,
-        )
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
         env_fig = env._env_plot.fig
         unrelated_fig = plt.figure()
         env.keyboard._set_active()
@@ -1610,6 +1605,51 @@ class TestStepActionIds:
     def test_sequential_actions_start_at_id(self, env_factory, tmp_path):
         env = self._make(env_factory, tmp_path)
         assert self._step_and_moved(env, [[1.0, 0.0]] * 2, action_id=1) == [1, 2]
+
+
+class TestDisableAllPlotSkipsFigure:
+    """``disable_all_plot`` creates no figure and turns the plot helpers into no-ops."""
+
+    @pytest.mark.parametrize("projection", ["2d", "3d"])
+    def test_no_figure_and_helpers_are_noops(self, env_factory, projection):
+        plt.close("all")
+        env = env_factory(
+            "test_collision_world.yaml", disable_all_plot=True, projection=projection
+        )
+        assert env._env_plot is None
+        assert env.mouse is None
+        assert plt.get_fignums() == []
+
+        env.step()
+        env.render()
+        env.draw_trajectory(env.robot.trajectory)
+        env.draw_points([[1.0, 1.0]])
+        env.set_title("headless")
+        env.save_figure()
+        env.reset_plot()
+        env.random_obstacle_position()
+        if projection == "2d":
+            env.reset(random=True)
+            env.reload()
+            env.step()
+        env.end()
+
+        assert plt.get_fignums() == []
+
+    def test_headless_argument_and_alias(self, env_factory):
+        env = env_factory("test_collision_world.yaml", headless=True, display=True)
+        assert env.headless
+        assert env.disable_all_plot  # alias
+        assert not env.display  # headless implies no window
+        assert env._env_plot is None
+        alias = env_factory("test_collision_world.yaml", disable_all_plot=True)
+        assert alias.headless
+        assert alias._env_plot is None
+
+    def test_keyboard_control_falls_back_to_auto(self, env_factory):
+        env = env_factory("test_keyboard_control.yaml", disable_all_plot=True)
+        assert env._world_param.control_mode == "auto"
+        env.step()
 
 
 class TestStatusArrived:
