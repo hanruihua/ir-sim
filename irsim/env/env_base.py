@@ -275,7 +275,7 @@ class EnvBase:
     def step(
         self,
         action: np.ndarray | list[Any] | None = None,
-        action_id: int | list[int] | None = 0,
+        action_id: int | list[int] | None = None,
     ) -> None:
         """
         Perform a single simulation step in the environment.
@@ -299,10 +299,14 @@ class EnvBase:
                     2. Apply the provided ``action`` (list of numpy arrays) to robots by ``action_id`` (int or list of int).
                     3. For remaining robots, fall back to their configured behaviors when ``action`` is ``None``.
 
-            action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
-                Can be a single robot ID or a list of IDs. Default is 0 (first robot).
-                If action is a list and action_id is a single int, all actions will be
-                applied to robots sequentially starting from action_id.
+            action_id (Union[int, str, list], optional): Object id(s) (``obj.id``) or
+                name(s) to apply the action(s) to; robots are created first, so ids
+                ``0..n-1`` are the robots. ``None`` (default) targets the first robot. If
+                action is a list of actions and action_id is a single id, the actions are
+                applied to that object and the following ones in order. A flat list of
+                numbers (e.g. ``[1.0, 0.5]``) is one action; a dict ``{name: action}``
+                can be passed as ``action`` instead of using ``action_id``. Surplus actions
+                are dropped with a warning; an unknown id or name raises ``ValueError``.
 
         Note:
             - If the environment is paused, this method returns without performing any updates.
@@ -319,6 +323,9 @@ class EnvBase:
             >>> # Move multiple robots
             >>> actions = [[1.0, 0.0], [0.5, 0.3]]
             >>> env.step(actions, action_id=[0, 1])  # Move robots 0 and 1
+            >>>
+            >>> # Dict keyed by robot name
+            >>> env.step({"robot_0": [1.0, 0.0], "robot_2": [0.5, 0.3]})
         """
 
         if self.quit_flag:

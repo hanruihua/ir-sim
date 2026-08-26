@@ -702,3 +702,44 @@ msgstr "在 `external` 模式下，状态由另一个仿真器或外部系统更
 #: ../../source/usage/make_environment.md:185
 msgid "The external step does not execute IR-SIM kinematics or behaviors. It refreshes all object geometries from one state snapshot, rebuilds the collision index, updates sensors and status, records trajectories, and advances the world clock. Passing `action` to `env.step()` in this mode raises `ValueError`, preventing accidental mixing of internal and external state advancement."
 msgstr "外部步进不会执行 IR-SIM 的运动学或行为逻辑。它基于同一状态快照刷新所有对象的几何信息、重建碰撞索引、更新传感器和状态、记录轨迹，并推进世界时钟。在此模式下向 `env.step()` 传入 `action` 会引发 `ValueError`，以防意外混用内部和外部状态推进方式。"
+
+#: ../../source/usage/make_environment.md:173
+msgid "Actions follow the usual single- and multi-agent conventions:"
+msgstr "动作的传入方式遵循常见的单智能体 / 多智能体惯例："
+
+#: ../../source/usage/make_environment.md:175
+msgid ""
+"`env.step([1.0, 0.5])` applies one action (a list, tuple, or ndarray) to "
+"the first robot."
+msgstr "`env.step([1.0, 0.5])`：把一个动作（列表、元组或 ndarray）施加给第一个机器人。"
+
+#: ../../source/usage/make_environment.md:176
+msgid ""
+"`env.step(action, action_id=2)` targets the object with id `2` (`obj.id`; "
+"robots are created first, so ids `0..n-1` are the robots). A name such as "
+"`\"robot_2\"` works as well."
+msgstr ""
+"`env.step(action, action_id=2)`：作用于 id 为 `2` 的对象（即 `obj.id`；机器人最先创建，"
+"因此 id `0..n-1` 就是机器人）。也可以用名字，如 `\"robot_2\"`。"
+
+#: ../../source/usage/make_environment.md:177
+msgid ""
+"`env.step([a0, a1, a2])` applies one action per robot in order, or from "
+"`action_id` onward."
+msgstr "`env.step([a0, a1, a2])`：按顺序给每个机器人一个动作，或从 `action_id` 开始依次施加。"
+
+#: ../../source/usage/make_environment.md:178
+msgid "`env.step(actions, action_id=[0, 3])` pairs each action with the given id."
+msgstr "`env.step(actions, action_id=[0, 3])`：动作与给定的 id 一一对应。"
+
+#: ../../source/usage/make_environment.md:179
+msgid ""
+"`env.step({\"robot_0\": a0, \"robot_3\": a3})` takes a dict keyed by robot "
+"name."
+msgstr "`env.step({\"robot_0\": a0, \"robot_3\": a3})`：以机器人名字为键的字典。"
+
+#: ../../source/usage/make_environment.md:181
+msgid ""
+"Surplus actions are dropped with a warning; an unknown id or name raises "
+"`ValueError`."
+msgstr "多余的动作会被丢弃并给出警告；不存在的 id 或名字会抛出 `ValueError`。"

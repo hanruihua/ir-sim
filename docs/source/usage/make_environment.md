@@ -170,6 +170,16 @@ env = irsim.make("config.yaml")
 env.step(action=[1.0, 0.0], action_id=0)
 ```
 
+Actions follow the usual single- and multi-agent conventions:
+
+- `env.step([1.0, 0.5])` applies one action (a list, tuple, or ndarray) to the first robot.
+- `env.step(action, action_id=2)` targets the object with id `2` (`obj.id`; robots are created first, so ids `0..n-1` are the robots). A name such as `"robot_2"` works as well.
+- `env.step([a0, a1, a2])` applies one action per robot in order, or from `action_id` onward.
+- `env.step(actions, action_id=[0, 3])` pairs each action with the given id.
+- `env.step({"robot_0": a0, "robot_3": a3})` takes a dict keyed by robot name.
+
+Surplus actions are dropped with a warning; an unknown id or name raises `ValueError`.
+
 In `external` mode, another simulator or system owns the state update. Supply
 the new state and velocity first, then call `env.step()` without an action:
 

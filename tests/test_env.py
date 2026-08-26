@@ -731,6 +731,51 @@ class TestSimulationLoop:
         action_id = 1
         env.step(action_list, action_id)
 
+    def test_step_with_flat_action_list(self, env_factory):
+        """``[1.0, 0.5]`` is one action, not one scalar per object."""
+        env = env_factory("test_multi_objects_world.yaml")
+        x0 = env.robot_list[0].state[0, 0]
+        env.step([1.0, 0.0])
+        assert env.robot_list[0].state[0, 0] > x0
+
+    def test_step_with_flat_action_list_and_id_list(self, env_factory):
+        """A flat action is broadcast to every id in ``action_id``."""
+        env = env_factory("test_multi_objects_world.yaml")
+        xs = [obj.state[0, 0] for obj in env.robot_list[:2]]
+        env.step([1.0, 0.0], action_id=[0, 1])
+        for obj, x in zip(env.robot_list[:2], xs, strict=True):
+            assert obj.state[0, 0] > x
+
+    def test_step_with_tuple_action(self, env_factory):
+        """A tuple action must not be silently dropped."""
+        env = env_factory("test_multi_objects_world.yaml")
+        x0 = env.robot_list[0].state[0, 0]
+        env.step((1.0, 0.0))
+        assert env.robot_list[0].state[0, 0] > x0
+
+    @pytest.mark.parametrize(
+        ("action", "action_id"),
+        [
+            ([[1.0, 0.0]] * 99, None),  # more actions than objects
+            ([[1.0, 0.0], [1.0, 0.0]], [0]),  # more actions than ids
+        ],
+    )
+    def test_step_warns_and_drops_surplus_actions(self, env_factory, action, action_id):
+        env = env_factory("test_multi_objects_world.yaml")
+        with patch.object(env.logger, "warning") as warn:
+            env.step(action, action_id)
+        assert sum("ignored" in c.args[0] for c in warn.call_args_list) == 1
+
+    def test_step_rejects_unknown_action_id(self, env_factory):
+        env = env_factory("test_multi_objects_world.yaml")
+        with pytest.raises(ValueError, match="no object with id or name 99"):
+            env.step([1.0, 0.0], action_id=99)
+
+    def test_step_rejects_unsupported_action_type(self, env_factory):
+        env = env_factory("test_multi_objects_world.yaml")
+        with pytest.raises(TypeError, match="action must be"):
+            env.step("forward")
+
     def test_external_step_synchronizes_supplied_state(self, env_factory, tmp_path):
         """External mode refreshes supplied states without running behaviors."""
         yaml_file = tmp_path / "external_step.yaml"
@@ -1522,6 +1567,49 @@ class TestEndReleasesFigure:
 
         assert new_obstacle.id not in existing_ids
         env_b.end()
+
+
+class TestStepActionIds:
+    """``action_id`` means ``obj.id`` and stays valid after objects are deleted."""
+
+    @staticmethod
+    def _make(env_factory, tmp_path):
+        yaml_file = tmp_path / "ids.yaml"
+        robots = "".join(
+            f"  - {{kinematics: {{name: diff}}, shape: {{name: circle, radius: 0.2}}, state: [{x}, 1, 0]}}\n"
+            for x in (1, 3, 5)
+        )
+        yaml_file.write_text(f"world: {{height: 10, width: 10}}\nrobot:\n{robots}")
+        return env_factory(str(yaml_file))
+
+    @staticmethod
+    def _step_and_moved(env, action, **kwargs):
+        before = {r.id: r.state[0, 0] for r in env.robot_list}
+        env.step(action, **kwargs)
+        return [r.id for r in env.robot_list if r.state[0, 0] > before[r.id]]
+
+    def test_action_id_is_object_id_after_deletion(self, env_factory, tmp_path):
+        env = self._make(env_factory, tmp_path)
+        env.delete_object(0)
+        assert self._step_and_moved(env, [1.0, 0.0], action_id=1) == [1]
+
+    def test_default_targets_first_remaining_robot(self, env_factory, tmp_path):
+        env = self._make(env_factory, tmp_path)
+        env.delete_object(0)
+        assert self._step_and_moved(env, [1.0, 0.0]) == [1]
+
+    def test_dict_keyed_by_name(self, env_factory, tmp_path):
+        env = self._make(env_factory, tmp_path)
+        moved = self._step_and_moved(
+            env, {"robot_0": [1.0, 0.0], "robot_2": [1.0, 0.0]}
+        )
+        assert moved == [0, 2]
+        with pytest.raises(ValueError, match="no object with id or name 'ghost'"):
+            env.step([1.0, 0.0], action_id="ghost")
+
+    def test_sequential_actions_start_at_id(self, env_factory, tmp_path):
+        env = self._make(env_factory, tmp_path)
+        assert self._step_and_moved(env, [[1.0, 0.0]] * 2, action_id=1) == [1, 2]
 
 
 class TestStatusArrived:
