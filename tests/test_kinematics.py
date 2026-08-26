@@ -522,3 +522,39 @@ class TestVelocityToXYZeroShape:
         velocity = np.float64(0.0)  # ndim == 0
         result = handler.velocity_to_xy(state, velocity)
         np.testing.assert_array_equal(result, np.zeros((2, 1)))
+
+
+class TestKinematicsParameters:
+    """Extra ``kinematics`` keys reach the handler's constructor."""
+
+    def test_extra_parameters_are_forwarded(self):
+        @register_kinematics("test_lag")
+        class LagKinematics(DifferentialKinematics):
+            def __init__(self, name, noise=False, alpha=None, tau=0.3):
+                super().__init__(name, noise, alpha)
+                self.tau = tau
+
+        assert KinematicsFactory.create_kinematics(name="test_lag", tau=0.5).tau == 0.5
+        acker = KinematicsFactory.create_kinematics(
+            name="acker", mode="angular", wheelbase=2.0
+        )
+        assert (acker.mode, acker.wheelbase) == ("angular", 2.0)
+        with pytest.raises(TypeError, match="tau"):
+            KinematicsFactory.create_kinematics(name="diff", tau=0.5)
+
+        # a shape's wheelbase only concerns Ackermann handlers
+        assert (
+            KinematicsFactory.create_kinematics(name="acker", wheelbase=3.0).wheelbase
+            == 3.0
+        )
+        assert KinematicsFactory.create_kinematics(name="acker").wheelbase == 1.0
+        assert KinematicsFactory.create_kinematics(name="omni_angular", wheelbase=3.0)
+
+        # the same path through an object's YAML ``kinematics`` block
+        from irsim.world.object_base import ObjectBase
+
+        robot = ObjectBase(
+            kinematics={"name": "test_lag", "tau": 0.5},
+            shape={"name": "circle", "radius": 0.2},
+        )
+        assert robot.kf.tau == 0.5
