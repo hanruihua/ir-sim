@@ -103,8 +103,12 @@ msgid "**range_max**: The maximum range of the laser beam."
 msgstr "**range_max**：激光束的最大量程。"
 
 #: ../../source/usage/configure_sensor.md:108
-msgid "**angle_range**: The angle range of the laser beam."
-msgstr "**angle_range**：激光束覆盖的角度范围。"
+msgid ""
+"**angle_range**: The angle range of the laser beam. Use `6.283185` or `2 * "
+"pi` in Python for a full 360-degree scan."
+msgstr ""
+"**angle_range**：激光束覆盖的角度范围。完整的 360 度扫描可在 YAML 中使用 "
+"`6.283185`，或在 Python 中使用 `2 * pi`。"
 
 #: ../../source/usage/configure_sensor.md:109
 msgid "**number**: The number of beams."

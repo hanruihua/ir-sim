@@ -761,7 +761,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `plot`           | `dict`                                           | `{}`             | Plotting options for object visualization.                                                                         |
 | `state_dim`      | `int`                                            | `None`           | Dimension of the state vector.                                                                                     |
 | `vel_dim`        | `int`                                            | `None`           | Dimension of the velocity vector.                                                                                  |
-| `fov`            | `float`                                          | `None`           | Field of view angles in radians for the object's sensors.                                                          |
+| `fov`            | `float`                                          | `None`           | Field of view angle in radians for the object's sensors, clipped to `[0, 2*pi]`.                                                          |
 | `fov_radius`     | `float`                                          | `None`           | Field of view radius for the object's sensors.                                                                     |
 
 ### Detailed Parameter Descriptions
@@ -1242,7 +1242,7 @@ env.step(env.robot.vel_world2body(world_vel))
   - `lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
     - `range_min` (float/`0.0`): Minimum detection range.
     - `range_max` (float/`10.0`): Maximum detection range.
-    - `angle_range` (float/`pi`): Total angle range of the sensor.
+    - `angle_range` (float/`pi`): Total angle range of the sensor, clipped to `[0, 2*pi]` (`6.283185` gives a full 360° scan).
     - `number` (int/`100`): Number of laser beams.
     - `scan_time` (float/`0.1`): Time taken for one complete scan.
     - `noise` (bool/`False`): Whether noise is added to measurements.

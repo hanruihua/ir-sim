@@ -207,6 +207,14 @@ class TestFMCWLidar2D:
         assert msg.angle_max == 0.0
         assert msg.angle_increment == 0.0
 
+    @pytest.mark.parametrize("angle_range", [2 * np.pi, 6.283185, 7.0])
+    def test_full_circle_angle_range_is_preserved(self, angle_range):
+        """A full (or over-full) revolution must not wrap to a zero-width scan."""
+        sensor = Lidar2D(state=np.zeros((3, 1)), angle_range=angle_range, number=5)
+
+        assert sensor.angle_range == pytest.approx(2 * np.pi)
+        np.testing.assert_allclose(sensor.angle_list, np.linspace(-np.pi, np.pi, 5))
+
     def test_factory_creates_fmcw_sensor(self):
         """SensorFactory should create the simplified FMCW lidar."""
         factory = SensorFactory()

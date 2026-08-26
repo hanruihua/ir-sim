@@ -145,6 +145,20 @@ def WrapTo2Pi(rad: float) -> float:
     return rad % (2 * pi)
 
 
+def ClipTo2Pi(rad: float) -> float:
+    """Clip an angular span, such as a sensor sweep or a field of view, to [0, 2pi].
+
+    Unlike :func:`WrapTo2Pi`, a full circle stays ``2pi`` instead of wrapping to ``0``.
+
+    Args:
+        rad (float): Angular span in radians.
+
+    Returns:
+        float: ``rad`` clipped to the range [0, 2pi].
+    """
+    return float(np.clip(rad, 0.0, 2 * pi))
+
+
 def WrapToRegion(rad: float, range: list[float]) -> float:
     """
     Transform an angle to a defined range, with length of 2*pi.

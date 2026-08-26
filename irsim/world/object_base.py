@@ -11,7 +11,7 @@ from shapely.geometry.base import BaseGeometry
 
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
 from irsim.util.util import (
-    WrapTo2Pi,
+    ClipTo2Pi,
     WrapToPi,
     WrapToRegion,
     check_unknown_kwargs,
@@ -481,12 +481,10 @@ class ObjectBase:
             self.sensors = []
 
         if fov is None:
-            self.fov = (
-                WrapTo2Pi(self.lidar.angle_range) if self.lidar is not None else None
-            )
+            self.fov = self.lidar.angle_range if self.lidar is not None else None
             self.fov_radius = self.lidar.range_max if self.lidar is not None else None
         else:
-            self.fov = WrapTo2Pi(fov)
+            self.fov = ClipTo2Pi(fov)
             self.fov_radius = fov_radius
 
     def _init_behavior(

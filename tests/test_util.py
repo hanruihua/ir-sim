@@ -40,6 +40,14 @@ def test_WrapTo2Pi():
     assert util.WrapTo2Pi(float("nan")) == 0.0
 
 
+def test_ClipTo2Pi():
+    """A full circle stays 2*pi (WrapTo2Pi would give 0)."""
+    assert util.ClipTo2Pi(2 * math.pi) == pytest.approx(2 * math.pi)
+    assert util.ClipTo2Pi(7.0) == pytest.approx(2 * math.pi)
+    assert util.ClipTo2Pi(1.0) == 1.0
+    assert util.ClipTo2Pi(-0.1) == 0.0
+
+
 def test_WrapToRegion():
     region = [-math.pi, math.pi]
     assert util.WrapToRegion(3 * math.pi, region) == math.pi

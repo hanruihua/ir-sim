@@ -1148,8 +1148,10 @@ msgid "`fov`"
 msgstr "`fov`"
 
 #: ../../source/yaml_config/configuration.md:700
-msgid "Field of view angles in radians for the object's sensors."
-msgstr "对象传感器的视场角（弧度）。"
+msgid ""
+"Field of view angle in radians for the object's sensors, clipped to `[0, "
+"2*pi]`."
+msgstr "对象传感器的视场角（弧度），限制在 `[0, 2*pi]` 内。"
 
 #: ../../source/yaml_config/configuration.md:700
 msgid "`fov_radius`"
@@ -2182,8 +2184,10 @@ msgid "`range_max` (float/`10.0`): Maximum detection range."
 msgstr "`range_max`（float）：最大探测距离，默认 `10.0`。"
 
 #: ../../source/yaml_config/configuration.md:1204
-msgid "`angle_range` (float/`pi`): Total angle range of the sensor."
-msgstr "`angle_range`（float）：传感器覆盖角度，默认 `pi`。"
+msgid ""
+"`angle_range` (float/`pi`): Total angle range of the sensor, clipped to "
+"`[0, 2*pi]` (`6.283185` gives a full 360° scan)."
+msgstr "`angle_range`（float）：传感器覆盖角度，默认 `pi`，限制在 `[0, 2*pi]` 内（`6.283185` 为 360° 全向扫描）。"
 
 #: ../../source/yaml_config/configuration.md:1205
 msgid "`number` (int/`100`): Number of laser beams."

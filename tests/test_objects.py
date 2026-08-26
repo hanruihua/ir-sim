@@ -457,6 +457,20 @@ class TestObjectBaseNoKinematics:
         env.end()
 
 
+def test_full_circle_object_fov_is_preserved():
+    """Explicit and lidar-derived fields of view keep a full circle."""
+    obj = ObjectBase(
+        role="robot",
+        kinematics={"name": "diff"},
+        shape={"name": "circle", "radius": 0.2},
+        sensors=[{"name": "lidar2d", "angle_range": 2 * np.pi, "number": 5}],
+    )
+    assert obj.fov == pytest.approx(2 * np.pi)
+
+    explicit_fov = ObjectBase(role="obstacle", fov=2 * np.pi, fov_radius=5.0)
+    assert explicit_fov.fov == pytest.approx(2 * np.pi)
+
+
 # ---------------------------------------------------------------------------
 # Robot API (ObjectBase through a live environment)
 # ---------------------------------------------------------------------------
