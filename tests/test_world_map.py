@@ -1827,9 +1827,11 @@ class TestWorldTimeValidation:
         world.step([])
         assert world.sampling
 
-    @pytest.mark.parametrize(("sample_time", "steps"), [(0.3, 3), (0.7, 7)])
-    def test_sample_steps_round_float_ratio(self, sample_time, steps):
-        """0.3 / 0.1 is 2.999... in floating point: rounded, not truncated."""
+    @pytest.mark.parametrize(
+        ("sample_time", "steps"), [(0.3, 3), (0.7, 7), (0.25, 2), (0.35, 3)]
+    )
+    def test_sample_steps_truncate_without_float_noise(self, sample_time, steps):
+        """Whole ratios survive float noise (0.3 / 0.1 is 2.999...); fractional ratios truncate."""
         world = World(name="test", step_time=0.1, sample_time=sample_time)
         assert world.sample_steps == steps
 

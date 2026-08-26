@@ -119,8 +119,9 @@ class World:
         self.width = width
         self.step_time = step_time
         self.sample_time = sample_time if sample_time is not None else step_time
-        # at least one step per sample; round, not int(): 0.3 / 0.1 is 2.999...
-        self.sample_steps = max(1, round(self.sample_time / step_time))
+        # at least one step per sample; truncate like int() always did, but drop
+        # floating-point noise first (0.3 / 0.1 is 2.999..., which must be 3)
+        self.sample_steps = max(1, int(round(self.sample_time / step_time, 9)))
         self.offset = offset
 
         self.count = 0
