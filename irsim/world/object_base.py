@@ -903,8 +903,12 @@ class ObjectBase:
         """
         Detect whether the input object is in the field of view.
 
+        The object counts as detected when any part of it falls inside the
+        view cone, so its radius widens the angular test and shortens the
+        range test.
+
         Args:
-            object: The object that to be detected.
+            detected_object: The object that to be detected.
 
         Returns:
             bool: Whether the object is in the field of view.
@@ -923,12 +927,16 @@ class ObjectBase:
         rad_diff = WrapToPi(rad_to_do - object_orientation, True)
         distance_do = math.hypot(dx, dy)
 
-        if distance_do == 0:
-            rad_offset = pi / 2
+        if distance_do <= radius_do:
+            # The object encloses the view point, so it spans every bearing.
+            rad_offset = pi
         else:
-            rad_offset = WrapToPi(math.asin(min(radius_do / distance_do, 1)))
+            rad_offset = math.asin(radius_do / distance_do)
 
-        fov_diff = abs(rad_diff - rad_offset)
+        # Bearing of the near edge, measured from the view axis. It goes
+        # negative once the object straddles that axis, which keeps a large or
+        # close object inside the cone instead of pushing it back out.
+        fov_diff = rad_diff - rad_offset
 
         return bool(
             fov_diff <= self.fov / 2 and distance_do - radius_do <= self.fov_radius
