@@ -28,6 +28,8 @@ class EnvLogger:
         if log_file is not None:
             logger.add(log_file, level=log_level)
 
+        self._once_keys: set[str] = set()
+
     def trace(self, msg: str) -> None:
         """
         Log a trace message.
@@ -72,6 +74,24 @@ class EnvLogger:
             msg (str): The message to log.
         """
         logger.warning(msg)
+
+    def warning_once(self, msg: str, key: str | None = None) -> None:
+        """
+        Log a warning the first time ``key`` (default: ``msg``) is seen, then at DEBUG.
+
+        For per-step conditions that would otherwise flood the log every step.
+
+        Args:
+            msg (str): The message to log.
+            key (str, optional): Identity of the condition when ``msg`` varies.
+        """
+        key = key or msg
+        if key in self._once_keys:
+            logger.debug(msg)
+            return
+
+        self._once_keys.add(key)
+        logger.warning(f"{msg} (further occurrences are logged at DEBUG level)")
 
     def success(self, msg: str) -> None:
         """

@@ -59,10 +59,9 @@ def _goal_pending(ego_object: Any, behavior: str) -> bool:
     if ego_object.goal is not None:
         return False
 
-    if ego_object._world_param.count % 10 == 0:
-        ego_object.logger.warning(
-            f"Goal is currently None. This {behavior} behavior is waiting for goal configuration"
-        )
+    ego_object.logger.warning_once(
+        f"{ego_object.name}: goal is None, the {behavior} behavior is waiting for a goal"
+    )
 
     return True
 

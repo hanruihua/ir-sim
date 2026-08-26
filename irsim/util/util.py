@@ -101,6 +101,11 @@ def log_warning(msg: str) -> None:
     _emit_log("warning", msg)
 
 
+def log_warning_once(msg: str) -> None:
+    """Emit ``msg`` as a warning once (then at DEBUG); see ``EnvLogger.warning_once``."""
+    _emit_log("warning_once", msg)
+
+
 def log_error(msg: str) -> None:
     """Emit an error through the env logger so it respects ``log_level``."""
     _emit_log("error", msg)
@@ -1029,7 +1034,7 @@ def normalize_actions(func):
             action_list = _as_action_list(action, n_ids)
             targets = _target_positions(objects, action_id, len(action_list))
             if len(action_list) != len(targets):
-                self.logger.warning(
+                self.logger.warning_once(
                     f"{len(action_list)} action(s) but {len(targets)} target object(s); "
                     "matched in order, the rest are ignored"
                 )

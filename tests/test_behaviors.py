@@ -142,12 +142,12 @@ class TestBehaviorMethodsGoalNone:
         ego = Mock()
         ego.goal = None
         ego._world_param = Mock()
-        ego._world_param.count = 10  # divisible by 10 to trigger warning
+        ego._world_param.count = 10
         ego.logger = Mock()
 
         result = beh_diff_rvo(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_diff_dash_goal_none(self, dummy_logger):
         """Test diff dash behavior returns zeros when goal is None."""
@@ -162,7 +162,7 @@ class TestBehaviorMethodsGoalNone:
 
         result = beh_diff_dash(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_omni_rvo_goal_none(self, dummy_logger):
         """Test omni rvo behavior returns zeros when goal is None."""
@@ -175,7 +175,7 @@ class TestBehaviorMethodsGoalNone:
 
         result = beh_omni_rvo(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_acker_dash_goal_none(self, dummy_logger):
         """Test acker dash behavior returns zeros when goal is None."""
@@ -188,7 +188,7 @@ class TestBehaviorMethodsGoalNone:
 
         result = beh_acker_dash(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_omni_dash_goal_none(self, dummy_logger):
         """Test omni dash behavior returns zeros when goal is None."""
@@ -197,12 +197,12 @@ class TestBehaviorMethodsGoalNone:
         ego = Mock()
         ego.goal = None
         ego._world_param = Mock()
-        ego._world_param.count = 10  # divisible by 10 to trigger warning
+        ego._world_param.count = 10
         ego.logger = Mock()
 
         result = beh_omni_dash(ego, [])
         assert np.allclose(result, np.zeros((2, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_omni_angular_dash_goal_none(self, dummy_logger):
         """Test omni_angular dash behavior returns zeros when goal is None."""
@@ -216,7 +216,7 @@ class TestBehaviorMethodsGoalNone:
 
         result = beh_omni_angular_dash(ego, [])
         assert np.allclose(result, np.zeros((3, 1)))
-        ego.logger.warning.assert_called_once()
+        ego.logger.warning_once.assert_called_once()
 
     def test_omni_angular_dash_with_goal(self, dummy_logger):
         """Test omni_angular dash behavior with valid goal."""
@@ -645,7 +645,7 @@ class TestGroupBehavior:
         member._world_param.count = 20
 
         gb = GroupBehavior([member], name=None)
-        with patch("irsim.lib.behavior.group_behavior.log_warning") as mock_log:
+        with patch("irsim.lib.behavior.group_behavior.log_warning_once") as mock_log:
             result = gb.gen_group_vel()
         assert result == [None]
         mock_log.assert_called_once()

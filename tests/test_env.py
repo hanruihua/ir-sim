@@ -762,7 +762,7 @@ class TestSimulationLoop:
     )
     def test_step_warns_and_drops_surplus_actions(self, env_factory, action, action_id):
         env = env_factory("test_multi_objects_world.yaml")
-        with patch.object(env.logger, "warning") as warn:
+        with patch.object(env.logger, "warning_once") as warn:
             env.step(action, action_id)
         assert sum("ignored" in c.args[0] for c in warn.call_args_list) == 1
 
@@ -1656,6 +1656,29 @@ class TestStatusArrived:
         with mock_patch.object(ObjectBase, "check_status", lambda self: None):
             env._status_step()
         assert env.status == "Quit"
+
+
+class TestWarningOnce:
+    """EnvLogger.warning_once reports a keyed condition once, then at DEBUG."""
+
+    def test_warning_once_downgrades_repeats(self):
+        from loguru import logger as loguru_logger
+
+        from irsim.env.env_logger import EnvLogger
+
+        env_logger = EnvLogger(log_file=None, log_level="DEBUG")
+        records = []
+        sink = loguru_logger.add(lambda m: records.append(m.record), level="DEBUG")
+        try:
+            for _ in range(3):
+                env_logger.warning_once("robot_0 is stuck", key="stuck")
+            env_logger.warning_once("another condition")
+        finally:
+            loguru_logger.remove(sink)
+
+        levels = [r["level"].name for r in records]
+        assert levels == ["WARNING", "DEBUG", "DEBUG", "WARNING"]
+        assert "logged at DEBUG" in records[0]["message"]
 
 
 class TestCloseAlias:

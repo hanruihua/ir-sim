@@ -5,7 +5,7 @@ from irsim.lib.behavior.behavior_registry import (
     group_behaviors_class_map,
     group_behaviors_map,
 )
-from irsim.util.util import log_error, log_warning
+from irsim.util.util import log_error, log_warning_once
 from irsim.world.object_base import ObjectBase
 
 
@@ -93,10 +93,10 @@ class GroupBehavior:
             # Access params via first member if available
             if self.members:
                 wp = self.members[0]._world_param
-                if wp.control_mode == "auto" and wp.count % 20 == 0:
-                    log_warning(
-                        "Group behavior not defined. Auto control will be static. "
-                        "Available behaviors: orca"
+                if wp.control_mode == "auto":
+                    log_warning_once(
+                        f"Group behavior not defined for the group of {self.members[0].name}. "
+                        "Auto control will be static. Available behaviors: orca"
                     )
             return [None]
 

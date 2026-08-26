@@ -56,8 +56,8 @@ class Behavior:
             # Access params via ego_object's env reference if available
             if ego_object is not None:
                 wp = ego_object._world_param
-                if wp.control_mode == "auto" and wp.count % 20 == 0:
-                    ego_object.logger.warning(
+                if wp.control_mode == "auto":
+                    ego_object.logger.warning_once(
                         f"Behavior not defined for {self.object_info.name}. auto control will be static. Available behaviors: rvo, dash"
                     )
 
