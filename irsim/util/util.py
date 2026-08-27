@@ -102,8 +102,14 @@ def log_warning(msg: str) -> None:
 
 
 def log_warning_once(msg: str) -> None:
-    """Emit ``msg`` as a warning once (then at DEBUG); see ``EnvLogger.warning_once``."""
-    _emit_log("warning_once", msg)
+    """Emit ``msg`` as a warning once (then at DEBUG); see ``EnvLogger.warning_once``.
+
+    Loggers without ``warning_once`` (e.g. a plain ``logging.Logger``) get a
+    regular warning instead.
+    """
+    logger = getattr(env_param, "logger", None)
+    if logger is not None:
+        getattr(logger, "warning_once", logger.warning)(msg)
 
 
 def log_error(msg: str) -> None:
@@ -154,6 +160,7 @@ def ClipTo2Pi(rad: float) -> float:
     """Clip an angular span, such as a sensor sweep or a field of view, to [0, 2pi].
 
     Unlike :func:`WrapTo2Pi`, a full circle stays ``2pi`` instead of wrapping to ``0``.
+    Non-finite input yields ``0.0``, as in :func:`WrapTo2Pi`.
 
     Args:
         rad (float): Angular span in radians.
@@ -161,6 +168,9 @@ def ClipTo2Pi(rad: float) -> float:
     Returns:
         float: ``rad`` clipped to the range [0, 2pi].
     """
+    if not np.isfinite(rad):
+        return 0.0
+
     return float(np.clip(rad, 0.0, 2 * pi))
 
 
@@ -1036,7 +1046,8 @@ def normalize_actions(func):
             if len(action_list) != len(targets):
                 self.logger.warning_once(
                     f"{len(action_list)} action(s) but {len(targets)} target object(s); "
-                    "matched in order, the rest are ignored"
+                    "matched in order, the rest are ignored",
+                    key="normalize_actions:surplus",
                 )
             for pos, a in zip(targets, action_list, strict=False):
                 actions[pos] = a

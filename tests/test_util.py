@@ -2,6 +2,7 @@ import math
 import os
 import time
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -46,6 +47,21 @@ def test_ClipTo2Pi():
     assert util.ClipTo2Pi(7.0) == pytest.approx(2 * math.pi)
     assert util.ClipTo2Pi(1.0) == 1.0
     assert util.ClipTo2Pi(-0.1) == 0.0
+    assert util.ClipTo2Pi(math.nan) == 0.0
+    assert util.ClipTo2Pi(math.inf) == 0.0
+
+
+def test_log_warning_once_falls_back_to_plain_warning():
+    from irsim.config import env_param
+
+    logger = Mock(spec=["warning"])  # no warning_once, like logging.Logger
+    original = env_param.logger
+    env_param.logger = logger
+    try:
+        util.log_warning_once("plain")
+    finally:
+        env_param.logger = original
+    logger.warning.assert_called_once_with("plain")
 
 
 def test_WrapToRegion():
