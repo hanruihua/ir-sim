@@ -211,6 +211,7 @@ class EnvBase:
         self.validate_unique_names()
 
         # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
+        self.keyboard = None
         try:
             keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
             self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
@@ -273,8 +274,8 @@ class EnvBase:
     @normalize_actions
     def step(
         self,
-        action: np.ndarray | list[Any] | None = None,
-        action_id: int | list[int] | None = 0,
+        action: np.ndarray | list[Any] | tuple[Any, ...] | dict[str, Any] | None = None,
+        action_id: int | str | list[int | str] | None = None,
     ) -> None:
         """
         Perform a single simulation step in the environment.
@@ -283,8 +284,9 @@ class EnvBase:
         to the specified robots and updating all objects in the environment.
 
         Args:
-            action (Union[np.ndarray, list], optional): Action(s) to be performed in the environment.
-                Can be a single action or a list of actions. Action format depends on robot type:
+            action (Union[np.ndarray, list, tuple, dict], optional): Action(s) to be performed in the environment.
+                Can be a single action, a list/tuple of actions, or a dict ``{name: action}``.
+                Action format depends on robot type:
 
                 - **Differential robot**: [linear_velocity, angular_velocity]
                 - **Omnidirectional robot**: [velocity_x, velocity_y]
@@ -298,10 +300,14 @@ class EnvBase:
                     2. Apply the provided ``action`` (list of numpy arrays) to robots by ``action_id`` (int or list of int).
                     3. For remaining robots, fall back to their configured behaviors when ``action`` is ``None``.
 
-            action_id (Union[int, list], optional): ID(s) of the robot(s) to apply the action(s) to.
-                Can be a single robot ID or a list of IDs. Default is 0 (first robot).
-                If action is a list and action_id is a single int, all actions will be
-                applied to robots sequentially starting from action_id.
+            action_id (Union[int, str, list], optional): Object id(s) (``obj.id``) or
+                name(s) to apply the action(s) to; robots are created first, so ids
+                ``0..n-1`` are the robots. ``None`` (default) targets the first robot. If
+                action is a list of actions and action_id is a single id, the actions are
+                applied to that object and the following ones in order. A flat list of
+                numbers (e.g. ``[1.0, 0.5]``) is one action; a dict ``{name: action}``
+                can be passed as ``action`` instead of using ``action_id``. Surplus actions
+                are dropped with a warning; an unknown id or name raises ``ValueError``.
 
         Note:
             - If the environment is paused, this method returns without performing any updates.
@@ -318,6 +324,9 @@ class EnvBase:
             >>> # Move multiple robots
             >>> actions = [[1.0, 0.0], [0.5, 0.3]]
             >>> env.step(actions, action_id=[0, 1])  # Move robots 0 and 1
+            >>>
+            >>> # Dict keyed by robot name
+            >>> env.step({"robot_0": [1.0, 0.0], "robot_2": [0.5, 0.3]})
         """
 
         if self.quit_flag:
@@ -595,42 +604,30 @@ class EnvBase:
             **kwargs: Additional keyword arguments for saving the animation, see :py:meth:`.EnvPlot.save_animate` for detail.
         """
 
-        if self.disable_all_plot:
-            return
+        if not self.disable_all_plot:
+            if self.save_ani:
+                # precedence: call kwargs > env ani_kwargs > world-named default
+                self._env_plot.save_animate(
+                    **{
+                        "ani_name": f"animation_{self._world.name}",
+                        **self.ani_kwargs,
+                        **kwargs,
+                    }
+                )
 
-        if self.save_ani:
-            kwargs = {**self.ani_kwargs, **kwargs}
-            if "ani_name" not in kwargs:
-                kwargs["ani_name"] = f"animation_{self._world.name}"
+            if self.display:
+                plt.pause(ending_time)
+                self.logger.info(
+                    f"Simulation Environment '{self._world.name}' closing in {ending_time:.2f} seconds."
+                )
 
-            self._env_plot.save_animate(**kwargs)
+        if self.keyboard is not None:
+            self.keyboard.close()
 
-        if self.display:
-            plt.pause(ending_time)
-            self.logger.info(
-                f"Simulation Environment '{self._world.name}' closing in {ending_time:.2f} seconds."
-            )
-
-        plt.close("all")
+        # The figure exists even when plotting is disabled; close it so that
+        # headless episodic loops do not leak one figure per environment.
+        self._env_plot.close()
         self._env_param.objects = []
-        ObjectBase.reset_id_iter()
-
-        if hasattr(self, "keyboard"):
-            # Stop pynput listener if present; otherwise disconnect MPL callbacks
-            try:
-                if (
-                    hasattr(self.keyboard, "listener")
-                    and self.keyboard.listener is not None
-                ):
-                    self.keyboard.listener.stop()
-                else:
-                    fig = plt.gcf()
-                    if hasattr(self.keyboard, "_mpl_press_cid"):
-                        fig.canvas.mpl_disconnect(self.keyboard._mpl_press_cid)
-                    if hasattr(self.keyboard, "_mpl_release_cid"):
-                        fig.canvas.mpl_disconnect(self.keyboard._mpl_release_cid)
-            except Exception:
-                pass
 
         self.logger.info(
             f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."

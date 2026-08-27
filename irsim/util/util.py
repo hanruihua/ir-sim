@@ -101,6 +101,17 @@ def log_warning(msg: str) -> None:
     _emit_log("warning", msg)
 
 
+def log_warning_once(msg: str) -> None:
+    """Emit ``msg`` as a warning once (then at DEBUG); see ``EnvLogger.warning_once``.
+
+    Loggers without ``warning_once`` (e.g. a plain ``logging.Logger``) get a
+    regular warning instead.
+    """
+    logger = getattr(env_param, "logger", None)
+    if logger is not None:
+        getattr(logger, "warning_once", logger.warning)(msg)
+
+
 def log_error(msg: str) -> None:
     """Emit an error through the env logger so it respects ``log_level``."""
     _emit_log("error", msg)
@@ -143,6 +154,24 @@ def WrapTo2Pi(rad: float) -> float:
         return 0.0
 
     return rad % (2 * pi)
+
+
+def ClipTo2Pi(rad: float) -> float:
+    """Clip an angular span, such as a sensor sweep or a field of view, to [0, 2pi].
+
+    Unlike :func:`WrapTo2Pi`, a full circle stays ``2pi`` instead of wrapping to ``0``.
+    Non-finite input yields ``0.0``, as in :func:`WrapTo2Pi`.
+
+    Args:
+        rad (float): Angular span in radians.
+
+    Returns:
+        float: ``rad`` clipped to the range [0, 2pi].
+    """
+    if not np.isfinite(rad):
+        return 0.0
+
+    return float(np.clip(rad, 0.0, 2 * pi))
 
 
 def WrapToRegion(rad: float, range: list[float]) -> float:
@@ -233,7 +262,9 @@ def is_list_of_numbers(lst: Any) -> bool:
     Returns:
         bool: True if all elements are numbers, False otherwise.
     """
-    return isinstance(lst, list) and all(isinstance(sub, int | float) for sub in lst)
+    return isinstance(lst, list) and all(
+        isinstance(sub, int | float | np.number) for sub in lst
+    )
 
 
 def is_list_of_lists(lst: Any) -> bool:
@@ -947,34 +978,80 @@ def time_it(name: str = "Function") -> Any:
     return decorator
 
 
+def _as_action_list(action: Any, n_targets: int) -> list:
+    """Return ``action`` as a list with one entry per target object.
+
+    A single action (an ndarray, or a flat list/tuple of numbers such as
+    ``[1.0, 0.5]``) is repeated for every target; a list/tuple of actions is
+    used as is.
+    """
+    if isinstance(action, tuple):
+        action = list(action)
+    if isinstance(action, np.ndarray) or (action and is_list_of_numbers(action)):
+        return [action] * n_targets
+    if isinstance(action, list):
+        return action
+    raise TypeError(
+        f"action must be a list, tuple, or ndarray, got {type(action).__name__}"
+    )
+
+
+def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
+    """Return the positions in ``objects`` that ``action_id`` refers to.
+
+    ``action_id`` is an object id (``obj.id``) or name, or a list of them. A
+    single id (``None`` means the first object) selects ``count`` consecutive
+    objects starting from it; an unknown id or name raises ``ValueError``.
+    """
+
+    def position(key):
+        if isinstance(key, str):
+            obj = find_object_by_identity(objects, name=key)
+        else:
+            obj = find_object_by_identity(objects, object_id=int(key))
+        if obj is None:
+            raise ValueError(f"no object with id or name {key!r}")
+        return objects.index(obj)
+
+    if isinstance(action_id, list):
+        return [position(i) for i in action_id]
+    start = 0 if action_id is None else position(action_id)
+    return list(range(start, min(start + count, len(objects))))
+
+
 def normalize_actions(func):
     """
     Decorator to normalize (action, action_id) into an aligned actions list.
 
     The wrapped method must belong to a class that has a ``objects`` attribute.
-    It will receive an extra keyword argument ``aligned_actions`` (length == len(self.objects)).
+    It receives ``actions``, a list aligned with ``self.objects`` (``None`` where
+    nothing was given). ``action`` is one action, a list of actions, or a dict
+    ``{name: action}``; ``action_id`` is an object id (``obj.id``) or name
+    (``None`` for the first object), or a list of them. A single action is
+    applied to every id; a list of actions is applied to the given ids, or to
+    consecutive objects starting from the given id. Surplus actions (or ids)
+    are dropped with a warning; an unknown id or name raises.
     """
 
-    def wrapper(self, action=None, action_id=0, *args, **kwargs):
-        num_objects = len(getattr(self, "objects", []))
-        actions = [None] * num_objects
+    def wrapper(self, action=None, action_id=None, *args, **kwargs):
+        objects = getattr(self, "objects", [])
+        actions = [None] * len(objects)
 
+        if isinstance(action, dict):  # {name: action}
+            action_id, action = list(action), list(action.values())
         if action is not None:
-            if isinstance(action, list):
-                if isinstance(action_id, list):
-                    for a, ai in zip(action, action_id, strict=True):
-                        actions[int(ai)] = a
-                else:
-                    start = int(action_id)
-                    actions[start : start + len(action)] = action[:]
-            elif isinstance(action, np.ndarray):
-                if isinstance(action_id, list):
-                    for ai in action_id:
-                        actions[int(ai)] = action
-                else:
-                    actions[int(action_id)] = action
+            n_ids = len(action_id) if isinstance(action_id, list) else 1
+            action_list = _as_action_list(action, n_ids)
+            targets = _target_positions(objects, action_id, len(action_list))
+            if len(action_list) != len(targets):
+                self.logger.warning_once(
+                    f"{len(action_list)} action(s) but {len(targets)} target object(s); "
+                    "matched in order, the rest are ignored",
+                    key="normalize_actions:surplus",
+                )
+            for pos, a in zip(targets, action_list, strict=False):
+                actions[pos] = a
 
-        # Call the original function with normalized actions and a neutral action_id
         return func(self, actions, 0, *args, **kwargs)
 
     return wrapper

@@ -11,7 +11,7 @@ from shapely.geometry.base import BaseGeometry
 
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
 from irsim.util.util import (
-    WrapTo2Pi,
+    ClipTo2Pi,
     WrapToPi,
     WrapToRegion,
     check_unknown_kwargs,
@@ -481,12 +481,10 @@ class ObjectBase:
             self.sensors = []
 
         if fov is None:
-            self.fov = (
-                WrapTo2Pi(self.lidar.angle_range) if self.lidar is not None else None
-            )
+            self.fov = self.lidar.angle_range if self.lidar is not None else None
             self.fov_radius = self.lidar.range_max if self.lidar is not None else None
         else:
-            self.fov = WrapTo2Pi(fov)
+            self.fov = ClipTo2Pi(fov)
             self.fov_radius = fov_radius
 
     def _init_behavior(
@@ -641,11 +639,10 @@ class ObjectBase:
                 self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
             elif self.role == "obstacle":
                 self.stop_flag = False
-        else:
-            if self._world_param.count % 50 == 0 and self.role == "robot":
-                self.logger.warning(
-                    f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
-                )
+        elif self.role == "robot":
+            self.logger.warning_once(
+                f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
+            )
 
     def check_arrive_status(self):
         """
@@ -764,8 +761,8 @@ class ObjectBase:
         if velocity is None:
             if self.beh_config is None:
                 if self.role == "robot":
-                    self.logger.warning(
-                        "behavior and input velocity is not defined, robot will stay static"
+                    self.logger.warning_once(
+                        f"{self.name}: no behavior configured and no input velocity given, the robot will stay static"
                     )
 
                 return np.zeros_like(self._velocity)
@@ -779,15 +776,12 @@ class ObjectBase:
 
             behavior_vel = velocity
 
-        # clip the behavior_vel by maximum and minimum limits
-        if (behavior_vel < (min_vel - 0.01)).any():
-            self.logger.warning(
-                f"Input velocity {np.round(behavior_vel.flatten(), 2)} below min {np.round(min_vel.flatten(), 2)}. Clipped due to acceleration limit."
-            )
-
-        elif (behavior_vel > (max_vel + 0.01)).any():
-            self.logger.warning(
-                f"Input velocity {np.round(behavior_vel.flatten(), 2)} exceeds max {np.round(max_vel.flatten(), 2)}. Clipped due to acceleration limit."
+        # clip the behavior_vel by maximum and minimum limits; clipping is routine
+        # under a finite ``acce``, so it is reported once per object, not per step
+        if ((behavior_vel < min_vel - 0.01) | (behavior_vel > max_vel + 0.01)).any():
+            self.logger.warning_once(
+                f"{self.name}: input velocity {np.round(behavior_vel.flatten(), 2)} clipped to min {np.round(min_vel.flatten(), 2)} / max {np.round(max_vel.flatten(), 2)} by the velocity/acceleration limits.",
+                key=f"{self.name}:velocity_clip",
             )
 
         return np.clip(behavior_vel, min_vel, max_vel)

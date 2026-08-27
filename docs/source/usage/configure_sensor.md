@@ -104,7 +104,7 @@ To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined
 
 - **range_min**: The minimum range of the laser beam.
 - **range_max**: The maximum range of the laser beam.
-- **angle_range**: The angle range of the laser beam.
+- **angle_range**: The angle range of the laser beam. Use `6.283185` or `2 * pi` in Python for a full 360-degree scan.
 - **number**: The number of beams.
 - **alpha**: The transparency of the laser beam.
 

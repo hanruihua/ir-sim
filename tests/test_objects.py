@@ -457,6 +457,20 @@ class TestObjectBaseNoKinematics:
         env.end()
 
 
+def test_full_circle_object_fov_is_preserved():
+    """Explicit and lidar-derived fields of view keep a full circle."""
+    obj = ObjectBase(
+        role="robot",
+        kinematics={"name": "diff"},
+        shape={"name": "circle", "radius": 0.2},
+        sensors=[{"name": "lidar2d", "angle_range": 2 * np.pi, "number": 5}],
+    )
+    assert obj.fov == pytest.approx(2 * np.pi)
+
+    explicit_fov = ObjectBase(role="obstacle", fov=2 * np.pi, fov_radius=5.0)
+    assert explicit_fov.fov == pytest.approx(2 * np.pi)
+
+
 # ---------------------------------------------------------------------------
 # Robot API (ObjectBase through a live environment)
 # ---------------------------------------------------------------------------
@@ -935,10 +949,9 @@ class TestCollisionModes:
 
         env = env_factory("test_collision_world.yaml")
         env._env_param.logger = Mock(
-            warning=lambda msg, *a, **kw: warnings_collected.append(msg)
+            warning_once=lambda msg, *a, **kw: warnings_collected.append(msg)
         )
         env._world_param.collision_mode = "unknown_mode"
-        env._world_param.count = 50
         env.robot.check_status()
 
         assert env.robot.stop_flag is False
@@ -954,3 +967,58 @@ class TestDesiredOmniVel:
         robot = env.robot
         robot.set_goal(robot.state[:3].flatten().tolist())
         assert np.allclose(robot.desired_omni_vel, 0)
+
+
+class TestPerStepWarningsOnce:
+    """Persistent per-step conditions warn once per object, then log at DEBUG."""
+
+    @staticmethod
+    def _make_env(tmp_path, robot_yaml):
+        import irsim
+
+        yaml_file = tmp_path / "w.yaml"
+        yaml_file.write_text(f"world: {{height: 10, width: 10}}\nrobot:\n{robot_yaml}")
+        return irsim.make(
+            str(yaml_file), display=False, disable_all_plot=True, log_level="DEBUG"
+        )
+
+    @staticmethod
+    def _levels(env, action, needle, steps=5):
+        from loguru import logger as loguru_logger
+
+        records = []
+        sink = loguru_logger.add(lambda m: records.append(m.record), level="DEBUG")
+        try:
+            for _ in range(steps):
+                env.step(action)
+        finally:
+            loguru_logger.remove(sink)
+            env.end()
+        return [r["level"].name for r in records if needle in r["message"]]
+
+    def test_acce_clip_warns_once_then_debug(self, tmp_path):
+        """A finite ``acce`` clips every full-throttle step; only the first warns."""
+        env = self._make_env(
+            tmp_path,
+            """
+  - kinematics: {name: diff}
+    acce: [0.5, 1.0]
+    shape: {name: circle, radius: 0.2}
+    state: [1, 1, 0]
+""",
+        )
+        levels = self._levels(env, np.array([[2.0], [0.0]]), "clipped")
+        assert levels == ["WARNING"] + ["DEBUG"] * 4
+
+    def test_robot_without_behavior_warns_once_then_debug(self, tmp_path):
+        """A robot with no behavior and no action is reported once, not per step."""
+        env = self._make_env(
+            tmp_path,
+            """
+  - kinematics: {name: diff}
+    shape: {name: circle, radius: 0.2}
+    state: [1, 1, 0]
+""",
+        )
+        levels = self._levels(env, None, "static")
+        assert levels == ["WARNING"] + ["DEBUG"] * 4

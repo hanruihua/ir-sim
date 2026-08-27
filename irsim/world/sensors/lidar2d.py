@@ -12,7 +12,7 @@ from shapely import MultiLineString
 from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
 from irsim.util.util import (
-    WrapTo2Pi,
+    ClipTo2Pi,
     geometry_transform,
     transform_point_with_state,
 )
@@ -46,7 +46,7 @@ class Lidar2D:
         - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d".
         - range_min (float): Minimum detection range in meters. Default is 0.
         - range_max (float): Maximum detection range in meters. Default is 10.
-        - angle_range (float): Total angle range of the sensor in radians. Default is pi. WrapTo2Pi is applied.
+        - angle_range (float): Total angle range of the sensor in radians. Default is pi. Clipped to [0, 2*pi].
         - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
         - angle_max (float): Ending angle of the sensor's scan relative to the forward direction in radians. Calculated as angle_range / 2.
         - angle_inc (float): Angular increment between each laser beam in radians. Calculated as angle_range / (number - 1) when multiple beams are used.
@@ -100,7 +100,7 @@ class Lidar2D:
         self.range_min = range_min
         self.range_max = range_max
 
-        self.angle_range = WrapTo2Pi(angle_range)
+        self.angle_range = ClipTo2Pi(angle_range)
         self.angle_min = -self.angle_range / 2 if number > 1 else 0.0
         self.angle_max = self.angle_range / 2 if number > 1 else 0.0
         self.angle_inc = self.angle_range / (number - 1) if number > 1 else 0.0

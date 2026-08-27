@@ -86,6 +86,9 @@ class DummyLogger:
     def warning(self, *_args: Any, **_kwargs: Any) -> None:
         pass
 
+    def warning_once(self, *_args: Any, **_kwargs: Any) -> None:
+        pass
+
     def error(self, *_args: Any, **_kwargs: Any) -> None:
         pass
 

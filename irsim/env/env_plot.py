@@ -726,9 +726,9 @@ class EnvPlot:
 
     def close(self) -> None:
         """
-        Close the plot.
+        Close this plot's figure.
         """
-        plt.close()
+        plt.close(self.fig)
 
     @property
     def _world_param(self):
