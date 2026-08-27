@@ -274,8 +274,8 @@ class EnvBase:
     @normalize_actions
     def step(
         self,
-        action: np.ndarray | list[Any] | None = None,
-        action_id: int | list[int] | None = None,
+        action: np.ndarray | list[Any] | tuple[Any, ...] | dict[str, Any] | None = None,
+        action_id: int | str | list[int | str] | None = None,
     ) -> None:
         """
         Perform a single simulation step in the environment.
@@ -284,8 +284,9 @@ class EnvBase:
         to the specified robots and updating all objects in the environment.
 
         Args:
-            action (Union[np.ndarray, list], optional): Action(s) to be performed in the environment.
-                Can be a single action or a list of actions. Action format depends on robot type:
+            action (Union[np.ndarray, list, tuple, dict], optional): Action(s) to be performed in the environment.
+                Can be a single action, a list/tuple of actions, or a dict ``{name: action}``.
+                Action format depends on robot type:
 
                 - **Differential robot**: [linear_velocity, angular_velocity]
                 - **Omnidirectional robot**: [velocity_x, velocity_y]
