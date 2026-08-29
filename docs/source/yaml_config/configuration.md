@@ -1009,6 +1009,9 @@ env.step(env.robot.vel_world2body(world_vel))
     kinematics: {name: 'acker', noise: True, alpha: [0.03, 0, 0, 0.03], mode: 'steer'}
     ```
   
+
+  Any other key under `kinematics` is passed to the handler's constructor. This is how a model registered with `@register_kinematics` receives its own parameters, e.g. `kinematics: {name: 'lag', tau: 0.5}`.
+
 (p-o-vel-min)=
 **`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** (`list` of `float`, default: `[1, 1]`)
 : Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds.
@@ -1035,7 +1038,7 @@ env.step(env.robot.vel_world2body(world_vel))
   ```
 
   ````{warning}
-    When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration.
+    When using the `acker` kinematics model, ensure that the `wheelbase` parameter is set in the `shape` configuration; a `wheelbase` under `kinematics` overrides it.
   ````
 ::::
 

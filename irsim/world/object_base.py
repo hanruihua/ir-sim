@@ -315,7 +315,7 @@ class ObjectBase:
         self.gf = GeometryFactory.create_geometry(**shape)
         self.kf = (
             KinematicsFactory.create_kinematics(
-                wheelbase=self.wheelbase, role=role, **kinematics
+                shape_wheelbase=self.wheelbase, role=role, **kinematics
             )
             if kinematics is not None
             else None

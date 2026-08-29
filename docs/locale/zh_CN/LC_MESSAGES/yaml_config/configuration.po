@@ -1733,9 +1733,11 @@ msgstr ""
 #: ../../source/yaml_config/configuration.md:1009
 msgid ""
 "When using the `acker` kinematics model, ensure that the `wheelbase` "
-"parameter is set in the `shape` configuration."
+"parameter is set in the `shape` configuration; a `wheelbase` under "
+"`kinematics` overrides it."
 msgstr ""
-"使用 `acker` 运动学模型时，请确保在 `shape` 配置中设置 `wheelbase` 参数。"
+"使用 `acker` 运动学模型时，请确保在 `shape` 配置中设置 `wheelbase` 参数；"
+"`kinematics` 下的 `wheelbase` 会覆盖它。"
 
 #: ../../source/yaml_config/configuration.md:0
 msgid "**object shape**"
@@ -3176,3 +3178,13 @@ msgstr "`external`：由外部系统负责更新状态。使用 `set_state()` �
 #: ../../source/yaml_config/configuration.md:594
 msgid "`irsim.make(\"world.yaml\", step_mode=\"...\")` can override the YAML value for a particular run. The override remains active across `env.reload()` and `env.reset(random=True)`."
 msgstr "`irsim.make(\"world.yaml\", step_mode=\"...\")` 可以为特定运行覆盖 YAML 中的值；该覆盖在 `env.reload()` 和 `env.reset(random=True)` 后仍然有效。"
+
+#: ../../source/yaml_config/configuration.md:1010
+msgid ""
+"Any other key under `kinematics` is passed to the handler's constructor. "
+"This is how a model registered with `@register_kinematics` receives its own "
+"parameters, e.g. `kinematics: {name: 'lag', tau: 0.5}`."
+msgstr ""
+"`kinematics` 下的其他任何键都会传给运动学处理器的构造函数。通过 "
+"`@register_kinematics` 注册的自定义模型正是以此方式接收自己的参数，例如 "
+"`kinematics: {name: 'lag', tau: 0.5}`。"

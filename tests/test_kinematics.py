@@ -187,6 +187,15 @@ def test_kinematics_error_handling():
 # ---------------------------------------------------------------------------
 
 
+@pytest.fixture
+def kinematics_registry():
+    """Restore the kinematics registry after a test registers custom handlers."""
+    saved = dict(_kinematics_registry)
+    yield _kinematics_registry
+    _kinematics_registry.clear()
+    _kinematics_registry.update(saved)
+
+
 class TestKinematicsRegistry:
     """Tests for the kinematics registry and @register_kinematics decorator."""
 
@@ -239,7 +248,7 @@ class TestKinematicsRegistry:
         with pytest.raises(NotImplementedError, match="not registered"):
             KinematicsFactory.create_kinematics(name="")
 
-    def test_register_custom_kinematics(self):
+    def test_register_custom_kinematics(self, kinematics_registry):
         """A custom kinematics type can be registered and created."""
 
         @register_kinematics("test_custom")
@@ -522,3 +531,78 @@ class TestVelocityToXYZeroShape:
         velocity = np.float64(0.0)  # ndim == 0
         result = handler.velocity_to_xy(state, velocity)
         np.testing.assert_array_equal(result, np.zeros((2, 1)))
+
+
+class TestKinematicsParameters:
+    """Extra ``kinematics`` keys reach the handler's constructor."""
+
+    def test_extra_parameters_are_forwarded(self, kinematics_registry):
+        @register_kinematics("test_lag")
+        class LagKinematics(DifferentialKinematics):
+            def __init__(self, name, noise=False, alpha=None, tau=0.3):
+                super().__init__(name, noise, alpha)
+                self.tau = tau
+
+        assert KinematicsFactory.create_kinematics(name="test_lag", tau=0.5).tau == 0.5
+        acker = KinematicsFactory.create_kinematics(
+            name="acker", mode="angular", wheelbase=2.0
+        )
+        assert (acker.mode, acker.wheelbase) == ("angular", 2.0)
+        # the pre-existing positional order (name, noise, alpha, mode, wheelbase, role)
+        positional = KinematicsFactory.create_kinematics(
+            "acker", False, None, "angular", 2.0, "robot"
+        )
+        assert (positional.mode, positional.wheelbase) == ("angular", 2.0)
+        with pytest.raises(TypeError, match="tau"):
+            KinematicsFactory.create_kinematics(name="diff", tau=0.5)
+
+        # a shape's wheelbase only concerns Ackermann handlers, and a YAML
+        # ``wheelbase`` under ``kinematics`` overrides it
+        assert (
+            KinematicsFactory.create_kinematics(
+                name="acker", shape_wheelbase=3.0
+            ).wheelbase
+            == 3.0
+        )
+        assert (
+            KinematicsFactory.create_kinematics(
+                name="acker", shape_wheelbase=3.0, wheelbase=2.5
+            ).wheelbase
+            == 2.5
+        )
+        assert KinematicsFactory.create_kinematics(name="acker").wheelbase == 1.0
+        assert KinematicsFactory.create_kinematics(
+            name="omni_angular", shape_wheelbase=3.0
+        )
+
+        # through an object: the kinematics block overrides the shape's wheelbase
+        from irsim.world.object_base import ObjectBase
+
+        car = ObjectBase(
+            kinematics={"name": "acker", "wheelbase": 2.5},
+            shape={"name": "rectangle", "length": 4.6, "width": 1.6, "wheelbase": 3},
+        )
+        assert (car.wheelbase, car.kf.wheelbase) == (3, 2.5)
+
+        # a custom handler that is not an Ackermann subclass receives it as well
+        @register_kinematics("test_bicycle")
+        class BicycleLike(DifferentialKinematics):
+            def __init__(self, name, noise=False, alpha=None, wheelbase=1.0):
+                super().__init__(name, noise, alpha)
+                self.wheelbase = wheelbase
+
+        assert (
+            KinematicsFactory.create_kinematics(
+                name="test_bicycle", wheelbase=2.0
+            ).wheelbase
+            == 2.0
+        )
+
+        # the same path through an object's YAML ``kinematics`` block
+        from irsim.world.object_base import ObjectBase
+
+        robot = ObjectBase(
+            kinematics={"name": "test_lag", "tau": 0.5},
+            shape={"name": "circle", "radius": 0.2},
+        )
+        assert robot.kf.tau == 0.5

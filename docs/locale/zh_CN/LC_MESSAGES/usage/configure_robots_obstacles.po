@@ -393,3 +393,37 @@ msgid ""
 msgstr ""
 "`distribution` 参数用于控制机器人和障碍物的布局，可选 `'manual'` 或 "
 "`'random'`。更多细节见 {doc}`YAML 配置 <../yaml_config/configuration>`。"
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid "Advanced Configuration for Custom Kinematics"
+msgstr "自定义运动学的高级配置"
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid ""
+"If the built-in models (`diff`, `omni`, `omni_angular`, `acker`) do not "
+"match your robot, register your own kinematics handler. Subclass "
+"`KinematicsHandler` (or one of the built-in handlers), add any parameters "
+"your model needs to `__init__`, and register it with `@register_kinematics`:"
+msgstr ""
+"如果内置模型（`diff`、`omni`、`omni_angular`、`acker`）不符合你的机器人，可以注册自己的"
+"运动学处理器：继承 `KinematicsHandler`（或某个内置处理器），把模型需要的参数加到 "
+"`__init__` 中，并用 `@register_kinematics` 注册："
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid ""
+"Any key under `kinematics` other than `name`, `noise`, and `alpha` is passed "
+"to the handler's `__init__`, so the model's parameters are set directly in "
+"YAML:"
+msgstr ""
+"`kinematics` 下除 `name`、`noise`、`alpha` 之外的任何键都会传给处理器的 `__init__`，"
+"因此模型参数可以直接在 YAML 中设置："
+
+#: ../../source/usage/configure_robots_obstacles.md
+msgid ""
+"The module that defines the handler must be imported before `irsim.make()` "
+"so the registration runs. An unknown `name` raises `NotImplementedError`, "
+"and a key the handler does not accept raises `TypeError`, so typos in either "
+"are reported immediately."
+msgstr ""
+"定义处理器的模块必须在 `irsim.make()` 之前被导入，注册才会生效。未知的 `name` 会抛出 "
+"`NotImplementedError`，处理器不接受的键会抛出 `TypeError`，因此两者的拼写错误都会立即报告。"
