@@ -160,6 +160,16 @@ Update order
 The environment advances all objects first, then updates all sensors. This two-phase update ensures sensors read the latest world state consistently. If you step objects manually, either pass `sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` after updating states.
 ::::
 
+### Headless Mode for Batch Training
+
+Pass `headless=True` to run without any figure, window, or keyboard/mouse control. Environment creation is several times cheaper and nothing is left behind when an environment is discarded, which matters when a training loop creates many environments; `render()`, the drawing helpers, and `save_figure()` become no-ops so the same script runs unchanged:
+
+```python
+env = irsim.make("config.yaml", headless=True)
+```
+
+`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead.
+
 ### Internal and External Step Modes
 
 The default `internal` mode preserves the normal IR-SIM loop. Actions may be

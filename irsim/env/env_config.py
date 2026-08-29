@@ -35,11 +35,13 @@ class EnvConfig:
         env_param_instance: EnvParam | None = None,
         world_param_instance: WorldParam | None = None,
         step_mode: str | None = None,
+        disable_all_plot: bool = False,
     ) -> None:
         self.object_factory = ObjectFactory()
         self._env_param = env_param_instance
         self._world_param = world_param_instance
         self._step_mode = step_mode
+        self._disable_all_plot = disable_all_plot
         self.load_yaml(world_name)
 
     def load_yaml(self, world_name: str | None = None) -> None:
@@ -114,7 +116,8 @@ class EnvConfig:
 
         world, objects, robots, obstacles, maps, groups = self._build_scene()
 
-        self._env_plot = EnvPlot(world, objects)
+        # No figure at all when plotting is disabled: nothing would draw on it.
+        self._env_plot = None if self._disable_all_plot else EnvPlot(world, objects)
         self._objects = objects
 
         return world, objects, self._env_plot, robots, obstacles, maps, groups
@@ -131,8 +134,9 @@ class EnvConfig:
 
         world, objects, robots, obstacles, maps, groups = self._build_scene()
 
-        self._env_plot.clear_components("all", self._objects)
-        self._env_plot._init_plot(world, objects)
+        if self._env_plot is not None:
+            self._env_plot.clear_components("all", self._objects)
+            self._env_plot._init_plot(world, objects)
 
         # Refresh cached objects so subsequent reloads clear the right set
         self._objects = objects

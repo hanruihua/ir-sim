@@ -82,10 +82,10 @@ env2.end()
 ```python
 import irsim
 
-# Create multiple headless environments for training
+# Create multiple headless environments for training (no figures or input devices)
 num_envs = 4
 envs = [
-    irsim.make(f"training_world.yaml", display=False, seed=i) for i in range(num_envs)
+    irsim.make(f"training_world.yaml", headless=True, seed=i) for i in range(num_envs)
 ]
 
 # Run training loop
@@ -147,6 +147,8 @@ Each environment instance creates and binds its own parameter objects:
 
 Objects within each environment reference their own environment's parameters:
 
+Object ids are per environment as well: every environment numbers its objects from 0 (robots first), and objects created with `env.create_robot()` / `env.create_obstacle()` take their id from that environment, so ids stay unique inside each environment even when several are alive.
+
 :::{note}
-When creating multiple environments with `display=True`, each environment opens its own visualization window. For training or batch simulations, use `display=False` to disable rendering and improve performance.
+When creating multiple environments with `display=True`, each environment opens its own visualization window. For training or batch simulations, use `headless=True`: no figure is built at all, and the Matplotlib backend of the process is left untouched.
 :::

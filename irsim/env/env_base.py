@@ -35,6 +35,7 @@ from irsim.util.util import (
     find_duplicates,
     find_object_by_identity,
     normalize_actions,
+    plot_only,
     to_numpy,
 )
 from irsim.world import ObjectBase, ObjectFactory
@@ -88,7 +89,7 @@ class EnvBase:
             or use a minimal setup.
         display (bool): Whether to display the environment visualization.
             Set to False for headless operation. Default is True.
-        disable_all_plot (bool): Whether to disable all plots and figures completely.
+        disable_all_plot (bool): Same as ``headless``; kept for backward compatibility.
             When True, no visualization will be created even if display is True.
             Default is False.
         save_ani (bool): Whether to save the simulation as an animation file.
@@ -107,6 +108,9 @@ class EnvBase:
         seed (int, optional): Seed for the random number generator. Default is None.
             If None, the seed will be set to a random value, which will make the simulation non-reproducible.
             If a fixed seed is provided, the random simulation scenario will be reproducible.
+        headless (bool): Run without any figure, window, or keyboard/mouse control,
+            e.g. for batch training. Implies ``display=False``; rendering, drawing, and
+            saving helpers become no-ops. Default is False.
         step_mode ({"internal", "external"}, optional): Override the mode from
             ``world.step_mode`` in YAML. ``internal`` runs the normal IR-SIM
             kinematics step. ``external`` expects callers to update object
@@ -115,7 +119,8 @@ class EnvBase:
 
     Attributes:
         display (bool): Whether to display the environment visualization.
-        disable_all_plot (bool): Whether all plotting is disabled.
+        headless (bool): Whether the environment runs without a figure, window, or
+            keyboard/mouse control.
         save_ani (bool): Whether to save animation during simulation.
 
         env_config (EnvConfig): Configuration loader managing YAML parsing and object creation.
@@ -157,6 +162,7 @@ class EnvBase:
         log_level: str = "INFO",
         seed: int | None = None,
         step_mode: Literal["internal", "external"] | None = None,
+        headless: bool = False,
     ) -> None:
         # Reset object ID counter so each environment starts from 0
         ObjectBase.reset_id_iter()
@@ -167,14 +173,16 @@ class EnvBase:
         self._path_manager = PathManager()
         self._bind_config()
 
-        # init env setting
-        self.display = display
+        # init env setting: headless means no figure, no window, no input devices
+        self.headless = headless or disable_all_plot
+        self.display = display and not self.headless
         set_seed(seed)
 
-        if not self.display:
+        # headless builds no figure, so the process backend is left alone:
+        # switching it breaks the windows of other environments in this process
+        if not self.display and not self.headless:
             matplotlib.use("Agg")
 
-        self.disable_all_plot = disable_all_plot
         self.save_ani = save_ani
         # Copy so later external mutation of the caller's dict can't change
         # this env's default animation-save behavior.
@@ -188,6 +196,7 @@ class EnvBase:
                 env_param_instance=self._env_param,
                 world_param_instance=self._world_param,
                 step_mode=step_mode,
+                disable_all_plot=self.headless,
             )
         except Exception as e:
             self.logger.critical(f"YAML Configuration load failed: {e}")
@@ -210,20 +219,29 @@ class EnvBase:
         self._env_param.objects = self._objects
         self.validate_unique_names()
 
-        # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
         self.keyboard = None
-        try:
-            keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
-            self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
-        except Exception as e:
-            self.logger.error(
-                f"Keyboard control unavailable error: {e}. Auto control applied. "
-                "Install 'pynput' or set backend='mpl' in YAML keyboard config."
-            )
+        self.mouse = None
+        if self._env_plot is None:
+            # No figure for keyboard/mouse control to attach to.
+            if self._world_param.control_mode == "keyboard":
+                self.logger.warning(
+                    "Keyboard control needs a figure; headless mode forces auto control."
+                )
             self._world_param.control_mode = "auto"
+        else:
+            # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
+            try:
+                keyboard_config = self.env_config.parse["gui"].get("keyboard", {})
+                self.keyboard = KeyboardControl(env_ref=self, **keyboard_config)
+            except Exception as e:
+                self.logger.error(
+                    f"Keyboard control unavailable error: {e}. Auto control applied. "
+                    "Install 'pynput' or set backend='mpl' in YAML keyboard config."
+                )
+                self._world_param.control_mode = "auto"
 
-        mouse_config = self.env_config.parse["gui"].get("mouse", {})
-        self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
+            mouse_config = self.env_config.parse["gui"].get("mouse", {})
+            self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
 
         # flag for keyboard control
         self.pause_flag = False
@@ -234,7 +252,7 @@ class EnvBase:
         self.reload_flag = False
         self.save_figure_flag = False
 
-        if full:
+        if full and not self.headless:  # headless has no figure to enlarge
             mng = plt.get_current_fig_manager()
             if mng is not None:
                 mng.full_screen_toggle()
@@ -470,6 +488,7 @@ class EnvBase:
         return action
 
     # render
+    @plot_only
     def render(
         self,
         interval: float = 0.01,
@@ -492,7 +511,7 @@ class EnvBase:
 
         if figure_kwargs is None:
             figure_kwargs = {}
-        if not self.disable_all_plot and self._world.sampling:
+        if self._world.sampling:
             if self.display:
                 plt.pause(interval)
 
@@ -511,6 +530,7 @@ class EnvBase:
         if self.reload_flag:
             self.reload()
 
+    @plot_only
     def show(self) -> None:
         """
         Show the environment figure.
@@ -519,6 +539,7 @@ class EnvBase:
         self._env_plot.show()
 
     # draw various components
+    @plot_only
     def draw_trajectory(
         self, traj: list[Any], traj_type: str = "g-", **kwargs: Any
     ) -> None:
@@ -535,6 +556,7 @@ class EnvBase:
 
         self._env_plot.draw_trajectory(traj, traj_type, **kwargs)
 
+    @plot_only
     def draw_points(
         self,
         points: list[Any],
@@ -558,6 +580,7 @@ class EnvBase:
 
         self._env_plot.draw_points(points, s, c, refresh, **kwargs)
 
+    @plot_only
     def draw_box(
         self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"
     ) -> None:
@@ -571,6 +594,7 @@ class EnvBase:
         """
         self._env_plot.draw_box(vertex, refresh, color)
 
+    @plot_only
     def draw_quiver(self, point: Any, refresh: bool = False, **kwargs: Any) -> None:
         """
         Draw a single quiver (arrow) on the environment figure.
@@ -583,6 +607,7 @@ class EnvBase:
         """
         self._env_plot.draw_quiver(point, refresh, **kwargs)
 
+    @plot_only
     def draw_quivers(self, points: Any, refresh: bool = False, **kwargs: Any) -> None:
         """
         Draw multiple quivers (arrows) on the environment figure.
@@ -604,7 +629,7 @@ class EnvBase:
             **kwargs: Additional keyword arguments for saving the animation, see :py:meth:`.EnvPlot.save_animate` for detail.
         """
 
-        if not self.disable_all_plot:
+        if not self.headless:
             if self.save_ani:
                 # precedence: call kwargs > env ani_kwargs > world-named default
                 self._env_plot.save_animate(
@@ -624,9 +649,8 @@ class EnvBase:
         if self.keyboard is not None:
             self.keyboard.close()
 
-        # The figure exists even when plotting is disabled; close it so that
-        # headless episodic loops do not leak one figure per environment.
-        self._env_plot.close()
+        if self._env_plot is not None:
+            self._env_plot.close()
         self._env_param.objects = []
 
         self.logger.info(
@@ -829,6 +853,7 @@ class EnvBase:
         self._objects_sensor_step()
         self._status_step()
 
+    @plot_only
     def reset_plot(self) -> None:
         """
         Reset the environment figure in-place.
@@ -882,7 +907,8 @@ class EnvBase:
                         existing_obj.append(obj)
                         break
 
-        self._env_plot.step("all", self.obstacle_list)
+        if self._env_plot is not None:
+            self._env_plot.step("all", self.obstacle_list)
 
     def random_polygon_shape(
         self,
@@ -943,7 +969,8 @@ class EnvBase:
                 geom = Polygon(vertices_list[i])
                 obj.set_original_geometry(geom)
 
-        self._env_plot.step("all", self.obstacle_list)
+        if self._env_plot is not None:
+            self._env_plot.step("all", self.obstacle_list)
 
     def reload(self, world_name: str | None = None) -> None:
         """
@@ -958,7 +985,8 @@ class EnvBase:
         """
         ObjectBase.reset_id_iter()
         self.reset()
-        self._env_plot.clear_components("all", self.objects)
+        if self._env_plot is not None:
+            self._env_plot.clear_components("all", self.objects)
         (
             self._world,
             self._objects,
@@ -1049,7 +1077,7 @@ class EnvBase:
             raise ValueError(f"Object name '{obj.name}' already exists.")
         obj._env = self
         self._objects.append(obj)
-        if not self.disable_all_plot:
+        if not self.headless:
             obj._init_plot(self._env_plot.ax)
             obj._step_plot()
         self.build_tree()
@@ -1072,7 +1100,7 @@ class EnvBase:
             raise ValueError(f"Object names already exist: {conflicts}")
         for obj in objs:
             obj._env = self
-            if not self.disable_all_plot:
+            if not self.headless:
                 obj._init_plot(self._env_plot.ax)
                 obj._step_plot()
         self._objects.extend(objs)
@@ -1340,6 +1368,7 @@ class EnvBase:
 
     # endregion: get information
 
+    @plot_only
     def set_title(self, title: str) -> None:
         """
         Set the title of the plot.
@@ -1375,6 +1404,7 @@ class EnvBase:
         """
         self._world.status = status
 
+    @plot_only
     def save_figure(
         self,
         save_name: str | None = None,
@@ -1482,6 +1512,11 @@ class EnvBase:
             list: List of dynamic objects in the environment.
         """
         return [obj for obj in self.objects if not obj.static]
+
+    @property
+    def disable_all_plot(self) -> bool:
+        """Alias of :attr:`headless`, kept for backward compatibility."""
+        return self.headless
 
     @property
     def step_time(self) -> float:
