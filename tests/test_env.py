@@ -1099,6 +1099,62 @@ class TestMultipleEnvironments:
         # They should have different instances
         assert env1.path_param is not env2.path_param
 
+    def test_object_ids_are_per_environment(self, env_factory):
+        """Each environment numbers its objects from 0 with its own counter."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        n1, n2 = len(env1.objects), len(env2.objects)
+        assert [o.id for o in env1.objects] == list(range(n1))
+        assert [o.id for o in env2.objects] == list(range(n2))
+
+        # env1 keeps counting from its own last id although env2 was created later
+        obstacle = env1.create_obstacle(shape={"name": "circle", "radius": 0.2})
+        assert obstacle.id == n1
+        env1.add_object(obstacle)
+
+        # rebuilding env2 restarts env2 only
+        env2.reload()
+        assert [o.id for o in env2.objects] == list(range(n2))
+        assert (
+            env1.create_obstacle(shape={"name": "circle", "radius": 0.2}).id == n1 + 1
+        )
+
+    def test_add_object_rejects_duplicate_id(self, env_factory):
+        env = env_factory("test_render.yaml")
+        extra = env.create_obstacle(
+            name="extra", shape={"name": "circle", "radius": 0.2}
+        )
+        extra._id = env.objects[0].id
+        with pytest.raises(ValueError, match="ids already exist"):
+            env.add_object(extra)
+        with pytest.raises(ValueError, match="ids already exist"):
+            env.add_objects([extra])
+
+        # duplicates within one add_objects() call are rejected as well
+        a = env.create_obstacle(name="a", shape={"name": "circle", "radius": 0.2})
+        b = env.create_obstacle(name="b", shape={"name": "circle", "radius": 0.2})
+        b._id = a.id
+        with pytest.raises(ValueError, match="repeat"):
+            env.add_objects([a, b])
+
+    def test_equal_ids_in_different_environments_are_distinct_objects(
+        self, env_factory
+    ):
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        assert env1.robot.id == env2.robot.id == 0
+        assert env1.robot != env2.robot
+        assert len({env1.robot, env2.robot}) == 2
+        assert env1.robot == env1.robot_list[0]  # identity within an environment
+
+    def test_environment_ids_are_process_wide(self, env_factory):
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        assert env2.id > env1.id  # creation order, never reused
+        assert env1.env_param.env_id == env1.id
+        assert env1.robot._env_param.env_id == env1.id
+        assert f"(id {env1.id})" in str(env1)
+
     def test_objects_reference_correct_env_params(self, env_factory):
         """Test that objects reference their own environment's params."""
         env1 = env_factory("test_collision_world.yaml")

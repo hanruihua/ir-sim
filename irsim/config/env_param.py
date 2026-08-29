@@ -4,8 +4,10 @@ Logger: A logger object to log messages
 Platform: The operating system platform
 """
 
+import itertools
 import platform
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass, field, fields
 from types import ModuleType
 from typing import Any
@@ -22,12 +24,18 @@ class EnvParam:
         logger: Environment logger instance.
         GeometryTree: Spatial index used for geometry queries, when available.
         platform_name: Name of the current operating system platform.
+        id_iter: Counter handing out object ids; each environment numbers its
+            objects from 0.
+        env_id: Process-wide number of the owning environment (``None`` for the
+            default instance bound before any environment exists).
     """
 
     objects: list[ObjectBase] = field(default_factory=list)
     logger: Any | None = None
     GeometryTree: Any | None = None
     platform_name: str = field(default_factory=platform.system)
+    id_iter: Iterator[int] = field(default_factory=itertools.count)
+    env_id: int | None = None
 
 
 # Multi-env storage (default index 0)

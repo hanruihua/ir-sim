@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import importlib
+import itertools
 from typing import Any, Literal, cast
 
 import matplotlib
@@ -150,6 +151,8 @@ class EnvBase:
         >>> env = EnvBase("world.yaml", seed=42)
     """
 
+    _id_iter = itertools.count()  # environments are numbered per process
+
     def __init__(
         self,
         world_name: str | None = None,
@@ -164,11 +167,9 @@ class EnvBase:
         step_mode: Literal["internal", "external"] | None = None,
         headless: bool = False,
     ) -> None:
-        # Reset object ID counter so each environment starts from 0
-        ObjectBase.reset_id_iter()
-
         # Bind per-instance config objects
-        self._env_param = EnvParam()
+        self._id = next(EnvBase._id_iter)
+        self._env_param = EnvParam(env_id=self._id)
         self._world_param = WorldParam()
         self._path_manager = PathManager()
         self._bind_config()
@@ -276,13 +277,35 @@ class EnvBase:
         Returns:
             str: Summary string including the world name.
         """
-        return f"Environment: {self._world.name}"
+        return f"Environment: {self._world.name} (id {self._id})"
+
+    @property
+    def id(self) -> int:
+        """Number of this environment in creation order; never reused in a process."""
+        return self._id
 
     def _bind_config(self) -> None:
         """Bind this env's config instances to the module-level delegates."""
         env_param.bind(self._env_param)
         world_param.bind(self._world_param)
         path_param.bind(self._path_manager)
+
+    def _restart_object_ids(self) -> None:
+        """Number a rebuilt scene from 0 again, using this environment's counter."""
+        self._bind_config()
+        ObjectBase.reset_id_iter()
+
+    def _check_ids_unique(self, objs: list[ObjectBase]) -> None:
+        """Reject ids repeated within ``objs`` or already taken in this environment."""
+        new_ids = [o.id for o in objs]
+        existing = {o.id for o in self.objects}
+        clashes = find_duplicates(new_ids) + [i for i in new_ids if i in existing]
+        if clashes:
+            raise ValueError(
+                f"Object ids already exist or repeat: {clashes}. Create objects with "
+                "env.create_robot()/env.create_obstacle() so they take ids from "
+                "this environment."
+            )
 
     def _wire_env_to_objects(self) -> None:
         """Set env reference on all objects for param access."""
@@ -983,7 +1006,7 @@ class EnvBase:
             world_name (str): Optional name/path of the world YAML to reload.
                 If ``None``, the previous YAML file is used.
         """
-        ObjectBase.reset_id_iter()
+        self._restart_object_ids()
         self.reset()
         if self._env_plot is not None:
             self._env_plot.clear_components("all", self.objects)
@@ -1014,7 +1037,7 @@ class EnvBase:
         (e.g. random behaviors), breaking reproducibility of the
         re-sampled scene.
         """
-        ObjectBase.reset_id_iter()
+        self._restart_object_ids()
         (
             self._world,
             self._objects,
@@ -1050,6 +1073,7 @@ class EnvBase:
             Obstacle: An instance of an obstacle.
         """
 
+        self._bind_config()  # new objects take their id from this environment
         return self.object_factory.create_obstacle(**kwargs)
 
     def create_robot(self, **kwargs: Any):
@@ -1064,6 +1088,7 @@ class EnvBase:
             Robot: An instance of a robot.
         """
 
+        self._bind_config()  # new objects take their id from this environment
         return self.object_factory.create_robot(**kwargs)
 
     def add_object(self, obj: ObjectBase) -> None:
@@ -1075,6 +1100,7 @@ class EnvBase:
         """
         if find_object_by_identity(self.objects, obj.name) is not None:
             raise ValueError(f"Object name '{obj.name}' already exists.")
+        self._check_ids_unique([obj])
         obj._env = self
         self._objects.append(obj)
         if not self.headless:
@@ -1098,6 +1124,7 @@ class EnvBase:
         conflicts = [n for n in new_names if n in existing_names]
         if conflicts:
             raise ValueError(f"Object names already exist: {conflicts}")
+        self._check_ids_unique(objs)
         for obj in objs:
             obj._env = self
             if not self.headless:

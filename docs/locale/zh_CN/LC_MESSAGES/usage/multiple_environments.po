@@ -216,6 +216,28 @@ msgstr "`platform_name`"
 msgid "Operating system name"
 msgstr "操作系统名称"
 
+#: ../../source/usage/multiple_environments.md:82
+msgid "`id_iter`"
+msgstr "`id_iter`"
+
+#: ../../source/usage/multiple_environments.md:82
+msgid "`Iterator[int]`"
+msgstr "`Iterator[int]`"
+
+#: ../../source/usage/multiple_environments.md:82
+msgid "Counter that numbers this environment's objects from 0"
+msgstr "为本环境的对象从 0 开始编号的计数器"
+
+#: ../../source/usage/multiple_environments.md:83
+msgid "`env_id`"
+msgstr "`env_id`"
+
+#: ../../source/usage/multiple_environments.md:83
+msgid ""
+"Number of the owning environment (`env.id`), assigned in creation order and "
+"never reused in a process"
+msgstr "所属环境的编号（`env.id`），按创建顺序分配，在同一进程内不会重复使用"
+
 #: ../../source/usage/multiple_environments.md:140
 msgid "**`path_param`** - File path management:"
 msgstr "**`path_param`** - 文件路径管理："
@@ -263,11 +285,17 @@ msgid ""
 "objects from 0 (robots first), and objects created with "
 "`env.create_robot()` / `env.create_obstacle()` take their id from that "
 "environment, so ids stay unique inside each environment even when several "
-"are alive."
+"are alive. Objects compare by identity, so `robot_0` of two environments are "
+"distinct objects (and distinct set members) even though they share the id. "
+"`env.id` numbers environments in creation order, so code that tracks objects "
+"across environments can key them by `(env.id, obj.id)`."
 msgstr ""
 "对象 id 同样按环境隔离：每个环境都从 0 开始为对象编号（机器人在前），通过 "
 "`env.create_robot()` / `env.create_obstacle()` 创建的对象从所属环境获取 id，"
-"因此即使同时存在多个环境，id 在每个环境内部也保持唯一。"
+"因此即使同时存在多个环境，id 在每个环境内部也保持唯一。对象按身份（identity）"
+"比较，因此两个环境中的 `robot_0` 即使 id 相同也是不同的对象（在集合中也是不同"
+"成员）。`env.id` 按创建顺序为环境编号，需要跨环境跟踪对象的代码可以用 "
+"`(env.id, obj.id)` 作为键。"
 
 #: ../../source/usage/multiple_environments.md:152
 msgid ""
