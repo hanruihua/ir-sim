@@ -1147,6 +1147,70 @@ class TestMultipleEnvironments:
         assert len({env1.robot, env2.robot}) == 2
         assert env1.robot == env1.robot_list[0]  # identity within an environment
 
+    NOISY_YAML = """
+world: {height: 10, width: 10, step_time: 0.1}
+robot:
+  - kinematics: {name: 'diff', noise: true}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [9, 9, 0]
+    behavior: {name: 'dash'}
+"""
+
+    @pytest.fixture
+    def noisy_env(self, env_factory, tmp_path):
+        path = tmp_path / "noisy.yaml"
+        path.write_text(self.NOISY_YAML)
+        return lambda **kwargs: env_factory(str(path), **kwargs)
+
+    @staticmethod
+    def _run(env, steps):
+        for _ in range(steps):
+            env.step()
+        return np.asarray(env.robot.state, dtype=float).reshape(-1)[:3]
+
+    def test_seeded_environment_is_reproducible(self, noisy_env):
+        assert np.array_equal(
+            self._run(noisy_env(seed=11), 5), self._run(noisy_env(seed=11), 5)
+        )
+
+    def test_seeded_environments_do_not_share_random_streams(self, noisy_env):
+        alone = self._run(noisy_env(seed=11), 5)
+
+        env_a, env_b = noisy_env(seed=11), noisy_env(seed=22)
+        assert env_a.env_param.rng is not env_b.env_param.rng
+        self._run(env_b, 3)  # stepping another seeded environment in between
+        env_b.reset(random=True)
+        assert np.array_equal(self._run(env_a, 5), alone)
+
+    def test_unseeded_environments_share_the_default_generator(self, noisy_env):
+        from irsim.util import random as irsim_random
+
+        env_a, env_b = noisy_env(), noisy_env()
+        assert env_a.env_param.rng is None
+        assert env_b.env_param.rng is None
+        env_a.step()
+        assert irsim_random._generator() is irsim_random._default
+        env_b.step()
+        assert irsim_random._generator() is irsim_random._default
+
+    def test_set_seed_targets_the_generator_in_use(self, noisy_env):
+        from irsim.util import random as irsim_random
+        from irsim.util.random import set_seed
+
+        env = noisy_env(seed=3)
+        own, default = env.env_param.rng, irsim_random._default
+        set_seed(4)  # the current env has its own generator: that one is replaced
+        assert env.env_param.rng is not own
+        assert irsim_random._default is default
+
+        env.set_random_seed(5)
+        assert env.env_param.rng is not None
+        env_plain = noisy_env()
+        set_seed(6)  # no generator of its own: the shared default is reseeded
+        assert env_plain.env_param.rng is None
+        assert irsim_random._default is not default
+
     def test_environment_ids_are_process_wide(self, env_factory):
         env1 = env_factory("test_collision_world.yaml")
         env2 = env_factory("test_render.yaml")

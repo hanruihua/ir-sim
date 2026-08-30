@@ -1,27 +1,50 @@
 import numpy as np
 
-_rng = np.random.default_rng()
+_default = np.random.default_rng()  # shared by environments created without a seed
+_env_param = None  # the ``irsim.config.env_param`` proxy, imported on first use
+
+
+def _params():
+    global _env_param
+    if _env_param is None:
+        from irsim.config import env_param
+
+        _env_param = env_param
+    return _env_param
+
+
+def _generator() -> np.random.Generator:
+    """The generator in use: the current environment's own one, else the shared default."""
+    return _params().rng or _default
 
 
 class _RNGProxy:
+    """Proxy over the generator in use, so ``rng.uniform(...)`` follows the environment."""
+
     def __getattr__(self, name):
-        return getattr(_rng, name)
+        return getattr(_generator(), name)
 
 
 rng = _RNGProxy()
 
 
 def set_seed(seed: int | None = None) -> None:
-    """Reset the shared IR-SIM random number generator.
+    """Reseed the generator in use (see :data:`rng`).
+
+    Reseeds the current environment's own generator when it has one
+    (``irsim.make(..., seed=...)`` or ``env.set_random_seed``), otherwise the
+    shared default that unseeded environments draw from.
 
     Args:
         seed: Seed for deterministic sampling. ``None`` creates a fresh
             non-deterministic generator.
     """
-    global _rng
-    _rng = (
-        np.random.default_rng(seed) if seed is not None else np.random.default_rng()
-    )  # for numpy random
+    global _default
+    params = _params()
+    if params.rng is not None:
+        params.rng = np.random.default_rng(seed)
+    else:
+        _default = np.random.default_rng(seed)
 
 
 def random_uniform(low=None, high=None, size=(3, 1), min_distance=1.0):

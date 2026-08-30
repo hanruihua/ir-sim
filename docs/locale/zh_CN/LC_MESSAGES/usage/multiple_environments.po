@@ -232,6 +232,22 @@ msgstr "为本环境的对象从 0 开始编号的计数器"
 msgid "`env_id`"
 msgstr "`env_id`"
 
+#: ../../source/usage/multiple_environments.md:84
+msgid "`rng`"
+msgstr "`rng`"
+
+#: ../../source/usage/multiple_environments.md:84
+msgid "`np.random.Generator`"
+msgstr "`np.random.Generator`"
+
+#: ../../source/usage/multiple_environments.md:84
+msgid ""
+"Generator of a seeded environment (`seed=` / `env.set_random_seed()`); "
+"`None` means the shared default"
+msgstr ""
+"设置了随机种子的环境（`seed=` / `env.set_random_seed()`）使用的生成器；"
+"`None` 表示使用共享的默认生成器"
+
 #: ../../source/usage/multiple_environments.md:83
 msgid ""
 "Number of the owning environment (`env.id`), assigned in creation order and "
@@ -296,6 +312,22 @@ msgstr ""
 "比较，因此两个环境中的 `robot_0` 即使 id 相同也是不同的对象（在集合中也是不同"
 "成员）。`env.id` 按创建顺序为环境编号，需要跨环境跟踪对象的代码可以用 "
 "`(env.id, obj.id)` 作为键。"
+
+#: ../../source/usage/multiple_environments.md:154
+msgid ""
+"Random numbers follow the same rule. An environment created with `seed=` (or "
+"reseeded with `env.set_random_seed()`) draws all of its randomness — scene "
+"sampling, `reset(random=True)`, motion and sensor noise, random goals — from "
+"its own generator, so its results do not depend on what other environments "
+"do or on the order in which they are stepped. Environments created without a "
+"seed share one default generator, as before; `irsim.util.random.set_seed()` "
+"reseeds the generator in use."
+msgstr ""
+"随机数遵循同样的规则。使用 `seed=` 创建（或通过 `env.set_random_seed()` 重新设"
+"置种子）的环境，其所有随机性 —— 场景采样、`reset(random=True)`、运动与传感器噪"
+"声、随机目标 —— 都来自该环境自己的生成器，因此结果不受其他环境的影响，也与各环"
+"境的步进顺序无关。未指定种子创建的环境与以前一样共用一个默认生成器；"
+"`irsim.util.random.set_seed()` 会重新设置当前正在使用的生成器的种子。"
 
 #: ../../source/usage/multiple_environments.md:152
 msgid ""

@@ -137,6 +137,7 @@ Each environment instance creates and binds its own parameter objects:
 | `platform_name` | `str` | Operating system name |
 | `id_iter` | `Iterator[int]` | Counter that numbers this environment's objects from 0 |
 | `env_id` | `int` | Number of the owning environment (`env.id`), assigned in creation order and never reused in a process |
+| `rng` | `np.random.Generator` | Generator of a seeded environment (`seed=` / `env.set_random_seed()`); `None` means the shared default |
 
 **`path_param`** - File path management:
 
@@ -150,6 +151,8 @@ Each environment instance creates and binds its own parameter objects:
 Objects within each environment reference their own environment's parameters:
 
 Object ids are per environment as well: every environment numbers its objects from 0 (robots first), and objects created with `env.create_robot()` / `env.create_obstacle()` take their id from that environment, so ids stay unique inside each environment even when several are alive. Objects compare by identity, so `robot_0` of two environments are distinct objects (and distinct set members) even though they share the id. `env.id` numbers environments in creation order, so code that tracks objects across environments can key them by `(env.id, obj.id)`.
+
+Random numbers follow the same rule. An environment created with `seed=` (or reseeded with `env.set_random_seed()`) draws all of its randomness — scene sampling, `reset(random=True)`, motion and sensor noise, random goals — from its own generator, so its results do not depend on what other environments do or on the order in which they are stepped. Environments created without a seed share one default generator, as before; `irsim.util.random.set_seed()` reseeds the generator in use.
 
 :::{note}
 When creating multiple environments with `display=True`, each environment opens its own visualization window. For training or batch simulations, use `headless=True`: no figure is built at all, and the Matplotlib backend of the process is left untouched.

@@ -12,6 +12,8 @@ from dataclasses import dataclass, field, fields
 from types import ModuleType
 from typing import Any
 
+import numpy as np
+
 from irsim.world.object_base import ObjectBase
 
 
@@ -28,6 +30,9 @@ class EnvParam:
             objects from 0.
         env_id: Process-wide number of the owning environment (``None`` for the
             default instance bound before any environment exists).
+        rng: Generator this environment draws from when it was created with a
+            seed or reseeded; ``None`` means the shared default of
+            ``irsim.util.random``.
     """
 
     objects: list[ObjectBase] = field(default_factory=list)
@@ -36,6 +41,7 @@ class EnvParam:
     platform_name: str = field(default_factory=platform.system)
     id_iter: Iterator[int] = field(default_factory=itertools.count)
     env_id: int | None = None
+    rng: np.random.Generator | None = None
 
 
 # Multi-env storage (default index 0)
