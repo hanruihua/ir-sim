@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from irsim.msg import Header, ObjectState, Odometry, WorldState
-from irsim.util import util
+from irsim.util import time_it, time_it2, util
 from irsim.util.message import resolve_message_targets
 
 
@@ -133,7 +133,7 @@ def test_time_it2_counts_no_print(capsys):
         def __init__(self):
             self.time_print = False
 
-        @util.time_it2(name="NoPrintFn")
+        @time_it2(name="NoPrintFn")
         def fn(self):
             return 42
 
@@ -158,7 +158,7 @@ def test_time_it2_counts_with_print(capsys):
         def __init__(self):
             self.time_print = True
 
-        @util.time_it2(name="PrintFn")
+        @time_it2(name="PrintFn")
         def fn(self, delay=0.0):
             if delay:
                 time.sleep(delay)
@@ -745,7 +745,7 @@ def test_get_affine_transform():
 
 
 def test_time_it_function_decorator(capsys):
-    @util.time_it("timed_fn")
+    @time_it("timed_fn")
     def sample():
         return 42
 

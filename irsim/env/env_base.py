@@ -30,13 +30,14 @@ from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
 from irsim.msg import ObjectState, Odometry, WorldState
-from irsim.util.message import resolve_message_targets
-from irsim.util.random import rng, set_seed
-from irsim.util.util import (
+from irsim.util import (
     find_duplicates,
     find_object_by_identity,
     normalize_actions,
     plot_only,
+    resolve_message_targets,
+    rng,
+    set_seed,
     to_numpy,
 )
 from irsim.world import ObjectBase, ObjectFactory
