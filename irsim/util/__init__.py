@@ -8,7 +8,7 @@ This package contains helper functions for:
 - Geometry utilities
 """
 
-from .decorator import normalize_actions, plot_only, time_it, time_it2
+from .decorator import bind_env, normalize_actions, plot_only, time_it, time_it2
 from .message import resolve_message_targets
 from .random import random_uniform, rng, set_seed
 from .util import (
@@ -41,6 +41,7 @@ from .util import (
 __all__ = [
     "WrapToPi",
     "WrapToRegion",
+    "bind_env",
     "cross_product",
     "diff_to_omni",
     "dist_hypot",

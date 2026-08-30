@@ -1,6 +1,6 @@
 """Decorators shared by IR-SIM environments and utilities.
 
-``plot_only`` and ``normalize_actions`` wrap :class:`EnvBase`
+``bind_env``, ``plot_only`` and ``normalize_actions`` wrap :class:`EnvBase`
 methods; ``time_it`` / ``time_it2`` are general timing helpers.
 """
 
@@ -80,6 +80,22 @@ def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
         return [position(i) for i in action_id]
     start = 0 if action_id is None else position(action_id)
     return list(range(start, min(start + count, len(objects))))
+
+
+def bind_env(method):
+    """Decorator making ``self`` the current environment before ``method`` runs.
+
+    Object ids, the random generator, and context-free logging are reached
+    through the module-level ``env_param``/``world_param`` proxies, so methods
+    that construct objects or draw random numbers bind their environment first.
+    """
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        self._bind_config()
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 def plot_only(method):

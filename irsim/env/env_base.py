@@ -31,13 +31,13 @@ from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
 from irsim.msg import ObjectState, Odometry, WorldState
 from irsim.util import (
+    bind_env,
     find_duplicates,
     find_object_by_identity,
     normalize_actions,
     plot_only,
     resolve_message_targets,
     rng,
-    set_seed,
     to_numpy,
 )
 from irsim.world import ObjectBase, ObjectFactory
@@ -107,9 +107,10 @@ class EnvBase:
             If None, logs will only be output to console.
         log_level (str): Logging level for the environment. Options include
             'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'. Default is 'INFO'.
-        seed (int, optional): Seed for the random number generator. Default is None.
-            If None, the seed will be set to a random value, which will make the simulation non-reproducible.
-            If a fixed seed is provided, the random simulation scenario will be reproducible.
+        seed (int, optional): Seed of this environment's own random generator,
+            used for scene sampling, ``reset(random=True)``, motion and sensor
+            noise. Environments created without a seed share one default
+            generator (``irsim.util.random.set_seed`` reseeds it). Default is None.
         headless (bool): Run without any figure, window, or keyboard/mouse control,
             e.g. for batch training. Implies ``display=False``; rendering, drawing, and
             saving helpers become no-ops. Default is False.
@@ -178,7 +179,8 @@ class EnvBase:
         # init env setting: headless means no figure, no window, no input devices
         self.headless = headless or disable_all_plot
         self.display = display and not self.headless
-        set_seed(seed)
+        if seed is not None:
+            self._env_param.rng = np.random.default_rng(seed)
 
         # headless builds no figure, so the process backend is left alone:
         # switching it breaks the windows of other environments in this process
@@ -292,9 +294,8 @@ class EnvBase:
         path_param.bind(self._path_manager)
 
     def _restart_object_ids(self) -> None:
-        """Number a rebuilt scene from 0 again, using this environment's counter."""
-        self._bind_config()
-        ObjectBase.reset_id_iter()
+        """Number a rebuilt scene from 0 again."""
+        self._env_param.id_iter = itertools.count()
 
     def _check_ids_unique(self, objs: list[ObjectBase]) -> None:
         """Reject ids repeated within ``objs`` or already taken in this environment."""
@@ -313,6 +314,7 @@ class EnvBase:
         for obj in self._objects:
             obj._env = self
 
+    @bind_env
     @normalize_actions
     def step(
         self,
@@ -370,7 +372,6 @@ class EnvBase:
             >>> # Dict keyed by robot name
             >>> env.step({"robot_0": [1.0, 0.0], "robot_2": [0.5, 0.3]})
         """
-
         if self.quit_flag:
             self.quit()
 
@@ -813,6 +814,7 @@ class EnvBase:
             self.debug_flag = False
             self.debug_count = 0
 
+    @bind_env
     def reset(self, random: bool = False) -> None:
         """
         Reset the environment to its initial state.
@@ -861,6 +863,7 @@ class EnvBase:
     def _reset_all(self) -> None:
         [obj.reset() for obj in self.objects]
 
+    @bind_env
     def refresh(self) -> None:
         """
         Refresh state-derived attributes across the environment without
@@ -890,6 +893,7 @@ class EnvBase:
         self._env_plot._init_plot(self._world, self.objects)
 
     # region: environment change
+    @bind_env
     def random_obstacle_position(
         self,
         range_low: list[float] | np.ndarray | None = None,
@@ -934,6 +938,7 @@ class EnvBase:
         if self._env_plot is not None:
             self._env_plot.step("all", self.obstacle_list)
 
+    @bind_env
     def random_polygon_shape(
         self,
         center_range: list[float] | None = None,
@@ -996,6 +1001,7 @@ class EnvBase:
         if self._env_plot is not None:
             self._env_plot.step("all", self.obstacle_list)
 
+    @bind_env
     def reload(self, world_name: str | None = None) -> None:
         """
         Reload the environment from YAML and update the current figure.
@@ -1062,6 +1068,7 @@ class EnvBase:
 
     # region: object operation
 
+    @bind_env
     def create_obstacle(self, **kwargs: Any):
         """
         Create an obstacle in the environment.
@@ -1074,9 +1081,9 @@ class EnvBase:
             Obstacle: An instance of an obstacle.
         """
 
-        self._bind_config()  # new objects take their id from this environment
         return self.object_factory.create_obstacle(**kwargs)
 
+    @bind_env
     def create_robot(self, **kwargs: Any):
         """
         Create a robot in the environment.
@@ -1089,7 +1096,6 @@ class EnvBase:
             Robot: An instance of a robot.
         """
 
-        self._bind_config()  # new objects take their id from this environment
         return self.object_factory.create_robot(**kwargs)
 
     def add_object(self, obj: ObjectBase) -> None:
@@ -1406,11 +1412,11 @@ class EnvBase:
 
     def set_random_seed(self, seed: int | None = None, reload: bool = False) -> None:
         """
-        Set IR-SIM's random seed for reproducibility.
+        Give this environment its own random generator seeded with ``seed``.
 
         Args:
-            seed (int, optional): Seed for IR-SIM's project RNG. If ``None``, a
-                new unseeded generator is created (non-reproducible). This
+            seed (int, optional): Seed of this environment's generator. If ``None``,
+                a new unseeded generator is created (non-reproducible). This
                 controls randomness that goes through IR-SIM's RNG. Custom
                 code using ``np.random.*`` or Python ``random`` must be
                 seeded separately or migrated to use IR-SIM's RNG.
@@ -1422,7 +1428,7 @@ class EnvBase:
             >>> env.set_random_seed(100)  # Only set seed, no regeneration
             >>> env.set_random_seed(100, reload=True)  # Set seed and regenerate env by yaml file
         """
-        set_seed(seed)
+        self._env_param.rng = np.random.default_rng(seed)
         if reload:
             self.reload()
 
