@@ -288,3 +288,42 @@ obstacle:
 ```
 :::
 ::::
+
+## Advanced Configuration for Custom Kinematics
+
+If the built-in models (`diff`, `omni`, `omni_angular`, `acker`) do not match your robot, register your own kinematics handler. Subclass `KinematicsHandler` (or one of the built-in handlers), add any parameters your model needs to `__init__`, and register it with `@register_kinematics`:
+
+```python
+import numpy as np
+from irsim.lib import register_kinematics
+from irsim.lib.handler.kinematics_handler import DifferentialKinematics
+
+
+@register_kinematics("lag_diff")
+class LagDiffKinematics(DifferentialKinematics):
+    """Differential drive whose velocity follows the command with a first-order lag."""
+
+    def __init__(self, name, noise=False, alpha=None, tau=0.5):
+        super().__init__(name, noise, alpha)
+        self.tau = tau  # time constant of the lag, in seconds
+        self._vel = None
+
+    def step(self, state, velocity, step_time):
+        if self._vel is None:
+            self._vel = np.zeros_like(velocity)
+        self._vel = self._vel + (velocity - self._vel) * min(step_time / self.tau, 1.0)
+        return super().step(state, self._vel, step_time)
+```
+
+Any key under `kinematics` other than `name`, `noise`, and `alpha` is passed to the handler's `__init__`, so the model's parameters are set directly in YAML:
+
+```yaml
+robot:
+  - kinematics: {name: 'lag_diff', tau: 0.5}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+```
+
+:::{important}
+The module that defines the handler must be imported before `irsim.make()` so the registration runs. An unknown `name` raises `NotImplementedError`, and a key the handler does not accept raises `TypeError`, so typos in either are reported immediately.
+:::

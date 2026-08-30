@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import itertools
 from typing import Any
 
 from irsim.config import env_param
 from irsim.env import EnvBase
-from irsim.world.object_base import ObjectBase
 from irsim.world.object_factory import ObjectFactory
 from irsim.world.world3d import World3D
 
@@ -34,7 +32,7 @@ class EnvBase3D(EnvBase):
             **self.env_config.parse["world"],
         )
 
-        ObjectBase.id_iter = itertools.count()
+        self._restart_object_ids()
 
         self._robot_collection = object_factory.create_from_parse(
             self.env_config.parse["robot"], "robot"
@@ -49,8 +47,10 @@ class EnvBase3D(EnvBase):
             world_offset=self._world.offset[:2],
         )
 
-        self._env_plot.close()
-
-        self._env_plot = EnvPlot3D(self._world, self.objects, **self._world.plot_parse)
+        if self._env_plot is not None:
+            self._env_plot.close()
+            self._env_plot = EnvPlot3D(
+                self._world, self.objects, **self._world.plot_parse
+            )
 
         env_param.objects = self.objects

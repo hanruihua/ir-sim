@@ -178,7 +178,6 @@ class ObjectBase:
 
     """
 
-    id_iter = itertools.count()
     vel_shape = (2, 1)
     state_shape = (3, 1)
 
@@ -269,7 +268,7 @@ class ObjectBase:
 
         # --- 1. Identity ---
         self._env = None
-        self._id = next(ObjectBase.id_iter)
+        self._id = next(self._env_param.id_iter)
         self._name = name
         self.role = role
         self.group = group
@@ -315,7 +314,7 @@ class ObjectBase:
         self.gf = GeometryFactory.create_geometry(**shape)
         self.kf = (
             KinematicsFactory.create_kinematics(
-                wheelbase=self.wheelbase, role=role, **kinematics
+                shape_wheelbase=self.wheelbase, role=role, **kinematics
             )
             if kinematics is not None
             else None
@@ -526,21 +525,15 @@ class ObjectBase:
         self.plot_trail_list = []
         self._object_plot = ObjectPlot(self)
 
-    def __eq__(self, o: "ObjectBase") -> bool:
-        if isinstance(o, ObjectBase):
-            return self._id == o._id
-        return False
-
-    def __hash__(self) -> int:
-        return self._id
-
     def __str__(self) -> str:
         return f"ObjectBase: {self._id}"
 
     @classmethod
     def reset_id_iter(cls, start: int = 0, step: int = 1):
-        """reset the id iterator"""
-        cls.id_iter = itertools.count(start, step)
+        """Restart the object id counter of the currently bound environment."""
+        from irsim.config import env_param
+
+        env_param.id_iter = itertools.count(start, step)
 
     def step(
         self,

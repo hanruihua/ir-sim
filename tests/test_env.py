@@ -1099,6 +1099,62 @@ class TestMultipleEnvironments:
         # They should have different instances
         assert env1.path_param is not env2.path_param
 
+    def test_object_ids_are_per_environment(self, env_factory):
+        """Each environment numbers its objects from 0 with its own counter."""
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        n1, n2 = len(env1.objects), len(env2.objects)
+        assert [o.id for o in env1.objects] == list(range(n1))
+        assert [o.id for o in env2.objects] == list(range(n2))
+
+        # env1 keeps counting from its own last id although env2 was created later
+        obstacle = env1.create_obstacle(shape={"name": "circle", "radius": 0.2})
+        assert obstacle.id == n1
+        env1.add_object(obstacle)
+
+        # rebuilding env2 restarts env2 only
+        env2.reload()
+        assert [o.id for o in env2.objects] == list(range(n2))
+        assert (
+            env1.create_obstacle(shape={"name": "circle", "radius": 0.2}).id == n1 + 1
+        )
+
+    def test_add_object_rejects_duplicate_id(self, env_factory):
+        env = env_factory("test_render.yaml")
+        extra = env.create_obstacle(
+            name="extra", shape={"name": "circle", "radius": 0.2}
+        )
+        extra._id = env.objects[0].id
+        with pytest.raises(ValueError, match="ids already exist"):
+            env.add_object(extra)
+        with pytest.raises(ValueError, match="ids already exist"):
+            env.add_objects([extra])
+
+        # duplicates within one add_objects() call are rejected as well
+        a = env.create_obstacle(name="a", shape={"name": "circle", "radius": 0.2})
+        b = env.create_obstacle(name="b", shape={"name": "circle", "radius": 0.2})
+        b._id = a.id
+        with pytest.raises(ValueError, match="repeat"):
+            env.add_objects([a, b])
+
+    def test_equal_ids_in_different_environments_are_distinct_objects(
+        self, env_factory
+    ):
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        assert env1.robot.id == env2.robot.id == 0
+        assert env1.robot != env2.robot
+        assert len({env1.robot, env2.robot}) == 2
+        assert env1.robot == env1.robot_list[0]  # identity within an environment
+
+    def test_environment_ids_are_process_wide(self, env_factory):
+        env1 = env_factory("test_collision_world.yaml")
+        env2 = env_factory("test_render.yaml")
+        assert env2.id > env1.id  # creation order, never reused
+        assert env1.env_param.env_id == env1.id
+        assert env1.robot._env_param.env_id == env1.id
+        assert f"(id {env1.id})" in str(env1)
+
     def test_objects_reference_correct_env_params(self, env_factory):
         """Test that objects reference their own environment's params."""
         env1 = env_factory("test_collision_world.yaml")
@@ -1526,7 +1582,7 @@ class TestEndReleasesFigure:
                 projection=projection,
             )
             env.step()
-            assert len(plt.get_fignums()) == 1
+            assert len(plt.get_fignums()) == (0 if disable_all_plot else 1)
             env.end()
             assert plt.get_fignums() == []
 
@@ -1534,12 +1590,7 @@ class TestEndReleasesFigure:
         """end() is idempotent, closes only its own figure, and frees the keyboard."""
         import irsim.gui.keyboard_control as kb_module
 
-        env = irsim.make(
-            "test_collision_world.yaml",
-            save_ani=False,
-            display=False,
-            disable_all_plot=True,
-        )
+        env = irsim.make("test_collision_world.yaml", save_ani=False, display=False)
         env_fig = env._env_plot.fig
         unrelated_fig = plt.figure()
         env.keyboard._set_active()
@@ -1610,6 +1661,76 @@ class TestStepActionIds:
     def test_sequential_actions_start_at_id(self, env_factory, tmp_path):
         env = self._make(env_factory, tmp_path)
         assert self._step_and_moved(env, [[1.0, 0.0]] * 2, action_id=1) == [1, 2]
+
+
+class TestDisableAllPlotSkipsFigure:
+    """``disable_all_plot`` creates no figure and turns the plot helpers into no-ops."""
+
+    @pytest.mark.parametrize("projection", ["2d", "3d"])
+    def test_no_figure_and_helpers_are_noops(self, env_factory, projection):
+        plt.close("all")
+        env = env_factory(
+            "test_collision_world.yaml", disable_all_plot=True, projection=projection
+        )
+        assert env._env_plot is None
+        assert env.mouse is None
+        assert plt.get_fignums() == []
+
+        env.step()
+        env.render()
+        env.draw_trajectory(env.robot.trajectory)
+        env.draw_points([[1.0, 1.0]])
+        env.set_title("headless")
+        env.save_figure()
+        env.reset_plot()
+        env.random_obstacle_position()
+        if projection == "2d":
+            env.reset(random=True)
+            env.reload()
+            env.step()
+        env.end()
+
+        assert plt.get_fignums() == []
+
+    def test_headless_ignores_full_screen(self, env_factory):
+        plt.close("all")
+        env_factory("test_collision_world.yaml", headless=True, full=True)
+        assert plt.get_fignums() == []
+
+    def test_headless_leaves_matplotlib_backend_alone(self, env_factory):
+        with patch("irsim.env.env_base.matplotlib.use") as use:
+            env_factory("test_collision_world.yaml", headless=True)
+        use.assert_not_called()
+
+        with patch("irsim.env.env_base.matplotlib.use") as use:
+            env_factory("test_collision_world.yaml", display=False)
+        use.assert_called_once_with("Agg")
+
+    def test_headless_argument_and_alias(self, env_factory):
+        env = env_factory("test_collision_world.yaml", headless=True, display=True)
+        assert env.headless
+        assert env.disable_all_plot  # alias
+        assert not env.display  # headless implies no window
+        assert env._env_plot is None
+        alias = env_factory("test_collision_world.yaml", disable_all_plot=True)
+        assert alias.headless
+        assert alias._env_plot is None
+
+    def test_keyboard_construction_failure_falls_back_to_auto(self, env_factory):
+        """A KeyboardControl that cannot be built leaves the env usable in auto mode."""
+        with patch(
+            "irsim.env.env_base.KeyboardControl",
+            side_effect=RuntimeError("no input device"),
+        ):
+            env = env_factory("test_keyboard_control.yaml")
+        assert env.keyboard is None
+        assert env._world_param.control_mode == "auto"
+        env.step()
+
+    def test_keyboard_control_falls_back_to_auto(self, env_factory):
+        env = env_factory("test_keyboard_control.yaml", disable_all_plot=True)
+        assert env._world_param.control_mode == "auto"
+        env.step()
 
 
 class TestStatusArrived:

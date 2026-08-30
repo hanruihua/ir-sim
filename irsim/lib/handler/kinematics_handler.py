@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from math import atan2
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 
@@ -21,6 +21,10 @@ _kinematics_registry: dict[str, type["KinematicsHandler"]] = {}
 
 def register_kinematics(name: str):
     """Decorator to register a KinematicsHandler subclass.
+
+    Any extra key under ``kinematics:`` in YAML is passed to the subclass's
+    ``__init__`` (after ``name``, ``noise``, ``alpha``), so a registered model
+    can take its own parameters, e.g. ``kinematics: {name: lag, tau: 0.5}``.
 
     Args:
         name (str): Name used in YAML configs (e.g. ``"diff"``, ``"omni"``).
@@ -64,7 +68,8 @@ class KinematicsHandler(ABC):
 
     Subclasses should set the class-attribute metadata described below and
     implement :meth:`step`, :meth:`velocity_to_xy`, :meth:`compute_max_speed`,
-    and :meth:`compute_heading`.
+    and :meth:`compute_heading`. A subclass may add keyword parameters to
+    ``__init__``; any extra key under ``kinematics:`` in YAML is passed to it.
     """
 
     # -- Metadata (override in subclasses) --
@@ -419,29 +424,38 @@ class KinematicsFactory:
         name: str | None = None,
         noise: bool = False,
         alpha: list | None = None,
-        mode: str = "steer",
+        mode: str | None = None,
         wheelbase: float | None = None,
         role: str = "robot",
+        *,
+        shape_wheelbase: float | None = None,
+        **kwargs: Any,
     ) -> KinematicsHandler:
-        """Create a kinematics handler from a YAML ``kinematics.name`` value.
+        """Create a kinematics handler from a YAML ``kinematics`` block.
 
         Args:
-            name: Registered kinematics name, such as ``diff``, ``omni``,
-                ``omni_angular``, or ``acker``. ``None`` defaults to ``diff``;
+            name: Registered kinematics name: ``diff``, ``omni``, ``omni_angular``,
+                ``acker``, or a custom name registered with
+                :func:`register_kinematics`. ``None`` defaults to ``diff``;
                 ``static`` is retained as the static-object sentinel.
             noise: Whether to apply motion noise.
             alpha: Noise parameters passed to the handler.
-            mode: Ackermann mode, used only by ``acker``.
-            wheelbase: Ackermann wheelbase; defaults to ``1.0`` for ``acker``.
+            mode: Steering mode of ``acker`` handlers; forwarded when given.
+            wheelbase: Wheelbase set under ``kinematics``; forwarded when given
+                and takes precedence over ``shape_wheelbase``.
             role: Object role, retained for API compatibility.
+            shape_wheelbase: Wheelbase taken from a car-like shape; the fallback
+                for ``acker`` handlers (default ``1.0``) when ``wheelbase`` is
+                not given.
+            **kwargs: Any other ``kinematics`` key, forwarded to the handler's
+                ``__init__`` (a custom handler's own parameters).
 
         Returns:
-            KinematicsHandler: Registered handler instance, or a differential
-            handler when the name is missing.
+            KinematicsHandler: Handler instance for ``name``.
 
         Raises:
-            NotImplementedError: If a non-empty name other than ``static`` is
-                not registered.
+            NotImplementedError: If ``name`` is not registered.
+            TypeError: If the handler does not accept a forwarded parameter.
         """
         if name is None:
             return DifferentialKinematics("diff", noise, alpha)
@@ -451,13 +465,15 @@ class KinematicsFactory:
             return DifferentialKinematics("static", noise, alpha)
 
         handler_cls = _kinematics_registry.get(name)
-
-        if handler_cls is not None:
-            # AckermannKinematics accepts extra kwargs
-            if issubclass(handler_cls, AckermannKinematics):
-                return handler_cls(name, noise, alpha, mode, wheelbase or 1.0)
-            return handler_cls(name, noise, alpha)
-        raise NotImplementedError(f"Kinematics {name!r} is not registered")
+        if handler_cls is None:
+            raise NotImplementedError(f"Kinematics {name!r} is not registered")
+        if mode is not None:
+            kwargs["mode"] = mode
+        if wheelbase is not None:
+            kwargs["wheelbase"] = wheelbase
+        if issubclass(handler_cls, AckermannKinematics):
+            kwargs.setdefault("wheelbase", shape_wheelbase or 1.0)
+        return handler_cls(name, noise, alpha, **kwargs)
 
     @staticmethod
     def get_handler_class(name: str) -> type[KinematicsHandler] | None:

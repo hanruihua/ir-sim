@@ -743,3 +743,27 @@ msgid ""
 "Surplus actions are dropped with a warning; an unknown id or name raises "
 "`ValueError`."
 msgstr "多余的动作会被丢弃并给出警告；不存在的 id 或名字会抛出 `ValueError`。"
+
+#: ../../source/usage/make_environment.md
+msgid "Headless Mode for Batch Training"
+msgstr "用于批量训练的无头模式"
+
+#: ../../source/usage/make_environment.md
+msgid ""
+"Pass `headless=True` to run without any figure, window, or keyboard/mouse "
+"control. Environment creation is several times cheaper and nothing is left "
+"behind when an environment is discarded, which matters when a training loop "
+"creates many environments; `render()`, the drawing helpers, and "
+"`save_figure()` become no-ops so the same script runs unchanged:"
+msgstr ""
+"传入 `headless=True` 即可在没有任何图形、窗口和键盘/鼠标控制的情况下运行。环境创建开销降低数倍，"
+"丢弃环境时也不会留下任何残留，这在训练循环需要创建大量环境时很重要；`render()`、各绘图辅助函数和 "
+"`save_figure()` 都会变成空操作，因此同一脚本无需修改即可运行："
+
+#: ../../source/usage/make_environment.md
+msgid ""
+"`disable_all_plot=True` is kept as an alias. To render offscreen while still "
+"saving animations or figures, use `display=False` instead."
+msgstr ""
+"`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 "
+"`display=False`。"
