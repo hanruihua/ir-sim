@@ -610,7 +610,7 @@ class ObjectBase:
         """
         [sensor.step(self.state[0:3]) for sensor in self.sensors]
 
-    def check_status(self):
+    def check_status(self, colliding=None):
         """
         Check the current status of the object, including arrival and collision detection.
 
@@ -619,7 +619,7 @@ class ObjectBase:
         and 'unobstructed_obstacles'.
         """
         self.check_arrive_status()
-        self.check_collision_status()
+        self.check_collision_status(colliding)
 
         if self._world_param.collision_mode == "stop":
             self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
@@ -691,30 +691,30 @@ class ObjectBase:
 
         return diff < threshold
 
-    def check_collision_status(self):
+    def check_collision_status(self, colliding=None):
         """
-        Check if the object is in collision with other objects in the environment.
+        Update the collision flag and the list of colliding objects.
 
-        This method queries possible collision objects from the geometry tree and
-        checks for intersections. It logs collision warnings for robots and updates
-        the collision_flag and collision_obj list.
+        Args:
+            colliding (list, optional): Objects already known to intersect this
+                one, e.g. from the environment's batched geometry query. When
+                ``None`` the geometry tree is queried for this object alone.
         """
-        collision_flags = []
-        self.collision_obj = []
+        if colliding is None:
+            colliding = [
+                obj
+                for obj in self.possible_collision_objects
+                if self.check_collision(obj)
+            ]
 
-        for obj in self.possible_collision_objects:
-            if self.check_collision(obj):
-                collision_flags.append(True)
-                self.collision_obj.append(obj)
+        if self.role == "robot" and not self.collision_flag:
+            for obj in colliding:
+                self.logger.warning(
+                    f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
+                )
 
-                if self.role == "robot" and not self.collision_flag:
-                    self.logger.warning(
-                        f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
-                    )
-            else:
-                collision_flags.append(False)
-
-        self.collision_flag = any(collision_flags)
+        self.collision_obj = list(colliding)
+        self.collision_flag = bool(colliding)
 
     def check_collision(self, obj):
         """

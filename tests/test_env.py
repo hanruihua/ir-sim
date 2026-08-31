@@ -1814,7 +1814,7 @@ class TestStatusArrived:
                 obj.collision_flag = False
 
         # Patch check_status on base class to prevent collision re-detection
-        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+        with mock_patch.object(ObjectBase, "check_status", lambda self, *args: None):
             env._status_step()
         assert env.status == "Arrived"
 
@@ -1826,7 +1826,7 @@ class TestStatusArrived:
 
         env = env_factory("test_collision_world.yaml")
         env.save_figure_flag = True
-        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+        with mock_patch.object(ObjectBase, "check_status", lambda self, *args: None):
             env._status_step()
         assert env.status == "Save Figure"
 
@@ -1838,7 +1838,7 @@ class TestStatusArrived:
 
         env = env_factory("test_collision_world.yaml")
         env.quit_flag = True
-        with mock_patch.object(ObjectBase, "check_status", lambda self: None):
+        with mock_patch.object(ObjectBase, "check_status", lambda self, *args: None):
             env._status_step()
         assert env.status == "Quit"
 
@@ -2389,3 +2389,28 @@ class TestStatusAndActionEdgeCases:
         env.step(action, action_id=[0])
         assert env.robot.velocity.shape == (2, 1)
         assert np.linalg.norm(env.robot.velocity) > 0
+
+
+class TestBatchedCollisionQuery:
+    """The batched per-step collision query matches the per-object tree query."""
+
+    @pytest.mark.parametrize(
+        "yaml_file",
+        [
+            "test_multi_objects_world.yaml",
+            "test_collision_world.yaml",
+            "test_grid_map.yaml",
+        ],
+    )
+    def test_matches_per_object_checks(self, env_factory, yaml_file):
+        env = env_factory(yaml_file)
+        for _ in range(5):
+            env.step()
+        batched = env._colliding_objects()
+        assert set(batched) == {obj.id for obj in env.objects}
+        for obj in env.objects:
+            expected = {
+                o.id for o in obj.possible_collision_objects if obj.check_collision(o)
+            }
+            assert {o.id for o in batched[obj.id]} == expected
+            assert obj.collision_flag == bool(expected)
