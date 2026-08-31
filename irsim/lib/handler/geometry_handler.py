@@ -238,10 +238,15 @@ class geometry_handler(ABC):
         """
         return np.array(self._original_geometry.centroid.xy)
 
+    _radius_of = None  # geometry the cached radius belongs to
+
     @property
     def radius(self):
-        """Minimum bounding radius of the original geometry."""
-        return minimum_bounding_radius(self._original_geometry)
+        """Minimum bounding radius of the original geometry (cached per geometry)."""
+        if self._radius_of is not self._original_geometry:
+            self._radius = minimum_bounding_radius(self._original_geometry)
+            self._radius_of = self._original_geometry
+        return self._radius
 
 
 class CircleGeometry(geometry_handler):

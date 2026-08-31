@@ -419,6 +419,9 @@ class ObjectBase:
         self._geometry_valid = (
             shapely.is_valid(self._geometry) if self._geometry is not None else False
         )
+        self._shape_valid = self.gf is not None and bool(
+            shapely.is_valid(self.gf._original_geometry)
+        )
 
     def _init_info(
         self,
@@ -583,7 +586,8 @@ class ObjectBase:
         self._state = next_state
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
-        self._geometry_valid = shapely.is_valid(self._geometry)
+        # a rigid transform with finite parameters keeps a valid shape valid
+        self._geometry_valid = self._shape_valid and bool(np.isfinite(next_state).all())
         # state/velocity/geometry changed; invalidate per-tick caches
         # used by reactive behaviors (SFM/RVO read these once per
         # neighbour). Non-static linestring objects have their vertices
@@ -994,6 +998,7 @@ class ObjectBase:
                 Subsequent geometry updates will be transformed from this base.
         """
         self.gf._original_geometry = geometry
+        self._shape_valid = bool(shapely.is_valid(geometry))
 
     def set_random_goal(
         self,
@@ -1348,7 +1353,9 @@ class ObjectBase:
                 from the same state snapshot.
         """
         self._geometry = self.gf.step(self.state)
-        self._geometry_valid = shapely.is_valid(self._geometry)
+        self._geometry_valid = self._shape_valid and bool(
+            np.isfinite(self._state).all()
+        )
         if sensor_step:
             self.sensor_step()
         self._invalidate_reactive_cache()

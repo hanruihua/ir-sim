@@ -1022,3 +1022,23 @@ class TestPerStepWarningsOnce:
         )
         levels = self._levels(env, None, "static")
         assert levels == ["WARNING"] + ["DEBUG"] * 4
+
+
+class TestPerStepGeometryShortcuts:
+    """Per-step shortcuts must not change what the slow computations returned."""
+
+    def test_radius_cache_follows_original_geometry(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert robot.gf.radius == pytest.approx(0.2)
+        robot.set_original_geometry(shapely.Point(0, 0).buffer(2.0))
+        assert robot.gf.radius == pytest.approx(2.0, rel=1e-3)
+
+    def test_invalid_shape_stays_invalid_after_stepping(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert robot._geometry_valid
+        bow_tie = shapely.Polygon([(0, 0), (1, 1), (1, 0), (0, 1)])  # self-intersecting
+        robot.set_original_geometry(bow_tie)
+        env.step(np.array([[0.5], [0.0]]))
+        assert not robot._geometry_valid
