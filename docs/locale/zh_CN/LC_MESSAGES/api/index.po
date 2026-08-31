@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: IR-SIM \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 15:28+0800\n"
+"POT-Creation-Date: 2026-09-01 13:22+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -18,41 +18,223 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/api/index.rst:6
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:67
 msgid "Overview (irsim.make, EnvBase)"
 msgstr "概览（irsim.make、EnvBase）"
 
-#: ../../source/api/index.rst:6
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:67
 msgid "API Documentation"
 msgstr "API 文档"
 
-#: ../../source/api/index.rst:2
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:2
 msgid "API Reference"
 msgstr "应用程序接口"
 
-#: ../../source/api/index.rst:4
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:4
 msgid ""
 "Welcome to the IR-SIM API Reference. This section provides detailed "
-"documentation for all modules, classes, and functions in the IR-SIM "
-"package."
+"documentation for all modules, classes, and functions in the IR-SIM package."
 msgstr "欢迎阅读 IR-SIM API 参考。本节提供该软件包中所有模块、类与函数的详细说明。"
 
-#: ../../source/api/index.rst:19
-msgid ":py:meth:`~irsim.env.env_base.EnvBase.get_msg`: capture a complete simulation message."
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:7
+msgid "Core simulation loop"
+msgstr "核心仿真循环"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:9
+msgid ""
+"The handful of entry points you will use most; everything else is reachable "
+"from the modules below."
+msgstr "最常用的几个入口；其余功能都可以从下面的模块进入。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:11
+msgid ":py:func:`irsim.make`: create an environment from a YAML scenario."
+msgstr ":py:func:`irsim.make`：从 YAML 场景创建环境。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:12
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.step`: advance the simulation by one "
+"step."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.step`：将仿真推进一步。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:13
+msgid ":py:meth:`~irsim.env.env_base.EnvBase.render`: draw the current state."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.render`：绘制当前状态。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:14
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.done`: check whether a terminal "
+"condition is reached."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.done`：检查是否达到终止条件。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:15
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.reset`: restore objects to their "
+"initial states."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.reset`：将对象恢复到初始状态。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:16
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.end`: close the environment and "
+"release resources."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.end`：关闭环境并释放资源。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:17
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.get_robot_state`: read the primary "
+"robot's state."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.get_robot_state`：读取主机器人的状态。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:18
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.get_lidar_scan`: read a robot's LiDAR "
+"scan."
+msgstr ":py:meth:`~irsim.env.env_base.EnvBase.get_lidar_scan`：读取机器人的激光雷达扫描。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:19
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.get_msg`: capture a complete "
+"simulation message."
 msgstr ":py:meth:`~irsim.env.env_base.EnvBase.get_msg`：捕获完整的 ROS 风格仿真消息。"
 
-#: ../../source/api/index.rst:20
-msgid ":py:meth:`~irsim.env.env_base.EnvBase.receive_msg`: apply external odometry to simulation objects."
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:20
+msgid ""
+":py:meth:`~irsim.env.env_base.EnvBase.receive_msg`: apply external odometry "
+"to simulation objects."
 msgstr ":py:meth:`~irsim.env.env_base.EnvBase.receive_msg`：将外部 ROS 风格里程计应用到仿真对象。"
 
-#: ../../source/api/index.rst:53
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:23
+msgid "How to read this reference"
+msgstr "如何阅读本参考"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:25
+msgid ""
+"The API pages below are generated from the Python package with AutoAPI. "
+"Start from the high-level entry points when writing simulations, and use the"
+" lower level modules when extending IR-SIM itself."
+msgstr "下面的 API 页面由 AutoAPI 从 Python 包自动生成。编写仿真时请从高层入口开始；扩展 IR-SIM 本身时再使用底层模块。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:32
+msgid "Task"
+msgstr "任务"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:33
+msgid "Main API"
+msgstr "主要 API"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:34
+msgid "Notes"
+msgstr "说明"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:35
+msgid "Create and run environments"
+msgstr "创建并运行环境"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:36
+msgid ":py:func:`irsim.make`, :py:class:`~irsim.env.env_base.EnvBase`"
+msgstr ":py:func:`irsim.make`, :py:class:`~irsim.env.env_base.EnvBase`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:37
+msgid "Preferred public entry points for most users."
+msgstr "大多数用户首选的公共入口。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:38
+msgid "Inspect or control objects"
+msgstr "查看或控制对象"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:39
+msgid ":py:class:`~irsim.world.object_base.ObjectBase`"
+msgstr ":py:class:`~irsim.world.object_base.ObjectBase`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:40
+msgid "Common base for robots, obstacles, and map objects."
+msgstr "机器人、障碍物和地图对象的公共基类。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:41
+msgid "Create objects from YAML"
+msgstr "从 YAML 创建对象"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:42
+msgid ":py:class:`~irsim.world.object_factory.ObjectFactory`"
+msgstr ":py:class:`~irsim.world.object_factory.ObjectFactory`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:43
+msgid "Used internally by the YAML loader; useful for advanced programmatic setup."
+msgstr "由 YAML 加载器内部使用；也适用于高级的编程式搭建。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:44
+msgid "Add kinematics models"
+msgstr "添加运动学模型"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:45
+msgid ""
+":py:func:`~irsim.lib.handler.kinematics_handler.register_kinematics`, "
+":py:class:`~irsim.lib.handler.kinematics_handler.KinematicsHandler`"
+msgstr ""
+":py:func:`~irsim.lib.handler.kinematics_handler.register_kinematics`, "
+":py:class:`~irsim.lib.handler.kinematics_handler.KinematicsHandler`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:47
+msgid "Register models under the same names used by YAML ``kinematics``."
+msgstr "以 YAML ``kinematics`` 使用的名称注册模型。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:48
+msgid "Add object geometry"
+msgstr "添加对象几何"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:49
+msgid ":py:class:`~irsim.lib.handler.geometry_handler.GeometryFactory`"
+msgstr ":py:class:`~irsim.lib.handler.geometry_handler.GeometryFactory`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:50
+msgid "Converts YAML ``shape`` dictionaries into Shapely geometries."
+msgstr "将 YAML ``shape`` 字典转换为 Shapely 几何。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:51
+msgid "Add sensors"
+msgstr "添加传感器"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:52
+msgid ":py:class:`~irsim.world.sensors.sensor_factory.SensorFactory`"
+msgstr ":py:class:`~irsim.world.sensors.sensor_factory.SensorFactory`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:53
+msgid "Creates concrete sensors from YAML ``sensors`` entries."
+msgstr "根据 YAML ``sensors`` 条目创建具体传感器。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:54
 msgid "Exchange simulation messages"
 msgstr "交换仿真消息"
 
-#: ../../source/api/index.rst:54
-msgid ":py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`, :py:class:`~irsim.msg.LaserScan`"
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:55
+msgid ""
+":py:class:`~irsim.msg.WorldState`, :py:class:`~irsim.msg.Odometry`, "
+":py:class:`~irsim.msg.LaserScan`"
 msgstr ":py:class:`~irsim.msg.WorldState`、:py:class:`~irsim.msg.Odometry`、:py:class:`~irsim.msg.LaserScan`"
 
-#: ../../source/api/index.rst:56
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:57
 msgid "Version-neutral snapshots for bridge-side serialization and state reception."
 msgstr "与 ROS 版本无关的快照，用于桥接端序列化和状态接收。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:58
+msgid "Use path planners"
+msgstr "使用路径规划器"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:59
+msgid ":mod:`irsim.lib.path_planners`"
+msgstr ":mod:`irsim.lib.path_planners`"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:60
+msgid "Grid and sampling planners operate on :class:`~irsim.world.map.EnvGridMap`."
+msgstr "栅格与采样规划器基于 :class:`~irsim.world.map.EnvGridMap` 工作。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/api/index.rst:62
+msgid ""
+"Generated pages may include inherited members so that re-exported public "
+"APIs are still discoverable. When defaults differ between YAML configuration"
+" and a lower-level constructor, the YAML reference documents the YAML "
+"behavior, while the API reference documents the direct Python constructor "
+"behavior."
+msgstr ""
+"生成的页面可能包含继承成员，以便再导出的公共 API 依然可以查到。当 YAML 配置与底层构造函数的默认值不同时，YAML 参考描述 YAML "
+"的行为，API 参考描述直接使用 Python 构造函数的行为。"
+

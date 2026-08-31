@@ -131,7 +131,7 @@ irsim/                  # Main package
 └── config/             # Configuration parameters
 
 tests/                  # Pytest test suite (13 test files)
-usage/                  # Example YAML configs and scripts (26 examples)
+usage/                  # Example YAML configs and scripts (25 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 
@@ -241,9 +241,9 @@ Rules for writing entries in `changelog.md`:
 
 - **Scope**: only include changes merged into `main`. Do not list work still on feature branches. Skip dependency-only PRs (`chore(deps)`, `chore(deps-dev)`).
 - **Section structure**: use `## <version>` as the top heading, then grouped subsections in this order — `Features`, `Performance`, `Fix`, `Refactor`, `Docs`, `Tests`. Include only the categories that apply.
-- **Entry format**: one bullet per PR, written as a complete sentence (or two). Lead with the technical change, then state the *motivation/target* — the "why", not just the "what". For example:
-  - Good: "Add `random_uniform` sampler with pairwise min-distance. Prevents object overlap in random sampling, and world-derived defaults adapt to the world size/offset so users don't restate bounds per scene."
-  - Avoid: "Add `random_uniform` sampler." (what, but no why)
+- **Entry format**: bullets mirror the PR-message style — a bold one-sentence headline, then one to three plain sentences describing the symptom, mechanism, or motivation, ending with the PR link. For example:
+  - "**A global seed survives `make()`.** Creating an environment without a seed used to replace the shared generator with a fresh unseeded one, so `set_seed(0)` followed by `irsim.make()` was not reproducible. It is now. ([#365](https://github.com/hanruihua/ir-sim/pull/365))"
+- **Read the PR body, not just the title**: a feat PR can carry fix/perf items and a refactor PR can list several fixes; each item becomes its own bullet in the section that matches the item (a fix inside a feat PR goes under `Fix`), all linking the same PR. Multi-bug fix PRs stay flat — one bullet per bug, no grouping parent.
 - **PR link**: end every entry with the PR link: `([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))`.
 - **Contributor credit**: for PRs not authored by `hanruihua`, append the GitHub handle after the PR link: `([#NNN](...)) (@username)`.
 - **Performance metrics**: quote concrete numbers — measured speedups, coordinate/linestring counts, memory reductions, etc. (e.g., "~48% faster lidar step", "~3× fewer linestrings").

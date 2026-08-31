@@ -1,5 +1,53 @@
 # Changelog
 
+## 2.11.0 (2026-09-01)
+
+This release adds headless environments for batch training, compound geometry, internal/external step modes, ROS-style simulation messages, and per-environment object ids and random generators, plus much faster stepping for both lidar scans and multi-robot behaviors.
+
+Measured headless on an Apple-silicon Mac against 2.10.2 (median of repeated runs):
+
+| Time cost | 2.10.2 | 2.11.0 | Speedup |
+| --- | ---: | ---: | ---: |
+| `env.step()`, 200-beam lidar, one polygon | 2.88 ms | 0.26 ms | 11.1x |
+| `env.step()`, 200-beam lidar, 50 polygons | 6.20 ms | 1.51 ms | 4.1x |
+| `env.step()`, 200-beam lidar, mixed scene (`usage/05lidar_world`) | 5.27 ms | 0.31 ms | 17.0x |
+| `env.step()`, FMCW lidar (`usage/22fmcw_lidar_world`) | 4.32 ms | 0.60 ms | 7.2x |
+| `env.step()`, 100-beam lidar on an image map (`usage/10grid_map`) | 3.07 ms | 2.15 ms | 1.4x |
+| `env.step()`, 16 RVO robots | 37.1 ms | 2.16 ms | 17.2x |
+| `env.step()`, 100 dash robots | 5.92 ms | 3.82 ms | 1.6x |
+| `irsim.make()` without a figure (`disable_all_plot` / `headless`) | 21.6 ms | 5.8 ms | 3.7x |
+
+- Features:
+  - **Compound geometry models multi-part bodies.** Real platforms are rarely a single primitive. A shape can now be composed of fixed circle, rectangle, and polygon parts and behaves as one body everywhere: collision, lidar, rendering, and goals. ([#350](https://github.com/hanruihua/ir-sim/pull/350))
+  - **An external system can own the state update.** In co-simulation or hardware-in-the-loop setups another simulator or middleware already computes the next states; with `step_mode: "external"` IR-SIM stops integrating on its own and instead keeps geometry, sensors, collisions, and the clock in sync with the states the caller sets. ([#354](https://github.com/hanruihua/ir-sim/pull/354))
+  - **ROS-style messages exchange simulation state.** Bridging IR-SIM to ROS or to another simulator used to need custom glue; `env.get_msg()` / `env.receive_msg()` provide dependency-free snapshots and odometry updates, so a bridge becomes a few lines of code. ([#355](https://github.com/hanruihua/ir-sim/pull/355))
+  - **YAML gets a `custom` section.** Experiment parameters - reward weights, safety margins, planner settings - can live next to the scenario that uses them and be read back via `env.config["custom"]`, instead of maintaining a second configuration file. ([#359](https://github.com/hanruihua/ir-sim/pull/359))
+  - **Headless mode skips the figure entirely.** Batch reinforcement-learning training creates thousands of environments that never draw; `irsim.make(..., headless=True)` builds no figure, window, or input devices and leaves the Matplotlib backend alone, so parallel workers stay off the display stack and environment creation is several times cheaper (see the table above). `disable_all_plot` stays as an alias. ([#362](https://github.com/hanruihua/ir-sim/pull/362))
+  - **Custom kinematics models take their own YAML parameters.** Research models - a first-order lag, a slip model - need their own constants; every extra key under `kinematics:` now reaches the registered handler's `__init__`, so a custom model is configured from the scenario exactly like a built-in one, for example `kinematics: {name: lag, tau: 0.5}`. ([#362](https://github.com/hanruihua/ir-sim/pull/362))
+  - **Random numbers are per environment.** Vectorized training runs many environments in one process, and results should not depend on how they interleave; an environment created with `seed=` owns its generator for scene sampling, resets, and noise, so each run is reproducible on its own. Unseeded environments share the default generator as before. ([#365](https://github.com/hanruihua/ir-sim/pull/365))
+- Performance:
+  - **2D lidar ray casting is rewritten.** The GEOS overlay operations are replaced by one vectorized ray caster shared by `Lidar2D` and `FMCWLidar2D`: scans are about 4.6-25x faster with range errors at machine precision, and a scan taken from inside an obstacle no longer freezes. ([#353](https://github.com/hanruihua/ir-sim/pull/353))
+  - **RVO candidate evaluation is vectorized.** The per-candidate Python loop scaled with robots x neighbors x candidates; it is now array math over all candidates and modes (`rvo`, `hrvo`, `vo`), so 16 RVO robots step in 2.2 ms instead of 37 ms and the gain grows with the crowd. ([#366](https://github.com/hanruihua/ir-sim/pull/366))
+  - **Per-object per-step overhead is cut.** The geometry radius is cached, `geometry_transform` goes through `shapely.transform`, validity needs no per-step GEOS check, the goal is converted once per goal instead of at every read, and the acceleration window is skipped when `acce` is unbounded, giving plain crowds a steady ~1.6x. ([#366](https://github.com/hanruihua/ir-sim/pull/366))
+  - **The collision query is batched.** One spatial query of the STRtree plus one vectorized `intersects` replaces a query-and-test per object; map objects keep their own occupancy test. ([#366](https://github.com/hanruihua/ir-sim/pull/366))
+  - **pynput is imported lazily.** It loads only when a pynput keyboard controller is created, saving about 85 ms of import time per process. ([#362](https://github.com/hanruihua/ir-sim/pull/362))
+- Fix:
+  - **Omni robots are commanded in the frame they are steered in.** ORCA, RVO, and SFM plan in the world frame, but the velocity was passed on unchanged, so a robot facing away from its goal drove away from it; the velocity is now transformed into the robot's own frame before it is applied. ([#357](https://github.com/hanruihua/ir-sim/pull/357))
+  - **Lidar angle is clipped, not wrapped.** An `angle_range` or `fov` of 2\*pi was wrapped to 0, so every beam pointed forward; both are now clipped to [0, 2\*pi]. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **The sampling interval is exact and never zero.** Floating-point noise made 0.3 / 0.1 sample every 2 steps instead of 3, and `sample_time < step_time` divided by zero; the ratio is now rounded before truncation and is at least one step. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **Actions match user expectations.** `env.step([1.0, 0.5])` split a flat action over two objects and crashed, and `action_id` meant a list position rather than an object; actions now accept flat lists, tuples, and dicts keyed by robot name, `action_id` is the object id or name, surplus actions are dropped with one warning, and an unknown id raises `ValueError`. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **Unknown kinematics names raise.** A typo in `kinematics.name` silently produced a differential-drive robot; it now raises `NotImplementedError`. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **Warnings stop flooding the log.** A clipped velocity or a robot without a behavior warned on every step; such conditions now warn once and log later occurrences at DEBUG level. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **`end()` releases exactly its own resources.** Headless runs never closed their figure, and cleanup closed other environments' windows and reset the shared id counter; `end()` now closes only its own figure and leaves shared state alone. ([#360](https://github.com/hanruihua/ir-sim/pull/360))
+  - **Object ids are per environment.** Creating or resetting a second environment rewound the global id counter, so objects added to the first one could reuse existing ids; each environment now numbers its objects from 0, `add_object` rejects duplicates, objects compare by identity, and `env.id` numbers environments. ([#362](https://github.com/hanruihua/ir-sim/pull/362))
+  - **A global seed survives `make()`.** Creating an environment without a seed used to replace the shared generator with a fresh unseeded one, so `set_seed(0)` followed by `irsim.make()` was not reproducible. It is now. ([#365](https://github.com/hanruihua/ir-sim/pull/365))
+  - **Plot and keyboard edge cases are fixed.** Rectangles drawn from width and height raised `TypeError` and sat off their collision geometry, a follow viewpoint showed one world-center frame first, a 3D line accepted only three points, and keys pressed without an environment raised; all of these now work or are ignored with a warning. ([#356](https://github.com/hanruihua/ir-sim/pull/356))
+- Refactor:
+  - **Duplicated logic and dead code are gone.** Scene setup, goal guards, RVO cone geometry, motion noise, planner setup, and the keyboard key table each live in one place; behavior is unchanged apart from the fixes above. ([#356](https://github.com/hanruihua/ir-sim/pull/356))
+  - **Decorators get their own module.** `bind_env`, `plot_only`, `normalize_actions`, and the timing helpers move to `irsim/util/decorator.py` and are exported from the `irsim.util` package. ([#365](https://github.com/hanruihua/ir-sim/pull/365))
+- Docs:
+  - **The project gets a logo and a unified citation.** Light and dark logos, a favicon, and social previews are added, branding assets move under `docs/`, and `CITATION.cff` prefers the arXiv paper. ([#349](https://github.com/hanruihua/ir-sim/pull/349), [#351](https://github.com/hanruihua/ir-sim/pull/351), [#352](https://github.com/hanruihua/ir-sim/pull/352))
+
 ## 2.10.2 (2026-08-01)
 
 - Fix:
