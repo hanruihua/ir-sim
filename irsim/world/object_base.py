@@ -180,6 +180,10 @@ class ObjectBase:
 
     vel_shape = (2, 1)
     state_shape = (3, 1)
+    _goal_raw = None  # cache: current raw goal and its column-vector form
+    _goal_col = None
+    _acce_seen = None  # cache: is the current ``acce`` unbounded?
+    _acce_unbounded = False
 
     _VALID_PARAMS: ClassVar[set[str]] = {
         "shape",
@@ -1385,14 +1389,18 @@ class ObjectBase:
         Returns:
             tuple: Minimum and maximum velocities.
         """
-        min_vel = np.maximum(
-            self.vel_min, self.velocity - self.info.acce * self._world_param.step_time
-        )
-        max_vel = np.minimum(
-            self.vel_max, self.velocity + self.info.acce * self._world_param.step_time
-        )
+        acce = self.info.acce
+        if acce is not self._acce_seen:
+            self._acce_seen = acce
+            self._acce_unbounded = bool(np.isinf(acce).all())
+        if self._acce_unbounded:  # the default: no window to compute
+            return self.vel_min, self.vel_max
 
-        return min_vel, max_vel
+        window = acce * self._world_param.step_time
+        return (
+            np.maximum(self.vel_min, self.velocity - window),
+            np.minimum(self.vel_max, self.velocity + window),
+        )
 
     def get_info(self) -> ObjectInfo:
         """
@@ -1669,7 +1677,11 @@ class ObjectBase:
 
         if self._goal is None:
             return None
-        return np.c_[self._goal[0]]
+        if self._goal[0] is not self._goal_raw:  # converted once per goal
+            self._goal_raw = self._goal[0]
+            self._goal_col = np.array(self._goal_raw, dtype=float).reshape(-1, 1)
+            self._goal_col.setflags(write=False)
+        return self._goal_col
 
     @property
     def goal_vertices(self) -> np.ndarray | None:

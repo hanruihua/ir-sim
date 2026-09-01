@@ -1024,6 +1024,46 @@ class TestPerStepWarningsOnce:
         assert levels == ["WARNING"] + ["DEBUG"] * 4
 
 
+class TestGoalCacheAndVelRange:
+    """The goal column vector is converted once per goal; vel_range keeps its values."""
+
+    def test_goal_converted_once_and_follows_the_queue(self, env_factory):
+        robot = env_factory("test_collision_world.yaml").robot
+        robot.set_goal([[1, 2, 0], [3, 4, 0]])
+        first = robot.goal
+        assert first.shape == (3, 1)
+        assert first[0, 0] == 1
+        assert robot.goal is first  # cached, no conversion per read
+        robot._goal.popleft()
+        assert robot.goal[0, 0] == 3  # the cache follows the queue
+        robot.append_goal([5, 6, 0])
+        robot._goal.popleft()
+        assert robot.goal[0, 0] == 5
+
+    def test_goal_array_is_read_only(self, env_factory):
+        robot = env_factory("test_collision_world.yaml").robot
+        with pytest.raises(ValueError, match="read-only"):
+            robot.goal[0, 0] = 99
+
+    def test_vel_range_matches_the_window_formula(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert np.isinf(robot.info.acce).all()
+        vmin, vmax = robot.get_vel_range()
+        assert vmin is robot.vel_min
+        assert vmax is robot.vel_max
+
+        robot.info.acce = np.array([[0.5], [1.0]])
+        window = robot.info.acce * env.step_time
+        got_min, got_max = robot.get_vel_range()
+        np.testing.assert_array_equal(
+            got_min, np.maximum(robot.vel_min, robot.velocity - window)
+        )
+        np.testing.assert_array_equal(
+            got_max, np.minimum(robot.vel_max, robot.velocity + window)
+        )
+
+
 class TestPerStepGeometryShortcuts:
     """Per-step shortcuts must not change what the slow computations returned."""
 
