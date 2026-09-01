@@ -180,6 +180,10 @@ class ObjectBase:
 
     vel_shape = (2, 1)
     state_shape = (3, 1)
+    _goal_raw = None  # cache: current raw goal and its column-vector form
+    _goal_col = None
+    _acce_seen = None  # cache: is the current ``acce`` unbounded?
+    _acce_unbounded = False
 
     _VALID_PARAMS: ClassVar[set[str]] = {
         "shape",
@@ -419,6 +423,9 @@ class ObjectBase:
         self._geometry_valid = (
             shapely.is_valid(self._geometry) if self._geometry is not None else False
         )
+        self._shape_valid = self.gf is not None and bool(
+            shapely.is_valid(self.gf._original_geometry)
+        )
 
     def _init_info(
         self,
@@ -583,7 +590,8 @@ class ObjectBase:
         self._state = next_state
         self._velocity = behavior_vel
         self._geometry = self.gf.step(self.state)
-        self._geometry_valid = shapely.is_valid(self._geometry)
+        # a rigid transform with finite parameters keeps a valid shape valid
+        self._geometry_valid = self._shape_valid and bool(np.isfinite(next_state).all())
         # state/velocity/geometry changed; invalidate per-tick caches
         # used by reactive behaviors (SFM/RVO read these once per
         # neighbour). Non-static linestring objects have their vertices
@@ -606,7 +614,7 @@ class ObjectBase:
         """
         [sensor.step(self.state[0:3]) for sensor in self.sensors]
 
-    def check_status(self):
+    def check_status(self, colliding=None):
         """
         Check the current status of the object, including arrival and collision detection.
 
@@ -615,7 +623,7 @@ class ObjectBase:
         and 'unobstructed_obstacles'.
         """
         self.check_arrive_status()
-        self.check_collision_status()
+        self.check_collision_status(colliding)
 
         if self._world_param.collision_mode == "stop":
             self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
@@ -687,30 +695,30 @@ class ObjectBase:
 
         return diff < threshold
 
-    def check_collision_status(self):
+    def check_collision_status(self, colliding=None):
         """
-        Check if the object is in collision with other objects in the environment.
+        Update the collision flag and the list of colliding objects.
 
-        This method queries possible collision objects from the geometry tree and
-        checks for intersections. It logs collision warnings for robots and updates
-        the collision_flag and collision_obj list.
+        Args:
+            colliding (list, optional): Objects already known to intersect this
+                one, e.g. from the environment's batched geometry query. When
+                ``None`` the geometry tree is queried for this object alone.
         """
-        collision_flags = []
-        self.collision_obj = []
+        if colliding is None:
+            colliding = [
+                obj
+                for obj in self.possible_collision_objects
+                if self.check_collision(obj)
+            ]
 
-        for obj in self.possible_collision_objects:
-            if self.check_collision(obj):
-                collision_flags.append(True)
-                self.collision_obj.append(obj)
+        if self.role == "robot" and not self.collision_flag:
+            for obj in colliding:
+                self.logger.warning(
+                    f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
+                )
 
-                if self.role == "robot" and not self.collision_flag:
-                    self.logger.warning(
-                        f"{self.name} collided with {obj.name} at state {np.round(self.state[:3, 0], 2).tolist()}"
-                    )
-            else:
-                collision_flags.append(False)
-
-        self.collision_flag = any(collision_flags)
+        self.collision_obj = list(colliding)
+        self.collision_flag = bool(colliding)
 
     def check_collision(self, obj):
         """
@@ -994,6 +1002,7 @@ class ObjectBase:
                 Subsequent geometry updates will be transformed from this base.
         """
         self.gf._original_geometry = geometry
+        self._shape_valid = bool(shapely.is_valid(geometry))
 
     def set_random_goal(
         self,
@@ -1348,7 +1357,9 @@ class ObjectBase:
                 from the same state snapshot.
         """
         self._geometry = self.gf.step(self.state)
-        self._geometry_valid = shapely.is_valid(self._geometry)
+        self._geometry_valid = self._shape_valid and bool(
+            np.isfinite(self._state).all()
+        )
         if sensor_step:
             self.sensor_step()
         self._invalidate_reactive_cache()
@@ -1378,14 +1389,18 @@ class ObjectBase:
         Returns:
             tuple: Minimum and maximum velocities.
         """
-        min_vel = np.maximum(
-            self.vel_min, self.velocity - self.info.acce * self._world_param.step_time
-        )
-        max_vel = np.minimum(
-            self.vel_max, self.velocity + self.info.acce * self._world_param.step_time
-        )
+        acce = self.info.acce
+        if acce is not self._acce_seen:
+            self._acce_seen = acce
+            self._acce_unbounded = bool(np.isinf(acce).all())
+        if self._acce_unbounded:  # the default: no window to compute
+            return self.vel_min, self.vel_max
 
-        return min_vel, max_vel
+        window = acce * self._world_param.step_time
+        return (
+            np.maximum(self.vel_min, self.velocity - window),
+            np.minimum(self.vel_max, self.velocity + window),
+        )
 
     def get_info(self) -> ObjectInfo:
         """
@@ -1662,7 +1677,11 @@ class ObjectBase:
 
         if self._goal is None:
             return None
-        return np.c_[self._goal[0]]
+        if self._goal[0] is not self._goal_raw:  # converted once per goal
+            self._goal_raw = self._goal[0]
+            self._goal_col = np.array(self._goal_raw, dtype=float).reshape(-1, 1)
+            self._goal_col.setflags(write=False)
+        return self._goal_col
 
     @property
     def goal_vertices(self) -> np.ndarray | None:

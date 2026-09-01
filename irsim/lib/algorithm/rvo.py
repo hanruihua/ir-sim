@@ -80,8 +80,8 @@ class reciprocal_vel_obs:
         else:  # pragma: no cover - defensive guard; callers pass a valid mode
             log_error("wrong method mode, please input vo, rvo or hrvo")
 
-        vo_outside, vo_inside = self.vel_candidate(rvo_list)
-        return self.vel_select(vo_outside, vo_inside)
+        velocities, outside = self._candidate_velocities(rvo_list)
+        return self.vel_select(velocities[outside], velocities[~outside])
 
     @staticmethod
     def _cone_angles(
@@ -387,33 +387,47 @@ class reciprocal_vel_obs:
         """Sample reachable velocities and split them by VO feasibility.
 
         Args:
-            rvo_list: Velocity-obstacle cone descriptions.
+            rvo_list: Velocity-obstacle cone descriptions ``[apex, left, right]``.
 
         Returns:
             tuple[list, list]: Feasible velocities outside all cones and
             infeasible velocities inside at least one cone.
         """
-        vo_outside = []
-        vo_inside = []
+        velocities, outside = self._candidate_velocities(rvo_list)
+        return velocities[outside].tolist(), velocities[~outside].tolist()
 
+    def _candidate_velocities(self, rvo_list):
+        """Reachable velocity grid and a mask of those outside every cone.
+
+        The grid is evaluated against all cones at once with numpy, ordered as
+        the nested ``vx``/``vy`` loops would produce it so that
+        :meth:`vel_select` picks the same velocity.
+        """
         cur_vx = self.state[2]
         cur_vy = self.state[3]
 
-        cur_vx_min = max((cur_vx - self.acce), -self.vxmax)
-        cur_vx_max = min((cur_vx + self.acce), self.vxmax)
+        vxs = np.arange(
+            max(cur_vx - self.acce, -self.vxmax),
+            min(cur_vx + self.acce, self.vxmax),
+            0.05,
+        )
+        vys = np.arange(
+            max(cur_vy - self.acce, -self.vymax),
+            min(cur_vy + self.acce, self.vymax),
+            0.05,
+        )
+        grid_x, grid_y = np.meshgrid(vxs, vys, indexing="ij")
+        vx, vy = grid_x.ravel(), grid_y.ravel()
 
-        cur_vy_min = max((cur_vy - self.acce), -self.vymax)
-        cur_vy_max = min((cur_vy + self.acce), self.vymax)
+        outside = np.ones(vx.size, dtype=bool)
+        for apex, left, right, *_ in rvo_list:
+            rel_x, rel_y = vx - apex[0], vy - apex[1]
+            inside = (left[0] * rel_y - rel_x * left[1] <= 0) & (
+                right[0] * rel_y - rel_x * right[1] >= 0
+            )
+            outside &= ~inside
 
-        for new_vx in np.arange(cur_vx_min, cur_vx_max, 0.05):
-            for new_vy in np.arange(cur_vy_min, cur_vy_max, 0.05):
-                if self.vo_out(new_vx, new_vy, rvo_list):
-                    vo_outside.append([new_vx, new_vy])
-
-                else:
-                    vo_inside.append([new_vx, new_vy])
-
-        return vo_outside, vo_inside
+        return np.column_stack((vx, vy)), outside
 
     def vo_out(self, vx, vy, rvo_list):
         """Return whether a candidate velocity lies outside every VO cone."""
@@ -429,112 +443,77 @@ class reciprocal_vel_obs:
         return True
 
     def vel_select(self, vo_outside, vo_inside):
-        """Select the best velocity from feasible candidates or penalized fallback."""
+        """Select the best velocity from feasible candidates or penalized fallback.
+
+        Both arguments may be lists of ``[vx, vy]`` or ``(N, 2)`` arrays; the
+        first minimum is returned, as ``min`` would.
+        """
         vel_des = [self.state[5], self.state[6]]
 
         if len(vo_outside) != 0:
-            return min(
-                vo_outside, key=lambda v: dist_hypot(v[0], v[1], vel_des[0], vel_des[1])
+            velocities = np.asarray(vo_outside)
+            distances = np.hypot(
+                velocities[:, 0] - vel_des[0], velocities[:, 1] - vel_des[1]
             )
+            return list(velocities[int(np.argmin(distances))])
 
-        return min(vo_inside, key=lambda v: self.penalty(v, vel_des, self.factor))
+        velocities = np.asarray(vo_inside)
+        costs = self.penalties(velocities, vel_des, self.factor)
+        return list(velocities[int(np.argmin(costs))])
+
+    def penalties(self, vels, vel_des, factor):
+        """Vectorized :meth:`penalty` for an ``(N, 2)`` array of velocities.
+
+        Same formulas and branches as the scalar version, evaluated for all
+        candidates at once; the crowded-scene fallback otherwise calls
+        ``penalty`` hundreds of times per robot per step.
+        """
+        x, y, vx, vy, r = self.state[:5]
+        tc_columns = []
+        for moving in self.obs_state_list:
+            distance = dist_hypot(moving[0], moving[1], x, y)
+            diff = max(distance**2 - (r + moving[4]) ** 2, 0)
+            dis_vel = np.sqrt(diff)
+            trans_x = 2 * vels[:, 0] - vx - moving[2]
+            trans_y = 2 * vels[:, 1] - vy - moving[3]
+            tc_columns.append(dis_vel / (np.sqrt(trans_x**2 + trans_y**2) + 1e-7))
+        for seg in self.line_obs_list:
+            tc_columns.append(self._tc_line_segment_all(x, y, r, vels, seg))
+
+        dist_des = np.hypot(vels[:, 0] - vel_des[0], vels[:, 1] - vel_des[1])
+        if not tc_columns:
+            return dist_des
+        tc_min = np.min(tc_columns, axis=0)
+        tc_min = np.where(tc_min == 0, 0.0001, tc_min)
+        return factor * (1 / tc_min) + dist_des
 
     def penalty(self, vel, vel_des, factor):
-        """Compute fallback cost from desired-velocity error and collision time."""
-        tc_list = []
-
-        for moving in self.obs_state_list:
-            distance = dist_hypot(moving[0], moving[1], self.state[0], self.state[1])
-            diff = distance**2 - (self.state[4] + moving[4]) ** 2
-
-            if diff < 0:
-                diff = 0
-
-            dis_vel = np.sqrt(diff)
-            vel_trans = [
-                2 * vel[0] - self.state[2] - moving[2],
-                2 * vel[1] - self.state[3] - moving[3],
-            ]
-            vel_trans_speed = np.sqrt(vel_trans[0] ** 2 + vel_trans[1] ** 2) + 1e-7
-
-            tc = dis_vel / vel_trans_speed
-
-            tc_list.append(tc)
-
-        # Time-to-collision with line segments
-        x = self.state[0]
-        y = self.state[1]
-        r = self.state[4]
-
-        for seg in self.line_obs_list:
-            tc = self._tc_line_segment(x, y, r, vel, seg)
-            tc_list.append(tc)
-
-        if not tc_list:
-            return dist_hypot(vel_des[0], vel_des[1], vel[0], vel[1])
-
-        tc_min = min(tc_list)
-
-        if tc_min == 0:
-            tc_min = 0.0001
-
-        return factor * (1 / tc_min) + dist_hypot(
-            vel_des[0], vel_des[1], vel[0], vel[1]
-        )
+        """Scalar :meth:`penalties` for one velocity, kept for compatibility."""
+        return float(self.penalties(np.array([vel], dtype=float), vel_des, factor)[0])
 
     @staticmethod
-    def _tc_line_segment(x, y, r, vel, seg):
-        """Compute time-to-collision between agent and a line segment.
-
-        Uses ray-segment intersection with the segment expanded by agent radius.
-        """
+    def _tc_line_segment_all(x, y, r, vels, seg):
+        """Vectorized :meth:`_tc_line_segment` for an ``(N, 2)`` array of velocities."""
         x1, y1, x2, y2 = seg
-        # Segment direction and normal
-        dx_seg = x2 - x1
-        dy_seg = y2 - y1
+        dx_seg, dy_seg = x2 - x1, y2 - y1
         seg_len = sqrt(dx_seg * dx_seg + dy_seg * dy_seg)
-
         if seg_len < 1e-12:
-            return 1e6
-
-        # Outward normal (toward agent side)
-        nx = -dy_seg / seg_len
-        ny = dx_seg / seg_len
-
-        # Make sure normal points toward agent
+            return np.full(len(vels), 1e6)
+        nx, ny = -dy_seg / seg_len, dx_seg / seg_len
         if nx * (x - x1) + ny * (y - y1) < 0:
             nx, ny = -nx, -ny
-
-        # Perpendicular distance from agent to segment line
         perp_dist = nx * (x - x1) + ny * (y - y1)
 
-        # Velocity component toward the segment
-        vel_toward = -(nx * vel[0] + ny * vel[1])
-
-        if vel_toward <= 1e-7:
-            # Moving away or parallel; no collision.
-            return 1e6
-
-        # Time to reach the expanded segment (offset by radius)
-        tc = (perp_dist - r) / vel_toward
-
-        if tc < 0:
-            tc = 0
-
-        # Check if the collision point is within the segment bounds
-        # Project collision point onto segment axis
-        col_x = x + vel[0] * tc
-        col_y = y + vel[1] * tc
+        vel_toward = -(nx * vels[:, 0] + ny * vels[:, 1])
+        approaching = vel_toward > 1e-7
+        tc = np.maximum((perp_dist - r) / np.where(approaching, vel_toward, 1.0), 0)
+        col_x = x + vels[:, 0] * tc
+        col_y = y + vels[:, 1] * tc
         t_proj = ((col_x - x1) * dx_seg + (col_y - y1) * dy_seg) / (seg_len * seg_len)
-
-        # Allow some margin beyond endpoints for the agent radius
         margin = r / seg_len
-        if t_proj < -margin or t_proj > 1 + margin:
-            return 1e6
+        hits = approaching & (t_proj >= -margin) & (t_proj <= 1 + margin)
+        return np.where(hits, tc, 1e6)
 
-        return tc
-
-    # judge the direction by vector
     @staticmethod
     def between_vector(line_left_vector, line_right_vector, line_vector):
         """Return whether ``line_vector`` lies inside a cone boundary pair."""

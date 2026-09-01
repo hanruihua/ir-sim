@@ -1022,3 +1022,63 @@ class TestPerStepWarningsOnce:
         )
         levels = self._levels(env, None, "static")
         assert levels == ["WARNING"] + ["DEBUG"] * 4
+
+
+class TestGoalCacheAndVelRange:
+    """The goal column vector is converted once per goal; vel_range keeps its values."""
+
+    def test_goal_converted_once_and_follows_the_queue(self, env_factory):
+        robot = env_factory("test_collision_world.yaml").robot
+        robot.set_goal([[1, 2, 0], [3, 4, 0]])
+        first = robot.goal
+        assert first.shape == (3, 1)
+        assert first[0, 0] == 1
+        assert robot.goal is first  # cached, no conversion per read
+        robot._goal.popleft()
+        assert robot.goal[0, 0] == 3  # the cache follows the queue
+        robot.append_goal([5, 6, 0])
+        robot._goal.popleft()
+        assert robot.goal[0, 0] == 5
+
+    def test_goal_array_is_read_only(self, env_factory):
+        robot = env_factory("test_collision_world.yaml").robot
+        with pytest.raises(ValueError, match="read-only"):
+            robot.goal[0, 0] = 99
+
+    def test_vel_range_matches_the_window_formula(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert np.isinf(robot.info.acce).all()
+        vmin, vmax = robot.get_vel_range()
+        assert vmin is robot.vel_min
+        assert vmax is robot.vel_max
+
+        robot.info.acce = np.array([[0.5], [1.0]])
+        window = robot.info.acce * env.step_time
+        got_min, got_max = robot.get_vel_range()
+        np.testing.assert_array_equal(
+            got_min, np.maximum(robot.vel_min, robot.velocity - window)
+        )
+        np.testing.assert_array_equal(
+            got_max, np.minimum(robot.vel_max, robot.velocity + window)
+        )
+
+
+class TestPerStepGeometryShortcuts:
+    """Per-step shortcuts must not change what the slow computations returned."""
+
+    def test_radius_cache_follows_original_geometry(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert robot.gf.radius == pytest.approx(0.2)
+        robot.set_original_geometry(shapely.Point(0, 0).buffer(2.0))
+        assert robot.gf.radius == pytest.approx(2.0, rel=1e-3)
+
+    def test_invalid_shape_stays_invalid_after_stepping(self, env_factory):
+        env = env_factory("test_collision_world.yaml")
+        robot = env.robot
+        assert robot._geometry_valid
+        bow_tie = shapely.Polygon([(0, 0), (1, 1), (1, 0), (0, 1)])  # self-intersecting
+        robot.set_original_geometry(bow_tie)
+        env.step(np.array([[0.5], [0.0]]))
+        assert not robot._geometry_valid

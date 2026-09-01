@@ -18,6 +18,7 @@ from typing import Any, Literal, cast
 
 import matplotlib
 import numpy as np
+import shapely
 from matplotlib import pyplot as plt
 from shapely import Polygon
 from shapely.strtree import STRtree
@@ -455,6 +456,43 @@ class EnvBase:
         self.objects[obj_id].step(action)
         [obj.step() for obj in self.objects if obj._id != obj_id]
 
+    def _colliding_objects(self) -> dict[int, list]:
+        """Colliding objects per object id, from one query of the geometry tree.
+
+        Equivalent to every object querying the tree and testing its candidates,
+        but with a single spatial query and a single vectorized ``intersects``
+        instead of one of each per object. Map objects keep their own test.
+        """
+        tree, objects = self._env_param.GeometryTree, self.objects
+        if tree is None or not objects:
+            return {}
+
+        # 1. Candidate pairs (obj, other) whose bounding boxes overlap.
+        geoms = np.array([obj._geometry for obj in objects], dtype=object)
+        obj_idx, other_idx = tree.query(geoms)
+
+        # 2. Keep the pairs worth testing: not the object itself, and an
+        #    ``other`` that takes part in collisions.
+        unobstructed = np.array([obj.unobstructed for obj in objects], dtype=bool)
+        keep = (obj_idx != other_idx) & ~unobstructed[other_idx]
+        obj_idx, other_idx = obj_idx[keep], other_idx[keep]
+
+        # 3. Exact test: one vectorized ``intersects`` for plain geometries;
+        #    a map checks occupancy with its own ``is_collision``.
+        is_map = np.array([obj.shape == "map" for obj in objects], dtype=bool)
+        other_is_map = is_map[other_idx]
+        hits = np.empty(obj_idx.size, dtype=bool)
+        plain = ~other_is_map
+        hits[plain] = shapely.intersects(geoms[obj_idx[plain]], geoms[other_idx[plain]])
+        for k in np.flatnonzero(other_is_map):
+            hits[k] = objects[other_idx[k]].is_collision(geoms[obj_idx[k]])
+
+        # 4. Group the colliding partners by object id.
+        colliding: dict[int, list] = {obj.id: [] for obj in objects}
+        for i, j in zip(obj_idx[hits], other_idx[hits], strict=True):
+            colliding[objects[i].id].append(objects[j])
+        return colliding
+
     def _objects_check_status(self) -> None:
         """Refresh per-object status flags (e.g., arrival, collision)."""
         [obj.check_status() for obj in self.objects]
@@ -748,8 +786,9 @@ class EnvBase:
             The status information is automatically updated during simulation steps.
         """
 
-        # object status step
-        [obj.check_status() for obj in self.objects]
+        # object status step, with collisions from one batched geometry query
+        colliding = self._colliding_objects()
+        [obj.check_status(colliding.get(obj.id)) for obj in self.objects]
 
         arrive_list = [obj.arrive for obj in self.objects if obj.role == "robot"]
         collision_list = [obj.collision for obj in self.objects if obj.role == "robot"]

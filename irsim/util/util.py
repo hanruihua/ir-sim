@@ -10,7 +10,7 @@ from math import atan2, cos, pi, sin
 from typing import Any
 
 import numpy as np
-from shapely.affinity import affine_transform
+import shapely
 
 from irsim.config import env_param
 from irsim.util.random import rng
@@ -351,11 +351,10 @@ def relative_position(
     Returns:
         tuple: Distance and angle (radians).
     """
-    diff = position2[0:2] - position1[0:2]
     distance = dist_hypot(
         position1[0, 0], position1[1, 0], position2[0, 0], position2[1, 0]
     )
-    radian = atan2(diff[1, 0], diff[0, 0])
+    radian = atan2(position2[1, 0] - position1[1, 0], position2[0, 0] - position1[0, 0])
     if topi:
         radian = WrapToPi(radian)
     return distance, radian
@@ -424,33 +423,30 @@ def get_affine_transform(state: np.ndarray) -> list[float]:
 
 def geometry_transform(geometry: Any, state: np.ndarray) -> Any:
     """
-    Transform geometry using a state.
+    Rigidly transform a geometry by a state: rotate by ``theta``, then translate.
 
     Args:
         geometry: Shapely geometry to transform.
-        state (np.array or sequence of 3 floats): [xoff, yoff, theta]
+        state (np.array or sequence): ``[x, y, theta]``; ``theta`` defaults to 0.
 
     Returns:
         Transformed geometry.
-
-
-    shapely expects [a, b, d, e, xoff, yoff] for:
-    x' = a*x + b*y + xoff
-    y' = d*x + e*y + yoff
     """
+    values = np.asarray(state, dtype=float).reshape(-1)
+    x, y = values[0], values[1]
+    theta = values[2] if values.size >= 3 else 0.0
+    cos_t, sin_t = np.cos(theta), np.sin(theta)
 
-    xoff, yoff = state[:2]
-    theta = state[2] if len(state) >= 3 else 0
+    # Elementwise rather than ``coords @ R``: BLAS matmul can raise spurious
+    # floating-point warnings on some platforms, and this is just as fast.
+    def rotate_translate(coords):
+        px, py = coords[:, 0], coords[:, 1]
+        return np.column_stack(
+            (px * cos_t - py * sin_t + x, px * sin_t + py * cos_t + y)
+        )
 
-    cos_t = np.cos(theta)
-    sin_t = np.sin(theta)
-
-    a = cos_t
-    b = -sin_t
-    d = sin_t
-    e = cos_t
-
-    return affine_transform(geometry, [a, b, d, e, xoff, yoff])
+    with np.errstate(all="ignore"):  # inf/nan states mark an invalid geometry
+        return shapely.transform(geometry, rotate_translate)
 
 
 def vertices_transform(vertices: np.ndarray, state: np.ndarray) -> np.ndarray | None:
@@ -783,27 +779,29 @@ def validate_shape(**shape_requirements):
     """
 
     def decorator(func):
-        sig = inspect.signature(func)
+        # Resolve positions once; binding the signature on every call costs
+        # ~3 us, which matters for per-object per-step kinematics.
+        positions = {
+            name: i for i, name in enumerate(inspect.signature(func).parameters)
+        }
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            bound = sig.bind(*args, **kwargs)
-            bound.apply_defaults()
-
             for param, min_dim in shape_requirements.items():
-                if param in bound.arguments:
-                    value = bound.arguments[param]
-                    if value is not None:
-                        if not hasattr(value, "shape"):
-                            raise TypeError(
-                                f"Parameter '{param}' must be a numpy array, "
-                                f"got {type(value).__name__}"
-                            )
-                        if value.shape[0] < min_dim:
-                            raise ValueError(
-                                f"Parameter '{param}' must have shape[0] >= {min_dim}, "
-                                f"got {value.shape[0]}"
-                            )
+                index = positions[param]
+                value = kwargs.get(param, args[index] if index < len(args) else None)
+                if value is None:
+                    continue
+                if not hasattr(value, "shape"):
+                    raise TypeError(
+                        f"Parameter '{param}' must be a numpy array, "
+                        f"got {type(value).__name__}"
+                    )
+                if value.shape[0] < min_dim:
+                    raise ValueError(
+                        f"Parameter '{param}' must have shape[0] >= {min_dim}, "
+                        f"got {value.shape[0]}"
+                    )
 
             return func(*args, **kwargs)
 

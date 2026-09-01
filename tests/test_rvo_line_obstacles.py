@@ -1,7 +1,7 @@
 """Tests for RVO line obstacle support.
 
 Covers:
-- reciprocal_vel_obs with line_obs_list (config_vo_lines, penalty, _tc_line_segment)
+- reciprocal_vel_obs with line_obs_list (config_vo_lines, penalties, _tc_line_segment)
 - OmniRVO / DiffRVO with line_segments parameter
 - beh_diff_rvo / beh_omni_rvo line segment separation from circular neighbors
 - object_base.rvo_line_segments property
@@ -188,34 +188,62 @@ class TestConfigModesIncludeLines:
 class TestTCLineSegment:
     def test_moving_toward_wall(self):
         # Agent at (0,0), wall at y=3, velocity (0,1)
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [-5, 3, 5, 3])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[0, 1]]), [-5, 3, 5, 3]
+            )[0]
+        )
         assert tc == pytest.approx(2.7, abs=0.01)  # (3 - 0.3) / 1
 
     def test_moving_away_from_wall(self):
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, -1], [-5, 3, 5, 3])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[0, -1]]), [-5, 3, 5, 3]
+            )[0]
+        )
         assert tc == 1e6
 
     def test_moving_parallel(self):
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [1, 0], [-5, 3, 5, 3])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[1, 0]]), [-5, 3, 5, 3]
+            )[0]
+        )
         assert tc == 1e6
 
     def test_degenerate_segment(self):
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [2, 2, 2, 2])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[0, 1]]), [2, 2, 2, 2]
+            )[0]
+        )
         assert tc == 1e6
 
     def test_collision_point_outside_segment(self):
         # Short wall segment far to the right, agent heading up
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [0, 1], [10, 3, 15, 3])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[0, 1]]), [10, 3, 15, 3]
+            )[0]
+        )
         assert tc == 1e6
 
     def test_already_inside_wall(self):
         # Agent overlapping the wall — tc should be 0
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.5, [0, 1], [-5, 0.2, 5, 0.2])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.5, np.array([[0, 1]]), [-5, 0.2, 5, 0.2]
+            )[0]
+        )
         assert tc == 0
 
     def test_diagonal_approach(self):
         # Agent at (0,0), wall at y=4, velocity (1,1)
-        tc = reciprocal_vel_obs._tc_line_segment(0, 0, 0.3, [1, 1], [-10, 4, 10, 4])
+        tc = float(
+            reciprocal_vel_obs._tc_line_segment_all(
+                0, 0, 0.3, np.array([[1, 1]]), [-10, 4, 10, 4]
+            )[0]
+        )
         # Perpendicular distance = 4, vel component toward wall = 1
         expected = (4 - 0.3) / 1.0
         assert tc == pytest.approx(expected, abs=0.01)
@@ -231,9 +259,9 @@ class TestPenaltyWithLines:
         state = _agent_state(x=0, y=0, vx=0, vy=0, r=0.3, vx_des=1.0, vy_des=0.0)
         rvo = reciprocal_vel_obs(state, [], line_obs_list=[[-5, 2, 5, 2]])
         # Velocity toward wall
-        p_toward = rvo.penalty([0, 1], [1, 0], 1.0)
+        p_toward = float(rvo.penalties(np.array([[0, 1]]), [1, 0], 1.0)[0])
         # Velocity away from wall
-        p_away = rvo.penalty([0, -1], [1, 0], 1.0)
+        p_away = float(rvo.penalties(np.array([[0, -1]]), [1, 0], 1.0)[0])
         # Toward wall should have higher penalty (lower tc)
         assert p_toward > p_away
 
@@ -241,7 +269,8 @@ class TestPenaltyWithLines:
         state = _agent_state()
         rvo = reciprocal_vel_obs(state, [])
         # No obstacles at all — should just return distance to desired vel
-        p = rvo.penalty([0, 0], [1, 0], 1.0)
+        p = float(rvo.penalties(np.array([[0, 0]]), [1, 0], 1.0)[0])
+        assert rvo.penalty([0, 0], [1, 0], 1.0) == p  # compat wrapper
         assert p == pytest.approx(1.0, abs=0.01)
 
     def test_penalty_mixed_circular_and_line(self):
@@ -249,7 +278,7 @@ class TestPenaltyWithLines:
         circ = [[5, 0, 0, 0, 0.3]]
         lines = [[-5, 2, 5, 2]]
         rvo = reciprocal_vel_obs(state, circ, line_obs_list=lines)
-        p = rvo.penalty([0.5, 0], [1, 0], 1.0)
+        p = float(rvo.penalties(np.array([[0.5, 0]]), [1, 0], 1.0)[0])
         assert isinstance(p, float)
 
 
