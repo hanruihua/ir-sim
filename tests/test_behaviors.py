@@ -1111,10 +1111,12 @@ class TestOrcaGroupBehaviorMockedPyrvo:
 
         from irsim.lib.behavior.behavior_registry import group_behaviors_class_map
 
-        # ORCA registers both omni and diff handlers; clear both so a fresh
-        # import doesn't trip the duplicate-registration guard.
-        for key in (("omni", "orca"), ("diff", "orca")):
-            group_behaviors_class_map.pop(key, None)
+        # The module registers omni and diff handlers for both ORCA and SFM;
+        # clear all of them so a fresh import doesn't trip the
+        # duplicate-registration guard.
+        for kinematics in ("omni", "diff"):
+            for action in ("orca", "sfm"):
+                group_behaviors_class_map.pop((kinematics, action), None)
         sys.modules.pop("irsim.lib.behavior.group_behavior_methods", None)
 
     @pytest.fixture(autouse=True)

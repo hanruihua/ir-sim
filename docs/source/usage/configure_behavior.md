@@ -222,7 +222,7 @@ obstacle:
 :::
 ::::
 
-See `usage/23sfm_world/` for the full runnable file (24-agent cross corridor plus a separate two-robot head-on pass).
+See `usage/23sfm_world/` for the full runnable file (24-agent cross corridor plus a separate two-robot head-on pass). For crowds, `sfm` is also available as a [group behavior](#sfm-as-a-group-behavior) that steps all members at once and can model pedestrians walking together.
 
 ### RVO with Line Obstacles
 
@@ -254,7 +254,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 | Scope | Individual object | All objects in a group |
 | Computation | Per-object each step | All members at once |
 | Use case | Simple navigation | Coordinated multi-agent |
-| Available | `dash`, `rvo`, `sfm` (kinematics-dependent: see matrix above) | `orca` (`omni`, `diff`) |
+| Available | `dash`, `rvo`, `sfm` (kinematics-dependent: see matrix above) | `orca`, `sfm` (`omni`, `diff`) |
 
 ### ORCA (Optimal Reciprocal Collision Avoidance)
 
@@ -444,6 +444,149 @@ When `loop: true`, the robot will navigate through all waypoints and restart fro
 :::{tip}
 Use `group_behavior` in YAML for most cases as it handles initialization automatically. For full control, such as custom collision logic or an external planner, drive each robot yourself by passing velocity commands to `env.step(action)` instead of setting a behavior.
 :::
+
+### SFM as a Group Behavior
+
+`sfm` is also available as a group behavior for `omni` and `diff` kinematics. It uses the same physics and parameter names as the per-object [`sfm`](#sfm-social-force-model) behavior, evaluated for every member at once by {py:class}`~irsim.lib.algorithm.social_force_model.SocialForceModelBatch`:
+
+- **Synchronous update.** All members read one state snapshot, so the crowd no longer depends on the order in which objects are listed in the YAML. A single member follows exactly the same trajectory as under `behavior: sfm`.
+- **Vectorized.** The pairwise social force is one NumPy pass over all member pairs instead of a Python loop per member, so large crowds stay cheap.
+- **Social groups.** `social_groups` optionally partitions the members into pedestrians walking together, which adds the three group forces of Moussaid et al. (2010): a *coherence* pull toward the group's centre of mass, an intra-group *repulsion* once two members' discs touch, and a *gaze* brake that slows a member down when the rest of the group leaves its field of view.
+
+Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles`, `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours.
+
+The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros).
+
+The example below is `usage/23sfm_world/sfm_group_world.yaml`: two pairs and two triples walk a corridor in opposite directions, overlapping by one lane, while two singles thread through the middle. Each group slides sideways as a unit to pass the oncoming one.
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make()
+
+while not env.done():
+    env.step()
+    env.render(0.01)
+
+env.end()
+```
+:::
+
+:::{tab-item} YAML Configuration
+:selected:
+
+```yaml
+world:
+  height: 10
+  width: 20
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [-10, -5]
+  collision_mode: 'unobstructed'   # SFM is reactive; let pedestrians overlap briefly
+  control_mode: 'auto'
+
+robot:
+  - number: 12
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.25}]
+    state:
+      - [-9,  1.5, 0]
+      - [-9,  2.2, 0]
+      - [-9, -1.5, 0]
+      - [-9, -2.2, 0]
+      - [-9, -2.9, 0]
+      - [ 9, -2.4, 3.14]
+      - [ 9, -3.1, 3.14]
+      - [ 9,  2.4, 3.14]
+      - [ 9,  3.1, 3.14]
+      - [ 9,  3.8, 3.14]
+      - [-9,  0.3, 0]
+      - [ 9, -0.3, 3.14]
+    goal:
+      - [ 9,  1.5, 0]
+      - [ 9,  2.2, 0]
+      - [ 9, -1.5, 0]
+      - [ 9, -2.2, 0]
+      - [ 9, -2.9, 0]
+      - [-9, -2.4, 3.14]
+      - [-9, -3.1, 3.14]
+      - [-9,  2.4, 3.14]
+      - [-9,  3.1, 3.14]
+      - [-9,  3.8, 3.14]
+      - [ 9,  0.3, 0]
+      - [-9, -0.3, 3.14]
+    color:
+      - 'royalblue'
+      - 'royalblue'
+      - 'green'
+      - 'green'
+      - 'green'
+      - 'red'
+      - 'red'
+      - 'orange'
+      - 'orange'
+      - 'orange'
+      - 'purple'
+      - 'gray'
+    group_behavior:
+      name: 'sfm'
+      vmax: 1.0
+      neighbor_threshold: 5.0
+      force_factor_social: 4.0         # head-on stiffness for a 12-agent corridor
+      force_factor_obstacle: 5.0
+      sigma_obstacle: 0.3              # walls only matter within ~1 m
+      gamma: 0.5
+      safety_radius: 0.15              # 0.3 m personal bubble for vmax=1.0
+      social_groups: [[0, 1], [2, 3, 4], [5, 6], [7, 8, 9]]
+      force_factor_coherence: 2.0      # pull toward the group centre
+      force_factor_group_repulsion: 1.0
+      group_repulsion_threshold: 0.7   # members push apart once their discs touch
+      force_factor_gaze: 3.0           # leader brakes when the group leaves its view
+      gaze_vision_angle: 90.0
+    vel_min: [-1.5, -3.0]
+    vel_max: [ 1.5,  3.0]
+    arrive_mode: position
+    goal_threshold: 0.5
+    plot:
+      show_trail: true
+      show_goal: true
+      trail_fill: true
+      trail_alpha: 0.2
+      keep_trail_length: 25
+
+
+obstacle:
+  - shape: {name: 'linestring', vertices: [[-10,  5], [10,  5]]}
+    state: [0, 0, 0]
+    unobstructed: true
+  - shape: {name: 'linestring', vertices: [[-10, -5], [10, -5]]}
+    state: [0, 0, 0]
+    unobstructed: true
+```
+:::
+::::
+
+#### Group SFM Parameters
+
+All per-object SFM parameters (`vmax`, `neighbor_threshold`, `relaxation_time`, `force_factor_desired`, `force_factor_social`, `force_factor_obstacle`, `sigma_obstacle`, `lambda_importance`, `gamma`, `n_angular`, `n_velocity`, `safety_radius`) keep their names and defaults. The group version adds:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `name` | `str` | - | Must be `'sfm'` |
+| `social_groups` | `list` of `list` of `int` | `None` | Member indices, in YAML group order, of pedestrians walking together. Each member may appear in at most one group; omit to disable the group forces |
+| `force_factor_coherence` | `float` | `2.0` | Weight of the pull toward the group's centre of mass. It ramps in smoothly once a member is further than `(size - 1) / 2` m from the centre |
+| `force_factor_group_repulsion` | `float` | `1.0` | Weight of the push between two group members that come too close |
+| `group_repulsion_threshold` | `float` | `None` | Centre-to-centre distance below which two members repel each other. `None` uses the sum of their radii, so members push apart as soon as their discs touch |
+| `force_factor_gaze` | `float` | `3.0` | Weight of the brake `-alpha * v` applied when the other members' centre of mass leaves the field of view; `alpha` is the missing head rotation in radians |
+| `gaze_vision_angle` | `float` | `90.0` | Half-angle, in degrees, of the field of view around the walking direction |
+| `target_roles` | `str` | `'all'` | Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'` |
+| `wander` | `bool` | `False` | Generate random goals when the current goal is reached |
+| `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 
 ### Custom Group Behavior
 
