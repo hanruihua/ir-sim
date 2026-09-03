@@ -1,5 +1,7 @@
 # Changelog
 
+> **Release schedule:** By default, IR-SIM publishes a new release on the first day of each month.
+
 ## 2.11.0 (2026-09-01)
 
 This release adds headless environments for batch training, compound geometry, internal/external step modes, ROS-style simulation messages, and per-environment object ids and random generators, plus much faster stepping for both lidar scans and multi-robot behaviors.

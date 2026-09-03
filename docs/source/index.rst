@@ -237,8 +237,6 @@ Projects using IR-SIM
         * `PPO-GAT-Follow (Sensors 2026) <https://doi.org/10.3390/s26154711>`_ - Graph-attention reinforcement learning for robot person following in dense crowds.
         * `Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large IoT Networks (TWC 2026) <https://doi.org/10.1109/TWC.2026.3683911>`_ - Federated edge learning validated through autonomous navigation and collision avoidance in IR-SIM.
 
-        If your publication uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
-
     .. grid-item-card:: Community Projects
         :shadow: md
 
@@ -246,6 +244,14 @@ Projects using IR-SIM
         * `AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - Autonomous navigation using reinforcement learning.
         * `IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
         * `EdgeVox <https://github.com/nrl-ai/edgevox>`_ - Offline voice-agent framework with an IR-SIM mobile-navigation backend.
+
+    .. grid-item-card:: Courses Using IR-SIM
+        :shadow: md
+
+        * `COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU).
+        * `CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - Southern University of Science and Technology (SUSTech).
+
+If your publication, project, or course uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
 
 Citation
 ========

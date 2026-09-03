@@ -187,7 +187,12 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 - [IRSIM-3DGS-Bridge](https://github.com/Wayneyujie/IRSIM-3DGS-Bridge) -- A closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/following and back to Habitat-GS trajectory playback.
 - [EdgeVox](https://github.com/nrl-ai/edgevox) -- Offline voice-agent framework with an IR-SIM mobile-navigation backend.
 
-*If your publication or project uses IR-SIM, we welcome proposals for inclusion via an issue or pull request.*
+### Courses Using IR-SIM
+
+- **The University of Hong Kong (HKU):** [COMP3356 Robotics](https://www.cs.hku.hk/index.php/programmes/course-offered?infile=2026/comp3356.html)
+- **Southern University of Science and Technology (SUSTech):** [CS401 Intelligent Robotics](https://github.com/Intelligent-Robot-Course)
+
+*If your publication, project, or course uses IR-SIM, we welcome proposals for inclusion via an issue or pull request.*
 
 ## Citation
 

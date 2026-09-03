@@ -320,10 +320,10 @@ msgstr ""
 
 #: ../../source/index.rst:240
 msgid ""
-"If your publication uses IR-SIM, we welcome you to propose it for inclusion "
-"via an issue or pull request."
+"If your publication, project, or course uses IR-SIM, we welcome you to propose "
+"it for inclusion via an issue or pull request."
 msgstr ""
-"如果您的论文使用了 IR-SIM，欢迎通过 issue 或 pull request 提交收录"
+"如果您的论文、项目或课程使用了 IR-SIM，欢迎通过 issue 或 pull request 提交收录"
 "建议。"
 
 #: ../../source/index.rst:236
@@ -363,6 +363,26 @@ msgid ""
 msgstr ""
 "`EdgeVox <https://github.com/nrl-ai/edgevox>`_ - 以 IR-SIM 移动导航后端为基础的"
 "离线语音智能体框架。"
+
+#: ../../source/index.rst:250
+msgid "Courses Using IR-SIM"
+msgstr "使用 IR-SIM 的课程"
+
+#: ../../source/index.rst:253
+msgid ""
+"`COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?"
+"infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU)."
+msgstr ""
+"`COMP3356 机器人学 <https://www.cs.hku.hk/index.php/programmes/course-offered?"
+"infile=2026/comp3356.html>`_ - 香港大学（HKU）。"
+
+#: ../../source/index.rst:254
+msgid ""
+"`CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - "
+"Southern University of Science and Technology (SUSTech)."
+msgstr ""
+"`CS401 智能机器人 <https://github.com/Intelligent-Robot-Course>`_ - "
+"南方科技大学（SUSTech）。"
 
 #: ../../source/index.rst:244
 msgid "Citation"

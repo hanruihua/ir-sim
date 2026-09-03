@@ -21,6 +21,10 @@ msgstr ""
 msgid "Changelog"
 msgstr "更新日志"
 
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:3
+msgid "**Release schedule:** By default, IR-SIM publishes a new release on the first day of each month."
+msgstr "**发布计划：** 默认情况下，IR-SIM 于每月 1 日发布新版本。"
+
 #: ../../../../../../../Users/han/tech/ir-sim/changelog.md:4
 msgid "2.11.0 (2026-09-01)"
 msgstr "2.11.0 (2026-09-01)"
@@ -2556,4 +2560,3 @@ msgstr "修复 pyproject.toml 的 bug"
 
 #~ msgid "`env.step()`, 10 RVO robots, each with a 100-beam lidar"
 #~ msgstr "`env.step()`：10 个 RVO 机器人，各带 100 束激光雷达"
-
