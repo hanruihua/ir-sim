@@ -327,12 +327,8 @@ msgid "SFM cross-corridor crowd"
 msgstr "SFM 交叉走廊人群"
 
 #: ../../source/usage/configure_behavior.md:226
-msgid ""
-"See `usage/23sfm_world/` for the full runnable file (24-agent cross corridor "
-"plus a separate two-robot head-on pass)."
-msgstr ""
-"完整可运行示例见 `usage/23sfm_world/`（24 个行人的交叉走廊场景，以及另一对相"
-"向通行的机器人示例）。"
+msgid "See `usage/23sfm_world/` for the full runnable file (24-agent cross corridor plus a separate two-robot head-on pass). For crowds, `sfm` is also available as a [group behavior](#sfm-as-a-group-behavior) that steps all members at once and can model pedestrians walking together."
+msgstr "完整可运行文件见 `usage/23sfm_world/`（24 个智能体的十字走廊，以及另一个双机器人迎面交会示例）。若要模拟人群，`sfm` 也可作为[群组行为](#sfm-as-a-group-behavior)使用，它一次性推进所有成员，并能模拟结伴而行的行人。"
 
 #: ../../source/usage/configure_behavior.md:228
 msgid "RVO with Line Obstacles"
@@ -434,8 +430,8 @@ msgid "`dash`, `rvo`, `sfm` (kinematics-dependent: see matrix above)"
 msgstr "`dash`、`rvo`、`sfm`（取决于运动学模型 —— 见上方矩阵）"
 
 #: ../../source/usage/configure_behavior.md:218
-msgid "`orca` (`omni`, `diff`)"
-msgstr "`orca`（`omni`、`diff`）"
+msgid "`orca`, `sfm` (`omni`, `diff`)"
+msgstr "`orca`、`sfm`（`omni`、`diff`）"
 
 #: ../../source/usage/configure_behavior.md:260
 msgid "ORCA (Optimal Reciprocal Collision Avoidance)"
@@ -1128,3 +1124,127 @@ msgstr ""
 "两个示例均支持 `omni` 与 `diff` 机动学，可从 YAML 中读取机动学类型，并需要 "
 "`cvxpy` 求解器（`pip install cvxpy`）。完整公式、支持的障碍物类型与已知限制详"
 "见 `usage/21cbf_world/README.md`。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "SFM as a Group Behavior"
+msgstr "作为群组行为的 SFM"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`sfm` is also available as a group behavior for `omni` and `diff` kinematics. It uses the same physics and parameter names as the per-object [`sfm`](#sfm-social-force-model) behavior, evaluated for every member at once by {py:class}`~irsim.lib.algorithm.social_force_model.SocialForceModelBatch`:"
+msgstr "`sfm` 也可以作为 `omni` 与 `diff` 运动学的群组行为使用。它与逐对象的 [`sfm`](#sfm-social-force-model) 行为采用相同的物理模型和参数名，由 {py:class}`~irsim.lib.algorithm.social_force_model.SocialForceModelBatch` 一次性为所有成员求解："
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "**Synchronous update.** All members read one state snapshot, so the crowd no longer depends on the order in which objects are listed in the YAML. A single member follows exactly the same trajectory as under `behavior: sfm`."
+msgstr "**同步更新。** 所有成员读取同一份状态快照，因此人群行为不再依赖对象在 YAML 中的排列顺序。单个成员的轨迹与 `behavior: sfm` 下完全一致。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "**Vectorized.** The pairwise social force is one NumPy pass over all member pairs instead of a Python loop per member, so large crowds stay cheap."
+msgstr "**向量化。** 成对的社会力通过一次 NumPy 运算覆盖所有成员对，而不是逐成员的 Python 循环，因此大规模人群的开销依然很低。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "**Social groups.** `social_groups` optionally partitions the members into pedestrians walking together, which adds the three group forces of Moussaid et al. (2010): a *coherence* pull toward the group's centre of mass, an intra-group *repulsion* once two members' discs touch, and a *gaze* brake that slows a member down when the rest of the group leaves its field of view."
+msgstr "**社会群组。** `social_groups` 可选地把成员划分为结伴而行的行人，从而加入 Moussaid 等人（2010）的三种群组力：朝群组质心的*凝聚*拉力、两名成员的圆盘相触时的组内*排斥*力，以及当群组其余成员离开视野时让该成员减速的*注视*制动力。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles`, `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours."
+msgstr "群组之外的对象仍会参与其中：`linestring` 障碍物作为墙壁进入模型，其他所有对象则作为圆形邻居——它们会推开成员，但不会被成员推动。`target_roles`、`loop` 与 `wander` 的用法与逐对象行为相同。没有目标的成员会原地站立，但仍会为邻居让路。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "The example below is `usage/23sfm_world/sfm_group_world.yaml`: two pairs and two triples walk a corridor in opposite directions, overlapping by one lane, while two singles thread through the middle. Each group slides sideways as a unit to pass the oncoming one."
+msgstr "下面的示例是 `usage/23sfm_world/sfm_group_world.yaml`：两对两人组与两组三人组在走廊中相向而行，彼此重叠一条车道，另有两名单独行人从中间穿过。每个群组作为整体侧向移动以避让迎面而来的群组。"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Group SFM Parameters"
+msgstr "群组 SFM 参数"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "All per-object SFM parameters (`vmax`, `neighbor_threshold`, `relaxation_time`, `force_factor_desired`, `force_factor_social`, `force_factor_obstacle`, `sigma_obstacle`, `lambda_importance`, `gamma`, `n_angular`, `n_velocity`, `safety_radius`) keep their names and defaults. The group version adds:"
+msgstr "所有逐对象 SFM 参数（`vmax`、`neighbor_threshold`、`relaxation_time`、`force_factor_desired`、`force_factor_social`、`force_factor_obstacle`、`sigma_obstacle`、`lambda_importance`、`gamma`、`n_angular`、`n_velocity`、`safety_radius`）保持相同的名称与默认值。群组版本额外增加："
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Must be `'sfm'`"
+msgstr "必须为 `'sfm'`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`social_groups`"
+msgstr "`social_groups`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`list` of `list` of `int`"
+msgstr "`list` of `list` of `int`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Member indices, in YAML group order, of pedestrians walking together. Each member may appear in at most one group; omit to disable the group forces"
+msgstr "结伴而行的行人的成员索引（按 YAML 群组顺序）。每个成员最多只能出现在一个群组中；省略即关闭群组力"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`force_factor_coherence`"
+msgstr "`force_factor_coherence`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`2.0`"
+msgstr "`2.0`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Weight of the pull toward the group's centre of mass. It ramps in smoothly once a member is further than `(size - 1) / 2` m from the centre"
+msgstr "朝群组质心拉力的权重。当成员距质心超过 `(size - 1) / 2` 米时平滑地生效"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`force_factor_group_repulsion`"
+msgstr "`force_factor_group_repulsion`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`1.0`"
+msgstr "`1.0`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Weight of the push between two group members that come too close"
+msgstr "两名靠得过近的群组成员之间推力的权重"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`group_repulsion_threshold`"
+msgstr "`group_repulsion_threshold`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Centre-to-centre distance below which two members repel each other. `None` uses the sum of their radii, so members push apart as soon as their discs touch"
+msgstr "两名成员开始相互排斥的中心距离阈值。`None` 表示使用两者半径之和，即圆盘一接触就相互推开"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`force_factor_gaze`"
+msgstr "`force_factor_gaze`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`3.0`"
+msgstr "`3.0`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Weight of the brake `-alpha * v` applied when the other members' centre of mass leaves the field of view; `alpha` is the missing head rotation in radians"
+msgstr "当其余成员的质心离开视野时施加的制动力 `-alpha * v` 的权重；`alpha` 为需要补足的头部转角（弧度）"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`gaze_vision_angle`"
+msgstr "`gaze_vision_angle`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`90.0`"
+msgstr "`90.0`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Half-angle, in degrees, of the field of view around the walking direction"
+msgstr "以行走方向为中心的视野半角（度）"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`target_roles`"
+msgstr "`target_roles`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "`'all'`"
+msgstr "`'all'`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`"
+msgstr "成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`"
+
+#: ../../source/usage/configure_behavior.md:449
+msgid "Generate random goals when the current goal is reached"
+msgstr "到达当前目标后生成随机目标"

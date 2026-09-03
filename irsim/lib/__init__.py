@@ -8,7 +8,10 @@ from irsim.lib.algorithm.kinematics import (
     omni_kinematics,
 )
 from irsim.lib.algorithm.rvo import reciprocal_vel_obs
-from irsim.lib.algorithm.social_force_model import social_force_model
+from irsim.lib.algorithm.social_force_model import (
+    SocialForceModelBatch,
+    social_force_model,
+)
 from irsim.lib.behavior.behavior import Behavior
 from irsim.lib.behavior.behavior_registry import (
     register_behavior,
