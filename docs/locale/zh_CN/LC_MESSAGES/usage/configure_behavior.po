@@ -1248,3 +1248,7 @@ msgstr "成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obst
 #: ../../source/usage/configure_behavior.md:449
 msgid "Generate random goals when the current goal is reached"
 msgstr "到达当前目标后生成随机目标"
+
+#: ../../source/usage/configure_behavior.md:456
+msgid "The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros)."
+msgstr "批量求解与社会群组力遵循 [PySocialForce](https://github.com/yuxiang-gao/PySocialForce)（扩展社会力模型的 NumPy 实现），并采用 [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros) 的力定义。"

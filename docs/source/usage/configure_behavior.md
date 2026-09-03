@@ -455,6 +455,8 @@ Use `group_behavior` in YAML for most cases as it handles initialization automat
 
 Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles`, `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours.
 
+The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros).
+
 The example below is `usage/23sfm_world/sfm_group_world.yaml`: two pairs and two triples walk a corridor in opposite directions, overlapping by one lane, while two singles thread through the middle. Each group slides sideways as a unit to pass the oncoming one.
 
 ::::{tab-set}

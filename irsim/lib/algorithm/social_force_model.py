@@ -37,6 +37,11 @@ Acknowledgement:
     pedsim_ros (https://github.com/srl-freiburg/pedsim_ros) and its
     vendored ``libpedsim`` by Christian Gloor were consulted as
     reference implementations while writing this module.
+
+    PySocialForce (https://github.com/yuxiang-gao/PySocialForce) by
+    Yuxiang Gao, a NumPy implementation of the extended social force
+    model with social groups, inspired the batched evaluation and the
+    social-group forces of :class:`SocialForceModelBatch`.
 """
 
 from math import atan2, exp, sqrt
@@ -347,6 +352,10 @@ class SocialForceModelBatch:
         Moussaid, M., Perozo, N., Garnier, S., Helbing, D., Theraulaz, G.
         (2010), *The walking behaviour of pedestrian social groups and its
         impact on crowd dynamics.* PLoS ONE 5(4): e10047.
+
+        PySocialForce, https://github.com/yuxiang-gao/PySocialForce --
+        NumPy implementation of the extended social force model whose
+        batched force evaluation and group forces this class follows.
 
     Args:
         states (array-like): ``(N, 8)`` agent states
