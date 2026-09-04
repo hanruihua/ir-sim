@@ -27,9 +27,36 @@ robot:
           alpha: 0.4
 
 obstacle:
-  - shape: {name: 'circle', radius: 0.4}
-    state: [3, 3, 0]
-  - shape: {name: 'rectangle', length: 1.0, width: 0.5}
-    state: [5, 4, 0.3]
-  - shape: {name: 'linestring', vertices: [[0, 5], [8, 5]]}
+  # Perimeter boundary wall
+  - shape: {name: 'linestring', vertices: [[0.2, 0.2], [7.8, 0.2], [7.8, 7.8], [0.2, 7.8], [0.2, 0.2]]}
     state: [0, 0, 0]
+  # Room dividers — horizontal wall at y=4 with gap x=3..5
+  - shape: {name: 'linestring', vertices: [[0.2, 4], [3, 4]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[5, 4], [7.8, 4]]}
+    state: [0, 0, 0]
+  # Room dividers — vertical wall at x=4 with gap y=3..5
+  - shape: {name: 'linestring', vertices: [[4, 0.2], [4, 3]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[4, 5], [4, 7.8]]}
+    state: [0, 0, 0]
+  # Rectangles — compact furniture and equipment
+  - shape: {name: 'rectangle', length: 0.8, width: 0.5}
+    state: [2, 2, 0.3]
+  - shape: {name: 'rectangle', length: 1.0, width: 0.4}
+    state: [6, 2, 0]
+  - shape: {name: 'rectangle', length: 0.8, width: 0.6}
+    state: [2, 6.5, 0.5]
+  - shape: {name: 'rectangle', length: 1.0, width: 0.4}
+    state: [5.5, 6.5, 0]
+  # Circles — pillars and small cylindrical obstacles
+  - shape: {name: 'circle', radius: 0.3}
+    state: [2.5, 5.5, 0]
+  - shape: {name: 'circle', radius: 0.35}
+    state: [5.5, 2.5, 0]
+  - shape: {name: 'circle', radius: 0.3}
+    state: [6.5, 5.5, 0]
+  - shape: {name: 'circle', radius: 0.4}
+    state: [3.5, 3.5, 0]
+  - shape: {name: 'circle', radius: 0.25}
+    state: [4.5, 6.8, 0]

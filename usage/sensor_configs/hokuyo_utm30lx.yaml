@@ -27,13 +27,47 @@ robot:
           alpha: 0.2
 
 obstacle:
-  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
-    state: [10, 10, 0]
-  - shape: {name: 'circle', radius: 2.0}
-    state: [20, 15, 0]
-  - shape: {name: 'rectangle', length: 2.0, width: 4.0}
-    state: [30, 25, 0.5]
-  - shape: {name: 'linestring', vertices: [[0, 20], [40, 20]]}
+  # Perimeter boundary wall
+  - shape: {name: 'linestring', vertices: [[0.3, 0.3], [39.7, 0.3], [39.7, 39.7], [0.3, 39.7], [0.3, 0.3]]}
     state: [0, 0, 0]
+  # Room dividers — horizontal wall at y=18 with gap x=14..20
+  - shape: {name: 'linestring', vertices: [[0.3, 18], [14, 18]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[20, 18], [39.7, 18]]}
+    state: [0, 0, 0]
+  # Room dividers — vertical wall at x=20 with gap y=14..22
+  - shape: {name: 'linestring', vertices: [[20, 0.3], [20, 14]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[20, 22], [20, 39.7]]}
+    state: [0, 0, 0]
+  # Inner partial walls for sub-rooms
+  - shape: {name: 'linestring', vertices: [[8, 0.3], [8, 12]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[30, 28], [30, 39.7]]}
+    state: [0, 0, 0]
+  # Rectangles — shelving racks and machinery
+  - shape: {name: 'rectangle', length: 4.0, width: 1.2}
+    state: [5, 5, 0]
+  - shape: {name: 'rectangle', length: 4.0, width: 1.2}
+    state: [5, 10, 0]
+  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
+    state: [28, 5, 0.5]
+  - shape: {name: 'rectangle', length: 4.5, width: 1.5}
+    state: [35, 10, 0]
+  - shape: {name: 'rectangle', length: 3.0, width: 1.5}
+    state: [10, 26, 0.3]
+  - shape: {name: 'rectangle', length: 4.0, width: 1.5}
+    state: [26, 35, 0]
+  - shape: {name: 'rectangle', length: 3.0, width: 1.2}
+    state: [36, 35, 0]
+  # Circles — structural pillars and storage tanks
   - shape: {name: 'circle', radius: 1.0}
-    state: [15, 30, 0]
+    state: [12, 10, 0]
+  - shape: {name: 'circle', radius: 1.5}
+    state: [28, 15, 0]
+  - shape: {name: 'circle', radius: 1.2}
+    state: [10, 32, 0]
+  - shape: {name: 'circle', radius: 1.0}
+    state: [34, 27, 0]
+  - shape: {name: 'circle', radius: 0.8}
+    state: [22, 8, 0]

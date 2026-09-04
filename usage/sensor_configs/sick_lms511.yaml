@@ -27,15 +27,51 @@ robot:
           alpha: 0.15
 
 obstacle:
-  - shape: {name: 'rectangle', length: 5.0, width: 3.0}
-    state: [20, 20, 0]
-  - shape: {name: 'circle', radius: 3.0}
-    state: [50, 35, 0]
-  - shape: {name: 'rectangle', length: 4.0, width: 6.0}
-    state: [70, 55, 0.5]
-  - shape: {name: 'linestring', vertices: [[0, 50], [100, 50]]}
+  # Perimeter boundary wall
+  - shape: {name: 'linestring', vertices: [[0.5, 0.5], [99.5, 0.5], [99.5, 99.5], [0.5, 99.5], [0.5, 0.5]]}
     state: [0, 0, 0]
-  - shape: {name: 'circle', radius: 2.0}
-    state: [35, 65, 0]
-  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
-    state: [80, 30, 1.0]
+  # Building / zone dividers — horizontal wall at y=50 with gap x=35..45
+  - shape: {name: 'linestring', vertices: [[0.5, 50], [35, 50]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[45, 50], [99.5, 50]]}
+    state: [0, 0, 0]
+  # Building / zone dividers — vertical wall at x=50 with gap y=40..60
+  - shape: {name: 'linestring', vertices: [[50, 0.5], [50, 40]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[50, 60], [50, 99.5]]}
+    state: [0, 0, 0]
+  # Inner zone walls for sub-areas
+  - shape: {name: 'linestring', vertices: [[20, 0.5], [20, 30]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[70, 55], [70, 99.5]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[35, 60], [35, 85]]}
+    state: [0, 0, 0]
+  # Rectangles — large industrial structures and buildings
+  - shape: {name: 'rectangle', length: 8.0, width: 4.0}
+    state: [10, 10, 0]
+  - shape: {name: 'rectangle', length: 10.0, width: 3.0}
+    state: [32, 15, 0.5]
+  - shape: {name: 'rectangle', length: 6.0, width: 8.0}
+    state: [20, 36, 0]
+  - shape: {name: 'rectangle', length: 12.0, width: 4.0}
+    state: [65, 15, 0.7]
+  - shape: {name: 'rectangle', length: 8.0, width: 5.0}
+    state: [85, 20, 0]
+  - shape: {name: 'rectangle', length: 10.0, width: 4.0}
+    state: [20, 65, 0]
+  - shape: {name: 'rectangle', length: 8.0, width: 6.0}
+    state: [60, 72, 0.3]
+  - shape: {name: 'rectangle', length: 12.0, width: 5.0}
+    state: [82, 82, 0]
+  # Circles — storage silos, tanks, and structural pillars
+  - shape: {name: 'circle', radius: 3.0}
+    state: [15, 23, 0]
+  - shape: {name: 'circle', radius: 4.0}
+    state: [40, 22, 0]
+  - shape: {name: 'circle', radius: 2.5}
+    state: [75, 40, 0]
+  - shape: {name: 'circle', radius: 3.5}
+    state: [25, 76, 0]
+  - shape: {name: 'circle', radius: 3.0}
+    state: [72, 86, 0]

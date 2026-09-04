@@ -12,63 +12,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.27753204000873666,
-          "min_ms": 0.2235540000583569,
-          "p95_ms": 0.33677280005122157,
-          "std_ms": 0.03885047238639963
+          "mean_ms": 0.27919232001295313,
+          "min_ms": 0.22556299995812878,
+          "p95_ms": 0.33525060007377755,
+          "std_ms": 0.030893361389102213
         },
-        "numba": {
-          "mean_ms": 0.03805304000252363,
-          "min_ms": 0.03384100000403123,
-          "p95_ms": 0.04555620000701309,
-          "std_ms": 0.004290335675262247
-        },
-        "speedup": 7.29,
-        "headroom_numpy": 655.1,
-        "headroom_numba": 4778.0,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 651.2,
+        "numba": {
+          "mean_ms": 0.04144652002651128,
+          "min_ms": 0.038663000168526196,
+          "p95_ms": 0.04536399997050466,
+          "std_ms": 0.004517848665606892
+        },
+        "numba_realtime": true,
+        "headroom_numba": 4386.8,
+        "speedup_numba": 6.74,
+        "omp": {
+          "mean_ms": 0.043248280007901485,
+          "min_ms": 0.03475900007288146,
+          "p95_ms": 0.07076640013110588,
+          "std_ms": 0.011574966093247843
+        },
+        "omp_realtime": true,
+        "headroom_omp": 4204.1,
+        "speedup_omp": 6.46
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 2.723709160004546,
-          "min_ms": 2.554006000082154,
-          "p95_ms": 2.858342200011066,
-          "std_ms": 0.0799364078738828
+          "mean_ms": 2.8006598799947824,
+          "min_ms": 2.669898000021931,
+          "p95_ms": 2.973557600125787,
+          "std_ms": 0.10712910346773002
         },
-        "numba": {
-          "mean_ms": 0.37125543997717614,
-          "min_ms": 0.35193700000490935,
-          "p95_ms": 0.38467580000087764,
-          "std_ms": 0.011066024457583338
-        },
-        "speedup": 7.34,
-        "headroom_numpy": 66.8,
-        "headroom_numba": 489.7,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 64.9,
+        "numba": {
+          "mean_ms": 0.36613275999116013,
+          "min_ms": 0.3243030000703584,
+          "p95_ms": 0.48103019985319406,
+          "std_ms": 0.053742645822326636
+        },
+        "numba_realtime": true,
+        "headroom_numba": 496.6,
+        "speedup_numba": 7.65,
+        "omp": {
+          "mean_ms": 0.2443508000123984,
+          "min_ms": 0.2269409999371419,
+          "p95_ms": 0.26406520005366474,
+          "std_ms": 0.026636967005037537
+        },
+        "omp_realtime": true,
+        "headroom_omp": 744.1,
+        "speedup_omp": 11.46
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 7.434298840016709,
-          "min_ms": 7.2486000000253625,
-          "p95_ms": 7.563570600041203,
-          "std_ms": 0.09996112040401067
+          "mean_ms": 9.653060199980246,
+          "min_ms": 9.075470999960089,
+          "p95_ms": 10.211296399984349,
+          "std_ms": 0.38945732558315777
         },
-        "numba": {
-          "mean_ms": 5.0959057199906965,
-          "min_ms": 1.5539790000502762,
-          "p95_ms": 8.03926380001485,
-          "std_ms": 3.132306306349928
-        },
-        "speedup": 1.46,
-        "headroom_numpy": 24.5,
-        "headroom_numba": 35.7,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 18.8,
+        "numba": {
+          "mean_ms": 4.792979240010027,
+          "min_ms": 1.4121009999144007,
+          "p95_ms": 8.94700880003256,
+          "std_ms": 3.4410520741715027
+        },
+        "numba_realtime": true,
+        "headroom_numba": 37.9,
+        "speedup_numba": 2.01,
+        "omp": {
+          "mean_ms": 1.1329489200124954,
+          "min_ms": 1.0901069999817992,
+          "p95_ms": 1.177209799971024,
+          "std_ms": 0.02362167960626382
+        },
+        "omp_realtime": true,
+        "headroom_omp": 160.5,
+        "speedup_omp": 8.52
       }
     }
   },
@@ -85,63 +115,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.9030088800045633,
-          "min_ms": 0.824262000037379,
-          "p95_ms": 0.9751165999659861,
-          "std_ms": 0.06123648775843095
+          "mean_ms": 1.0119139599919436,
+          "min_ms": 0.8754450000196812,
+          "p95_ms": 1.157465599953866,
+          "std_ms": 0.11468363728073006
         },
-        "numba": {
-          "mean_ms": 0.0756272399894442,
-          "min_ms": 0.06928400000560941,
-          "p95_ms": 0.08962599997630602,
-          "std_ms": 0.008066209106783857
-        },
-        "speedup": 11.94,
-        "headroom_numpy": 110.7,
-        "headroom_numba": 1322.3,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 98.8,
+        "numba": {
+          "mean_ms": 0.07339707996834477,
+          "min_ms": 0.06838700005573628,
+          "p95_ms": 0.0889213999471394,
+          "std_ms": 0.005954817961115299
+        },
+        "numba_realtime": true,
+        "headroom_numba": 1362.5,
+        "speedup_numba": 13.79,
+        "omp": {
+          "mean_ms": 0.07987332000993774,
+          "min_ms": 0.06895000001350127,
+          "p95_ms": 0.10514360005799968,
+          "std_ms": 0.013634552958786269
+        },
+        "omp_realtime": true,
+        "headroom_omp": 1252.0,
+        "speedup_omp": 12.67
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 9.376993599985326,
-          "min_ms": 8.028582000065398,
-          "p95_ms": 15.969674199936886,
-          "std_ms": 2.4276182633773757
+          "mean_ms": 8.737451519991737,
+          "min_ms": 8.215356999926371,
+          "p95_ms": 9.436285799938558,
+          "std_ms": 0.34932357817477977
         },
-        "numba": {
-          "mean_ms": 5.439050560003125,
-          "min_ms": 1.1057039999968765,
-          "p95_ms": 8.03697339995324,
-          "std_ms": 3.277347822136179
-        },
-        "speedup": 1.72,
-        "headroom_numpy": 10.7,
-        "headroom_numba": 18.4,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 11.4,
+        "numba": {
+          "mean_ms": 1.7968266799925914,
+          "min_ms": 0.7872890000726329,
+          "p95_ms": 4.88586819997181,
+          "std_ms": 1.7242954483508297
+        },
+        "numba_realtime": true,
+        "headroom_numba": 55.7,
+        "speedup_numba": 4.86,
+        "omp": {
+          "mean_ms": 0.98333012000694,
+          "min_ms": 0.4866060000949801,
+          "p95_ms": 4.177915399941412,
+          "std_ms": 1.215022619520236
+        },
+        "omp_realtime": true,
+        "headroom_omp": 101.7,
+        "speedup_omp": 8.89
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 24.92279239999789,
-          "min_ms": 23.93576099996153,
-          "p95_ms": 25.92475439998907,
-          "std_ms": 0.7522271344236623
+          "mean_ms": 25.288135640012115,
+          "min_ms": 23.924849999957587,
+          "p95_ms": 26.355116800050382,
+          "std_ms": 0.6934405879144147
         },
-        "numba": {
-          "mean_ms": 7.589766719988802,
-          "min_ms": 4.9362879999534925,
-          "p95_ms": 16.17619259998264,
-          "std_ms": 4.078046904331353
-        },
-        "speedup": 3.28,
-        "headroom_numpy": 4.0,
-        "headroom_numba": 13.2,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 4.0,
+        "numba": {
+          "mean_ms": 5.753141760014842,
+          "min_ms": 3.641861999994944,
+          "p95_ms": 8.228991600162772,
+          "std_ms": 2.419456406247051
+        },
+        "numba_realtime": true,
+        "headroom_numba": 17.4,
+        "speedup_numba": 4.4,
+        "omp": {
+          "mean_ms": 2.1522555999854376,
+          "min_ms": 2.047491999974227,
+          "p95_ms": 2.258836800137942,
+          "std_ms": 0.06832023596903002
+        },
+        "omp_realtime": true,
+        "headroom_omp": 46.5,
+        "speedup_omp": 11.75
       }
     }
   },
@@ -158,63 +218,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.5558802800032936,
-          "min_ms": 0.46800800009805243,
-          "p95_ms": 0.6223458000249593,
-          "std_ms": 0.04749997944146226
+          "mean_ms": 0.5388691599910089,
+          "min_ms": 0.46071099995970144,
+          "p95_ms": 0.6501013998786219,
+          "std_ms": 0.049044303348474635
         },
-        "numba": {
-          "mean_ms": 0.07221583999580616,
-          "min_ms": 0.059846999988621974,
-          "p95_ms": 0.10053539999717027,
-          "std_ms": 0.014333160986669367
-        },
-        "speedup": 7.7,
-        "headroom_numpy": 179.9,
-        "headroom_numba": 1384.7,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 185.6,
+        "numba": {
+          "mean_ms": 0.043311239996910444,
+          "min_ms": 0.038292999988698284,
+          "p95_ms": 0.06113040003583586,
+          "std_ms": 0.007987041491638583
+        },
+        "numba_realtime": true,
+        "headroom_numba": 2308.9,
+        "speedup_numba": 12.44,
+        "omp": {
+          "mean_ms": 0.04707959996267164,
+          "min_ms": 0.041732999989108066,
+          "p95_ms": 0.05192299990994797,
+          "std_ms": 0.0034170050317310994
+        },
+        "omp_realtime": true,
+        "headroom_omp": 2124.1,
+        "speedup_omp": 11.45
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 3.4146252799928334,
-          "min_ms": 3.3102239999607264,
-          "p95_ms": 3.5716446000151336,
-          "std_ms": 0.07916648608677876
+          "mean_ms": 3.359860239970658,
+          "min_ms": 2.8278909999244206,
+          "p95_ms": 3.5828251999191707,
+          "std_ms": 0.25529496857844514
         },
-        "numba": {
-          "mean_ms": 4.955012840018753,
-          "min_ms": 0.7306520000156524,
-          "p95_ms": 8.01746520000961,
-          "std_ms": 3.4925797594612433
-        },
-        "speedup": 0.69,
-        "headroom_numpy": 29.3,
-        "headroom_numba": 20.2,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 29.8,
+        "numba": {
+          "mean_ms": 5.4229339999983495,
+          "min_ms": 0.4881740001110302,
+          "p95_ms": 7.6683119999415785,
+          "std_ms": 2.9968942970057584
+        },
+        "numba_realtime": true,
+        "headroom_numba": 18.4,
+        "speedup_numba": 0.62,
+        "omp": {
+          "mean_ms": 0.29014991999247286,
+          "min_ms": 0.26827200008483487,
+          "p95_ms": 0.31099560010261484,
+          "std_ms": 0.013097234983637865
+        },
+        "omp_realtime": true,
+        "headroom_omp": 344.6,
+        "speedup_omp": 11.58
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 16.888456280003084,
-          "min_ms": 15.900108999971962,
-          "p95_ms": 17.600063800023236,
-          "std_ms": 0.5627680291274993
+          "mean_ms": 15.657791440016808,
+          "min_ms": 13.716204000047583,
+          "p95_ms": 17.558091799992326,
+          "std_ms": 1.473720178616202
         },
-        "numba": {
-          "mean_ms": 5.433798639992347,
-          "min_ms": 3.1020779999835213,
-          "p95_ms": 8.016517200053386,
-          "std_ms": 2.6857303816738543
-        },
-        "speedup": 3.11,
-        "headroom_numpy": 5.9,
-        "headroom_numba": 18.4,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 6.4,
+        "numba": {
+          "mean_ms": 5.481149759980326,
+          "min_ms": 2.551260000018374,
+          "p95_ms": 8.081221199881838,
+          "std_ms": 2.648904002981691
+        },
+        "numba_realtime": true,
+        "headroom_numba": 18.2,
+        "speedup_numba": 2.86,
+        "omp": {
+          "mean_ms": 1.734000919977916,
+          "min_ms": 1.6536709999854793,
+          "p95_ms": 1.8020123999576754,
+          "std_ms": 0.05506210371461411
+        },
+        "omp_realtime": true,
+        "headroom_omp": 57.7,
+        "speedup_omp": 9.03
       }
     }
   },
@@ -231,63 +321,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 1.6422603599812646,
-          "min_ms": 1.4957270000195422,
-          "p95_ms": 1.7338469999913286,
-          "std_ms": 0.06878021919552217
+          "mean_ms": 1.6474882799866464,
+          "min_ms": 1.538751999987653,
+          "p95_ms": 1.74335620004058,
+          "std_ms": 0.07268348008436569
         },
-        "numba": {
-          "mean_ms": 0.1115291599990087,
-          "min_ms": 0.10499000006802817,
-          "p95_ms": 0.12269520000245393,
-          "std_ms": 0.008116665374419988
-        },
-        "speedup": 14.72,
-        "headroom_numpy": 50.7,
-        "headroom_numba": 747.2,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 50.6,
+        "numba": {
+          "mean_ms": 0.10337336000702635,
+          "min_ms": 0.09611600012249255,
+          "p95_ms": 0.11724600021807417,
+          "std_ms": 0.0066101149284995015
+        },
+        "numba_realtime": true,
+        "headroom_numba": 806.1,
+        "speedup_numba": 15.94,
+        "omp": {
+          "mean_ms": 0.10658763999344956,
+          "min_ms": 0.09620800005905039,
+          "p95_ms": 0.12307460010561043,
+          "std_ms": 0.00905640486045194
+        },
+        "omp_realtime": true,
+        "headroom_omp": 781.8,
+        "speedup_omp": 15.46
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 13.363916480006992,
-          "min_ms": 11.405935999960093,
-          "p95_ms": 15.67236560003948,
-          "std_ms": 1.336286527621509
+          "mean_ms": 12.731166280027537,
+          "min_ms": 11.864353999953892,
+          "p95_ms": 13.029637799991178,
+          "std_ms": 1.8218117657725865
         },
-        "numba": {
-          "mean_ms": 3.5481496000056723,
-          "min_ms": 1.6328020000173638,
-          "p95_ms": 5.713704000049802,
-          "std_ms": 2.136508317940289
-        },
-        "speedup": 3.77,
-        "headroom_numpy": 6.2,
-        "headroom_numba": 23.5,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 6.5,
+        "numba": {
+          "mean_ms": 4.560865119992741,
+          "min_ms": 1.0907179998866923,
+          "p95_ms": 8.045011600097496,
+          "std_ms": 3.29484850488386
+        },
+        "numba_realtime": true,
+        "headroom_numba": 18.3,
+        "speedup_numba": 2.79,
+        "omp": {
+          "mean_ms": 0.5730294400018465,
+          "min_ms": 0.5515919999652397,
+          "p95_ms": 0.5926183999690693,
+          "std_ms": 0.016252564897449064
+        },
+        "omp_realtime": true,
+        "headroom_omp": 145.4,
+        "speedup_omp": 22.22
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 40.46108455998365,
-          "min_ms": 37.341563999916616,
-          "p95_ms": 44.82047099997999,
-          "std_ms": 2.1071677378547955
+          "mean_ms": 41.20493099999294,
+          "min_ms": 31.619894999948883,
+          "p95_ms": 49.13929740000637,
+          "std_ms": 24.447936644982157
         },
-        "numba": {
-          "mean_ms": 9.722101600013957,
-          "min_ms": 8.017264000045543,
-          "p95_ms": 19.46886940004332,
-          "std_ms": 4.017270815073182
-        },
-        "speedup": 4.16,
-        "headroom_numpy": 2.1,
-        "headroom_numba": 8.6,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 2.0,
+        "numba": {
+          "mean_ms": 8.191777599995476,
+          "min_ms": 6.450684999890655,
+          "p95_ms": 16.158979400051976,
+          "std_ms": 3.460337073092575
+        },
+        "numba_realtime": true,
+        "headroom_numba": 10.2,
+        "speedup_numba": 5.03,
+        "omp": {
+          "mean_ms": 3.451550480003789,
+          "min_ms": 3.255033999948864,
+          "p95_ms": 3.538679000030242,
+          "std_ms": 0.3515678266815807
+        },
+        "omp_realtime": true,
+        "headroom_omp": 24.1,
+        "speedup_omp": 11.94
       }
     }
   },
@@ -304,63 +424,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.5041651199826447,
-          "min_ms": 0.40651699998761615,
-          "p95_ms": 0.5665950000093289,
-          "std_ms": 0.04709600120658493
+          "mean_ms": 0.5515864399876591,
+          "min_ms": 0.46164900004441733,
+          "p95_ms": 0.626878800085251,
+          "std_ms": 0.09723365630787179
         },
-        "numba": {
-          "mean_ms": 0.04994780001197796,
-          "min_ms": 0.044307000052867807,
-          "p95_ms": 0.06504079995011124,
-          "std_ms": 0.00664177453330119
-        },
-        "speedup": 10.09,
-        "headroom_numpy": 198.3,
-        "headroom_numba": 2002.1,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 181.3,
+        "numba": {
+          "mean_ms": 0.03950459998122824,
+          "min_ms": 0.03580399993552419,
+          "p95_ms": 0.04669960007959162,
+          "std_ms": 0.006898855162027973
+        },
+        "numba_realtime": true,
+        "headroom_numba": 2531.4,
+        "speedup_numba": 13.96,
+        "omp": {
+          "mean_ms": 0.05001296002774325,
+          "min_ms": 0.04210300016893598,
+          "p95_ms": 0.06701100019199656,
+          "std_ms": 0.009372171104256267
+        },
+        "omp_realtime": true,
+        "headroom_omp": 1999.5,
+        "speedup_omp": 11.03
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 2.8728461999980937,
-          "min_ms": 2.6960960000224077,
-          "p95_ms": 3.0504620000101568,
-          "std_ms": 0.1397369774011386
+          "mean_ms": 2.862332399990919,
+          "min_ms": 2.6927940000405215,
+          "p95_ms": 3.1130819998907096,
+          "std_ms": 0.15753974526394288
         },
-        "numba": {
-          "mean_ms": 4.873091199983719,
-          "min_ms": 0.5557990000397695,
-          "p95_ms": 8.07691319996593,
-          "std_ms": 3.6415460349281865
-        },
-        "speedup": 0.59,
-        "headroom_numpy": 34.8,
-        "headroom_numba": 20.5,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 34.9,
+        "numba": {
+          "mean_ms": 5.225346800007173,
+          "min_ms": 0.43712999990930257,
+          "p95_ms": 22.757222399923176,
+          "std_ms": 6.897979062783376
+        },
+        "numba_realtime": true,
+        "headroom_numba": 19.1,
+        "speedup_numba": 0.55,
+        "omp": {
+          "mean_ms": 0.290086999984851,
+          "min_ms": 0.2731399999902351,
+          "p95_ms": 0.2989647998674627,
+          "std_ms": 0.03133810177748724
+        },
+        "omp_realtime": true,
+        "headroom_omp": 344.7,
+        "speedup_omp": 9.87
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 18.581805759995405,
-          "min_ms": 16.22826100003749,
-          "p95_ms": 27.453050799954315,
-          "std_ms": 3.6591204147569565
+          "mean_ms": 18.021629320010106,
+          "min_ms": 16.44711000017196,
+          "p95_ms": 23.48175979996085,
+          "std_ms": 2.931703532985667
         },
-        "numba": {
-          "mean_ms": 5.766749760005041,
-          "min_ms": 2.789595999956873,
-          "p95_ms": 8.058328600031928,
-          "std_ms": 2.720515088243031
-        },
-        "speedup": 3.22,
-        "headroom_numpy": 5.4,
-        "headroom_numba": 17.3,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 5.5,
+        "numba": {
+          "mean_ms": 5.0198573999932705,
+          "min_ms": 2.1341100000427105,
+          "p95_ms": 8.00412039989169,
+          "std_ms": 2.8711763798909224
+        },
+        "numba_realtime": true,
+        "headroom_numba": 19.9,
+        "speedup_numba": 3.59,
+        "omp": {
+          "mean_ms": 1.2962472399703984,
+          "min_ms": 1.2300949999826116,
+          "p95_ms": 1.3485453999237507,
+          "std_ms": 0.028571970194741607
+        },
+        "omp_realtime": true,
+        "headroom_omp": 77.1,
+        "speedup_omp": 13.9
       }
     }
   },
@@ -377,63 +527,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.8998714400013341,
-          "min_ms": 0.7647200000064913,
-          "p95_ms": 1.0290222000094218,
-          "std_ms": 0.08841374248358687
+          "mean_ms": 0.8343479999984993,
+          "min_ms": 0.7760329999655369,
+          "p95_ms": 0.9033093999278208,
+          "std_ms": 0.03916999634473054
         },
-        "numba": {
-          "mean_ms": 0.07893307999893295,
-          "min_ms": 0.062375999959840556,
-          "p95_ms": 0.09483359999649109,
-          "std_ms": 0.014699759858307434
-        },
-        "speedup": 11.4,
-        "headroom_numpy": 27.8,
-        "headroom_numba": 316.7,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 30.0,
+        "numba": {
+          "mean_ms": 0.07351475997893431,
+          "min_ms": 0.058111000043936656,
+          "p95_ms": 0.09058339992407126,
+          "std_ms": 0.011223375824460103
+        },
+        "numba_realtime": true,
+        "headroom_numba": 340.1,
+        "speedup_numba": 11.35,
+        "omp": {
+          "mean_ms": 0.08031132003452512,
+          "min_ms": 0.05958099995950761,
+          "p95_ms": 0.11438199999247443,
+          "std_ms": 0.04481483572167142
+        },
+        "omp_realtime": true,
+        "headroom_omp": 311.3,
+        "speedup_omp": 10.39
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 4.46341931999541,
-          "min_ms": 4.260067000018353,
-          "p95_ms": 4.694443199991838,
-          "std_ms": 0.14212550754726527
+          "mean_ms": 4.346599760010577,
+          "min_ms": 4.181731000016953,
+          "p95_ms": 4.667974399990271,
+          "std_ms": 0.1375491900063543
         },
-        "numba": {
-          "mean_ms": 3.8806701599924054,
-          "min_ms": 0.9515539999256362,
-          "p95_ms": 8.00289660000999,
-          "std_ms": 3.3146450839618224
-        },
-        "speedup": 1.15,
-        "headroom_numpy": 5.6,
-        "headroom_numba": 6.4,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 5.8,
+        "numba": {
+          "mean_ms": 4.687406879975242,
+          "min_ms": 0.6661019999683049,
+          "p95_ms": 10.536283199917303,
+          "std_ms": 4.364095862174175
+        },
+        "numba_realtime": true,
+        "headroom_numba": 5.3,
+        "speedup_numba": 0.93,
+        "omp": {
+          "mean_ms": 0.36501860001408204,
+          "min_ms": 0.34258000005138456,
+          "p95_ms": 0.3989926000940613,
+          "std_ms": 0.016550513414370707
+        },
+        "omp_realtime": true,
+        "headroom_omp": 68.5,
+        "speedup_omp": 11.91
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 22.224286519990528,
-          "min_ms": 21.135371000013947,
-          "p95_ms": 26.816253800006947,
-          "std_ms": 1.7956235543763917
+          "mean_ms": 19.913906280007723,
+          "min_ms": 17.448534999857657,
+          "p95_ms": 21.86524200005806,
+          "std_ms": 1.6609225532172436
         },
-        "numba": {
-          "mean_ms": 6.9174425999926825,
-          "min_ms": 4.439417000071444,
-          "p95_ms": 16.50641439998708,
-          "std_ms": 4.989091069072151
-        },
-        "speedup": 3.21,
-        "headroom_numpy": 1.1,
-        "headroom_numba": 3.6,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 1.3,
+        "numba": {
+          "mean_ms": 6.036028920007084,
+          "min_ms": 3.4872680000717082,
+          "p95_ms": 12.253134599995972,
+          "std_ms": 3.028793391002585
+        },
+        "numba_realtime": true,
+        "headroom_numba": 4.1,
+        "speedup_numba": 3.3,
+        "omp": {
+          "mean_ms": 2.018485039961888,
+          "min_ms": 1.9332080000822316,
+          "p95_ms": 2.063206199909473,
+          "std_ms": 0.05529928335217672
+        },
+        "omp_realtime": true,
+        "headroom_omp": 12.4,
+        "speedup_omp": 9.87
       }
     }
   },
@@ -450,63 +630,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.6301070400013487,
-          "min_ms": 0.5396819999532454,
-          "p95_ms": 0.7168296000145346,
-          "std_ms": 0.061065436141079274
+          "mean_ms": 0.5826178799816262,
+          "min_ms": 0.4780870001468429,
+          "p95_ms": 0.6844954000825964,
+          "std_ms": 0.1823699498897877
         },
-        "numba": {
-          "mean_ms": 0.05805007999697409,
-          "min_ms": 0.052549999963957816,
-          "p95_ms": 0.0693418000537349,
-          "std_ms": 0.005540904735654265
-        },
-        "speedup": 10.85,
-        "headroom_numpy": 106.5,
-        "headroom_numba": 1156.1,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 115.2,
+        "numba": {
+          "mean_ms": 0.04508244001044659,
+          "min_ms": 0.04105300013179658,
+          "p95_ms": 0.050809399863283033,
+          "std_ms": 0.005723410837522388
+        },
+        "numba_realtime": true,
+        "headroom_numba": 1488.7,
+        "speedup_numba": 12.92,
+        "omp": {
+          "mean_ms": 0.04897712001366017,
+          "min_ms": 0.04471700003705337,
+          "p95_ms": 0.054779000038251965,
+          "std_ms": 0.005405027990690142
+        },
+        "omp_realtime": true,
+        "headroom_omp": 1370.3,
+        "speedup_omp": 11.9
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 3.414220359995852,
-          "min_ms": 3.261605000034251,
-          "p95_ms": 3.730504199984352,
-          "std_ms": 0.1544353565290397
+          "mean_ms": 3.049277800009804,
+          "min_ms": 2.894427999990512,
+          "p95_ms": 3.2743341999321274,
+          "std_ms": 0.11997319881305155
         },
-        "numba": {
-          "mean_ms": 4.534445519993824,
-          "min_ms": 0.7515340000736614,
-          "p95_ms": 8.016089599982479,
-          "std_ms": 3.6039165290463107
-        },
-        "speedup": 0.75,
-        "headroom_numpy": 19.7,
-        "headroom_numba": 14.8,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 22.0,
+        "numba": {
+          "mean_ms": 5.168795319996207,
+          "min_ms": 0.4881840000052762,
+          "p95_ms": 8.53045020007812,
+          "std_ms": 3.716709792106935
+        },
+        "numba_realtime": true,
+        "headroom_numba": 13.0,
+        "speedup_numba": 0.59,
+        "omp": {
+          "mean_ms": 0.2873763599745871,
+          "min_ms": 0.26321199993617483,
+          "p95_ms": 0.3133824000542517,
+          "std_ms": 0.023816488119238515
+        },
+        "omp_realtime": true,
+        "headroom_omp": 233.5,
+        "speedup_omp": 10.61
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 18.24012459998812,
-          "min_ms": 16.810319000001073,
-          "p95_ms": 21.9429852000303,
-          "std_ms": 2.0136569027764573
+          "mean_ms": 20.203678999978365,
+          "min_ms": 16.8034189998707,
+          "p95_ms": 32.01149899991833,
+          "std_ms": 4.813873523109214
         },
-        "numba": {
-          "mean_ms": 5.728373000015381,
-          "min_ms": 3.4906880000562523,
-          "p95_ms": 8.156509600030404,
-          "std_ms": 2.54580836090095
-        },
-        "speedup": 3.18,
-        "headroom_numpy": 3.7,
-        "headroom_numba": 11.7,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 3.3,
+        "numba": {
+          "mean_ms": 4.906707999998616,
+          "min_ms": 2.729746999875715,
+          "p95_ms": 6.888058599952274,
+          "std_ms": 2.0109415157232315
+        },
+        "numba_realtime": true,
+        "headroom_numba": 13.7,
+        "speedup_numba": 4.12,
+        "omp": {
+          "mean_ms": 1.8029455200121447,
+          "min_ms": 1.5703139999914129,
+          "p95_ms": 2.058977599972422,
+          "std_ms": 0.6653156138715794
+        },
+        "omp_realtime": true,
+        "headroom_omp": 37.2,
+        "speedup_omp": 11.21
       }
     }
   },
@@ -523,63 +733,93 @@
     "densities": {
       "100": {
         "n_segments": 100,
+        "actual_segments": 100,
         "numpy": {
-          "mean_ms": 0.863575959992886,
-          "min_ms": 0.7902869999725226,
-          "p95_ms": 0.9439678000035201,
-          "std_ms": 0.043835754512695044
+          "mean_ms": 0.9732122399964283,
+          "min_ms": 0.8585909999965224,
+          "p95_ms": 1.083408599924951,
+          "std_ms": 0.07269375862033706
         },
-        "numba": {
-          "mean_ms": 0.06589391999568761,
-          "min_ms": 0.05991199998334196,
-          "p95_ms": 0.08337899998878125,
-          "std_ms": 0.0072567469068299415
-        },
-        "speedup": 13.11,
-        "headroom_numpy": 46.3,
-        "headroom_numba": 607.0,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 41.1,
+        "numba": {
+          "mean_ms": 0.06065636001949315,
+          "min_ms": 0.05349700018086878,
+          "p95_ms": 0.08451220014649148,
+          "std_ms": 0.009071167308958373
+        },
+        "numba_realtime": true,
+        "headroom_numba": 659.5,
+        "speedup_numba": 16.04,
+        "omp": {
+          "mean_ms": 0.06316699997114483,
+          "min_ms": 0.059268999848427484,
+          "p95_ms": 0.06851620005363657,
+          "std_ms": 0.003957592412895934
+        },
+        "omp_realtime": true,
+        "headroom_omp": 633.2,
+        "speedup_omp": 15.41
       },
       "500": {
         "n_segments": 500,
+        "actual_segments": 500,
         "numpy": {
-          "mean_ms": 4.341997040010028,
-          "min_ms": 4.148956999983966,
-          "p95_ms": 4.833361600003627,
-          "std_ms": 0.21310763943931482
+          "mean_ms": 4.69631943996319,
+          "min_ms": 4.349968000042281,
+          "p95_ms": 5.668608799851427,
+          "std_ms": 0.41492389115840944
         },
-        "numba": {
-          "mean_ms": 5.542514959988694,
-          "min_ms": 0.9734839999282485,
-          "p95_ms": 8.724496199988605,
-          "std_ms": 3.4226915174225154
-        },
-        "speedup": 0.78,
-        "headroom_numpy": 9.2,
-        "headroom_numba": 7.2,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 8.5,
+        "numba": {
+          "mean_ms": 1.9093440000142436,
+          "min_ms": 0.5876990001070226,
+          "p95_ms": 8.4805974000119,
+          "std_ms": 2.6555157736680233
+        },
+        "numba_realtime": true,
+        "headroom_numba": 20.9,
+        "speedup_numba": 2.46,
+        "omp": {
+          "mean_ms": 0.6544537199988554,
+          "min_ms": 0.32683599988558854,
+          "p95_ms": 3.4396088000448692,
+          "std_ms": 1.049886670649986
+        },
+        "omp_realtime": true,
+        "headroom_omp": 61.1,
+        "speedup_omp": 7.18
       },
       "2000": {
         "n_segments": 2000,
+        "actual_segments": 2000,
         "numpy": {
-          "mean_ms": 21.28334103999805,
-          "min_ms": 20.275143000048956,
-          "p95_ms": 22.5433579999617,
-          "std_ms": 0.954884110839495
+          "mean_ms": 23.2898323200061,
+          "min_ms": 22.48810799983403,
+          "p95_ms": 24.700418200018248,
+          "std_ms": 0.6882622667932836
         },
-        "numba": {
-          "mean_ms": 7.560168200002408,
-          "min_ms": 4.964139000094292,
-          "p95_ms": 16.208548000031442,
-          "std_ms": 4.61863959216519
-        },
-        "speedup": 2.82,
-        "headroom_numpy": 1.9,
-        "headroom_numba": 5.3,
         "numpy_realtime": true,
-        "numba_realtime": true
+        "headroom_numpy": 1.7,
+        "numba": {
+          "mean_ms": 5.490454440005124,
+          "min_ms": 3.0169030001161445,
+          "p95_ms": 9.188037399917443,
+          "std_ms": 2.44958149268117
+        },
+        "numba_realtime": true,
+        "headroom_numba": 7.3,
+        "speedup_numba": 4.24,
+        "omp": {
+          "mean_ms": 1.6154532799737353,
+          "min_ms": 1.5406560000883474,
+          "p95_ms": 1.7434201999549257,
+          "std_ms": 0.06536238426528956
+        },
+        "omp_realtime": true,
+        "headroom_omp": 24.8,
+        "speedup_omp": 14.42
       }
     }
   }
