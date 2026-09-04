@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ray-Casting Benchmark</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f8f9fa; --card: #fff; --border: #dee2e6; --text: #212529;
+  --muted: #6c757d; --accent: #0d6efd; --good: #198754; --warn: #dc3545;
+  --font: system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3;
+    --muted: #8b949e; --accent: #58a6ff; --good: #3fb950; --warn: #f85149;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3;
+  --muted: #8b949e; --accent: #58a6ff; --good: #3fb950; --warn: #f85149;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.5; }
+.page { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 28px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.kpi { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.kpi-value { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi-value.good { color: var(--good); }
+.kpi-value.warn { color: var(--warn); }
+.section { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; overflow-x: auto; }
+.section h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+th { text-align: right; font-weight: 600; padding: 6px 10px; border-bottom: 2px solid var(--border); color: var(--muted); white-space: nowrap; }
+th:first-child, th:nth-child(2) { text-align: center; }
+td { text-align: right; padding: 5px 10px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td:first-child, td:nth-child(2) { text-align: center; font-weight: 600; }
+tr:hover td { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.tag-ok { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+.tag-warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.note { color: var(--muted); font-size: 0.78rem; margin-top: 12px; line-height: 1.6; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>IR-SIM Ray-Casting Benchmark</h1>
+  <p class="subtitle">NumPy vectorised kernel · Numba JIT parallel kernel · SEGMENT_CHUNK_SIZE = 1024</p>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="section">
+    <h2>Latency by Scenario (µs per scan step)</h2>
+    <table id="mainTable">
+      <thead>
+        <tr>
+          <th>N beams</th><th>M segs</th>
+          <th>NumPy mean</th><th>NumPy p95</th><th>Peak KB</th><th>Matrix MB</th><th>Chunks</th>
+          <th>Numba mean</th><th>Speedup</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="mainBody"></tbody>
+    </table>
+    <p class="note">
+      ⚠ <strong>Status</strong>: <span class="tag tag-ok">OK</span> mean &lt; 2 ms (real-time at 10 Hz with &gt;80% headroom) ·
+      <span class="tag tag-warn">SLOW</span> mean &gt; 10 ms (misses 10 Hz deadline with default dt=0.1 s)
+    </p>
+  </div>
+
+  <div class="grid2">
+    <div class="section">
+      <h2>Throughput — NumPy (M beam·seg tests / s)</h2>
+      <canvas id="throughputChart" height="200"></canvas>
+    </div>
+    <div class="section">
+      <h2>Peak Memory Allocation (KB per scan step)</h2>
+      <canvas id="memChart" height="200"></canvas>
+    </div>
+  </div>
+
+  
+        <div class="section">
+          <h2>Numba JIT Speedup vs NumPy</h2>
+          <canvas id="speedupChart" height="90"></canvas>
+        </div>
+        
+
+  <div class="section">
+    <h2>Copy / Allocation Analysis — NumPy Kernel</h2>
+    <p class="note" style="margin-bottom:12px">
+      The NumPy kernel allocates <strong>4 x (chunk_size x N_beams) float64 matrices</strong>
+      per chunk pass inside <code>_nonparallel_hit_distances</code>:
+      <code>denominator</code>, <code>segment_position</code>, <code>ray_distance</code>,
+      and <code>valid_hit</code> (bool).  With chunk_size = 1024
+      and N = 360 beams, one chunk = <strong>4 x 1024 x 360 x 8 B ~ 11.8 MB</strong>.
+      A 5 000-segment scene uses ⌈5000/1024⌉ = 5 chunks -> 59 MB of temporaries
+      <em>per scan step</em>, dominated by memory bandwidth.
+    </p>
+    <table>
+      <thead>
+        <tr><th style="text-align:left">Step</th><th>Allocation shape</th><th>Bytes (N=360, chunk=1024)</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left"><code>perpendicular_directions</code></td><td>(N, 2)</td><td>5 760 B</td><td>allocated once per step</td></tr>
+        <tr><td style="text-align:left"><code>denominator</code></td><td>(chunk_M, N)</td><td>2 949 120 B ~ 2.8 MB</td><td>re-allocated per chunk</td></tr>
+        <tr><td style="text-align:left"><code>segment_position</code></td><td>(chunk_M, N)</td><td>2 949 120 B ~ 2.8 MB</td><td>re-allocated per chunk</td></tr>
+        <tr><td style="text-align:left"><code>line_cross</code></td><td>(chunk_M,)</td><td>8 192 B</td><td>re-allocated per chunk</td></tr>
+        <tr><td style="text-align:left"><code>ray_distance</code></td><td>(chunk_M, N)</td><td>2 949 120 B ~ 2.8 MB</td><td>re-allocated per chunk</td></tr>
+        <tr><td style="text-align:left"><code>valid_hit</code> (bool)</td><td>(chunk_M, N)</td><td>368 640 B ~ 0.4 MB</td><td>re-allocated per chunk</td></tr>
+        <tr><td style="text-align:left"><code>np.where result</code></td><td>(chunk_M, N)</td><td>2 949 120 B ~ 2.8 MB</td><td>re-allocated per chunk</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:12px">
+      <strong>Numba JIT fix</strong>: the JIT kernel loops over beams with <code>prange</code>
+      and segments with a plain <code>for</code>.  Working state per thread is 2 scalars
+      (<code>best_t</code>, <code>best_j</code>) — no matrix allocation at any scale.
+      Total live memory = O(N) output + O(1) per thread regardless of M.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Optimisation Roadmap</h2>
+    <table>
+      <thead><tr><th style="text-align:left">Option</th><th style="text-align:left">Memory</th><th style="text-align:left">Speedup (est.)</th><th style="text-align:left">Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="text-align:left"><strong>NumPy baseline</strong> (current)</td>
+          <td style="text-align:left">O(chunk x N) per chunk</td>
+          <td style="text-align:left">1x (reference)</td>
+          <td style="text-align:left">Single-threaded, bandwidth-bound for large M</td>
+        </tr>
+        <tr>
+          <td style="text-align:left"><strong>Numba JIT</strong> (<code>parallel=True</code>, <code>cache=True</code>)</td>
+          <td style="text-align:left">O(N) — no large temporaries</td>
+          <td style="text-align:left">10-50x (all cores)</td>
+          <td style="text-align:left"><code>pip install numba</code>; warmup once; zero build step</td>
+        </tr>
+        <tr>
+          <td style="text-align:left"><strong>C++ / OpenMP</strong></td>
+          <td style="text-align:left">O(N) — registers only</td>
+          <td style="text-align:left">15-60x (vectorised + all cores)</td>
+          <td style="text-align:left">Needs pybind11 + C compiler; identical algorithm; see module docstring</td>
+        </tr>
+        <tr>
+          <td style="text-align:left"><strong>C++ / TBB</strong></td>
+          <td style="text-align:left">O(N)</td>
+          <td style="text-align:left">20-70x (work-stealing scheduler)</td>
+          <td style="text-align:left">Intel TBB; dynamic load balancing over beams; best for uneven segment distribution</td>
+        </tr>
+        <tr>
+          <td style="text-align:left"><strong>angle_std beam jitter</strong> (fix)</td>
+          <td style="text-align:left">O(N) extra for perturbed dirs</td>
+          <td style="text-align:left">~-1% (tiny overhead)</td>
+          <td style="text-align:left">Currently a no-op bug; add <code>rng.normal(0, angle_std, N)</code> to angle_list before direction build</td>
+        </tr>
+        <tr>
+          <td style="text-align:left"><strong>range_min enforcement</strong> (fix)</td>
+          <td style="text-align:left">N/A</td>
+          <td style="text-align:left">no change</td>
+          <td style="text-align:left">Add <code>ORIGIN_EPS = max(ORIGIN_EPS, range_min)</code> in scan init</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const data = [{"n_beams": 16, "n_segments": 10, "n_chunks": 1, "matrix_mb_est": 0.00512, "numpy": {"mean_us": 41.602249993388796, "min_us": 31.47000001035849, "p50_us": 37.61499996812745, "p95_us": 68.59859999508446, "std_us": 12.852708751867633}, "peak_kb": 8.703125, "numba": {"mean_us": 6.36219999705645, "min_us": 5.183000041597552, "p50_us": 6.042500018565988, "p95_us": 7.94729996300703, "std_us": 1.4695207952436469}, "speedup": 6.538972370034986}, {"n_beams": 16, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 0.0512, "numpy": {"mean_us": 42.968350004457534, "min_us": 37.458000008427916, "p50_us": 39.839500033167496, "p95_us": 54.867500011823736, "std_us": 8.471632216082192}, "peak_kb": 58.625, "numba": {"mean_us": 6.732949995580384, "min_us": 5.777000012585631, "p50_us": 6.068000004688656, "p95_us": 8.290499988561356, "std_us": 2.0807576752444032}, "speedup": 6.381801444042009}, {"n_beams": 16, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 0.512, "numpy": {"mean_us": 121.52529999980288, "min_us": 109.80199999721663, "p50_us": 115.44200000912497, "p95_us": 146.64209997192756, "std_us": 13.825486883550763}, "peak_kb": 557.87109375, "numba": {"mean_us": 32.334650001075715, "min_us": 27.889999955732492, "p50_us": 31.340500015630823, "p95_us": 40.12954999552676, "std_us": 3.6133676133530277}, "speedup": 3.7583613861835508}, {"n_beams": 64, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 0.2048, "numpy": {"mean_us": 61.69244999227885, "min_us": 56.54900002127761, "p50_us": 59.26099998987411, "p95_us": 73.42539999228849, "std_us": 6.482446399031049}, "peak_kb": 214.8125, "numba": {"mean_us": 8.904950013288726, "min_us": 7.302000028630573, "p50_us": 8.224000026757494, "p95_us": 11.720150010319234, "std_us": 2.1275887175119035}, "speedup": 6.927882795548107}, {"n_beams": 64, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 2.048, "numpy": {"mean_us": 1086.649599994871, "min_us": 979.207000000315, "p50_us": 1039.8309999857247, "p95_us": 1247.1414500225821, "std_us": 145.8749575505521}, "peak_kb": 2106.24609375, "numba": {"mean_us": 143.7041000087902, "min_us": 133.54399999343514, "p50_us": 139.98150001270915, "p95_us": 168.95904999216785, "std_us": 13.177576251227931}, "speedup": 7.561716053532239}, {"n_beams": 64, "n_segments": 5000, "n_chunks": 5, "matrix_mb_est": 10.48576, "numpy": {"mean_us": 3252.3858499956755, "min_us": 2960.516000030111, "p50_us": 3259.2969999996058, "p95_us": 3407.5105499738356, "std_us": 121.06194128116456}, "peak_kb": 3191.1669921875, "numba": {"mean_us": 776.925249996907, "min_us": 716.4650000390793, "p50_us": 750.9165000101348, "p95_us": 1004.1443499943625, "std_us": 80.72116007413884}, "speedup": 4.1862275038797145}, {"n_beams": 181, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 0.5792, "numpy": {"mean_us": 113.57600000394541, "min_us": 101.77599995131459, "p50_us": 106.00950000139164, "p95_us": 140.38544999550598, "std_us": 16.850270318401535}, "peak_kb": 595.51953125, "numba": {"mean_us": 17.396599986341243, "min_us": 14.397999962056929, "p50_us": 16.80049999208677, "p95_us": 21.06035001361306, "std_us": 2.1962116834294214}, "speedup": 6.528632036899072}, {"n_beams": 181, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 5.792, "numpy": {"mean_us": 2376.1706000016143, "min_us": 2290.4549999793744, "p50_us": 2379.227999995237, "p95_us": 2484.993200005192, "std_us": 63.14107187664292}, "peak_kb": 5880.41015625, "numba": {"mean_us": 411.6386499987357, "min_us": 386.133000006339, "p50_us": 407.32450000291465, "p95_us": 460.6353500179239, "std_us": 20.572174795503678}, "speedup": 5.7724671869585436}, {"n_beams": 181, "n_segments": 5000, "n_chunks": 5, "matrix_mb_est": 29.65504, "numpy": {"mean_us": 8862.956699994127, "min_us": 8087.288000012904, "p50_us": 9001.397000020006, "p95_us": 9444.815350008184, "std_us": 470.34755236868193}, "peak_kb": 8929.765625, "numba": {"mean_us": 2246.140949998221, "min_us": 2138.734999959979, "p50_us": 2207.076000019015, "p95_us": 2396.360499972161, "std_us": 101.74298645511442}, "speedup": 3.9458595418961337}, {"n_beams": 360, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 1.152, "numpy": {"mean_us": 215.9342000027209, "min_us": 186.18699999706223, "p50_us": 203.34699999580153, "p95_us": 294.02295000977574, "std_us": 34.191399567371484}, "peak_kb": 1177.96875, "numba": {"mean_us": 30.568550008069906, "min_us": 26.584000011098396, "p50_us": 28.79050001070027, "p95_us": 40.603200005762126, "std_us": 4.750405325032855}, "speedup": 7.063933354565906}, {"n_beams": 360, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 11.52, "numpy": {"mean_us": 8227.70920001119, "min_us": 4809.437999995225, "p50_us": 9689.420000029259, "p95_us": 10406.375800030788, "std_us": 2420.878374908259}, "peak_kb": 11654.52734375, "numba": {"mean_us": 6190.254300003062, "min_us": 692.6310000494595, "p50_us": 7990.288499968301, "p95_us": 8035.2190500235565, "std_us": 3156.12509692892}, "speedup": 1.3291391276134035}, {"n_beams": 360, "n_segments": 5000, "n_chunks": 5, "matrix_mb_est": 58.9824, "numpy": {"mean_us": 16735.541150009678, "min_us": 15023.696000014297, "p50_us": 16549.995499985926, "p95_us": 17983.74814999022, "std_us": 872.5188681819177}, "peak_kb": 17709.2998046875, "numba": {"mean_us": 7182.9651999934185, "min_us": 4343.750999964868, "p50_us": 4430.259999992359, "p95_us": 14712.195949985586, "std_us": 3692.0840272602477}, "speedup": 2.3298931129479805}, {"n_beams": 360, "n_segments": 10000, "n_chunks": 10, "matrix_mb_est": 117.9648, "numpy": {"mean_us": 33056.019099990415, "min_us": 31469.26300001951, "p50_us": 32636.0509999688, "p95_us": 35108.10495002659, "std_us": 1262.0745420194453}, "peak_kb": 17709.2998046875, "numba": {"mean_us": 11238.032250003016, "min_us": 8834.116000002723, "p50_us": 9006.819999996196, "p95_us": 21270.654250017174, "std_us": 4508.3569372990205}, "speedup": 2.9414419147962083}, {"n_beams": 720, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 2.304, "numpy": {"mean_us": 548.746049997817, "min_us": 480.94199996739917, "p50_us": 549.7875000344266, "p95_us": 631.1993499792834, "std_us": 53.99200626015897}, "peak_kb": 2349.375, "numba": {"mean_us": 65.02035000721662, "min_us": 48.17100000309438, "p50_us": 52.562500002295565, "p95_us": 115.93790002280011, "std_us": 38.17356168061736}, "speedup": 8.439604676642183}, {"n_beams": 720, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 23.04, "numpy": {"mean_us": 15163.03835000201, "min_us": 9089.913000025263, "p50_us": 16929.886500008706, "p95_us": 21125.899450015597, "std_us": 4603.490787463286}, "peak_kb": 23267.33984375, "numba": {"mean_us": 5564.772000002449, "min_us": 1235.844999996516, "p50_us": 7985.2169999981015, "p95_us": 9504.920200032533, "std_us": 3872.96557342819}, "speedup": 2.724826524787599}, {"n_beams": 720, "n_segments": 5000, "n_chunks": 5, "matrix_mb_est": 117.9648, "numpy": {"mean_us": 40695.15575001219, "min_us": 37669.40899998872, "p50_us": 39862.16850003643, "p95_us": 46412.965250019064, "std_us": 3383.1644921438037}, "peak_kb": 35366.5263671875, "numba": {"mean_us": 10464.606799999387, "min_us": 8128.015000011146, "p50_us": 8710.634000038908, "p95_us": 16971.716700004443, "std_us": 4408.345083481224}, "speedup": 3.8888375385508587}, {"n_beams": 1080, "n_segments": 100, "n_chunks": 1, "matrix_mb_est": 3.456, "numpy": {"mean_us": 904.6207499977754, "min_us": 756.8460000015875, "p50_us": 898.2124999761254, "p95_us": 1018.636249989413, "std_us": 63.63040366343234}, "peak_kb": 3520.78125, "numba": {"mean_us": 86.75349999691662, "min_us": 73.34399998626395, "p50_us": 80.93600001757295, "p95_us": 111.95959998815398, "std_us": 14.263940057580966}, "speedup": 10.427484194066261}, {"n_beams": 1080, "n_segments": 1000, "n_chunks": 1, "matrix_mb_est": 34.56, "numpy": {"mean_us": 14198.487099997694, "min_us": 10317.227000030016, "p50_us": 12064.862000016774, "p95_us": 23303.57769995999, "std_us": 4606.375335422638}, "peak_kb": 34880.15234375, "numba": {"mean_us": 5524.303000001396, "min_us": 1713.278000011087, "p50_us": 7981.661000002305, "p95_us": 8027.849599974957, "std_us": 3030.054083288093}, "speedup": 2.5701861574200593}, {"n_beams": 1080, "n_segments": 5000, "n_chunks": 5, "matrix_mb_est": 176.9472, "numpy": {"mean_us": 41873.686899998575, "min_us": 39988.99200001915, "p50_us": 41672.414999993634, "p95_us": 44163.424049992274, "std_us": 1192.76022358459}, "peak_kb": 53023.7529296875, "numba": {"mean_us": 12815.401299994279, "min_us": 11323.458999981995, "p50_us": 11980.528500032506, "p95_us": 13399.70925002093, "std_us": 3115.7474809578302}, "speedup": 3.267450306063944}];
+const hasNumba = true;
+
+// KPI row
+const kpiData = [
+  {label:'Scenarios Tested', value: data.length, cls:''},
+  {label:'Max NumPy Latency', value: Math.round(Math.max(...data.map(r=>r.numpy.mean_us)))+' µs', cls:'warn'},
+  {label:'Min NumPy Latency', value: Math.round(Math.min(...data.map(r=>r.numpy.mean_us)))+' µs', cls:'good'},
+  {label:'Peak Memory', value: Math.round(Math.max(...data.map(r=>r.peak_kb)))+' KB', cls:'warn'},
+];
+if(hasNumba) {
+  const speedups = data.filter(r=>r.speedup).map(r=>r.speedup);
+  kpiData.push({label:'Max Speedup', value: Math.round(Math.max(...speedups))+'x', cls:'good'});
+  kpiData.push({label:'Min Speedup', value: Math.round(Math.min(...speedups))+'x', cls:''});
+}
+const kpiRow = document.getElementById('kpiRow');
+kpiData.forEach(k => {
+  kpiRow.innerHTML += `<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-value ${k.cls}">${k.value}</div></div>`;
+});
+
+// Main table
+const tbody = document.getElementById('mainBody');
+data.forEach(r => {
+  const slow = r.numpy.mean_us > 10000;
+  const tag = slow ? '<span class="tag tag-warn">SLOW</span>' : '<span class="tag tag-ok">OK</span>';
+  const numbaCol = hasNumba
+    ? `<td>${r.numba ? r.numba.mean_us.toFixed(1) : 'N/A'}</td><td>${r.speedup ? r.speedup.toFixed(1)+'x' : 'N/A'}</td>`
+    : '';
+  tbody.innerHTML += `<tr>
+    <td>${r.n_beams}</td><td>${r.n_segments}</td>
+    <td>${r.numpy.mean_us.toFixed(1)}</td><td>${r.numpy.p95_us.toFixed(1)}</td>
+    <td>${r.peak_kb.toFixed(0)}</td><td>${r.matrix_mb_est.toFixed(2)}</td><td>${r.n_chunks}</td>
+    ${numbaCol}<td>${tag}</td>
+  </tr>`;
+});
+
+// Chart helper
+const isDark = ()=> document.documentElement.dataset.theme === 'dark' ||
+  (!document.documentElement.dataset.theme && window.matchMedia('(prefers-color-scheme:dark)').matches);
+const gridColor = ()=> isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+const textColor = ()=> isDark() ? '#8b949e' : '#6c757d';
+
+// Throughput chart
+const labels = data.map(r=>`${r.n_beams}x${r.n_segments}`);
+new Chart(document.getElementById('throughputChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'NumPy (M ops/s)',
+      data: data.map(r => (r.n_beams * r.n_segments / r.numpy.mean_us).toFixed(2)),
+      backgroundColor: 'rgba(13,110,253,0.7)',
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{font:{size:9},color:textColor(),maxRotation:60},grid:{color:gridColor()}},
+      y:{ticks:{color:textColor()},grid:{color:gridColor()},title:{display:true,text:'M tests/s',color:textColor()}}
+    }
+  }
+});
+
+// Memory chart
+new Chart(document.getElementById('memChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Peak KB',
+      data: data.map(r => r.peak_kb.toFixed(1)),
+      backgroundColor: 'rgba(220,53,69,0.7)',
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{font:{size:9},color:textColor(),maxRotation:60},grid:{color:gridColor()}},
+      y:{ticks:{color:textColor()},grid:{color:gridColor()},title:{display:true,text:'KB',color:textColor()}}
+    }
+  }
+});
+
+// Speedup chart
+if(hasNumba) {
+  const numbaData = data.filter(r=>r.speedup);
+  new Chart(document.getElementById('speedupChart'), {
+    type: 'bar',
+    data: {
+      labels: numbaData.map(r=>`${r.n_beams}x${r.n_segments}`),
+      datasets: [{
+        label: 'Speedup (x)',
+        data: numbaData.map(r=>r.speedup.toFixed(1)),
+        backgroundColor: numbaData.map(r=> r.speedup > 10 ? 'rgba(25,135,84,0.8)' : 'rgba(255,193,7,0.8)'),
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:9},color:textColor(),maxRotation:60},grid:{color:gridColor()}},
+        y:{ticks:{color:textColor()},grid:{color:gridColor()},title:{display:true,text:'Speedup x',color:textColor()}}
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
