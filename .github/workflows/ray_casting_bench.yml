@@ -1,0 +1,249 @@
+name: Ray-Casting Benchmark
+
+# Trigger when the kernel, its Numba extension, or the benchmark script changes.
+# Also runs manually (workflow_dispatch) for on-demand profiling.
+on:
+  push:
+    paths:
+      - 'irsim/lib/algorithm/ray_casting_2d.py'
+      - 'irsim/lib/algorithm/ray_casting_2d_numba.py'
+      - 'tests/bench_ray_casting.py'
+      - '.github/workflows/ray_casting_bench.yml'
+  pull_request:
+    paths:
+      - 'irsim/lib/algorithm/ray_casting_2d.py'
+      - 'irsim/lib/algorithm/ray_casting_2d_numba.py'
+      - 'tests/bench_ray_casting.py'
+      - '.github/workflows/ray_casting_bench.yml'
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: 'Quick mode (fewer iterations, faster run)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── 1. Correctness ─────────────────────────────────────────────────────────
+  correctness:
+    name: Correctness tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install project
+        run: uv sync --locked --dev
+
+      - name: Run sensor & ray-casting tests
+        run: |
+          xvfb-run -s "-screen 0 1024x768x24" \
+            uv run pytest tests/test_sensors.py -v --tb=short
+
+  # ─── 2. NumPy benchmark (no Numba) ──────────────────────────────────────────
+  bench-numpy:
+    name: Benchmark — NumPy only
+    runs-on: ubuntu-latest
+    needs: correctness
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install project
+        run: uv sync --locked --dev
+
+      - name: Run benchmark (NumPy)
+        run: |
+          uv run python tests/bench_ray_casting.py \
+            --json bench_numpy.json \
+            --html bench_numpy.html \
+            ${{ (inputs.quick == true || inputs.quick == 'true') && '--quick' || '' }}
+
+      - name: Write step summary
+        run: |
+          uv run python - <<'PY'
+          import json, os
+          data = json.load(open("bench_numpy.json"))
+          lines = [
+              "## Ray-Casting Benchmark — NumPy",
+              "",
+              "| N beams | M segs | mean µs | p95 µs | Peak KB | Matrix MB | Status |",
+              "|---------|--------|---------|--------|---------|-----------|--------|",
+          ]
+          for r in data:
+              slow = r["numpy"]["mean_us"] > 10_000
+              status = "⚠ SLOW" if slow else "✅ OK"
+              lines.append(
+                  f"| {r['n_beams']} | {r['n_segments']} "
+                  f"| {r['numpy']['mean_us']:.1f} | {r['numpy']['p95_us']:.1f} "
+                  f"| {r['peak_kb']:.0f} | {r['matrix_mb_est']:.2f} | {status} |"
+              )
+          lines += ["", f"> Chunk size = {data[0]['n_chunks'] and 'varies'} · Runner: ubuntu-latest"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(lines) + "\n")
+          PY
+
+      - name: Upload NumPy benchmark artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-numpy-${{ github.sha }}
+          path: |
+            bench_numpy.json
+            bench_numpy.html
+          retention-days: 30
+
+  # ─── 3. Numba benchmark ─────────────────────────────────────────────────────
+  bench-numba:
+    name: Benchmark — NumPy + Numba JIT
+    runs-on: ubuntu-latest
+    needs: correctness
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install project + numba
+        run: |
+          uv sync --locked --dev
+          uv pip install numba
+
+      - name: Prime the Numba disk cache
+        # On the first run there is no disk cache; subsequent runs skip JIT.
+        # Cache the __pycache__ directory so CI never pays compile time twice.
+        id: numba-cache
+        uses: actions/cache@v4
+        with:
+          path: irsim/lib/algorithm/__pycache__
+          key: numba-cache-${{ runner.os }}-${{ hashFiles('irsim/lib/algorithm/ray_casting_2d_numba.py') }}
+
+      - name: Warm up Numba JIT
+        run: |
+          uv run python -c "
+          from irsim.lib.algorithm.ray_casting_2d_numba import warmup
+          import time
+          t0 = time.perf_counter()
+          warmup()
+          print(f'JIT compile/load: {(time.perf_counter()-t0)*1e3:.0f} ms')
+          "
+
+      - name: Run benchmark (NumPy + Numba)
+        run: |
+          uv run python tests/bench_ray_casting.py \
+            --json bench_numba.json \
+            --html bench_numba.html \
+            ${{ (inputs.quick == true || inputs.quick == 'true') && '--quick' || '' }}
+
+      - name: Write step summary
+        run: |
+          uv run python - <<'PY'
+          import json, os
+          data = json.load(open("bench_numba.json"))
+          lines = [
+              "## Ray-Casting Benchmark — NumPy + Numba JIT",
+              "",
+              "| N beams | M segs | NumPy µs | Numba µs | Speedup | Peak KB |",
+              "|---------|--------|----------|----------|---------|---------|",
+          ]
+          for r in data:
+              nb = r.get("numba", {}).get("mean_us", "N/A")
+              sp = r.get("speedup", "N/A")
+              nb_str = f"{nb:.1f}" if isinstance(nb, float) else nb
+              sp_str = f"{sp:.1f}×" if isinstance(sp, float) else sp
+              lines.append(
+                  f"| {r['n_beams']} | {r['n_segments']} "
+                  f"| {r['numpy']['mean_us']:.1f} | {nb_str} | {sp_str} | {r['peak_kb']:.0f} |"
+              )
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(lines) + "\n")
+          PY
+
+      - name: Upload Numba benchmark artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-numba-${{ github.sha }}
+          path: |
+            bench_numba.json
+            bench_numba.html
+          retention-days: 30
+
+  # ─── 4. Performance regression check ────────────────────────────────────────
+  perf-regression:
+    name: Performance regression check
+    runs-on: ubuntu-latest
+    needs: bench-numpy
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install project
+        run: uv sync --locked --dev
+
+      - name: Download benchmark artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bench-numpy-${{ github.sha }}
+
+      - name: Check regression thresholds
+        # Fail if any commonly-seen scenario exceeds its latency budget.
+        # Thresholds are 3× the measured reference times at
+        # representative (N, M) pairs, rounded conservatively upward.
+        # Adjust if the reference machine changes significantly.
+        run: |
+          uv run python - <<'PY'
+          import json, sys
+
+          # (n_beams, n_segments) -> max acceptable mean latency in µs
+          # Budget = 3× measured baseline on a standard GitHub ubuntu runner.
+          THRESHOLDS = {
+              (64,  100):    800,
+              (64,  1000):  6000,
+              (181, 100):   1200,
+              (181, 1000): 16000,
+              (360, 100):   2000,
+              (360, 1000): 55000,
+          }
+
+          data = json.load(open("bench_numpy.json"))
+          failures = []
+          for r in data:
+              key = (r["n_beams"], r["n_segments"])
+              if key not in THRESHOLDS:
+                  continue
+              limit = THRESHOLDS[key]
+              actual = r["numpy"]["mean_us"]
+              if actual > limit:
+                  failures.append(
+                      f"  N={r['n_beams']:4d} M={r['n_segments']:5d}: "
+                      f"{actual:.0f} µs > {limit} µs threshold"
+                  )
+
+          if failures:
+              print("Performance regression detected:")
+              for f in failures:
+                  print(f)
+              sys.exit(1)
+          else:
+              print("All latency thresholds passed.")
+          PY
