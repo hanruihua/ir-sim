@@ -1211,12 +1211,66 @@ class EnvBase:
 
         self.build_tree()
 
-    def build_tree(self) -> None:
-        """
-        Build the geometry tree for the objects in the environment to detect the possible collision objects.
-        """
+    # ------------------------------------------------------------------
+    # Static-geometry cache for the spatial index
+    # ------------------------------------------------------------------
 
-        self._env_param.GeometryTree = STRtree([obj.geometry for obj in self.objects])
+    def _partition_objects(self) -> None:
+        """Partition objects into static and dynamic; cache static geometries.
+
+        Static objects never move, so their Shapely geometry references never
+        change after the scene is loaded.  Extracting them once and storing
+        the references in ``_static_geom_cache`` means ``build_tree`` only
+        calls ``obj.geometry`` on *dynamic* objects each step — O(N_dynamic)
+        lookups instead of O(N_total).
+
+        ``_static_geom_cache`` is a list with one slot per object in the same
+        order as ``self.objects``.  Slots for static objects hold the cached
+        geometry reference; slots for dynamic objects are filled with ``None``
+        here and overwritten by ``build_tree`` on every call.
+        ``_dynamic_indices`` is the list of indices into ``self.objects`` that
+        belong to dynamic (non-static) objects.
+
+        Called automatically by ``build_tree`` whenever the cached list length
+        no longer matches the current object count (i.e. after any add/delete
+        operation or on the very first build).
+        """
+        n = len(self.objects)
+        cache: list = [None] * n
+        dynamic: list[int] = []
+        for i, obj in enumerate(self.objects):
+            if obj.static:
+                cache[i] = obj.geometry
+            else:
+                dynamic.append(i)
+        self._static_geom_cache: list = cache
+        self._dynamic_indices: list[int] = dynamic
+
+    def build_tree(self) -> None:
+        """Build the spatial index for collision detection and sensor queries.
+
+        Static objects' geometries are extracted once and reused from
+        ``_static_geom_cache``; only dynamic objects' geometries are
+        re-extracted on every call.  This avoids redundant Shapely attribute
+        lookups for walls and other immovable geometry without changing the
+        tree's structure or the indices returned to callers.
+
+        The cache is rebuilt automatically whenever the object list length
+        changes (after ``add_object`` / ``delete_object`` calls).
+        """
+        # Rebuild the partition when the object list has grown or shrunk.
+        cache = getattr(self, "_static_geom_cache", None)
+        if cache is None or len(cache) != len(self.objects):
+            self._partition_objects()
+            cache = self._static_geom_cache
+
+        # Copy the pre-built list (static slots already filled) then overwrite
+        # dynamic slots with fresh geometry references from the objects.
+        geoms = list(cache)
+        for i in self._dynamic_indices:
+            geoms[i] = self.objects[i].geometry
+
+        self._env_param.GeometryTree = STRtree(geoms)
 
     def validate_unique_names(self) -> None:
         """Validate that all object names are unique.
