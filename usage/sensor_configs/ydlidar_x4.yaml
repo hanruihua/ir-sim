@@ -1,0 +1,35 @@
+# YDLIDAR X4 — 360 deg, 10 Hz, 10 m, ~0.50 deg resolution
+world:
+  height: 15
+  width: 15
+  step_time: 0.100   # 10 Hz
+  sample_time: 0.100
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [13, 13, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.12      # 12 cm dead zone
+        range_max: 10.0      # 10 m
+        angle_range: 6.2832  # 360 deg
+        number: 720          # 0.50 deg resolution
+        noise: True
+        std: 0.03            # 30 mm
+        angle_std: 0.009
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.3
+
+obstacle:
+  - shape: {name: 'rectangle', length: 1.5, width: 1.0}
+    state: [5, 5, 0]
+  - shape: {name: 'circle', radius: 0.6}
+    state: [8, 6, 0]
+  - shape: {name: 'rectangle', length: 1.0, width: 2.0}
+    state: [10, 10, 0.5]

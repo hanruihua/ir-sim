@@ -1,0 +1,39 @@
+# Hokuyo UTM-30LX — 270 deg FoV, 40 Hz, 30 m, 0.25 deg resolution
+world:
+  height: 40
+  width: 40
+  step_time: 0.025   # 40 Hz — high-frequency scan
+  sample_time: 0.025
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [38, 38, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.10      # 10 cm dead zone
+        range_max: 30.0      # 30 m
+        angle_range: 4.7124  # 270 deg (3*pi/2)
+        number: 1080         # 0.25 deg resolution
+        noise: True
+        std: 0.03            # 30 mm
+        angle_std: 0.002     # ~0.1 deg (best angular accuracy)
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.2
+
+obstacle:
+  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
+    state: [10, 10, 0]
+  - shape: {name: 'circle', radius: 2.0}
+    state: [20, 15, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 4.0}
+    state: [30, 25, 0.5]
+  - shape: {name: 'linestring', vertices: [[0, 20], [40, 20]]}
+    state: [0, 0, 0]
+  - shape: {name: 'circle', radius: 1.0}
+    state: [15, 30, 0]

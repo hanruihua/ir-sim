@@ -1,0 +1,586 @@
+[
+  {
+    "stem": "rplidar_a1m8",
+    "label": "RPLiDAR A1M8",
+    "class": "Hobbyist",
+    "n_beams": 360,
+    "range_max": 12.0,
+    "fov_deg": 360,
+    "ang_res_deg": 1.0,
+    "scan_hz": 5.5,
+    "budget_ms": 181.82,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.27753204000873666,
+          "min_ms": 0.2235540000583569,
+          "p95_ms": 0.33677280005122157,
+          "std_ms": 0.03885047238639963
+        },
+        "numba": {
+          "mean_ms": 0.03805304000252363,
+          "min_ms": 0.03384100000403123,
+          "p95_ms": 0.04555620000701309,
+          "std_ms": 0.004290335675262247
+        },
+        "speedup": 7.29,
+        "headroom_numpy": 655.1,
+        "headroom_numba": 4778.0,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 2.723709160004546,
+          "min_ms": 2.554006000082154,
+          "p95_ms": 2.858342200011066,
+          "std_ms": 0.0799364078738828
+        },
+        "numba": {
+          "mean_ms": 0.37125543997717614,
+          "min_ms": 0.35193700000490935,
+          "p95_ms": 0.38467580000087764,
+          "std_ms": 0.011066024457583338
+        },
+        "speedup": 7.34,
+        "headroom_numpy": 66.8,
+        "headroom_numba": 489.7,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 7.434298840016709,
+          "min_ms": 7.2486000000253625,
+          "p95_ms": 7.563570600041203,
+          "std_ms": 0.09996112040401067
+        },
+        "numba": {
+          "mean_ms": 5.0959057199906965,
+          "min_ms": 1.5539790000502762,
+          "p95_ms": 8.03926380001485,
+          "std_ms": 3.132306306349928
+        },
+        "speedup": 1.46,
+        "headroom_numpy": 24.5,
+        "headroom_numba": 35.7,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "rplidar_s2",
+    "label": "RPLiDAR S2",
+    "class": "Mobile robot",
+    "n_beams": 1200,
+    "range_max": 30.0,
+    "fov_deg": 360,
+    "ang_res_deg": 0.3,
+    "scan_hz": 10.0,
+    "budget_ms": 100.0,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.9030088800045633,
+          "min_ms": 0.824262000037379,
+          "p95_ms": 0.9751165999659861,
+          "std_ms": 0.06123648775843095
+        },
+        "numba": {
+          "mean_ms": 0.0756272399894442,
+          "min_ms": 0.06928400000560941,
+          "p95_ms": 0.08962599997630602,
+          "std_ms": 0.008066209106783857
+        },
+        "speedup": 11.94,
+        "headroom_numpy": 110.7,
+        "headroom_numba": 1322.3,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 9.376993599985326,
+          "min_ms": 8.028582000065398,
+          "p95_ms": 15.969674199936886,
+          "std_ms": 2.4276182633773757
+        },
+        "numba": {
+          "mean_ms": 5.439050560003125,
+          "min_ms": 1.1057039999968765,
+          "p95_ms": 8.03697339995324,
+          "std_ms": 3.277347822136179
+        },
+        "speedup": 1.72,
+        "headroom_numpy": 10.7,
+        "headroom_numba": 18.4,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 24.92279239999789,
+          "min_ms": 23.93576099996153,
+          "p95_ms": 25.92475439998907,
+          "std_ms": 0.7522271344236623
+        },
+        "numba": {
+          "mean_ms": 7.589766719988802,
+          "min_ms": 4.9362879999534925,
+          "p95_ms": 16.17619259998264,
+          "std_ms": 4.078046904331353
+        },
+        "speedup": 3.28,
+        "headroom_numpy": 4.0,
+        "headroom_numba": 13.2,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "ydlidar_x4",
+    "label": "YDLIDAR X4",
+    "class": "Budget",
+    "n_beams": 720,
+    "range_max": 10.0,
+    "fov_deg": 360,
+    "ang_res_deg": 0.5,
+    "scan_hz": 10.0,
+    "budget_ms": 100.0,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.5558802800032936,
+          "min_ms": 0.46800800009805243,
+          "p95_ms": 0.6223458000249593,
+          "std_ms": 0.04749997944146226
+        },
+        "numba": {
+          "mean_ms": 0.07221583999580616,
+          "min_ms": 0.059846999988621974,
+          "p95_ms": 0.10053539999717027,
+          "std_ms": 0.014333160986669367
+        },
+        "speedup": 7.7,
+        "headroom_numpy": 179.9,
+        "headroom_numba": 1384.7,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 3.4146252799928334,
+          "min_ms": 3.3102239999607264,
+          "p95_ms": 3.5716446000151336,
+          "std_ms": 0.07916648608677876
+        },
+        "numba": {
+          "mean_ms": 4.955012840018753,
+          "min_ms": 0.7306520000156524,
+          "p95_ms": 8.01746520000961,
+          "std_ms": 3.4925797594612433
+        },
+        "speedup": 0.69,
+        "headroom_numpy": 29.3,
+        "headroom_numba": 20.2,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 16.888456280003084,
+          "min_ms": 15.900108999971962,
+          "p95_ms": 17.600063800023236,
+          "std_ms": 0.5627680291274993
+        },
+        "numba": {
+          "mean_ms": 5.433798639992347,
+          "min_ms": 3.1020779999835213,
+          "p95_ms": 8.016517200053386,
+          "std_ms": 2.6857303816738543
+        },
+        "speedup": 3.11,
+        "headroom_numpy": 5.9,
+        "headroom_numba": 18.4,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "ydlidar_tg15",
+    "label": "YDLIDAR TG15",
+    "class": "Budget+",
+    "n_beams": 2000,
+    "range_max": 15.0,
+    "fov_deg": 360,
+    "ang_res_deg": 0.18,
+    "scan_hz": 12.0,
+    "budget_ms": 83.33,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 1.6422603599812646,
+          "min_ms": 1.4957270000195422,
+          "p95_ms": 1.7338469999913286,
+          "std_ms": 0.06878021919552217
+        },
+        "numba": {
+          "mean_ms": 0.1115291599990087,
+          "min_ms": 0.10499000006802817,
+          "p95_ms": 0.12269520000245393,
+          "std_ms": 0.008116665374419988
+        },
+        "speedup": 14.72,
+        "headroom_numpy": 50.7,
+        "headroom_numba": 747.2,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 13.363916480006992,
+          "min_ms": 11.405935999960093,
+          "p95_ms": 15.67236560003948,
+          "std_ms": 1.336286527621509
+        },
+        "numba": {
+          "mean_ms": 3.5481496000056723,
+          "min_ms": 1.6328020000173638,
+          "p95_ms": 5.713704000049802,
+          "std_ms": 2.136508317940289
+        },
+        "speedup": 3.77,
+        "headroom_numpy": 6.2,
+        "headroom_numba": 23.5,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 40.46108455998365,
+          "min_ms": 37.341563999916616,
+          "p95_ms": 44.82047099997999,
+          "std_ms": 2.1071677378547955
+        },
+        "numba": {
+          "mean_ms": 9.722101600013957,
+          "min_ms": 8.017264000045543,
+          "p95_ms": 19.46886940004332,
+          "std_ms": 4.017270815073182
+        },
+        "speedup": 4.16,
+        "headroom_numpy": 2.1,
+        "headroom_numba": 8.6,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "hokuyo_urg04lx",
+    "label": "Hokuyo URG-04LX",
+    "class": "Research",
+    "n_beams": 667,
+    "range_max": 4.0,
+    "fov_deg": 240,
+    "ang_res_deg": 0.36,
+    "scan_hz": 10.0,
+    "budget_ms": 100.0,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.5041651199826447,
+          "min_ms": 0.40651699998761615,
+          "p95_ms": 0.5665950000093289,
+          "std_ms": 0.04709600120658493
+        },
+        "numba": {
+          "mean_ms": 0.04994780001197796,
+          "min_ms": 0.044307000052867807,
+          "p95_ms": 0.06504079995011124,
+          "std_ms": 0.00664177453330119
+        },
+        "speedup": 10.09,
+        "headroom_numpy": 198.3,
+        "headroom_numba": 2002.1,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 2.8728461999980937,
+          "min_ms": 2.6960960000224077,
+          "p95_ms": 3.0504620000101568,
+          "std_ms": 0.1397369774011386
+        },
+        "numba": {
+          "mean_ms": 4.873091199983719,
+          "min_ms": 0.5557990000397695,
+          "p95_ms": 8.07691319996593,
+          "std_ms": 3.6415460349281865
+        },
+        "speedup": 0.59,
+        "headroom_numpy": 34.8,
+        "headroom_numba": 20.5,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 18.581805759995405,
+          "min_ms": 16.22826100003749,
+          "p95_ms": 27.453050799954315,
+          "std_ms": 3.6591204147569565
+        },
+        "numba": {
+          "mean_ms": 5.766749760005041,
+          "min_ms": 2.789595999956873,
+          "p95_ms": 8.058328600031928,
+          "std_ms": 2.720515088243031
+        },
+        "speedup": 3.22,
+        "headroom_numpy": 5.4,
+        "headroom_numba": 17.3,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "hokuyo_utm30lx",
+    "label": "Hokuyo UTM-30LX",
+    "class": "Research HF",
+    "n_beams": 1080,
+    "range_max": 30.0,
+    "fov_deg": 270,
+    "ang_res_deg": 0.25,
+    "scan_hz": 40.0,
+    "budget_ms": 25.0,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.8998714400013341,
+          "min_ms": 0.7647200000064913,
+          "p95_ms": 1.0290222000094218,
+          "std_ms": 0.08841374248358687
+        },
+        "numba": {
+          "mean_ms": 0.07893307999893295,
+          "min_ms": 0.062375999959840556,
+          "p95_ms": 0.09483359999649109,
+          "std_ms": 0.014699759858307434
+        },
+        "speedup": 11.4,
+        "headroom_numpy": 27.8,
+        "headroom_numba": 316.7,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 4.46341931999541,
+          "min_ms": 4.260067000018353,
+          "p95_ms": 4.694443199991838,
+          "std_ms": 0.14212550754726527
+        },
+        "numba": {
+          "mean_ms": 3.8806701599924054,
+          "min_ms": 0.9515539999256362,
+          "p95_ms": 8.00289660000999,
+          "std_ms": 3.3146450839618224
+        },
+        "speedup": 1.15,
+        "headroom_numpy": 5.6,
+        "headroom_numba": 6.4,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 22.224286519990528,
+          "min_ms": 21.135371000013947,
+          "p95_ms": 26.816253800006947,
+          "std_ms": 1.7956235543763917
+        },
+        "numba": {
+          "mean_ms": 6.9174425999926825,
+          "min_ms": 4.439417000071444,
+          "p95_ms": 16.50641439998708,
+          "std_ms": 4.989091069072151
+        },
+        "speedup": 3.21,
+        "headroom_numpy": 1.1,
+        "headroom_numba": 3.6,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "sick_tim571",
+    "label": "SICK TIM571",
+    "class": "Industrial",
+    "n_beams": 818,
+    "range_max": 25.0,
+    "fov_deg": 270,
+    "ang_res_deg": 0.33,
+    "scan_hz": 14.9,
+    "budget_ms": 67.11,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.6301070400013487,
+          "min_ms": 0.5396819999532454,
+          "p95_ms": 0.7168296000145346,
+          "std_ms": 0.061065436141079274
+        },
+        "numba": {
+          "mean_ms": 0.05805007999697409,
+          "min_ms": 0.052549999963957816,
+          "p95_ms": 0.0693418000537349,
+          "std_ms": 0.005540904735654265
+        },
+        "speedup": 10.85,
+        "headroom_numpy": 106.5,
+        "headroom_numba": 1156.1,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 3.414220359995852,
+          "min_ms": 3.261605000034251,
+          "p95_ms": 3.730504199984352,
+          "std_ms": 0.1544353565290397
+        },
+        "numba": {
+          "mean_ms": 4.534445519993824,
+          "min_ms": 0.7515340000736614,
+          "p95_ms": 8.016089599982479,
+          "std_ms": 3.6039165290463107
+        },
+        "speedup": 0.75,
+        "headroom_numpy": 19.7,
+        "headroom_numba": 14.8,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 18.24012459998812,
+          "min_ms": 16.810319000001073,
+          "p95_ms": 21.9429852000303,
+          "std_ms": 2.0136569027764573
+        },
+        "numba": {
+          "mean_ms": 5.728373000015381,
+          "min_ms": 3.4906880000562523,
+          "p95_ms": 8.156509600030404,
+          "std_ms": 2.54580836090095
+        },
+        "speedup": 3.18,
+        "headroom_numpy": 3.7,
+        "headroom_numba": 11.7,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  },
+  {
+    "stem": "sick_lms511",
+    "label": "SICK LMS511",
+    "class": "Industrial LR",
+    "n_beams": 1139,
+    "range_max": 80.0,
+    "fov_deg": 190,
+    "ang_res_deg": 0.167,
+    "scan_hz": 25.0,
+    "budget_ms": 40.0,
+    "densities": {
+      "100": {
+        "n_segments": 100,
+        "numpy": {
+          "mean_ms": 0.863575959992886,
+          "min_ms": 0.7902869999725226,
+          "p95_ms": 0.9439678000035201,
+          "std_ms": 0.043835754512695044
+        },
+        "numba": {
+          "mean_ms": 0.06589391999568761,
+          "min_ms": 0.05991199998334196,
+          "p95_ms": 0.08337899998878125,
+          "std_ms": 0.0072567469068299415
+        },
+        "speedup": 13.11,
+        "headroom_numpy": 46.3,
+        "headroom_numba": 607.0,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "500": {
+        "n_segments": 500,
+        "numpy": {
+          "mean_ms": 4.341997040010028,
+          "min_ms": 4.148956999983966,
+          "p95_ms": 4.833361600003627,
+          "std_ms": 0.21310763943931482
+        },
+        "numba": {
+          "mean_ms": 5.542514959988694,
+          "min_ms": 0.9734839999282485,
+          "p95_ms": 8.724496199988605,
+          "std_ms": 3.4226915174225154
+        },
+        "speedup": 0.78,
+        "headroom_numpy": 9.2,
+        "headroom_numba": 7.2,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      },
+      "2000": {
+        "n_segments": 2000,
+        "numpy": {
+          "mean_ms": 21.28334103999805,
+          "min_ms": 20.275143000048956,
+          "p95_ms": 22.5433579999617,
+          "std_ms": 0.954884110839495
+        },
+        "numba": {
+          "mean_ms": 7.560168200002408,
+          "min_ms": 4.964139000094292,
+          "p95_ms": 16.208548000031442,
+          "std_ms": 4.61863959216519
+        },
+        "speedup": 2.82,
+        "headroom_numpy": 1.9,
+        "headroom_numba": 5.3,
+        "numpy_realtime": true,
+        "numba_realtime": true
+      }
+    }
+  }
+]

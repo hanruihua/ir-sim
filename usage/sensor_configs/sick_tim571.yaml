@@ -1,0 +1,37 @@
+# SICK TIM571 — 270 deg FoV, 15 Hz, 25 m, 0.33 deg resolution
+world:
+  height: 35
+  width: 35
+  step_time: 0.067   # 15 Hz (1/15 ≈ 0.0667 s)
+  sample_time: 0.067
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [33, 33, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.05
+        range_max: 25.0      # 25 m
+        angle_range: 4.7124  # 270 deg
+        number: 818          # 0.33 deg resolution
+        noise: True
+        std: 0.06            # 60 mm — lower accuracy than Hokuyo
+        angle_std: 0.017     # ~1.0 deg
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.3
+
+obstacle:
+  - shape: {name: 'rectangle', length: 2.5, width: 1.5}
+    state: [8, 8, 0]
+  - shape: {name: 'circle', radius: 1.5}
+    state: [18, 12, 0]
+  - shape: {name: 'rectangle', length: 3.0, width: 1.0}
+    state: [25, 20, 0.8]
+  - shape: {name: 'linestring', vertices: [[0, 17], [35, 17]]}
+    state: [0, 0, 0]

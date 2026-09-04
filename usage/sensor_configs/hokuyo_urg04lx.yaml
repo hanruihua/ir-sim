@@ -1,0 +1,35 @@
+# Hokuyo URG-04LX-UG01 — 240 deg FoV, 10 Hz, 4 m, 0.36 deg resolution
+world:
+  height: 8
+  width: 8
+  step_time: 0.100   # 10 Hz
+  sample_time: 0.100
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.15}
+    state: [1, 1, 0]
+    goal: [6, 6, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.06      # 6 cm dead zone
+        range_max: 4.0       # 4 m (5.6 m for white card — use conservative)
+        angle_range: 4.1888  # 240 deg (4*pi/3)
+        number: 667          # 0.36 deg resolution over 240 deg
+        noise: True
+        std: 0.01            # 10 mm — high-precision sensor
+        angle_std: 0.005     # ~0.3 deg
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.4
+
+obstacle:
+  - shape: {name: 'circle', radius: 0.4}
+    state: [3, 3, 0]
+  - shape: {name: 'rectangle', length: 1.0, width: 0.5}
+    state: [5, 4, 0.3]
+  - shape: {name: 'linestring', vertices: [[0, 5], [8, 5]]}
+    state: [0, 0, 0]

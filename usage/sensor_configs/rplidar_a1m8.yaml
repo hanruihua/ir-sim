@@ -1,0 +1,39 @@
+# Slamtec RPLiDAR A1M8 — 360 deg, 5.5 Hz, 12 m, 1.0 deg resolution
+world:
+  height: 20
+  width: 20
+  step_time: 0.182   # 5.5 Hz scan rate
+  sample_time: 0.182
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [18, 18, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.15      # 15 cm dead zone
+        range_max: 12.0      # 12 m max range
+        angle_range: 6.2832  # 360 deg full sweep
+        number: 360          # 1.0 deg angular resolution
+        noise: True
+        std: 0.03            # 30 mm range noise (1-sigma)
+        angle_std: 0.017     # ~1.0 deg angular noise (dead code, placeholder)
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.3
+
+obstacle:
+  - shape: {name: 'rectangle', length: 2.0, width: 1.5}
+    state: [5, 5, 0.5]
+  - shape: {name: 'circle', radius: 0.8}
+    state: [10, 8, 0]
+  - shape: {name: 'rectangle', length: 1.0, width: 3.0}
+    state: [15, 12, 1.0]
+  - shape: {name: 'circle', radius: 0.5}
+    state: [8, 15, 0]
+  - shape: {name: 'linestring', vertices: [[0, 10], [20, 10]]}
+    state: [0, 0, 0]

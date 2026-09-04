@@ -1,0 +1,39 @@
+# Slamtec RPLiDAR S2 — 360 deg, 10 Hz, 30 m, 0.30 deg resolution
+world:
+  height: 40
+  width: 40
+  step_time: 0.100   # 10 Hz scan rate
+  sample_time: 0.100
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [38, 38, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.05      # 5 cm dead zone
+        range_max: 30.0      # 30 m max range
+        angle_range: 6.2832  # 360 deg
+        number: 1200         # 0.30 deg angular resolution
+        noise: True
+        std: 0.02            # 20 mm range noise
+        angle_std: 0.009     # ~0.5 deg angular noise (placeholder)
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.25
+
+obstacle:
+  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
+    state: [10, 10, 0]
+  - shape: {name: 'circle', radius: 1.5}
+    state: [20, 15, 0]
+  - shape: {name: 'rectangle', length: 2.0, width: 4.0}
+    state: [30, 20, 0.8]
+  - shape: {name: 'circle', radius: 1.0}
+    state: [15, 30, 0]
+  - shape: {name: 'linestring', vertices: [[0, 20], [40, 20]]}
+    state: [0, 0, 0]

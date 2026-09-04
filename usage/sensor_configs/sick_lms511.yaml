@@ -1,0 +1,41 @@
+# SICK LMS511-10100 — 190 deg FoV, 25 Hz, 80 m, 0.167 deg resolution
+world:
+  height: 100
+  width: 100
+  step_time: 0.040   # 25 Hz
+  sample_time: 0.040
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.3}
+    state: [5, 5, 0]
+    goal: [90, 90, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.50      # 50 cm dead zone (industrial safety sensor)
+        range_max: 80.0      # 80 m — long-range industrial
+        angle_range: 3.3161  # 190 deg
+        number: 1139         # 0.167 deg resolution
+        noise: True
+        std: 0.012           # 12 mm — high accuracy
+        angle_std: 0.002     # ~0.1 deg
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.15
+
+obstacle:
+  - shape: {name: 'rectangle', length: 5.0, width: 3.0}
+    state: [20, 20, 0]
+  - shape: {name: 'circle', radius: 3.0}
+    state: [50, 35, 0]
+  - shape: {name: 'rectangle', length: 4.0, width: 6.0}
+    state: [70, 55, 0.5]
+  - shape: {name: 'linestring', vertices: [[0, 50], [100, 50]]}
+    state: [0, 0, 0]
+  - shape: {name: 'circle', radius: 2.0}
+    state: [35, 65, 0]
+  - shape: {name: 'rectangle', length: 3.0, width: 2.0}
+    state: [80, 30, 1.0]

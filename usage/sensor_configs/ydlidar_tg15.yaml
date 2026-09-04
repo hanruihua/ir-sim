@@ -1,0 +1,35 @@
+# YDLIDAR TG15 — 360 deg, 12 Hz, 15 m, 0.18 deg resolution
+world:
+  height: 20
+  width: 20
+  step_time: 0.083   # 12 Hz
+  sample_time: 0.083
+  collision_mode: 'stop'
+  control_mode: 'auto'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 1, 0]
+    goal: [18, 18, 0]
+    behavior: {name: 'dash'}
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0.05
+        range_max: 15.0      # 15 m
+        angle_range: 6.2832  # 360 deg
+        number: 2000         # 0.18 deg resolution
+        noise: True
+        std: 0.02
+        angle_std: 0.003
+        offset: [0, 0, 0]
+        plot:
+          alpha: 0.25
+
+obstacle:
+  - shape: {name: 'rectangle', length: 2.0, width: 1.5}
+    state: [7, 7, 0]
+  - shape: {name: 'circle', radius: 1.0}
+    state: [12, 10, 0]
+  - shape: {name: 'linestring', vertices: [[0, 10], [20, 10]]}
+    state: [0, 0, 0]
