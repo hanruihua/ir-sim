@@ -115,10 +115,9 @@ jobs:
           path: dist/
           merge-multiple: true
 
-      # bash is available on all GitHub runners (Git Bash on Windows)
+      # Let pip pick the wheel that matches the current platform/Python version.
       - name: Install wheel
-        shell: bash
-        run: pip install "$(ls dist/*.whl | head -1)"
+        run: pip install --find-links dist/ --no-index ir-sim
 
       # ── Smoke test: import and run a minimal simulation step ─────────────
       - name: Smoke test (Ubuntu)
