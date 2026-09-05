@@ -16,7 +16,10 @@ import math
 import numpy as np
 import pytest
 
-from irsim.lib.algorithm.social_force_model import social_force_model, social_force_model_vec
+from irsim.lib.algorithm.social_force_model import (
+    social_force_model,
+    social_force_model_vec,
+)
 
 ATOL = 1e-10
 
@@ -156,7 +159,7 @@ class TestVecObstacleForceEquivalence:
         assert v.obstacle_force() == [0.0, 0.0]
 
     def test_single_wall_push_negative_y(self):
-        """Wall at y=+1, agent at origin → force must point in −y direction."""
+        """Wall at y=+1, agent at origin -> force must point in -y direction."""
         seg = [[-1.0, 1.0, 1.0, 1.0]]
         s, v = _both(_state(x=0.0, y=0.0), line_obs_list=seg)
         assert _close(s.obstacle_force(), v.obstacle_force())

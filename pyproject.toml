@@ -150,7 +150,9 @@ exclude_dirs = ["tests", "docs", ".venv"]
 #   B101 assert_used      - asserts guard internal invariants
 #   B311 blacklist        - PRNG is for simulation sampling, not cryptography
 #   B110 try_except_pass  - intentional best-effort cleanup paths
-skips = ["B101", "B311", "B110"]
+#   B404 import_subprocess - subprocess is used only for the legacy gcc fallback in ray_casting_2d_omp.py
+#   B603 subprocess_without_shell_equals_true - same call; arguments are hardcoded, not user input
+skips = ["B101", "B311", "B110", "B404", "B603"]
 
 [project.urls]
 "Homepage" = "https://ir-sim.readthedocs.io/en/stable/"
