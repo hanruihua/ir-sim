@@ -368,9 +368,14 @@ class social_force_model_vec(social_force_model):
     Results are numerically equivalent to the scalar implementation to within
     floating-point rounding (atol ≈ 1e-10 in practice).
 
-    For very small neighbor lists (N ≤ ~5) the overhead of building temporary
-    NumPy arrays may cause a slight slowdown; the scalar class is preferred in
-    that regime. The crossover point is typically around N = 10-15.
+    The NumPy array-creation overhead (~0.05 ms fixed cost) means the scalar
+    class is faster for typical crowds (N < ~150).  This class is preferred
+    when crowds are dense (N >= ~150 neighbours), where the vectorised pass
+    amortises the fixed overhead and SIMD math beats Python's per-call
+    dispatch.  For ``obstacle_force`` the win threshold is higher still
+    because the segment count M is usually small (< 20 wall tiles); the
+    scalar implementation stays faster in almost all real scenes.  Benchmark
+    on the target hardware to find the right crossover for a given workload.
 
     Usage is identical to the base class — just swap the class name::
 
