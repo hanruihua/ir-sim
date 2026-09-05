@@ -23,6 +23,7 @@ import numpy as np
 # Geometry primitives
 # ---------------------------------------------------------------------------
 
+
 def _rect(cx: float, cy: float, w: float, h: float, theta: float = 0.0):
     """Four wall segments of a rectangle (returns start, end arrays)."""
     hw, hh = w / 2, h / 2
@@ -51,7 +52,7 @@ def _octagon(cx: float, cy: float, r: float):
 @dataclass
 class SceneBuffer:
     starts: list = field(default_factory=list)
-    ends:   list = field(default_factory=list)
+    ends: list = field(default_factory=list)
 
     def add(self, s, e):
         s = np.asarray(s, dtype=float)
@@ -71,6 +72,7 @@ class SceneBuffer:
 # Warehouse map
 # ---------------------------------------------------------------------------
 
+
 def warehouse(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """Warehouse: parallel shelving aisles, loading bays, forklift paths.
 
@@ -88,9 +90,9 @@ def warehouse(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     # Outer wall with two bay openings on the south side
     bay_w = R * 0.18
-    buf.add(*_line([-R, R], [-R, -R]))                              # west
-    buf.add(*_line([-R, R], [R, R]))                                # north
-    buf.add(*_line([R, R], [R, -R]))                                # east
+    buf.add(*_line([-R, R], [-R, -R]))  # west
+    buf.add(*_line([-R, R], [R, R]))  # north
+    buf.add(*_line([R, R], [R, -R]))  # east
     # south wall with two bays
     buf.add(*_line([-R, -R], [-R * 0.45 - bay_w / 2, -R]))
     buf.add(*_line([-R * 0.45 + bay_w / 2, -R], [R * 0.45 - bay_w / 2, -R]))
@@ -122,8 +124,7 @@ def warehouse(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     # Stacked pallets (small rectangles near bays)
     for bx in [-R * 0.45, R * 0.45]:
-        buf.add(*_rect(bx, -R * 0.75, R * 0.14, R * 0.1,
-                       rng.uniform(-0.2, 0.2)))
+        buf.add(*_rect(bx, -R * 0.75, R * 0.14, R * 0.1, rng.uniform(-0.2, 0.2)))
 
     return buf.arrays()
 
@@ -131,6 +132,7 @@ def warehouse(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 # ---------------------------------------------------------------------------
 # Factory map
 # ---------------------------------------------------------------------------
+
 
 def factory(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """Factory floor: machinery, conveyor lines, CNC zones, utility rooms.
@@ -149,19 +151,19 @@ def factory(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     door_w = R * 0.16
     # Perimeter
-    buf.add(*_line([-R, R], [-R, -R], [-R + door_w, -R]))          # W, SW
+    buf.add(*_line([-R, R], [-R, -R], [-R + door_w, -R]))  # W, SW
     buf.add(*_line([-R + door_w * 2.2, -R], [R, -R], [R, R], [-R, R]))  # S-E-N
     # East door
-    buf.add(*_line([R, R * 0.22], [R, R * 0.22 + door_w]))         # door gap (omit)
+    buf.add(*_line([R, R * 0.22], [R, R * 0.22 + door_w]))  # door gap (omit)
     buf.add(*_line([R, R * 0.22 + door_w * 1.8], [R, R]))
 
     # Large machinery (presses, lathes)
     machines = [
-        (-R * 0.6,  R * 0.55, R * 0.28, R * 0.22,  0.15),
-        ( R * 0.55, R * 0.55, R * 0.32, R * 0.18, -0.1),
-        (-R * 0.6, -R * 0.35, R * 0.22, R * 0.30,  0.0),
-        ( R * 0.55,-R * 0.35, R * 0.30, R * 0.25,  0.05),
-        ( R * 0.05, R * 0.58, R * 0.20, R * 0.14,  0.0),
+        (-R * 0.6, R * 0.55, R * 0.28, R * 0.22, 0.15),
+        (R * 0.55, R * 0.55, R * 0.32, R * 0.18, -0.1),
+        (-R * 0.6, -R * 0.35, R * 0.22, R * 0.30, 0.0),
+        (R * 0.55, -R * 0.35, R * 0.30, R * 0.25, 0.05),
+        (R * 0.05, R * 0.58, R * 0.20, R * 0.14, 0.0),
     ]
     for mx, my, mw, mh, mt in machines:
         buf.add(*_rect(mx, my, mw, mh, mt))
@@ -200,6 +202,7 @@ def factory(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 # Campus map
 # ---------------------------------------------------------------------------
 
+
 def campus(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """University/corporate campus: buildings, walkways, planting beds.
 
@@ -217,10 +220,10 @@ def campus(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     # ---- Buildings ----
     buildings = [
-        (-R * 0.52,  R * 0.55, R * 0.44, R * 0.38, 0.0),   # NW science hall
-        ( R * 0.52,  R * 0.52, R * 0.40, R * 0.42, 0.05),   # NE admin
-        (-R * 0.50, -R * 0.52, R * 0.42, R * 0.36, 0.0),   # SW library
-        ( R * 0.50, -R * 0.50, R * 0.38, R * 0.38, -0.05),  # SE engineering
+        (-R * 0.52, R * 0.55, R * 0.44, R * 0.38, 0.0),  # NW science hall
+        (R * 0.52, R * 0.52, R * 0.40, R * 0.42, 0.05),  # NE admin
+        (-R * 0.50, -R * 0.52, R * 0.42, R * 0.36, 0.0),  # SW library
+        (R * 0.50, -R * 0.50, R * 0.38, R * 0.38, -0.05),  # SE engineering
     ]
     for bx, by, bw, bh, bt in buildings:
         # Full rectangle minus one entrance notch (remove one wall section)
@@ -268,13 +271,15 @@ def campus(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 
     # ---- Parking structure SW-ish ----
     pk_cx, pk_cy = -R * 0.1, -R * 0.72
-    buf.add(*_line(
-        [pk_cx - R * 0.3, pk_cy - R * 0.12],
-        [pk_cx - R * 0.3, pk_cy + R * 0.12],
-        [pk_cx + R * 0.3, pk_cy + R * 0.12],
-        [pk_cx + R * 0.3, pk_cy - R * 0.12],
-        [pk_cx - R * 0.3, pk_cy - R * 0.12],
-    ))
+    buf.add(
+        *_line(
+            [pk_cx - R * 0.3, pk_cy - R * 0.12],
+            [pk_cx - R * 0.3, pk_cy + R * 0.12],
+            [pk_cx + R * 0.3, pk_cy + R * 0.12],
+            [pk_cx + R * 0.3, pk_cy - R * 0.12],
+            [pk_cx - R * 0.3, pk_cy - R * 0.12],
+        )
+    )
     # Parking divider rows
     for px3 in np.linspace(pk_cx - R * 0.2, pk_cx + R * 0.2, 3):
         buf.add(*_line([px3, pk_cy - R * 0.12], [px3, pk_cy + R * 0.12]))
@@ -296,6 +301,7 @@ def campus(range_max: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
 # Dynamic object wrapper
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class DynamicSegments:
     """A subset of segments that moves each timestep.
@@ -304,16 +310,25 @@ class DynamicSegments:
     or campus shuttles.  The same segment array is translated and rotated
     by a velocity vector each ``step()`` call.
     """
-    seg_start: np.ndarray   # (K, 2)
-    seg_end:   np.ndarray   # (K, 2)
-    center:    np.ndarray   # pivot point (2,)
-    vel:       np.ndarray   # translation velocity (2,) m/step
-    omega:     float        # rotation rate rad/step
-    bounds:    float        # bounce if |x| or |y| exceeds this
+
+    seg_start: np.ndarray  # (K, 2)
+    seg_end: np.ndarray  # (K, 2)
+    center: np.ndarray  # pivot point (2,)
+    vel: np.ndarray  # translation velocity (2,) m/step
+    omega: float  # rotation rate rad/step
+    bounds: float  # bounce if |x| or |y| exceeds this
 
     @classmethod
-    def make_forklift(cls, cx: float, cy: float, heading: float, size: float,
-                      speed: float, bounds: float, rng: np.random.Generator):
+    def make_forklift(
+        cls,
+        cx: float,
+        cy: float,
+        heading: float,
+        size: float,
+        speed: float,
+        bounds: float,
+        rng: np.random.Generator,
+    ):
         """Rectangular forklift."""
         hw, hh = size, size * 0.4
         pts = np.array([[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]], dtype=float)
@@ -323,12 +338,12 @@ class DynamicSegments:
         ss = pts
         se = np.roll(pts, -1, axis=0)
         vel = speed * np.array([math.cos(heading), math.sin(heading)])
-        return cls(ss, se, np.array([cx, cy], dtype=float),
-                   vel, omega=0.0, bounds=bounds)
+        return cls(
+            ss, se, np.array([cx, cy], dtype=float), vel, omega=0.0, bounds=bounds
+        )
 
     @classmethod
-    def make_agv(cls, cx: float, cy: float, bounds: float,
-                 rng: np.random.Generator):
+    def make_agv(cls, cx: float, cy: float, bounds: float, rng: np.random.Generator):
         """Small circular AGV."""
         r = bounds * 0.05
         a = np.linspace(0, 2 * math.pi, 6, endpoint=False)
@@ -338,8 +353,14 @@ class DynamicSegments:
         angle = rng.uniform(0, 2 * math.pi)
         speed = bounds * 0.012
         vel = speed * np.array([math.cos(angle), math.sin(angle)])
-        return cls(ss, se, np.array([cx, cy], dtype=float),
-                   vel, omega=rng.uniform(-0.08, 0.08), bounds=bounds)
+        return cls(
+            ss,
+            se,
+            np.array([cx, cy], dtype=float),
+            vel,
+            omega=rng.uniform(-0.08, 0.08),
+            bounds=bounds,
+        )
 
     def step(self, dt: float = 1.0):
         """Advance one timestep.  Bounce off bounds."""
@@ -351,17 +372,18 @@ class DynamicSegments:
         if abs(new_cy) > self.bounds:
             self.vel[1] *= -1
         self.seg_start += disp
-        self.seg_end   += disp
-        self.center    += disp
+        self.seg_end += disp
+        self.center += disp
         if self.omega != 0.0:
             c_, s_ = math.cos(self.omega * dt), math.sin(self.omega * dt)
             R_mat = np.array([[c_, -s_], [s_, c_]])
             self.seg_start = (self.seg_start - self.center) @ R_mat.T + self.center
-            self.seg_end   = (self.seg_end   - self.center) @ R_mat.T + self.center
+            self.seg_end = (self.seg_end - self.center) @ R_mat.T + self.center
 
 
-def make_dynamic_objects(map_type: str, range_max: float, n: int = 4,
-                         seed: int = 0) -> list[DynamicSegments]:
+def make_dynamic_objects(
+    map_type: str, range_max: float, n: int = 4, seed: int = 0
+) -> list[DynamicSegments]:
     """Return ``n`` dynamic objects suitable for the given map type."""
     rng = np.random.default_rng(seed + 77)
     R = range_max * 0.6
@@ -371,12 +393,18 @@ def make_dynamic_objects(map_type: str, range_max: float, n: int = 4,
             cx = rng.uniform(-R, R)
             cy = rng.uniform(-R, R)
             heading = rng.uniform(0, 2 * math.pi)
-            objects.append(DynamicSegments.make_forklift(
-                cx, cy, heading, R * 0.09, R * 0.015, R * 0.85, rng))
+            objects.append(
+                DynamicSegments.make_forklift(
+                    cx, cy, heading, R * 0.09, R * 0.015, R * 0.85, rng
+                )
+            )
     elif map_type == "factory":
         for _ in range(n):
-            objects.append(DynamicSegments.make_agv(
-                rng.uniform(-R, R), rng.uniform(-R, R), R * 0.85, rng))
+            objects.append(
+                DynamicSegments.make_agv(
+                    rng.uniform(-R, R), rng.uniform(-R, R), R * 0.85, rng
+                )
+            )
     elif map_type == "campus":
         for _ in range(n):
             cx = rng.uniform(-R * 0.35, R * 0.35)
@@ -387,10 +415,10 @@ def make_dynamic_objects(map_type: str, range_max: float, n: int = 4,
 
 def scene_with_dynamics(
     static_start: np.ndarray,
-    static_end:   np.ndarray,
-    dynamics:     list[DynamicSegments],
+    static_end: np.ndarray,
+    dynamics: list[DynamicSegments],
 ) -> tuple[np.ndarray, np.ndarray]:
     """Merge static + current dynamic segments."""
     ss = [static_start] + [d.seg_start for d in dynamics]
-    se = [static_end]   + [d.seg_end   for d in dynamics]
+    se = [static_end] + [d.seg_end for d in dynamics]
     return np.concatenate(ss), np.concatenate(se)

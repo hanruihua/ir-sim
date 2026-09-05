@@ -9,6 +9,7 @@ Strategy
 * Verify that collision detection results — the primary consumer of the tree —
   are identical to the unoptimised behaviour.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -235,7 +236,8 @@ class TestCollisionDetectionCorrectness:
         env = irsim.make(path, save_ani=False, display=False)
         # Cache should have exactly one static slot (the obstacle) populated.
         n_static_slots = sum(
-            1 for i, obj in enumerate(env.objects)
+            1
+            for i, obj in enumerate(env.objects)
             if obj.static and env._static_geom_cache[i] is not None
         )
         n_static_objects = sum(1 for obj in env.objects if obj.static)

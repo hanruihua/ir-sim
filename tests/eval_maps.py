@@ -14,6 +14,7 @@ Efficiency
   forklifts/AGVs updating segment positions each step.
 * Reports mean FPS and per-step kernel latency.
 """
+
 from __future__ import annotations
 
 import json
@@ -52,22 +53,22 @@ from tests.map_generators import (  # noqa: E402
 # Config
 # ---------------------------------------------------------------------------
 
-N_DYNAMIC = 6         # moving objects per scene
-N_STEPS   = 60        # timesteps per efficiency run
-N_RUNS    = 3         # repeated efficiency runs (average)
-ATOL      = 1e-9      # absolute tolerance for range comparison
+N_DYNAMIC = 6  # moving objects per scene
+N_STEPS = 60  # timesteps per efficiency run
+N_RUNS = 3  # repeated efficiency runs (average)
+ATOL = 1e-9  # absolute tolerance for range comparison
 
 SENSOR_BEAMS = {
-    "RPLiDAR A1M8":    (360,  6.2832, 12.0),
-    "YDLIDAR TG15":    (2000, 6.2832, 15.0),
+    "RPLiDAR A1M8": (360, 6.2832, 12.0),
+    "YDLIDAR TG15": (2000, 6.2832, 15.0),
     "Hokuyo UTM-30LX": (1080, 4.7124, 30.0),
-    "SICK LMS511":     (1139, 3.3161, 80.0),
+    "SICK LMS511": (1139, 3.3161, 80.0),
 }
 
 MAP_FUNS = {
     "warehouse": warehouse,
-    "factory":   factory,
-    "campus":    campus,
+    "factory": factory,
+    "campus": campus,
 }
 
 
@@ -81,6 +82,7 @@ def _beams(n_beams: int, angle_range: float):
 # Correctness edge-case suite
 # ---------------------------------------------------------------------------
 
+
 def _correctness_edge_cases(fns: dict) -> list[dict]:
     """Run hand-crafted edge cases; return list of failure dicts."""
     origin = np.zeros(2)
@@ -89,30 +91,22 @@ def _correctness_edge_cases(fns: dict) -> list[dict]:
     failures = []
 
     cases = {
-        "empty_scene": (
-            np.empty((0, 2)), np.empty((0, 2))
-        ),
-        "single_segment_hit": (
-            np.array([[4.9, -0.5]]), np.array([[4.9, 0.5]])
-        ),
-        "single_segment_miss": (
-            np.array([[4.9, 1.0]]), np.array([[4.9, 2.0]])
-        ),
-        "collinear_overlap": (
-            np.array([[0.5, 0.0]]), np.array([[3.0, 0.0]])
-        ),
-        "grazing_parallel": (
-            np.array([[0.0, 0.01]]), np.array([[5.0, 0.01]])
-        ),
+        "empty_scene": (np.empty((0, 2)), np.empty((0, 2))),
+        "single_segment_hit": (np.array([[4.9, -0.5]]), np.array([[4.9, 0.5]])),
+        "single_segment_miss": (np.array([[4.9, 1.0]]), np.array([[4.9, 2.0]])),
+        "collinear_overlap": (np.array([[0.5, 0.0]]), np.array([[3.0, 0.0]])),
+        "grazing_parallel": (np.array([[0.0, 0.01]]), np.array([[5.0, 0.01]])),
         "at_max_range": (
-            np.array([[max_r - 0.01, -0.5]]), np.array([[max_r - 0.01, 0.5]])
+            np.array([[max_r - 0.01, -0.5]]),
+            np.array([[max_r - 0.01, 0.5]]),
         ),
         "beyond_max_range": (
-            np.array([[max_r + 1.0, -0.5]]), np.array([[max_r + 1.0, 0.5]])
+            np.array([[max_r + 1.0, -0.5]]),
+            np.array([[max_r + 1.0, 0.5]]),
         ),
         "multi_segment": (
             np.array([[2.0, -1.0], [5.0, -1.0], [8.0, -1.0]]),
-            np.array([[2.0,  1.0], [5.0,  1.0], [8.0,  1.0]]),
+            np.array([[2.0, 1.0], [5.0, 1.0], [8.0, 1.0]]),
         ),
     }
 
@@ -124,26 +118,33 @@ def _correctness_edge_cases(fns: dict) -> list[dict]:
                 continue
             r, hit = fn(origin, dirs, ss, se, max_r)
             if not np.allclose(r, ref_r, atol=ATOL):
-                failures.append({
-                    "case": case_name, "backend": backend,
-                    "type": "range",
-                    "max_err": float(np.max(np.abs(r - ref_r))),
-                })
+                failures.append(
+                    {
+                        "case": case_name,
+                        "backend": backend,
+                        "type": "range",
+                        "max_err": float(np.max(np.abs(r - ref_r))),
+                    }
+                )
             # hit indices only need to agree on miss vs hit (different backends
             # may pick a different segment among ties)
             hit_sign_mismatch = (hit >= 0) != (ref_hit >= 0)
             if hit_sign_mismatch.any():
-                failures.append({
-                    "case": case_name, "backend": backend,
-                    "type": "hit_index",
-                    "count": int(hit_sign_mismatch.sum()),
-                })
+                failures.append(
+                    {
+                        "case": case_name,
+                        "backend": backend,
+                        "type": "hit_index",
+                        "count": int(hit_sign_mismatch.sum()),
+                    }
+                )
     return failures
 
 
 # ---------------------------------------------------------------------------
 # Correctness cross-backend on map data
 # ---------------------------------------------------------------------------
+
 
 def _correctness_maps(fns: dict, max_r: float = 20.0) -> list[dict]:
     """Compare backends on all three map types at a representative density."""
@@ -158,16 +159,21 @@ def _correctness_maps(fns: dict, max_r: float = 20.0) -> list[dict]:
                 continue
             r, _ = fn(origin, dirs, ss, se, max_r)
             if not np.allclose(r, ref_r, atol=ATOL):
-                failures.append({
-                    "map": map_name, "backend": backend, "type": "range",
-                    "max_err": float(np.max(np.abs(r - ref_r))),
-                    "n_segments": len(ss),
-                })
+                failures.append(
+                    {
+                        "map": map_name,
+                        "backend": backend,
+                        "type": "range",
+                        "max_err": float(np.max(np.abs(r - ref_r))),
+                        "n_segments": len(ss),
+                    }
+                )
     return failures
 
 
-def _correctness_dynamic(fns: dict, max_r: float = 20.0,
-                         n_steps: int = 20) -> list[dict]:
+def _correctness_dynamic(
+    fns: dict, max_r: float = 20.0, n_steps: int = 20
+) -> list[dict]:
     """Verify consistency across N_STEPS of simulation with dynamic objects."""
     failures = []
     dirs = _beams(360, 6.2832)
@@ -185,11 +191,15 @@ def _correctness_dynamic(fns: dict, max_r: float = 20.0,
                     continue
                 r, _ = fn(origin, dirs, ss, se, max_r)
                 if not np.allclose(r, ref_r, atol=ATOL):
-                    failures.append({
-                        "map": map_name, "backend": backend,
-                        "step": step, "type": "dynamic_range",
-                        "max_err": float(np.max(np.abs(r - ref_r))),
-                    })
+                    failures.append(
+                        {
+                            "map": map_name,
+                            "backend": backend,
+                            "step": step,
+                            "type": "dynamic_range",
+                            "max_err": float(np.max(np.abs(r - ref_r))),
+                        }
+                    )
     return failures
 
 
@@ -197,12 +207,20 @@ def _correctness_dynamic(fns: dict, max_r: float = 20.0,
 # Efficiency: FPS over N simulation steps
 # ---------------------------------------------------------------------------
 
+
 def _fps_run(fn, origin, dirs, ss_static, se_static, dynamics, max_r):
     """Return mean step latency (ms) over N_STEPS."""
-    dyn = [DynamicSegments(
-        d.seg_start.copy(), d.seg_end.copy(),
-        d.center.copy(), d.vel.copy(), d.omega, d.bounds
-    ) for d in dynamics]
+    dyn = [
+        DynamicSegments(
+            d.seg_start.copy(),
+            d.seg_end.copy(),
+            d.center.copy(),
+            d.vel.copy(),
+            d.omega,
+            d.bounds,
+        )
+        for d in dynamics
+    ]
     latencies = []
     for _ in range(N_STEPS):
         for d in dyn:
@@ -220,7 +238,7 @@ def run_efficiency(fns: dict) -> list[dict]:
         for sensor_label, (n_beams, angle_range, max_r) in SENSOR_BEAMS.items():
             ss_static, se_static = map_fn(max_r, seed=7)
             dyn = make_dynamic_objects(map_name, max_r, n=N_DYNAMIC, seed=7)
-            dirs   = _beams(n_beams, angle_range)
+            dirs = _beams(n_beams, angle_range)
             origin = np.zeros(2)
             n_seg = len(ss_static)
 
@@ -230,42 +248,57 @@ def run_efficiency(fns: dict) -> list[dict]:
 
             backend_results = {}
             for backend, fn in fns.items():
-                ms_vals = [_fps_run(fn, origin, dirs, ss_static, se_static, dyn, max_r)
-                           for _ in range(N_RUNS)]
+                ms_vals = [
+                    _fps_run(fn, origin, dirs, ss_static, se_static, dyn, max_r)
+                    for _ in range(N_RUNS)
+                ]
                 mean_ms = float(np.mean(ms_vals))
                 backend_results[backend] = {
                     "mean_ms": round(mean_ms, 3),
-                    "fps":     round(1000.0 / mean_ms, 1),
+                    "fps": round(1000.0 / mean_ms, 1),
                 }
             # speedups relative to numpy
             np_ms = backend_results["numpy"]["mean_ms"]
             for backend in backend_results:
                 if backend != "numpy":
                     backend_results[backend]["speedup"] = round(
-                        np_ms / backend_results[backend]["mean_ms"], 2)
+                        np_ms / backend_results[backend]["mean_ms"], 2
+                    )
 
-            rows.append({
-                "map":         map_name,
-                "sensor":      sensor_label,
-                "n_beams":     n_beams,
-                "n_static":    n_seg,
-                "n_dynamic":   N_DYNAMIC,
-                "max_r":       max_r,
-                **{f"{k}_ms":  v["mean_ms"] for k, v in backend_results.items()},
-                **{f"{k}_fps": v["fps"]     for k, v in backend_results.items()},
-                **{f"{k}_speedup": v.get("speedup", 1.0)
-                   for k, v in backend_results.items()},
-            })
+            rows.append(
+                {
+                    "map": map_name,
+                    "sensor": sensor_label,
+                    "n_beams": n_beams,
+                    "n_static": n_seg,
+                    "n_dynamic": N_DYNAMIC,
+                    "max_r": max_r,
+                    **{f"{k}_ms": v["mean_ms"] for k, v in backend_results.items()},
+                    **{f"{k}_fps": v["fps"] for k, v in backend_results.items()},
+                    **{
+                        f"{k}_speedup": v.get("speedup", 1.0)
+                        for k, v in backend_results.items()
+                    },
+                }
+            )
 
             np_ms_s = backend_results["numpy"]["mean_ms"]
             nb_s = backend_results.get("numba", {})
             om_s = backend_results.get("omp", {})
-            print(f"  [{map_name:9s}] {sensor_label:<22} M={n_seg:<4} "
-                  f" NP={np_ms_s:.2f}ms"
-                  + (f"  NB={nb_s['mean_ms']:.2f}ms ({nb_s.get('speedup',1):.1f}x)"
-                     if nb_s else "")
-                  + (f"  OMP={om_s['mean_ms']:.2f}ms ({om_s.get('speedup',1):.1f}x)"
-                     if om_s else ""))
+            print(
+                f"  [{map_name:9s}] {sensor_label:<22} M={n_seg:<4} "
+                f" NP={np_ms_s:.2f}ms"
+                + (
+                    f"  NB={nb_s['mean_ms']:.2f}ms ({nb_s.get('speedup', 1):.1f}x)"
+                    if nb_s
+                    else ""
+                )
+                + (
+                    f"  OMP={om_s['mean_ms']:.2f}ms ({om_s.get('speedup', 1):.1f}x)"
+                    if om_s
+                    else ""
+                )
+            )
     return rows
 
 
@@ -273,9 +306,10 @@ def run_efficiency(fns: dict) -> list[dict]:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
     have_numba = is_numba_available()
-    have_omp   = is_omp_available()
+    have_omp = is_omp_available()
 
     if have_numba:
         print("Warming up Numba JIT...", end=" ", flush=True)
@@ -326,10 +360,10 @@ def main():
 
     results = {
         "correctness": {
-            "edge_case_failures":    ec_fails,
-            "map_failures":          map_fails,
-            "dynamic_failures":      dyn_fails,
-            "edge_cases_passed":     len(ec_fails) == 0,
+            "edge_case_failures": ec_fails,
+            "map_failures": map_fails,
+            "dynamic_failures": dyn_fails,
+            "edge_cases_passed": len(ec_fails) == 0,
             "map_correctness_passed": len(map_fails) == 0,
             "dynamic_correctness_passed": len(dyn_fails) == 0,
         },

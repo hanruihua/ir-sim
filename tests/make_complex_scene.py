@@ -65,9 +65,7 @@ def make_complex_scene(
         all_ends.append(np.asarray(ends, dtype=float))
 
     # 1. Outer boundary wall (closed square)
-    s, e = _linestring_segments([
-        [-R, -R], [R, -R], [R, R], [-R, R], [-R, -R]
-    ])
+    s, e = _linestring_segments([[-R, -R], [R, -R], [R, R], [-R, R], [-R, -R]])
     add(s, e)
 
     # 2. Room grid: divide space into cells

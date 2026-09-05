@@ -27,6 +27,7 @@ ATOL = 1e-10
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _state(x=0.0, y=0.0, vx=0.0, vy=0.0, r=0.3, vx_des=1.0, vy_des=0.0, theta=0.0):
     return [x, y, vx, vy, r, vx_des, vy_des, theta]
 
@@ -47,6 +48,7 @@ def _close(a: list, b: list) -> bool:
 # desired_force  (inherited — just a sanity check that vec inherits it intact)
 # ---------------------------------------------------------------------------
 
+
 class TestVecDesiredForceInherited:
     def test_same_as_scalar(self):
         s, v = _both(_state(vx=0.5, vx_des=1.2, vy_des=0.3))
@@ -56,6 +58,7 @@ class TestVecDesiredForceInherited:
 # ---------------------------------------------------------------------------
 # social_force — equivalence with scalar, all branches
 # ---------------------------------------------------------------------------
+
 
 class TestVecSocialForceEquivalence:
     def test_empty_neighbors(self):
@@ -104,9 +107,9 @@ class TestVecSocialForceEquivalence:
     def test_multiple_neighbors_mixed(self):
         """Three neighbors: one in range, one collocated, one out of range."""
         nb = [
-            [1.5,  0.0, 0.0, 0.0, 0.3],   # in range
-            [0.0,  0.0, 0.0, 0.0, 0.3],   # collocated
-            [50.0, 0.0, 0.0, 0.0, 0.3],   # out of range
+            [1.5, 0.0, 0.0, 0.0, 0.3],  # in range
+            [0.0, 0.0, 0.0, 0.0, 0.3],  # collocated
+            [50.0, 0.0, 0.0, 0.0, 0.3],  # out of range
         ]
         s, v = _both(_state(vx=1.0), neighbor_list=nb, neighbor_range=10.0)
         assert _close(s.social_force(), v.social_force())
@@ -152,6 +155,7 @@ class TestVecSocialForceEquivalence:
 # obstacle_force — equivalence with scalar, all branches
 # ---------------------------------------------------------------------------
 
+
 class TestVecObstacleForceEquivalence:
     def test_no_obstacles(self):
         s, v = _both(_state(), line_obs_list=[])
@@ -184,8 +188,8 @@ class TestVecObstacleForceEquivalence:
     def test_multiple_overlapping_segments(self):
         """Two segments both centred on agent → fx == 2.0, fy == 0.0."""
         segs = [
-            [-1.0, 0.0, 1.0, 0.0],   # horizontal, passes through origin
-            [0.0, -1.0, 0.0, 1.0],   # vertical, passes through origin
+            [-1.0, 0.0, 1.0, 0.0],  # horizontal, passes through origin
+            [0.0, -1.0, 0.0, 1.0],  # vertical, passes through origin
         ]
         s, v = _both(_state(x=0.0, y=0.0, r=0.3), line_obs_list=segs)
         sf, vf = s.obstacle_force(), v.obstacle_force()
@@ -196,9 +200,9 @@ class TestVecObstacleForceEquivalence:
     def test_closer_wall_larger_force(self):
         """Force magnitude grows as the agent approaches the wall."""
         s_near, v_near = _both(_state(), line_obs_list=[[-1, 0.5, 1, 0.5]])
-        s_far,  v_far  = _both(_state(), line_obs_list=[[-1, 2.0, 1, 2.0]])
+        s_far, v_far = _both(_state(), line_obs_list=[[-1, 2.0, 1, 2.0]])
         mag_near = math.hypot(*v_near.obstacle_force())
-        mag_far  = math.hypot(*v_far.obstacle_force())
+        mag_far = math.hypot(*v_far.obstacle_force())
         assert mag_near > mag_far
         # And both agree with scalar
         assert _close(s_near.obstacle_force(), v_near.obstacle_force())
@@ -206,15 +210,15 @@ class TestVecObstacleForceEquivalence:
 
     def test_degenerate_segment_endpoint(self):
         """Zero-length segment (both endpoints coincide) must not crash."""
-        seg = [[2.0, 3.0, 2.0, 3.0]]   # degenerate
+        seg = [[2.0, 3.0, 2.0, 3.0]]  # degenerate
         s, v = _both(_state(x=0.0, y=0.0, r=0.1), line_obs_list=seg)
         assert _close(s.obstacle_force(), v.obstacle_force())
 
     def test_mixed_in_range_and_out_of_range(self):
         """One near segment + one far segment: only near contributes."""
         segs = [
-            [-1.0, 0.5, 1.0, 0.5],    # near — in range
-            [-1.0, 200.0, 1.0, 200.0], # far — out of range
+            [-1.0, 0.5, 1.0, 0.5],  # near — in range
+            [-1.0, 200.0, 1.0, 200.0],  # far — out of range
         ]
         s, v = _both(_state(), line_obs_list=segs)
         assert _close(s.obstacle_force(), v.obstacle_force())
@@ -255,6 +259,7 @@ class TestVecObstacleForceEquivalence:
 # cal_vel end-to-end — vec must produce the same trajectory
 # ---------------------------------------------------------------------------
 
+
 class TestVecCalVelEquivalence:
     def test_cal_vel_matches_scalar(self):
         nb = [[1.5, 0.2, 0.1, -0.1, 0.3], [0.8, -0.5, -0.2, 0.0, 0.25]]
@@ -271,7 +276,7 @@ class TestVecCalVelEquivalence:
     def test_vmax_clipping_still_applies(self):
         """vec must clip the output to vmax just like scalar does."""
         s, v = _both(
-            _state(vx=0.0, vx_des=20.0),   # huge desired → integrates past vmax
+            _state(vx=0.0, vx_des=20.0),  # huge desired → integrates past vmax
             vmax=1.0,
             step_time=1.0,
         )
@@ -320,6 +325,7 @@ class TestVecCalVelEquivalence:
 # ---------------------------------------------------------------------------
 # Constructor / error handling  (inherited from scalar — smoke test)
 # ---------------------------------------------------------------------------
+
 
 class TestVecConstructor:
     def test_invalid_relaxation_time(self):
