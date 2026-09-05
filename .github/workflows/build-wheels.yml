@@ -1,0 +1,181 @@
+name: Build & Verify Wheels
+
+# Triggers:
+#   • Every push/PR to main  → build + verify (no publish)
+#   • Push of a v* tag       → build + verify + publish to PyPI
+#   • Manual dispatch        → build + verify (no publish)
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ── Job 1 ─────────────────────────────────────────────────────────────────
+# Build the sdist and the universal wheel once on Ubuntu.
+# The wheel is uploaded as an artifact so downstream jobs can download it.
+# ──────────────────────────────────────────────────────────────────────────
+jobs:
+  build:
+    name: Build sdist + wheel
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # full history (needed for setuptools-scm if used later)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build backend
+        run: pip install --upgrade build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Show produced artefacts
+        shell: bash
+        run: ls -lh dist/
+
+      - name: Upload dist artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+
+# ── Job 2 ─────────────────────────────────────────────────────────────────
+# Download the wheel and install it on every platform × Python combination.
+# Runs a smoke test to confirm the installed package is importable and
+# the core simulation loop works end-to-end.
+# ──────────────────────────────────────────────────────────────────────────
+  verify:
+    name: Verify / ${{ matrix.os }} / py${{ matrix.python-version }}
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # bash is available on all GitHub runners (Git Bash on Windows)
+      - name: Install wheel
+        shell: bash
+        run: pip install "$(ls dist/*.whl)"
+
+      # ── Smoke test: import and run a minimal simulation step ─────────────
+      - name: Smoke test (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -s "-screen 0 1024x768x24" python - <<'EOF'
+          import irsim, tempfile, os, yaml
+
+          cfg = {
+              "world": {
+                  "height": 10, "width": 10, "step_time": 0.1,
+                  "sample_time": 0.1, "offset": [-5, -5],
+                  "collision_mode": "unobstructed", "control_mode": "auto",
+              },
+              "robot": {
+                  "kinematics": {"name": "diff"},
+                  "shape": [{"name": "circle", "radius": 0.2}],
+                  "state": [-3.0, 0.0, 0.0],
+                  "goal": [3.0, 0.0, 0.0],
+                  "behavior": {"name": "dash"},
+                  "vel_min": [-1, -1], "vel_max": [1, 1],
+              },
+          }
+          fd, path = tempfile.mkstemp(suffix=".yaml")
+          with os.fdopen(fd, "w") as f:
+              yaml.safe_dump(cfg, f)
+          env = irsim.make(path, save_ani=False, display=False)
+          for _ in range(5):
+              env.step()
+          env.end(suppress_summary=True)
+          os.unlink(path)
+          print("Smoke test passed.")
+          EOF
+
+      - name: Smoke test (Windows)
+        if: runner.os == 'Windows'
+        env:
+          MPLBACKEND: Agg
+        shell: python
+        run: |
+          import irsim, tempfile, os, yaml
+
+          cfg = {
+              "world": {
+                  "height": 10, "width": 10, "step_time": 0.1,
+                  "sample_time": 0.1, "offset": [-5, -5],
+                  "collision_mode": "unobstructed", "control_mode": "auto",
+              },
+              "robot": {
+                  "kinematics": {"name": "diff"},
+                  "shape": [{"name": "circle", "radius": 0.2}],
+                  "state": [-3.0, 0.0, 0.0],
+                  "goal": [3.0, 0.0, 0.0],
+                  "behavior": {"name": "dash"},
+                  "vel_min": [-1, -1], "vel_max": [1, 1],
+              },
+          }
+          fd, path = tempfile.mkstemp(suffix=".yaml")
+          with os.fdopen(fd, "w") as f:
+              yaml.safe_dump(cfg, f)
+          env = irsim.make(path, save_ani=False, display=False)
+          for _ in range(5):
+              env.step()
+          env.end(suppress_summary=True)
+          os.unlink(path)
+          print("Smoke test passed.")
+
+# ── Job 3 ─────────────────────────────────────────────────────────────────
+# Publish to PyPI only when a version tag is pushed and all verify jobs pass.
+# Uses OIDC Trusted Publishing — no API token needed; configure the
+# trusted publisher in the PyPI project settings:
+#   Owner: hanruihua  Repo: ir-sim  Workflow: build-wheels.yml
+# ──────────────────────────────────────────────────────────────────────────
+  publish:
+    name: Publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: pypi          # optional: gate behind a GitHub Environment with reviewers
+
+    permissions:
+      id-token: write          # required for OIDC trusted publishing
+
+    steps:
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No password/token needed — OIDC handles authentication.
+        # To fall back to an API token, uncomment and add PYPI_API_TOKEN secret:
+        # with:
+        #   password: ${{ secrets.PYPI_API_TOKEN }}
