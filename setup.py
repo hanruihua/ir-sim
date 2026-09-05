@@ -58,7 +58,12 @@ class _OmpBuildExt(build_ext):
                     "-fopenmp",
                     f"-I{root}/include",
                 ]
-                ext.extra_link_args = [f"-L{root}/lib", "-lomp"]
+                ext.extra_link_args = [
+                    f"-L{root}/lib",
+                    "-lomp",
+                    # Embed rpath so delocate can resolve @rpath/libomp.dylib
+                    f"-Wl,-rpath,{root}/lib",
+                ]
             else:
                 # Build without OpenMP: still correct, just serial
                 ext.extra_compile_args = ["-O3"]
