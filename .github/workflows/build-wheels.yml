@@ -117,7 +117,7 @@ jobs:
 
       # Let pip pick the wheel that matches the current platform/Python version.
       - name: Install wheel
-        run: pip install --find-links dist/ --no-index ir-sim
+        run: pip install --find-links dist/ ir-sim
 
       # ── Smoke test: import and run a minimal simulation step ─────────────
       - name: Smoke test (Ubuntu)
