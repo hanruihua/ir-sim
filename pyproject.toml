@@ -170,8 +170,10 @@ skip = "*-musllinux* pp*"
 before-build = "true"
 
 [tool.cibuildwheel.macos]
-# Install libomp so setup.py can pick it up via the Homebrew path detection.
-before-build = "brew install libomp || true"
+# Remove any pre-installed libomp so delocate doesn't try to bundle a dylib
+# built for a newer macOS than the wheel targets.  setup.py falls back to a
+# serial (-O3, no -fopenmp) build when the libomp directories are absent.
+before-build = "brew uninstall libomp --ignore-dependencies 2>/dev/null || true"
 
 [tool.cibuildwheel.windows]
 # MSVC ships with OpenMP; no extra setup needed.
