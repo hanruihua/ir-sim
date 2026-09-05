@@ -17,18 +17,17 @@ concurrency:
   cancel-in-progress: true
 
 # ── Job 1 ─────────────────────────────────────────────────────────────────
-# Build the sdist and the universal wheel once on Ubuntu.
-# The wheel is uploaded as an artifact so downstream jobs can download it.
+# Build the sdist (source distribution) on Ubuntu.
 # ──────────────────────────────────────────────────────────────────────────
 jobs:
-  build:
-    name: Build sdist + wheel
+  build_sdist:
+    name: Build sdist
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0        # full history (needed for setuptools-scm if used later)
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -37,29 +36,65 @@ jobs:
       - name: Install build backend
         run: pip install --upgrade build
 
-      - name: Build sdist and wheel
-        run: python -m build
+      - name: Build sdist
+        run: python -m build --sdist
 
       - name: Show produced artefacts
-        shell: bash
         run: ls -lh dist/
 
-      - name: Upload dist artefacts
+      - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist/
+          name: dist-sdist
+          path: dist/*.tar.gz
           if-no-files-found: error
           retention-days: 30
 
 # ── Job 2 ─────────────────────────────────────────────────────────────────
-# Download the wheel and install it on every platform × Python combination.
+# Build platform-specific wheels via cibuildwheel.
+# The optional C+OpenMP extension is compiled on each platform.
+#   • Linux   – manylinux_2_28 image; libgomp is pre-installed.
+#   • macOS   – brew install libomp; clang -Xpreprocessor -fopenmp.
+#   • Windows – MSVC; /openmp flag.
+# ──────────────────────────────────────────────────────────────────────────
+  build_wheels:
+    name: Build wheels / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23.0
+        # Configuration is read from [tool.cibuildwheel] in pyproject.toml.
+
+      - name: Show produced wheels
+        shell: bash
+        run: ls -lh wheelhouse/
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-wheels-${{ matrix.os }}
+          path: wheelhouse/
+          if-no-files-found: error
+          retention-days: 30
+
+# ── Job 3 ─────────────────────────────────────────────────────────────────
+# Download the wheels and install on each platform × Python combination.
 # Runs a smoke test to confirm the installed package is importable and
 # the core simulation loop works end-to-end.
 # ──────────────────────────────────────────────────────────────────────────
   verify:
     name: Verify / ${{ matrix.os }} / py${{ matrix.python-version }}
-    needs: build
+    needs: [build_sdist, build_wheels]
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -73,16 +108,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Download wheel artifact
+      - name: Download all wheel artifacts
         uses: actions/download-artifact@v4
         with:
-          name: dist
+          pattern: dist-wheels-*
           path: dist/
+          merge-multiple: true
 
       # bash is available on all GitHub runners (Git Bash on Windows)
       - name: Install wheel
         shell: bash
-        run: pip install "$(ls dist/*.whl)"
+        run: pip install "$(ls dist/*.whl | head -1)"
 
       # ── Smoke test: import and run a minimal simulation step ─────────────
       - name: Smoke test (Ubuntu)
@@ -150,8 +186,9 @@ jobs:
           os.unlink(path)
           print("Smoke test passed.")
 
-# ── Job 3 ─────────────────────────────────────────────────────────────────
+# ── Job 4 ─────────────────────────────────────────────────────────────────
 # Publish to PyPI only when a version tag is pushed and all verify jobs pass.
+# Uploads both the sdist and all platform wheels.
 # Uses OIDC Trusted Publishing — no API token needed; configure the
 # trusted publisher in the PyPI project settings:
 #   Owner: hanruihua  Repo: ir-sim  Workflow: build-wheels.yml
@@ -167,11 +204,21 @@ jobs:
       id-token: write          # required for OIDC trusted publishing
 
     steps:
-      - name: Download distribution artifacts
+      - name: Download sdist
         uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-sdist
           path: dist/
+
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: dist-wheels-*
+          path: dist/
+          merge-multiple: true
+
+      - name: Show distribution artefacts
+        run: ls -lh dist/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

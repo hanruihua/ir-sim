@@ -157,3 +157,21 @@ skips = ["B101", "B311", "B110"]
 "Documentation" = "https://ir-sim.readthedocs.io/en/stable/"
 "Repository" = "https://github.com/hanruihua/ir-sim"
 "Issues" = "https://github.com/hanruihua/ir-sim/issues"
+
+# ── cibuildwheel ──────────────────────────────────────────────────────────────
+# Builds the optional C+OpenMP extension for each supported CPython version.
+# Skips musllinux (no libgomp in the Alpine image by default) and PyPy.
+[tool.cibuildwheel]
+build = "cp310-* cp311-* cp312-* cp313-*"
+skip = "*-musllinux* pp*"
+
+[tool.cibuildwheel.linux]
+# libgomp is bundled in the manylinux images; auditwheel repairs the .so refs.
+before-build = "true"
+
+[tool.cibuildwheel.macos]
+# Install libomp so setup.py can pick it up via the Homebrew path detection.
+before-build = "brew install libomp || true"
+
+[tool.cibuildwheel.windows]
+# MSVC ships with OpenMP; no extra setup needed.
