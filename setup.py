@@ -21,7 +21,12 @@ import sys
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
+# LIBOMP_PREFIX is set by cibuildwheel's environment config to point at a
+# conda-forge llvm-openmp install whose macOS deployment target matches the
+# wheel target.  Local Homebrew paths are checked as fallbacks.
+_LIBOMP_PREFIX = os.environ.get("LIBOMP_PREFIX", "")
 _LIBOMP_ROOTS = [
+    *([_LIBOMP_PREFIX] if _LIBOMP_PREFIX else []),
     "/opt/homebrew/opt/libomp",  # Apple Silicon Homebrew
     "/usr/local/opt/libomp",  # Intel Homebrew
 ]

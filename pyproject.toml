@@ -170,10 +170,20 @@ skip = "*-musllinux* pp*"
 before-build = "true"
 
 [tool.cibuildwheel.macos]
-# Remove any pre-installed libomp so delocate doesn't try to bundle a dylib
-# built for a newer macOS than the wheel targets.  setup.py falls back to a
-# serial (-O3, no -fopenmp) build when the libomp directories are absent.
-before-build = "brew uninstall libomp --ignore-dependencies 2>/dev/null || true"
+# Install llvm-openmp from conda-forge, which is built with a macOS deployment
+# target that matches what cibuildwheel targets (11.0 arm64 / 10.13 x86_64),
+# avoiding delocate's version-mismatch rejection of Homebrew's libomp.
+# The idempotent guard means only the first wheel build installs miniforge.
+before-build = """
+[ -d /tmp/miniforge3 ] || {
+    ARCH=$(uname -m)
+    curl -fsSL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-${ARCH}.sh" -o /tmp/miniforge.sh
+    bash /tmp/miniforge.sh -b -p /tmp/miniforge3
+    /tmp/miniforge3/bin/conda install -y -c conda-forge llvm-openmp
+    rm -f /tmp/miniforge.sh
+}
+"""
+environment = {LIBOMP_PREFIX = "/tmp/miniforge3"}
 
 [tool.cibuildwheel.windows]
 # MSVC ships with OpenMP; no extra setup needed.
