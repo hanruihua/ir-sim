@@ -21,9 +21,6 @@ import sys
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_ALG_DIR = os.path.join(_HERE, "irsim", "lib", "algorithm")
-
 _LIBOMP_ROOTS = [
     "/opt/homebrew/opt/libomp",  # Apple Silicon Homebrew
     "/usr/local/opt/libomp",  # Intel Homebrew
@@ -71,9 +68,10 @@ setup(
     ext_modules=[
         Extension(
             "irsim.lib.algorithm._ray_casting_omp",
+            # Relative paths required by setuptools; absolute paths are rejected.
             sources=[
-                os.path.join(_ALG_DIR, "_ray_casting_omp_module.c"),
-                os.path.join(_ALG_DIR, "ray_casting_omp.c"),
+                "irsim/lib/algorithm/_ray_casting_omp_module.c",
+                "irsim/lib/algorithm/ray_casting_omp.c",
             ],
             optional=True,  # build failure is non-fatal
         )
