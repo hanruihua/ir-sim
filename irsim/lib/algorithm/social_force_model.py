@@ -586,7 +586,7 @@ class SocialForceModelBatch:
 
         d = others_pos[None, :, :] - pos[:, None, :]
         dist = np.hypot(d[..., 0], d[..., 1])
-        valid = (dist >= 1e-6) & (dist < self.neighbor_range)
+        valid = (dist >= 1e-6) & (dist <= self.neighbor_range)
         valid[np.arange(n), np.arange(n)] = False
         if not valid.any():
             return np.zeros((n, 2))
