@@ -17,7 +17,7 @@ A scene in IR-SIM is a **World** plus a set of **Objects** (robots and obstacles
    │  │ size    │   │   robots ── behavior  │  │
    │  │ time    │   │          └─ sensors   │  │
    │  │ map     │   │   obstacles           │  │
-   │  │ collide │   │                       │  │
+   │  │         │   │                       │  │
    │  └─────────┘   └──────────────────────┘  │
    └─────────────────────────────────────────┘
         step() → render() → done() → end()
@@ -30,7 +30,7 @@ The **environment** (`EnvBase`) is the object you interact with. It owns the wor
 - **`make()`**: parse the YAML scenario and build the world and objects.
 - **`step()`**: advance every object by one time step: resolve external actions or behaviors, integrate object states and geometry, refresh sensors, advance the world clock and fog map, then update arrival and collision status.
 - **`render()`**: draw the current state with Matplotlib.
-- **`done()`**: report whether a terminal condition has been reached (e.g. all robots arrived, or a collision).
+- **`done(mode="all")`**: return whether all robots have arrived or have their stop flag set. Use `mode="any"` to check whether at least one robot is done. A reported collision does not by itself end the loop in every collision mode.
 - **`reset()` / `reload()`**: restore objects to their initial states, or rebuild the scene from YAML.
 - **`end()`**: close the window and release resources (and write the animation if `save_ani=True`).
 
@@ -38,7 +38,7 @@ This `step → render → done` loop is the heart of every IR-SIM program.
 
 ## The world
 
-The **World** holds the global state that objects live in: the size (`width`, `height`), the clock (`step_time` for physics, `sample_time` for rendering), the coordinate frame (`offset`), an optional **obstacle map** (an occupancy grid), and the **collision detector**. Collision checking uses [Shapely](https://shapely.readthedocs.io/) geometry with a spatial index, so it scales to many objects.
+The **World** holds the dimensions (`width`, `height`), simulation clock (`step_time`), rendering sample interval (`sample_time`), and world offset (`offset`). The environment manages objects and maps, and coordinates collision queries using [Shapely](https://shapely.readthedocs.io/) geometry and a spatial index. Collision status is evaluated at sampled states; it is not a rigid-body contact solver or continuous collision detector.
 
 ## Objects: robots and obstacles
 
@@ -46,7 +46,7 @@ Everything placed in the scene is an **object**. Robots and obstacles share the 
 
 - **State**: its pose, stored as a column vector. Differential and omnidirectional models use `[x, y, theta]`; Ackermann models add steering angle as `[x, y, theta, steer]`. This is what `step()` integrates and what sensors and collisions are computed from.
 - **Kinematics**: how a velocity command turns into motion: `diff` (differential drive), `omni` (omnidirectional), `omni_angular`, or `acker` (Ackermann / car-like). An object with no kinematics is *static*.
-- **Shape**: `circle`, `rectangle`, `polygon`, or `linestring`, used for both collision and drawing.
+- **Shape**: `circle`, `rectangle`, `polygon`, `linestring`, or `compound`, used for both collision and drawing. Compound parts have poses relative to the object's local frame; the object's state places the whole shape in the world.
 - **Goal**: an optional target pose; arrival is detected within a distance threshold.
 
 ### State and action conventions
@@ -59,12 +59,18 @@ them as column arrays. The meaning of an action depends on the kinematics model:
 | `diff` | `[x, y, theta]` | `[linear, angular]` |
 | `omni` | `[x, y, theta]` | Body-frame `[forward, lateral]`; `theta` is preserved |
 | `omni_angular` | `[x, y, theta]` | Body-frame `[forward, lateral, yaw_rate]` |
-| `acker` | `[x, y, theta, steer]` | `[linear, steer]` in `steer` mode, or `[linear, angular]` in `angular` mode |
+| `acker` | `[x, y, theta, steer]` | `[linear, steering_angle]` in `steer` mode; `[linear, steering_angle_rate]` in `angular` mode (not yaw rate) |
 
 Positions are measured in metres, angles in radians, linear velocities in
 metres per second, and angular velocities in radians per second. See
 {doc}`Configure robots and obstacles <usage/configure_robots_obstacles>` for
 configuration examples and velocity limits.
+
+### Models and numerical accuracy
+
+IR-SIM advances kinematic states from velocity commands. It does not model wheel contact forces, tyre slip, or inertial rigid-body dynamics. The differential-drive update uses forward Euler integration with the heading at the beginning of each step. A smaller time step changes this numerical approximation; it does not add a more detailed physical model. The [interactive kinematics lab](get_started/kinematics.md) shows the equations, coordinate frames, and discretization error together.
+
+For reproducible experiments, record the IR-SIM version, YAML configuration, seed, controller settings, step size, and stopping criteria. Compare the same simulated duration when changing the step size, and report rendering settings and hardware when measuring wall-clock performance.
 
 ## Behaviors: deciding what to do
 

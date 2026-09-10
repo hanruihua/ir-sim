@@ -22,3 +22,50 @@ msgstr ""
 msgid "Get Started"
 msgstr "开始上手"
 
+#: ../../source/get_started/index.rst:4
+msgid "Start with a working scene, then connect its YAML parameters to the model."
+msgstr "先运行一个场景，再理解 YAML 参数与模型之间的关系。"
+
+#: ../../source/get_started/index.rst:6
+msgid "A short learning path"
+msgstr "简明学习路线"
+
+#: ../../source/get_started/index.rst:10
+msgid "Step"
+msgstr "步骤"
+
+#: ../../source/get_started/index.rst:11
+msgid "What you will learn"
+msgstr "你将学到什么"
+
+#: ../../source/get_started/index.rst:12
+msgid ":doc:`install`"
+msgstr ":doc:`install`"
+
+#: ../../source/get_started/index.rst:13
+msgid "Install the package and check your environment."
+msgstr "安装软件包并检查运行环境。"
+
+#: ../../source/get_started/index.rst:14
+msgid ":doc:`quick_start`"
+msgstr ":doc:`quick_start`"
+
+#: ../../source/get_started/index.rst:15
+msgid "Run one robot and change one scenario parameter at a time."
+msgstr "运行一个机器人，每次只修改一个场景参数。"
+
+#: ../../source/get_started/index.rst:16
+msgid ":doc:`../concepts`"
+msgstr ":doc:`../concepts`"
+
+#: ../../source/get_started/index.rst:17
+msgid "Understand states, actions, sensors, and the simulation lifecycle."
+msgstr "理解状态、动作、传感器与仿真生命周期。"
+
+#: ../../source/get_started/index.rst:18
+msgid ":doc:`kinematics`"
+msgstr ":doc:`kinematics`"
+
+#: ../../source/get_started/index.rst:19
+msgid "Experiment with coordinate frames and time-step accuracy."
+msgstr "通过实验理解坐标系与时间步对精度的影响。"

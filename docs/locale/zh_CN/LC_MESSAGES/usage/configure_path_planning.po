@@ -42,27 +42,11 @@ msgstr "概述"
 msgid "Every planner follows the same four-step workflow:"
 msgstr "每个规划器都遵循相同的四步流程："
 
-#: ../../source/usage/configure_path_planning.md:9
-msgid ""
-"**Build the map**: `env.get_map(resolution=...)` returns the occupancy grid "
-"the planner searches (`resolution` is the planning cell size in meters)."
-msgstr ""
-"**构建地图** —— `env.get_map(resolution=...)` 返回规划器搜索所用的占据栅格"
-"（`resolution` 是规划单元的尺寸，单位为米）。"
-
 #: ../../source/usage/configure_path_planning.md:10
 msgid ""
 "**Create the planner**: instantiate one planner from "
 "`irsim.lib.path_planners`."
 msgstr "**创建规划器** —— 从 `irsim.lib.path_planners` 实例化一个规划器。"
-
-#: ../../source/usage/configure_path_planning.md:11
-msgid ""
-"**Plan**: `planner.planning(start, goal)` returns a trajectory (list of `[x, "
-"y]` points), or `None` if no path is found."
-msgstr ""
-"**规划** —— `planner.planning(start, goal)` 返回一条轨迹（`[x, y]` 点的列"
-"表），若找不到路径则返回 `None`。"
 
 #: ../../source/usage/configure_path_planning.md:12
 msgid ""
@@ -129,10 +113,6 @@ msgid "grid (optimised A\\*)"
 msgstr "栅格（优化的 A\\*）"
 
 #: ../../source/usage/configure_path_planning.md:0
-msgid "same paths as A\\*, faster on open grids"
-msgstr "与 A\\* 路径相同，在开阔栅格上更快"
-
-#: ../../source/usage/configure_path_planning.md:0
 msgid "**RRT**"
 msgstr "**RRT**"
 
@@ -184,19 +164,6 @@ msgstr "`PRMPlanner`"
 msgid "sampling roadmap"
 msgstr "采样路图"
 
-#: ../../source/usage/configure_path_planning.md:0
-msgid "many queries against the same static map"
-msgstr "在同一张静态地图上多次查询"
-
-#: ../../source/usage/configure_path_planning.md:27
-msgid ""
-"Grid planners (A\\*, JPS) and PRM search the grid occupancy from "
-"`obstacle_map`; RRT / RRT\\* / Informed RRT\\* can use the same grid or "
-"Shapely obstacle geometry."
-msgstr ""
-"栅格规划器（A\\*、JPS）和 PRM 在 `obstacle_map` 的栅格占据上搜索；RRT / "
-"RRT\\* / Informed RRT\\* 既可使用同一栅格，也可使用 Shapely 障碍物几何。"
-
 #: ../../source/usage/configure_path_planning.md:29
 msgid "Quick example"
 msgstr "快速示例"
@@ -226,14 +193,6 @@ msgid ""
 "A-star search expanding over an occupancy map before drawing its final path"
 msgstr "A* 搜索在占据地图上扩展，并绘制最终路径"
 
-#: ../../source/usage/configure_path_planning.md:96
-msgid ""
-"Swap `AStarPlanner` for any other planner: only the constructor changes; "
-"`planning()` and `draw_trajectory()` stay the same."
-msgstr ""
-"把 `AStarPlanner` 换成任意其他规划器 —— 只有构造函数不同；`planning()` 和 "
-"`draw_trajectory()` 保持一致。"
-
 #: ../../source/usage/configure_path_planning.md:98
 msgid "Planner constructors"
 msgstr "规划器构造函数"
@@ -244,16 +203,6 @@ msgid ""
 "(for collision radius) and tuning parameters."
 msgstr ""
 "第一个参数始终是地图；采样规划器还需要传入机器人（用于碰撞半径）和调参参数。"
-
-#: ../../source/usage/configure_path_planning.md:117
-msgid ""
-"`planning(start, goal, show_animation=False)` returns a list of `[x, y]` "
-"points or `None`. For the sampling planners, `planner.end.cost` and "
-"`len(planner.node_list)` report the path cost and tree size."
-msgstr ""
-"`planning(start, goal, show_animation=False)` 返回 `[x, y]` 点的列表或 "
-"`None`。对于采样规划器，`planner.end.cost` 和 `len(planner.node_list)` 给出路"
-"径代价和树的规模。"
 
 #: ../../source/usage/configure_path_planning.md:119
 msgid "Runnable examples"
@@ -326,3 +275,67 @@ msgid ""
 msgstr ""
 "完整的规划器 API 见 {doc}`API 参考 <../api/index>` 中的 "
 "`irsim.lib.path_planners` 部分。"
+
+#: ../../source/usage/configure_path_planning.md:9
+msgid "**Build the map**: `env.get_map(resolution=...)` provides the environment map. A* and JPS use the map's existing grid resolution when a grid is present, rather than resampling it to this argument."
+msgstr "**构建地图**：`env.get_map(resolution=...)` 提供环境地图。若地图已有栅格，A* 与 JPS 使用其实际栅格分辨率，而不会按此参数重新采样。"
+
+#: ../../source/usage/configure_path_planning.md:11
+msgid "**Plan**: `planner.planning(start, goal)` returns a NumPy array with shape `(2, N)` on success: row 0 is x and row 1 is y, in metres. Check the planner-specific failure result before drawing or following it."
+msgstr "**规划**：`planner.planning(start, goal)` 成功时返回形状为 `(2, N)` 的 NumPy 数组：第 0 行为 x，第 1 行为 y，单位是米。绘制或跟踪前，请检查各规划器特有的失败返回值。"
+
+#: ../../source/usage/configure_path_planning.md:0
+msgid "reduce search work by jumping over intermediate grid cells"
+msgstr "通过跳过中间栅格减少搜索工作"
+
+#: ../../source/usage/configure_path_planning.md:0
+msgid "connect sampled free-space configurations with a roadmap"
+msgstr "利用路网连接自由空间中的采样配置"
+
+#: ../../source/usage/configure_path_planning.md:27
+msgid "The planners query the environment map, which can combine grid occupancy and object geometry. Their collision approximations differ: A* and JPS use grid-cell geometry, PRM uses `robot_radius`, and the RRT family accepts a robot for footprint checks. A geometric path is not a guarantee of dynamically feasible or collision-free execution by a particular controller. Check footprint clearance and tracking behavior in the simulation."
+msgstr "规划器查询环境地图，地图可以同时包含栅格占据信息与对象几何。各规划器的碰撞近似不同：A* 和 JPS 使用栅格单元几何，PRM 使用 `robot_radius`，RRT 系列接受机器人对象用于轮廓检查。几何路径并不保证由特定控制器执行时满足动力学约束或无碰撞；请在仿真中检查轮廓净空与跟踪行为。"
+
+#: ../../source/usage/configure_path_planning.md:96
+msgid "Other planners use the same basic workflow, but differ in constructor options, failure results, and collision models. PRM rebuilds its samples and roadmap on each `planning()` call; this implementation does not automatically cache a roadmap across queries."
+msgstr "其他规划器遵循相同的基本流程，但构造参数、失败返回值与碰撞模型存在差异。PRM 每次调用 `planning()` 都会重新采样并构建路网；当前实现不会自动在多次查询间缓存路网。"
+
+#: ../../source/usage/configure_path_planning.md:122
+msgid "Return values and path direction"
+msgstr "返回值与路径方向"
+
+#: ../../source/usage/configure_path_planning.md:124
+msgid "Successful paths have shape `(2, N)` and are reconstructed from **goal to start**. Drawing is independent of this direction, but a waypoint-following controller usually needs start-to-goal order:"
+msgstr "成功的路径形状为 `(2, N)`，按**终点到起点**的顺序重建。绘图与方向无关，但航点跟踪控制器通常需要起点到终点的顺序："
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "No path found"
+msgstr "未找到路径时"
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "A*"
+msgstr "A*"
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "A goal-only array with shape `(2, 1)` when the search is exhausted"
+msgstr "搜索耗尽时返回形状为 `(2, 1)`、仅包含终点的数组"
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "JPS, RRT, RRT*, Informed RRT*"
+msgstr "JPS, RRT, RRT*, Informed RRT*"
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "`None`"
+msgstr "`None`"
+
+#: ../../source/usage/configure_path_planning.md:88
+msgid "Empty NumPy array with shape `(2, 0)`"
+msgstr "形状为 `(2, 0)` 的空 NumPy 数组"
+
+#: ../../source/usage/configure_path_planning.md:137
+msgid "The examples above use distinct start and goal positions, so a single-point result is not a usable connecting path. A* currently does not return an explicit failure flag: check that the path connects to the requested start grid cell before passing it to a controller. A single point can also represent a trivial start-equals-goal query."
+msgstr "上述示例的起点与终点不同，因此单点结果不是可用的连接路径。A* 当前不会返回明确的失败标志：将路径交给控制器之前，请检查路径是否连接到请求的起点栅格。单点结果也可能表示起点与终点相同的平凡查询。"
+
+#: ../../source/usage/configure_path_planning.md:139
+msgid "For RRT-family planners, `len(planner.node_list)` reports tree size. Do not assume PRM exposes tree attributes. Sampling-based results depend on the random seed and search budget; optimality terminology describes algorithmic properties, not a promise that a finite run finds the continuous-space optimum."
+msgstr "对于 RRT 系列规划器，`len(planner.node_list)` 表示树的大小。不要假定 PRM 具有树结构相关属性。采样规划的结果依赖随机种子与搜索预算；最优性术语描述的是算法性质，不保证有限次运行能找到连续空间中的最优解。"

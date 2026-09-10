@@ -1,0 +1,21 @@
+world:
+  width: 10
+  height: 10
+  step_time: 0.1
+  collision_mode: stop
+
+robot:
+  kinematics: {name: diff}
+  shape: {name: circle, radius: 0.3}
+  state: [1, 5, 0]
+  goal: [9, 5, 0]
+  vel_min: [-2, -2]
+  vel_max: [2, 2]
+  plot:
+    show_goal: true
+    show_arrow: true
+    show_trajectory: true
+
+obstacle:
+  shape: {name: rectangle, length: 0.8, width: 3}
+  state: [5, 5, 0]

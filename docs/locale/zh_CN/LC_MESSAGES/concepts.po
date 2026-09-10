@@ -78,13 +78,6 @@ msgstr ""
 msgid "**`render()`**: draw the current state with Matplotlib."
 msgstr "**`render()`** —— 用 Matplotlib 绘制当前状态。"
 
-#: ../../source/concepts.md:33
-msgid ""
-"**`done()`**: report whether a terminal condition has been reached (e.g. all "
-"robots arrived, or a collision)."
-msgstr ""
-"**`done()`** —— 报告是否达到终止条件（例如所有机器人到达目标，或发生碰撞）。"
-
 #: ../../source/concepts.md:34
 msgid ""
 "**`reset()` / `reload()`**: restore objects to their initial states, or "
@@ -105,20 +98,6 @@ msgstr "这个 `step → render → done` 循环是每个 IR-SIM 程序的核心
 #: ../../source/concepts.md:39
 msgid "The world"
 msgstr "世界"
-
-#: ../../source/concepts.md:41
-msgid ""
-"The **World** holds the global state that objects live in: the size "
-"(`width`, `height`), the clock (`step_time` for physics, `sample_time` for "
-"rendering), the coordinate frame (`offset`), an optional **obstacle map** "
-"(an occupancy grid), and the **collision detector**. Collision checking uses "
-"[Shapely](https://shapely.readthedocs.io/) geometry with a spatial index, so "
-"it scales to many objects."
-msgstr ""
-"**世界**（World）保存着对象所处的全局状态：尺寸（`width`、`height`）、时钟"
-"（用于物理的 `step_time` 与用于渲染的 `sample_time`）、坐标系（`offset`）、可"
-"选的**障碍物地图**（占据栅格），以及**碰撞检测器**。碰撞检测使用 [Shapely]"
-"(https://shapely.readthedocs.io/) 几何与空间索引，因此可扩展到大量对象。"
 
 #: ../../source/concepts.md:43
 msgid "Objects: robots and obstacles"
@@ -153,14 +132,6 @@ msgstr ""
 "**运动学** —— 速度指令如何转化为运动：`diff`（差速驱动）、`omni`（全向）、"
 "`omni_angular` 或 `acker`（阿克曼 / 类汽车）。没有运动学的对象即为*静态*对"
 "象。"
-
-#: ../../source/concepts.md:49
-msgid ""
-"**Shape**: `circle`, `rectangle`, `polygon`, or `linestring`, used for both "
-"collision and drawing."
-msgstr ""
-"**形状** —— `circle`、`rectangle`、`polygon` 或 `linestring`，同时用于碰撞与"
-"绘制。"
 
 #: ../../source/concepts.md:50
 msgid ""
@@ -228,13 +199,6 @@ msgstr "`acker`"
 #: ../../source/concepts.md:0
 msgid "`[x, y, theta, steer]`"
 msgstr "`[x, y, theta, steer]`"
-
-#: ../../source/concepts.md:0
-msgid ""
-"`[linear, steer]` in `steer` mode, or `[linear, angular]` in `angular` mode"
-msgstr ""
-"在 `steer` 模式下为 `[linear, steer]`，在 `angular` 模式下为 `[linear, "
-"angular]`"
 
 #: ../../source/concepts.md:64
 msgid ""
@@ -324,3 +288,31 @@ msgstr "{doc}`配置 <yaml_config/configuration>` —— 完整的 YAML 模式�
 #: ../../source/concepts.md:86
 msgid "{doc}`API Reference <api/index>`: classes and methods."
 msgstr "{doc}`API 参考 <api/index>` —— 类与方法。"
+
+#: ../../source/concepts.md:33
+msgid "**`done(mode=\"all\")`**: return whether all robots have arrived or have their stop flag set. Use `mode=\"any\"` to check whether at least one robot is done. A reported collision does not by itself end the loop in every collision mode."
+msgstr "**`done(mode=\"all\")`**：返回是否所有机器人都已到达目标或设置了停止标志。使用 `mode=\"any\"` 可检查是否至少一个机器人已完成。并非每种碰撞模式都会在报告碰撞时结束循环。"
+
+#: ../../source/concepts.md:41
+msgid "The **World** holds the dimensions (`width`, `height`), simulation clock (`step_time`), rendering sample interval (`sample_time`), and world offset (`offset`). The environment manages objects and maps, and coordinates collision queries using [Shapely](https://shapely.readthedocs.io/) geometry and a spatial index. Collision status is evaluated at sampled states; it is not a rigid-body contact solver or continuous collision detector."
+msgstr "**World** 保存世界尺寸（`width`、`height`）、仿真时钟（`step_time`）、渲染采样间隔（`sample_time`）以及世界偏移（`offset`）。环境管理对象和地图，并使用 [Shapely](https://shapely.readthedocs.io/) 几何与空间索引协调碰撞查询。碰撞状态在离散采样状态下计算；这不是刚体接触求解器，也不是连续碰撞检测器。"
+
+#: ../../source/concepts.md:49
+msgid "**Shape**: `circle`, `rectangle`, `polygon`, `linestring`, or `compound`, used for both collision and drawing. Compound parts have poses relative to the object's local frame; the object's state places the whole shape in the world."
+msgstr "**形状**：`circle`、`rectangle`、`polygon`、`linestring` 或 `compound`，同时用于碰撞检测与绘图。复合形状各部件的位姿相对于对象的局部坐标系；对象的状态决定整个形状在世界中的位置与朝向。"
+
+#: ../../source/concepts.md:0
+msgid "`[linear, steering_angle]` in `steer` mode; `[linear, steering_angle_rate]` in `angular` mode (not yaw rate)"
+msgstr "`steer` 模式为 `[linear, steering_angle]`；`angular` 模式为 `[linear, steering_angle_rate]`（转向角变化率，而非航向角速度）"
+
+#: ../../source/concepts.md:69
+msgid "Models and numerical accuracy"
+msgstr "模型与数值精度"
+
+#: ../../source/concepts.md:71
+msgid "IR-SIM advances kinematic states from velocity commands. It does not model wheel contact forces, tyre slip, or inertial rigid-body dynamics. The differential-drive update uses forward Euler integration with the heading at the beginning of each step. A smaller time step changes this numerical approximation; it does not add a more detailed physical model. The [interactive kinematics lab](get_started/kinematics.md) shows the equations, coordinate frames, and discretization error together."
+msgstr "IR-SIM 根据速度指令推进运动学状态，不建模轮地接触力、轮胎侧滑或刚体惯性动力学。差速运动学使用每个时间步起始时的航向进行前向 Euler 积分。缩小时间步会改变数值近似，但不会增加物理模型的细节。[运动学交互实验](get_started/kinematics.md) 将公式、坐标系与离散化误差放在一起展示。"
+
+#: ../../source/concepts.md:73
+msgid "For reproducible experiments, record the IR-SIM version, YAML configuration, seed, controller settings, step size, and stopping criteria. Compare the same simulated duration when changing the step size, and report rendering settings and hardware when measuring wall-clock performance."
+msgstr "为保证实验可复现，请记录 IR-SIM 版本、YAML 配置、随机种子、控制器参数、步长和停止条件。改变步长时应比较相同的仿真时长；测量实际运行耗时时，还应报告渲染设置与硬件配置。"

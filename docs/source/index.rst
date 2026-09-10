@@ -11,45 +11,52 @@
 Welcome to IR-SIM's documentation!
 ==================================
 
-**IR-SIM** is an open-source, lightweight Python robot simulator for navigation, control, and learning. It pairs a simple, user-friendly framework with built-in collision detection for modeling robots, sensors, and environments, so you can prototype robotics and AI algorithms in custom scenarios with minimal code and hardware.
+**IR-SIM** is a lightweight Python simulator for robot navigation, control, and learning. Describe a scene in YAML, advance kinematic models, and inspect geometry-based collisions and sensor measurements.
 
-.. grid:: 1 2 3 5
+.. grid:: 1 2 2 4
     :gutter: 2
     :class-container: hero-cta
 
-    .. grid-item-card:: 🚀 Get Started
+    .. grid-item-card:: Get Started
         :link: get_started/index
         :link-type: doc
         :text-align: center
         :class-card: hero-cta-primary
 
-    .. grid-item-card:: 📚 User Guide
+    .. grid-item-card:: User Guide
         :link: usage/index
         :link-type: doc
         :text-align: center
 
-    .. grid-item-card:: ⚙️ Configuration
+    .. grid-item-card:: Configuration
         :link: yaml_config/index
         :link-type: doc
         :text-align: center
 
-    .. grid-item-card:: 🔧 API Reference
+    .. grid-item-card:: API Reference
         :link: api/index
         :link-type: doc
         :text-align: center
 
-    .. grid-item-card:: ⭐ GitHub
-        :link: https://github.com/hanruihua/ir-sim
-        :text-align: center
+Start with a question
+=====================
 
-Key Features
-============
+.. list-table::
+   :widths: 42 58
+   :class: learning-path
 
-- Simulate a wide range of robot platforms with diverse kinematics, sensors, and behaviors
-- Quickly configure and customize simulation scenarios using straightforward YAML files, with no complex coding required
-- Visualize simulation outcomes in real time for immediate feedback and analysis using matplotlib
-- Support collision detection and behavior control for each object in the simulation
-- Suitable for multi-agent and robot learning research
+   * - **How do I run my first robot?**
+     - :doc:`Install <get_started/install>` → :doc:`Run a scene <get_started/quick_start>`
+   * - **How does a command become motion?**
+     - :doc:`Understand the model <concepts>` → :doc:`Try the interactive lab <get_started/kinematics>`
+   * - **How do I build my experiment?**
+     - :doc:`Choose a task guide <usage/index>` → :doc:`Look up YAML parameters <yaml_config/configuration>`
+   * - **How do I connect my own controller?**
+     - :doc:`Drive the environment <usage/make_environment>` → :doc:`Find an API <api/index>`
+
+The simulator models kinematics and geometric sensing, not rigid-body contact dynamics. See :doc:`model assumptions <concepts>` before interpreting results as physical predictions.
+
+No local Python installation? Launch the :doc:`Online Playground <playground/index>` to run IR-SIM in your browser.
 
 See IR-SIM in action
 ====================
@@ -67,7 +74,7 @@ See IR-SIM in action
            :alt: Multi-Robot RVO Collision Avoidance
 
         +++
-        Multi-Robot RVO Collision Avoidance
+        :doc:`Multi-Robot RVO Collision Avoidance <usage/configure_behavior>`
 
     .. grid-item-card::
         :shadow: lg
@@ -78,7 +85,7 @@ See IR-SIM in action
            :alt: 200-Agent ORCA via pyrvo
 
         +++
-        200-Agent ORCA via pyrvo
+        :doc:`200-Agent ORCA via pyrvo <usage/configure_behavior>`
 
     .. grid-item-card::
         :shadow: lg
@@ -89,7 +96,7 @@ See IR-SIM in action
            :alt: Social Force Model (SFM)
 
         +++
-        Social Force Model (SFM)
+        :doc:`Social Force Model (SFM) <usage/configure_behavior>`
 
     .. grid-item-card::
         :shadow: lg
@@ -100,7 +107,7 @@ See IR-SIM in action
            :alt: Ackermann Robot with 2D LiDAR
 
         +++
-        Ackermann Robot with 2D LiDAR
+        :doc:`Ackermann Robot with 2D LiDAR <usage/configure_sensor>`
 
     .. grid-item-card::
         :shadow: lg
@@ -111,7 +118,7 @@ See IR-SIM in action
            :alt: Field-of-View Detection
 
         +++
-        Field-of-View Detection
+        :doc:`Field-of-View Detection <usage/configure_sensor>`
 
     .. grid-item-card::
         :shadow: lg
@@ -122,7 +129,7 @@ See IR-SIM in action
            :alt: HM3D / MatterPort3D Grid Map
 
         +++
-        HM3D / MatterPort3D Grid Map
+        :doc:`HM3D / MatterPort3D Grid Map <usage/configure_grid_map>`
 
     .. grid-item-card::
         :shadow: lg
@@ -133,7 +140,7 @@ See IR-SIM in action
            :alt: Dynamic Random Obstacles
 
         +++
-        Dynamic Random Obstacles
+        :doc:`Dynamic Random Obstacles <usage/configure_dynamic_random_env>`
 
     .. grid-item-card::
         :shadow: lg
@@ -144,7 +151,7 @@ See IR-SIM in action
            :alt: Keyboard Control
 
         +++
-        Keyboard Control
+        :doc:`Keyboard Control <usage/configure_keyboard_Mouse_control>`
 
     .. grid-item-card::
         :shadow: lg
@@ -155,7 +162,7 @@ See IR-SIM in action
            :alt: Fog-of-Map Exploration
 
         +++
-        Fog-of-Map Exploration
+        :doc:`Fog-of-Map Exploration <usage/configure_grid_map>`
 
 Capabilities
 ============
@@ -168,7 +175,7 @@ Capabilities
    * - **Sensors**
      - 2D LiDAR · 2D FMCW LiDAR · FOV detector
    * - **Geometries**
-     - Circle · Rectangle · Polygon · LineString · Binary grid map
+     - Circle · Rectangle · Polygon · LineString · Compound · Binary grid map
    * - **Behaviors**
      - dash · RVO · ORCA · SFM (Social Force Model)
 
@@ -279,6 +286,7 @@ If you find IR-SIM useful, please consider starring ⭐ the project on GitHub an
 
    Getting Started <get_started/index>
    User Guide <usage/index>
+   Playground <playground/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
 

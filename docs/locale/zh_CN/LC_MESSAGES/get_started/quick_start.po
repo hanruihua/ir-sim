@@ -60,17 +60,6 @@ msgid ""
 "Quick-start simulation: a differential-drive robot navigating to its goal"
 msgstr "快速开始仿真 —— 差速驱动机器人导航到目标"
 
-#: ../../source/get_started/quick_start.md:61
-msgid ""
-"The loop advances the simulation by `0.1` seconds per step, renders the "
-"latest state, and stops early when the environment reports that it is done. "
-"For a server or batch job, create the environment with `display=False` and "
-"omit the `env.render()` call."
-msgstr ""
-"该循环每步将仿真推进 `0.1` 秒、渲染最新状态，并在环境报告结束时提前停止。在服"
-"务器或批处理任务中，请使用 `display=False` 创建环境，并省略 `env.render()` 调"
-"用。"
-
 #: ../../source/get_started/quick_start.md:66
 msgid "Next steps"
 msgstr "后续步骤"
@@ -98,3 +87,27 @@ msgid ""
 msgstr ""
 "[YAML Configuration](../yaml_config/configuration.md) —— 完整的配置参考，附带"
 "交互式 schema 浏览器。"
+
+#: ../../source/get_started/quick_start.md:61
+msgid "The loop advances the simulation by `0.1` seconds per step, renders the latest state, and stops early when the environment reports that it is done. For a server or batch job, use `headless=True` to avoid creating a figure entirely; `env.render()` then becomes a no-op. Use `display=False` instead if you still need offscreen figures or animations."
+msgstr "循环每步推进 `0.1` 秒仿真时间，渲染最新状态，并在环境报告完成时提前结束。服务器或批处理任务可使用 `headless=True`，完全避免创建图窗；此时 `env.render()` 不执行任何操作。如果仍需离屏图片或动画，请改用 `display=False`。"
+
+#: ../../source/get_started/quick_start.md:67
+msgid "Try one change at a time"
+msgstr "每次尝试一个改动"
+
+#: ../../source/get_started/quick_start.md:69
+msgid "Change `goal` to `[9, 1, 0]`. The robot can now reach the goal along a straight line."
+msgstr "将 `goal` 改为 `[9, 1, 0]`。机器人现在可以沿直线到达目标。"
+
+#: ../../source/get_started/quick_start.md:70
+msgid "Set `step_time` to `0.05` and increase the loop budget to `600`. Both budgets represent up to 30 simulated seconds; compare the paths, not just the frame counts."
+msgstr "将 `step_time` 设为 `0.05`，并将循环上限增加到 `600`。两种设置都对应最多 30 秒仿真时间；请比较轨迹，而不仅是帧数。"
+
+#: ../../source/get_started/quick_start.md:71
+msgid "Explore the [kinematics lab](kinematics.md) to see how heading and velocity produce motion before adding obstacles or a controller."
+msgstr "在加入障碍物或控制器之前，先用[运动学实验](kinematics.md) 了解航向与速度如何产生运动。"
+
+#: ../../source/get_started/quick_start.md:73
+msgid "The default `dash` behavior chooses commands toward the goal. It is not a path planner: adding an obstacle does not automatically make the robot plan around it. Continue with [behaviors](../usage/configure_behavior.md) or [path planning](../usage/configure_path_planning.md) for avoidance and planning."
+msgstr "默认的 `dash` 行为生成朝向目标的指令，但它不是路径规划器：加入障碍物并不会自动让机器人规划绕行路径。请继续阅读[行为配置](../usage/configure_behavior.md) 或[路径规划](../usage/configure_path_planning.md)，了解避碰与规划。"

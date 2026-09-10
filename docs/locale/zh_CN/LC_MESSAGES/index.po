@@ -58,70 +58,6 @@ msgstr "开发"
 msgid "Welcome to IR-SIM's documentation!"
 msgstr "欢迎查阅 IR-SIM 文档！"
 
-#: ../../source/index.rst:14
-msgid ""
-"**IR-SIM** is an open-source, lightweight Python robot simulator for "
-"navigation, control, and learning. It pairs a simple, user-friendly "
-"framework with built-in collision detection for modeling robots, sensors, "
-"and environments, so you can prototype robotics and AI algorithms in custom "
-"scenarios with minimal code and hardware."
-msgstr ""
-"**IR-SIM** 是一款开源、轻量级的 Python 机器人仿真器，面向导航、控制与学习。它"
-"将简单易用的框架与内置碰撞检测相结合，用于建模机器人、传感器与环境——让你以最"
-"少的代码与硬件，在自定义场景中快速构建机器人与 AI 算法的原型。"
-
-#: ../../source/index.rst:20
-msgid "🚀 Get Started"
-msgstr "🚀 开始使用"
-
-#: ../../source/index.rst:26
-msgid "📚 User Guide"
-msgstr "📚 用户指南"
-
-#: ../../source/index.rst:31
-msgid "⚙️ Configuration"
-msgstr "⚙️ 配置"
-
-#: ../../source/index.rst:36
-msgid "🔧 API Reference"
-msgstr "🔧 API 参考"
-
-#: ../../source/index.rst:41
-msgid "⭐ GitHub"
-msgstr "⭐ GitHub"
-
-#: ../../source/index.rst:46
-msgid "Key Features"
-msgstr "核心特性"
-
-#: ../../source/index.rst:48
-msgid ""
-"Simulate a wide range of robot platforms with diverse kinematics, sensors, "
-"and behaviors"
-msgstr "可仿真多种机器人平台，覆盖丰富的运动学模型、传感器与行为"
-
-#: ../../source/index.rst:49
-msgid ""
-"Quickly configure and customize simulation scenarios using straightforward "
-"YAML files, with no complex coding required"
-msgstr "借助简洁的 YAML 文件即可快速配置与自定义仿真场景，无需复杂编码"
-
-#: ../../source/index.rst:50
-msgid ""
-"Visualize simulation outcomes in real time for immediate feedback and "
-"analysis using matplotlib"
-msgstr "通过 matplotlib 实时可视化仿真结果，获得即时反馈与分析"
-
-#: ../../source/index.rst:51
-msgid ""
-"Support collision detection and behavior control for each object in the "
-"simulation"
-msgstr "支持每个仿真对象的碰撞检测与行为控制"
-
-#: ../../source/index.rst:52
-msgid "Suitable for multi-agent and robot learning research"
-msgstr "适用于多智能体与机器人学习研究"
-
 #: ../../source/index.rst:55
 msgid "See IR-SIM in action"
 msgstr "实际运行效果"
@@ -187,10 +123,6 @@ msgstr "2D 激光雷达 · 2D FMCW 激光雷达 · 视场（FOV）检测器"
 #: ../../source/index.rst:170
 msgid "**Geometries**"
 msgstr "**几何形状**"
-
-#: ../../source/index.rst:171
-msgid "Circle · Rectangle · Polygon · LineString · Binary grid map"
-msgstr "圆形 · 矩形 · 多边形 · 折线 · 二值栅格地图"
 
 #: ../../source/index.rst:172
 msgid "**Behaviors**"
@@ -395,3 +327,99 @@ msgid ""
 msgstr ""
 "如果 IR-SIM 对您有帮助，欢迎在 GitHub 上为本项目点亮 ⭐ Star，并引用我们的论"
 "文："
+
+#: ../../source/index.rst:14
+msgid "**IR-SIM** is a lightweight Python simulator for robot navigation, control, and learning. Describe a scene in YAML, advance kinematic models, and inspect geometry-based collisions and sensor measurements."
+msgstr "**IR-SIM** 是一个用于机器人导航、控制与学习的轻量级 Python 仿真器。用 YAML 描述场景，推进运动学模型，并查看基于几何的碰撞状态与传感器测量。"
+
+#: ../../source/index.rst:20
+msgid "Get Started"
+msgstr "快速入门"
+
+#: ../../source/index.rst:42
+msgid "Start with a question"
+msgstr "从你的问题出发"
+
+#: ../../source/index.rst:48
+msgid "**How do I run my first robot?**"
+msgstr "**如何运行第一个机器人？**"
+
+#: ../../source/index.rst:49
+msgid ":doc:`Install <get_started/install>` → :doc:`Run a scene <get_started/quick_start>`"
+msgstr ":doc:`安装 <get_started/install>` → :doc:`运行场景 <get_started/quick_start>`"
+
+#: ../../source/index.rst:50
+msgid "**How does a command become motion?**"
+msgstr "**控制指令如何变成运动？**"
+
+#: ../../source/index.rst:51
+msgid ":doc:`Understand the model <concepts>` → :doc:`Try the interactive lab <get_started/kinematics>`"
+msgstr ":doc:`理解模型 <concepts>` → :doc:`体验交互实验 <get_started/kinematics>`"
+
+#: ../../source/index.rst:52
+msgid "**How do I build my experiment?**"
+msgstr "**如何搭建自己的实验？**"
+
+#: ../../source/index.rst:53
+msgid ":doc:`Choose a task guide <usage/index>` → :doc:`Look up YAML parameters <yaml_config/configuration>`"
+msgstr ":doc:`选择任务指南 <usage/index>` → :doc:`查阅 YAML 参数 <yaml_config/configuration>`"
+
+#: ../../source/index.rst:54
+msgid "**How do I connect my own controller?**"
+msgstr "**如何接入自己的控制器？**"
+
+#: ../../source/index.rst:55
+msgid ":doc:`Drive the environment <usage/make_environment>` → :doc:`Find an API <api/index>`"
+msgstr ":doc:`驱动环境 <usage/make_environment>` → :doc:`查找 API <api/index>`"
+
+#: ../../source/index.rst:57
+msgid "The simulator models kinematics and geometric sensing, not rigid-body contact dynamics. See :doc:`model assumptions <concepts>` before interpreting results as physical predictions."
+msgstr "本仿真器建模的是运动学与几何传感，而非刚体接触动力学。将结果解释为物理预测之前，请先阅读 :doc:`模型假设 <concepts>`。"
+
+#: ../../source/index.rst:75
+msgid ":doc:`Multi-Robot RVO Collision Avoidance <usage/configure_behavior>`"
+msgstr ":doc:`多机器人 RVO 避碰 <usage/configure_behavior>`"
+
+#: ../../source/index.rst:86
+msgid ":doc:`200-Agent ORCA via pyrvo <usage/configure_behavior>`"
+msgstr ":doc:`基于 pyrvo 的 200 智能体 ORCA <usage/configure_behavior>`"
+
+#: ../../source/index.rst:97
+msgid ":doc:`Social Force Model (SFM) <usage/configure_behavior>`"
+msgstr ":doc:`社会力模型（SFM）<usage/configure_behavior>`"
+
+#: ../../source/index.rst:108
+msgid ":doc:`Ackermann Robot with 2D LiDAR <usage/configure_sensor>`"
+msgstr ":doc:`搭载二维 LiDAR 的阿克曼机器人 <usage/configure_sensor>`"
+
+#: ../../source/index.rst:119
+msgid ":doc:`Field-of-View Detection <usage/configure_sensor>`"
+msgstr ":doc:`视场检测 <usage/configure_sensor>`"
+
+#: ../../source/index.rst:130
+msgid ":doc:`HM3D / MatterPort3D Grid Map <usage/configure_grid_map>`"
+msgstr ":doc:`HM3D / MatterPort3D 栅格地图 <usage/configure_grid_map>`"
+
+#: ../../source/index.rst:141
+msgid ":doc:`Dynamic Random Obstacles <usage/configure_dynamic_random_env>`"
+msgstr ":doc:`动态随机障碍物 <usage/configure_dynamic_random_env>`"
+
+#: ../../source/index.rst:152
+msgid ":doc:`Keyboard Control <usage/configure_keyboard_Mouse_control>`"
+msgstr ":doc:`键盘控制 <usage/configure_keyboard_Mouse_control>`"
+
+#: ../../source/index.rst:163
+msgid ":doc:`Fog-of-Map Exploration <usage/configure_grid_map>`"
+msgstr ":doc:`迷雾地图探索 <usage/configure_grid_map>`"
+
+#: ../../source/index.rst:176
+msgid "Circle · Rectangle · Polygon · LineString · Compound · Binary grid map"
+msgstr "圆形 · 矩形 · 多边形 · 折线 · 复合形状 · 二值栅格地图"
+
+#: ../../source/index.rst:282
+msgid "Playground"
+msgstr "在线实验"
+
+#: ../../source/index.rst:59
+msgid "No local Python installation? Launch the :doc:`Online Playground <playground/index>` to run IR-SIM in your browser."
+msgstr "没有安装本地 Python？打开 :doc:`在线实验 <playground/index>`，直接在浏览器中运行 IR-SIM。"

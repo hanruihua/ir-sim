@@ -92,19 +92,6 @@ msgid ""
 "**`log_level`** (str): Logging level for the environment (default: \"INFO\")"
 msgstr "**`log_level`**（str）：环境日志级别（默认 \"INFO\"）"
 
-#: ../../source/usage/make_environment.md:27
-msgid ""
-"**`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided, "
-"random elements produced by IR-SIM become reproducible. If omitted/``None``, "
-"a new unseeded generator is used (non-reproducible). Custom extensions using "
-"``np.random`` or Python ``random`` should either switch to IR-SIM's RNG or "
-"be seeded separately."
-msgstr ""
-"**`seed`**（int，可选）：IR-SIM 随机数引擎的种子。提供后，IR-SIM 生成的随机内"
-"容即可复现；若省略或为 ``None``，则使用未设种子的生成器（不可复现）。若自定义"
-"扩展仍使用 ``np.random`` 或 Python ``random``，需改用 IR-SIM RNG 或另行设定种"
-"子。"
-
 #: ../../source/usage/make_environment.md:33
 msgid ""
 "For more details, see the {py:class}`~irsim.env.env_base.EnvBase` class "
@@ -152,18 +139,6 @@ msgid ""
 "meters"
 msgstr "**`height`** 与 **`width`**：以米为单位指定世界尺寸"
 
-#: ../../source/usage/make_environment.md:81
-msgid ""
-"**`step_time`**: Controls simulation accuracy and speed (smaller = more "
-"accurate, slower)"
-msgstr "**`step_time`**：控制仿真精度与速度（越小越精确但更慢）"
-
-#: ../../source/usage/make_environment.md:82
-msgid ""
-"**`sample_time`**: Controls rendering frequency (larger = faster simulation, "
-"less smooth visualization)"
-msgstr "**`sample_time`**：控制渲染频率（越大仿真越快，可视化越不平滑）"
-
 #: ../../source/usage/make_environment.md:83
 msgid ""
 "**`offset`**: Shifts the world coordinate system origin [x, y] in meters"
@@ -185,18 +160,6 @@ msgstr "`'keyboard'`：手动键盘控制"
 msgid "**`collision_mode`**: Defines collision detection behavior"
 msgstr "**`collision_mode`**：定义碰撞检测行为"
 
-#: ../../source/usage/make_environment.md:88
-msgid "`'stop'`: Stop simulation when collision occurs (default)"
-msgstr "`'stop'`：发生碰撞时停止仿真（默认）"
-
-#: ../../source/usage/make_environment.md:89
-msgid "`'unobstructed'`: Ignore all collisions"
-msgstr "`'unobstructed'`：忽略所有碰撞"
-
-#: ../../source/usage/make_environment.md:90
-msgid "`'unobstructed_obstacles'`: Ignore only obstacle collisions"
-msgstr "`'unobstructed_obstacles'`：仅忽略障碍物碰撞"
-
 #: ../../source/usage/make_environment.md:91
 msgid ""
 "**`obstacle_map`**: Optional. Path to an obstacle map image, or a generator "
@@ -209,19 +172,6 @@ msgstr ""
 #: ../../source/usage/make_environment.md:93
 msgid "Performance Considerations"
 msgstr "性能考量"
-
-#: ../../source/usage/make_environment.md:95
-msgid "**Smaller `step_time`**: More accurate physics but slower simulation"
-msgstr "**更小的 `step_time`**：物理更精确但仿真更慢"
-
-#: ../../source/usage/make_environment.md:96
-msgid ""
-"**Larger `sample_time`**: Faster simulation but less smooth visualization"
-msgstr "**更大的 `sample_time`**：仿真更快但可视化不够流畅"
-
-#: ../../source/usage/make_environment.md:97
-msgid "**World size**: Larger worlds require more computational resources"
-msgstr "**世界尺寸**：更大的世界需要更多算力"
 
 #: ../../source/usage/make_environment.md:100
 msgid ""
@@ -767,3 +717,39 @@ msgid ""
 msgstr ""
 "`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 "
 "`display=False`。"
+
+#: ../../source/usage/make_environment.md:29
+msgid "**`seed`** (int, optional): Create an environment-local random generator. Use the same seed and sequence of operations to reproduce IR-SIM randomness. If omitted or `None`, the environment uses the shared generator without reseeding it. `irsim.util.random.set_seed(...)` reseeds the generator currently in use; prefer `seed=` when you need an independent environment-local stream. Custom extensions using `np.random` or Python `random` need separate seeding. See [Multiple environments](multiple_environments.md#parameter-isolation-details)."
+msgstr "**`seed`**（int，可选）：创建环境独立的随机数生成器。相同种子与操作顺序可复现 IR-SIM 的随机过程。省略或设为 `None` 时，环境使用共享生成器，不会重新播种。`irsim.util.random.set_seed(...)` 会重新设置当前正在使用的生成器；如需独立的环境随机流，建议使用 `seed=`。使用 `np.random` 或 Python `random` 的自定义扩展需单独设置种子。参见[多环境](multiple_environments.md#parameter-isolation-details)。"
+
+#: ../../source/usage/make_environment.md:86
+msgid "**`step_time`**: Simulated seconds per state update. A smaller value reduces the integration step but requires more updates for the same simulated duration."
+msgstr "**`step_time`**：每次状态更新对应的仿真秒数。较小的值会缩小积分步长，但相同仿真时长需要更多次更新。"
+
+#: ../../source/usage/make_environment.md:87
+msgid "**`sample_time`**: Simulated seconds between rendered samples. It does not change the state integration step."
+msgstr "**`sample_time`**：渲染采样之间的仿真秒数，不改变状态积分步长。"
+
+#: ../../source/usage/make_environment.md:96
+msgid "`'stop'`: Set a colliding object's stop flag when the other object is not marked `unobstructed` (default). This does not stop the Python loop itself."
+msgstr "`'stop'`：当碰撞对方未标记为 `unobstructed` 时，设置碰撞对象的停止标志（默认）。它不会直接停止 Python 循环。"
+
+#: ../../source/usage/make_environment.md:97
+msgid "`'unobstructed'`: Keep reporting collisions without setting stop flags because of them."
+msgstr "`'unobstructed'`：继续报告碰撞，但不因碰撞设置停止标志。"
+
+#: ../../source/usage/make_environment.md:98
+msgid "`'unobstructed_obstacles'`: Apply the stop rule to robots, while allowing obstacles to continue moving."
+msgstr "`'unobstructed_obstacles'`：对机器人应用停止规则，同时允许障碍物继续运动。"
+
+#: ../../source/usage/make_environment.md:103
+msgid "**Time discretization**: Compare results at two or more step sizes for the same simulated duration. Smaller steps can reduce integration error and missed between-step contacts, but do not provide continuous collision detection. Try the [kinematics lab](../get_started/kinematics.md)."
+msgstr "**时间离散化**：在相同仿真时长下，使用至少两种步长比较结果。较小步长可以减少积分误差与步间接触漏检，但不提供连续碰撞检测。可尝试[运动学实验](../get_started/kinematics.md)。"
+
+#: ../../source/usage/make_environment.md:104
+msgid "**Rendering**: A larger `sample_time` reduces drawing work when rendering is enabled. Use `headless=True` when no images are needed."
+msgstr "**渲染**：启用渲染时，增大 `sample_time` 可减少绘图工作。不需要图像时，请使用 `headless=True`。"
+
+#: ../../source/usage/make_environment.md:105
+msgid "**Scene complexity**: Object count, geometry complexity, LiDAR beam count, and grid resolution affect cost. World dimensions alone do not determine runtime."
+msgstr "**场景复杂度**：对象数量、几何复杂度、LiDAR 光束数和栅格分辨率都会影响开销。仅凭世界尺寸无法判断运行耗时。"

@@ -25,11 +25,13 @@ The `make` function creates an environment from a configuration file. Supported 
 - **`display`** (bool): Whether to display the environment visualization (default: True)
 - **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
 - **`log_level`** (str): Logging level for the environment (default: "INFO")
-- **`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided,
-  random elements produced by IR-SIM become reproducible. If omitted/``None``,
-  a new unseeded generator is used (non-reproducible). Custom extensions using
-  ``np.random`` or Python ``random`` should either switch to IR-SIM's RNG or be
-  seeded separately.
+- **`seed`** (int, optional): Create an environment-local random generator.
+  Use the same seed and sequence of operations to reproduce IR-SIM randomness.
+  If omitted or `None`, the environment uses the shared generator without
+  reseeding it. `irsim.util.random.set_seed(...)` reseeds the generator currently
+  in use; prefer `seed=` when you need an independent environment-local stream.
+  Custom extensions using `np.random` or Python `random` need separate seeding.
+  See [Multiple environments](multiple_environments.md#parameter-isolation-details).
 
 For more details, see the {py:class}`~irsim.env.env_base.EnvBase` class documentation.
 :::
@@ -43,7 +45,7 @@ world:
   height: 10  # the height of the world (meters)
   width: 10   # the width of the world (meters)
   step_time: 0.1  # simulation time step (seconds) - 10Hz
-  sample_time: 0.1  # rendering frequency (seconds) - 10Hz
+  sample_time: 0.1  # rendering interval (seconds) - 10 Hz
   offset: [0, 0] # the offset of the world origin [x, y]
   step_mode: 'internal' # state advancement: 'internal' or 'external'
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
@@ -81,8 +83,8 @@ The configuration file defines the world and the robot that the main loop advanc
 
 - **`world`**: Main section that defines the simulation environment properties
 - **`height`** and **`width`**: Specify the size of the simulation world in meters
-- **`step_time`**: Controls simulation accuracy and speed (smaller = more accurate, slower)
-- **`sample_time`**: Controls rendering frequency (larger = faster simulation, less smooth visualization)
+- **`step_time`**: Simulated seconds per state update. A smaller value reduces the integration step but requires more updates for the same simulated duration.
+- **`sample_time`**: Simulated seconds between rendered samples. It does not change the state integration step.
 - **`offset`**: Shifts the world coordinate system origin [x, y] in meters
 - **`step_mode`**: Determines who advances object states
   - `'internal'`: IR-SIM integrates states from actions or configured behaviors
@@ -91,16 +93,16 @@ The configuration file defines the world and the robot that the main loop advanc
   - `'auto'`: Automatic simulation execution
   - `'keyboard'`: Manual keyboard control
 - **`collision_mode`**: Defines collision detection behavior
-  - `'stop'`: Stop simulation when collision occurs (default)
-  - `'unobstructed'`: Ignore all collisions
-  - `'unobstructed_obstacles'`: Ignore only obstacle collisions
+  - `'stop'`: Set a colliding object's stop flag when the other object is not marked `unobstructed` (default). This does not stop the Python loop itself.
+  - `'unobstructed'`: Keep reporting collisions without setting stop flags because of them.
+  - `'unobstructed_obstacles'`: Apply the stop rule to robots, while allowing obstacles to continue moving.
 - **`obstacle_map`**: Optional. Path to an obstacle map image, or a generator spec (e.g. `{ name: perlin, ... }`). See [Configure grid map](configure_grid_map).
 
 ### Performance Considerations
 
-- **Smaller `step_time`**: More accurate physics but slower simulation
-- **Larger `sample_time`**: Faster simulation but less smooth visualization  
-- **World size**: Larger worlds require more computational resources
+- **Time discretization**: Compare results at two or more step sizes for the same simulated duration. Smaller steps can reduce integration error and missed between-step contacts, but do not provide continuous collision detection. Try the [kinematics lab](../get_started/kinematics.md).
+- **Rendering**: A larger `sample_time` reduces drawing work when rendering is enabled. Use `headless=True` when no images are needed.
+- **Scene complexity**: Object count, geometry complexity, LiDAR beam count, and grid resolution affect cost. World dimensions alone do not determine runtime.
 
 ```{tip}
 You can use `sample_time` to control the rendering frequency and accelerate the simulation speed. The default value of `sample_time` is the same as `step_time`.

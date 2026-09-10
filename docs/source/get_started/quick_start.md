@@ -60,8 +60,17 @@ Run the script and a window opens showing the differential-drive robot navigatin
 
 The loop advances the simulation by `0.1` seconds per step, renders the latest
 state, and stops early when the environment reports that it is done. For a
-server or batch job, create the environment with `display=False` and omit the
-`env.render()` call.
+server or batch job, use `headless=True` to avoid creating a figure entirely;
+`env.render()` then becomes a no-op. Use `display=False` instead if you still
+need offscreen figures or animations.
+
+## Try one change at a time
+
+1. Change `goal` to `[9, 1, 0]`. The robot can now reach the goal along a straight line.
+2. Set `step_time` to `0.05` and increase the loop budget to `600`. Both budgets represent up to 30 simulated seconds; compare the paths, not just the frame counts.
+3. Explore the [kinematics lab](kinematics.md) to see how heading and velocity produce motion before adding obstacles or a controller.
+
+The default `dash` behavior chooses commands toward the goal. It is not a path planner: adding an obstacle does not automatically make the robot plan around it. Continue with [behaviors](../usage/configure_behavior.md) or [path planning](../usage/configure_path_planning.md) for avoidance and planning.
 
 ## Next steps
 

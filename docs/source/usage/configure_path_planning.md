@@ -6,9 +6,9 @@ IR-SIM includes grid- and sampling-based path planners for computing a collision
 
 Every planner follows the same four-step workflow:
 
-1. **Build the map**: `env.get_map(resolution=...)` returns the occupancy grid the planner searches (`resolution` is the planning cell size in meters).
+1. **Build the map**: `env.get_map(resolution=...)` provides the environment map. A* and JPS use the map's existing grid resolution when a grid is present, rather than resampling it to this argument.
 2. **Create the planner**: instantiate one planner from `irsim.lib.path_planners`.
-3. **Plan**: `planner.planning(start, goal)` returns a trajectory (list of `[x, y]` points), or `None` if no path is found.
+3. **Plan**: `planner.planning(start, goal)` returns a NumPy array with shape `(2, N)` on success: row 0 is x and row 1 is y, in metres. Check the planner-specific failure result before drawing or following it.
 4. **Draw / follow**: `env.draw_trajectory(trajectory)` overlays the path; feed it to a controller to follow it.
 
 The start and goal come from the scene: `env.get_robot_state()` and `env.get_robot_info().goal`.
@@ -18,13 +18,13 @@ The start and goal come from the scene: `env.get_robot_state()` and `env.get_rob
 | Planner | Import from `irsim.lib.path_planners` | Type | Use when |
 | --- | --- | --- | --- |
 | **A\*** | `AStarPlanner` | grid, 8-neighbour | you want a fast, optimal grid path |
-| **JPS** | `JPSPlanner` | grid (optimised A\*) | same paths as A\*, faster on open grids |
+| **JPS** | `JPSPlanner` | grid (optimised A\*) | reduce search work by jumping over intermediate grid cells |
 | **RRT** | `RRT` | sampling | non-grid / Shapely obstacles; a feasible (not optimal) path |
 | **RRT\*** | `RRTStar` | sampling | shorter, optimised paths via rewiring |
 | **Informed RRT\*** | `InformedRRTStar` | sampling | faster convergence to the optimum after a first solution |
-| **PRM** | `PRMPlanner` | sampling roadmap | many queries against the same static map |
+| **PRM** | `PRMPlanner` | sampling roadmap | connect sampled free-space configurations with a roadmap |
 
-Grid planners (A\*, JPS) and PRM search the grid occupancy from `obstacle_map`; RRT / RRT\* / Informed RRT\* can use the same grid or Shapely obstacle geometry.
+The planners query the environment map, which can combine grid occupancy and object geometry. Their collision approximations differ: A* and JPS use grid-cell geometry, PRM uses `robot_radius`, and the RRT family accepts a robot for footprint checks. A geometric path is not a guarantee of dynamically feasible or collision-free execution by a particular controller. Check footprint clearance and tracking behavior in the simulation.
 
 ## Quick example
 
@@ -51,7 +51,7 @@ goal_xy = env.get_robot_info().goal[:2, 0].tolist()
 trajectory = planner.planning(robot_state, goal_xy, show_animation=True)
 
 # 4. draw the path as a red line
-if trajectory is not None:
+if trajectory is not None and trajectory.shape[1] > 1:
     env.draw_trajectory(trajectory, traj_type="r-")
 
 env.end(5)
@@ -93,7 +93,7 @@ robot:
 
 ::::
 
-Swap `AStarPlanner` for any other planner: only the constructor changes; `planning()` and `draw_trajectory()` stay the same.
+Other planners use the same basic workflow, but differ in constructor options, failure results, and collision models. PRM rebuilds its samples and roadmap on each `planning()` call; this implementation does not automatically cache a roadmap across queries.
 
 ## Planner constructors
 
@@ -119,7 +119,24 @@ InformedRRTStar(env_map, robot=env.robot, expand_dis=1.5, max_iter=5000)
 PRMPlanner(env_map, robot_radius=env.robot.radius, n_sample=500, n_knn=10)
 ```
 
-`planning(start, goal, show_animation=False)` returns a list of `[x, y]` points or `None`. For the sampling planners, `planner.end.cost` and `len(planner.node_list)` report the path cost and tree size.
+## Return values and path direction
+
+Successful paths have shape `(2, N)` and are reconstructed from **goal to start**. Drawing is independent of this direction, but a waypoint-following controller usually needs start-to-goal order:
+
+```python
+if trajectory is not None and trajectory.shape[1] > 1:
+    waypoints = trajectory[:, ::-1].T  # (N, 2), start → goal
+```
+
+| Planner | No path found |
+| --- | --- |
+| A* | A goal-only array with shape `(2, 1)` when the search is exhausted |
+| JPS, RRT, RRT*, Informed RRT* | `None` |
+| PRM | Empty NumPy array with shape `(2, 0)` |
+
+The examples above use distinct start and goal positions, so a single-point result is not a usable connecting path. A* currently does not return an explicit failure flag: check that the path connects to the requested start grid cell before passing it to a controller. A single point can also represent a trivial start-equals-goal query.
+
+For RRT-family planners, `len(planner.node_list)` reports tree size. Do not assume PRM exposes tree attributes. Sampling-based results depend on the random seed and search budget; optimality terminology describes algorithmic properties, not a promise that a finite run finds the continuous-space optimum.
 
 ## Runnable examples
 

@@ -117,11 +117,9 @@ html[data-theme="dark"] {
 :root {
     --pst-sidebar-secondary: 14rem;
 }
-/* Primary sidebar keeps pydata's default 25% width, and the
-   whole page block is nudged right with a larger left inset
-   so the sidebar isn't flush against the window edge. */
+/* Keep useful article width on laptops as well as wide monitors. */
 .bd-container .bd-page-width {
-    padding-left: 3rem;
+    padding-left: 1.5rem;
     padding-right: 1.5rem;
 }
 .bd-page-width {
@@ -152,17 +150,14 @@ html[data-theme="dark"] {
    for cards/images, but prose kept at a comfortable reading
    measure. Layout (sidebar, page width) stays default.
    ============================================================ */
-/* Narrow the nav sidebar so the main text gets more room, and
-   mirror it with equal phantom space on the right so the content
-   block is centered in the FULL window, not just the post-sidebar
-   area (desktop only — mobile keeps its overlay drawer). */
+/* No artificial right sidebar on the landing page. */
 @media (min-width: 960px) {
     .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-sidebar-primary {
         width: 15rem;
         flex: 0 0 15rem;
     }
     .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-content {
-        padding-right: 15rem;
+        padding-right: 0;
     }
 }
 /* Centered content block: cap the article column and center it
@@ -170,21 +165,20 @@ html[data-theme="dark"] {
    sides (not flush-left, not edge-to-edge). Text stays
    left-aligned within the block. */
 .bd-page-width:not(:has(.bd-sidebar-secondary)) .bd-article-container {
-    max-width: 94rem;
+    max-width: 64rem;
     margin-inline: auto;
 }
 /* The landing hero introduces the simulator before readers choose a path.
-   Center its title, while keeping its summary and the reference-style
-   sections below left-aligned for scanning. */
+   Use the same left edge for the title, summary, and learning routes. */
 .bd-article .landing-hero > h1 {
-    text-align: center;
+    text-align: left;
     margin-inline: auto;
 }
 /* The landing summary follows the full width of the home-page content shell,
    rather than the narrower reading measure used by regular prose. */
 .bd-page-width:not(:has(.bd-sidebar-secondary))
     .bd-article .landing-hero > p:first-of-type {
-    max-width: none;
+    max-width: 72ch;
 }
 /* Measured prose: paragraphs and bullet lists stay readable
    (~72ch) even though the shell is wide. Card text lives in
@@ -233,15 +227,11 @@ html[data-theme="dark"] {
     border-color: var(--site-accent);
 }
 .bd-article .hero-cta .sd-card.hero-cta-primary .sd-card-title {
-    color: #fff;
+    color: var(--pst-color-primary-text);
 }
-/* Align the brand title's left edge with the left sidebar's
-   content column: page-width inset (3rem) + sidebar pad (1rem)
-   = 4rem; header inner pad is 1.5rem, so offset the brand by
-   the 2.5rem difference. Only the brand shifts (nav/end keep
-   their single-row fit). */
+/* Leave enough room for navigation and reader controls. */
 .bd-header .navbar-brand {
-    margin-left: 2.5rem;
+    margin-left: 0;
 }
 .bd-header .bd-navbar-elements,
 .bd-header .navbar-header-items {

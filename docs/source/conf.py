@@ -12,7 +12,6 @@
 #
 import os
 import sys
-import warnings
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.abspath("../../"))
@@ -41,14 +40,14 @@ project = "IR-SIM"
 copyright = "2024, Ruihua Han"
 author = "Ruihua Han"
 
-language = 'en'
+language = "en"
 
-locale_dirs = ['../locale/']
+locale_dirs = ["../locale/"]
 gettext_compact = False
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 html_context = {
-    'display_language_switch': True,
+    "display_language_switch": True,
 }
 
 # The full version, including alpha/beta/rc tags
@@ -67,6 +66,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx.ext.mathjax",
     "myst_parser",
     "sphinx_copybutton",
     "sphinx_design",
@@ -92,7 +92,7 @@ myst_enable_extensions = [
     # Add other extensions as needed
 ]
 
-# Auto-generate slug anchors for h1–h4 so in-page/cross-doc
+# Auto-generate slug anchors for h1-h4 so in-page/cross-doc
 # `[text](page.md#heading-slug)` links resolve consistently.
 myst_heading_anchors = 4
 
@@ -102,7 +102,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["_static/branding/README.md"]
 
 # Suppress specific warnings - using regex patterns to catch duplicate warnings
 suppress_warnings = [
@@ -266,8 +266,8 @@ html_theme_options = {
         "navbar-icon-links",
         "font-size-switch",
     ],
-    # Keep every top-level project page visible in the desktop navbar.
-    "header_links_before_dropdown": 8,
+    # Keep learning/reference links visible; move project links into "More".
+    "header_links_before_dropdown": 5,
     "switcher": {
         "json_url": "https://raw.githubusercontent.com/hanruihua/ir-sim/main/docs/source/_static/switcher.json",
         "version_match": release,
@@ -325,6 +325,18 @@ ogp_use_first_image = True
 def setup(app):
     """Register custom Sphinx integrations."""
     app.add_css_file("my_theme.css")
+
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    from playground_build import on_build_finished
+
+    app.connect("build-finished", on_build_finished)
+
+    def add_learning_assets(app, pagename, templatename, context, doctree):
+        if pagename in {"get_started/kinematics", "playground/index"}:
+            app.add_css_file("kinematics-lab.css")
+            app.add_js_file("kinematics-lab.js", defer="defer")
+
+    app.connect("html-page-context", add_learning_assets)
     if ENABLE_AUTOAPI:
         app.connect("autoapi-skip-member", autoapi_skip_member)
 

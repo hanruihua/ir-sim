@@ -1,0 +1,146 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-24 20:39+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/playground/index.md:5
+msgid "Online Playground"
+msgstr "在线实验"
+
+#: ../../source/playground/index.md:13
+msgid "A first experiment"
+msgstr "第一次实验"
+
+#: ../../source/playground/index.md:15
+msgid "Click **Launch Python**. The first launch downloads Python and its scientific packages; this can take a while on a slow connection."
+msgstr "点击**启动 Python**。首次启动需要下载 Python 及其科学计算依赖，网络较慢时可能需要等待一段时间。"
+
+#: ../../source/playground/index.md:18
+msgid "Expand **Scene YAML**, edit `state`, `shape`, or `world.step_time`, then click **Apply YAML / Reset**. This recreates the environment with the selected seed."
+msgstr "展开**场景 YAML**，修改 `state`、`shape` 或 `world.step_time`，然后点击**应用 YAML / 重置**，使用所选随机种子重新创建环境。"
+
+#: ../../source/playground/index.md:19
+msgid "Select **Collision & obstacles**, apply its YAML, set yaw rate to zero, and choose a 10-second run. The robot stops when it meets the wall in `collision_mode: stop`."
+msgstr "选择**碰撞与障碍物**并应用其 YAML，将角速度设为零，选择运行 10 秒。在 `collision_mode: stop` 下，机器人遇到墙壁后停止。"
+
+#: ../../source/playground/index.md:21
+msgid "Use **Download YAML** to continue locally. **Release runtime** stops the worker and frees its Python environment; snapshots stay visible. If initialization fails or a calculation exceeds its time budget, release and relaunch. Nothing automatically falls back to a JavaScript simulation."
+msgstr "点击**下载 YAML** 可在本地继续实验。**释放运行时**会停止 worker 并释放其 Python 环境，已计算的快照仍保留在界面上。若初始化失败或计算超时，请释放后重新启动。系统不会自动退回到 JavaScript 仿真。"
+
+#: ../../source/playground/index.md:23
+msgid "What runs here?"
+msgstr "实际运行的是什么？"
+
+#: ../../source/playground/index.md:27
+msgid "Python runs in a dedicated Web Worker using [Pyodide](https://pyodide.org/en/stable/usage/webworker.html). Computation uses your device, not GitHub or a remote simulation server. Launching downloads runtime assets from jsDelivr and a pinned Python dependency from PyPI; the first launch therefore requires network access."
+msgstr "Python 通过 [Pyodide](https://pyodide.org/en/stable/usage/webworker.html) 在独立 Web Worker 中运行。计算使用你的设备，而非 GitHub 或远程仿真服务器。启动时会从 jsDelivr 下载运行时资源，并从 PyPI 下载锁定版本的 Python 依赖，因此首次启动需要联网。"
+
+#: ../../source/playground/index.md:29
+msgid "Current scope"
+msgstr "当前支持范围"
+
+#: ../../source/playground/index.md:33
+msgid "The scene and the running environment are local to this tab. Avoid putting secrets in configurations. **Open in Playground** from a tutorial carries its YAML and command settings in the URL fragment; anyone you share that full URL with can read those settings. Reloading does not restore the running simulation."
+msgstr "场景及运行中的环境都位于当前浏览器标签页。请勿在配置中放入秘密信息。教程中的**打开在线实验**会通过 URL 片段携带 YAML 和指令参数；拿到完整链接的人可以读取这些设置。刷新页面不会恢复正在运行的仿真。"
+
+#: ../../source/playground/index.md:35
+msgid "Local preview and deployment"
+msgstr "本地预览与部署"
+
+#: ../../source/playground/index.md:37
+msgid "Serve the generated files over HTTP(S); module workers cannot run from a `file://` page. From the repository root, after building the documentation:"
+msgstr "通过 HTTP(S) 提供生成的文件；模块 worker 无法在 `file://` 页面中运行。构建文档后，在仓库根目录执行："
+
+#: ../../source/playground/index.md:43
+msgid "Open `http://127.0.0.1:8000/html/playground/` for English or `http://127.0.0.1:8000/zh_CN/playground/` for Chinese. The same generated files work on static hosting such as Read the Docs or GitHub Pages; no Python server is needed after deployment."
+msgstr "打开 `http://127.0.0.1:8000/html/playground/` 查看英文版，或打开 `http://127.0.0.1:8000/zh_CN/playground/` 查看中文版。同一套生成文件可部署到 Read the Docs 或 GitHub Pages 等静态托管平台，部署后无需 Python 服务器。"
+
+#: ../../source/playground/index.md:45
+msgid "Learn with guided experiments"
+msgstr "跟随引导学习"
+
+#: ../../source/playground/index.md:47
+msgid "[From commands to motion](../get_started/kinematics.md): understand the model and reproduce a numerical checkpoint."
+msgstr "[从控制指令到运动](../get_started/kinematics.md)：理解模型并复现数值检查点。"
+
+#: ../../source/playground/index.md:48
+msgid "[Concepts](../concepts.md): state, action, coordinate frames, and model assumptions."
+msgstr "[核心概念](../concepts.md)：状态、动作、坐标系与模型假设。"
+
+#: ../../source/playground/index.md:49
+msgid "[YAML reference](../yaml_config/configuration.md): look up simulator parameters; the playground's supported subset is listed above."
+msgstr "[YAML 参考](../yaml_config/configuration.md)：查询仿真器参数；在线实验支持的子集见上文。"
+
+#: ../../source/playground/index.md:7
+msgid "Run real IR-SIM Python code in your browser. No Python installation or simulation server is required. Start with a differential-drive robot, change its YAML configuration, and view the simulator's native Matplotlib output."
+msgstr "在浏览器中运行真实的 IR-SIM Python 代码，无需安装 Python，也无需仿真服务器。从差速机器人开始，修改 YAML 配置，查看仿真器原生的 Matplotlib 画面。"
+
+#: ../../source/playground/index.md:16
+msgid "Click **Run** to start continuous simulation (the default), or use **Step** to advance once. With **Sliders (one diff robot)** selected, adjust speed and yaw rate while running; the latest `[linear_speed, yaw_rate]` is read at the start of each step group, subject to the robot's velocity limits. Select **Behaviors in YAML** to use configured behaviors instead; robots without a behavior stay still."
+msgstr "点击**运行**开始持续仿真（默认模式），或点击**单步**只推进一步。选择 **滑块指令（单个差速机器人）** 后，可在运行过程中调整线速度和角速度；每组仿真步开始时读取最新的 `[线速度, 角速度]`，实际执行受机器人速度限制约束。选择 **YAML 中的行为** 则使用配置的行为；没有行为的机器人保持不动。"
+
+#: ../../source/playground/index.md:17
+msgid "Pause to inspect a state. The time slider replays captured Matplotlib frames; it does not rewind the live environment. Further steps continue from the latest state. Replay retains up to 200 recent frames within a 32 MiB image budget."
+msgstr "暂停后查看状态。时间滑块回放已捕获的 Matplotlib 画面，不会回退实际环境；再次推进时，仿真从最新状态继续。回放最多保留最近 200 帧，图片总量限制为 32 MiB。"
+
+#: ../../source/playground/index.md:20
+msgid "Select **LiDAR & compound shape** and apply its YAML. All built-in scenes default to **Sliders (one diff robot)**; adjust the sliders while running, or select **Behaviors in YAML** for automatic navigation. The L-shaped robot, goal, trajectory, and laser beams are drawn by IR-SIM's existing plotting code. Change `color` or `plot.show_trajectory` in YAML and reset to compare."
+msgstr "选择 **LiDAR 与复合形状** 并应用其 YAML。所有内置场景均默认使用 **滑块指令（单个差速机器人）**，可在运行中调整滑块，也可选择 **YAML 中的行为** 进行自动导航。L 形机器人、目标、轨迹和激光束均由 IR-SIM 现有绘图代码绘制。修改 YAML 中的 `color` 或 `plot.show_trajectory` 后重置，即可比较效果。"
+
+#: ../../source/playground/index.md:26
+msgid "Each documentation build bundles the IR-SIM source from that checkout. The widget displays its package version, source archive checksum, and pinned Pyodide version. It does not silently install a newer IR-SIM release when you open an older documentation page. The adapter calls `irsim.make(..., display=False)`, `env.step()`, and `env.render()`. Unlike `headless=True`, `display=False` keeps the Matplotlib figure while suppressing the desktop window. The Agg canvas sends PNG frames to the page; JavaScript does not redraw robot geometry, sensors, or trajectories."
+msgstr "每次文档构建都会打包该检出版本的 IR-SIM 源码。组件会显示软件包版本、源码压缩包校验值以及锁定的 Pyodide 版本。打开旧版文档时，不会静默安装更新的 IR-SIM。适配器调用 `irsim.make(..., display=False)`、`env.step()` 和 `env.render()`。与 `headless=True` 不同，`display=False` 保留 Matplotlib 画布，但不打开桌面窗口。Agg 画布向页面发送 PNG 帧；JavaScript 不再单独绘制机器人几何、传感器或轨迹。"
+
+#: ../../source/playground/index.md:28
+msgid "This reuses the same plotting logic as local IR-SIM, including YAML plot settings. Fonts and rasterization can differ across Matplotlib versions. The default browser figure is 720 × 576 pixels; `world.plot.figure_pixels` can set each dimension between 240 and 1,000 pixels."
+msgstr "这里复用本地 IR-SIM 的绘图逻辑，包括 YAML 绘图设置。不同 Matplotlib 版本的字体和栅格化结果可能略有差异。浏览器默认画布为 720 × 576 像素；可通过 `world.plot.figure_pixels` 将每个维度设为 240 至 1,000 像素。"
+
+#: ../../source/playground/index.md:32
+msgid "Simulation steps and image updates"
+msgstr "仿真步与画面更新"
+
+msgid "The default **Continuous** duration runs until you pause, the environment reports completion, or the 2,000-step safety limit is reached. With the default `step_time: 0.2`, that limit allows 400 simulated seconds per reset. Choose **4 s**, **10 s**, or **20 s** before running for a fixed-duration experiment. Pausing prevents further step groups; a group already being computed may finish. Reset after reaching the safety limit to start again."
+msgstr "默认选择**持续运行**，直到手动暂停、环境报告结束或达到 2,000 步安全上限。默认 `step_time: 0.2` 下，每次重置后最多可运行 400 秒仿真时间。如需定时实验，可在运行前选择 **4 s**、**10 s** 或 **20 s**。暂停后不再提交新的仿真步组，已在计算的步组可能仍会完成。达到安全上限后，重置即可重新开始。"
+
+#: ../../source/playground/index.md:34
+msgid "Continuous runs group complete simulation steps to target at most about 10 image updates per simulated second. Every integration step still calls the original `env.step()` and `env.render()`; neither the configured `step_time` nor sensor/collision calculations are approximated or skipped. Slow devices may take longer than real time. **Step** always advances exactly one simulation step."
+msgstr "连续运行会将完整仿真步分组，目标是每秒仿真时间更新约 10 帧或更少。每个积分步仍调用原有 `env.step()` 和 `env.render()`；不会改变配置的 `step_time`，也不会近似或跳过传感器及碰撞计算。较慢的设备可能无法实时运行。**单步**始终只推进一个仿真步。"
+
+#: ../../source/playground/index.md:36
+msgid "The original `world.sample_time` still controls when IR-SIM updates its plot. If it is larger than `step_time`, the Matplotlib frame time can lag the state readout. Replaying a frame shows the stored image and state; it does not recompute the simulation. The object inspector reports the selected object; the figure displays all objects."
+msgstr "原有 `world.sample_time` 仍控制 IR-SIM 何时更新绘图。如果它大于 `step_time`，Matplotlib 画面时刻可能落后于状态读数。回放显示已存储的图片和状态，不会重新计算仿真。对象状态面板显示所选对象，图中则显示全部对象。"
+
+msgid "Inspect object states"
+msgstr "查看对象状态"
+
+msgid "The **Object inspector** lists every robot and obstacle by name and ID. Select an object to view its role, kinematics, shape, `state`, `velocity`, current `goal`, and the `collision_flag`, `arrive_flag`, `stop_flag`, and `static` values. It updates with each returned simulation snapshot and follows the replay time when paused. Switching objects only changes the readout, not the robot receiving slider commands."
+msgstr "**对象状态**面板按名称和 ID 列出所有机器人和障碍物。选择对象即可查看其类型、运动学、形状、`state`、`velocity`、当前 `goal`，以及 `collision_flag`、`arrive_flag`、`stop_flag` 和 `static` 的值。面板随每次返回的仿真快照更新，暂停后随回放时间显示对应数据。切换对象只改变查看内容，不会改变接收滑块指令的机器人。"
+
+msgid "The page uses the available content width. On wide screens, velocity controls, the plot, and object states sit side by side; smaller windows rearrange the panels automatically. Run and pause stay next to the velocity sliders. Expand **Scene YAML** when you want to edit the configuration; it starts collapsed to leave more room for the experiment."
+msgstr "页面使用全部可用内容宽度。宽屏下，速度控制、仿真画面和对象状态并排显示；较窄的窗口会自动调整面板布局。运行和暂停按钮紧邻速度滑块。需要编辑配置时，展开**场景 YAML**；默认折叠以便为实验留出更多空间。"
+
+msgid "These are snapshots of the object's native attributes, not values recomputed from the image or copied from the command sliders. Arrays keep their model-specific component order; see [state and action conventions](../concepts.md). The display rounds numbers to four decimal places without changing the simulation. A missing goal or kinematics model appears as `—`. The stop flag is the simulator's `stop_flag`, not a test for zero velocity. State time and Matplotlib frame time are shown separately because plot sampling can make them differ."
+msgstr "这些数据是对象原始属性的快照，不是根据图像重新计算或直接复制指令滑块的值。数组保留各模型的分量顺序，参见[状态与动作约定](../concepts.md)。界面将数值显示为四位小数，不改变仿真计算。没有目标或运动学模型时显示 `—`。停止标志来自仿真器的 `stop_flag`，不等同于判断速度是否为零。由于绘图采样可能使两者不同，状态时刻和 Matplotlib 画面时刻分别显示。"
+
+#: ../../source/playground/index.md:40
+msgid "The interface accepts 2D YAML scenes with up to 10 robots and 50 obstacles, simulation steps from `0.01` to `0.5` seconds, and a 2,000-step budget per reset. Slider commands require a single `diff` robot; other models and multi-robot scenes use **Behaviors in YAML**. Tested examples include `diff`, `omni`, and `acker` with `dash`, compound geometry, trajectories, `lidar2d`, and `fmcw_lidar2d`."
+msgstr "界面接受二维 YAML 场景，最多包含 10 个机器人和 50 个障碍物，仿真步长为 `0.01` 至 `0.5` 秒，每次重置后最多运行 2,000 步。滑块指令要求场景中只有一个 `diff` 机器人；其他模型和多机器人场景使用 **YAML 中的行为**。已测试的示例包括使用 `dash` 的 `diff`、`omni` 和 `acker`，以及复合几何、轨迹、`lidar2d` 和 `fmcw_lidar2d`。"
+
+#: ../../source/playground/index.md:42
+msgid "Reusing Matplotlib does **not** make every IR-SIM feature browser-compatible. Desktop keyboard/mouse controls and the Matplotlib window toolbar are not forwarded. This interface does not yet expose file uploads, file/grid maps, 3D projection, arbitrary Python scripts or planner calls, ROS connections, or optional native extensions such as `pyrvo`. Additional features need their own browser integration and tests; importing the simulator alone is not a compatibility guarantee."
+msgstr "复用 Matplotlib **不代表** IR-SIM 的所有功能都兼容浏览器。桌面键鼠控制和 Matplotlib 窗口工具栏不会被转发。当前界面尚未提供文件上传、文件或栅格地图、三维投影、任意 Python 脚本或规划器调用、ROS 连接，以及 `pyrvo` 等可选原生扩展。其他功能仍需单独进行浏览器适配和测试；能导入仿真器并不意味着所有功能都兼容。"

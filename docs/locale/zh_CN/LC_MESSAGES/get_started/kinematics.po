@@ -1,0 +1,191 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2024, Ruihua Han
+# This file is distributed under the same license as the IR-SIM package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: IR-SIM\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-24 20:39+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/get_started/kinematics.md:1
+msgid "From commands to motion"
+msgstr "从指令到运动"
+
+#: ../../source/get_started/kinematics.md:3
+msgid "Change a velocity command and see how it becomes a trajectory. This lab connects the state and action conventions in [Concepts](../concepts.md) to the differential-drive update used by IR-SIM."
+msgstr "改变速度指令，观察它如何形成轨迹。本实验将[核心概念](../concepts.md) 中的状态与动作约定，与 IR-SIM 使用的差速运动学更新联系起来。"
+
+#: ../../source/get_started/kinematics.md:5
+msgid "Explore the model"
+msgstr "探索模型"
+
+#: ../../source/get_started/kinematics.md:15
+msgid "Three experiments"
+msgstr "三个小实验"
+
+#: ../../source/get_started/kinematics.md:18
+msgid "Set the linear speed to `0`. Position stays fixed while the heading changes: a differential-drive robot can turn in place."
+msgstr "将前向速度设为 `0`。位置保持不变，航向持续变化：差速机器人可以原地旋转。"
+
+#: ../../source/get_started/kinematics.md:21
+msgid "State, frames, and units"
+msgstr "状态、坐标系与单位"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Quantity"
+msgstr "物理量"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Meaning"
+msgstr "含义"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Unit"
+msgstr "单位"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "`x`, `y`"
+msgstr "`x`, `y`"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Position in the world frame"
+msgstr "世界坐标系中的位置"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "m"
+msgstr "m"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "`theta`"
+msgstr "`theta`"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Heading from world +x toward +y; positive counterclockwise"
+msgstr "从世界坐标系 +x 轴朝 +y 轴的航向角，逆时针为正"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "rad"
+msgstr "rad"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "`v`"
+msgstr "`v`"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Forward speed in the robot's frame"
+msgstr "机器人坐标系中的前向速度"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "m/s"
+msgstr "m/s"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "`omega`"
+msgstr "`omega`"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Yaw rate; positive counterclockwise"
+msgstr "航向角速度，逆时针为正"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "rad/s"
+msgstr "rad/s"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "`dt`"
+msgstr "`dt`"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "Simulated duration of one integration step"
+msgstr "单次积分步的仿真时长"
+
+#: ../../source/get_started/kinematics.md:9
+msgid "s"
+msgstr "s"
+
+#: ../../source/get_started/kinematics.md:33
+msgid "\\begin{aligned}\nx_{k+1} &= x_k + v_k \\cos(\\theta_k)\\,\\Delta t,\\\\\ny_{k+1} &= y_k + v_k \\sin(\\theta_k)\\,\\Delta t,\\\\\n\\theta_{k+1} &= \\operatorname{wrap}_{[-\\pi,\\pi)}(\\theta_k + \\omega_k\\,\\Delta t).\n\\end{aligned}"
+msgstr "\\begin{aligned}\nx_{k+1} &= x_k + v_k \\cos(\\theta_k)\\,\\Delta t,\\\\\ny_{k+1} &= y_k + v_k \\sin(\\theta_k)\\,\\Delta t,\\\\\n\\theta_{k+1} &= \\operatorname{wrap}_{[-\\pi,\\pi)}(\\theta_k + \\omega_k\\,\\Delta t).\n\\end{aligned}"
+
+#: ../../source/get_started/kinematics.md:41
+msgid "This is the noise-free update in {py:func}`~irsim.lib.algorithm.kinematics.differential_kinematics`. It is a kinematic approximation, not a model of forces, friction, or wheel slip. For the underlying mobile-robot model, see Lynch and Park, *Modern Robotics: Mechanics, Planning, and Control* (2017), Chapter 13."
+msgstr "这是 {py:func}`~irsim.lib.algorithm.kinematics.differential_kinematics` 中的无噪声更新。它是运动学近似，不是力、摩擦或轮胎滑移模型。移动机器人模型的理论背景可参阅 Lynch 与 Park 的 *Modern Robotics: Mechanics, Planning, and Control*（2017）第 13 章。"
+
+#: ../../source/get_started/kinematics.md:43
+msgid "Reproduce the default result in Python"
+msgstr "用 Python 复现默认结果"
+
+#: ../../source/get_started/kinematics.md:45
+msgid "This example calls the same integration function as the simulator, without rendering or a controller. It matches the lab's default inputs."
+msgstr "本示例调用与仿真器相同的积分函数，不使用渲染或控制器。输入与交互实验的默认值一致。"
+
+#: ../../source/get_started/kinematics.md:67
+msgid "What does the error measure?"
+msgstr "这里的误差衡量什么？"
+
+#: ../../source/get_started/kinematics.md:69
+msgid "For a constant command and nonzero yaw rate, the continuous-time solution is a circular arc:"
+msgstr "当指令恒定且角速度非零时，连续时间解是一段圆弧："
+
+#: ../../source/get_started/kinematics.md:71
+msgid "\\begin{aligned}\nx(t) &= x_0 + \\frac{v}{\\omega}\\bigl[\\sin(\\theta_0+\\omega t)-\\sin(\\theta_0)\\bigr],\\\\\ny(t) &= y_0 - \\frac{v}{\\omega}\\bigl[\\cos(\\theta_0+\\omega t)-\\cos(\\theta_0)\\bigr].\n\\end{aligned}"
+msgstr "\\begin{aligned}\nx(t) &= x_0 + \\frac{v}{\\omega}\\bigl[\\sin(\\theta_0+\\omega t)-\\sin(\\theta_0)\\bigr],\\\\\ny(t) &= y_0 - \\frac{v}{\\omega}\\bigl[\\cos(\\theta_0+\\omega t)-\\cos(\\theta_0)\\bigr].\n\\end{aligned}"
+
+#: ../../source/get_started/kinematics.md:80
+msgid "For smooth motion over a fixed duration, forward Euler has first-order global error: reducing the step size reduces the leading integration error approximately in proportion. This example is not a collision-accuracy benchmark. Smaller steps do not turn sampled collision checks into continuous collision detection."
+msgstr "对于固定时长内的平滑运动，前向 Euler 法具有一阶全局误差：减小步长会使主要积分误差近似按比例减小。本示例不是碰撞精度基准测试；更小的步长不会将离散采样的碰撞检查变成连续碰撞检测。"
+
+#: ../../source/get_started/kinematics.md:82
+msgid "Continue learning"
+msgstr "继续学习"
+
+#: ../../source/get_started/kinematics.md:84
+msgid "[Configure robots and obstacles](../usage/configure_robots_obstacles.md): choose a footprint, kinematics model, and velocity limits."
+msgstr "[配置机器人与障碍物](../usage/configure_robots_obstacles.md)：选择轮廓、运动学模型和速度限制。"
+
+#: ../../source/get_started/kinematics.md:85
+msgid "[Configure sensors](../usage/configure_sensor.md): turn geometry into measurements."
+msgstr "[配置传感器](../usage/configure_sensor.md)：将几何信息转化为测量。"
+
+#: ../../source/get_started/kinematics.md:86
+msgid "[Path planning](../usage/configure_path_planning.md): distinguish a geometric path from executable commands."
+msgstr "[路径规划](../usage/configure_path_planning.md)：区分几何路径与可执行指令。"
+
+#: ../../source/get_started/kinematics.md:7
+msgid "The default scene starts at `(0, 0)`. Launch Python and click Run; the default duration is Continuous, so you can keep adjusting linear speed and yaw rate until you pause or reach the environment's completion or safety limit. To reproduce the numerical checkpoint below, select **4 s** before running and keep the command constant. Edit the initial heading and integration step in the YAML, then apply it. Scrub time to inspect previously computed states. The axes use metres and the same scale in both directions."
+msgstr "默认场景从 `(0, 0)` 出发。启动 Python 并点击运行，默认时长为持续运行，可不断调整线速度和角速度，直到暂停、环境结束或达到安全上限。要复现下方数值检查点，请在运行前选择 **4 s**，并保持指令恒定。在 YAML 中修改初始朝向与积分步长后应用配置。拖动时间滑块可查看已经计算的状态。坐标轴以米为单位，两个方向使用相同比例。"
+
+#: ../../source/get_started/kinematics.md:19
+msgid "Select Free motion and apply its YAML, then compare `step_time: 0.2` with `step_time: 0.05`. Run each for **four simulated seconds** and compare the final positions with the analytic solution below, not after the same number of steps."
+msgstr "选择自由运动并应用其 YAML，然后比较 `step_time: 0.2` 和 `step_time: 0.05`。分别运行**四秒仿真时间**，将最终位置与下方解析解比较，而不是比较相同步数后的结果。"
+
+#: ../../source/get_started/kinematics.md:31
+msgid "The heading in YAML, the state display, and the Python API all use radians. State arrays have shape `(3, 1)` and velocity arrays have shape `(2, 1)`. The body-frame command is rotated into the world frame using the heading **at the beginning of the step**:"
+msgstr "YAML 中的朝向、状态显示和 Python API 均使用弧度。状态数组的形状为 `(3, 1)`，速度数组的形状为 `(2, 1)`。机体坐标系中的指令根据**该步开始时的朝向**旋转到世界坐标系："
+
+#: ../../source/get_started/kinematics.md:65
+msgid "The browser experiment uses `env.step(action=[0.8, 0.6])` on a full `diff` environment. Its default velocity limits do not clip this command, so its result agrees with the low-level check above. Download the [default YAML](../_static/playground/kinematics.yaml) to reproduce the scene locally. See [Make Environment](../usage/make_environment.md) for the complete loop."
+msgstr "浏览器实验在完整的 `diff` 环境中调用 `env.step(action=[0.8, 0.6])`。默认速度限制不会截断该指令，因此结果与上方底层函数检查一致。下载[默认 YAML](../_static/playground/kinematics.yaml) 可在本地复现场景。完整仿真循环见[创建环境](../usage/make_environment.md)。"
+
+#: ../../source/get_started/kinematics.md:78
+msgid "At zero yaw rate the solution is a straight line. The Euclidean distance between the simulated position and this analytic position measures **numerical integration error for this model**, not real-world localization or sensing error. With the defaults at four seconds it is approximately `0.149156 m`. This comparison assumes a constant, unclipped command, no noise, and no collision-induced stopping."
+msgstr "角速度为零时，解析解是一条直线。仿真位置与解析位置之间的欧氏距离衡量的是**该模型的数值积分误差**，并非现实中的定位或传感误差。默认参数下，四秒时约为 `0.149156 m`。此比较假设指令恒定且未被速度限制截断、没有噪声，也没有碰撞导致的停止。"
+
+#: ../../source/get_started/kinematics.md:13
+msgid "This widget runs the actual IR-SIM package in Pyodide, using the same component as the [Online Playground](../playground/index.md). The image comes directly from IR-SIM's Matplotlib renderer, including its robot, goal, and trajectory styles. The default scene is noise-free. Python handles simulation and rendering; JavaScript displays captured frames. The equations and runnable Python example below remain available if the runtime cannot load."
+msgstr "此组件在 Pyodide 中运行真实的 IR-SIM 包，与[在线实验](../playground/index.md)共用同一实现。图片直接来自 IR-SIM 的 Matplotlib 渲染器，沿用其机器人、目标和轨迹样式。默认场景不含噪声。Python 负责仿真和绘图，JavaScript 显示捕获的画面。即使运行时无法加载，仍可阅读下方公式并运行 Python 示例。"
+
+#: ../../source/get_started/kinematics.md:17
+msgid "Select slider control and set the yaw rate to `0`. The trajectory is straight and agrees with the analytic solution, apart from floating-point rounding."
+msgstr "选择滑块控制，将角速度设为 `0`。轨迹为直线，除浮点舍入外与解析解一致。"

@@ -1,0 +1,36 @@
+world:
+  width: 10
+  height: 10
+  step_time: 0.1
+  collision_mode: stop
+
+robot:
+  kinematics: {name: diff}
+  shape:
+    name: compound
+    parts:
+      - {name: rectangle, length: 0.8, width: 0.3}
+      - {name: rectangle, length: 0.3, width: 0.8, pose: [-0.25, 0.3, 0]}
+  state: [1, 1, 0]
+  goal: [8, 8, 0]
+  behavior: {name: dash}
+  color: royalblue
+  plot:
+    show_goal: true
+    show_arrow: true
+    show_trajectory: true
+  sensors:
+    - name: lidar2d
+      range_max: 4
+      angle_range: 3.14159265
+      number: 90
+      noise: false
+      plot: {alpha: 0.25}
+
+obstacle:
+  - shape: {name: rectangle, length: 1, width: 2.5}
+    state: [6, 4, 0]
+    color: dimgray
+  - shape: {name: circle, radius: 0.6}
+    state: [3, 6, 0]
+    color: darkorange

@@ -1,0 +1,110 @@
+/* Fluid Playground page; keep other documentation pages' reading measure. */
+.bd-container .bd-page-width:has(#online-playground) {
+    max-width: none;
+    padding-inline: clamp(0.75rem, 2vw, 1.5rem);
+}
+.bd-page-width:not(:has(.bd-sidebar-secondary)):has(#online-playground) .bd-article-container {
+    max-width: none;
+    width: 100%;
+    margin-inline: 0;
+}
+.bd-main:has(#online-playground) { min-width: 0; width: 100%; }
+.bd-page-width .bd-article #online-playground :is(p, ul, ol) { max-width: none; }
+
+/* Compact instrument panel; responsive to the panel, not the whole window. */
+.kinematics-lab {
+    --kl-path: #164779;
+    container: lab / inline-size;
+    margin-block: 1rem;
+    border: 1px solid var(--pst-color-border);
+    border-radius: 8px;
+    background: var(--pst-color-surface);
+    line-height: 1.35;
+    overflow: hidden;
+}
+.kinematics-lab:empty { display: none; }
+html[data-theme="dark"] .kinematics-lab { --kl-path: #91c6ff; }
+.kl-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--pst-color-border);
+}
+.kl-heading strong { font-size: 1rem; }
+.kl-heading p { margin: 0.15rem 0 0; font-size: 0.75rem; color: var(--pst-color-text-muted); }
+.kinematics-lab button, .kinematics-lab select, .kl-settings input[type="number"] {
+    color: var(--pst-color-text-base);
+    background: var(--pst-color-background);
+    border: 1px solid var(--pst-color-border);
+    border-radius: 5px;
+    font: inherit;
+    font-size: 0.8rem;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.5rem;
+}
+.kinematics-lab button { cursor: pointer; }
+.kinematics-lab button:disabled { opacity: 0.5; cursor: not-allowed; }
+.kinematics-lab :is([data-action="launch"], [data-action="run"]) { background: var(--kl-path); color: var(--pst-color-background); }
+.kl-metadata { display: flex; flex-wrap: wrap; gap: 0.2rem 1rem; padding: 0.4rem 0.75rem; }
+.kl-status { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.75rem; }
+.kl-version { color: var(--pst-color-text-muted); font: 0.65rem var(--pst-font-family-monospace); overflow-wrap: anywhere; }
+.kl-version:empty { display: none; }
+.kinematics-lab :is(button, input, select, summary, textarea):focus-visible {
+    outline: 3px solid var(--site-accent);
+    outline-offset: 2px;
+}
+.kl-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding: 0.5rem 0.75rem 0.65rem; }
+.kl-field { min-width: 0; }
+.kinematics-lab label { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.15rem; font-size: 0.75rem; }
+.kinematics-lab label output { font-variant-numeric: tabular-nums; font-weight: 600; }
+.kinematics-lab input[type="range"] { display: block; width: 100%; min-height: 2rem; margin: 0; accent-color: var(--kl-path); }
+.kl-settings :is(select, input), .kl-inspector select { width: 100%; margin-top: 0.2rem; }
+.kl-workspace { display: grid; grid-template-areas: "controls" "stage" "inspector"; border-top: 1px solid var(--pst-color-border); }
+.kl-controls { grid-area: controls; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 0.5rem 0.75rem; padding: 0.65rem 0.75rem; }
+.kl-toolbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.kl-stage { grid-area: stage; min-width: 0; border-top: 1px solid var(--pst-color-border); background: var(--pst-color-background); }
+.kl-figure { min-width: 0; padding: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.kl-frame { max-width: 100%; width: auto; height: auto; max-height: 38vh; object-fit: contain; }
+.kl-placeholder { padding: 3rem 0.75rem; text-align: center; color: var(--pst-color-text-muted); font-size: 0.8rem; }
+.kl-frame-caption { text-align: center; margin-top: 0.25rem; font: 0.65rem var(--pst-font-family-monospace); color: var(--pst-color-text-muted); }
+.kl-timeline { padding: 0.5rem 0.75rem; border-top: 1px solid var(--pst-color-border); }
+.kl-timeline p { font-size: 0.65rem; color: var(--pst-color-text-muted); margin: 0; }
+.kl-inspector { grid-area: inspector; min-width: 0; padding: 0.65rem 0.75rem; border-top: 1px solid var(--pst-color-border); }
+.kl-inspector-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem; }
+.kl-inspector-heading strong { font-size: 0.85rem; }
+.kl-inspector-heading span { font: 0.65rem var(--pst-font-family-monospace); color: var(--pst-color-text-muted); }
+.kl-inspector p { margin: 0.5rem 0 0; font-size: 0.65rem; color: var(--pst-color-text-muted); }
+.kl-readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; margin-top: 0.5rem; }
+.kl-readout > div { min-width: 0; }
+.kl-readout span { display: block; font-size: 0.65rem; color: var(--pst-color-text-muted); }
+.kl-readout output { display: block; font-family: var(--pst-font-family-monospace); font-size: 0.75rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.kl-flags { display: flex; flex-wrap: wrap; gap: 0.15rem 0.5rem; }
+.kl-flags output { font-size: 0.65rem; }
+.kl-flags [data-value="true"] { color: var(--kl-path); font-weight: 600; }
+.kl-flags [data-flag="collision"][data-value="true"] { color: var(--pst-color-danger); }
+.kl-editor { padding: 0.6rem 0.75rem; border-top: 1px solid var(--pst-color-border); }
+.kl-editor summary { cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+.kl-editor p { font-size: 0.75rem; color: var(--pst-color-text-muted); margin-top: 0.5rem; }
+.kl-editor textarea { display: block; width: 100%; resize: vertical; border: 1px solid var(--pst-color-border); border-radius: 5px; padding: 0.65rem; background: var(--pst-color-background); color: var(--pst-color-text-base); font: 0.8rem/1.5 var(--pst-font-family-monospace); margin-bottom: 0.5rem; }
+.kl-editor a { margin-left: 0.5rem; font-size: 0.8rem; }
+
+@container lab (min-width: 36rem) {
+    .kl-settings { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(6rem, 0.65fr) minmax(5rem, 0.5fr); }
+    .kl-workspace { grid-template-columns: 13rem minmax(0, 1fr); grid-template-areas: "controls stage" "inspector inspector"; }
+    .kl-controls { grid-template-columns: 1fr; }
+    .kl-stage { border-top: 0; border-left: 1px solid var(--pst-color-border); display: flex; flex-direction: column; justify-content: center; }
+    .kl-frame { max-height: 52vh; }
+    .kl-inspector .kl-readout { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container lab (min-width: 52rem) {
+    .kl-workspace { grid-template-columns: 12rem minmax(0, 1fr) 17rem; grid-template-areas: "controls stage inspector"; }
+    .kl-inspector { border-top: 0; border-left: 1px solid var(--pst-color-border); }
+    .kl-inspector .kl-readout { grid-template-columns: 1fr; }
+    .kl-frame { max-height: 48vh; }
+}
+@container lab (max-width: 24rem) {
+    .kl-settings, .kl-controls, .kl-readout { grid-template-columns: 1fr; }
+}
