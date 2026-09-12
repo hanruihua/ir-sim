@@ -160,7 +160,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 | **Kinematics**   | Differential Drive mobile Robot · Omnidirectional mobile Robot · Omnidirectional with Angular control · Ackermann Steering mobile Robot                                                 |
 | **Sensors**      | 2D LiDAR · 2D FMCW LiDAR · FOV Detector                                                                                                                                                 |
 | **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map · Fog of Map                                                                                                                |
-| **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance) · SFM (Social Force Model)                                        |
+| **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance) · SFM (Social Force Model, per-object and group with social groups) |
 
 ## Documentation
 

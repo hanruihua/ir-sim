@@ -215,15 +215,46 @@ In a combined configuration for multiple simulators, these keys may be nested un
   </div>
   </details>
   <details>
-  <summary><a class="yt-key" href="#p-o-group-behavior">group_behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">group-level (ORCA)</span></summary>
+  <summary><a class="yt-key" href="#p-o-group-behavior">group_behavior</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">group-level (ORCA / SFM)</span></summary>
   <div class="yt-body">
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">unset</span><span class="yt-desc">orca</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">neighborDist</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">15.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxNeighbors</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizon</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">20.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizonObst</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">safe_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
-    <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxSpeed</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">falls back to vel_max</span></div>
+    <div class="yt-utabs">
+      <input class="yt-utab-radio" type="radio" name="yt-v-group-behavior" id="yt-v-gbeh-orca" checked>
+      <input class="yt-utab-radio" type="radio" name="yt-v-group-behavior" id="yt-v-gbeh-sfm">
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-group-behavior">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-gbeh-orca">orca</label><label for="yt-v-gbeh-sfm">sfm</label></span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">wander</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared: new random goal on arrival</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">loop</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">shared: cycle waypoints</span></div>
+      <div class="yt-utabpanels">
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">neighborDist</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">15.0</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxNeighbors</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">10</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizon</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">20.0</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizonObst</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">safe_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxSpeed</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">falls back to vel_max</span></div>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">vmax</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.5</span><span class="yt-desc">speed cap after force integration</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">neighbor_threshold</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span><span class="yt-desc">social interaction cutoff distance</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">relaxation_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span><span class="yt-desc">goal-pull time constant tau</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_desired</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span><span class="yt-desc">goal-pull weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_social</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.1</span><span class="yt-desc">inter-agent repulsion weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_obstacle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span><span class="yt-desc">obstacle repulsion weight</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">sigma_obstacle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.8</span><span class="yt-desc">obstacle force decay length</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">lambda_importance</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">velocity vs. position weight in interaction direction</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">gamma</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.35</span><span class="yt-desc">interaction range scale</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">n_angular</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">sideways force angular sharpness</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">n_velocity</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">slowdown force angular sharpness</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">safety_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.0</span><span class="yt-desc">personal-space buffer (m) shifting decay closer in</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">social_groups</a><span class="yt-type yt-t-mix"><b class="yt-pill">list/null</b></span><span class="yt-def">null</span><span class="yt-desc">member index lists of pedestrians walking together</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_coherence</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span><span class="yt-desc">pull toward the group centre</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_group_repulsion</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span><span class="yt-desc">push between too-close members</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">group_repulsion_threshold</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">repel below this centre distance; null = sum of radii</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_gaze</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">brake when the group leaves the field of view</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">gaze_vision_angle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">90.0</span><span class="yt-desc">field-of-view half-angle (deg)</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">all | robot | obstacle</span></div>
+        </div>
+      </div>
+    </div>
   </div>
   </details>
   <details>
@@ -743,7 +774,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `velocity`       | `list` of `float`                                | `[0] * action_dim` | Initial velocity vector. Length matches the kinematics action dimension (2 for `diff`/`omni`/`acker`, 3 for `omni_angular`). |
 | `goal`           | `list` of `float` or `list` of `list` of `float` | `[1, 9, 0]` for manual distribution | Goal state(s) vector.                                                                                              |
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`, `sfm` (availability depends on `kinematics`; see [Configure behavior](../usage/configure_behavior.md))   |
-| `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`                                           |
+| `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`, `sfm`                                    |
 | `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
 | `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots use kinematics-specific defaults; obstacles default to black. |
 | `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise the object is always static. Set `true` to freeze an object that has kinematics. |
@@ -1146,7 +1177,7 @@ env.step(env.robot.vel_world2body(world_vel))
 ```{card} Behavior Systems
 :class-card: sd-bg-light sd-rounded-3
 - **`behavior`**: `dash` (move toward the goal directly), `rvo` (reciprocal velocity obstacles), `sfm` (social force model)
-- **`group_behavior`**: `orca` (optimal reciprocal collision avoidance)
+- **`group_behavior`**: `orca` (optimal reciprocal collision avoidance), `sfm` (social force model for a whole group)
 - **`static`**: Immobile objects (`True`/`False`)
 ```
 
@@ -1216,6 +1247,24 @@ env.step(env.robot.vel_world2body(world_vel))
       timeHorizon: 10.0
       timeHorizonObst: 10.0
       safe_radius: 0.1
+    ```
+
+  - `'sfm'`: Social Force Model for the whole group, stepped from one state snapshot in a vectorised pass. Supported kinematics are `diff` and `omni`. Takes every per-object `sfm` parameter with the same names and defaults, plus the social-group parameters below; see [Configure behavior](../usage/configure_behavior.md#sfm-as-a-group-behavior).
+    - `social_groups` (list/`None`): Member indices, in YAML group order, of pedestrians walking together; each member in at most one group.
+    - `force_factor_coherence` (float/`2.0`): Weight of the pull toward the group's centre of mass.
+    - `force_factor_group_repulsion` (float/`1.0`): Weight of the push between group members that come too close.
+    - `group_repulsion_threshold` (float/`None`): Centre distance below which members repel; `None` uses the sum of their radii.
+    - `force_factor_gaze` (float/`3.0`): Weight of the brake applied when the other members leave the field of view.
+    - `gaze_vision_angle` (float/`90.0`): Half-angle in degrees of the field of view around the walking direction.
+    - `target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`.
+
+    **Example:**
+    ```yaml
+    group_behavior:
+      name: 'sfm'
+      vmax: 1.0
+      force_factor_social: 4.0
+      social_groups: [[0, 1], [2, 3, 4]]
     ```
 
 (p-o-static)=

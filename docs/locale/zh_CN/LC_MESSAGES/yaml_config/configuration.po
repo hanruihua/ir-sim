@@ -960,8 +960,8 @@ msgid "`group_behavior`"
 msgstr "`group_behavior`"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
-msgid "Group-level behavior for objects in the same group. Support name: `orca`"
-msgstr "同组对象的群体行为配置，支持 `orca`。"
+msgid "Group-level behavior for objects in the same group. Support name: `orca`, `sfm`"
+msgstr "同组对象的群体行为配置，支持 `orca`、`sfm`。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`role`"
@@ -1760,8 +1760,8 @@ msgid ""
 msgstr "**`behavior`**：`dash`（直接朝目标移动）、`rvo`（互惠速度障碍）、`sfm`（社会力模型）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1149
-msgid "**`group_behavior`**: `orca` (optimal reciprocal collision avoidance)"
-msgstr "**`group_behavior`**：`orca`（最优互惠碰撞避免）"
+msgid "**`group_behavior`**: `orca` (optimal reciprocal collision avoidance), `sfm` (social force model for a whole group)"
+msgstr "**`group_behavior`**：`orca`（最优互惠碰撞避免）、`sfm`（面向整个群组的社会力模型）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1150
 msgid "**`static`**: Immobile objects (`True`/`False`)"
@@ -3068,3 +3068,34 @@ msgstr "**绘图选项**：若 `plot` 位于对象配置内部，可为单个对
 #~ "`@register_kinematics` 注册的自定义模型正是以此方式接收自己的参数，例如 "
 #~ "`kinematics: {name: 'lag', tau: 0.5}`。"
 
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`'sfm'`: Social Force Model for the whole group, stepped from one state snapshot in a vectorised pass. Supported kinematics are `diff` and `omni`. Takes every per-object `sfm` parameter with the same names and defaults, plus the social-group parameters below; see [Configure behavior](../usage/configure_behavior.md#sfm-as-a-group-behavior)."
+msgstr "`'sfm'`：面向整个群组的社会力模型，从同一份状态快照出发以向量化方式一次推进所有成员。支持的运动学为 `diff` 与 `omni`。接受所有逐对象 `sfm` 参数（名称与默认值相同），以及下列社会群组参数；参见[配置行为](../usage/configure_behavior.md#sfm-as-a-group-behavior)。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`social_groups` (list/`None`): Member indices, in YAML group order, of pedestrians walking together; each member in at most one group."
+msgstr "`social_groups`（list/`None`）：结伴而行的行人的成员索引（按 YAML 群组顺序）；每个成员最多属于一个群组。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`force_factor_coherence` (float/`2.0`): Weight of the pull toward the group's centre of mass."
+msgstr "`force_factor_coherence`（float/`2.0`）：朝群组质心拉力的权重。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`force_factor_group_repulsion` (float/`1.0`): Weight of the push between group members that come too close."
+msgstr "`force_factor_group_repulsion`（float/`1.0`）：靠得过近的群组成员之间推力的权重。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`group_repulsion_threshold` (float/`None`): Centre distance below which members repel; `None` uses the sum of their radii."
+msgstr "`group_repulsion_threshold`（float/`None`）：成员开始相互排斥的中心距离；`None` 表示使用两者半径之和。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`force_factor_gaze` (float/`3.0`): Weight of the brake applied when the other members leave the field of view."
+msgstr "`force_factor_gaze`（float/`3.0`）：当其余成员离开视野时施加的制动力权重。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`gaze_vision_angle` (float/`90.0`): Half-angle in degrees of the field of view around the walking direction."
+msgstr "`gaze_vision_angle`（float/`90.0`）：以行走方向为中心的视野半角（度）。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
+msgid "`target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`."
+msgstr "`target_roles`（str/`'all'`）：成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`。"

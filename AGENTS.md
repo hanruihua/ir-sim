@@ -75,7 +75,8 @@ cd docs && make html
   - `acker`: `dash`
 - Group behaviors in `group_behavior.py` and `group_behavior_methods.py`:
   - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package
-- SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant)
+  - `sfm` (vectorized social force model stepping all members from one snapshot, with optional Moussaid 2010 social groups: coherence, repulsion, gaze)
+- SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant; `social_force_model` per agent, `SocialForceModelBatch` for a whole crowd)
 
 **Path Planners** (`irsim/lib/path_planners/`):
 - `a_star.py`: A* grid-based path planning
