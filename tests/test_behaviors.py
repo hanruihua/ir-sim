@@ -569,7 +569,7 @@ class TestGroupBehavior:
         """Test gen_group_vel with no behavior configured."""
         gb = GroupBehavior(mock_members)
         result = gb.gen_group_vel()
-        assert result == [None]
+        assert result == [None] * len(mock_members)
 
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_map")
     @patch("irsim.lib.behavior.group_behavior.group_behaviors_class_map")
@@ -621,7 +621,7 @@ class TestGroupBehavior:
         gb = GroupBehavior(mock_members, **behavior_dict)
 
         result = gb.gen_group_vel()
-        assert result == [None]
+        assert result == [None] * len(mock_members)
         mock_log_error.assert_called_once()
         assert (
             "No group behavior method found for category 'diff' and action 'missing_behavior'."

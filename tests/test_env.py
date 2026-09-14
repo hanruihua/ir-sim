@@ -2072,6 +2072,126 @@ class TestAssignKeyboardAction:
         env._world_param.control_mode = original_mode
 
 
+class TestAssignGroupAction:
+    """Group actions are routed to their members by identity, not by position."""
+
+    def test_actions_follow_members_not_positions(self):
+        """A group's actions land on its own members wherever they sit in
+        ``objects``, and a group without a behavior contributes nothing."""
+        from unittest.mock import MagicMock
+
+        from irsim.env.env_base import EnvBase
+
+        objects = [MagicMock(name=f"obj{i}") for i in range(5)]
+        # Group A: two plain objects, no group behavior -> one None per member
+        # (the old single-element ``[None]`` shifted every later group by one).
+        group_a = MagicMock()
+        group_a.members = [objects[0], objects[1]]
+        group_a.gen_group_vel.return_value = [None, None]
+        # Group B: non-contiguous members listed out of ``objects`` order.
+        group_b = MagicMock()
+        group_b.members = [objects[4], objects[2]]
+        group_b.gen_group_vel.return_value = ["act4", "act2"]
+
+        mock_env = MagicMock()
+        mock_env.objects = objects
+        mock_env._object_groups = [group_a, group_b]
+
+        result = EnvBase._assign_group_action(mock_env, [None] * 5)
+
+        assert result == [None, None, "act2", None, "act4"]
+
+    def test_existing_action_takes_priority(self):
+        """A keyboard/user action already in the list is not overwritten."""
+        from unittest.mock import MagicMock
+
+        from irsim.env.env_base import EnvBase
+
+        objects = [MagicMock(), MagicMock()]
+        group = MagicMock()
+        group.members = objects
+        group.gen_group_vel.return_value = ["g0", "g1"]
+
+        mock_env = MagicMock()
+        mock_env.objects = objects
+        mock_env._object_groups = [group]
+
+        result = EnvBase._assign_group_action(mock_env, ["user0", None])
+
+        assert result == ["user0", "g1"]
+
+    def test_deleted_member_does_not_shift_actions(self):
+        """An action for a member no longer in ``objects`` is dropped instead
+        of landing on the next object."""
+        from unittest.mock import MagicMock
+
+        from irsim.env.env_base import EnvBase
+
+        kept0, deleted, kept2 = MagicMock(), MagicMock(), MagicMock()
+        group = MagicMock()
+        group.members = [kept0, deleted, kept2]
+        group.gen_group_vel.return_value = ["a0", "a_deleted", "a2"]
+
+        mock_env = MagicMock()
+        mock_env.objects = [kept0, kept2]
+        mock_env._object_groups = [group]
+
+        result = EnvBase._assign_group_action(mock_env, [None, None])
+
+        assert result == ["a0", "a2"]
+
+    def test_plain_group_before_group_behavior_via_make(self, tmp_path):
+        """End-to-end: two dash robots ahead of an sfm group each keep their own
+        behavior, and every sfm member receives a group action."""
+        config = tmp_path / "mixed_groups.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 20\n"
+            "  width: 20\n"
+            "  step_time: 0.1\n"
+            "  collision_mode: 'unobstructed'\n"
+            "robot:\n"
+            "  - number: 2\n"
+            "    kinematics: {name: 'diff'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [[1, 1, 0], [1, 3, 0]]\n"
+            "    goal: [[19, 1, 0], [19, 3, 0]]\n"
+            "    behavior: {name: 'dash'}\n"
+            "    vel_max: [1, 1]\n"
+            "  - number: 3\n"
+            "    kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [[5, 10, 0], [10, 10, 0], [15, 10, 0]]\n"
+            "    goal: [[5, 19, 0], [10, 19, 0], [15, 19, 0]]\n"
+            "    vel_max: [2, 2]\n"
+            "    vel_min: [-2, -2]\n"
+            "    group_behavior: {name: 'sfm'}\n"
+        )
+
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            assigned = env._assign_group_action([None] * len(env.objects))
+            # dash robots get no group action; every sfm member gets one
+            assert assigned[0] is None
+            assert assigned[1] is None
+            assert all(a is not None for a in assigned[2:])
+
+            start = np.array([r.state[:2, 0] for r in env.robot_list])
+            for _ in range(20):
+                env.step()
+            end = np.array([r.state[:2, 0] for r in env.robot_list])
+        finally:
+            env.end()
+
+        moved = end - start
+        # dash robots drove toward +x on their own; the second one used to
+        # receive the first sfm member's velocity and spin in place instead.
+        assert moved[0, 0] > 1.0
+        assert moved[1, 0] > 1.0
+        # all three sfm members moved toward +y (their goals)
+        assert (moved[2:, 1] > 0.5).all()
+
+
 class TestMidProcessEdgeCases:
     """Tests for ObjectBase.mid_process state padding/truncation."""
 
