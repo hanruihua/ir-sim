@@ -22,10 +22,10 @@ world:
 # overwhelm the social term.
 #
 # The state/goal/color lists below are interleaved per lane
-# (blue,red,blue,red,...,green,orange,...) on purpose: ir-sim's
+# (blue,vermillion,blue,vermillion,...,green,orange,...) on purpose: ir-sim's
 # ``env.step()`` updates objects sequentially, so adjacent indices
 # read each other's freshly integrated state on every tick. Bunching
-# all blues first, then all reds, would desynchronise the pair
+# all blues first, then all vermillions, would desynchronise the pair
 # coupling and shift the SFM fixed point.
 robot:
   - number: 24
@@ -85,30 +85,30 @@ robot:
       - [ 2.6,  9,  1.5708]
       - [ 2.599, -9, -1.5708]
     color:
-      - 'royalblue'   # W->E
-      - 'red'         # E->W
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'green'       # S->N
-      - 'orange'      # N->S
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
+      - '#0072B2'   # W->E
+      - '#D55E00'         # E->W
+      - '#0072B2'
+      - '#D55E00'
+      - '#0072B2'
+      - '#D55E00'
+      - '#0072B2'
+      - '#D55E00'
+      - '#0072B2'
+      - '#D55E00'
+      - '#0072B2'
+      - '#D55E00'
+      - '#009E73'       # S->N
+      - '#E69F00'      # N->S
+      - '#009E73'
+      - '#E69F00'
+      - '#009E73'
+      - '#E69F00'
+      - '#009E73'
+      - '#E69F00'
+      - '#009E73'
+      - '#E69F00'
+      - '#009E73'
+      - '#E69F00'
     behavior:
       name: 'sfm'
       loop: true

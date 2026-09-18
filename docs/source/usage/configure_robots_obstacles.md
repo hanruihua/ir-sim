@@ -253,17 +253,13 @@ robot:
     behavior:
       - {name: 'dash'}
       - {name: 'dash'}
-    color: 
-      - 'royalblue'
-      - 'red'
+    color: 'cycle'   # one palette color per robot, in order
   
   - number: 4
     distribution: {name: 'random'}
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    color: 
-      - 'pink'
 
 
 obstacle:

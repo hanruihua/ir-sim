@@ -66,7 +66,6 @@ robot:
     goal: [2, 6, 0] 
     # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
     behavior: {name: 'dash'} # move toward to the goal directly 
-    color: 'royalblue'
     plot: {show_trajectory: True, show_trail: True, trail_fill: True, trail_alpha: 0.2} 
       
       
