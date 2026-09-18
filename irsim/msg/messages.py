@@ -205,6 +205,13 @@ class Odometry(Message):
                 twist_values[component] = float(velocity[row])
         if kinematics == "acker" and state.size > 3 and velocity.size:
             twist_values[2] = float(velocity[0]) * tan(float(state[3])) / obj.wheelbase
+        if kinematics is None and velocity.size >= 2:
+            # a passive body stores the world-frame velocity a push gave it
+            c, s = cos(yaw), sin(yaw)
+            twist_values[0] = c * float(velocity[0]) + s * float(velocity[1])
+            twist_values[1] = -s * float(velocity[0]) + c * float(velocity[1])
+            if velocity.size > 2:
+                twist_values[2] = float(velocity[2])
 
         return cls(
             header=Header(seq=int(seq), stamp=float(stamp), frame_id=frame_id),

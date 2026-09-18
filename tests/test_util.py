@@ -77,6 +77,59 @@ def test_convert_list_length():
     assert util.convert_list_length([1, 2], 1) == [[1, 2]]
     assert util.convert_list_length([1, 2], 3) == [[1, 2], [1, 2], [1, 2]]
     assert util.convert_list_length([], 0) == []
+    assert util.convert_list_length([1, 2], 3, per_object=True) == [1, 2, 2]
+    assert util.convert_list_length([1, 2, 3], 2, per_object=True) == [1, 2]
+    assert util.convert_list_length([], 2, per_object=True) == [[], []]
+    assert util.convert_list_length(4, 2, per_object=True) == [4, 4]
+
+
+def test_check_number():
+    assert util.check_number("2.5", "mass", low=0, strict_low=True) == 2.5
+    assert util.check_number("inf", "mass", low=0, allow_inf=True) == float("inf")
+    assert util.check_number(0.0, "friction", low=0) == 0.0
+    assert util.check_number(1, "restitution", low=0, high=1) == 1.0
+    for bad, kwargs in [
+        ("abc", {}),
+        ([1, 2], {}),
+        (float("nan"), {}),
+        (float("inf"), {"low": 0}),
+        (0, {"low": 0, "strict_low": True}),
+        (-0.1, {"low": 0}),
+        (1.5, {"low": 0, "high": 1}),
+        (float("-inf"), {"low": 0, "allow_inf": True}),
+    ]:
+        with pytest.raises(ValueError, match="thing"):
+            util.check_number(bad, "thing", **kwargs)
+    with pytest.raises(ValueError, match="world: gravity must be greater than 0"):
+        util.check_number(0, "gravity", low=0, strict_low=True, context="world")
+
+
+def test_check_choice():
+    assert (
+        util.check_choice(" External ", "step_mode", ("internal", "external"))
+        == "external"
+    )
+    with pytest.raises(ValueError, match="Unsupported step_mode 'sideways'"):
+        util.check_choice("sideways", "step_mode", ("internal", "external"))
+    with pytest.raises(TypeError, match="step_mode must be a string"):
+        util.check_choice(3, "step_mode", ("internal", "external"))
+    with pytest.raises(ValueError, match="world: Unsupported mode"):
+        util.check_choice("x", "mode", ("a",), context="world")
+
+
+def test_fit_length():
+    assert util.fit_length([1, 2, 3, 4], 3) == [1, 2, 3]
+    assert util.fit_length([1], 3) == [1, 0, 0]
+    assert util.fit_length((1, 2), 2, fill=None) == [1, 2]
+    assert util.fit_length([], 2, fill=None) == [None, None]
+
+
+def test_is_convex_polygon():
+    import shapely
+
+    assert util.is_convex_polygon(shapely.box(0, 0, 1, 1))
+    arrow = shapely.Polygon([(0, 0), (1, 0), (1, 1), (0.5, 0.3), (0, 1)])
+    assert not util.is_convex_polygon(arrow)
 
 
 def test_convert_list_length_dict():

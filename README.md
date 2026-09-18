@@ -161,6 +161,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 | **Sensors**      | 2D LiDAR · 2D FMCW LiDAR · FOV Detector                                                                                                                                                 |
 | **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map · Fog of Map                                                                                                                |
 | **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance) · SFM (Social Force Model, per-object and group with social groups) |
+| **Collision**    | stop · unobstructed · unobstructed_obstacles · contact (rigid-body pushing with mass, friction and inertia: robots push what they can overcome, stall against heavier boxes, off-center pushes turn boxes, released boxes slide to a stop, walls block)                                            |
 
 ## Documentation
 
