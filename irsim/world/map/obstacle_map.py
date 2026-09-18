@@ -73,7 +73,7 @@ class ObstacleMap(ObjectBase):
     def __init__(
         self,
         shape: dict | None = None,
-        color: str = "k",
+        color: str | None = None,
         static: bool = True,
         grid_map: np.ndarray | None = None,
         grid_reso: np.ndarray | None = None,
@@ -85,7 +85,7 @@ class ObstacleMap(ObjectBase):
         Args:
             shape (dict | None): Map shape configuration with keys like
                 ``{"name": "map", "reso": float, "points": array}``.
-            color (str): Display color. Default "k".
+            color (str): Display color. Default: the palette obstacle color.
             static (bool): Whether the object is static. Default True.
             grid_map (np.ndarray | None): Grid map array for fast collision detection.
             grid_reso (np.ndarray | None): Resolution [x_reso, y_reso] of the grid.

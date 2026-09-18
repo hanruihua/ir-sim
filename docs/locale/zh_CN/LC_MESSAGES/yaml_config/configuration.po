@@ -985,9 +985,9 @@ msgstr "`color`"
 msgid "inferred from role and kinematics"
 msgstr "从角色和运动学推断"
 
-#: ../../source/yaml_config/configuration.md
-msgid "Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. All defaults live in `irsim.config.palette`."
-msgstr "对象在仿真中的显示颜色。机器人默认使用绿色（`#009E73`，`acker` 为 `#117733`）；障碍物默认使用黑色。所有默认值定义在 `irsim.config.palette` 中。"
+#: ../../source/yaml_config/configuration.md:779
+msgid "Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`."
+msgstr "对象在仿真中的显示颜色。机器人默认使用绿色（`#009E73`，`acker` 为 `#117733`）；障碍物默认使用黑色。`'cycle'` 让分组中的每个对象依次使用调色板循环中的下一种颜色。所有默认值都是 `irsim.config.palette_param` 的参数。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`static`"
@@ -2237,9 +2237,9 @@ msgstr "**Sensors** — 传感器显示（`show_sensor`、`show_fov`）"
 msgid "**`color`** (`str`, default: inferred from role and kinematics)"
 msgstr "**`color`**（`str`，默认从角色和运动学推断）"
 
-#: ../../source/yaml_config/configuration.md
-msgid "Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. These and every other default color are defined in {py:mod}`irsim.config.palette`, a colour-blind-safe set that also prints well in grayscale. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
-msgstr "指定对象在可视化中的颜色，便于识别。已注册运动学的机器人使用运动学处理器定义的颜色：内置模型为绿色 `#009E73`，`acker` 为 `#117733`；障碍物默认使用黑色。这些以及其他所有默认颜色都定义在 {py:mod}`irsim.config.palette` 中，该配色对色觉缺陷友好，灰度打印效果也很好。可用的颜色选项参见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
+#: ../../source/yaml_config/configuration.md:1423
+msgid "Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
+msgstr "指定对象在可视化中的颜色，便于识别。已注册运动学的机器人使用运动学处理器定义的颜色：内置模型为绿色 `#009E73`，`acker` 为 `#117733`；障碍物默认使用黑色。`'cycle'` 让 `number` 分组中的每个对象依次使用 `palette_param.cycle` 中的下一种颜色，便于在人群中区分机器人。这些以及其他所有默认颜色都是 {py:mod}`irsim.config.palette_param` 的参数，该配色对色觉缺陷友好，灰度打印效果也很好；在 `irsim.make()` 之前修改它们即可改变整个场景的风格，例如 `palette_param.robot = '#0072B2'`。可用的颜色选项参见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1382
 msgid "**`description`** (`str`, default: `None`)"

@@ -12,6 +12,7 @@ robot:
   - number: 10
     distribution: {name: 'circle', radius: 4.0, center: [5, 5]}  
     kinematics: {name: 'diff'}
+    color: 'cycle'   # one palette color per robot, in order
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
     behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, acce: 1.0, factor: 2.0, neighbor_threshold: 5.0, loop: true}

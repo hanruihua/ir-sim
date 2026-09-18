@@ -427,3 +427,7 @@ msgid ""
 msgstr ""
 "定义处理器的模块必须在 `irsim.make()` 之前被导入，注册才会生效。未知的 `name` 会抛出 "
 "`NotImplementedError`，处理器不接受的键会抛出 `TypeError`，因此两者的拼写错误都会立即报告。"
+
+#: ../../source/usage/configure_robots_obstacles.md:212
+msgid "Robots in a group share the default robot color. Set `color: 'cycle'` on the group to give each robot the next color of the palette cycle instead, which helps telling them apart in a crowd; a list of colors still assigns them one by one. The defaults themselves are parameters of {py:mod}`irsim.config.palette_param` and can be changed before `irsim.make()`."
+msgstr "同一分组中的机器人共用默认的机器人颜色。在分组上设置 `color: 'cycle'` 可让每个机器人依次使用调色板循环中的下一种颜色，便于在人群中区分它们；颜色列表仍会逐个分配。默认颜色本身是 {py:mod}`irsim.config.palette_param` 的参数，可以在 `irsim.make()` 之前修改。"

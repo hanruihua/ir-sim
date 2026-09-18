@@ -209,6 +209,8 @@ Please make sure that the obstacles are not placed in the initial position of th
 
 To simulate multiple robots and obstacles within the same environment, simply add the `number` and `distribution` of robots and obstacles to the configuration file. Below is an example of a configuration file with multiple robots and obstacles: 
 
+Robots in a group share the default robot color. Set `color: 'cycle'` on the group to give each robot the next color of the palette cycle instead, which helps telling them apart in a crowd; a list of colors still assigns them one by one. The defaults themselves are parameters of {py:mod}`irsim.config.palette_param` and can be changed before `irsim.make()`.
+
 ::::{tab-set}
 
 :::{tab-item} Python Script

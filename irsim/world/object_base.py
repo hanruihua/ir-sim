@@ -9,7 +9,7 @@ import numpy as np
 import shapely
 from shapely.geometry.base import BaseGeometry
 
-from irsim.config.palette import LASER_HIGHLIGHT_COLOR
+from irsim.config import palette_param
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
 from irsim.util.util import (
     ClipTo2Pi,
@@ -105,8 +105,8 @@ class ObjectBase:
             Used by behaviors to determine the desired movement. Defaults to None.
         role (str): Role of the object in the simulation, e.g., "robot" or "obstacle".
             Defaults to "obstacle".
-        color (str): Color of the object when plotted.
-            Defaults to "k" (black).
+        color (str): Color of the object when plotted. Defaults to the
+            palette's obstacle color (black); see :mod:`irsim.config.palette_param`.
         static (bool): Indicates if the object is static (does not move).
             Defaults to False.
         vel_min (list of float): Minimum velocity limits for each control dimension.
@@ -227,7 +227,7 @@ class ObjectBase:
         velocity: list | None = None,
         goal: list | None = None,
         role: str = "obstacle",
-        color: str = "k",
+        color: str | None = None,
         static: bool = False,
         vel_min: list | None = None,
         vel_max: list | None = None,
@@ -279,7 +279,7 @@ class ObjectBase:
         self.group = group
         self._group_name = group_name
         self.description = description
-        self.color = color
+        self.color = color if color is not None else palette_param.obstacle
 
         # --- 2-4. Handlers, and the dimensions and limits derived from them ---
         self._init_handlers(shape, kinematics, role)
@@ -1143,7 +1143,7 @@ class ObjectBase:
     def set_laser_color(
         self,
         laser_indices,
-        laser_color: str = LASER_HIGHLIGHT_COLOR,
+        laser_color: str | None = None,
         alpha: float = 0.3,
     ):
         """
@@ -1151,7 +1151,7 @@ class ObjectBase:
 
         Args:
             laser_indices (list): The indices of the lasers to set the color.
-            laser_color (str): The color to set the lasers. Default is ``LASER_HIGHLIGHT_COLOR``.
+            laser_color (str): The color to set the lasers. Default is ``palette_param.laser_highlight``.
             alpha (float): The transparency of the lasers. Default is 0.3.
         """
 

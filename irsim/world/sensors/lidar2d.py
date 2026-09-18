@@ -9,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from shapely import MultiLineString
 
-from irsim.config.palette import LASER_HIGHLIGHT_COLOR, LIDAR_COLOR
+from irsim.config import palette_param
 from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
 from irsim.util.util import (
@@ -65,7 +65,7 @@ class Lidar2D:
         - time_inc (float): Time increment for each scan, simulating the sensor's time resolution. Default is 5e-4.
         - range_data (np.ndarray): Array storing range data for each laser beam. Initialized to `range_max` for all beams.
         - angle_list (np.ndarray): Array of angles corresponding to each laser beam, distributed linearly from `angle_min` to `angle_max`.
-        - color (str): Color of the sensor's representation in visualizations. Default is ``LIDAR_COLOR`` from :mod:`irsim.config.palette`.
+        - color (str): Color of the sensor's representation in visualizations. Default is ``palette_param.lidar``.
         - obj_id (int): ID of the associated object, used to differentiate between multiple sensors or objects in the environment. Default is 0.
         - plot_patch_list (list): List storing plot patches (e.g., line collections) for visualization purposes.
         - plot_line_list (list): List storing plot lines for visualization purposes.
@@ -130,7 +130,7 @@ class Lidar2D:
         self._state = state
         self.init_geometry(self._state)
 
-        self.color = _plot.get("color", kwargs.get("color", LIDAR_COLOR))
+        self.color = _plot.get("color", kwargs.get("color", palette_param.lidar))
 
         self.obj_id = obj_id
 
@@ -488,7 +488,7 @@ class Lidar2D:
     def set_laser_color(
         self,
         laser_indices,
-        laser_color: str = LASER_HIGHLIGHT_COLOR,
+        laser_color: str | None = None,
         alpha: float = 0.3,
     ):
         """
@@ -496,10 +496,12 @@ class Lidar2D:
 
         Args:
             laser_indices (list): The indices of the lasers to set the color.
-            laser_color (str): The color to set the selected lasers. Default is ``LASER_HIGHLIGHT_COLOR``.
+            laser_color (str): The color to set the selected lasers. Default is ``palette_param.laser_highlight``.
             alpha (float): The transparency of the lasers. Default is 0.3.
         """
 
+        if laser_color is None:
+            laser_color = palette_param.laser_highlight
         current_color = [self.color] * self.number
         current_alpha = [self.alpha] * self.number
 

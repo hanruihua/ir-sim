@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 
+from irsim.config import palette_param
 from irsim.lib.handler.kinematics_handler import KinematicsFactory
 from irsim.util.random import random_uniform
 from irsim.util.util import (
@@ -89,7 +90,6 @@ class ObjectFactory:
         return [
             ObstacleMap(
                 shape={"name": "map", "points": points, "reso": reso},
-                color="k",
                 grid_map=grid_map,
                 grid_reso=reso,
                 world_offset=world_offset,
@@ -114,7 +114,9 @@ class ObjectFactory:
             distribution (dict): Distribution type for generating states.
             state (list): Initial state for objects.
             goal (list): Goal state for objects.
-            **kwargs: Additional parameters for object creation.
+            **kwargs: Additional parameters for object creation. ``color:
+                'cycle'`` gives the objects the colors of
+                ``palette_param.cycle`` in turn.
 
         Returns:
             list: List of created objects.
@@ -144,6 +146,9 @@ class ObjectFactory:
             }
             obj_dict["state"] = state_list[i]
             obj_dict["goal"] = goal_list[i]
+            if obj_dict.get("color") == "cycle":
+                # one palette color per object, in order, wrapping around
+                obj_dict["color"] = palette_param.cycle_color(i)
             sensors: list[Any] = kwargs.get("sensors") or []
             obj_dict["sensors"] = convert_list_length_dict(sensors, number)[i]
 
@@ -185,7 +190,7 @@ class ObjectFactory:
                 f"Robot kinematics {kinematics_name} not implemented"
             )
 
-        kwargs.setdefault("color", handler_cls.color)
+        kwargs.setdefault("color", handler_cls.default_color("robot"))
         kwargs.setdefault("state_dim", handler_cls.state_dim)
         if handler_cls.description is not None:
             kwargs.setdefault("description", handler_cls.description)
@@ -222,7 +227,7 @@ class ObjectFactory:
                 f"Obstacle kinematics {kinematics_name} not implemented"
             )
 
-        kwargs.setdefault("color", handler_cls.obstacle_color)
+        kwargs.setdefault("color", handler_cls.default_color("obstacle"))
         kwargs.setdefault("state_dim", handler_cls.state_dim)
 
         return ObjectBase(kinematics=kinematics, role="obstacle", **kwargs)

@@ -6,11 +6,7 @@ import numpy as np
 from matplotlib.colors import to_rgb
 from mpl_toolkits.mplot3d import Axes3D
 
-from irsim.config.palette import (
-    FMCW_NEGATIVE_VELOCITY_COLOR,
-    FMCW_POSITIVE_VELOCITY_COLOR,
-    FMCW_ZERO_VELOCITY_COLOR,
-)
+from irsim.config import palette_param
 from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
 from irsim.world.sensors.lidar2d import Lidar2D
@@ -78,13 +74,13 @@ class FMCWLidar2D(Lidar2D):
         self.velocity_marker_edge_color = _pg("velocity_marker_edge_color", "black")
         self.velocity_marker_edge_width = _pg("velocity_marker_edge_width", 0.6)
         self.zero_velocity_color = np.array(
-            to_rgb(_pg("zero_velocity_color", FMCW_ZERO_VELOCITY_COLOR))
+            to_rgb(_pg("zero_velocity_color", palette_param.fmcw_zero_velocity))
         )
         self.positive_velocity_color = np.array(
-            to_rgb(_pg("positive_velocity_color", FMCW_POSITIVE_VELOCITY_COLOR))
+            to_rgb(_pg("positive_velocity_color", palette_param.fmcw_positive_velocity))
         )
         self.negative_velocity_color = np.array(
-            to_rgb(_pg("negative_velocity_color", FMCW_NEGATIVE_VELOCITY_COLOR))
+            to_rgb(_pg("negative_velocity_color", palette_param.fmcw_negative_velocity))
         )
         self.no_hit_color = np.array(to_rgb(_pg("no_hit_color", "lightgray")))
         self.radial_velocity = np.zeros(self.number)

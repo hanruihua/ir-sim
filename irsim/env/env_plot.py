@@ -36,7 +36,7 @@ from shapely.geometry import MultiPolygon as ShapelyMultiPolygon
 from shapely.geometry import Polygon as ShapelyPolygon
 from shapely.geometry.polygon import orient
 
-from irsim.config.palette import MARKER_COLOR, PATH_COLOR, QUIVER_COLOR
+from irsim.config import palette_param
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
 
@@ -393,7 +393,7 @@ class EnvPlot:
             traj (list or np.ndarray): List of points or array of points [x, y, theta].
             traj_type (str): Matplotlib format string for the line (e.g. '-',
                 'r--'). Unless it names a color, or ``color`` is passed, the
-                line uses ``PATH_COLOR`` from :mod:`irsim.config.palette`.
+                line uses ``palette_param.path``.
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for details.
             label (str): Label for the trajectory.
             show_direction (bool): Whether to show the direction of the trajectory.
@@ -402,7 +402,7 @@ class EnvPlot:
         """
         path_x_list, path_y_list = traj_to_xy_list(traj)
 
-        kwargs = _with_default_color(traj_type, kwargs, PATH_COLOR)
+        kwargs = _with_default_color(traj_type, kwargs, palette_param.path)
         line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
         if show_direction:
@@ -431,7 +431,7 @@ class EnvPlot:
         self,
         points: list[Any] | np.ndarray | None,
         s: int = 10,
-        c: str = MARKER_COLOR,
+        c: str | None = None,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -452,6 +452,8 @@ class EnvPlot:
 
         x_coordinates, y_coordinates = points_to_xy_list(points)
 
+        if c is None:
+            c = palette_param.marker
         points_plot = self.ax.scatter(x_coordinates, y_coordinates, s, c, **kwargs)
 
         if refresh:
@@ -461,7 +463,7 @@ class EnvPlot:
         self,
         point: np.ndarray | None,
         refresh: bool = False,
-        color: str = QUIVER_COLOR,
+        color: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -474,6 +476,9 @@ class EnvPlot:
 
         if point is None:
             return
+
+        if color is None:
+            color = palette_param.quiver
 
         ax_point = self.ax.scatter(point[0], point[1], color=color)
 
@@ -494,7 +499,7 @@ class EnvPlot:
         self,
         points: Iterable[np.ndarray],
         refresh: bool = False,
-        color: str = QUIVER_COLOR,
+        color: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -518,7 +523,7 @@ class EnvPlot:
             vertices (np.ndarray): 2xN array of vertices.
             refresh (bool): Whether to refresh the plot.
             color (str): Matplotlib format string for the outline; unless it
-                names a color, ``PATH_COLOR`` from :mod:`irsim.config.palette`
+                names a color, ``palette_param.path``
                 is used.
         """
         temp_vertex = np.c_[vertices, vertices[0:2, 0]]
@@ -526,7 +531,7 @@ class EnvPlot:
             temp_vertex[0, :],
             temp_vertex[1, :],
             color,
-            **_with_default_color(color, {}, PATH_COLOR),
+            **_with_default_color(color, {}, palette_param.path),
         )
 
         if refresh:

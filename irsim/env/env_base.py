@@ -25,7 +25,6 @@ from shapely.strtree import STRtree
 
 from irsim.config import env_param, path_param, world_param
 from irsim.config.env_param import EnvParam
-from irsim.config.palette import MARKER_COLOR
 from irsim.config.path_param import PathManager
 from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
@@ -615,7 +614,7 @@ class EnvBase:
                 or an array of shape (2, N).
             traj_type (str): Matplotlib format string (e.g. "-", "r--"). Unless
                 it names a color, or ``color`` is passed, the line uses
-                ``PATH_COLOR`` from :mod:`irsim.config.palette`.
+                ``palette_param.path``.
             **kwargs: Additional keyword arguments; forwarded to
                 :py:meth:`.EnvPlot.draw_trajectory`.
         """
@@ -627,7 +626,7 @@ class EnvBase:
         self,
         points: list[Any],
         s: int = 30,
-        c: str = MARKER_COLOR,
+        c: str | None = None,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
