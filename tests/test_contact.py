@@ -13,6 +13,8 @@ from shapely.geometry import LineString, Polygon
 from irsim.config import palette_param
 from irsim.lib.algorithm.contact import (
     CONTACT_SLOP,
+    _axes,
+    _transform,
     contact_step,
     geometry_pieces,
     object_mtv,
@@ -1017,6 +1019,7 @@ class TestContactMode:
         grid = next(obj for obj in env.objects if obj.shape == "map")
         assert grid.inv_mass == 0.0
         assert object_pieces(grid, robot) == []  # nothing near the start
+        assert len(object_pieces(grid)) > 100  # the whole boundary without a partner
         self._drive(env, 200, action=(3.0, 0.0))
         assert robot.contact
         assert grid in robot.contact_obj
@@ -1249,3 +1252,156 @@ class TestContactMode:
         assert b.state[0, 0] == pytest.approx(0.8)
         assert a.contact
         assert b.contact
+
+
+class TestSolverEdges:
+    """Branches of the solver and its helpers that ordinary scenes rarely take."""
+
+    def test_geometry_pieces_of_empty_and_nested_collections(self):
+        assert geometry_pieces(shapely.Polygon()) == []
+        nested = shapely.GeometryCollection(
+            [shapely.GeometryCollection([shapely.box(0, 0, 1, 1)])]
+        )
+        assert len(geometry_pieces(nested)) == 1
+
+    def test_circle_axis_toward_another_circle(self):
+        axes = _axes(_circle(0, 0, 1), _circle(3, 4, 1))
+        assert np.allclose(axes, [[-0.6, -0.8]])
+
+    def test_transform_rotates_a_circle_piece(self):
+        # a circle never turns from a contact (its normals pass through the
+        # center), so the branch is exercised directly
+        kind, center, radius = _transform(
+            ("circle", np.array([1.0, 0.0]), 0.5), None, np.pi / 2, np.zeros(2)
+        )
+        assert (kind, radius) == ("circle", 0.5)
+        assert np.allclose(center, [0.0, 1.0])
+
+    def test_transform_rotates_a_polygon_without_cached_normals(self):
+        piece = ("polygon", np.array([[1.0, 0.0], [2.0, 0.0], [2.0, 1.0]]))
+        kind, vertices = _transform(piece, np.array([0.0, 1.0]), np.pi / 2, np.zeros(2))
+        assert kind == "polygon"
+        assert np.allclose(
+            vertices[0], [0.0, 2.0]
+        )  # (1, 0) turned to (0, 1), shifted up
+
+    def test_driver_on_the_right_of_a_pair(self):
+        """Candidate pairs from the environment put the robot first; a direct
+        call with the passive body first takes the mirrored driver branch."""
+
+        def scene(box_mass):
+            box = ObjectBase(
+                shape={"name": "rectangle", "length": 0.8, "width": 0.8},
+                state=[3, 5, 0],
+                mass=box_mass,
+            )
+            robot = ObjectBase(
+                kinematics={"name": "omni"},
+                shape={"name": "circle", "radius": 0.3},
+                state=[2.35, 5, 0],  # overlaps the box's left face by 5 cm
+            )
+            return box, robot
+
+        box, robot = scene(1.0)  # the robot can push: the box takes it all
+        contact_step([(box, robot)])
+        assert box.state[0, 0] == pytest.approx(3.05 + CONTACT_SLOP)
+        assert robot.state[0, 0] == pytest.approx(2.35)
+        box, robot = scene(5.0)  # too heavy: the robot yields instead
+        contact_step([(box, robot)])
+        assert box.state[0, 0] == pytest.approx(3.0)
+        assert robot.state[0, 0] == pytest.approx(2.30 - CONTACT_SLOP)
+
+    def test_squeezed_body_is_left_overlapping(self):
+        left = ObjectBase(
+            shape={"name": "rectangle", "length": 0.4, "width": 2}, state=[-0.8, 0, 0]
+        )
+        right = ObjectBase(
+            shape={"name": "rectangle", "length": 0.4, "width": 2}, state=[0.8, 0, 0]
+        )
+        disc = ObjectBase(
+            shape={"name": "circle", "radius": 0.7}, state=[0, 0, 0], mass=1
+        )
+        contacts = contact_step([(disc, left), (disc, right)])
+        # pushed out of the left wall, then blocked from moving back: the
+        # second pair cannot be resolved and is not reported as a contact
+        assert len(contacts) == 1
+        assert disc.state[0, 0] == pytest.approx(0.1 + CONTACT_SLOP)
+        assert disc.geometry.intersects(right.geometry)
+
+    def test_bounce_already_covered_by_the_position_fold(self):
+        """A slow disc found deep inside a wall is thrown out faster by the
+        position correction than restitution asks for, so no bounce is added."""
+        wall = ObjectBase(
+            shape={"name": "rectangle", "length": 0.4, "width": 2},
+            state=[1.0, 0, 0],
+            restitution=1.0,
+        )
+        disc = ObjectBase(
+            shape={"name": "circle", "radius": 0.4},
+            state=[0.45, 0, 0],  # 5 cm into the wall face at x = 0.8
+            mass=1.0,
+            friction=0,
+            restitution=1.0,
+        )
+        disc.set_velocity([0.1, 0.0, 0.0])
+        contact_step([(disc, wall)], step_time=0.1)
+        assert disc.velocity_xy[0, 0] == pytest.approx(
+            0.1 - (0.05 + CONTACT_SLOP) / 0.1
+        )
+
+    def test_compound_body_turns_when_hit_off_center(self, env_factory, tmp_path):
+        env = env_factory(
+            _yaml(
+                tmp_path,
+                "world: {height: 12, width: 12, step_time: 0.1, collision_mode: 'contact'}\n"
+                "robot:\n"
+                "  - kinematics: {name: 'omni'}\n"
+                "    shape: {name: 'circle', radius: 0.2}\n"
+                "    state: [2, 5.3, 0]\n"
+                "obstacle:\n"
+                "  - shape: {name: 'compound', parts: [{name: 'rectangle', length: 0.6, width: 0.6}, "
+                "{name: 'circle', radius: 0.3, pose: [0.4, 0.3, 0]}]}\n"
+                "    state: [3, 5, 0]\n"
+                "    mass: 0.5\n",
+            )
+        )
+        body = env.obstacle_list[0]
+        for _ in range(20):
+            env.step([1.0, 0.0])
+        assert abs(body.state[2, 0]) > 0.1
+        assert not env.robot.geometry.intersects(body.geometry)
+
+    def test_polygon_robot_against_a_grid_map(self, env_factory, tmp_path):
+        env = env_factory(
+            _yaml(
+                tmp_path,
+                "world:\n"
+                "  height: 50\n  width: 50\n  step_time: 0.1\n"
+                "  collision_mode: 'contact'\n"
+                f"  obstacle_map: '{CAVE_PNG}'\n"
+                "  mdownsample: 2\n"
+                "robot:\n"
+                "  - kinematics: {name: 'diff'}\n"
+                "    shape: {name: 'rectangle', length: 1.6, width: 1.0}\n"
+                "    state: [5, 5, 0]\n"
+                "    vel_max: [4, 1]\n",
+            )
+        )
+        robot = env.robot
+        grid = next(obj for obj in env.objects if obj.shape == "map")
+        for _ in range(200):
+            env.step([3.0, 0.0])
+        assert grid in robot.contact_obj
+        assert not grid.is_collision(robot.geometry)
+
+    def test_contact_mode_without_objects(self, env_factory, tmp_path):
+        env = env_factory(
+            _yaml(tmp_path, "world: {height: 5, width: 5, collision_mode: 'contact'}\n")
+        )
+        env.step()
+        assert env.objects == []
+
+    def test_passive_coast_ignores_flat_velocities(self):
+        model = PassiveKinematics()
+        assert np.allclose(model.coast(np.zeros(3), 0.1, 0.5), 0)
+        assert np.allclose(model.coast(np.zeros((1, 1)), 0.1, 0.5), 0)
