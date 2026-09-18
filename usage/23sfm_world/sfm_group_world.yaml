@@ -13,11 +13,13 @@ world:
 # from the same state snapshot in one vectorised pass, and
 # ``social_groups`` splits them into people walking together:
 #
-#   [0, 1]     blue pair,        W->E, lanes y =  1.5,  2.2
-#   [2, 3, 4]  green triple,     W->E, lanes y = -1.5, -2.2, -2.9
-#   [5, 6]     vermillion pair,  E->W, lanes y = -2.4, -3.1
-#   [7, 8, 9]  orange triple,    E->W, lanes y =  2.4,  3.1,  3.8
-#   10, 11     purple / sky-blue singles head-on along the centre line
+#   [0, 1]     pair,    W->E, lanes y =  1.5,  2.2
+#   [2, 3, 4]  triple,  W->E, lanes y = -1.5, -2.2, -2.9
+#   [5, 6]     pair,    E->W, lanes y = -2.4, -3.1
+#   [7, 8, 9]  triple,  E->W, lanes y =  2.4,  3.1,  3.8
+#   10, 11     singles head-on along the centre line
+#
+# ``color: 'cycle'`` gives every pedestrian its own palette color.
 #
 # Opposing groups overlap by one lane, so each pair/triple has to slide
 # sideways as a unit to pass; the singles thread between them. The
@@ -57,19 +59,7 @@ robot:
       - [-9,  3.8, 3.14]
       - [ 9,  0.3, 0]
       - [-9, -0.3, 3.14]
-    color:
-      - '#0072B2'
-      - '#0072B2'
-      - '#009E73'
-      - '#009E73'
-      - '#009E73'
-      - '#D55E00'
-      - '#D55E00'
-      - '#E69F00'
-      - '#E69F00'
-      - '#E69F00'
-      - '#CC79A7'
-      - '#56B4E9'
+    color: 'cycle'   # one palette color per pedestrian, in order
     group_behavior:
       name: 'sfm'
       vmax: 1.0

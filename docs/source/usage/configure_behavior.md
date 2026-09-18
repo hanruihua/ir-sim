@@ -175,10 +175,7 @@ robot:
       - [ 9, -1.6, 0]
       - [-9, -1.601, 3.14]
       # ...
-    color:
-      - '#0072B2'   # W->E
-      - '#D55E00'         # E->W
-      # ... (alternating blue/vermillion horizontally, green/orange vertically)
+    color: 'cycle'   # one palette color per pedestrian, in order
     behavior:
       name: 'sfm'
       loop: true
@@ -306,7 +303,6 @@ robot:
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'circle', radius: 140}
-    color: 'g'
     goal_threshold: 0.1
     vel_max: [2, 2]
     vel_min: [-2, -2]
@@ -392,7 +388,6 @@ robot:
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'random', range_low: [-100, -100, -3.14], range_high: [100, 100, 3.14]}
-    color: 'g'
     goal_threshold: 0.1
     vel_max: [3, 3]
     vel_min: [-3, -3]
@@ -520,19 +515,7 @@ robot:
       - [-9,  3.8, 3.14]
       - [ 9,  0.3, 0]
       - [-9, -0.3, 3.14]
-    color:
-      - '#0072B2'
-      - '#0072B2'
-      - '#009E73'
-      - '#009E73'
-      - '#009E73'
-      - '#D55E00'
-      - '#D55E00'
-      - '#E69F00'
-      - '#E69F00'
-      - '#E69F00'
-      - '#CC79A7'
-      - '#56B4E9'
+    color: 'cycle'   # one palette color per pedestrian, in order
     group_behavior:
       name: 'sfm'
       vmax: 1.0
