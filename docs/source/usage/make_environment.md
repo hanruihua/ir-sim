@@ -47,7 +47,7 @@ world:
   offset: [0, 0] # the offset of the world origin [x, y]
   step_mode: 'internal' # state advancement: 'internal' or 'external'
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
-  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles', 'contact'
   obstacle_map: null # path to obstacle map file (optional)
 
 robot:
@@ -94,6 +94,7 @@ The configuration file defines the world and the robot that the main loop advanc
   - `'stop'`: Stop simulation when collision occurs (default)
   - `'unobstructed'`: Ignore all collisions
   - `'unobstructed_obstacles'`: Ignore only obstacle collisions
+  - `'contact'`: Push overlapping objects apart by their `mass` instead of stopping them, so robots can push boxes (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))
 - **`obstacle_map`**: Optional. Path to an obstacle map image, or a generator spec (e.g. `{ name: perlin, ... }`). See [Configure grid map](configure_grid_map).
 
 ### Performance Considerations

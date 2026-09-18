@@ -29,7 +29,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
   <div class="yt-leaf"><a class="yt-key" href="#p-w-offset">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0]</span><span class="yt-desc">world origin offset [x, y]</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-step-mode">step_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"internal"</span><span class="yt-desc">internal | external</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-control-mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles | contact</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">initial display label</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle-map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-mdownsample">mdownsample</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">obstacle-map downsample factor</span></div>
@@ -61,6 +61,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
   <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">top-level key</span><span class="yt-desc">robot | obstacle</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">role/kinematics</span><span class="yt-desc">matplotlib color</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-static">static</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">immobile object</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-mass">mass</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0 | inf</span><span class="yt-desc">kg, contact mode</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-acce">acce</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[inf]·dim</span><span class="yt-desc">accel limits</span></div>
@@ -508,7 +509,7 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
   step_mode: 'internal'  # 'internal' or 'external'
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles', 'contact'
   plot:
     show_title: true
     figure_pixels: [1000, 800]
@@ -573,7 +574,7 @@ This section outlines the configuration parameters available for the `world` sec
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
 | `step_mode`      | `str`             | `"internal"` | State advancement mode. Support mode: `internal` or `external`                                          |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
-| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`, `"contact"`)                  |
 | `status`         | `str`             | `"None"`    | Initial display label; replaced by the runtime status after the first completed step |
 | `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](../usage/configure_grid_map.md). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
@@ -642,6 +643,7 @@ This section outlines the configuration parameters available for the `world` sec
   - `stop`: Stops the movement of objects upon collision. (default)
   - `unobstructed`: Allows objects to pass through each other without consideration of any collision.
   - `unobstructed_obstacles`: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
+  - `contact`: Objects are not stopped. After every step, overlapping objects are pushed apart along their contact normal, sharing the separation in inverse proportion to their [`mass`](#p-o-mass), so a robot can push a box, a heavy box slows it down, and an object without mass (a wall, a static obstacle, or the grid map) stops it while it slides along the surface. See [Physical properties and contact mode](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode).
 
 (p-w-status)=
 **`status`** (`str`, default: `"None"`)
@@ -735,7 +737,7 @@ world:
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
   step_mode: 'internal'               # State advancement mode ('internal' or 'external')
   control_mode: 'keyboard'            # Control mode ('auto' or 'keyboard')
-  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles')
+  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles', 'contact')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
   status: "Ready"                     # Initial display label (does not control execution)
@@ -778,6 +780,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
 | `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots use kinematics-specific defaults; obstacles default to black. |
 | `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise the object is always static. Set `true` to freeze an object that has kinematics. |
+| `mass`           | `float`                                          | `1.0` with kinematics, `inf` without | Mass in kg for the `contact` collision mode; a lighter object is pushed further, `inf` never moves. A finite mass on an object without kinematics makes it a pushable dynamic body. |
 | `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `acce`           | `list` of `float`                                | `[inf] * action_dim` | Acceleration limits. Length matches the kinematics action dimension.                                               |
@@ -1274,6 +1277,20 @@ env.step(env.robot.vel_world2body(world_vel))
   **Example:**
   ```yaml
   static: True
+  ```
+
+(p-o-mass)=
+**`mass`** (`float`, default: `1.0` with kinematics, `inf` without)
+: Mass in kilograms, used by the [`contact`](#p-w-collision-mode) collision mode. When two objects overlap after a step, the separation is shared in inverse proportion to their masses, so a lighter object is pushed further and an object with `inf` mass never moves. Objects without kinematics are immovable by default; giving one a finite mass turns it into a dynamic body that can be pushed but does not move on its own. A list gives each object of a `number` group its own mass. A pushable obstacle is drawn in orange (`#E69F00`, colour-blind safe and distinct from black in grayscale print) unless `color` is set. Static objects ignore their mass. In other collision modes the value is unused, but an obstacle given a mass is still stepped and redrawn as a dynamic body.
+
+  ```yaml
+  # Example usage
+  obstacle:
+    - shape: {name: 'rectangle', length: 0.8, width: 0.8}
+      state: [3, 5, 0]
+      mass: 2.0            # pushable box
+    - shape: {name: 'rectangle', length: 0.4, width: 6}
+      state: [8, 5, 0]     # no mass: immovable wall
   ```
 ::::
 

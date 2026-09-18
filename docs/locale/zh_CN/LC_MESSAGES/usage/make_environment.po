@@ -767,3 +767,7 @@ msgid ""
 msgstr ""
 "`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 "
 "`display=False`。"
+
+#: ../../source/usage/make_environment.md:97
+msgid "`'contact'`: Push overlapping objects apart by their `mass` instead of stopping them, so robots can push boxes (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))"
+msgstr "`'contact'`：不再让对象停止，而是按 `mass` 把重叠的对象推开，机器人因此可以推动箱子（见[物理属性与接触模式](configure_robots_obstacles.md#physical-properties-and-contact-mode)）"

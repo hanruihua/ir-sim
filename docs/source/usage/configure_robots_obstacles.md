@@ -183,6 +183,7 @@ obstacle:
 ### Important Parameters Explained
 
 - **unobstructed**: If `True`, there is no collision detection with the object. 
+- **mass**: Mass in kilograms. Only used by `collision_mode: 'contact'`, where a finite mass makes the obstacle a pushable body and no mass leaves it immovable. Pushable obstacles are drawn in orange (`#E69F00`) by default. See [Physical properties and contact mode](#physical-properties-and-contact-mode).
 
 :::{note}
 **Robot vs Obstacle - Key Differences:**
@@ -195,7 +196,7 @@ obstacle:
 | `behavior` | `None` (static unless configured or externally controlled) | `None` (static unless configured or externally controlled) |
 
 **Configuration Tips:**
-- Objects without `kinematics` are static
+- Objects without `kinematics` are static, unless they are given a finite `mass` for the `contact` collision mode
 - Add `kinematics` + `behavior` to create moving robots or obstacles
 - Pass a velocity to `env.step(velocity)` when using your own controller instead of a configured behavior
 - Use `-` to define each new robot/obstacle in the list
@@ -203,6 +204,77 @@ obstacle:
 
 :::{warning}
 Please make sure that the obstacles are not placed in the initial position of the robot. Otherwise, the robot will collide with the obstacles at the beginning of the simulation.
+:::
+
+## Physical Properties and Contact Mode
+
+By default (`collision_mode: 'stop'`) objects halt when they touch. Setting `collision_mode: 'contact'` in the `world` section turns collisions into contacts: after every step, overlapping objects are pushed apart along their contact normal, and the separation is shared in inverse proportion to their `mass`. This is enough for a robot to push a box, for a heavy box to slow the robot down, and for a wall to stop it while it slides along the surface.
+
+- **`mass`** (`float`, kg): the only physical property an object needs. Objects with kinematics default to `1.0`. Objects without kinematics have no mass (`inf`) and never move; give one a finite `mass` and it becomes a dynamic body that can be pushed but does not move on its own. A list under `number` sets one mass per object. A pushable obstacle is drawn in orange (`#E69F00`) unless you set `color`, so you can tell at a glance what moves; the shade is the colour-blind-safe Okabe-Ito orange and stays distinct from black when printed in grayscale. Static objects and the grid map are immovable regardless.
+- **What the contact does**: with inverse masses `w = 1 / mass`, object A moves by `depth * w_A / (w_A + w_B)` and B by the rest. Two equal masses split the overlap evenly, so a robot commanding 1 m/s pushes an equal box at 0.5 m/s; a 4 kg box is pushed at 0.2 m/s by a 1 kg robot; a box against a wall stops the robot. The pushed displacement is folded into each object's velocity, so lidar, RVO and SFM neighbors, and `env.get_msg()` see the box moving.
+- **What it does not do**: bodies only translate, so a box pushed off-center does not spin, and there is no inertia or friction: an object stops as soon as nothing pushes it (quasi-static pushing). Objects are never stopped by contacts, so `collision` stays `False` and `env.done()` only reports arrival; `obj.contact` and `obj.contact_obj` tell which objects touched in the last step. Contacts are skipped in `step_mode: 'external'`, and keep `speed * step_time` below an object's radius so it cannot tunnel through a thin `linestring` wall in one step.
+
+The example below (`usage/26push_box_world/`) has three identical robots push boxes of 0.25, 1 and 4 kg toward a wall:
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make("push_box_world.yaml")
+boxes = env.obstacle_list[:3]
+
+for _ in range(200):
+    env.step()
+    env.render(0.02)
+
+for robot, box in zip(env.robot_list, boxes, strict=True):
+    print(f"{box.name} ({box.mass:g} kg) moved {box.state[0, 0] - 3:.2f} m")
+
+env.end(3)
+```
+:::
+
+:::{tab-item} YAML Configuration
+
+```yaml
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  collision_mode: 'contact'   # touching objects push each other apart by mass
+
+robot:
+  - number: 3
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    mass: 1.0
+    state: [[1, 2, 0], [1, 6, 0], [1, 10, 0]]
+    goal: [[11.5, 2, 0], [11.5, 6, 0], [11.5, 10, 0]]
+    behavior: {name: 'dash'}
+    vel_max: [1.0, 1.0]
+
+obstacle:
+  - number: 3
+    distribution: {name: 'manual'}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state: [[3, 2, 0], [3, 6, 0], [3, 10, 0]]
+    mass: [0.25, 1.0, 4.0]      # a finite mass makes an obstacle pushable (drawn in orange)
+
+  - shape: {name: 'rectangle', length: 0.4, width: 11}   # no mass: immovable wall
+    state: [10.5, 6, 0]
+```
+:::
+
+::::
+
+The light box travels at almost the robot's speed, the equal one at half speed, and the heavy one barely moves; once a box reaches the wall the whole chain stops although the robots keep asking for full speed. `push_box_keyboard.yaml` in the same folder lets you shove boxes around with the keyboard.
+
+:::{note}
+Contacts are resolved by the separating axis theorem between convex pieces of the two shapes (circles, convex polygons, and line segments; non-convex polygons are triangulated), so every shape takes part: `compound` bodies, `linestring` walls, and grid maps. See {py:mod}`irsim.lib.algorithm.contact`.
 :::
 
 ## Advanced Configurations for Multiple Robots and Obstacles

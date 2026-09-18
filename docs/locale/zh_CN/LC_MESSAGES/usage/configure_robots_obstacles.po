@@ -345,8 +345,8 @@ msgid "**Configuration Tips:**"
 msgstr "**配置提示：**"
 
 #: ../../source/usage/configure_robots_obstacles.md:198
-msgid "Objects without `kinematics` are static"
-msgstr "未设置 `kinematics` 的对象是静态对象"
+msgid "Objects without `kinematics` are static, unless they are given a finite `mass` for the `contact` collision mode"
+msgstr "未设置 `kinematics` 的对象是静态对象，除非为 `contact` 碰撞模式赋予了有限的 `mass`"
 
 #: ../../source/usage/configure_robots_obstacles.md:199
 msgid "Add `kinematics` + `behavior` to create moving robots or obstacles"
@@ -427,3 +427,39 @@ msgid ""
 msgstr ""
 "定义处理器的模块必须在 `irsim.make()` 之前被导入，注册才会生效。未知的 `name` 会抛出 "
 "`NotImplementedError`，处理器不接受的键会抛出 `TypeError`，因此两者的拼写错误都会立即报告。"
+
+#: ../../source/usage/configure_robots_obstacles.md:186
+msgid "**mass**: Mass in kilograms. Only used by `collision_mode: 'contact'`, where a finite mass makes the obstacle a pushable body and no mass leaves it immovable. Pushable obstacles are drawn in orange (`#E69F00`) by default. See [Physical properties and contact mode](#physical-properties-and-contact-mode)."
+msgstr "**mass**：质量（千克）。仅在 `collision_mode: 'contact'` 下使用：有限质量使障碍物成为可推动的物体，不设置质量则保持不可移动。可推动的障碍物默认以橙色（`#E69F00`）绘制。参见[物理属性与接触模式](#physical-properties-and-contact-mode)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:209
+msgid "Physical Properties and Contact Mode"
+msgstr "物理属性与接触模式"
+
+#: ../../source/usage/configure_robots_obstacles.md:211
+msgid "By default (`collision_mode: 'stop'`) objects halt when they touch. Setting `collision_mode: 'contact'` in the `world` section turns collisions into contacts: after every step, overlapping objects are pushed apart along their contact normal, and the separation is shared in inverse proportion to their `mass`. This is enough for a robot to push a box, for a heavy box to slow the robot down, and for a wall to stop it while it slides along the surface."
+msgstr "默认情况下（`collision_mode: 'stop'`），对象一旦相触就会停下。在 `world` 部分设置 `collision_mode: 'contact'` 会把碰撞变成接触：每一步之后，重叠的对象沿接触法线被推开，分离量按各自 `mass` 的倒数比例分摊。这足以让机器人推动箱子、让重箱子拖慢机器人，也能让墙壁挡住机器人并使其沿墙面滑动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:213
+msgid "**`mass`** (`float`, kg): the only physical property an object needs. Objects with kinematics default to `1.0`. Objects without kinematics have no mass (`inf`) and never move; give one a finite `mass` and it becomes a dynamic body that can be pushed but does not move on its own. A list under `number` sets one mass per object. A pushable obstacle is drawn in orange (`#E69F00`) unless you set `color`, so you can tell at a glance what moves; the shade is the colour-blind-safe Okabe-Ito orange and stays distinct from black when printed in grayscale. Static objects and the grid map are immovable regardless."
+msgstr "**`mass`**（`float`，千克）：对象唯一需要的物理属性。有运动学的对象默认为 `1.0`。没有运动学的对象没有质量（`inf`），永不移动；为其设置有限 `mass` 后，它会成为可被推动但不会自行移动的动态物体。在 `number` 下给出列表可为每个对象设置各自的质量。可推动的障碍物在未设置 `color` 时以橙色（`#E69F00`）绘制，一眼就能看出什么会动；该色调是色盲友好的 Okabe-Ito 橙色，灰度打印时仍与黑色区分明显。静态对象和栅格地图始终不可移动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:214
+msgid "**What the contact does**: with inverse masses `w = 1 / mass`, object A moves by `depth * w_A / (w_A + w_B)` and B by the rest. Two equal masses split the overlap evenly, so a robot commanding 1 m/s pushes an equal box at 0.5 m/s; a 4 kg box is pushed at 0.2 m/s by a 1 kg robot; a box against a wall stops the robot. The pushed displacement is folded into each object's velocity, so lidar, RVO and SFM neighbors, and `env.get_msg()` see the box moving."
+msgstr "**接触的作用**：令质量倒数 `w = 1 / mass`，对象 A 移动 `depth * w_A / (w_A + w_B)`，其余由 B 承担。两个质量相等的对象平分重叠量，因此指令速度为 1 m/s 的机器人会以 0.5 m/s 推动等质量的箱子；1 kg 的机器人以 0.2 m/s 推动 4 kg 的箱子；顶在墙上的箱子会让机器人停下。被推动的位移会计入各对象的速度，因此激光雷达、RVO 与 SFM 邻居以及 `env.get_msg()` 都能看到箱子在运动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:215
+msgid "**What it does not do**: bodies only translate, so a box pushed off-center does not spin, and there is no inertia or friction: an object stops as soon as nothing pushes it (quasi-static pushing). Objects are never stopped by contacts, so `collision` stays `False` and `env.done()` only reports arrival; `obj.contact` and `obj.contact_obj` tell which objects touched in the last step. Contacts are skipped in `step_mode: 'external'`, and keep `speed * step_time` below an object's radius so it cannot tunnel through a thin `linestring` wall in one step."
+msgstr "**它不做什么**：物体只会平移，因此偏心推动的箱子不会旋转；也没有惯性和摩擦：一旦没有东西推它，对象立刻停下（准静态推动）。接触不会让对象停止，因此 `collision` 保持 `False`，`env.done()` 只报告到达；`obj.contact` 与 `obj.contact_obj` 给出上一步相触的对象。`step_mode: 'external'` 下不解算接触；请让 `speed * step_time` 小于对象半径，以免一步之内穿过细的 `linestring` 墙。"
+
+#: ../../source/usage/configure_robots_obstacles.md:217
+msgid "The example below (`usage/26push_box_world/`) has three identical robots push boxes of 0.25, 1 and 4 kg toward a wall:"
+msgstr "下面的示例（`usage/26push_box_world/`）中，三个相同的机器人把 0.25、1 和 4 kg 的箱子推向一堵墙："
+
+#: ../../source/usage/configure_robots_obstacles.md:270
+msgid "The light box travels at almost the robot's speed, the equal one at half speed, and the heavy one barely moves; once a box reaches the wall the whole chain stops although the robots keep asking for full speed. `push_box_keyboard.yaml` in the same folder lets you shove boxes around with the keyboard."
+msgstr "轻箱子几乎以机器人的速度前进，等质量的箱子以一半速度前进，重箱子几乎不动；一旦某个箱子顶到墙上，整条链就会停下，尽管机器人仍在请求全速。同一目录下的 `push_box_keyboard.yaml` 可以用键盘推着箱子到处走。"
+
+#: ../../source/usage/configure_robots_obstacles.md:273
+msgid "Contacts are resolved by the separating axis theorem between convex pieces of the two shapes (circles, convex polygons, and line segments; non-convex polygons are triangulated), so every shape takes part: `compound` bodies, `linestring` walls, and grid maps. See {py:mod}`irsim.lib.algorithm.contact`."
+msgstr "接触通过分离轴定理在两个形状的凸片段之间求解（圆、凸多边形和线段；非凸多边形会被三角剖分），因此所有形状都能参与：`compound` 物体、`linestring` 墙和栅格地图。参见 {py:mod}`irsim.lib.algorithm.contact`。"

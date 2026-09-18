@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
+from irsim.lib.algorithm.contact import resolve_contacts
 from irsim.lib.algorithm.generation import generate_polygon, random_generate_polygon
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,

@@ -29,7 +29,8 @@ class World:
         offset (list): Offset for the world's position.
         step_mode (str): State advancement mode ('internal' or 'external').
         control_mode (str): Control mode ('auto' or 'keyboard').
-        collision_mode (str): Collision mode ('stop',  , 'unobstructed').
+        collision_mode (str): Collision mode ('stop', 'unobstructed',
+            'unobstructed_obstacles', or 'contact').
         obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
         mdownsample (int): Downsampling factor for the obstacle map.
         status: Status of the world and objects.
@@ -88,7 +89,10 @@ class World:
                 ``external`` expects callers to update states before each
                 environment step.
             control_mode (str): Control mode ('auto' or 'keyboard').
-            collision_mode (str): Collision mode ('stop',  , 'unobstructed').
+            collision_mode (str): ``stop`` halts colliding objects,
+                ``unobstructed`` ignores collisions, ``unobstructed_obstacles``
+                lets only obstacles overlap, and ``contact`` pushes touching
+                objects apart by their ``mass``.
             obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.

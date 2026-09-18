@@ -280,10 +280,8 @@ msgid "`\"stop\"`"
 msgstr "`\"stop\"`"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:515
-msgid ""
-"Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, "
-"`\"unobstructed_obstacles\"`)"
-msgstr "碰撞处理模式（支持：`\"stop\"`、`\"unobstructed\"`、`\"unobstructed_obstacles\"`）"
+msgid "Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, `\"unobstructed_obstacles\"`, `\"contact\"`)"
+msgstr "碰撞处理模式（支持：`\"stop\"`、`\"unobstructed\"`、`\"unobstructed_obstacles\"`、`\"contact\"`）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:515
 msgid "`status`"
@@ -3099,3 +3097,27 @@ msgstr "`gaze_vision_angle`（float/`90.0`）：以行走方向为中心的视�
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
 msgid "`target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`."
 msgstr "`target_roles`（str/`'all'`）：成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`。"
+
+#: ../../source/yaml_config/configuration.md:645
+msgid "`contact`: Objects are not stopped. After every step, overlapping objects are pushed apart along their contact normal, sharing the separation in inverse proportion to their [`mass`](#p-o-mass), so a robot can push a box, a heavy box slows it down, and an object without mass (a wall, a static obstacle, or the grid map) stops it while it slides along the surface. See [Physical properties and contact mode](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode)."
+msgstr "`contact`：对象不会停止。每一步之后，重叠的对象沿接触法线被推开，分离量按各自 [`mass`](#p-o-mass) 的倒数比例分摊，因此机器人可以推动箱子，重箱子会拖慢机器人，而没有质量的对象（墙、静态障碍物或栅格地图）会挡住机器人并让它沿表面滑动。参见[物理属性与接触模式](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode)。"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "`mass`"
+msgstr "`mass`"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "`1.0` with kinematics, `inf` without"
+msgstr "有运动学时为 `1.0`，否则为 `inf`"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "Mass in kg for the `contact` collision mode; a lighter object is pushed further, `inf` never moves. A finite mass on an object without kinematics makes it a pushable dynamic body."
+msgstr "`contact` 碰撞模式使用的质量（kg）：越轻的对象被推得越远，`inf` 则永不移动。为没有运动学的对象设置有限质量，会使其成为可被推动的动态物体。"
+
+#: ../../source/yaml_config/configuration.md:1282
+msgid "**`mass`** (`float`, default: `1.0` with kinematics, `inf` without)"
+msgstr "**`mass`**（`float`，默认：有运动学时为 `1.0`，否则为 `inf`）"
+
+#: ../../source/yaml_config/configuration.md:1283
+msgid "Mass in kilograms, used by the [`contact`](#p-w-collision-mode) collision mode. When two objects overlap after a step, the separation is shared in inverse proportion to their masses, so a lighter object is pushed further and an object with `inf` mass never moves. Objects without kinematics are immovable by default; giving one a finite mass turns it into a dynamic body that can be pushed but does not move on its own. A list gives each object of a `number` group its own mass. A pushable obstacle is drawn in orange (`#E69F00`, colour-blind safe and distinct from black in grayscale print) unless `color` is set. Static objects ignore their mass. In other collision modes the value is unused, but an obstacle given a mass is still stepped and redrawn as a dynamic body."
+msgstr "质量（千克），由 [`contact`](#p-w-collision-mode) 碰撞模式使用。当两个对象在一步之后发生重叠时，分离量按二者质量的倒数比例分摊，因此更轻的对象被推得更远，质量为 `inf` 的对象永不移动。没有运动学的对象默认不可移动；为其设置有限质量后，它会成为可被推动但不会自行移动的动态物体。在 `number` 分组中给出列表可为每个对象单独指定质量。可被推动的障碍物在未设置 `color` 时以橙色（`#E69F00`，色盲友好，且在灰度打印时仍与黑色区分明显）绘制。静态对象忽略质量。在其他碰撞模式下该值不会被使用，但设置了质量的障碍物仍会作为动态物体被推进和重绘。"

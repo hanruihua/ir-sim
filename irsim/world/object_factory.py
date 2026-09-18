@@ -21,6 +21,36 @@ from irsim.world.robots.robot_acker import RobotAcker  # noqa: F401
 from irsim.world.robots.robot_diff import RobotDiff  # noqa: F401
 from irsim.world.robots.robot_omni import RobotOmni  # noqa: F401
 
+# Default color of an obstacle that a finite ``mass`` makes pushable, so that
+# movable bodies stand out from the black static ones in the same scene. The
+# Okabe-Ito orange is colour-blind safe and stays distinct from black when a
+# figure is printed in grayscale.
+DYNAMIC_BODY_COLOR = "#E69F00"
+
+
+def _is_dynamic_body(kwargs: dict[str, Any]) -> bool:
+    """Whether a finite ``mass`` turns a kinematics-free object into a pushable body.
+
+    An invalid value is left for ``ObjectBase`` to report.
+    """
+    mass = kwargs.get("mass")
+    if mass is None:
+        return False
+    try:
+        return bool(np.isfinite(float(mass)))
+    except (TypeError, ValueError):
+        return False
+
+
+def _per_object_values(value: Any, number: int) -> list[Any]:
+    """Expand a scalar, or a per-object list padded with its last entry."""
+    if not isinstance(value, list):
+        return [value] * number
+    values = list(value[:number])
+    if not values:
+        return [None] * number
+    return values + [values[-1]] * (number - len(values))
+
 
 class ObjectFactory:
     """
@@ -140,8 +170,11 @@ class ObjectFactory:
             obj_dict = {
                 k: convert_list_length(v, number)[i]
                 for k, v in kwargs.items()
-                if k != "sensors"
+                if k not in {"sensors", "mass"}
             }
+            # a list of masses is one mass per object, unlike a numeric vector
+            if "mass" in kwargs:
+                obj_dict["mass"] = _per_object_values(kwargs["mass"], number)[i]
             obj_dict["state"] = state_list[i]
             obj_dict["goal"] = goal_list[i]
             sensors: list[Any] = kwargs.get("sensors") or []
@@ -163,7 +196,8 @@ class ObjectFactory:
         Uses the kinematics registry to look up handler-class metadata
         (default color, state_dim, description) and creates an ``ObjectBase``
         directly.  Static / ``None`` kinematics still produce an
-        ``ObjectStatic``.
+        ``ObjectStatic``, unless a finite ``mass`` makes the robot a dynamic
+        body that the ``contact`` collision mode can push.
 
         Args:
             kinematics (dict): Kinematics configuration.
@@ -176,8 +210,12 @@ class ObjectFactory:
             kinematics = {}
         kinematics_name = kinematics.get("name")
 
-        if kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static" or (
+            kinematics_name is None and not _is_dynamic_body(kwargs)
+        ):
             return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
+        if kinematics_name is None:
+            return ObjectBase(kinematics=None, role="robot", **kwargs)
 
         handler_cls = KinematicsFactory.get_handler_class(kinematics_name)
         if handler_cls is None:
@@ -200,7 +238,10 @@ class ObjectFactory:
 
         Uses the kinematics registry to look up handler-class metadata
         (default color, state_dim) and creates an ``ObjectBase`` directly.
-        Static / ``None`` kinematics still produce an ``ObjectStatic``.
+        Static / ``None`` kinematics still produce an ``ObjectStatic``, unless
+        a finite ``mass`` makes the obstacle a dynamic body that the
+        ``contact`` collision mode can push; such an obstacle is drawn in
+        :data:`DYNAMIC_BODY_COLOR` unless a ``color`` is given.
 
         Args:
             kinematics (dict): Kinematics configuration.
@@ -213,8 +254,15 @@ class ObjectFactory:
             kinematics = {}
         kinematics_name = kinematics.get("name")
 
-        if kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static" or (
+            kinematics_name is None and not _is_dynamic_body(kwargs)
+        ):
             return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
+        if _is_dynamic_body(kwargs) and not kwargs.get("static", False):
+            # a pushable obstacle stands out from the black static ones
+            kwargs.setdefault("color", DYNAMIC_BODY_COLOR)
+        if kinematics_name is None:
+            return ObjectBase(kinematics=None, role="obstacle", **kwargs)
 
         handler_cls = KinematicsFactory.get_handler_class(kinematics_name)
         if handler_cls is None:

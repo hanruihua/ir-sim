@@ -78,6 +78,12 @@ cd docs && make html
   - `sfm` (vectorized social force model stepping all members from one snapshot, with optional Moussaid 2010 social groups: coherence, repulsion, gaze)
 - SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant; `social_force_model` per agent, `SocialForceModelBatch` for a whole crowd)
 
+**Contact / Physics** (`irsim/lib/algorithm/contact.py`):
+- `collision_mode: contact` (world YAML) replaces stop-on-collision with mass-based pushing: after the kinematic step, overlapping pairs are separated along the SAT contact normal, split in inverse proportion to each object's `mass` (`inv_mass` is 0 for static / `inf`-mass objects)
+- Per-object `mass` (default `1.0` with kinematics, `inf` without); a finite `mass` on a kinematics-free obstacle makes it a pushable dynamic body (`ObjectFactory` routes it to `ObjectBase` instead of `ObjectStatic`) and colors it `DYNAMIC_BODY_COLOR` (Okabe-Ito orange `#E69F00`, print-safe) unless `color` is set, so pushable obstacles stand out from black static ones
+- Convex pieces: exact circles, convex polygons, line segments (linestrings, grid-map boundaries); non-convex polygons via `shapely.constrained_delaunay_triangles`; pairs swept in anchored order with blocked-direction projection so chains against walls settle in one sweep
+- `ObjectBase.apply_contact_displacement` moves an object and folds the displacement into its velocity; `contact_flag` / `contact_obj` report touches, `collision_flag` stays False for resolved contacts
+
 **Path Planners** (`irsim/lib/path_planners/`):
 - `a_star.py`: A* grid-based path planning
 - `rrt.py`: Rapidly-exploring Random Tree
@@ -124,15 +130,15 @@ irsim/                  # Main package
 │   └── description/    # Robot/vehicle visualization assets (PNG)
 ├── lib/                # Algorithms and behaviors
 │   ├── behavior/       # Robot behaviors (dash, rvo, sfm, orca)
-│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, generation)
+│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, contact, generation)
 │   ├── path_planners/  # Path planning (A*, RRT, RRT*, Informed RRT*, JPS, PRM)
 │   └── handler/        # Geometry and kinematics handlers
 ├── gui/                # Keyboard/mouse controls
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (13 test files)
-usage/                  # Example YAML configs and scripts (25 examples)
+tests/                  # Pytest test suite (15 test files)
+usage/                  # Example YAML configs and scripts (26 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 

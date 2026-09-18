@@ -54,6 +54,7 @@ class ObjectInfo:
     cone_type: str
     convex_flag: bool
     name: str
+    mass: float = float("inf")
 
     def add_property(self, key, value):
         """Attach an additional field to this info snapshot."""
@@ -108,6 +109,13 @@ class ObjectBase:
             Defaults to "k" (black).
         static (bool): Indicates if the object is static (does not move).
             Defaults to False.
+        mass (float): Mass in kilograms, used by the ``contact`` collision mode
+            to share the separation between touching objects: a lighter object
+            is pushed further. ``inf`` makes the object immovable. Defaults to
+            ``1.0`` for an object with kinematics and ``inf`` for one without.
+            A finite mass on an object without kinematics turns it into a
+            dynamic body that can be pushed but does not move on its own.
+            Static objects are immovable regardless of their mass.
         vel_min (list of float): Minimum velocity limits for each control dimension.
             Used to constrain the object's velocity. Defaults to [-1, -1].
         vel_max (list of float): Maximum velocity limits for each control dimension.
@@ -194,6 +202,7 @@ class ObjectBase:
         "role",
         "color",
         "static",
+        "mass",
         "vel_min",
         "vel_max",
         "acce",
@@ -228,6 +237,7 @@ class ObjectBase:
         role: str = "obstacle",
         color: str = "k",
         static: bool = False,
+        mass: float | None = None,
         vel_min: list | None = None,
         vel_max: list | None = None,
         acce: list | None = None,
@@ -282,6 +292,7 @@ class ObjectBase:
 
         # --- 2-4. Handlers, and the dimensions and limits derived from them ---
         self._init_handlers(shape, kinematics, role)
+        self.mass = self._resolve_mass(mass, static)
         action_dim = self._init_dimensions(state_dim, vel_dim)
         acce, vel_max, vel_min, angle_range = self._resolve_limits(
             acce, vel_max, vel_min, angle_range
@@ -392,7 +403,11 @@ class ObjectBase:
 
         self.vel_min = np.c_[vel_min]
         self.vel_max = np.c_[vel_max]
-        self.static = static if self.kf is not None else True
+        # Without kinematics an object is static unless it has a finite mass,
+        # which makes it a dynamic body that contacts can push around.
+        self.static = (
+            static if self.kf is not None else static or not math.isfinite(self.mass)
+        )
 
     def _init_goal(
         self, goal: list | None, goal_threshold: float, arrive_mode: str
@@ -457,6 +472,7 @@ class ObjectBase:
             self.cone_type,
             self.convex_flag,
             self.name,
+            mass=self.mass,
         )
         self.obstacle_info = None
         self.trajectory = []
@@ -520,6 +536,8 @@ class ObjectBase:
         self.stop_flag = False
         self.arrive_flag = False
         self.collision_flag = False
+        self.contact_flag = False
+        self.contact_obj: list[ObjectBase] = []
         self.unobstructed = unobstructed
 
         self.plot_kwargs = kwargs.get("plot", {})
@@ -584,7 +602,13 @@ class ObjectBase:
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
-        new_state = self.kf.step(self.state, behavior_vel, self._world_param.step_time)
+        if self.kf is not None:
+            new_state = self.kf.step(
+                self.state, behavior_vel, self._world_param.step_time
+            )
+        else:
+            # a dynamic body without kinematics only moves when pushed
+            new_state = self._state.astype(float)
         next_state = self.mid_process(new_state)
 
         self._state = next_state
@@ -620,7 +644,7 @@ class ObjectBase:
 
         This method evaluates collision detection and sets stop flags based on the collision mode.
         It also handles different collision modes like 'stop', 'reactive', 'unobstructed',
-        and 'unobstructed_obstacles'.
+        'unobstructed_obstacles', and 'contact'.
         """
         self.check_arrive_status()
         self.check_collision_status(colliding)
@@ -640,9 +664,15 @@ class ObjectBase:
                 self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
             elif self.role == "obstacle":
                 self.stop_flag = False
+
+        elif self._world_param.collision_mode == "contact":
+            # overlaps were resolved by mass after the kinematic step; touching
+            # objects push each other instead of stopping
+            pass
+
         elif self.role == "robot":
             self.logger.warning_once(
-                f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
+                f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles, contact], the unobstructed mode is used"
             )
 
     def check_arrive_status(self):
@@ -760,6 +790,10 @@ class ObjectBase:
         min_vel, max_vel = self.get_vel_range()
 
         if velocity is None:
+            if self.kf is None:
+                # a body without kinematics cannot drive itself; contacts move it
+                return np.zeros_like(self._velocity, dtype=float)
+
             if self.beh_config is None:
                 if self.role == "robot":
                     self.logger.warning_once(
@@ -992,6 +1026,76 @@ class ObjectBase:
 
         self._velocity = temp_velocity.copy()
         self._invalidate_reactive_cache()
+
+    def apply_contact_displacement(self, delta_xy: list | np.ndarray) -> None:
+        """
+        Translate the object by a contact correction and fold it into its velocity.
+
+        Called by the ``contact`` collision mode after the kinematic step. The
+        position, geometry, and this step's trajectory sample move by
+        ``delta_xy``, and ``delta_xy / step_time`` is added to the velocity in
+        the object's own command frame, so sensors, reactive behaviors, and
+        messages all see the resolved motion.
+
+        Args:
+            delta_xy (list | np.ndarray): World-frame translation ``[dx, dy]``
+                in meters.
+        """
+        delta = np.asarray(delta_xy, dtype=float).reshape(2, 1)
+
+        new_state = self._state.astype(float)
+        new_state[:2] += delta
+        self._state = new_state
+        self._geometry = self.gf.step(self._state)
+        self._geometry_valid = self._shape_valid and bool(np.isfinite(new_state).all())
+
+        step_time = self._world_param.step_time
+        self._velocity = self._velocity + self._contact_velocity(delta / step_time)
+
+        # the kinematic step already recorded this tick; keep the sample in sync
+        if self.trajectory and not (self.static or self.stop_flag):
+            self.trajectory[-1] = self._state.copy()
+
+        self._invalidate_reactive_cache()
+
+    def _contact_velocity(self, velocity_xy: np.ndarray) -> np.ndarray:
+        """Express a world-frame velocity change in this object's command frame.
+
+        A holonomic model gets the rotated vector; ``diff``, ``acker`` and
+        custom models keep only the forward component, since a sideways push
+        has no command counterpart. Without kinematics the velocity is the
+        world-frame ``[vx, vy]`` itself.
+        """
+        out = np.zeros(self.vel_shape)
+        rows = min(2, out.shape[0])
+        vxy = np.asarray(velocity_xy, dtype=float).reshape(2, 1)
+
+        if self.kf is None:
+            out[:rows] = vxy[:rows]
+            return out
+
+        theta = float(self._state[2, 0]) if self._state.shape[0] > 2 else 0.0
+        if self.kinematics in {"omni", "omni_angular"}:
+            out[:rows] = vel_world2omni(theta, vxy)[:rows]
+        else:
+            out[0, 0] = float(vxy[0, 0]) * cos(theta) + float(vxy[1, 0]) * sin(theta)
+        return out
+
+    def _resolve_mass(self, mass: float | None, static: bool) -> float:
+        """Validate the configured mass, or pick the default for this object."""
+        if mass is None:
+            return 1.0 if self.kf is not None and not static else float("inf")
+        try:
+            value = float(mass)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"{self.name}: mass must be a positive number or inf, got {mass!r}"
+            ) from exc
+        if math.isnan(value) or value <= 0:
+            raise ValueError(
+                f"{self.name}: mass must be a positive number or inf, got {mass!r}"
+            )
+        return value
 
     def set_original_geometry(self, geometry: BaseGeometry):
         """
@@ -1338,6 +1442,8 @@ class ObjectBase:
         self._velocity = self._init_velocity.copy()
 
         self.collision_flag = False
+        self.contact_flag = False
+        self.contact_obj = []
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
@@ -1783,6 +1889,32 @@ class ObjectBase:
         return self.collision_flag
 
     @property
+    def contact(self) -> bool:
+        """
+        Whether a contact was resolved against this object in the last step
+        (``collision_mode: contact`` only).
+
+        Returns:
+            bool: The contact flag of the object.
+        """
+
+        return self.contact_flag
+
+    @property
+    def inv_mass(self) -> float:
+        """
+        Inverse mass used to share contact corrections.
+
+        Returns:
+            float: ``1 / mass``, or ``0`` for a static or infinitely massive
+            object, which contacts never move.
+        """
+
+        if self.static or not math.isfinite(self.mass):
+            return 0.0
+        return 1.0 / self.mass
+
+    @property
     def vertices(self) -> np.ndarray | None:
         """
         Get the vertices of the object.
@@ -2019,7 +2151,11 @@ class ObjectBase:
         if self.kf is not None:
             out = self.kf.velocity_to_xy(self.state, self.velocity)
         else:
+            # no kinematics: the velocity is the world-frame [vx, vy] that a
+            # contact gave the body this step (zero when nothing pushes it)
             out = np.zeros((2, 1))
+            rows = min(2, self._velocity.shape[0])
+            out[:rows] = self._velocity[:rows]
         self._velocity_xy_cache = out
         return out
 

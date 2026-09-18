@@ -30,6 +30,7 @@ from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
+from irsim.lib.algorithm.contact import CONTACT_SLOP, resolve_contacts
 from irsim.msg import ObjectState, Odometry, WorldState
 from irsim.util import (
     bind_env,
@@ -358,6 +359,11 @@ class EnvBase:
             - If the environment is paused, this method returns without performing any updates.
             - The method automatically handles collision detection, status updates, and plotting.
             - In keyboard control mode, the action parameter is ignored and keyboard input is used.
+            - With ``collision_mode: contact``, objects that overlap after the
+              kinematic step are pushed apart in inverse proportion to their
+              ``mass`` before sensors run, so a robot can push a box and an
+              immovable wall stops it. External step mode leaves states to
+              the caller and skips this.
 
         Example:
             >>> # Move first robot with differential drive
@@ -394,6 +400,8 @@ class EnvBase:
             action = self._assign_keyboard_action(action)
             action = self._assign_group_action(action)
             self._objects_step(action, sensor_step=False)
+            if self._world_param.collision_mode == "contact":
+                self._resolve_contacts()
 
         self._objects_sensor_step()
         self._world.step(self.objects)
@@ -492,6 +500,51 @@ class EnvBase:
         for i, j in zip(obj_idx[hits], other_idx[hits], strict=True):
             colliding[objects[i].id].append(objects[j])
         return colliding
+
+    def _resolve_contacts(self) -> None:
+        """Push overlapping objects apart by mass (``collision_mode: contact``).
+
+        Runs after the kinematic step. Candidate pairs are the objects whose
+        bounding boxes come within two steps of travel of each other, not only
+        those that intersect: a box resting against a wall must be re-checked
+        when a robot pushes it, or the chain would oscillate from step to
+        step. ``unobstructed`` objects take no part. The geometry tree is
+        rebuilt afterwards so that sensors and the status check see the
+        separated scene.
+        """
+        tree, objects = self._env_param.GeometryTree, self.objects
+        if tree is None or not objects:
+            return
+        for obj in objects:
+            obj.contact_flag = False
+            obj.contact_obj = []
+
+        travel = max((obj.max_speed for obj in objects if not obj.static), default=0)
+        margin = 2 * travel * self._world_param.step_time + CONTACT_SLOP
+        # bounding boxes grown by the margin, so a pair whose exact distance is
+        # not worth computing here (e.g. against a whole grid map) still shows
+        # up; the solver's own overlap test discards the rest
+        bounds = shapely.bounds(
+            np.array([obj._geometry for obj in objects], dtype=object)
+        )
+        boxes = shapely.box(
+            bounds[:, 0] - margin,
+            bounds[:, 1] - margin,
+            bounds[:, 2] + margin,
+            bounds[:, 3] + margin,
+        )
+        obj_idx, other_idx = tree.query(boxes)
+
+        unobstructed = np.array([obj.unobstructed for obj in objects], dtype=bool)
+        keep = (obj_idx < other_idx) & ~unobstructed[obj_idx] & ~unobstructed[other_idx]
+        pairs = [
+            (objects[i], objects[j])
+            for i, j in zip(
+                obj_idx[keep].tolist(), other_idx[keep].tolist(), strict=True
+            )
+        ]
+        if pairs and resolve_contacts(pairs, margin=margin):
+            self.build_tree()
 
     def _objects_check_status(self) -> None:
         """Refresh per-object status flags (e.g., arrival, collision)."""

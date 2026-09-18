@@ -1,0 +1,54 @@
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  sample_time: 0.1
+  collision_mode: 'contact'
+  control_mode: 'keyboard'
+
+
+# Drive the robot with the keyboard (w/s forward, a/d turn) and shove the
+# boxes around. Boxes have a finite mass and can be pushed; the border and
+# the pillar have none and stop the robot, which slides along them.
+robot:
+  - kinematics: {name: 'diff'}
+    # shape: {name: 'circle', radius: 0.3}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state: [2, 2, 0.5]
+    mass: 1.0
+    vel_max: [0.5, 2.0]
+    # color: 'royalblue'
+    
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0
+        range_max: 5
+        angle_range: 3.14 #  4.7123
+        number: 200
+        noise: False
+        std: 0.2
+        angle_std: 0.2
+        offset: [0.1, 0.1, 0.5]
+        plot:
+          alpha: 0.3
+
+obstacle:
+  - number: 4
+    distribution: {name: 'manual'}
+    shape: {name: 'rectangle', length: 0.8, width: 0.8}
+    state:
+      - [4, 4, 0]
+      - [7, 3, 0.4]
+      - [5, 8, 0]
+      - [9, 9, 1.0]
+    mass: [0.3, 1.0, 2.0, 0.5]
+    plot:
+      show_text: true
+
+  - shape: {name: 'circle', radius: 0.6}          # immovable pillar
+    state: [7, 6.5, 0]
+
+  - shape: {name: 'linestring', vertices: [[0.5, 0.5], [11.5, 0.5], [11.5, 11.5], [0.5, 11.5], [0.5, 0.5]]}
+    state: [0, 0, 0]
+    mass: 1.0
+

@@ -1,0 +1,52 @@
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'contact'   # touching objects push each other apart by mass
+  control_mode: 'auto'
+
+
+# Three identical robots push three boxes of different mass toward a wall.
+# In 'contact' mode an overlap after each step is removed along the contact
+# normal and shared in inverse proportion to mass, so the light box travels
+# almost at robot speed, the equal box at half speed, and the heavy box
+# barely moves. The wall has no mass (infinite), so once a box reaches it the
+# whole chain stops, while the robots keep asking for full speed.
+robot:
+  - number: 3
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    mass: 1.0
+    state:
+      - [1, 2, 0]
+      - [1, 6, 0]
+      - [1, 10, 0]
+    goal:
+      - [11.5, 2, 0]
+      - [11.5, 6, 0]
+      - [11.5, 10, 0]
+    behavior: {name: 'dash'}
+    vel_max: [1.0, 1.0]
+    plot:
+      show_trail: true
+      trail_freq: 5
+      show_goal: false
+
+obstacle:
+  - number: 3
+    distribution: {name: 'manual'}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state:
+      - [3, 2, 0]
+      - [3, 6, 0]
+      - [3, 10, 0]
+    mass: [0.25, 1.0, 4.0]        # a finite mass makes an obstacle pushable (drawn in orange)
+    plot:
+      show_text: true
+
+  - shape: {name: 'rectangle', length: 0.4, width: 11}   # no mass: immovable wall
+    state: [10.5, 6, 0]
+    color: 'k'
