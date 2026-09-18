@@ -74,6 +74,27 @@ class TestPaletteParam:
         with pytest.raises(IndexError):
             palette_param[-1] = other
 
+    def test_bind_fills_an_empty_registry(self, fresh_palette):
+        import irsim.config.palette_param as module
+
+        saved = list(module._instances)
+        module._instances.clear()
+        try:
+            bind(PaletteParam(robot="teal"))
+            assert module._instances[0].robot == "teal"
+            assert palette_param.robot == "teal"
+        finally:
+            module._instances[:] = saved
+            bind(saved[0])
+
+    def test_non_field_attributes_stay_on_the_module(self, fresh_palette):
+        palette_param.scratch_note = "kept on the module"
+        try:
+            assert palette_param.scratch_note == "kept on the module"
+            assert not hasattr(palette_param[0], "scratch_note")
+        finally:
+            delattr(palette_param, "scratch_note")
+
     def test_fresh_fixture_restores(self, fresh_palette):
         palette_param.arrow = "red"
         assert ArrowStyle().color == "red"
@@ -123,6 +144,28 @@ class TestPaletteConsumers:
             assert DifferentialKinematics.default_color() == "navy"
         finally:
             _kinematics_registry.pop("palette_test_diff", None)
+
+    def test_handler_obstacle_color_overrides_the_palette(self, fresh_palette):
+        @register_kinematics("palette_test_gray_obstacle")
+        class GrayObstacleDiff(DifferentialKinematics):
+            obstacle_color = "gray"
+
+        try:
+            palette_param.obstacle = "k"
+            assert GrayObstacleDiff.default_color("obstacle") == "gray"
+            assert GrayObstacleDiff.default_color() == palette_param.robot
+        finally:
+            _kinematics_registry.pop("palette_test_gray_obstacle", None)
+
+    def test_3d_points_use_the_marker_color(self, fresh_palette, env_factory, tmp_path):
+        from unittest.mock import patch
+
+        palette_param.marker = "orange"
+        env = env_factory(_yaml(tmp_path, ROBOT_WORLD), projection="3d")
+        ax = env._env_plot.ax
+        with patch.object(ax, "scatter", wraps=ax.scatter) as scatter:
+            env.draw_points([[1.0, 1.0, 1.0]])
+        assert scatter.call_args.args[5] == "orange"
 
     def test_draw_helpers_and_laser_highlight(
         self, fresh_palette, env_factory, tmp_path
