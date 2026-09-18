@@ -25,6 +25,7 @@ from shapely.strtree import STRtree
 
 from irsim.config import env_param, path_param, world_param
 from irsim.config.env_param import EnvParam
+from irsim.config.palette import MARKER_COLOR
 from irsim.config.path_param import PathManager
 from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
@@ -604,7 +605,7 @@ class EnvBase:
     # draw various components
     @plot_only
     def draw_trajectory(
-        self, traj: list[Any], traj_type: str = "g-", **kwargs: Any
+        self, traj: list[Any], traj_type: str = "-", **kwargs: Any
     ) -> None:
         """
         Draw the trajectory on the environment figure.
@@ -612,7 +613,9 @@ class EnvBase:
         Args:
             traj (list): List of trajectory points. Each point is a 2x1 vector
                 or an array of shape (2, N).
-            traj_type (str): Matplotlib line style (e.g., "g-", "r--").
+            traj_type (str): Matplotlib format string (e.g. "-", "r--"). Unless
+                it names a color, or ``color`` is passed, the line uses
+                ``PATH_COLOR`` from :mod:`irsim.config.palette`.
             **kwargs: Additional keyword arguments; forwarded to
                 :py:meth:`.EnvPlot.draw_trajectory`.
         """
@@ -624,7 +627,7 @@ class EnvBase:
         self,
         points: list[Any],
         s: int = 30,
-        c: str = "b",
+        c: str = MARKER_COLOR,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -645,7 +648,7 @@ class EnvBase:
 
     @plot_only
     def draw_box(
-        self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"
+        self, vertex: np.ndarray, refresh: bool = False, color: str = "-"
     ) -> None:
         """
         Draw a box by the vertices.

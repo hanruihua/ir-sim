@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import glob
 import os
+import re
 import shutil
 from collections.abc import Iterable
 from math import cos, sin
 from typing import Any
 
 import imageio
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import mpl_toolkits.mplot3d.art3d as art3d
@@ -34,8 +36,27 @@ from shapely.geometry import MultiPolygon as ShapelyMultiPolygon
 from shapely.geometry import Polygon as ShapelyPolygon
 from shapely.geometry.polygon import orient
 
+from irsim.config.palette import MARKER_COLOR, PATH_COLOR, QUIVER_COLOR
 from irsim.config.path_param import path_manager as pm
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
+
+_FMT_COLOR = re.compile(r"C\d+|[bgrcmykw]")
+
+
+def _with_default_color(
+    fmt: str, kwargs: dict[str, Any], default: str
+) -> dict[str, Any]:
+    """Return ``kwargs`` with ``color=default`` unless a color is already given.
+
+    A color counts as given when ``kwargs`` has ``color`` or ``c``, or when
+    the Matplotlib format string ``fmt`` names one: a single letter such as
+    ``r``, a ``C0``-style cycle color, or a full color name.
+    """
+    if "color" in kwargs or "c" in kwargs:
+        return kwargs
+    if _FMT_COLOR.search(fmt) or mcolors.is_color_like(fmt):
+        return kwargs
+    return {**kwargs, "color": default}
 
 
 class EnvPlot:
@@ -359,7 +380,7 @@ class EnvPlot:
     def draw_trajectory(
         self,
         traj: list[Any] | np.ndarray,
-        traj_type: str = "g-",
+        traj_type: str = "-",
         label: str = "trajectory",
         show_direction: bool = False,
         refresh: bool = False,
@@ -370,7 +391,9 @@ class EnvPlot:
 
         Args:
             traj (list or np.ndarray): List of points or array of points [x, y, theta].
-            traj_type (str): Type of trajectory line (e.g., 'g-').
+            traj_type (str): Matplotlib format string for the line (e.g. '-',
+                'r--'). Unless it names a color, or ``color`` is passed, the
+                line uses ``PATH_COLOR`` from :mod:`irsim.config.palette`.
                 See https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.plot.html for details.
             label (str): Label for the trajectory.
             show_direction (bool): Whether to show the direction of the trajectory.
@@ -379,6 +402,7 @@ class EnvPlot:
         """
         path_x_list, path_y_list = traj_to_xy_list(traj)
 
+        kwargs = _with_default_color(traj_type, kwargs, PATH_COLOR)
         line = self.ax.plot(path_x_list, path_y_list, traj_type, label=label, **kwargs)
 
         if show_direction:
@@ -407,7 +431,7 @@ class EnvPlot:
         self,
         points: list[Any] | np.ndarray | None,
         s: int = 10,
-        c: str = "m",
+        c: str = MARKER_COLOR,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -437,7 +461,7 @@ class EnvPlot:
         self,
         point: np.ndarray | None,
         refresh: bool = False,
-        color: str = "black",
+        color: str = QUIVER_COLOR,
         **kwargs: Any,
     ) -> None:
         """
@@ -470,7 +494,7 @@ class EnvPlot:
         self,
         points: Iterable[np.ndarray],
         refresh: bool = False,
-        color: str = "black",
+        color: str = QUIVER_COLOR,
         **kwargs: Any,
     ) -> None:
         """
@@ -485,7 +509,7 @@ class EnvPlot:
             self.draw_quiver(point, refresh, color=color, **kwargs)
 
     def draw_box(
-        self, vertices: np.ndarray, refresh: bool = False, color: str = "b-"
+        self, vertices: np.ndarray, refresh: bool = False, color: str = "-"
     ) -> None:
         """
         Draw a box by the vertices.
@@ -493,10 +517,17 @@ class EnvPlot:
         Args:
             vertices (np.ndarray): 2xN array of vertices.
             refresh (bool): Whether to refresh the plot.
-            color (str): Color and line type of the box.
+            color (str): Matplotlib format string for the outline; unless it
+                names a color, ``PATH_COLOR`` from :mod:`irsim.config.palette`
+                is used.
         """
         temp_vertex = np.c_[vertices, vertices[0:2, 0]]
-        box_line = self.ax.plot(temp_vertex[0, :], temp_vertex[1, :], color)
+        box_line = self.ax.plot(
+            temp_vertex[0, :],
+            temp_vertex[1, :],
+            color,
+            **_with_default_color(color, {}, PATH_COLOR),
+        )
 
         if refresh:
             self.dyna_line_list.append(box_line)

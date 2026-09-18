@@ -28,3 +28,10 @@ LASER_HIGHLIGHT_COLOR = "#56B4E9"  # beams singled out with ``set_laser_color``
 FMCW_ZERO_VELOCITY_COLOR = "#56B4E9"
 FMCW_POSITIVE_VELOCITY_COLOR = "#CC3311"
 FMCW_NEGATIVE_VELOCITY_COLOR = "#0072B2"
+
+# Drawing helpers: ``env.draw_points``, ``draw_trajectory``, ``draw_box``,
+# ``draw_quiver``. Lines drawn with a Matplotlib format string that names a
+# color (``"r--"``) keep that color.
+MARKER_COLOR = "#CC79A7"  # points
+PATH_COLOR = "#0072B2"  # trajectory and box lines
+QUIVER_COLOR = "k"  # arrows

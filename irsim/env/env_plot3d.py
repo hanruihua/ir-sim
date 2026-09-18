@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 
+from irsim.config.palette import MARKER_COLOR, QUIVER_COLOR
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
 
 from .env_plot import EnvPlot
@@ -39,7 +40,7 @@ class EnvPlot3D(EnvPlot):
         self,
         points: list | np.ndarray | None,
         s: int = 10,
-        c: str = "m",
+        c: str = MARKER_COLOR,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -86,7 +87,7 @@ class EnvPlot3D(EnvPlot):
             point[0],
             point[1],
             point[2],
-            color=kwargs.get("point_color", "blue"),
+            color=kwargs.get("point_color", MARKER_COLOR),
             label="Points",
         )
 
@@ -99,7 +100,7 @@ class EnvPlot3D(EnvPlot):
             point[5],  # vector components (direction)
             length=0.2,
             normalize=True,
-            color=kwargs.get("quiver_color", "red"),
+            color=kwargs.get("quiver_color", QUIVER_COLOR),
             label="Direction",
         )
 
