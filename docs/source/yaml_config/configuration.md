@@ -59,7 +59,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
   <div class="yt-leaf"><a class="yt-key" href="#p-o-goal">goal</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1, 9, 0]</span><span class="yt-desc">manual target [x, y, theta] (or list of)</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-velocity">velocity</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0]·dim</span><span class="yt-desc">initial control vector</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">top-level key</span><span class="yt-desc">robot | obstacle</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">role/kinematics</span><span class="yt-desc">matplotlib color</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">role/kinematics</span><span class="yt-desc">matplotlib color; defaults in irsim.config.palette</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-static">static</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">immobile object</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
@@ -280,7 +280,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">sensor visualization · flat keys also accepted</span></summary>
           <div class="yt-body">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.3</span><span class="yt-desc">plot transparency</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"r"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC3311"</span></div>
           </div>
           </details>
         </div>
@@ -292,7 +292,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">Doppler visualization · flat keys also accepted</span></summary>
           <div class="yt-body">
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.3</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"r"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC3311"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_color</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">true</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_color_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.0</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">2.5</span></div>
@@ -302,9 +302,9 @@ In a combined configuration for multiple simulators, these keys may be nested un
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_size</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">36</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_edge_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"black"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">velocity_marker_edge_width</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.6</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">zero_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"cyan"</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">positive_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"crimson"</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">negative_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"royalblue"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">zero_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#56B4E9"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">positive_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC3311"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">negative_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#0072B2"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightgray"</span></div>
           </div>
           </details>
@@ -358,7 +358,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <input type="checkbox" class="yt-gate" id="yt-g-arrow">
           <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_arrow</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-arrow" title="preview enabled state"></label></div>
           <div class="yt-gated">
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"gold"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#F0E442"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_length</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.4</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_width</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.6</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">arrow_alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0</span></div>
@@ -397,8 +397,8 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <input type="checkbox" class="yt-gate" id="yt-g-fov">
           <div class="yt-leaf yt-gate-row"><a class="yt-key" href="#p-o-plot">show_fov</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def yt-def-off">false</span><span class="yt-def yt-def-on">true</span><span class="yt-desc">master switch: enables the keys below</span><label class="yt-switch" for="yt-g-fov" title="preview enabled state"></label></div>
           <div class="yt-gated">
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightblue"</span></div>
-            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_edge_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"blue"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#56B4E9"</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_edge_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#0072B2"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-plot">fov_zorder</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span></div>
           </div>
@@ -776,7 +776,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`, `sfm` (availability depends on `kinematics`; see [Configure behavior](../usage/configure_behavior.md))   |
 | `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`, `sfm`                                    |
 | `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
-| `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots use kinematics-specific defaults; obstacles default to black. |
+| `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. All defaults live in `irsim.config.palette`. |
 | `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise the object is always static. Set `true` to freeze an object that has kinematics. |
 | `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
@@ -1305,7 +1305,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
     Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are still accepted for backward compatibility):
     - `alpha` (float/`0.3`): Transparency for plotting.
-    - `color` (str/`r`): Color of the sensor.
+    - `color` (str/`"#CC3311"`): Color of the sensor.
 
     **Example:**
     ```yaml
@@ -1338,9 +1338,9 @@ env.step(env.robot.vel_world2body(world_vel))
     - `velocity_marker_size` (float/`36`): Plot marker size for valid endpoints.
     - `velocity_marker_edge_color` (str/`black`): Edge color of the endpoint markers.
     - `velocity_marker_edge_width` (float/`0.6`): Edge width of the endpoint markers.
-    - `zero_velocity_color` (str/`cyan`): Plot color used for near-zero radial velocity.
-    - `positive_velocity_color` (str/`crimson`): Plot color used for positive radial velocity.
-    - `negative_velocity_color` (str/`royalblue`): Plot color used for negative radial velocity.
+    - `zero_velocity_color` (str/`"#56B4E9"`): Plot color used for near-zero radial velocity.
+    - `positive_velocity_color` (str/`"#CC3311"`): Plot color used for positive radial velocity.
+    - `negative_velocity_color` (str/`"#0072B2"`): Plot color used for negative radial velocity.
     - `no_hit_color` (str/`lightgray`): Plot color used for invalid beams.
 
     The scan output adds `radial_velocity` and `valid` arrays on top of the standard LiDAR angular metadata.
@@ -1420,7 +1420,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
 (p-o-color)=
 **`color`** (`str`, default: inferred from role and kinematics)
-: Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler; obstacles default to black. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
+: Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. These and every other default color are defined in {py:mod}`irsim.config.palette`, a colour-blind-safe set that also prints well in grayscale. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
 
   **Example:**
   ```yaml
@@ -1473,7 +1473,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
   **Velocity Arrow Visualization:**
   - `show_arrow` (bool/`False`): Whether to show the velocity arrow.
-    - `arrow_color` (str/`"gold"`): Color of the arrow.
+    - `arrow_color` (str/`"#F0E442"`): Color of the arrow.
     - `arrow_length` (float/`0.4`): Length of the arrow.
     - `arrow_width` (float/`0.6`): Width of the arrow.
     - `arrow_alpha` (float/`1.0`): Transparency of the arrow (0.0 to 1.0).
@@ -1505,8 +1505,8 @@ env.step(env.robot.vel_world2body(world_vel))
 
   **Field of View Visualization:**
   - `show_fov` (bool/`False`): Whether to show field of view visualization.
-    - `fov_color` (str/`"lightblue"`): Fill color of the field of view.
-    - `fov_edge_color` (str/`"blue"`): Edge color of the field of view.
+    - `fov_color` (str/`"#56B4E9"`): Fill color of the field of view.
+    - `fov_edge_color` (str/`"#0072B2"`): Edge color of the field of view.
     - `fov_alpha` (float/`0.5`): Transparency of the field of view (0.0 to 1.0).
     - `fov_zorder` (int/`1`): Z-order of the field of view.
 

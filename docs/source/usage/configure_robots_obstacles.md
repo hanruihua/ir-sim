@@ -190,7 +190,7 @@ obstacle:
 | Parameter | Robot Default | Obstacle Default |
 |-----------|---------------|------------------|
 | `role` | `"robot"` | `"obstacle"` |
-| `color` | Varies | `"k"` (black) |
+| `color` | green `#009E73` (`#117733` for `acker`) | `"k"` (black) |
 | `kinematics` | User-defined | `None` (static) |
 | `behavior` | `None` (static unless configured or externally controlled) | `None` (static unless configured or externally controlled) |
 

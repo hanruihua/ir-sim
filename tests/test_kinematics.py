@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from irsim.config.palette import ROBOT_ACKER_COLOR, ROBOT_COLOR
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
@@ -309,13 +310,13 @@ class TestHandlerMetadata:
         assert DifferentialKinematics.min_state_dim == 3
         assert DifferentialKinematics.state_dim == 3
         assert DifferentialKinematics.show_arrow is True
-        assert DifferentialKinematics.color == "g"
+        assert DifferentialKinematics.color == ROBOT_COLOR
 
     def test_acker_metadata(self):
         assert AckermannKinematics.action_dim == 2
         assert AckermannKinematics.min_state_dim == 4
         assert AckermannKinematics.state_dim == 4
-        assert AckermannKinematics.color == "y"
+        assert AckermannKinematics.color == ROBOT_ACKER_COLOR
         assert AckermannKinematics.description == "car_green.png"
         assert AckermannKinematics.show_arrow is True
 
@@ -324,7 +325,7 @@ class TestHandlerMetadata:
         assert OmniAngularKinematics.min_state_dim == 3
         assert OmniAngularKinematics.state_dim == 3
         assert OmniAngularKinematics.show_arrow is True
-        assert OmniAngularKinematics.color == "g"
+        assert OmniAngularKinematics.color == ROBOT_COLOR
 
 
 # ---------------------------------------------------------------------------

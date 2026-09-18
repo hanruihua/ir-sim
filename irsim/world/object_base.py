@@ -9,6 +9,7 @@ import numpy as np
 import shapely
 from shapely.geometry.base import BaseGeometry
 
+from irsim.config.palette import LASER_HIGHLIGHT_COLOR
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
 from irsim.util.util import (
     ClipTo2Pi,
@@ -1140,14 +1141,17 @@ class ObjectBase:
             self._goal.append(goal.flatten().tolist())
 
     def set_laser_color(
-        self, laser_indices, laser_color: str = "cyan", alpha: float = 0.3
+        self,
+        laser_indices,
+        laser_color: str = LASER_HIGHLIGHT_COLOR,
+        alpha: float = 0.3,
     ):
         """
         Set the color of the lasers.
 
         Args:
             laser_indices (list): The indices of the lasers to set the color.
-            laser_color (str): The color to set the lasers. Default is 'cyan'.
+            laser_color (str): The color to set the lasers. Default is ``LASER_HIGHLIGHT_COLOR``.
             alpha (float): The transparency of the lasers. Default is 0.3.
         """
 

@@ -4,6 +4,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from irsim.config.palette import OBSTACLE_COLOR, ROBOT_ACKER_COLOR, ROBOT_COLOR
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
@@ -79,8 +80,8 @@ class KinematicsHandler(ABC):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color: str = "g"
-    obstacle_color: str = "k"
+    color: str = ROBOT_COLOR
+    obstacle_color: str = OBSTACLE_COLOR
     description: str | None = None
     show_arrow: bool = True
 
@@ -187,8 +188,8 @@ class OmniKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
+    color = ROBOT_COLOR
+    obstacle_color = OBSTACLE_COLOR
     description = None
     show_arrow = False
 
@@ -268,8 +269,8 @@ class OmniAngularKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
+    color = ROBOT_COLOR
+    obstacle_color = OBSTACLE_COLOR
     description = None
     show_arrow = True
 
@@ -332,8 +333,8 @@ class DifferentialKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
+    color = ROBOT_COLOR
+    obstacle_color = OBSTACLE_COLOR
     description = None
     show_arrow = True
 
@@ -373,8 +374,8 @@ class AckermannKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "y"
-    obstacle_color = "k"
+    color = ROBOT_ACKER_COLOR
+    obstacle_color = OBSTACLE_COLOR
     description = "car_green.png"
     show_arrow = True
 

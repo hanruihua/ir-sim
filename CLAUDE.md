@@ -110,6 +110,7 @@ cd docs && make html
 - **Registry Pattern**: Behaviors and sensors registered via decorators for extensibility
 - **Geometry via Shapely**: Collision detection uses Shapely library (>=2.1.2)
 - **Centralized RNG**: All randomness routes through `irsim.util.random.rng` (a proxy over `numpy.random.Generator`); call `set_seed(seed)` to make runs reproducible
+- **Central palette**: every default color the library draws with is a constant in `irsim/config/palette.py` (Okabe-Ito based, colour-blind safe, grayscale-print safe: robots green `#009E73`, acker `#117733`, obstacles black, arrow `#F0E442`, FOV `#56B4E9`/`#0072B2`, lidar `#CC3311`, FMCW velocity colors); change the look library-wide there and mirror the hex defaults in `docs/source/yaml_config/configuration.md` (HTML tree + entries) and the Chinese catalog
 
 ### Directory Structure
 
