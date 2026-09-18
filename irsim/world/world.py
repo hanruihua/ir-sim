@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 import numpy as np
 
-from irsim.util.util import check_unknown_kwargs
+from irsim.util.util import check_choice, check_number, check_unknown_kwargs
 from irsim.world.map import (
     FogMap,
     Map,
@@ -29,7 +29,8 @@ class World:
         offset (list): Offset for the world's position.
         step_mode (str): State advancement mode ('internal' or 'external').
         control_mode (str): Control mode ('auto' or 'keyboard').
-        collision_mode (str): Collision mode ('stop',  , 'unobstructed').
+        collision_mode (str): Collision mode ('stop', 'unobstructed',
+            'unobstructed_obstacles', or 'contact').
         obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
         mdownsample (int): Downsampling factor for the obstacle map.
         status: Status of the world and objects.
@@ -46,6 +47,10 @@ class World:
         "step_mode",
         "control_mode",
         "collision_mode",
+        "gravity",
+        "friction",
+        "restitution",
+        "drive_tau",
         "obstacle_map",
         "mdownsample",
         "fog_map",
@@ -65,6 +70,10 @@ class World:
         step_mode: str = "internal",
         control_mode: str = "auto",
         collision_mode: str = "stop",
+        gravity: float = 9.81,
+        friction: float = 0.5,
+        restitution: float = 0.0,
+        drive_tau: float = 0.0,
         obstacle_map: Any | None = None,
         mdownsample: int = 1,
         fog_map: bool = False,
@@ -88,7 +97,21 @@ class World:
                 ``external`` expects callers to update states before each
                 environment step.
             control_mode (str): Control mode ('auto' or 'keyboard').
-            collision_mode (str): Collision mode ('stop',  , 'unobstructed').
+            collision_mode (str): ``stop`` halts colliding objects,
+                ``unobstructed`` ignores collisions, ``unobstructed_obstacles``
+                lets only obstacles overlap, and ``contact`` resolves overlaps
+                as rigid-body contacts with ``mass``, ``friction``, ``inertia``
+                and ``restitution``.
+            gravity (float): Gravitational acceleration in m/s^2; with a
+                body's ``friction`` and ``mass`` it gives the ground friction
+                force the ``contact`` mode works with.
+            friction (float): Ground friction coefficient objects get unless
+                they set their own (PhysX's material default ``0.5``).
+            restitution (float): Bounciness objects get unless they set their
+                own (``0``, Isaac Lab's material default: no bounce).
+            drive_tau (float): Drive lag in seconds of driven objects in
+                ``contact`` mode unless their kinematics set ``tau``; ``0``
+                (the default) tracks commands instantly.
             obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.
@@ -160,28 +183,24 @@ class World:
         self.status = status
 
         # mode
-        self.step_mode = self._validate_step_mode(step_mode)
+        self.step_mode = check_choice(step_mode, "step_mode", ("internal", "external"))
         self._wp.step_mode = self.step_mode
         self._wp.control_mode = control_mode
         self._wp.collision_mode = collision_mode
+        self._wp.gravity = check_number(
+            gravity, "gravity", low=0.0, strict_low=True, context="world"
+        )
+        self._wp.friction = check_number(friction, "friction", low=0.0, context="world")
+        self._wp.restitution = check_number(
+            restitution, "restitution", low=0.0, high=1.0, context="world"
+        )
+        self._wp.drive_tau = check_number(
+            drive_tau, "drive_tau", low=0.0, context="world"
+        )
 
         check_unknown_kwargs(
             kwargs, self._VALID_PARAMS, context=" in 'world' config", logger=self.logger
         )
-
-    @staticmethod
-    def _validate_step_mode(step_mode: str) -> str:
-        """Normalize and validate the world state-advancement mode."""
-        if not isinstance(step_mode, str):
-            raise TypeError("step_mode must be a string: 'internal' or 'external'")
-
-        normalized = step_mode.strip().lower()
-        if normalized not in {"internal", "external"}:
-            raise ValueError(
-                f"Unsupported step_mode {step_mode!r}. "
-                "Supported modes are 'internal' and 'external'."
-            )
-        return normalized
 
     def step(self, objects: list[Any] | None = None) -> None:
         """

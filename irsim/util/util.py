@@ -194,20 +194,32 @@ def WrapToRegion(rad: float, range: list[float]) -> float:
     return rad
 
 
-def convert_list_length(input_data: list[Any], number: int = 0) -> list[Any]:
+def convert_list_length(
+    input_data: list[Any], number: int = 0, per_object: bool = False
+) -> list[Any]:
     """
     Convert input to a list with a specific length.
+
+    A scalar, or a list of numbers such as a state or velocity vector, is
+    repeated for every object. Any other list already holds one entry per
+    object and is padded with its last entry or truncated.
 
     Args:
         input_data: Data to convert.
         number (int): Desired length.
+        per_object (bool): Treat a list of numbers as one value per object
+            instead of one vector shared by all, e.g. ``mass: [0.5, 2]``.
 
     Returns:
         list: Converted list.
     """
     if number == 0:
         return []
-    if not isinstance(input_data, list) or is_list_of_numbers(input_data):
+    if (
+        not isinstance(input_data, list)
+        or not input_data
+        or (not per_object and is_list_of_numbers(input_data))
+    ):
         return [input_data] * number
     if len(input_data) <= number:
         input_data.extend([input_data[-1]] * (number - len(input_data)))
@@ -1054,6 +1066,140 @@ def points_to_xy_list(
     if three_d:
         return x_list, y_list, z_list
     return x_list, y_list
+
+
+def check_number(
+    value: Any,
+    name: str,
+    low: float | None = None,
+    high: float | None = None,
+    *,
+    strict_low: bool = False,
+    allow_inf: bool = False,
+    context: str | None = None,
+) -> float:
+    """
+    Convert a configured value to a float and check that it lies in a range.
+
+    Used for the physical parameters of the world and of objects (mass,
+    friction, inertia, restitution, gravity, drive lag), whose YAML values
+    may be numbers or numeric strings such as ``'inf'``.
+
+    Args:
+        value: The configured value.
+        name (str): Parameter name for the error message.
+        low (float): Smallest allowed value, inclusive unless ``strict_low``.
+        high (float): Largest allowed value, inclusive.
+        strict_low (bool): Require the value to be greater than ``low``.
+        allow_inf (bool): Accept ``inf``, e.g. for an immovable mass.
+        context (str): Whose value it is, prefixed to the error message.
+
+    Returns:
+        float: The validated value.
+
+    Raises:
+        ValueError: If the value is not a number, is NaN, is infinite while
+            ``allow_inf`` is False, or lies outside the range.
+    """
+    prefix = f"{context}: " if context else ""
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{prefix}{name} must be a number, got {value!r}") from exc
+    parts = []
+    if low is not None:
+        parts.append(f"{'greater than' if strict_low else 'at least'} {low:g}")
+    if high is not None:
+        parts.append(f"at most {high:g}")
+    expected = " and ".join(parts) if parts else "a finite number"
+    if allow_inf:
+        expected += " (or inf)"
+    too_low = low is not None and (number <= low if strict_low else number < low)
+    too_high = high is not None and number > high
+    if (
+        math.isnan(number)
+        or (math.isinf(number) and not allow_inf)
+        or too_low
+        or too_high
+    ):
+        raise ValueError(f"{prefix}{name} must be {expected}, got {value!r}")
+    return number
+
+
+def check_choice(
+    value: Any,
+    name: str,
+    choices: Iterable[str],
+    *,
+    context: str | None = None,
+) -> str:
+    """
+    Check that a configured string is one of the supported values.
+
+    The value is stripped and lower-cased before the comparison, so YAML
+    ``'Internal'`` matches ``'internal'``.
+
+    Args:
+        value: The configured value.
+        name (str): Parameter name for the error message.
+        choices: The supported values, already lower-case.
+        context (str): Whose value it is, prefixed to the error message.
+
+    Returns:
+        str: The normalized value.
+
+    Raises:
+        TypeError: If the value is not a string.
+        ValueError: If it is not one of the choices.
+    """
+    prefix = f"{context}: " if context else ""
+    choices = tuple(choices)
+    listed = " and ".join(
+        filter(None, [", ".join(repr(c) for c in choices[:-1]), repr(choices[-1])])
+    )
+    if not isinstance(value, str):
+        raise TypeError(f"{prefix}{name} must be a string: {listed}, got {value!r}")
+    normalized = value.strip().lower()
+    if normalized not in choices:
+        raise ValueError(
+            f"{prefix}Unsupported {name} {value!r}. Supported values are {listed}."
+        )
+    return normalized
+
+
+def fit_length(values: Iterable[Any], length: int, fill: Any = 0) -> list[Any]:
+    """
+    Truncate or zero-pad a sequence to a given length.
+
+    Args:
+        values: The sequence, e.g. a state vector from YAML.
+        length (int): Desired length.
+        fill: Value appended when the sequence is too short.
+
+    Returns:
+        list: A new list of exactly ``length`` entries.
+    """
+    values = list(values)
+    if len(values) >= length:
+        return values[:length]
+    return values + [fill] * (length - len(values))
+
+
+def is_convex_polygon(polygon: Any, tolerance: float = 1e-9) -> bool:
+    """
+    Whether a shapely polygon is convex: its convex hull has the same area.
+
+    Args:
+        polygon: A shapely ``Polygon``.
+        tolerance (float): Relative area tolerance, scaled by the larger of
+            the area and one square meter.
+
+    Returns:
+        bool: ``True`` for a convex polygon.
+    """
+    return abs(polygon.convex_hull.area - polygon.area) <= tolerance * max(
+        polygon.area, 1.0
+    )
 
 
 def check_unknown_kwargs(

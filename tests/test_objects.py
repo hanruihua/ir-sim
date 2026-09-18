@@ -420,12 +420,12 @@ class TestDeprecatedSubclasses:
 
 
 class TestObjectBaseNoKinematics:
-    """Cover fallback paths in ObjectBase properties when kf is None."""
+    """Cover ObjectBase properties for an object without kinematics (passive model)."""
 
     def _make_no_kf_object(self):
-        """Create an ObjectBase with kf=None by passing kinematics=None."""
+        """Create an ObjectBase without kinematics."""
         obj = ObjectBase(role="obstacle", state=[1, 2, 0.5])
-        assert obj.kf is None
+        assert obj.kinematics is None
         return obj
 
     def test_velocity_xy_no_kf(self):

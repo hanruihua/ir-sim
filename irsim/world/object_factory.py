@@ -22,6 +22,10 @@ from irsim.world.robots.robot_acker import RobotAcker  # noqa: F401
 from irsim.world.robots.robot_diff import RobotDiff  # noqa: F401
 from irsim.world.robots.robot_omni import RobotOmni  # noqa: F401
 
+# Numeric lists that hold one value per object of a group rather than one
+# vector shared by all of them, unlike ``state`` or ``vel_max``.
+_PER_OBJECT_NUMBERS = frozenset({"mass", "friction", "inertia", "restitution"})
+
 
 class ObjectFactory:
     """
@@ -140,7 +144,9 @@ class ObjectFactory:
 
         for i in range(number):
             obj_dict = {
-                k: convert_list_length(v, number)[i]
+                k: convert_list_length(v, number, per_object=k in _PER_OBJECT_NUMBERS)[
+                    i
+                ]
                 for k, v in kwargs.items()
                 if k != "sensors"
             }
@@ -167,8 +173,10 @@ class ObjectFactory:
 
         Uses the kinematics registry to look up handler-class metadata
         (default color, state_dim, description) and creates an ``ObjectBase``
-        directly.  Static / ``None`` kinematics still produce an
-        ``ObjectStatic``.
+        directly. A ``static`` kinematics name produces an ``ObjectStatic``.
+        No kinematics produces an ``ObjectBase`` without a handler, which
+        decides for itself whether it is static or pushable (a finite
+        ``mass``) by the ``contact`` collision mode.
 
         Args:
             kinematics (dict): Kinematics configuration.
@@ -181,8 +189,10 @@ class ObjectFactory:
             kinematics = {}
         kinematics_name = kinematics.get("name")
 
-        if kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static":
             return ObjectStatic(kinematics=kinematics, role="robot", **kwargs)
+        if kinematics_name is None:
+            return ObjectBase(kinematics=None, role="robot", **kwargs)
 
         handler_cls = KinematicsFactory.get_handler_class(kinematics_name)
         if handler_cls is None:
@@ -205,7 +215,11 @@ class ObjectFactory:
 
         Uses the kinematics registry to look up handler-class metadata
         (default color, state_dim) and creates an ``ObjectBase`` directly.
-        Static / ``None`` kinematics still produce an ``ObjectStatic``.
+        A ``static`` kinematics name produces an ``ObjectStatic``. No
+        kinematics produces an ``ObjectBase`` without a handler, which decides
+        for itself whether it is static or pushable (a finite ``mass``) by
+        the ``contact`` collision mode, and picks its own default color
+        accordingly.
 
         Args:
             kinematics (dict): Kinematics configuration.
@@ -218,8 +232,10 @@ class ObjectFactory:
             kinematics = {}
         kinematics_name = kinematics.get("name")
 
-        if kinematics_name == "static" or kinematics_name is None:
+        if kinematics_name == "static":
             return ObjectStatic(kinematics=kinematics, role="obstacle", **kwargs)
+        if kinematics_name is None:
+            return ObjectBase(kinematics=None, role="obstacle", **kwargs)
 
         handler_cls = KinematicsFactory.get_handler_class(kinematics_name)
         if handler_cls is None:

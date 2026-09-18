@@ -47,7 +47,11 @@ world:
   offset: [0, 0] # the offset of the world origin [x, y]
   step_mode: 'internal' # state advancement: 'internal' or 'external'
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
-  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles', 'contact'
+  gravity: 9.81 # contact mode physics: gravity, default friction, restitution and drive lag of objects
+  friction: 0.5
+  restitution: 0.0
+  drive_tau: 0.0
   obstacle_map: null # path to obstacle map file (optional)
 
 robot:
@@ -94,6 +98,8 @@ The configuration file defines the world and the robot that the main loop advanc
   - `'stop'`: Stop simulation when collision occurs (default)
   - `'unobstructed'`: Ignore all collisions
   - `'unobstructed_obstacles'`: Ignore only obstacle collisions
+  - `'contact'`: Resolve overlaps as rigid-body contacts with `mass`, `friction`, `inertia` and `restitution` instead of stopping, so robots push boxes, stall against heavy ones and turn them (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))
+- **`gravity`**, **`friction`**, **`restitution`**, **`drive_tau`**: Physics of the `contact` mode, set once for the world: gravity (m/s²), and the friction, bounciness and drive lag every object starts from unless it sets its own (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))
 - **`obstacle_map`**: Optional. Path to an obstacle map image, or a generator spec (e.g. `{ name: perlin, ... }`). See [Configure grid map](configure_grid_map).
 
 ### Performance Considerations

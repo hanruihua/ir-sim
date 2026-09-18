@@ -59,6 +59,7 @@ cd docs && make html
 - `robot_diff.py`: Differential drive
 - `robot_omni.py`: Omnidirectional
 - `robot_acker.py`: Ackermann steering (car-like)
+- Handlers live in `irsim/lib/handler/kinematics_handler.py`; `PassiveKinematics` is the model of objects configured without kinematics (never drives itself, pushable in `contact` mode with a finite `mass`)
 
 **Obstacles** (`irsim/world/obstacles/`):
 - `obstacle_static.py`: Static obstacles
@@ -77,6 +78,12 @@ cd docs && make html
   - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package
   - `sfm` (vectorized social force model stepping all members from one snapshot, with optional Moussaid 2010 social groups: coherence, repulsion, gaze)
 - SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant; `social_force_model` per agent, `SocialForceModelBatch` for a whole crowd)
+
+**Contact / Physics** (`irsim/lib/algorithm/contact.py`):
+- `collision_mode: contact` (world YAML) replaces stop-on-collision with engine-like pushing (PhysX rules reduced to `mass`, `friction`, `inertia`, `restitution` and an optional drive lag): after the kinematic step, overlapping pairs are separated along the SAT contact normal. Passive-passive and driven-driven pairs split by inverse mass (inelastic collision; `inv_mass` is 0 for static / `inf`-mass objects); a driven object pushes a passive body without yielding when its `friction_force` (`friction * mass * g`) is at least the summed load of the body and every touching passive body ahead of it in the push direction (`_ContactSolver._load`, per sweep), else it stalls; a passive body pressed on a blocker sticks inside the friction cone (mean of the two `friction`s) and slides outside it; pairs within `REST_TOLERANCE` block without moving. Passive bodies coast under ground friction (`PassiveKinematics.coast`). The world section carries the physics defaults as `WorldParam` fields validated by `World` through `irsim.util.util.check_number`, the one range check also behind object `mass`/`friction`/`inertia`/`restitution` and kinematics `tau`: `gravity` 9.81, `friction` 0.5 (PhysX material), `restitution` 0 (Isaac Lab), `drive_tau` 0 (instant, as Isaac's stiff drives at this step size; opt-in lag); objects read them at use time (`_world_param`) unless they set their own; `obj.passive` and `obj.friction_force` expose the classification. Rotation: `piece_mtv` also returns the contact point (deepest features, midway through the overlap); the split uses generalized inverse masses `w + (r x n)^2 / I` so an off-center push turns a pushable passive body (`inv_inertia`, `inertia` from the shape and `mass` unless set, `gyration` for angular braking); a driven object turns only when a contact makes it yield (stalled or blocked; `yaw_rate_row` on each handler says where the yaw rate goes); passive `action_dim` is 3 (`[vx, vy, yaw_rate]` world-frame). `restitution` (default 0 = Isaac Lab) makes passive bodies separate at e x approach speed after the fold; `contact_step(..., step_time)` fills `Contact.force` = impulse / dt^2 (XPBD) and `obj.contact_force` (a steadily pushed box reports mu m g; a driven object pushing into a contact is capped at its traction, so a stalled robot reports mu m g regardless of dt); `Contact` records keep their deepest push. Drive lag: `kinematics: {tau: ...}` (`KinematicsHandler.tau`, `obj.drive_tau` falls back to the world's `drive_tau`, default 0) makes `ObjectBase._drive_response` filter commands first-order in contact mode only; the same method caps the drive's speed change per step at `friction * gravity * dt` on the handler's `translation_rows` (wheel grip: a friction-0 robot cannot move, launches and stops take ~3 steps at 0.5) (`_drive_velocity` is the drive's own state, separate from the body velocity the contact fold edits); other modes track instantly
+- Per-object `mass` (default `1.0` with kinematics, `inf` without). `ObjectBase._init_motion_state` is the one place that decides `static` (the flag with kinematics; without kinematics, static unless the mass is finite); the factory, plots, env and solver read `obj.static` instead of re-deriving it; `obj.pushable` (not static and finite mass) is the one definition behind `inv_mass` and the color default. Objects without kinematics get a `PassiveKinematics` handler (`kinematics_handler.py`; the `static` name gives the same model) whose `step` keeps the state, whose velocities are world-frame and whose `max_speed` is 0, so `ObjectBase` never branches on the handler kind (`ObjectStatic` only serves `kinematics: {name: static}`); a pushable one defaults to `palette_param.pushable` (Okabe-Ito orange `#E69F00`, print-safe) unless `color` is set, so pushable obstacles stand out from black static ones
+- Convex pieces: exact circles, convex polygons, line segments (linestrings, grid-map boundaries); non-convex polygons via `shapely.constrained_delaunay_triangles`; pairs swept in anchored order with blocked-direction projection so chains against walls settle in one sweep
+- `ObjectBase.apply_contact_displacement` moves an object and folds the displacement into its velocity; `contact_flag` / `contact_obj` report touches, `collision_flag` stays False for resolved contacts
 
 **Path Planners** (`irsim/lib/path_planners/`):
 - `a_star.py`: A* grid-based path planning
@@ -110,7 +117,7 @@ cd docs && make html
 - **Registry Pattern**: Behaviors and sensors registered via decorators for extensibility
 - **Geometry via Shapely**: Collision detection uses Shapely library (>=2.1.2)
 - **Centralized RNG**: All randomness routes through `irsim.util.random.rng` (a proxy over `numpy.random.Generator`); call `set_seed(seed)` to make runs reproducible
-- **Palette param**: every default color is a field of `irsim/config/palette_param.py`, built like `env_param`/`world_param` (dataclass + module proxy). Okabe-Ito based, colour-blind and grayscale-print safe: `robot` `#009E73`, `robot_acker` `#117733`, `obstacle` black, `arrow`, `fov`/`fov_edge`, `lidar`, `laser_highlight`, FMCW velocity colors, `marker`/`path`/`quiver` for the draw helpers, and `cycle` for groups configured with `color: 'cycle'`. Consumers read it when an object or plot is created (`KinematicsHandler.default_color`, dataclass `default_factory`, `None` defaults resolved at call time), so `palette_param.robot = ...` before `irsim.make()` restyles a scene. Mirror any changed default in `docs/source/yaml_config/configuration.md` (HTML tree + entries) and the Chinese catalog
+- **Palette param**: every default color is a field of `irsim/config/palette_param.py`, built like `env_param`/`world_param` (dataclass + module proxy). Okabe-Ito based, colour-blind and grayscale-print safe: `robot` `#009E73`, `robot_acker` `#117733`, `obstacle` black, `pushable` orange for pushable kinematics-free bodies, `arrow`, `fov`/`fov_edge`, `lidar`, `laser_highlight`, FMCW velocity colors, `marker`/`path`/`quiver` for the draw helpers, and `cycle` for groups configured with `color: 'cycle'`. Consumers read it when an object or plot is created (`KinematicsHandler.default_color`, dataclass `default_factory`, `None` defaults resolved at call time), so `palette_param.robot = ...` before `irsim.make()` restyles a scene. Mirror any changed default in `docs/source/yaml_config/configuration.md` (HTML tree + entries) and the Chinese catalog
 
 ### Directory Structure
 
@@ -125,15 +132,15 @@ irsim/                  # Main package
 │   └── description/    # Robot/vehicle visualization assets (PNG)
 ├── lib/                # Algorithms and behaviors
 │   ├── behavior/       # Robot behaviors (dash, rvo, sfm, orca)
-│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, generation)
+│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, contact, generation)
 │   ├── path_planners/  # Path planning (A*, RRT, RRT*, Informed RRT*, JPS, PRM)
 │   └── handler/        # Geometry and kinematics handlers
 ├── gui/                # Keyboard/mouse controls
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (14 test files)
-usage/                  # Example YAML configs and scripts (25 examples)
+tests/                  # Pytest test suite (16 test files)
+usage/                  # Example YAML configs and scripts (26 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 

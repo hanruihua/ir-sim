@@ -9,13 +9,16 @@ import numpy as np
 import shapely
 from shapely.geometry.base import BaseGeometry
 
-from irsim.config import palette_param
+from irsim.config.world_param import WorldParam
 from irsim.lib import Behavior, GeometryFactory, KinematicsFactory
+from irsim.lib.handler.kinematics_handler import PassiveKinematics
 from irsim.util.util import (
     ClipTo2Pi,
     WrapToPi,
     WrapToRegion,
+    check_number,
     check_unknown_kwargs,
+    fit_length,
     is_2d_list,
     random_point_range,
     relative_position,
@@ -55,6 +58,10 @@ class ObjectInfo:
     cone_type: str
     convex_flag: bool
     name: str
+    mass: float = float("inf")
+    friction: float = WorldParam.friction
+    inertia: float = float("inf")
+    restitution: float = WorldParam.restitution
 
     def add_property(self, key, value):
         """Attach an additional field to this info snapshot."""
@@ -94,7 +101,13 @@ class ObjectBase:
             ``rectangle``) and associated parameters. If omitted, a circle with radius
             ``1`` is created; an explicit ``{"name": "circle"}`` uses radius ``0.2``.
         kinematics (dict): Parameters defining the kinematics of the object.
-            Includes kinematic model and any necessary parameters. If None, no kinematics model is applied.
+            Includes kinematic model and any necessary parameters. If None, the object
+            is a passive body that never drives itself and only moves when a contact pushes it.
+            ``tau`` sets the drive lag used in ``collision_mode: contact``: the
+            velocity follows the command as a first-order response with that
+            time constant (the world's ``drive_tau`` unless set, ``0`` by
+            default, which tracks commands instantly; ``0.2`` s models a
+            small base with a soft velocity loop).
             Defaults to None.
         state (list of float): Initial state vector [x, y, theta, ...].
             The state can have more dimensions depending on `state_dim`. Excess dimensions are truncated,
@@ -106,9 +119,48 @@ class ObjectBase:
         role (str): Role of the object in the simulation, e.g., "robot" or "obstacle".
             Defaults to "obstacle".
         color (str): Color of the object when plotted. Defaults to the
-            palette's obstacle color (black); see :mod:`irsim.config.palette_param`.
-        static (bool): Indicates if the object is static (does not move).
-            Defaults to False.
+            palette's obstacle color (black), or to its pushable color
+            (orange) for a pushable object without kinematics, so bodies that
+            only move when pushed stand out; see
+            :mod:`irsim.config.palette_param`.
+        static (bool): Whether the object never moves. Defaults to ``False``
+            for an object with kinematics; an object without kinematics is
+            static unless it has a finite ``mass``. ``True`` freezes any
+            object, which contacts then never move either.
+        mass (float): Mass in kilograms, used by the ``contact`` collision mode.
+            With ``friction`` it sets the ground friction force that decides
+            what a robot can push, and two passive bodies that collide share
+            the overlap by inverse mass. ``inf`` makes the object immovable. Defaults to
+            ``1.0`` for an object with kinematics and ``inf`` for one without.
+            A finite mass on an object without kinematics turns it into a
+            pushable body that does not move on its own. A robot can push a
+            body only while its own ``friction * mass`` is at least the
+            body's, as a wheeled robot's traction must beat the load's
+            ground friction; otherwise it stalls against it.
+            Static objects are immovable regardless of their mass.
+        friction (float): Coulomb friction coefficient with the ground; the
+            world's ``friction`` (``0.5``, the physics engines' default
+            material) unless set. For a robot it is the wheels' grip: it caps
+            the push force at ``friction * mass * gravity`` and the change of
+            speed at ``friction * gravity`` per second. It slows a released body by
+            ``friction * gravity`` (the world's ``gravity``) until it stops
+            (``0`` lets it slide freely), decides whether a robot can push a
+            body (see ``mass``), and whether a body pressed against a wall
+            slides along it or sticks (the push must leave the friction cone
+            of the two surfaces' mean coefficient).
+        inertia (float): Moment of inertia about the object's center of mass
+            (the centroid of its shape, which a free body turns about), in
+            kg m^2, computed from the shape and mass unless set. A contact
+            that misses a body's center turns it through this value. A robot
+            that pushes successfully keeps its heading; one that is stopped
+            by a wall or a load it cannot move is deflected by an off-center
+            contact, as its slipping wheels would let it be. ``inf`` mass
+            gives ``inf``.
+        restitution (float): Bounciness of the object's material from ``0``
+            (a perfectly inelastic contact) to ``1`` (elastic); the world's
+            ``restitution`` (``0``, the physics engines' default) unless set. Two bodies that collide separate at the mean of
+            their values times their approach speed; only passive bodies
+            bounce, a robot's drive re-asserts its velocity.
         vel_min (list of float): Minimum velocity limits for each control dimension.
             Used to constrain the object's velocity. Defaults to [-1, -1].
         vel_max (list of float): Maximum velocity limits for each control dimension.
@@ -195,6 +247,10 @@ class ObjectBase:
         "role",
         "color",
         "static",
+        "mass",
+        "friction",
+        "inertia",
+        "restitution",
         "vel_min",
         "vel_max",
         "acce",
@@ -229,6 +285,10 @@ class ObjectBase:
         role: str = "obstacle",
         color: str | None = None,
         static: bool = False,
+        mass: float | None = None,
+        friction: float | None = None,
+        inertia: float | None = None,
+        restitution: float | None = None,
         vel_min: list | None = None,
         vel_max: list | None = None,
         acce: list | None = None,
@@ -279,10 +339,13 @@ class ObjectBase:
         self.group = group
         self._group_name = group_name
         self.description = description
-        self.color = color if color is not None else palette_param.obstacle
 
         # --- 2-4. Handlers, and the dimensions and limits derived from them ---
         self._init_handlers(shape, kinematics, role)
+        self.mass = self._resolve_mass(mass, static)
+        self.friction = self._resolve_friction(friction)
+        self.inertia = self._resolve_inertia(inertia)
+        self.restitution = self._resolve_restitution(restitution)
         action_dim = self._init_dimensions(state_dim, vel_dim)
         acce, vel_max, vel_min, angle_range = self._resolve_limits(
             acce, vel_max, vel_min, angle_range
@@ -290,11 +353,13 @@ class ObjectBase:
 
         # --- 5-7. Motion state, goal, and geometry ---
         self._init_motion_state(state, velocity, vel_min, vel_max, static, action_dim)
+        # the default color depends on whether the object can move
+        self.color = color if color is not None else self._default_color()
         self._init_goal(goal, goal_threshold, arrive_mode)
         self._init_geometry()
 
         # --- 8. ObjectInfo ---
-        self._init_info(role, color, static, goal, acce, angle_range, goal_threshold)
+        self._init_info(role, goal, acce, angle_range, goal_threshold)
 
         # --- 9-10. Sensors and behavior ---
         self._init_sensors(sensors, fov, fov_radius)
@@ -322,7 +387,7 @@ class ObjectBase:
                 shape_wheelbase=self.wheelbase, role=role, **kinematics
             )
             if kinematics is not None
-            else None
+            else PassiveKinematics()
         )
 
         if self.gf is not None:
@@ -332,7 +397,7 @@ class ObjectBase:
 
     def _init_dimensions(self, state_dim: int | None, vel_dim: int | None) -> int:
         """Set the state and velocity shapes, and return the kinematics action dim."""
-        action_dim = self.kf.action_dim if self.kf else 2
+        action_dim = self.kf.action_dim
         self.state_dim = state_dim if state_dim is not None else self.state_shape[0]
         self.state_shape = (
             (self.state_dim, 1) if state_dim is not None else self.state_shape
@@ -351,21 +416,14 @@ class ObjectBase:
     ) -> tuple[list, list, list, list]:
         """Fill in acceleration, velocity, and angle limits left unset by the config.
 
-        The kinematics model supplies the defaults when there is one; otherwise
-        the object is treated as unconstrained in acceleration and unit-limited
-        in velocity.
+        The kinematics model supplies the defaults.
         """
         if angle_range is None:
             angle_range = [-pi, pi]
 
-        if self.kf is not None:
-            acce = self.kf.acce if acce is None else acce
-            vel_max = self.kf.vel_max if vel_max is None else vel_max
-            vel_min = self.kf.vel_min if vel_min is None else vel_min
-        else:
-            acce = acce or [float("inf"), float("inf")]
-            vel_max = vel_max or [1, 1]
-            vel_min = vel_min or [-1, -1]
+        acce = self.kf.acce if acce is None else acce
+        vel_max = self.kf.vel_max if vel_max is None else vel_max
+        vel_min = self.kf.vel_min if vel_min is None else vel_min
 
         return acce, vel_max, vel_min, angle_range
 
@@ -390,10 +448,21 @@ class ObjectBase:
 
         self._velocity = np.c_[velocity]
         self._init_velocity = np.c_[velocity]
+        # the drive's own velocity, filtered from the commands; the body's
+        # velocity above differs from it when a contact pushes the body
+        self._drive_velocity = np.c_[velocity].astype(float)
 
         self.vel_min = np.c_[vel_min]
         self.vel_max = np.c_[vel_max]
-        self.static = static if self.kf is not None else True
+        # The one place that decides whether an object can move; everything
+        # else reads ``static``. A driven object is static only when flagged.
+        # A passive body (no kinematics) is static unless a finite mass makes
+        # it pushable.
+        self.static = static or (self.kf.passive and not math.isfinite(self.mass))
+
+    def _default_color(self) -> str:
+        """The default color of this object's kinematics model for its role."""
+        return self.kf.default_color(self.role, pushable=self.pushable)
 
     def _init_goal(
         self, goal: list | None, goal_threshold: float, arrive_mode: str
@@ -431,8 +500,6 @@ class ObjectBase:
     def _init_info(
         self,
         role: str,
-        color: str,
-        static: bool,
         goal: list | None,
         acce: list,
         angle_range: list,
@@ -444,8 +511,8 @@ class ObjectBase:
             self.shape,
             self.kinematics,
             role,
-            color,
-            static,
+            self.color,
+            self.static,
             np.c_[goal],
             self.vel_min,
             self.vel_max,
@@ -458,6 +525,10 @@ class ObjectBase:
             self.cone_type,
             self.convex_flag,
             self.name,
+            mass=self.mass,
+            friction=self.friction,
+            inertia=self.inertia,
+            restitution=self.restitution,
         )
         self.obstacle_info = None
         self.trajectory = []
@@ -521,6 +592,9 @@ class ObjectBase:
         self.stop_flag = False
         self.arrive_flag = False
         self.collision_flag = False
+        self.contact_flag = False
+        self.contact_obj: list[ObjectBase] = []
+        self._contact_force = np.zeros((2, 1))
         self.unobstructed = unobstructed
 
         self.plot_kwargs = kwargs.get("plot", {})
@@ -585,11 +659,12 @@ class ObjectBase:
             return self.state
         self.pre_process()
         behavior_vel = self.gen_behavior_vel(velocity)
-        new_state = self.kf.step(self.state, behavior_vel, self._world_param.step_time)
+        drive_vel = self._drive_response(behavior_vel)
+        new_state = self.kf.step(self.state, drive_vel, self._world_param.step_time)
         next_state = self.mid_process(new_state)
 
         self._state = next_state
-        self._velocity = behavior_vel
+        self._velocity = drive_vel
         self._geometry = self.gf.step(self.state)
         # a rigid transform with finite parameters keeps a valid shape valid
         self._geometry_valid = self._shape_valid and bool(np.isfinite(next_state).all())
@@ -609,6 +684,41 @@ class ObjectBase:
         self.trajectory.append(self.state.copy())
         return next_state
 
+    def _drive_response(self, command: np.ndarray) -> np.ndarray:
+        """Velocity the drive reaches this step for a commanded velocity.
+
+        In ``collision_mode: contact`` two things stand between the command
+        and the drive. The wheels' grip caps how fast the body's speed can
+        change: at most ``friction * gravity`` per second, so a robot brakes
+        or launches within its traction and one with no friction cannot move,
+        as in a physics engine. And with a ``tau`` the drive follows the
+        command as a first-order response, as PD-driven wheels with a soft
+        velocity loop do. The drive's velocity is kept apart from the body's:
+        a robot stalled against a wall keeps pushing at its full command
+        while its body reads zero. Passive bodies and the other collision
+        modes take the command as it is.
+        """
+        command = np.asarray(command, dtype=float)
+        if self.kf.passive or self._world_param.collision_mode != "contact":
+            self._drive_velocity = command
+            return command
+        step_time = self._world_param.step_time
+        target = command
+        tau = self.drive_tau
+        if tau > 0:
+            target = self._drive_velocity + min(1.0, step_time / tau) * (
+                command - self._drive_velocity
+            )
+        rows = list(self.kf.translation_rows)
+        change = target[rows] - self._drive_velocity[rows]
+        wanted = float(np.linalg.norm(change))
+        allowed = self.friction * self._world_param.gravity * step_time
+        if wanted > allowed:
+            target = target.copy()
+            target[rows] = self._drive_velocity[rows] + change * (allowed / wanted)
+        self._drive_velocity = target
+        return target
+
     def sensor_step(self):
         """
         Update all sensors for the current state.
@@ -621,7 +731,7 @@ class ObjectBase:
 
         This method evaluates collision detection and sets stop flags based on the collision mode.
         It also handles different collision modes like 'stop', 'reactive', 'unobstructed',
-        and 'unobstructed_obstacles'.
+        'unobstructed_obstacles', and 'contact'.
         """
         self.check_arrive_status()
         self.check_collision_status(colliding)
@@ -641,9 +751,15 @@ class ObjectBase:
                 self.stop_flag = any(not obj.unobstructed for obj in self.collision_obj)
             elif self.role == "obstacle":
                 self.stop_flag = False
+
+        elif self._world_param.collision_mode == "contact":
+            # overlaps were resolved as rigid-body contacts after the kinematic
+            # step; touching objects push each other instead of stopping
+            pass
+
         elif self.role == "robot":
             self.logger.warning_once(
-                f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles], the unobstructed mode is used"
+                f"collision mode {self._world_param.collision_mode} is not defined within [stop, reactive, unobstructed, unobstructed_obstacles, contact], the unobstructed mode is used"
             )
 
     def check_arrive_status(self):
@@ -761,13 +877,21 @@ class ObjectBase:
         min_vel, max_vel = self.get_vel_range()
 
         if velocity is None:
-            if self.beh_config is None:
-                if self.role == "robot":
+            if not self.beh_config:
+                if self.role == "robot" and self._world_param.control_mode == "auto":
                     self.logger.warning_once(
                         f"{self.name}: no behavior configured and no input velocity given, the robot will stay static"
                     )
 
-                return np.zeros_like(self._velocity)
+                # nothing commands the object: a driven model stops, a
+                # passive body coasts under ground friction
+                return self.kf.coast(
+                    self._velocity,
+                    self._world_param.step_time,
+                    self.friction,
+                    self.gyration,
+                    self._world_param.gravity,
+                )
 
             behavior_vel = self.obj_behavior.gen_vel(
                 self.ego_object, self.external_objects
@@ -992,7 +1116,157 @@ class ObjectBase:
             self._init_velocity = temp_velocity.copy()
 
         self._velocity = temp_velocity.copy()
+        self._drive_velocity = temp_velocity.astype(float)
         self._invalidate_reactive_cache()
+
+    def apply_contact_displacement(
+        self, delta_xy: list | np.ndarray, delta_theta: float = 0.0
+    ) -> None:
+        """
+        Move the object by a contact correction and fold it into its velocity.
+
+        Called by the ``contact`` collision mode after the kinematic step. The
+        position, heading, geometry, and this step's trajectory sample move by
+        ``delta_xy`` and ``delta_theta``, and the motion divided by the step
+        time is added to the velocity in the object's own command frame, so
+        sensors, reactive behaviors, and messages all see the resolved motion.
+        The rotation is about the center of mass, so an object whose origin
+        lies elsewhere has that origin swing around the centroid.
+
+        Args:
+            delta_xy (list | np.ndarray): World-frame translation ``[dx, dy]``
+                in meters.
+            delta_theta (float): Rotation about the object's center of mass
+                in radians.
+        """
+        delta = np.asarray(delta_xy, dtype=float).reshape(2, 1)
+
+        new_state = self._state.astype(float)
+        if delta_theta and new_state.shape[0] > 2:
+            pivot = np.asarray(self.centroid, dtype=float).reshape(2, 1)
+            c, s = cos(delta_theta), sin(delta_theta)
+            new_state[:2] = pivot + np.array([[c, -s], [s, c]]) @ (
+                new_state[:2] - pivot
+            )
+            new_state[2, 0] = WrapToPi(new_state[2, 0] + delta_theta)
+        new_state[:2] += delta
+        self._state = new_state
+        self._geometry = self.gf.step(self._state)
+        self._geometry_valid = self._shape_valid and bool(np.isfinite(new_state).all())
+
+        step_time = self._world_param.step_time
+        self._velocity = self._velocity + self._contact_velocity(
+            delta / step_time, delta_theta / step_time
+        )
+
+        # the kinematic step already recorded this tick; keep the sample in sync
+        if self.trajectory and not (self.static or self.stop_flag):
+            self.trajectory[-1] = self._state.copy()
+
+        self._invalidate_reactive_cache()
+
+    def _contact_velocity(
+        self, velocity_xy: np.ndarray, angular: float = 0.0
+    ) -> np.ndarray:
+        """Express a world-frame velocity change in this object's command frame.
+
+        The kinematics model does the conversion, see
+        :meth:`~irsim.lib.handler.kinematics_handler.KinematicsHandler.velocity_from_xy`;
+        the result is sized to this object's velocity vector, and ``angular``
+        is added to its yaw-rate row when it has one.
+        """
+        vxy = np.asarray(velocity_xy, dtype=float).reshape(2, 1)
+        body = self.kf.velocity_from_xy(self._state, vxy)
+        out = np.zeros(self.vel_shape)
+        rows = min(body.shape[0], out.shape[0])
+        out[:rows] = body[:rows]
+        row = self.kf.yaw_rate_row
+        if angular and row is not None and row < out.shape[0]:
+            out[row, 0] += angular
+        return out
+
+    def add_contact_velocity(self, delta_xy: list | np.ndarray) -> None:
+        """Add a world-frame velocity change from a contact, e.g. a bounce."""
+        delta = np.asarray(delta_xy, dtype=float).reshape(2, 1)
+        self._velocity = self._velocity + self._contact_velocity(delta)
+        self._invalidate_reactive_cache()
+
+    def add_contact_force(self, force_xy: list | np.ndarray) -> None:
+        """Accumulate a world-frame contact force reported for this step."""
+        self._contact_force = self._contact_force + np.asarray(
+            force_xy, dtype=float
+        ).reshape(2, 1)
+
+    def clear_contact(self) -> None:
+        """Forget last step's contacts: flag, partners, and force."""
+        self.contact_flag = False
+        self.contact_obj = []
+        self._contact_force = np.zeros((2, 1))
+
+    def _resolve_mass(self, mass: float | None, static: bool) -> float:
+        """Validate the configured mass, or pick the default for this object."""
+        if mass is None:
+            return float("inf") if static else self.kf.default_mass
+        return check_number(
+            mass, "mass", low=0.0, strict_low=True, allow_inf=True, context=self.name
+        )
+
+    def _resolve_friction(self, friction: float | None) -> float:
+        """Validate the configured friction coefficient, or use the world's."""
+        if friction is None:
+            return float(self._world_param.friction)
+        return check_number(friction, "friction", low=0.0, context=self.name)
+
+    def _resolve_inertia(self, inertia: float | None) -> float:
+        """Validate the configured moment of inertia, or derive it from the shape."""
+        if inertia is None:
+            return self._default_inertia()
+        return check_number(
+            inertia,
+            "inertia",
+            low=0.0,
+            strict_low=True,
+            allow_inf=True,
+            context=self.name,
+        )
+
+    def _resolve_restitution(self, restitution: float | None) -> float:
+        """Validate the configured restitution, or use the world's."""
+        if restitution is None:
+            return float(self._world_param.restitution)
+        return check_number(
+            restitution, "restitution", low=0.0, high=1.0, context=self.name
+        )
+
+    def _default_inertia(self) -> float:
+        """Moment of inertia of a uniform body of this shape about its position.
+
+        A circle uses ``m r^2 / 2``. A polygon (rectangles included) uses the
+        exact polar moment of its area about its centroid, the point a free
+        body turns about. Other shapes fall back to a disc of the bounding
+        radius.
+        """
+        if not math.isfinite(self.mass):
+            return float("inf")
+        if self.shape == "circle":
+            return 0.5 * self.mass * self.radius**2
+        original = self.original_geometry
+        if isinstance(original, shapely.Polygon) and original.area > 0:
+            x, y = np.asarray(original.exterior.coords, dtype=float).T
+            x, y = x - original.centroid.x, y - original.centroid.y
+            cross = x[:-1] * y[1:] - x[1:] * y[:-1]
+            second = (
+                x[:-1] ** 2
+                + x[:-1] * x[1:]
+                + x[1:] ** 2
+                + y[:-1] ** 2
+                + y[:-1] * y[1:]
+                + y[1:] ** 2
+            )
+            return abs(
+                float(self.mass * np.sum(cross * second) / (6.0 * np.sum(cross)))
+            )
+        return 0.5 * self.mass * self.radius**2
 
     def set_original_geometry(self, geometry: BaseGeometry):
         """
@@ -1172,19 +1446,12 @@ class ObjectBase:
             list: Adjusted state.
         """
 
-        if len(state) > dim:
-            if self.role == "robot":
-                self.logger.warning(
-                    f"The state dimension {len(state)} of {self.abbr} is larger than the desired dimension {dim}, the state dimension is truncated"
-                )
-            return state[:dim]
-        if len(state) < dim:
-            if self.role == "robot":
-                self.logger.warning(
-                    f"The state dimension {len(state)} of {self.abbr} is smaller than the desired dimension {dim}, zero padding is added"
-                )
-            return state + [0] * (dim - len(state))
-        return state
+        if len(state) != dim and self.role == "robot":
+            change = "truncated" if len(state) > dim else "zero padded"
+            self.logger.warning(
+                f"The state dimension {len(state)} of {self.abbr} differs from the desired dimension {dim}, the state is {change}"
+            )
+        return fit_length(state, dim)
 
     def plot(
         self,
@@ -1340,8 +1607,10 @@ class ObjectBase:
         self._state = self._init_state.copy()
         self._goal = self._init_goal.copy() if self._init_goal is not None else None
         self._velocity = self._init_velocity.copy()
+        self._drive_velocity = self._init_velocity.astype(float)
 
         self.collision_flag = False
+        self.clear_contact()
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
@@ -1602,7 +1871,7 @@ class ObjectBase:
             str: The kinematics name of the object.
         """
 
-        return self.kf.name if self.kf is not None else None
+        return self.kf.name
 
     @property
     def geometry(self) -> BaseGeometry:
@@ -1785,6 +2054,147 @@ class ObjectBase:
         """
 
         return self.collision_flag
+
+    @property
+    def contact(self) -> bool:
+        """
+        Whether a contact was resolved against this object in the last step
+        (``collision_mode: contact`` only).
+
+        Returns:
+            bool: The contact flag of the object.
+        """
+
+        return self.contact_flag
+
+    @property
+    def contact_force(self) -> np.ndarray:
+        """
+        Net contact force on the object in the last step, world frame
+        (``collision_mode: contact`` only).
+
+        It is the constraint impulse of the resolved contacts divided by the
+        squared step time, as XPBD estimates forces, capped for a driven
+        object pushing into the contact at its traction, the most its wheels
+        can transmit before they slip: a box pushed steadily reports the
+        ground friction it is overcoming, a robot stopped by a wall or a
+        load reports ``friction * mass * gravity``.
+
+        Returns:
+            np.ndarray: ``(2, 1)`` force ``[fx, fy]`` in newtons.
+        """
+
+        return self._contact_force
+
+    @property
+    def pushable(self) -> bool:
+        """
+        Whether contacts can move this object: it is not static and has a
+        finite mass. A pushable object without kinematics only moves when
+        pushed.
+
+        Returns:
+            bool: ``True`` when a contact correction can move the object.
+        """
+
+        return not self.static and math.isfinite(self.mass)
+
+    @property
+    def passive(self) -> bool:
+        """
+        Whether the object has no drive of its own (no kinematics): it moves
+        only when a contact pushes it and then coasts under ground friction.
+
+        Returns:
+            bool: ``True`` for a passive body.
+        """
+
+        return self.kf.passive
+
+    @property
+    def drive_tau(self) -> float:
+        """
+        Time constant of the drive's velocity response in ``contact`` mode, in
+        seconds: the kinematics' ``tau`` if set, else the world's ``drive_tau``.
+
+        Returns:
+            float: The time constant; ``0`` tracks commands instantly.
+        """
+
+        tau = self.kf.tau
+        return float(self._world_param.drive_tau) if tau is None else tau
+
+    @property
+    def drive_velocity_xy(self) -> np.ndarray:
+        """
+        World-frame velocity the drive is trying to move the body at, which
+        differs from :attr:`velocity_xy` while a contact holds the body back.
+
+        Returns:
+            np.ndarray: ``(2, 1)`` velocity ``[vx, vy]``.
+        """
+
+        return self.kf.velocity_to_xy(self.state, self._drive_velocity)
+
+    @property
+    def friction_force(self) -> float:
+        """
+        Ground friction force on the object, ``friction * mass * gravity`` in
+        newtons, with the world's ``gravity``.
+
+        For a passive body it is what a push must overcome to slide it; for a
+        driven object it is its traction, the most it can push with. A robot
+        pushes a body only while its own value is at least the body's.
+
+        Returns:
+            float: The force, ``inf`` for an infinitely massive object.
+        """
+
+        return self.friction * self.mass * self._world_param.gravity
+
+    @property
+    def inv_inertia(self) -> float:
+        """
+        Inverse moment of inertia used to turn the object in a contact.
+
+        Any pushable object turns; an immovable one never moves. The solver
+        lets a driven object turn only when a contact makes it yield, i.e.
+        when it is stopped by a wall or by a load it cannot push, since its
+        drive holds the heading while it pushes.
+
+        Returns:
+            float: ``1 / inertia``, or ``0`` when contacts never turn it.
+        """
+
+        if self.pushable and math.isfinite(self.inertia):
+            return 1.0 / self.inertia
+        return 0.0
+
+    @property
+    def gyration(self) -> float:
+        """
+        Radius of gyration ``sqrt(inertia / mass)``, the lever at which a
+        spinning body's rim slides on the ground.
+
+        Returns:
+            float: The radius in meters; ``0`` for an immovable object.
+        """
+
+        if math.isfinite(self.mass) and math.isfinite(self.inertia):
+            return math.sqrt(self.inertia / self.mass)
+        return 0.0
+
+    @property
+    def inv_mass(self) -> float:
+        """
+        Inverse mass used to share contact corrections.
+
+        Returns:
+            float: ``1 / mass`` for a pushable object, otherwise ``0`` (static
+            or infinitely massive, which contacts never move).
+        """
+
+        return 1.0 / self.mass if self.pushable else 0.0
 
     @property
     def vertices(self) -> np.ndarray | None:
@@ -2020,10 +2430,7 @@ class ObjectBase:
         cached = getattr(self, "_velocity_xy_cache", None)
         if cached is not None:
             return cached
-        if self.kf is not None:
-            out = self.kf.velocity_to_xy(self.state, self.velocity)
-        else:
-            out = np.zeros((2, 1))
+        out = self.kf.velocity_to_xy(self.state, self.velocity)
         self._velocity_xy_cache = out
         return out
 
@@ -2079,9 +2486,7 @@ class ObjectBase:
         Returns:
             float: The maximum speed of the object.
         """
-        if self.kf is not None:
-            return self.kf.compute_max_speed(self.vel_max)
-        return 0
+        return self.kf.compute_max_speed(self.vel_max)
 
     @property
     def beh_config(self) -> dict[str, Any]:
@@ -2162,11 +2567,7 @@ class ObjectBase:
         Returns:
             float: The heading of the object.
         """
-        if self.kf is not None:
-            return self.kf.compute_heading(self.state, self.velocity)
-        if self.state.shape[0] > 2:
-            return self.state[2, 0]
-        return 0.0
+        return self.kf.compute_heading(self.state, self.velocity)
 
     @property
     def orientation(self):
