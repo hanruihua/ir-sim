@@ -9,10 +9,9 @@ world:
 
 
 # Twenty-four pedestrians cross a "+" intersection of two 6.6 m corridors.
-# Six head-on pairs run along the horizontal corridor (W->E royalblue
-# vs E->W red, six y-lanes y=+/-0.6, +/-1.6, +/-2.6); six more along the
-# vertical corridor (S->N green vs N->S orange, six x-lanes at the same
-# offsets). Each pair shares a lane line; the return stream is shifted
+# Six head-on pairs run along the horizontal corridor (W->E vs E->W,
+# six y-lanes y=+/-0.6, +/-1.6, +/-2.6); six more along the vertical
+# corridor (S->N vs N->S, six x-lanes at the same offsets). Each pair shares a lane line; the return stream is shifted
 # 0.001 m below pixel scale so the anisotropic-force angle is non-zero
 # and SFM can pick a side. All conflicts happen in the central square,
 # resolved by the anisotropic Moussaid-Helbing 2009 social force.
@@ -21,12 +20,13 @@ world:
 # wall so the exponential wall force (``sigma_obstacle=0.5``) does not
 # overwhelm the social term.
 #
-# The state/goal/color lists below are interleaved per lane
-# (blue,red,blue,red,...,green,orange,...) on purpose: ir-sim's
+# The state/goal lists below are interleaved per lane
+# (W->E, E->W, W->E, E->W, ..., S->N, N->S, ...) on purpose: ir-sim's
 # ``env.step()`` updates objects sequentially, so adjacent indices
 # read each other's freshly integrated state on every tick. Bunching
-# all blues first, then all reds, would desynchronise the pair
-# coupling and shift the SFM fixed point.
+# all W->E agents first, then all E->W ones, would desynchronise the
+# pair coupling and shift the SFM fixed point. ``color: 'cycle'`` gives
+# every pedestrian its own palette color.
 robot:
   - number: 24
     distribution: {name: 'manual'}
@@ -84,31 +84,7 @@ robot:
       - [ 1.599, -9, -1.5708]
       - [ 2.6,  9,  1.5708]
       - [ 2.599, -9, -1.5708]
-    color:
-      - 'royalblue'   # W->E
-      - 'red'         # E->W
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'royalblue'
-      - 'red'
-      - 'green'       # S->N
-      - 'orange'      # N->S
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
-      - 'green'
-      - 'orange'
+    color: 'cycle'   # one palette color per pedestrian, in order
     behavior:
       name: 'sfm'
       loop: true

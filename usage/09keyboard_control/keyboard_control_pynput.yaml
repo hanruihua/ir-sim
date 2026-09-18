@@ -18,7 +18,6 @@ robot:
     behavior: {name: 'dash'} # move toward to the goal directly
     plot:
       show_trail: True
-      traj_color: 'g'
 
     sensors: 
       - type: 'lidar2d'

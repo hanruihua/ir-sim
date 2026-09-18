@@ -110,6 +110,7 @@ cd docs && make html
 - **Registry Pattern**: Behaviors and sensors registered via decorators for extensibility
 - **Geometry via Shapely**: Collision detection uses Shapely library (>=2.1.2)
 - **Centralized RNG**: All randomness routes through `irsim.util.random.rng` (a proxy over `numpy.random.Generator`); call `set_seed(seed)` to make runs reproducible
+- **Palette param**: every default color is a field of `irsim/config/palette_param.py`, built like `env_param`/`world_param` (dataclass + module proxy). Okabe-Ito based, colour-blind and grayscale-print safe: `robot` `#009E73`, `robot_acker` `#117733`, `obstacle` black, `arrow`, `fov`/`fov_edge`, `lidar`, `laser_highlight`, FMCW velocity colors, `marker`/`path`/`quiver` for the draw helpers, and `cycle` for groups configured with `color: 'cycle'`. Consumers read it when an object or plot is created (`KinematicsHandler.default_color`, dataclass `default_factory`, `None` defaults resolved at call time), so `palette_param.robot = ...` before `irsim.make()` restyles a scene. Mirror any changed default in `docs/source/yaml_config/configuration.md` (HTML tree + entries) and the Chinese catalog
 
 ### Directory Structure
 
@@ -131,7 +132,7 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (13 test files)
+tests/                  # Pytest test suite (14 test files)
 usage/                  # Example YAML configs and scripts (25 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```

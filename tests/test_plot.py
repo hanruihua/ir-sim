@@ -63,6 +63,32 @@ class TestEnvPlot2D:
         ]
         plot_2d.draw_trajectory(traj_list, show_direction=True, refresh=True)
 
+    def test_draw_helpers_use_palette_defaults(self, plot_2d):
+        """Helpers take their colors from the palette unless one is given."""
+        from irsim.config import palette_param
+
+        traj = [np.array([[0.0], [0.0], [0.0]]), np.array([[1.0], [1.0], [0.0]])]
+        plot_2d.draw_trajectory(traj)
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba(palette_param.path)
+        plot_2d.draw_trajectory(traj, "r--")
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba("r")
+        plot_2d.draw_trajectory(traj, "C1-")
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba("C1")
+        plot_2d.draw_trajectory(traj, color="navy")
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba("navy")
+
+        plot_2d.draw_box(np.array([[0.0, 1.0, 1.0, 0.0], [0.0, 0.0, 1.0, 1.0]]))
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba(palette_param.path)
+        plot_2d.draw_box(
+            np.array([[0.0, 1.0, 1.0, 0.0], [0.0, 0.0, 1.0, 1.0]]), color="g--"
+        )
+        assert to_rgba(plot_2d.ax.lines[-1].get_color()) == to_rgba("g")
+
+        plot_2d.draw_points([[1.0, 2.0]])
+        assert np.allclose(
+            plot_2d.ax.collections[-1].get_facecolor()[0], to_rgba(palette_param.marker)
+        )
+
     def test_draw_points_none(self, plot_2d):
         """draw_points(None) is a no-op."""
         assert plot_2d.draw_points(None) is None

@@ -4,6 +4,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
+from irsim.config import palette_param
 from irsim.lib.algorithm.kinematics import (
     ackermann_kinematics,
     differential_kinematics,
@@ -79,8 +80,13 @@ class KinematicsHandler(ABC):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color: str = "g"
-    obstacle_color: str = "k"
+    color: str | None = (
+        None  # explicit robot color; None uses palette_param.<color_key>
+    )
+    obstacle_color: str | None = (
+        None  # explicit obstacle color; None uses palette_param.obstacle
+    )
+    color_key: str = "robot"  # palette entry robots with this model default to
     description: str | None = None
     show_arrow: bool = True
 
@@ -97,6 +103,29 @@ class KinematicsHandler(ABC):
         self.name = name
         self.noise = noise
         self.alpha = alpha or [0.03, 0, 0, 0.03]
+
+    @classmethod
+    def default_color(cls, role: str = "robot") -> str:
+        """Default color of an object with this model.
+
+        The explicit ``color`` / ``obstacle_color`` class attribute wins when
+        set; otherwise the value comes from :mod:`irsim.config.palette_param`
+        (``obstacle`` for obstacles, the model's ``color_key`` for robots), so
+        a palette changed at runtime applies to objects created afterwards.
+
+        Args:
+            role: ``"robot"`` or ``"obstacle"``.
+
+        Returns:
+            str: A Matplotlib color.
+        """
+        if role == "obstacle":
+            if cls.obstacle_color is not None:
+                return cls.obstacle_color
+            return palette_param.obstacle
+        if cls.color is not None:
+            return cls.color
+        return getattr(palette_param, cls.color_key)
 
     @abstractmethod
     def step(
@@ -187,8 +216,6 @@ class OmniKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
     description = None
     show_arrow = False
 
@@ -268,8 +295,6 @@ class OmniAngularKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
     description = None
     show_arrow = True
 
@@ -332,8 +357,6 @@ class DifferentialKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "g"
-    obstacle_color = "k"
     description = None
     show_arrow = True
 
@@ -373,8 +396,7 @@ class AckermannKinematics(KinematicsHandler):
     vel_max: ClassVar[list[float]] = [1, 1]
     vel_min: ClassVar[list[float]] = [-1, -1]
     acce: ClassVar[list[float]] = [float("inf"), float("inf")]
-    color = "y"
-    obstacle_color = "k"
+    color_key = "robot_acker"
     description = "car_green.png"
     show_arrow = True
 

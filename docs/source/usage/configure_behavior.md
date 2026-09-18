@@ -60,7 +60,7 @@ robot:
     behavior: {name: 'rvo', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
-    color: ['royalblue', 'red', 'green', 'orange', 'purple', 'yellow', 'cyan', 'magenta', 'lime', 'pink', 'brown'] 
+    color: 'cycle'   # one palette color per robot, in order
     arrive_mode: position
     goal_threshold: 0.15
     plot:
@@ -175,10 +175,7 @@ robot:
       - [ 9, -1.6, 0]
       - [-9, -1.601, 3.14]
       # ...
-    color:
-      - 'royalblue'   # W->E
-      - 'red'         # E->W
-      # ... (alternating blue/red horizontally, green/orange vertically)
+    color: 'cycle'   # one palette color per pedestrian, in order
     behavior:
       name: 'sfm'
       loop: true
@@ -306,7 +303,6 @@ robot:
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'circle', radius: 140}
-    color: 'g'
     goal_threshold: 0.1
     vel_max: [2, 2]
     vel_min: [-2, -2]
@@ -392,7 +388,6 @@ robot:
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'random', range_low: [-100, -100, -3.14], range_high: [100, 100, 3.14]}
-    color: 'g'
     goal_threshold: 0.1
     vel_max: [3, 3]
     vel_min: [-3, -3]
@@ -520,19 +515,7 @@ robot:
       - [-9,  3.8, 3.14]
       - [ 9,  0.3, 0]
       - [-9, -0.3, 3.14]
-    color:
-      - 'royalblue'
-      - 'royalblue'
-      - 'green'
-      - 'green'
-      - 'green'
-      - 'red'
-      - 'red'
-      - 'orange'
-      - 'orange'
-      - 'orange'
-      - 'purple'
-      - 'gray'
+    color: 'cycle'   # one palette color per pedestrian, in order
     group_behavior:
       name: 'sfm'
       vmax: 1.0
@@ -742,7 +725,6 @@ robot:
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 0.3}
     distribution: {name: 'circle', radius: 3, center: [10, 10]}
-    color: 'blue'
     goal: [15, 15]
     vel_max: [2, 2]
     vel_min: [-2, -2]
@@ -924,7 +906,7 @@ robot:
     behavior: {name: 'rvo', vxmax: 1.0, vymax: 1.0, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
-    color: ['royalblue', 'red', 'green']
+    color: ['#0072B2', '#D55E00', '#009E73']
     arrive_mode: position
     goal_threshold: 0.2
     plot:
@@ -941,7 +923,7 @@ robot:
     behavior: {name: 'dash', vxmax: 1.5, vymax: 1.5, acce: 1.0, factor: 1.0}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
-    color: ['orange', 'purple']
+    color: ['#E69F00', '#CC79A7']
     arrive_mode: position
     goal_threshold: 0.2
     plot:
@@ -958,7 +940,7 @@ robot:
     behavior: {name: 'dash_custom'}
     vel_min: [-3, -3.0]
     vel_max: [3, 3.0]
-    color: ['pink', 'brown']
+    color: ['#56B4E9', '#117733']
     arrive_mode: position
     goal_threshold: 0.2
     plot:
@@ -1119,7 +1101,7 @@ robot:
     shape: {name: 'circle', radius: 0.2}
     state: [2, 2, 0]
     goal: [8, 8]
-    color: 'blue'
+    color: '#0072B2'
     vel_max: [2, 2]
     vel_min: [-2, -2]
     goal_threshold: 0.3
@@ -1136,7 +1118,7 @@ robot:
     shape: {name: 'circle', radius: 0.2}
     state: [2, 3, 0]
     goal: [8, 7]
-    color: 'red'
+    color: '#D55E00'
     vel_max: [2, 2]
     vel_min: [-2, -2]
     goal_threshold: 0.3

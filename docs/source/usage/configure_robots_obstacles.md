@@ -190,7 +190,7 @@ obstacle:
 | Parameter | Robot Default | Obstacle Default |
 |-----------|---------------|------------------|
 | `role` | `"robot"` | `"obstacle"` |
-| `color` | Varies | `"k"` (black) |
+| `color` | green `#009E73` (`#117733` for `acker`) | `"k"` (black) |
 | `kinematics` | User-defined | `None` (static) |
 | `behavior` | `None` (static unless configured or externally controlled) | `None` (static unless configured or externally controlled) |
 
@@ -208,6 +208,8 @@ Please make sure that the obstacles are not placed in the initial position of th
 ## Advanced Configurations for Multiple Robots and Obstacles
 
 To simulate multiple robots and obstacles within the same environment, simply add the `number` and `distribution` of robots and obstacles to the configuration file. Below is an example of a configuration file with multiple robots and obstacles: 
+
+Robots in a group share the default robot color. Set `color: 'cycle'` on the group to give each robot the next color of the palette cycle instead, which helps telling them apart in a crowd; a list of colors still assigns them one by one. The defaults themselves are parameters of {py:mod}`irsim.config.palette_param` and can be changed before `irsim.make()`.
 
 ::::{tab-set}
 
@@ -251,17 +253,13 @@ robot:
     behavior:
       - {name: 'dash'}
       - {name: 'dash'}
-    color: 
-      - 'royalblue'
-      - 'red'
+    color: 'cycle'   # one palette color per robot, in order
   
   - number: 4
     distribution: {name: 'random'}
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
-    color: 
-      - 'pink'
 
 
 obstacle:

@@ -13,6 +13,7 @@ from matplotlib import image
 from matplotlib.patches import Arrow, Circle, Wedge
 from mpl_toolkits.mplot3d import Axes3D
 
+from irsim.config import palette_param
 from irsim.config.path_param import path_manager
 from irsim.env.env_plot import (
     draw_patch,
@@ -100,7 +101,7 @@ class TrailStyle:
 class ArrowStyle:
     """Style and dimensions for the velocity arrow."""
 
-    color: Any = "gold"  # Matplotlib-compatible arrow color.
+    color: Any = field(default_factory=lambda: palette_param.arrow)  # arrow color
     alpha: float = 1.0  # Arrow opacity.
     zorder: int = 3  # Matplotlib layer order.
     length: float = 0.4  # Length in environment data units.
@@ -111,8 +112,8 @@ class ArrowStyle:
 class FovStyle:
     """Style for the field-of-view patch."""
 
-    color: Any = "lightblue"  # Matplotlib-compatible interior color.
-    edge_color: Any = "blue"  # Matplotlib-compatible boundary color.
+    color: Any = field(default_factory=lambda: palette_param.fov)  # interior
+    edge_color: Any = field(default_factory=lambda: palette_param.fov_edge)  # boundary
     alpha: float = 0.5  # Region opacity.
     zorder: int = 1  # Matplotlib layer order.
 

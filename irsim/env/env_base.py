@@ -604,7 +604,7 @@ class EnvBase:
     # draw various components
     @plot_only
     def draw_trajectory(
-        self, traj: list[Any], traj_type: str = "g-", **kwargs: Any
+        self, traj: list[Any], traj_type: str = "-", **kwargs: Any
     ) -> None:
         """
         Draw the trajectory on the environment figure.
@@ -612,7 +612,9 @@ class EnvBase:
         Args:
             traj (list): List of trajectory points. Each point is a 2x1 vector
                 or an array of shape (2, N).
-            traj_type (str): Matplotlib line style (e.g., "g-", "r--").
+            traj_type (str): Matplotlib format string (e.g. "-", "r--"). Unless
+                it names a color, or ``color`` is passed, the line uses
+                ``palette_param.path``.
             **kwargs: Additional keyword arguments; forwarded to
                 :py:meth:`.EnvPlot.draw_trajectory`.
         """
@@ -624,7 +626,7 @@ class EnvBase:
         self,
         points: list[Any],
         s: int = 30,
-        c: str = "b",
+        c: str | None = None,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -645,7 +647,7 @@ class EnvBase:
 
     @plot_only
     def draw_box(
-        self, vertex: np.ndarray, refresh: bool = False, color: str = "-b"
+        self, vertex: np.ndarray, refresh: bool = False, color: str = "-"
     ) -> None:
         """
         Draw a box by the vertices.

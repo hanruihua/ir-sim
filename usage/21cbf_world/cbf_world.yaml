@@ -18,7 +18,6 @@ robot:
   vel_min: [-0.8, -0.8]
   vel_max: [0.8, 0.8]
   goal_threshold: 0.2
-  color: "royalblue"
   plot:
     show_trajectory: true
     show_goal: true
@@ -28,4 +27,3 @@ robot:
 obstacle:
   - shape: {name: "circle", radius: 1.8}
     state: [5.2, 5.8, 0.0]
-    color: "black"

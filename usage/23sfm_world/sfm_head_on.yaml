@@ -17,7 +17,6 @@ robot:
     shape: [{name: 'circle', radius: 0.3}]
     state: [-6, 0.0, 0]
     goal:  [ 6, 0.0, 0]
-    color: 'royalblue'
     behavior: &sfm_ped
       name: 'sfm'
       vmax: 1.0
@@ -36,7 +35,6 @@ robot:
     shape: [{name: 'circle', radius: 0.3}]
     state: [ 6, 0.001, 3.14]
     goal:  [-6, 0.001, 3.14]
-    color: 'red'
     behavior: *sfm_ped
     vel_min: *vmin
     vel_max: *vmax

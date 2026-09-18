@@ -28,7 +28,6 @@ robot:
 
     plot:
       show_trail: True
-      traj_color: 'g'
       show_trajectory: True
       show_goal: True
 

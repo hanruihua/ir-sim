@@ -985,11 +985,9 @@ msgstr "`color`"
 msgid "inferred from role and kinematics"
 msgstr "从角色和运动学推断"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
-msgid ""
-"Visualization color of the object in the simulation. Robots use "
-"kinematics-specific defaults; obstacles default to black."
-msgstr "对象在仿真中的显示颜色。机器人使用运动学相关的默认颜色；障碍物默认使用黑色。"
+#: ../../source/yaml_config/configuration.md:779
+msgid "Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`."
+msgstr "对象在仿真中的显示颜色。机器人默认使用绿色（`#009E73`，`acker` 为 `#117733`）；障碍物默认使用黑色。`'cycle'` 让分组中的每个对象依次使用调色板循环中的下一种颜色。所有默认值都是 `irsim.config.palette_param` 的参数。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`static`"
@@ -2046,9 +2044,9 @@ msgstr "可视化选项位于传感器的 **`plot:`** 子字典下（为向后�
 msgid "`alpha` (float/`0.3`): Transparency for plotting."
 msgstr "`alpha`（float）：绘图透明度，默认 `0.3`。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1259
-msgid "`color` (str/`r`): Color of the sensor."
-msgstr "`color`（str）：传感器颜色，默认 `r`。"
+#: ../../source/yaml_config/configuration.md
+msgid "`color` (str/`\"#CC3311\"`): Color of the sensor."
+msgstr "`color`（str/`\"#CC3311\"`）：传感器颜色。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1278
 msgid ""
@@ -2124,23 +2122,17 @@ msgid ""
 "markers."
 msgstr "`velocity_marker_edge_width`（float/`0.6`）：端点标记的边缘宽度。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1292
-msgid ""
-"`zero_velocity_color` (str/`cyan`): Plot color used for near-zero radial "
-"velocity."
-msgstr "`zero_velocity_color`（str/`cyan`）：用于接近零径向速度的绘图颜色。"
+#: ../../source/yaml_config/configuration.md
+msgid "`zero_velocity_color` (str/`\"#56B4E9\"`): Plot color used for near-zero radial velocity."
+msgstr "`zero_velocity_color`（str/`\"#56B4E9\"`）：用于接近零径向速度的绘图颜色。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1293
-msgid ""
-"`positive_velocity_color` (str/`crimson`): Plot color used for positive "
-"radial velocity."
-msgstr "`positive_velocity_color`（str/`crimson`）：用于正径向速度的绘图颜色。"
+#: ../../source/yaml_config/configuration.md
+msgid "`positive_velocity_color` (str/`\"#CC3311\"`): Plot color used for positive radial velocity."
+msgstr "`positive_velocity_color`（str/`\"#CC3311\"`）：用于正径向速度的绘图颜色。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1294
-msgid ""
-"`negative_velocity_color` (str/`royalblue`): Plot color used for negative"
-" radial velocity."
-msgstr "`negative_velocity_color`（str/`royalblue`）：用于负径向速度的绘图颜色。"
+#: ../../source/yaml_config/configuration.md
+msgid "`negative_velocity_color` (str/`\"#0072B2\"`): Plot color used for negative radial velocity."
+msgstr "`negative_velocity_color`（str/`\"#0072B2\"`）：用于负径向速度的绘图颜色。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1295
 msgid "`no_hit_color` (str/`lightgray`): Plot color used for invalid beams."
@@ -2245,16 +2237,9 @@ msgstr "**Sensors** — 传感器显示（`show_sensor`、`show_fov`）"
 msgid "**`color`** (`str`, default: inferred from role and kinematics)"
 msgstr "**`color`**（`str`，默认从角色和运动学推断）"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1374
-msgid ""
-"Specifies the object's color in visualizations for easy identification. "
-"Robots with registered kinematics use the color defined by the kinematics"
-" handler; obstacles default to black. Detailed color options can be found"
-" in [matplotlib "
-"color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
-msgstr ""
-"指定对象在可视化中的颜色，便于识别。带有已注册运动学的机器人使用运动学处理器定义的颜色；障碍物默认使用黑色。详细颜色选项见 [matplotlib"
-" color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
+#: ../../source/yaml_config/configuration.md:1423
+msgid "Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
+msgstr "指定对象在可视化中的颜色，便于识别。已注册运动学的机器人使用运动学处理器定义的颜色：内置模型为绿色 `#009E73`，`acker` 为 `#117733`；障碍物默认使用黑色。`'cycle'` 让 `number` 分组中的每个对象依次使用 `palette_param.cycle` 中的下一种颜色，便于在人群中区分机器人。这些以及其他所有默认颜色都是 {py:mod}`irsim.config.palette_param` 的参数，该配色对色觉缺陷友好，灰度打印效果也很好；在 `irsim.make()` 之前修改它们即可改变整个场景的风格，例如 `palette_param.robot = '#0072B2'`。可用的颜色选项参见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1382
 msgid "**`description`** (`str`, default: `None`)"
@@ -2408,9 +2393,9 @@ msgstr "**速度箭头可视化：**"
 msgid "`show_arrow` (bool/`False`): Whether to show the velocity arrow."
 msgstr "`show_arrow`（bool）：是否显示速度箭头，默认 False。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1427
-msgid "`arrow_color` (str/`\"gold\"`): Color of the arrow."
-msgstr "`arrow_color`（str）：箭头颜色，默认 \"gold\"。"
+#: ../../source/yaml_config/configuration.md
+msgid "`arrow_color` (str/`\"#F0E442\"`): Color of the arrow."
+msgstr "`arrow_color`（str/`\"#F0E442\"`）：箭头颜色。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1428
 msgid "`arrow_length` (float/`0.4`): Length of the arrow."
@@ -2534,13 +2519,13 @@ msgstr "**视场可视化：**"
 msgid "`show_fov` (bool/`False`): Whether to show field of view visualization."
 msgstr "`show_fov`（bool）：是否显示视场，默认 False。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1459
-msgid "`fov_color` (str/`\"lightblue\"`): Fill color of the field of view."
-msgstr "`fov_color`（str）：视场填充色，默认 \"lightblue\"。"
+#: ../../source/yaml_config/configuration.md
+msgid "`fov_color` (str/`\"#56B4E9\"`): Fill color of the field of view."
+msgstr "`fov_color`（str/`\"#56B4E9\"`）：视场填充色。"
 
-#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1460
-msgid "`fov_edge_color` (str/`\"blue\"`): Edge color of the field of view."
-msgstr "`fov_edge_color`（str）：视场边缘色，默认 \"blue\"。"
+#: ../../source/yaml_config/configuration.md
+msgid "`fov_edge_color` (str/`\"#0072B2\"`): Edge color of the field of view."
+msgstr "`fov_edge_color`（str/`\"#0072B2\"`）：视场边缘颜色。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1461
 msgid "`fov_alpha` (float/`0.5`): Transparency of the field of view (0.0 to 1.0)."

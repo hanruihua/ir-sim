@@ -18,7 +18,6 @@ robot:
   vel_min: [-0.8, -0.8]
   vel_max: [0.8, 0.8]
   goal_threshold: 0.2
-  color: "royalblue"
   plot:
     show_trajectory: true
     show_goal: true
@@ -33,7 +32,6 @@ robot:
   # vel_min: [0.0, -1.5]
   # vel_max: [0.8, 1.5]
   # goal_threshold: 0.2
-  # color: "royalblue"
   # plot:
   #   show_trajectory: true
   #   show_goal: true
@@ -49,7 +47,6 @@ obstacle:
     vel_min: [-0.35, -0.35]
     vel_max: [0.35, 0.35]
     goal_threshold: 0.15
-    color: "black"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -59,7 +56,6 @@ obstacle:
     vel_min: [-0.3, -0.3]
     vel_max: [0.3, 0.3]
     goal_threshold: 0.15
-    color: "dimgray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -69,7 +65,6 @@ obstacle:
     vel_min: [-0.28, -0.28]
     vel_max: [0.28, 0.28]
     goal_threshold: 0.15
-    color: "gray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -79,7 +74,6 @@ obstacle:
     vel_min: [-0.26, -0.26]
     vel_max: [0.26, 0.26]
     goal_threshold: 0.15
-    color: "slategray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -89,7 +83,6 @@ obstacle:
     vel_min: [-0.24, -0.24]
     vel_max: [0.24, 0.24]
     goal_threshold: 0.15
-    color: "silver"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -99,7 +92,6 @@ obstacle:
     vel_min: [-0.32, -0.32]
     vel_max: [0.32, 0.32]
     goal_threshold: 0.15
-    color: "black"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -109,7 +101,6 @@ obstacle:
     vel_min: [-0.3, -0.3]
     vel_max: [0.3, 0.3]
     goal_threshold: 0.15
-    color: "dimgray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -119,7 +110,6 @@ obstacle:
     vel_min: [-0.22, -0.22]
     vel_max: [0.22, 0.22]
     goal_threshold: 0.15
-    color: "gray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -129,7 +119,6 @@ obstacle:
     vel_min: [-0.31, -0.31]
     vel_max: [0.31, 0.31]
     goal_threshold: 0.15
-    color: "darkgray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -139,7 +128,6 @@ obstacle:
     vel_min: [-0.27, -0.27]
     vel_max: [0.27, 0.27]
     goal_threshold: 0.15
-    color: "lightgray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -149,7 +137,6 @@ obstacle:
     vel_min: [-0.25, -0.25]
     vel_max: [0.25, 0.25]
     goal_threshold: 0.15
-    color: "black"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -159,7 +146,6 @@ obstacle:
     vel_min: [-0.2, -0.2]
     vel_max: [0.2, 0.2]
     goal_threshold: 0.15
-    color: "dimgray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -169,7 +155,6 @@ obstacle:
     vel_min: [-0.34, -0.34]
     vel_max: [0.34, 0.34]
     goal_threshold: 0.15
-    color: "gray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -179,7 +164,6 @@ obstacle:
     vel_min: [-0.29, -0.29]
     vel_max: [0.29, 0.29]
     goal_threshold: 0.15
-    color: "slategray"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -189,7 +173,6 @@ obstacle:
     vel_min: [-0.23, -0.23]
     vel_max: [0.23, 0.23]
     goal_threshold: 0.15
-    color: "silver"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -199,7 +182,6 @@ obstacle:
     vel_min: [-0.33, -0.33]
     vel_max: [0.33, 0.33]
     goal_threshold: 0.15
-    color: "black"
 
   - kinematics: {name: "omni"}
     behavior: {name: "dash"}
@@ -209,4 +191,3 @@ obstacle:
     vel_min: [-0.27, -0.27]
     vel_max: [0.27, 0.27]
     goal_threshold: 0.15
-    color: "dimgray"

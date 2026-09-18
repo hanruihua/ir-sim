@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 
+from irsim.config import palette_param
 from irsim.util.util import points_to_xy_list, traj_to_xy_list
 
 from .env_plot import EnvPlot
@@ -39,7 +40,7 @@ class EnvPlot3D(EnvPlot):
         self,
         points: list | np.ndarray | None,
         s: int = 10,
-        c: str = "m",
+        c: str | None = None,
         refresh: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -60,6 +61,9 @@ class EnvPlot3D(EnvPlot):
         x_coordinates, y_coordinates, z_coordinates = points_to_xy_list(
             points, three_d=True
         )
+
+        if c is None:
+            c = palette_param.marker
 
         points = self.ax.scatter(
             x_coordinates, y_coordinates, z_coordinates, "z", s, c, **kwargs
@@ -86,7 +90,7 @@ class EnvPlot3D(EnvPlot):
             point[0],
             point[1],
             point[2],
-            color=kwargs.get("point_color", "blue"),
+            color=kwargs.get("point_color", palette_param.marker),
             label="Points",
         )
 
@@ -99,7 +103,7 @@ class EnvPlot3D(EnvPlot):
             point[5],  # vector components (direction)
             length=0.2,
             normalize=True,
-            color=kwargs.get("quiver_color", "red"),
+            color=kwargs.get("quiver_color", palette_param.quiver),
             label="Direction",
         )
 
