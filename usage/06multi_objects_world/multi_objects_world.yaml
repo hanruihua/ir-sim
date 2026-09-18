@@ -23,9 +23,6 @@ robot:
     behavior: 
       - {name: 'dash'} # move toward to the goal directly 
       - {name: 'dash'} # move toward to the goal directly
-    color: 
-      - 'royalblue'
-      - 'red'
     plot:
       show_text: True
   
@@ -36,11 +33,7 @@ robot:
       - {name: 'circle', radius: 0.2}  # radius
     behavior: 
       - {name: 'dash'} # move toward to the goal directly 
-    color: 
-      - 'pink'
 
-    plot:
-      goal_color: 'purple'
 
 obstacle:
   - number: 10
@@ -49,7 +42,6 @@ obstacle:
     shape:
       - {name: 'circle', radius: 0.4}  # radius
       - {name: 'circle', radius: 0.1}  # radius
-    color: 'k'
     plot:
       show_text: True
 

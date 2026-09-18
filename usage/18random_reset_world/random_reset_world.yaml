@@ -72,7 +72,6 @@ obstacle:
     vel_max: [1.5, 3.14]
     arrive_mode: position
     goal_threshold: 0.3
-    color: 'grey'
     plot:
       show_goal: True
       show_arrow: True

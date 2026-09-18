@@ -25,7 +25,6 @@ robot:
     goal_threshold: 0.2
     plot:
       show_trajectory: True
-      traj_color: 'g'
       show_goals: True
       show_text: True
 

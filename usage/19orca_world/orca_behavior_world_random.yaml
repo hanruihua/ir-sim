@@ -10,7 +10,6 @@ robot:
     kinematics: {name: 'omni'}  
     shape: {name: 'circle', radius: 1.0}  
     distribution: {name: 'random', range_low: [-100, -100, -3.14], range_high: [100, 100, 3.14]}
-    color: 'g'
     goal_threshold: 0.1
     vel_max: [3, 3]
     vel_min: [-3, -3]
