@@ -2192,6 +2192,84 @@ class TestAssignGroupAction:
         assert (moved[2:, 1] > 0.5).all()
 
 
+class TestMapObjectGrouping:
+    """The grid-map object is scenery: it never becomes a group member."""
+
+    def test_map_object_is_in_no_group(self, env_factory):
+        """With an ``obstacle_map``, every robot and obstacle belongs to exactly
+        one group and the map object to none."""
+        env = env_factory("test_grid_map.yaml")
+
+        map_objects = [obj for obj in env.objects if obj.shape == "map"]
+        assert len(map_objects) == 1
+
+        members = [m for group in env._object_groups for m in group.members]
+        assert map_objects[0] not in members
+        non_map = [obj for obj in env.objects if obj.shape != "map"]
+        assert sorted(members, key=lambda o: o.id) == non_map
+        assert len(members) == len(set(members))
+
+    def test_map_does_not_join_group_behavior(self, tmp_path):
+        """A robot group with a group behavior and an ``obstacle_map`` used to
+        get the map as a third member, i.e. a giant phantom agent at the map
+        centroid that the robots avoided instead of heading to their goals."""
+        config = tmp_path / "map_group.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 20\n"
+            "  width: 20\n"
+            "  step_time: 0.1\n"
+            "  collision_mode: 'unobstructed'\n"
+            "  obstacle_map:\n"
+            "    name: perlin\n"
+            "    resolution: 0.5\n"
+            "    complexity: 0.08\n"
+            "    fill: 0.05\n"
+            "    fractal: 1\n"
+            "    attenuation: 0.5\n"
+            "    seed: 3\n"
+            "robot:\n"
+            "  - number: 2\n"
+            "    kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [[2, 2, 0], [2, 4, 0]]\n"
+            "    goal: [[18, 2, 0], [18, 4, 0]]\n"
+            "    vel_max: [2, 2]\n"
+            "    vel_min: [-2, -2]\n"
+            "    group_behavior: {name: 'sfm'}\n"
+            "obstacle:\n"
+            "  - number: 2\n"
+            "    kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [[2, 16, 0], [2, 18, 0]]\n"
+            "    goal: [[2, 6, 0], [2, 8, 0]]\n"
+            "    vel_max: [2, 2]\n"
+            "    vel_min: [-2, -2]\n"
+            "    group_behavior: {name: 'sfm'}\n"
+        )
+
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            robot_group, obstacle_group = env._object_groups
+            assert [m.name for m in robot_group.members] == ["robot_0", "robot_1"]
+            assert [m.name for m in obstacle_group.members] == [
+                "obstacle_2",
+                "obstacle_3",
+            ]
+            assert len(robot_group.gen_group_vel()) == 2
+            assert len(obstacle_group.gen_group_vel()) == 2
+
+            start = np.array([r.state[:2, 0] for r in env.robot_list])
+            for _ in range(20):
+                env.step()
+            end = np.array([r.state[:2, 0] for r in env.robot_list])
+        finally:
+            env.end()
+
+        # both robots made progress toward +x (their goals)
+        assert ((end - start)[:, 0] > 1.0).all()
+
+
 class TestMidProcessEdgeCases:
     """Tests for ObjectBase.mid_process state padding/truncation."""
 
