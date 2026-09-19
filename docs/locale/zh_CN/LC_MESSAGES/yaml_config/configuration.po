@@ -280,10 +280,40 @@ msgid "`\"stop\"`"
 msgstr "`\"stop\"`"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:515
-msgid ""
-"Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, "
-"`\"unobstructed_obstacles\"`)"
-msgstr "碰撞处理模式（支持：`\"stop\"`、`\"unobstructed\"`、`\"unobstructed_obstacles\"`）"
+msgid "Collision handling mode (Support: `\"stop\"`, `\"unobstructed\"`, `\"unobstructed_obstacles\"`, `\"contact\"`)"
+msgstr "碰撞处理模式（支持：`\"stop\"`、`\"unobstructed\"`、`\"unobstructed_obstacles\"`、`\"contact\"`）"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "`gravity`"
+msgstr "`gravity`"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "`9.81`"
+msgstr "`9.81`"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "Gravitational acceleration in m/s² for the `contact` collision mode; with a body's `friction` and `mass` it gives the ground friction force"
+msgstr "`contact` 碰撞模式使用的重力加速度（m/s²）；它与物体的 `friction` 和 `mass` 一起给出地面摩擦力"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "`drive_tau`"
+msgstr "`drive_tau`"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "`0.2`"
+msgstr "`0.2`"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "Ground friction coefficient objects get unless they set their own `friction` (the PhysX material default)"
+msgstr "对象未设置自己的 `friction` 时采用的地面摩擦系数（PhysX 的材料默认值）"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "Bounciness objects get unless they set their own `restitution` (the Isaac Lab material default: no bounce)"
+msgstr "对象未设置自己的 `restitution` 时采用的弹性（Isaac Lab 的材料默认值：不反弹）"
+
+#: ../../source/yaml_config/configuration.md:582
+msgid "Drive lag in seconds of driven objects in the `contact` collision mode unless their `kinematics` set `tau`"
+msgstr "`contact` 碰撞模式下，驱动对象的 `kinematics` 未设置 `tau` 时采用的驱动滞后（秒）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:515
 msgid "`status`"
@@ -555,6 +585,14 @@ msgstr "`keyboard`：通过键盘输入进行手动控制。按键输入在文�
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:607
 msgid "**`collision_mode`** (`str`, default: `\"stop\"`)"
 msgstr "**`collision_mode`** (`str`, 默认： `\"stop\"`)"
+
+#: ../../source/yaml_config/configuration.md:668
+msgid "**`gravity`**, **`friction`**, **`restitution`**, **`drive_tau`** (`float`, defaults: `9.81`, `0.5`, `0`, `0`)"
+msgstr "**`gravity`**、**`friction`**、**`restitution`**、**`drive_tau`**（`float`，默认：`9.81`、`0.5`、`0`、`0`）"
+
+#: ../../source/yaml_config/configuration.md:668
+msgid "The physics the [`contact`](#p-w-collision-mode) collision mode works with, set once for the whole world. `gravity` is the acceleration that turns a body's `friction * mass` into its ground friction force. `friction`, `restitution` and `drive_tau` are what every object starts from: an object's own [`friction`](#p-o-friction) or [`restitution`](#p-o-restitution), or a `tau` under its [`kinematics`](#p-o-kinematics), overrides them. The defaults are the material defaults of PhysX and Isaac Lab, and robots track their commands instantly as Isaac's stiff default drives do at this step size, so a scene without these keys behaves like one of theirs; lower `friction` for a slippery floor, or set `drive_tau`, `0.2` s for a small base with a soft velocity loop, to give every robot a drive that follows commands with a lag."
+msgstr "[`contact`](#p-w-collision-mode) 碰撞模式所用的物理参数，对整个世界只设置一次。`gravity` 是把物体的 `friction * mass` 变成地面摩擦力的加速度。`friction`、`restitution` 和 `drive_tau` 是每个对象的起始值：对象自己的 [`friction`](#p-o-friction) 或 [`restitution`](#p-o-restitution)，或其 [`kinematics`](#p-o-kinematics) 下的 `tau`，会覆盖它们。默认值即 PhysX 和 Isaac Lab 的材料默认值，且机器人像 Isaac 的默认刚性驱动在此步长下那样即时跟随指令，因此没有这些键的场景表现得与它们一致；地面较滑时降低 `friction`；设置 `drive_tau`（小型软速度环底盘约 `0.2` s）可让所有机器人的驱动带滞后地跟随指令。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:608
 msgid "Defines how collisions between objects are handled in the simulation:"
@@ -986,8 +1024,8 @@ msgid "inferred from role and kinematics"
 msgstr "从角色和运动学推断"
 
 #: ../../source/yaml_config/configuration.md:779
-msgid "Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`."
-msgstr "对象在仿真中的显示颜色。机器人默认使用绿色（`#009E73`，`acker` 为 `#117733`）；障碍物默认使用黑色。`'cycle'` 让分组中的每个对象依次使用调色板循环中的下一种颜色。所有默认值都是 `irsim.config.palette_param` 的参数。"
+msgid "Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black, or orange (`#E69F00`) for a pushable body without kinematics (see [`mass`](#p-o-mass)). `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`."
+msgstr "对象在仿真中的显示颜色。机器人默认使用绿色（`#009E73`，`acker` 为 `#117733`）；障碍物默认使用黑色，没有运动学的可推动物体则为橙色（`#E69F00`，参见 [`mass`](#p-o-mass)）。`'cycle'` 让分组中的每个对象依次使用调色板循环中的下一种颜色。所有默认值都是 `irsim.config.palette_param` 的参数。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`static`"
@@ -999,9 +1037,10 @@ msgstr "派生值"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid ""
-"`False` when kinematics are present; otherwise the object is always "
-"static. Set `true` to freeze an object that has kinematics."
-msgstr "存在运动学模型时为 `False`；否则对象始终为静态。将其设为 `true` 可冻结具有运动学模型的对象。"
+"`False` when kinematics are present; otherwise `True` unless a finite "
+"[`mass`](#p-o-mass) makes the object pushable. Set `true` to freeze any "
+"object."
+msgstr "存在运动学模型时为 `False`；否则为 `True`，除非有限的 [`mass`](#p-o-mass) 使对象可被推动。将其设为 `true` 可冻结任意对象。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`vel_min`"
@@ -1074,8 +1113,8 @@ msgstr "`dict` 列表"
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid ""
 "List of sensor configurations attached to the object. Support name: "
-"`lidar2d`, `fmcw_lidar2d`"
-msgstr "附加到该对象的传感器配置列表。支持的 name：`lidar2d`、`fmcw_lidar2d`"
+"`lidar2d`, `fmcw_lidar2d`, `contact2d`"
+msgstr "附加到该对象的传感器配置列表。支持的 name：`lidar2d`、`fmcw_lidar2d`、`contact2d`"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`arrive_mode`"
@@ -1945,8 +1984,10 @@ msgstr "`maxSpeed`（float/`None`）：智能体最大速度。若为 `None`，�
 msgid ""
 "**`static`**:   A boolean indicating whether the object is static (does "
 "not move). Static objects ignore kinematics and behaviors, remaining at "
-"their initial state."
-msgstr "**`static`**：布尔值，表示对象是否静止。静止对象忽略运动学与行为，保持初始状态。"
+"their initial state, and contacts never move them. When not set, an "
+"object with kinematics is not static, and an object without kinematics "
+"is static unless a finite [`mass`](#p-o-mass) makes it pushable."
+msgstr "**`static`**：布尔值，表示对象是否静止。静止对象忽略运动学与行为，保持初始状态，接触也不会移动它们。未设置时，具有运动学模型的对象不是静态的；没有运动学模型的对象为静态，除非有限的 [`mass`](#p-o-mass) 使其可被推动。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md
 msgid "**object sensors**"
@@ -1963,6 +2004,10 @@ msgid ""
 msgstr ""
 "**`fmcw_lidar2d`** —— 2D FMCW "
 "激光雷达（`range/radial_velocity`、`motion_compensate`、多普勒可视化）"
+
+#: ../../source/yaml_config/configuration.md:1393
+msgid "**`contact2d`**: Contact sensor of the `contact` collision mode (contact points and forces, `force_scale` visualization)"
+msgstr "**`contact2d`** —— `contact` 碰撞模式的接触传感器（接触点与力，`force_scale` 可视化）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1238
 msgid "**`fov`**: Field of view angle (radians)"
@@ -2238,8 +2283,8 @@ msgid "**`color`** (`str`, default: inferred from role and kinematics)"
 msgstr "**`color`**（`str`，默认从角色和运动学推断）"
 
 #: ../../source/yaml_config/configuration.md:1423
-msgid "Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
-msgstr "指定对象在可视化中的颜色，便于识别。已注册运动学的机器人使用运动学处理器定义的颜色：内置模型为绿色 `#009E73`，`acker` 为 `#117733`；障碍物默认使用黑色。`'cycle'` 让 `number` 分组中的每个对象依次使用 `palette_param.cycle` 中的下一种颜色，便于在人群中区分机器人。这些以及其他所有默认颜色都是 {py:mod}`irsim.config.palette_param` 的参数，该配色对色觉缺陷友好，灰度打印效果也很好；在 `irsim.make()` 之前修改它们即可改变整个场景的风格，例如 `palette_param.robot = '#0072B2'`。可用的颜色选项参见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
+msgid "Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black, or to orange (`#E69F00`, `palette_param.pushable`) when a finite [`mass`](#p-o-mass) makes an obstacle without kinematics pushable. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)."
+msgstr "指定对象在可视化中的颜色，便于识别。已注册运动学的机器人使用运动学处理器定义的颜色：内置模型为绿色 `#009E73`，`acker` 为 `#117733`；障碍物默认使用黑色；当有限的 [`mass`](#p-o-mass) 使没有运动学的障碍物可被推动时，则为橙色（`#E69F00`，即 `palette_param.pushable`）。`'cycle'` 让 `number` 分组中的每个对象依次使用 `palette_param.cycle` 中的下一种颜色，便于在人群中区分机器人。这些以及其他所有默认颜色都是 {py:mod}`irsim.config.palette_param` 的参数，该配色对色觉缺陷友好，灰度打印效果也很好；在 `irsim.make()` 之前修改它们即可改变整个场景的风格，例如 `palette_param.robot = '#0072B2'`。可用的颜色选项参见 [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html)。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1382
 msgid "**`description`** (`str`, default: `None`)"
@@ -3084,3 +3129,107 @@ msgstr "`gaze_vision_angle`（float/`90.0`）：以行走方向为中心的视�
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
 msgid "`target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`."
 msgstr "`target_roles`（str/`'all'`）：成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`。"
+
+#: ../../source/yaml_config/configuration.md:645
+msgid "`contact`: Objects are not stopped. After every step, overlapping objects are pushed apart along their contact normal as rigid bodies in a physics engine are, using [`mass`](#p-o-mass) and [`friction`](#p-o-friction): a robot pushes a box at its own speed while its traction beats the box's ground friction and stalls against a box too heavy for it, a box hit off-center turns, a released box slides to a stop, and an object without mass (a wall, a static obstacle, or the grid map) stops it while it slides along the surface. See [Physical properties and contact mode](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode)."
+msgstr "`contact`：对象不会停止。每一步之后，重叠的对象像物理引擎中的刚体一样沿接触法线被推开，使用 [`mass`](#p-o-mass) 和 [`friction`](#p-o-friction)：机器人的牵引力胜过箱子的地面摩擦时以自身速度推动箱子，遇到过重的箱子则停滞；偏心被撞的箱子会转动；松开的箱子滑行后停下；没有质量的对象（墙壁、静态障碍物或栅格地图）会挡住它，同时它可沿表面滑动。参见[物理属性与接触模式](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode)。"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "`mass`"
+msgstr "`mass`"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "`1.0` with kinematics, `inf` without"
+msgstr "有运动学时为 `1.0`，否则为 `inf`"
+
+#: ../../source/yaml_config/configuration.md:782
+msgid "Mass in kg for the `contact` collision mode; with `friction` it sets the ground friction force that decides what a robot can push, `inf` never moves. A finite mass on an object without kinematics makes it a pushable body."
+msgstr "`contact` 碰撞模式使用的质量（千克）；它与 `friction` 一起给出地面摩擦力，决定机器人能推动什么，`inf` 则永不移动。为没有运动学的对象设置有限质量，会使其成为可被推动的物体。"
+
+#: ../../source/yaml_config/configuration.md:785
+msgid "`friction`"
+msgstr "`friction`"
+
+#: ../../source/yaml_config/configuration.md:785
+msgid "`0.5`"
+msgstr "`0.5`"
+
+#: ../../source/yaml_config/configuration.md:785
+msgid "Ground friction coefficient for the `contact` collision mode: slows a released body to a stop and, with `mass`, decides whether a robot can push it and whether it slides along a wall."
+msgstr "`contact` 碰撞模式使用的地面摩擦系数：让松开的物体减速停下，并与 `mass` 一起决定机器人能否推动它、它能否沿墙滑动。"
+
+#: ../../source/yaml_config/configuration.md:786
+msgid "`inertia`"
+msgstr "`inertia`"
+
+#: ../../source/yaml_config/configuration.md:786
+msgid "from shape and mass"
+msgstr "由形状和质量计算"
+
+#: ../../source/yaml_config/configuration.md:786
+msgid "Moment of inertia about the center of mass in kg·m² for the `contact` collision mode, from the shape and mass unless set; an off-center push turns a pushable body through it."
+msgstr "`contact` 碰撞模式使用的绕质心转动惯量（kg·m²），未设置时由形状和质量计算；偏心的推力通过它使可推动物体转动。"
+
+#: ../../source/yaml_config/configuration.md:787
+msgid "`restitution`"
+msgstr "`restitution`"
+
+#: ../../source/yaml_config/configuration.md:787
+msgid "Bounciness of the material for the `contact` collision mode, `0` (no bounce) to `1` (elastic); only passive bodies bounce."
+msgstr "`contact` 碰撞模式使用的材料弹性，从 `0`（不反弹）到 `1`（弹性）；只有被动物体会反弹。"
+
+#: ../../source/yaml_config/configuration.md:1282
+msgid "**`mass`** (`float`, default: `1.0` with kinematics, `inf` without)"
+msgstr "**`mass`**（`float`，默认：有运动学时为 `1.0`，否则为 `inf`）"
+
+#: ../../source/yaml_config/configuration.md:1283
+msgid "Mass in kilograms, used by the [`contact`](#p-w-collision-mode) collision mode. With [`friction`](#p-o-friction) it gives the object's ground friction force `friction * mass * gravity`: a robot pushes a body while its own value is at least that of the body and everything it pushes ahead, so with equal materials it pushes up to its own mass in boxes and stalls against more, and two passive bodies that collide share the overlap in inverse proportion to their masses, as in an inelastic collision. An object with `inf` mass never moves. Objects without kinematics are immovable by default; giving one a finite mass turns it into a pushable body that does not move on its own. A list gives each object of a `number` group its own mass. Such a body is drawn in orange (`#E69F00`, colour-blind safe and distinct from black in grayscale print) unless `color` is set; objects with kinematics keep their usual color. Static objects ignore their mass. In other collision modes the value is unused, but an obstacle given a mass is still stepped and redrawn as a pushable body."
+msgstr "质量（千克），由 [`contact`](#p-w-collision-mode) 碰撞模式使用。质量与 [`friction`](#p-o-friction) 一起给出对象的地面摩擦力 `friction * mass * gravity`：机器人只有在自身的值不小于该物体及其前方所推动的一切物体之和时才能推动它，因此材料相同时能推动总计不超过自身质量的箱子，超过则停滞；两个被动物体相撞时按质量倒数比例分摊重叠量，如同非弹性碰撞。质量为 `inf` 的对象永不移动。没有运动学的对象默认不可移动；为其设置有限质量后，它会成为可被推动但不会自行移动的物体。在 `number` 分组中给出列表可为每个对象单独指定质量。这类物体在未设置 `color` 时以橙色（`#E69F00`，色盲友好，且在灰度打印时仍与黑色区分明显）绘制；有运动学的对象保持原有颜色。静态对象忽略质量。在其他碰撞模式下该值不会被使用，但设置了质量的障碍物仍会作为可推动物体被推进和重绘。"
+
+#: ../../source/yaml_config/configuration.md:1300
+msgid "**`friction`** (`float`, default: the world's `friction`, `0.5`)"
+msgstr "**`friction`**（`float`，默认：世界的 `friction`，即 `0.5`）"
+
+#: ../../source/yaml_config/configuration.md:1300
+msgid "Coulomb friction coefficient with the ground, used by the [`contact`](#p-w-collision-mode) collision mode; the default is the material value physics engines such as PhysX use. A released body decelerates by `friction * gravity`, 9.81 m/s² by default, until it stops, about 5 cm from 1 m/s, and `0` lets it slide forever. With [`mass`](#p-o-mass) it decides whether a robot can push a body, and for a robot it also caps how fast the wheels can change its speed, `friction * gravity` per second, so a robot with `0` cannot move. A body pressed against a wall slides along it only when the push leaves the friction cone of the two surfaces (their mean coefficient); a robot always slides. A list gives each object of a `number` group its own coefficient."
+msgstr "与地面的库仑摩擦系数，由 [`contact`](#p-w-collision-mode) 碰撞模式使用；默认值即 PhysX 等物理引擎使用的材料值。松开的物体以 `friction * gravity`（默认 9.81 m/s²）减速直到停下，从 1 m/s 开始约滑行 5 cm，`0` 则让它一直滑行。它与 [`mass`](#p-o-mass) 一起决定机器人能否推动某个物体；对机器人而言，它还限制轮子改变速度的快慢，每秒最多 `friction * gravity`，因此 `0` 的机器人无法移动。压在墙上的物体只有当推力离开两表面的摩擦锥（取二者系数的平均值）时才沿墙滑动；机器人总能滑动。在 `number` 分组中给出列表可为每个对象单独指定系数。"
+
+#: ../../source/yaml_config/configuration.md:1316
+msgid "**`inertia`** (`float`, default: from the shape and mass)"
+msgstr "**`inertia`**（`float`，默认：由形状和质量计算）"
+
+#: ../../source/yaml_config/configuration.md:1316
+msgid "Moment of inertia about the object's center of mass, the centroid of its shape, in kg·m², used by the [`contact`](#p-w-collision-mode) collision mode to turn a pushable body when a push misses its center: the contact point and normal give a torque that this value resists, as in a physics engine. Unless set it is computed from the shape and [`mass`](#p-o-mass): `m r² / 2` for a circle, `m (l² + w²) / 12` for a rectangle, and the exact polar moment of the area for a polygon; other shapes use a disc of the bounding radius. A robot keeps its heading while it pushes; stopped by a wall or a load it cannot move, an off-center contact deflects it. A spinning body slows under [`friction`](#p-o-friction) like a sliding one. A list gives each object of a `number` group its own value."
+msgstr "绕对象质心（其形状的形心）的转动惯量（kg·m²），由 [`contact`](#p-w-collision-mode) 碰撞模式使用：当推力没有对准可推动物体的中心时，接触点和法线给出一个力矩，由该值抵抗，使物体转动，如同物理引擎中那样。未设置时由形状和 [`mass`](#p-o-mass) 计算：圆为 `m r² / 2`，矩形为 `m (l² + w²) / 12`，多边形为其面积的精确极惯性矩；其他形状按包围半径的圆盘计算。机器人在推动时保持朝向；被墙或推不动的负载挡住时，偏心的接触会使它偏转。旋转的物体像滑动的物体一样在 [`friction`](#p-o-friction) 下减速。在 `number` 分组中给出列表可为每个对象单独指定该值。"
+
+#: ../../source/yaml_config/configuration.md:1334
+msgid "**`restitution`** (`float`, default: the world's `restitution`, `0`)"
+msgstr "**`restitution`**（`float`，默认：世界的 `restitution`，即 `0`）"
+
+#: ../../source/yaml_config/configuration.md:1334
+msgid "Bounciness of the object's material, used by the [`contact`](#p-w-collision-mode) collision mode: `0` is a perfectly inelastic contact, the default material of physics engines such as Isaac Lab, and `1` an elastic one. Two bodies that collide separate at the mean of their two values times their approach speed, on top of being pushed apart. Only passive bodies bounce, since a robot's drive re-asserts its velocity every step, and only off a contact that could move them, so a box a robot cannot push is not hammered forward. A list gives each object of a `number` group its own value."
+msgstr "对象材料的弹性，由 [`contact`](#p-w-collision-mode) 碰撞模式使用：`0` 为完全非弹性接触，即 Isaac Lab 等物理引擎的默认材料，`1` 为弹性接触。两个物体相撞后，除被推开外，还会以二者取平均的恢复系数乘以接近速度分离。只有被动物体会反弹，因为机器人的驱动每一步都会重新施加它的速度；而且只在能推动它的接触上反弹，因此机器人推不动的箱子不会被反复撞击而向前挪动。在 `number` 分组中给出列表可为每个对象单独指定该值。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`contact2d`: Contact sensor for the [`contact`](#p-w-collision-mode) collision mode. Every object has one built in as `obj.contact`, written by the contact solver, so `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports`, `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended` are always available; listing it here draws a marker at each contact point and a line along the contact normal scaled by the contact force. It has no functional parameters. Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are also accepted):"
+msgstr "`contact2d`：用于 [`contact`](#p-w-collision-mode) 碰撞模式的接触传感器。每个对象都内置一个 `obj.contact`，由接触求解器写入，因此 `obj.contact.in_contact`、`obj.contact.partners`、`obj.contact.reports`、`obj.contact.force`、`obj.contact.contact_time`、`obj.contact.air_time`、`obj.contact.started` 和 `obj.contact.ended` 始终可用；在此列出它会在每个接触点画一个标记，并沿接触法线画一条按接触力缩放的线。它没有功能参数。可视化选项放在传感器的 **`plot:`** 子字典下（也接受顶层平铺键）："
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`force_scale` (float/`0.05`): Length of the force line per newton, in meters."
+msgstr "`force_scale`（float/`0.05`）：每牛顿力线的长度，单位为米。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`marker_size` (float/`6`): Size of the contact point markers."
+msgstr "`marker_size`（float/`6`）：接触点标记的大小。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`linewidth` (float/`1.5`): Width of the force lines."
+msgstr "`linewidth`（float/`1.5`）：力线的线宽。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`alpha` (float/`0.9`): Transparency of the drawing."
+msgstr "`alpha`（float/`0.9`）：绘制的透明度。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`color` (str/`\"#CC79A7\"`): Color of the markers and lines."
+msgstr "`color`（str/`\"#CC79A7\"`）：标记和线的颜色。"

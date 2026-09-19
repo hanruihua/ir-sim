@@ -57,8 +57,8 @@ msgid "Sensors"
 msgstr "传感器"
 
 #: ../../source/usage/index.rst:35
-msgid "Attach 2D LiDAR, FMCW LiDAR, and field-of-view detectors."
-msgstr "挂载 2D 激光雷达、FMCW 激光雷达与视场（FOV）检测器。"
+msgid "Attach 2D LiDAR, FMCW LiDAR, contact sensors, and field-of-view detectors."
+msgstr "挂载 2D 激光雷达、FMCW 激光雷达、接触传感器与视场（FOV）检测器。"
 
 #: ../../source/usage/index.rst:37
 msgid "Behaviors"

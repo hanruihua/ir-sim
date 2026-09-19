@@ -181,8 +181,8 @@ msgid "**Sensors**"
 msgstr "**传感器**"
 
 #: ../../source/index.rst:169
-msgid "2D LiDAR · 2D FMCW LiDAR · FOV detector"
-msgstr "2D 激光雷达 · 2D FMCW 激光雷达 · 视场（FOV）检测器"
+msgid "2D LiDAR · 2D FMCW LiDAR · Contact sensor · FOV detector"
+msgstr "2D 激光雷达 · 2D FMCW 激光雷达 · 接触传感器 · 视场（FOV）检测器"
 
 #: ../../source/index.rst:170
 msgid "**Geometries**"

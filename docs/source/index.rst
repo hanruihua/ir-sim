@@ -166,7 +166,7 @@ Capabilities
    * - **Kinematics**
      - Differential drive · Omnidirectional · Omnidirectional (angular) · Ackermann steering
    * - **Sensors**
-     - 2D LiDAR · 2D FMCW LiDAR · FOV detector
+     - 2D LiDAR · 2D FMCW LiDAR · Contact sensor · FOV detector
    * - **Geometries**
      - Circle · Rectangle · Polygon · LineString · Binary grid map
    * - **Behaviors**

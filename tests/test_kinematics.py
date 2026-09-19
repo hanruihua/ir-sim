@@ -15,6 +15,7 @@ from irsim.lib.handler.kinematics_handler import (
     KinematicsHandler,
     OmniAngularKinematics,
     OmniKinematics,
+    PassiveKinematics,
     _kinematics_registry,
     register_kinematics,
 )
@@ -241,7 +242,7 @@ class TestKinematicsRegistry:
         assert handler.name == "diff"
 
         static_handler = KinematicsFactory.create_kinematics(name="static")
-        assert isinstance(static_handler, DifferentialKinematics)
+        assert isinstance(static_handler, PassiveKinematics)
         assert static_handler.name == "static"
 
         with pytest.raises(NotImplementedError, match="not registered"):
@@ -543,13 +544,19 @@ class TestKinematicsParameters:
     """Extra ``kinematics`` keys reach the handler's constructor."""
 
     def test_extra_parameters_are_forwarded(self, kinematics_registry):
-        @register_kinematics("test_lag")
-        class LagKinematics(DifferentialKinematics):
-            def __init__(self, name, noise=False, alpha=None, tau=0.3):
+        @register_kinematics("test_slip")
+        class SlipKinematics(DifferentialKinematics):
+            def __init__(self, name, noise=False, alpha=None, ratio=0.8):
                 super().__init__(name, noise, alpha)
-                self.tau = tau
+                self.ratio = ratio
 
-        assert KinematicsFactory.create_kinematics(name="test_lag", tau=0.5).tau == 0.5
+        assert (
+            KinematicsFactory.create_kinematics(name="test_slip", ratio=0.5).ratio
+            == 0.5
+        )
+        # ``tau`` is a built-in key of every model (the contact-mode drive lag)
+        assert KinematicsFactory.create_kinematics(name="diff", tau=0.5).tau == 0.5
+        assert KinematicsFactory.create_kinematics(name="diff").tau is None
         acker = KinematicsFactory.create_kinematics(
             name="acker", mode="angular", wheelbase=2.0
         )
@@ -559,8 +566,8 @@ class TestKinematicsParameters:
             "acker", False, None, "angular", 2.0, "robot"
         )
         assert (positional.mode, positional.wheelbase) == ("angular", 2.0)
-        with pytest.raises(TypeError, match="tau"):
-            KinematicsFactory.create_kinematics(name="diff", tau=0.5)
+        with pytest.raises(TypeError, match="ratio"):
+            KinematicsFactory.create_kinematics(name="diff", ratio=0.5)
 
         # a shape's wheelbase only concerns Ackermann handlers, and a YAML
         # ``wheelbase`` under ``kinematics`` overrides it
@@ -608,7 +615,7 @@ class TestKinematicsParameters:
         from irsim.world.object_base import ObjectBase
 
         robot = ObjectBase(
-            kinematics={"name": "test_lag", "tau": 0.5},
+            kinematics={"name": "test_slip", "ratio": 0.5},
             shape={"name": "circle", "radius": 0.2},
         )
-        assert robot.kf.tau == 0.5
+        assert robot.kf.ratio == 0.5

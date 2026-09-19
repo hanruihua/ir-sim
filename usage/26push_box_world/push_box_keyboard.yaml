@@ -1,0 +1,68 @@
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  sample_time: 0.1
+  collision_mode: 'contact'
+  control_mode: 'keyboard'
+  restitution: 0.0  # default
+  friction: 0.5 # default
+  gravity: 9.81 # default
+  drive_tau: 0.0  # default  lag of drive response to command
+
+# Drive the robot with the keyboard (w/s forward, a/d turn) and shove the
+# boxes around. Boxes have a finite mass and can be pushed; the border and
+# the pillar have none and stop the robot, which slides along them. The 2 kg
+# box is too heavy for a 1 kg robot with the default friction 0.5: give the
+# robot more mass or friction to move it. Hit a box off-center to spin it.
+robot:
+  - kinematics: {name: 'diff'}
+    # shape: {name: 'circle', radius: 0.3}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state: [2, 2, 0.5]
+    vel_max: [1.0, 2.0]
+    
+    sensors:
+      - name: 'lidar2d'
+        range_min: 0
+        range_max: 5
+        angle_range: 3.14 #  4.7123
+        number: 200
+        noise: False
+        std: 0.2
+        angle_std: 0.2
+        offset: [0.1, 0.1, 0.5]
+        plot:
+          alpha: 0.3
+            
+    plot:
+      show_text: true
+
+obstacle:
+  - number: 4
+    distribution: {name: 'manual'}
+    shape: {name: 'rectangle', length: 0.8, width: 0.8}
+    state:
+      - [4, 4, 0]
+      - [7, 3, 0.4]
+      - [5, 8, 0]
+      - [9, 9, 1.0]
+    mass: [0.3, 1.0, 2.0, 0.5] # kg
+    plot:
+      show_text: true
+
+  - shape: {name: 'circle', radius: 0.6}          
+    state: [7, 6.5, 0]
+    mass: 1.0
+    plot:
+      show_text: true
+    
+
+  - shape: {name: 'circle', radius: 0.6}          # immovable pillar
+    state: [5, 2.5, 0]
+    plot:
+      show_text: true
+
+  - shape: {name: 'linestring', vertices: [[0.5, 0.5], [11.5, 0.5], [11.5, 11.5], [0.5, 11.5], [0.5, 0.5]]}
+    state: [0, 0, 0]
+
