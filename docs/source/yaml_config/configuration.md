@@ -266,12 +266,13 @@ In a combined configuration for multiple simulators, these keys may be nested un
   </div>
   </details>
   <details>
-  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">lidar2d or fmcw_lidar2d</span></summary>
+  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">lidar2d, fmcw_lidar2d or contact2d</span></summary>
   <div class="yt-body">
     <div class="yt-utabs">
       <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-lidar2d" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-fmcw">
-      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-sen-lidar2d">lidar2d</label><label for="yt-v-sen-fmcw">fmcw_lidar2d</label></span></div>
+      <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-contact">
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-sen-lidar2d">lidar2d</label><label for="yt-v-sen-fmcw">fmcw_lidar2d</label><label for="yt-v-sen-contact">contact2d</label></span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_min</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_range</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">pi</span></div>
@@ -314,6 +315,19 @@ In a combined configuration for multiple simulators, these keys may be nested un
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">positive_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC3311"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">negative_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#0072B2"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightgray"</span></div>
+          </div>
+          </details>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf yt-uvar-note"><span class="yt-desc">no beam parameters, the shared keys above do not apply. Built into every object; listing it draws the contact points and force lines.</span></div>
+          <details>
+          <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">contact visualization · flat keys also accepted</span></summary>
+          <div class="yt-body">
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">force_scale</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.05</span><span class="yt-desc">force line length per newton (m)</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">marker_size</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">6</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.5</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.9</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC79A7"</span></div>
           </div>
           </details>
         </div>
@@ -814,7 +828,7 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `acce`           | `list` of `float`                                | `[inf] * action_dim` | Acceleration limits. Length matches the kinematics action dimension.                                               |
 | `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                                            |
 | `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                                                      |
-| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`, `fmcw_lidar2d`                     |
+| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`, `fmcw_lidar2d`, `contact2d`                     |
 | `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                                                        |
 | `description`    | `str`                                            | `None`           | Image description or label for the object.                                                                         |
 | `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.                                      |
@@ -1376,6 +1390,7 @@ env.step(env.robot.vel_world2body(world_vel))
 :class-card: sd-bg-light sd-rounded-3
 - **`lidar2d`**: 2D laser scanner (`range_min/max`, `angle_range`, `noise`)
 - **`fmcw_lidar2d`**: 2D FMCW LiDAR (`range/radial_velocity`, `motion_compensate`, Doppler visualization)
+- **`contact2d`**: Contact sensor of the `contact` collision mode (contact points and forces, `force_scale` visualization)
 - **`fov`**: Field of view angle (radians)
 - **`fov_radius`**: Maximum detection distance
 ```
@@ -1450,6 +1465,21 @@ env.step(env.robot.vel_world2body(world_vel))
           velocity_color: True
           velocity_linewidth: 2.0
           velocity_marker_size: 45
+    ```
+
+  - `contact2d`: Contact sensor for the [`contact`](#p-w-collision-mode) collision mode. Every object has one built in as `obj.contact`, written by the contact solver, so `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports`, `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended` are always available; listing it here draws a marker at each contact point and a line along the contact normal scaled by the contact force. It has no functional parameters. Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are also accepted):
+    - `force_scale` (float/`0.05`): Length of the force line per newton, in meters.
+    - `marker_size` (float/`6`): Size of the contact point markers.
+    - `linewidth` (float/`1.5`): Width of the force lines.
+    - `alpha` (float/`0.9`): Transparency of the drawing.
+    - `color` (str/`"#CC79A7"`): Color of the markers and lines.
+
+    **Example:**
+    ```yaml
+    sensors:
+      - type: 'contact2d'
+        plot:
+          force_scale: 0.05
     ```
 
 (p-o-fov)=

@@ -6,8 +6,8 @@ world:
   collision_mode: 'contact'
   control_mode: 'keyboard'
   restitution: 0.0  # default
-  friction: 0.5 # # default
-  gravity: 9.81
+  friction: 0.5 # default
+  gravity: 9.81 # default
   drive_tau: 0.0  # default  lag of drive response to command
 
 # Drive the robot with the keyboard (w/s forward, a/d turn) and shove the
@@ -34,7 +34,7 @@ robot:
         offset: [0.1, 0.1, 0.5]
         plot:
           alpha: 0.3
-    
+            
     plot:
       show_text: true
 
@@ -47,11 +47,11 @@ obstacle:
       - [7, 3, 0.4]
       - [5, 8, 0]
       - [9, 9, 1.0]
-    mass: [0.3, 1.0, 2.0, 0.5]
+    mass: [0.3, 1.0, 2.0, 0.5] # kg
     plot:
       show_text: true
 
-  - shape: {name: 'circle', radius: 0.6}          # immovable pillar
+  - shape: {name: 'circle', radius: 0.6}          
     state: [7, 6.5, 0]
     mass: 1.0
     plot:

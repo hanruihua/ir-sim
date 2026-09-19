@@ -419,18 +419,15 @@ class ContactState(Message):
     force: float = 0.0
 
     @classmethod
-    def from_contact(cls, contact: Any, obj: Any) -> ContactState:
-        """Describe ``contact`` from ``obj``'s side."""
-        other = contact.b if contact.a is obj else contact.a
-        normal = contact.normal if contact.a is obj else -contact.normal
-        point = contact.point if contact.point is not None else np.zeros(2)
+    def from_report(cls, report: Any) -> ContactState:
+        """Serialize an object's :class:`~irsim.lib.algorithm.contact.ContactReport`."""
         return cls(
-            other_id=int(other.id),
-            other=str(other.name),
-            point=Point(x=float(point[0]), y=float(point[1])),
-            normal=Vector3(x=float(normal[0]), y=float(normal[1])),
-            depth=float(contact.depth),
-            force=float(contact.force),
+            other_id=int(report.other.id),
+            other=str(report.other.name),
+            point=Point(x=float(report.point[0]), y=float(report.point[1])),
+            normal=Vector3(x=float(report.normal[0]), y=float(report.normal[1])),
+            depth=float(report.depth),
+            force=float(report.force),
         )
 
 
@@ -510,11 +507,11 @@ class ObjectState(Message):
             collision_ids=[int(other.id) for other in obj.collision_obj],
             scans=scans,
             contact_force=Vector3(
-                x=float(obj.contact_force[0, 0]), y=float(obj.contact_force[1, 0])
+                x=float(obj.contact.force[0, 0]), y=float(obj.contact.force[1, 0])
             ),
-            contact_time=float(obj.contact_time),
-            air_time=float(obj.air_time),
-            contacts=[ContactState.from_contact(c, obj) for c in obj.contacts],
+            contact_time=float(obj.contact.contact_time),
+            air_time=float(obj.contact.air_time),
+            contacts=[ContactState.from_report(r) for r in obj.contact.reports],
         )
 
     @property

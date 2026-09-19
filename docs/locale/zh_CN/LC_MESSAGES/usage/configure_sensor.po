@@ -23,17 +23,8 @@ msgid "Configure Sensors for the robot"
 msgstr "为机器人配置传感器"
 
 #: ../../source/usage/configure_sensor.md:3
-msgid ""
-"Robots can carry sensors for environment perception. IR-SIM provides a 2D "
-"LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-"
-"beam radial velocity), plus an optional field-of-view (FOV) region; all are "
-"attached per object in the YAML file. This page shows how to configure them "
-"and tune noise."
-msgstr ""
-"机器人可以携带传感器进行环境感知。IR-SIM 提供 2D 激光雷达（`lidar2d`）以及简"
-"化的 2D FMCW 激光雷达（`fmcw_lidar2d`，每条光束附带径向速度），以及可选的视场"
-"（FOV）区域；它们都在 YAML 文件中按对象进行配置。本页展示如何配置它们并调节噪"
-"声。"
+msgid "Robots can carry sensors for environment perception. IR-SIM provides a 2D LiDAR (`lidar2d`), a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-beam radial velocity) and a contact sensor (`contact2d`, for the `contact` collision mode), plus an optional field-of-view (FOV) region; all are attached per object in the YAML file. This page shows how to configure them and tune noise."
+msgstr "机器人可以携带传感器进行环境感知。IR-SIM 提供 2D 激光雷达（`lidar2d`）、简化的 2D FMCW 激光雷达（`fmcw_lidar2d`，每条光束附带径向速度）和接触传感器（`contact2d`，用于 `contact` 碰撞模式），以及可选的视场（FOV）区域；它们都在 YAML 文件中按对象进行配置。本页展示如何配置它们并调节噪声。"
 
 #: ../../source/usage/configure_sensor.md:5
 msgid "LiDAR Configuration Parameters"
@@ -247,3 +238,39 @@ msgstr ""
 "下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 "
 "`fov`（角度）与 `fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 "
 "`fov_detect_object()` 检测视场内的机器人。"
+
+#: ../../source/usage/configure_sensor.md:352
+msgid "Contact Sensor Configuration Parameters"
+msgstr "接触传感器配置参数"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "In `collision_mode: 'contact'` every object carries a built-in contact sensor, `obj.contact`, written by the contact solver each step, so its readings are always available: `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports` (one report per contact with `other`, `point`, `normal`, `depth` and `force`), `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended`. The *Physical Properties and Contact Mode* section of [Configure Robots and Obstacles](configure_robots_obstacles.md) explains what the contact model computes."
+msgstr "在 `collision_mode: 'contact'` 下，每个对象都自带一个接触传感器 `obj.contact`，由接触求解器每步写入，因此其读数始终可用：`obj.contact.in_contact`、`obj.contact.partners`、`obj.contact.reports`（每个接触一条报告，含 `other`、`point`、`normal`、`depth` 和 `force`）、`obj.contact.force`、`obj.contact.contact_time`、`obj.contact.air_time`、`obj.contact.started` 和 `obj.contact.ended`。接触模型的计算内容见[配置机器人和障碍物](configure_robots_obstacles.md)中的 *Physical Properties and Contact Mode* 一节。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "Listing the sensor under `sensors` as `type: 'contact2d'` also draws it, as the contact sensor visualizer of Isaac Sim does: a marker at each contact point and a line along the contact normal whose length is the contact force times `force_scale`. The sensor has no functional parameters; the visualization options go under its `plot:` sub-dict:"
+msgstr "在 `sensors` 下以 `type: 'contact2d'` 列出该传感器还会将其绘制出来，如同 Isaac Sim 的接触传感器可视化：在每个接触点画一个标记，并沿接触法线画一条线，其长度为接触力乘以 `force_scale`。该传感器没有功能参数；可视化选项放在它的 `plot:` 子字典下："
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "**force_scale** (float, default `0.05`): Length of the force line per newton, in meters."
+msgstr "**force_scale**（float，默认 `0.05`）：每牛顿力线的长度，单位为米。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "**marker_size** (float, default `6`): Size of the contact point markers."
+msgstr "**marker_size**（float，默认 `6`）：接触点标记的大小。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "**linewidth** (float, default `1.5`): Width of the force lines."
+msgstr "**linewidth**（float，默认 `1.5`）：力线的线宽。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "**alpha** (float, default `0.9`): Transparency of the drawing."
+msgstr "**alpha**（float，默认 `0.9`）：绘制的透明度。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "**color** (str, default the palette `marker` color): Color of the markers and lines."
+msgstr "**color**（str，默认调色板的 `marker` 颜色）：标记和线的颜色。"
+
+#: ../../source/usage/configure_sensor.md:354
+msgid "The complete runnable example is available under `usage/26push_box_world/`."
+msgstr "完整可运行示例位于 `usage/26push_box_world/`。"

@@ -1077,6 +1077,7 @@ def check_number(
     strict_low: bool = False,
     allow_inf: bool = False,
     context: str | None = None,
+    default: Any = None,
 ) -> float:
     """
     Convert a configured value to a float and check that it lies in a range.
@@ -1086,21 +1087,26 @@ def check_number(
     may be numbers or numeric strings such as ``'inf'``.
 
     Args:
-        value: The configured value.
+        value: The configured value, or ``None`` for the default.
         name (str): Parameter name for the error message.
         low (float): Smallest allowed value, inclusive unless ``strict_low``.
         high (float): Largest allowed value, inclusive.
         strict_low (bool): Require the value to be greater than ``low``.
         allow_inf (bool): Accept ``inf``, e.g. for an immovable mass.
         context (str): Whose value it is, prefixed to the error message.
+        default: What a ``None`` value means: a number, or a callable that
+            computes it (e.g. an inertia derived from the shape). It is
+            returned as is, without the range check.
 
     Returns:
-        float: The validated value.
+        float: The validated value, or the default.
 
     Raises:
         ValueError: If the value is not a number, is NaN, is infinite while
             ``allow_inf`` is False, or lies outside the range.
     """
+    if value is None:
+        return float(default() if callable(default) else default)
     prefix = f"{context}: " if context else ""
     try:
         number = float(value)

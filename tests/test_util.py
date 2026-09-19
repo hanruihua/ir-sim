@@ -102,6 +102,10 @@ def test_check_number():
             util.check_number(bad, "thing", **kwargs)
     with pytest.raises(ValueError, match="world: gravity must be greater than 0"):
         util.check_number(0, "gravity", low=0, strict_low=True, context="world")
+    # None means the default, given as a value or computed on demand
+    assert util.check_number(None, "mass", low=0, default=float("inf")) == float("inf")
+    assert util.check_number(None, "friction", low=0, default=lambda: 0.5) == 0.5
+    assert util.check_number("2", "friction", low=0, default=0.5) == 2.0
 
 
 def test_check_choice():

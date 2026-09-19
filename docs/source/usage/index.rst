@@ -32,7 +32,7 @@ Practical, task-focused guides for building and running IR-SIM scenarios. Browse
         :text-align: center
         :shadow: md
 
-        Attach 2D LiDAR, FMCW LiDAR, and field-of-view detectors.
+        Attach 2D LiDAR, FMCW LiDAR, contact sensors, and field-of-view detectors.
 
     .. grid-item-card:: Behaviors
         :img-top: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/rvo.gif

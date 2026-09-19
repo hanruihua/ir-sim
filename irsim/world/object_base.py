@@ -28,6 +28,7 @@ from irsim.util.util import (
     vertices_transform,
 )
 from irsim.world.object_plot import ObjectPlot
+from irsim.world.sensors.contact2d import Contact2D
 from irsim.world.sensors.sensor_factory import SensorFactory
 
 
@@ -178,7 +179,7 @@ class ObjectBase:
         goal_threshold (float): Threshold distance to determine if the object has reached its goal.
             When the object is within this distance to the goal, it's considered to have arrived. Defaults to 0.1.
         sensors (list of dict): List of sensor configurations attached to the object.
-            Each sensor configuration is a dictionary specifying sensor type and parameters. Defaults to None.
+            Each sensor configuration is a dictionary specifying sensor type (``lidar2d``, ``fmcw_lidar2d`` or ``contact2d``) and parameters. Defaults to None.
         arrive_mode (str): Mode for arrival detection, either "position" or "state".
             Determines how arrival at the goal is evaluated. Defaults to "position".
         description (str): Description or label for the object.
@@ -342,10 +343,41 @@ class ObjectBase:
 
         # --- 2-4. Handlers, and the dimensions and limits derived from them ---
         self._init_handlers(shape, kinematics, role)
-        self.mass = self._resolve_mass(mass, static)
-        self.friction = self._resolve_friction(friction)
-        self.inertia = self._resolve_inertia(inertia)
-        self.restitution = self._resolve_restitution(restitution)
+        # the physical properties: a configured value is range-checked, a
+        # missing one falls back to the model's, the world's, or the shape's
+        self.mass = check_number(
+            mass,
+            "mass",
+            low=0.0,
+            strict_low=True,
+            allow_inf=True,
+            context=self.name,
+            default=float("inf") if static else self.kf.default_mass,
+        )
+        self.friction = check_number(
+            friction,
+            "friction",
+            low=0.0,
+            context=self.name,
+            default=lambda: self._world_param.friction,
+        )
+        self.inertia = check_number(
+            inertia,
+            "inertia",
+            low=0.0,
+            strict_low=True,
+            allow_inf=True,
+            context=self.name,
+            default=self._default_inertia,
+        )
+        self.restitution = check_number(
+            restitution,
+            "restitution",
+            low=0.0,
+            high=1.0,
+            context=self.name,
+            default=lambda: self._world_param.restitution,
+        )
         action_dim = self._init_dimensions(state_dim, vel_dim)
         acce, vel_max, vel_min, angle_range = self._resolve_limits(
             acce, vel_max, vel_min, angle_range
@@ -539,6 +571,7 @@ class ObjectBase:
         """Create the configured sensors and the field of view they imply."""
         sf = SensorFactory()
         self.lidar = None
+        self.sensors = []
         if sensors is not None:
             self.sensors = [
                 sf.create_sensor(self._state[0:3], self._id, **sensor_kwargs)
@@ -555,8 +588,24 @@ class ObjectBase:
                 ),
                 None,
             )
-        else:
-            self.sensors = []
+
+        # every object has a contact sensor (``collision_mode: contact`` only),
+        # held like ``lidar``: the environment and the contact solver write
+        # it, users read ``obj.contact.in_contact``, ``partners``, ``reports``,
+        # ``force``, ``contact_time``, ``air_time``, ``started`` and ``ended``;
+        # one listed under ``sensors`` as ``type: 'contact2d'`` is also drawn
+        listed = [s for s in self.sensors if s.sensor_type == "contact2d"]
+        if len(listed) > 1:
+            self.logger.warning(
+                f"Object {self.id}: {len(listed)} 'contact2d' sensors listed; only "
+                "the first one records contacts, the others stay empty."
+            )
+        self.contact: Contact2D = (
+            listed[0]
+            if listed
+            else sf.create_sensor(self._state[0:3], self._id, type="contact2d")
+        )
+        self.contact.parent = self
 
         if fov is None:
             self.fov = self.lidar.angle_range if self.lidar is not None else None
@@ -592,13 +641,6 @@ class ObjectBase:
         self.stop_flag = False
         self.arrive_flag = False
         self.collision_flag = False
-        self.contact_flag = False
-        self.contact_obj: list[ObjectBase] = []
-        self._contact_force = np.zeros((2, 1))
-        self._contacts: list[Any] = []
-        # how long the object has been touching something, or been free, in s
-        self.contact_time = 0.0
-        self.air_time = 0.0
         self.unobstructed = unobstructed
 
         self.plot_kwargs = kwargs.get("plot", {})
@@ -1189,77 +1231,22 @@ class ObjectBase:
             out[row, 0] += angular
         return out
 
-    def add_contact_velocity(self, delta_xy: list | np.ndarray) -> None:
-        """Add a world-frame velocity change from a contact, e.g. a bounce."""
+    def apply_contact_velocity(self, delta_xy: list | np.ndarray) -> None:
+        """
+        Add a world-frame velocity change from a contact, such as a bounce.
+
+        The companion of :meth:`apply_contact_displacement` for a change that
+        moves nothing this step: the ``contact`` collision mode uses it for
+        restitution. The change is expressed in the object's own command
+        frame by its kinematics before it is added.
+
+        Args:
+            delta_xy (list | np.ndarray): World-frame velocity change
+                ``[dvx, dvy]`` in meters per second.
+        """
         delta = np.asarray(delta_xy, dtype=float).reshape(2, 1)
         self._velocity = self._velocity + self._contact_velocity(delta)
         self._invalidate_reactive_cache()
-
-    def add_contact_force(self, force_xy: list | np.ndarray) -> None:
-        """Accumulate a world-frame contact force reported for this step."""
-        self._contact_force = self._contact_force + np.asarray(
-            force_xy, dtype=float
-        ).reshape(2, 1)
-
-    def clear_contact(self) -> None:
-        """Forget last step's contacts: flag, partners, records, and force."""
-        self.contact_flag = False
-        self.contact_obj = []
-        self._contacts = []
-        self._contact_force = np.zeros((2, 1))
-
-    def add_contact(self, contact: Any) -> None:
-        """Record a contact the solver resolved against this object."""
-        self.contact_flag = True
-        other = contact.b if contact.a is self else contact.a
-        if other not in self.contact_obj:
-            self.contact_obj.append(other)
-        self._contacts.append(contact)
-
-    def tick_contact_time(self, step_time: float) -> None:
-        """Advance ``contact_time`` or ``air_time`` by one step, as a contact
-        sensor does: one runs while the other is held at zero."""
-        if self.contact_flag:
-            self.contact_time += step_time
-            self.air_time = 0.0
-        else:
-            self.air_time += step_time
-            self.contact_time = 0.0
-
-    def _resolve_mass(self, mass: float | None, static: bool) -> float:
-        """Validate the configured mass, or pick the default for this object."""
-        if mass is None:
-            return float("inf") if static else self.kf.default_mass
-        return check_number(
-            mass, "mass", low=0.0, strict_low=True, allow_inf=True, context=self.name
-        )
-
-    def _resolve_friction(self, friction: float | None) -> float:
-        """Validate the configured friction coefficient, or use the world's."""
-        if friction is None:
-            return float(self._world_param.friction)
-        return check_number(friction, "friction", low=0.0, context=self.name)
-
-    def _resolve_inertia(self, inertia: float | None) -> float:
-        """Validate the configured moment of inertia, or derive it from the shape."""
-        if inertia is None:
-            return self._default_inertia()
-        return check_number(
-            inertia,
-            "inertia",
-            low=0.0,
-            strict_low=True,
-            allow_inf=True,
-            context=self.name,
-        )
-
-    def _resolve_restitution(self, restitution: float | None) -> float:
-        """Validate the configured restitution, or use the world's."""
-        if restitution is None:
-            return float(self._world_param.restitution)
-        return check_number(
-            restitution, "restitution", low=0.0, high=1.0, context=self.name
-        )
 
     def _default_inertia(self) -> float:
         """Moment of inertia of a uniform body of this shape about its position.
@@ -1633,9 +1620,7 @@ class ObjectBase:
         self._drive_velocity = self._init_velocity.astype(float)
 
         self.collision_flag = False
-        self.clear_contact()
-        self.contact_time = 0.0
-        self.air_time = 0.0
+        self.contact.reset()
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
@@ -2079,56 +2064,6 @@ class ObjectBase:
         """
 
         return self.collision_flag
-
-    @property
-    def contact(self) -> bool:
-        """
-        Whether a contact was resolved against this object in the last step
-        (``collision_mode: contact`` only).
-
-        Returns:
-            bool: The contact flag of the object.
-        """
-
-        return self.contact_flag
-
-    @property
-    def contact_force(self) -> np.ndarray:
-        """
-        Net contact force on the object in the last step, world frame
-        (``collision_mode: contact`` only).
-
-        It is the constraint impulse of the resolved contacts divided by the
-        squared step time, as XPBD estimates forces, capped for a driven
-        object pushing into the contact at its traction, the most its wheels
-        can transmit before they slip: a box pushed steadily reports the
-        ground friction it is overcoming, a robot stopped by a wall or a
-        load reports ``friction * mass * gravity``.
-
-        Returns:
-            np.ndarray: ``(2, 1)`` force ``[fx, fy]`` in newtons.
-        """
-
-        return self._contact_force
-
-    @property
-    def contacts(self) -> list[Any]:
-        """
-        The contacts resolved against this object in the last step
-        (``collision_mode: contact`` only), what a contact sensor reports.
-
-        Each :class:`~irsim.lib.algorithm.contact.Contact` carries the two
-        objects, the world-frame contact ``point``, the unit ``normal``
-        pointing from its ``b`` to its ``a``, the ``depth`` that was pushed
-        apart (zero or negative for a resting contact) and the ``force`` in
-        newtons. ``contact_time`` and ``air_time`` say for how many seconds
-        the object has been touching something, or free.
-
-        Returns:
-            list: The contact records, in the solver's order.
-        """
-
-        return list(self._contacts)
 
     @property
     def pushable(self) -> bool:

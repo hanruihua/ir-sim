@@ -239,6 +239,8 @@ Message types expose a stable logical `ros_type` hint, for example `robot.odom.r
 
 {py:class}`~irsim.msg.LaserScan` contains only the shared `sensor_msgs/LaserScan` data fields; when intensity data is unavailable, `intensities` is an empty array. Its angle metadata exactly reconstructs the simulated beam directions. Because IR-SIM evaluates all beams from one geometry snapshot, `time_increment` is zero; `scan_time` is the configured interval between scans. IR-SIM-specific measurements such as Cartesian target velocity, FMCW radial velocity, and validity remain available from `sensor.get_scan()` or `env.get_lidar_scan()`.
 
+In `collision_mode: 'contact'` each object state also carries the readings of its contact sensor: `contact_force`, one {py:class}`~irsim.msg.ContactState` per contact under `contacts` (partner, point, normal, depth and force), and `contact_time` / `air_time`.
+
 Odometry and scan messages use conventional `world`, `base_link`, and sensor frame names. A ROS bridge remains responsible for publishing the corresponding `/tf`, `/tf_static`, and `/clock` messages.
 
 Messages are point-in-time copies: later calls to `env.step()` or object setters do not mutate a message you already captured. The message classes are dependency-free and do not require ROS; a ROS bridge can map them to native ROS messages at its boundary.

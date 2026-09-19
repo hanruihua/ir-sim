@@ -1,6 +1,6 @@
 # Configure Sensors for the robot
 
-Robots can carry sensors for environment perception. IR-SIM provides a 2D LiDAR (`lidar2d`) and a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-beam radial velocity), plus an optional field-of-view (FOV) region; all are attached per object in the YAML file. This page shows how to configure them and tune noise.
+Robots can carry sensors for environment perception. IR-SIM provides a 2D LiDAR (`lidar2d`), a simplified 2D FMCW LiDAR (`fmcw_lidar2d`, with per-beam radial velocity) and a contact sensor (`contact2d`, for the `contact` collision mode), plus an optional field-of-view (FOV) region; all are attached per object in the YAML file. This page shows how to configure them and tune noise.
 
 ## LiDAR Configuration Parameters
 
@@ -345,6 +345,74 @@ The returned scan keeps the standard LiDAR angle metadata and adds:
 - **valid**: Whether the beam has a valid return within `range_max`.
 
 The complete runnable example is available under `usage/22fmcw_lidar_world/`.
+
+
+## Contact Sensor Configuration Parameters
+
+In `collision_mode: 'contact'` every object carries a built-in contact sensor, `obj.contact`, written by the contact solver each step, so its readings are always available: `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports` (one report per contact with `other`, `point`, `normal`, `depth` and `force`), `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended`. The *Physical Properties and Contact Mode* section of [Configure Robots and Obstacles](configure_robots_obstacles.md) explains what the contact model computes.
+
+Listing the sensor under `sensors` as `type: 'contact2d'` also draws it, as the contact sensor visualizer of Isaac Sim does: a marker at each contact point and a line along the contact normal whose length is the contact force times `force_scale`. The sensor has no functional parameters; the visualization options go under its `plot:` sub-dict:
+
+- **force_scale** (float, default `0.05`): Length of the force line per newton, in meters.
+- **marker_size** (float, default `6`): Size of the contact point markers.
+- **linewidth** (float, default `1.5`): Width of the force lines.
+- **alpha** (float, default `0.9`): Transparency of the drawing.
+- **color** (str, default the palette `marker` color): Color of the markers and lines.
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make("push_box_world.yaml")
+
+for _ in range(300):
+    env.step()
+    robot = env.robot
+    if robot.contact.started:
+        print(f"{robot.name} touches", ", ".join(str(c) for c in robot.contact.reports))
+    env.render()
+
+env.end()
+```
+
+:::
+
+:::{tab-item} YAML Configuration
+
+```yaml
+world:
+  height: 10
+  width: 10
+  step_time: 0.1
+  collision_mode: 'contact'
+
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.3}
+    state: [1, 5, 0]
+    goal: [9, 5, 0]
+    behavior: {name: 'dash'}
+    vel_max: [1.0, 1.0]
+    sensors:
+      - type: 'contact2d'
+        plot:
+          force_scale: 0.05
+          color: '#CC79A7'
+
+obstacle:
+  - shape: {name: 'rectangle', length: 0.8, width: 0.8}
+    state: [3, 5, 0]
+    mass: 1.0
+```
+
+:::
+
+::::
+
+The complete runnable example is available under `usage/26push_box_world/`.
 
 
 ## FOV Configuration Parameters

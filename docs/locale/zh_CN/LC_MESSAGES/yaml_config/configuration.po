@@ -1113,8 +1113,8 @@ msgstr "`dict` 列表"
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid ""
 "List of sensor configurations attached to the object. Support name: "
-"`lidar2d`, `fmcw_lidar2d`"
-msgstr "附加到该对象的传感器配置列表。支持的 name：`lidar2d`、`fmcw_lidar2d`"
+"`lidar2d`, `fmcw_lidar2d`, `contact2d`"
+msgstr "附加到该对象的传感器配置列表。支持的 name：`lidar2d`、`fmcw_lidar2d`、`contact2d`"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:721
 msgid "`arrive_mode`"
@@ -2004,6 +2004,10 @@ msgid ""
 msgstr ""
 "**`fmcw_lidar2d`** —— 2D FMCW "
 "激光雷达（`range/radial_velocity`、`motion_compensate`、多普勒可视化）"
+
+#: ../../source/yaml_config/configuration.md:1393
+msgid "**`contact2d`**: Contact sensor of the `contact` collision mode (contact points and forces, `force_scale` visualization)"
+msgstr "**`contact2d`** —— `contact` 碰撞模式的接触传感器（接触点与力，`force_scale` 可视化）"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1238
 msgid "**`fov`**: Field of view angle (radians)"
@@ -3205,3 +3209,27 @@ msgstr "**`restitution`**（`float`，默认：世界的 `restitution`，即 `0`
 #: ../../source/yaml_config/configuration.md:1334
 msgid "Bounciness of the object's material, used by the [`contact`](#p-w-collision-mode) collision mode: `0` is a perfectly inelastic contact, the default material of physics engines such as Isaac Lab, and `1` an elastic one. Two bodies that collide separate at the mean of their two values times their approach speed, on top of being pushed apart. Only passive bodies bounce, since a robot's drive re-asserts its velocity every step, and only off a contact that could move them, so a box a robot cannot push is not hammered forward. A list gives each object of a `number` group its own value."
 msgstr "对象材料的弹性，由 [`contact`](#p-w-collision-mode) 碰撞模式使用：`0` 为完全非弹性接触，即 Isaac Lab 等物理引擎的默认材料，`1` 为弹性接触。两个物体相撞后，除被推开外，还会以二者取平均的恢复系数乘以接近速度分离。只有被动物体会反弹，因为机器人的驱动每一步都会重新施加它的速度；而且只在能推动它的接触上反弹，因此机器人推不动的箱子不会被反复撞击而向前挪动。在 `number` 分组中给出列表可为每个对象单独指定该值。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`contact2d`: Contact sensor for the [`contact`](#p-w-collision-mode) collision mode. Every object has one built in as `obj.contact`, written by the contact solver, so `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports`, `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended` are always available; listing it here draws a marker at each contact point and a line along the contact normal scaled by the contact force. It has no functional parameters. Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are also accepted):"
+msgstr "`contact2d`：用于 [`contact`](#p-w-collision-mode) 碰撞模式的接触传感器。每个对象都内置一个 `obj.contact`，由接触求解器写入，因此 `obj.contact.in_contact`、`obj.contact.partners`、`obj.contact.reports`、`obj.contact.force`、`obj.contact.contact_time`、`obj.contact.air_time`、`obj.contact.started` 和 `obj.contact.ended` 始终可用；在此列出它会在每个接触点画一个标记，并沿接触法线画一条按接触力缩放的线。它没有功能参数。可视化选项放在传感器的 **`plot:`** 子字典下（也接受顶层平铺键）："
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`force_scale` (float/`0.05`): Length of the force line per newton, in meters."
+msgstr "`force_scale`（float/`0.05`）：每牛顿力线的长度，单位为米。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`marker_size` (float/`6`): Size of the contact point markers."
+msgstr "`marker_size`（float/`6`）：接触点标记的大小。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`linewidth` (float/`1.5`): Width of the force lines."
+msgstr "`linewidth`（float/`1.5`）：力线的线宽。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`alpha` (float/`0.9`): Transparency of the drawing."
+msgstr "`alpha`（float/`0.9`）：绘制的透明度。"
+
+#: ../../source/yaml_config/configuration.md:1437
+msgid "`color` (str/`\"#CC79A7\"`): Color of the markers and lines."
+msgstr "`color`（str/`\"#CC79A7\"`）：标记和线的颜色。"

@@ -775,3 +775,7 @@ msgstr "`'contact'`：以 `mass`、`friction`、`inertia` 和 `restitution` 把�
 #: ../../source/usage/make_environment.md:102
 msgid "**`gravity`**, **`friction`**, **`restitution`**, **`drive_tau`**: Physics of the `contact` mode, set once for the world: gravity (m/s²), and the friction, bounciness and drive lag every object starts from unless it sets its own (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))"
 msgstr "**`gravity`**、**`friction`**、**`restitution`**、**`drive_tau`**：`contact` 模式的物理参数，对整个世界只设置一次：重力加速度（m/s²），以及每个对象未自行设置时采用的摩擦、弹性和驱动滞后（参见[物理属性与接触模式](configure_robots_obstacles.md#physical-properties-and-contact-mode)）"
+
+#: ../../source/usage/make_environment.md:242
+msgid "In `collision_mode: 'contact'` each object state also carries the readings of its contact sensor: `contact_force`, one {py:class}`~irsim.msg.ContactState` per contact under `contacts` (partner, point, normal, depth and force), and `contact_time` / `air_time`."
+msgstr "在 `collision_mode: 'contact'` 下，每个对象状态还携带其接触传感器的读数：`contact_force`、`contacts` 下每个接触一条 {py:class}`~irsim.msg.ContactState`（对方、接触点、法线、深度和力），以及 `contact_time` / `air_time`。"

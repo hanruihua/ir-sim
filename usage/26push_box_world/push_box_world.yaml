@@ -34,6 +34,8 @@ robot:
       - [11.5, 10, 0]
     behavior: {name: 'dash'}
     vel_max: [1.0, 1.0]
+    sensors:
+      - type: 'contact2d'       # draws the contact points and force lines
     plot:
       show_trail: true
       trail_freq: 5

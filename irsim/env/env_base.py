@@ -517,9 +517,10 @@ class EnvBase:
         3. Refresh: when anything moved, the geometry tree is rebuilt so the
            sensor step and the status check see the separated scene.
 
-        The contact flags, records and forces describe the last step only,
-        so they are cleared first and the solver sets them on the pairs it
-        resolved; the contact and air timers of every object then advance.
+        Each object's contact sensor (``obj.contact``) describes the last step
+        only: every sensor is cleared first, the solver fills the sensors of
+        the pairs it resolved, then every sensor's contact and air timers
+        advance.
         """
         objects = self.objects
         self._contacts = []
@@ -527,7 +528,7 @@ class EnvBase:
             return
 
         for obj in objects:
-            obj.clear_contact()
+            obj.contact.clear()
 
         margin = self._contact_margin()
         pairs = self._contact_candidates(margin)
@@ -538,7 +539,7 @@ class EnvBase:
             if any(contact.depth > 0 for contact in self._contacts):
                 self.build_tree()  # something moved; resting contacts change nothing
         for obj in objects:
-            obj.tick_contact_time(self._world_param.step_time)
+            obj.contact.tick(self._world_param.step_time)
 
     def _contact_margin(self) -> float:
         """Distance within which two objects may still touch after this step.
@@ -1722,7 +1723,7 @@ class EnvBase:
 
         Each :class:`~irsim.lib.algorithm.contact.Contact` names the two
         objects and carries the contact point, normal, depth and force; the
-        per-object view is :attr:`~irsim.world.object_base.ObjectBase.contacts`.
+        per-object view is :attr:`~irsim.world.sensors.contact2d.Contact2D.reports` on ``obj.contact``.
 
         Returns:
             list: Contact records, in the solver's order; empty in the other
