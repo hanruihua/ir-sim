@@ -13,6 +13,7 @@ from shapely.geometry import LineString, Polygon
 from irsim.config import palette_param
 from irsim.lib.algorithm.contact import (
     CONTACT_SLOP,
+    Contact,
     _axes,
     _transform,
     contact_step,
@@ -26,6 +27,7 @@ from irsim.lib.handler.kinematics_handler import (
     PassiveKinematics,
 )
 from irsim.world.object_base import ObjectBase
+from irsim.world.sensors import Contact2D, SensorFactory
 
 CAVE_PNG = Path(__file__).parent / "cave.png"
 # In contact mode a robot's wheels change its speed by at most friction * g per
@@ -541,10 +543,10 @@ class TestContactMode:
         )
         assert robot.velocity[0, 0] == pytest.approx(1.0, abs=1e-3)
         assert np.allclose(box.velocity_xy.ravel(), [1.0, 0.0], atol=1e-3)
-        assert robot.contact
-        assert box.contact
-        assert box in robot.contact_obj
-        assert robot in box.contact_obj
+        assert robot.contact.in_contact
+        assert box.contact.in_contact
+        assert box in robot.contact.partners
+        assert robot in box.contact.partners
         assert not robot.collision
         assert not box.collision
         assert not env.done()
@@ -569,7 +571,7 @@ class TestContactMode:
         assert box.state[0, 0] == pytest.approx(3.0 + travel, abs=1e-3)
         assert robot.state[0, 0] == pytest.approx(2.3 + travel, abs=1e-3)
         assert robot.velocity[0, 0] == pytest.approx(1.0 if pushed else 0.0, abs=1e-3)
-        assert robot.contact
+        assert robot.contact.in_contact
         assert not robot.collision
         assert not env.done()
 
@@ -604,7 +606,7 @@ class TestContactMode:
             assert light.state[0, 0] == pytest.approx(2.0, abs=1e-3)
             assert heavy.state[0, 0] == pytest.approx(2.6, abs=1e-3)
             assert robot.velocity[0, 0] == pytest.approx(0.0, abs=1e-3)
-            assert robot.contact
+            assert robot.contact.in_contact
             assert not robot.collision
 
     def test_contact_force_reports_the_load_being_overcome(self, env_factory, tmp_path):
@@ -612,16 +614,16 @@ class TestContactMode:
         ground friction a steadily pushed box overcomes."""
         env = env_factory(_yaml(tmp_path, _push_world(wall=False)))
         robot, box = env.robot, env.obstacle_list[0]
-        assert np.allclose(box.contact_force, 0)
+        assert np.allclose(box.contact.force, 0)
         self._drive(env, 30)
         assert np.allclose(
-            box.contact_force.ravel(), [0.5 * 1.0 * 9.81, 0.0], atol=1e-6
+            box.contact.force.ravel(), [0.5 * 1.0 * 9.81, 0.0], atol=1e-6
         )
         assert np.allclose(
-            robot.contact_force.ravel(), [-0.5 * 1.0 * 9.81, 0.0], atol=1e-6
+            robot.contact.force.ravel(), [-0.5 * 1.0 * 9.81, 0.0], atol=1e-6
         )
         self._drive(env, 3, action=(0.0, 0.0))
-        assert np.allclose(box.contact_force, 0)  # cleared once nothing touches
+        assert np.allclose(box.contact.force, 0)  # cleared once nothing touches
         # a stalled robot reports its traction, the most its wheels can push
         # with, whatever the step size (the raw estimate would be m v / dt)
         for step_time in (0.1, 0.05):
@@ -632,8 +634,8 @@ class TestContactMode:
             robot = env.robot
             self._drive(env, int(3 / step_time))
             assert robot.velocity[0, 0] == pytest.approx(0.0, abs=1e-3)
-            assert robot.contact_force[0, 0] == pytest.approx(-0.5 * 1.0 * 9.81)
-            assert env.obstacle_list[0].contact_force[0, 0] == pytest.approx(
+            assert robot.contact.force[0, 0] == pytest.approx(-0.5 * 1.0 * 9.81)
+            assert env.obstacle_list[0].contact.force[0, 0] == pytest.approx(
                 0.5 * 1.0 * 9.81
             )
 
@@ -781,7 +783,7 @@ class TestContactMode:
         assert robot.velocity[0, 0] == pytest.approx(0.0, abs=1e-3)
         assert not robot.collision
         assert not env.done()
-        assert wall.contact
+        assert wall.contact.in_contact
         assert not wall.trajectory
 
     def test_oblique_push_moves_then_pivots_the_box_on_the_wall(
@@ -877,7 +879,7 @@ class TestContactMode:
         # ground friction 0.5 stops it within about v^2 / (2 * 0.5 * g) = 5 cm
         assert 0.04 < box.state[0, 0] - x < 0.07
         assert np.allclose(box.velocity_xy, 0)
-        assert not box.contact
+        assert not box.contact.in_contact
 
     def test_frictionless_box_keeps_its_velocity(self, env_factory, tmp_path):
         text = _push_world(wall=False) + "    friction: 0\n"
@@ -956,29 +958,51 @@ class TestContactMode:
         env = env_factory(_yaml(tmp_path, _push_world(wall=False)))
         robot, box = env.robot, env.obstacle_list[0]
         assert env.contacts == []
-        assert robot.contacts == []
-        self._drive(env, 20)
+        assert robot.contact.reports == []
+        self._drive(env, 13)
+        assert not robot.contact.started
+        env.step([1.0, 0.0])  # step 14: the robot reaches the box
+        assert robot.contact.started
+        assert box.contact.started
+        self._drive(env, 6)
+        assert not robot.contact.started
         (contact,) = env.contacts
         assert {contact.a, contact.b} == {robot, box}
-        assert robot.contacts == [contact]
-        assert box.contacts == [contact]
-        assert contact.force == pytest.approx(0.5 * 1.0 * 9.81)
-        assert contact.point[1] == pytest.approx(5.0)  # on the box's left face
+        # each object sees the contact from its own side
+        (report,) = robot.contact.reports
+        assert report.other is box
+        assert report.force == pytest.approx(0.5 * 1.0 * 9.81)
+        assert report.point[1] == pytest.approx(5.0)  # on the box's left face
         # midway through this step's overlap, just inside the face
-        assert box.state[0, 0] - 0.4 - 0.06 < contact.point[0] < box.state[0, 0] - 0.4
-        toward_robot = contact.normal if contact.a is robot else -contact.normal
-        assert np.allclose(toward_robot, [-1, 0])
-        assert robot.contact_time == pytest.approx(0.7)  # touching since step 14
-        assert box.contact_time == pytest.approx(0.7)
-        assert robot.air_time == 0.0
+        assert box.state[0, 0] - 0.4 - 0.06 < report.point[0] < box.state[0, 0] - 0.4
+        assert np.allclose(report.normal, [-1, 0])  # from the box toward the robot
+        (seen_by_box,) = box.contact.reports
+        assert seen_by_box.other is robot
+        assert np.allclose(seen_by_box.normal, [1, 0])
+        assert str(report).startswith(f"{box.name} (1 kg) at (")
+        assert robot.contact.contact_time == pytest.approx(
+            0.7
+        )  # touching since step 14
+        assert box.contact.contact_time == pytest.approx(0.7)
+        assert robot.contact.air_time == 0.0
         robot.set_state([1, 9, 0])
-        self._drive(env, 3, action=(0.0, 0.0))
+        env.step([0.0, 0.0])
+        assert robot.contact.ended
+        assert not robot.contact.started
+        self._drive(env, 2, action=(0.0, 0.0))
+        assert not robot.contact.ended
         assert env.contacts == []
-        assert robot.contacts == []
-        assert robot.air_time == pytest.approx(0.3)
-        assert robot.contact_time == 0.0
+        assert robot.contact.reports == []
+        assert robot.contact.air_time == pytest.approx(0.3)
+        assert robot.contact.contact_time == 0.0
         env.reset()
-        assert (robot.contact_time, robot.air_time, env.contacts) == (0.0, 0.0, [])
+        assert (robot.contact.contact_time, robot.contact.air_time, env.contacts) == (
+            0.0,
+            0.0,
+            [],
+        )
+        assert not robot.contact.started
+        assert not robot.contact.ended
 
     def test_unobstructed_objects_take_no_part(self, env_factory, tmp_path):
         text = _push_world(wall=False).replace(
@@ -989,19 +1013,19 @@ class TestContactMode:
         self._drive(env, 20)
         assert box.state[0, 0] == pytest.approx(3.0)
         assert robot.state[0, 0] == pytest.approx(3.0 - LAUNCH_SHORTFALL)
-        assert not robot.contact
-        assert not box.contact
+        assert not robot.contact.in_contact
+        assert not box.contact.in_contact
 
     def test_reset_clears_contact(self, env_factory, tmp_path):
         env = env_factory(_yaml(tmp_path, _push_world(wall=False)))
         robot, box = env.robot, env.obstacle_list[0]
         self._drive(env, 20)
-        assert robot.contact
+        assert robot.contact.in_contact
         env.reset()
-        assert not robot.contact
-        assert not box.contact
-        assert robot.contact_obj == []
-        assert box.contact_obj == []
+        assert not robot.contact.in_contact
+        assert not box.contact.in_contact
+        assert robot.contact.partners == []
+        assert box.contact.partners == []
         assert box.state[0, 0] == pytest.approx(3.0)
 
     def test_omni_robot_slides_along_a_linestring_wall(self, env_factory, tmp_path):
@@ -1026,7 +1050,7 @@ class TestContactMode:
         )
         assert robot.velocity[0, 0] == pytest.approx(0.7, abs=1e-3)
         assert robot.velocity[1, 0] == pytest.approx(0.0, abs=1e-3)
-        assert robot.contact
+        assert robot.contact.in_contact
         assert not robot.collision
         assert not robot.geometry.intersects(wall.geometry)
 
@@ -1052,8 +1076,8 @@ class TestContactMode:
         assert object_pieces(grid, robot) == []  # nothing near the start
         assert len(object_pieces(grid)) > 100  # the whole boundary without a partner
         self._drive(env, 200, action=(3.0, 0.0))
-        assert robot.contact
-        assert grid in robot.contact_obj
+        assert robot.contact.in_contact
+        assert grid in robot.contact.partners
         assert robot.state[0, 0] < 40
         assert robot.velocity[0, 0] == pytest.approx(0.0, abs=1e-3)
         assert not grid.is_collision(robot.geometry)
@@ -1097,11 +1121,11 @@ class TestContactMode:
         assert env.done()
         assert robot.state[0, 0] == pytest.approx(2.3)
         assert box.state[0, 0] == pytest.approx(3.0)
-        assert not robot.contact
+        assert not robot.contact.in_contact
         assert env.contacts == []
-        assert robot.contacts == []
-        assert robot.contact_time == 0.0
-        assert robot.air_time == 0.0
+        assert robot.contact.reports == []
+        assert robot.contact.contact_time == 0.0
+        assert robot.contact.air_time == 0.0
 
     def test_external_step_mode_leaves_states_alone(self, env_factory, tmp_path):
         env = env_factory(
@@ -1113,7 +1137,7 @@ class TestContactMode:
         assert robot.state[0, 0] == pytest.approx(2.5)
         assert box.state[0, 0] == pytest.approx(3.0)
         assert robot.collision
-        assert not robot.contact
+        assert not robot.contact.in_contact
 
     @pytest.mark.parametrize("projection", ["2d", "3d"])
     def test_projection_and_messages(self, env_factory, tmp_path, projection):
@@ -1124,7 +1148,7 @@ class TestContactMode:
         box = msg.obstacles[0]
         assert box.static is False
         assert box.odom.twist.twist.linear.x == pytest.approx(1.0, abs=1e-3)
-        assert env.robot.contact
+        assert env.robot.contact.in_contact
         # the contact report travels with the object state
         robot_state = msg.robots[0]
         (report,) = robot_state.contacts
@@ -1207,7 +1231,7 @@ class TestContactMode:
         robot = env.robot
         self._drive(env, 40)
         assert robot.velocity[0, 0] == pytest.approx(0.0, abs=1e-3)
-        assert robot.contact_force[0, 0] == pytest.approx(-robot.friction_force)
+        assert robot.contact.force[0, 0] == pytest.approx(-robot.friction_force)
 
     def test_invalid_tau_raises(self, env_factory, tmp_path):
         text = _push_world(wall=False).replace(
@@ -1277,7 +1301,7 @@ class TestContactMode:
         a = ObjectBase(shape={"name": "circle", "radius": 0.5}, state=[0, 0, 0])
         b = ObjectBase(shape={"name": "circle", "radius": 0.5}, state=[0.5, 0, 0])
         assert contact_step([(a, b)]) == []
-        assert not a.contact
+        assert not a.contact.in_contact
 
     def test_contact_step_records_normal_and_depth(self):
         a = ObjectBase(
@@ -1295,8 +1319,8 @@ class TestContactMode:
         assert contacts[0].force == 0.0  # no step time given
         assert a.state[0, 0] == pytest.approx(-0.2 - CONTACT_SLOP)
         assert b.state[0, 0] == pytest.approx(0.8)
-        assert a.contact
-        assert b.contact
+        assert a.contact.in_contact
+        assert b.contact.in_contact
 
 
 class TestSolverEdges:
@@ -1436,7 +1460,7 @@ class TestSolverEdges:
         grid = next(obj for obj in env.objects if obj.shape == "map")
         for _ in range(200):
             env.step([3.0, 0.0])
-        assert grid in robot.contact_obj
+        assert grid in robot.contact.partners
         assert not grid.is_collision(robot.geometry)
 
     def test_contact_mode_without_objects(self, env_factory, tmp_path):
@@ -1450,3 +1474,129 @@ class TestSolverEdges:
         model = PassiveKinematics()
         assert np.allclose(model.coast(np.zeros(3), 0.1, 0.5), 0)
         assert np.allclose(model.coast(np.zeros((1, 1)), 0.1, 0.5), 0)
+
+
+def _sensor_world():
+    return _push_world().replace(
+        "    mass: 1.0\nobstacle:",
+        "    mass: 1.0\n    sensors:\n      - type: 'contact2d'\nobstacle:",
+    )
+
+
+class TestContact2D:
+    """The contact bookkeeping lives in a sensor every object carries."""
+
+    def test_factory_creates_contact2d(self):
+        sensor = SensorFactory().create_sensor(
+            np.zeros((3, 1)),
+            obj_id=1,
+            type="contact2d",
+            marker_size=3,
+            plot={"force_scale": 0.2, "color": "g"},
+        )
+        assert isinstance(sensor, Contact2D)
+        assert sensor.sensor_type == "contact2d"
+        assert sensor.force_scale == 0.2
+        assert sensor.color == "g"
+        assert sensor.marker_size == 3
+        assert sensor.parent is None
+
+    def test_bookkeeping(self):
+        owner, other = object(), object()
+        sensor = Contact2D()
+        sensor.parent = owner
+        contact = Contact(
+            other, owner, np.array([1.0, 0.0]), 0.01, np.array([2.0, 3.0]), 4.0
+        )
+        sensor.add(contact)
+        sensor.add(contact)
+        assert sensor.in_contact
+        assert sensor.partners == [other]
+        assert sensor.records == [contact, contact]
+        report = sensor.reports[0]
+        assert report.other is other
+        assert report.normal.tolist() == [-1.0, 0.0]  # toward the owner
+        sensor.add_force([1.0, 2.0])
+        sensor.add_force(np.array([[1.0], [0.0]]))
+        assert sensor.force.ravel().tolist() == [2.0, 2.0]
+
+        sensor.tick(0.1)
+        assert sensor.started
+        assert sensor.contact_time == pytest.approx(0.1)
+        sensor.clear()
+        assert not sensor.in_contact
+        assert sensor.reports == []
+        sensor.tick(0.1)
+        assert sensor.ended
+        assert sensor.air_time == pytest.approx(0.1)
+        assert sensor.contact_time == 0.0
+        sensor.reset()
+        assert not sensor.ended
+        assert sensor.air_time == 0.0
+
+    def test_every_object_has_a_built_in_sensor(self, env_factory, tmp_path):
+        env = env_factory(_yaml(tmp_path, _push_world()))
+        for obj in env.objects:
+            assert obj.contact.parent is obj
+            assert obj.sensors == []
+        robot = env.robot
+        for _ in range(25):
+            env.step([1.0, 0.0])
+        assert robot.contact.in_contact
+        assert robot.contact.partners == [env.obstacle_list[0]]
+
+    def test_second_listed_sensor_warns(self, dummy_logger):
+        warnings_collected = []
+        dummy_logger.warning = lambda msg, *a, **kw: warnings_collected.append(msg)
+        obj = ObjectBase(
+            shape={"name": "circle", "radius": 0.2},
+            sensors=[{"type": "contact2d"}, {"type": "contact2d"}],
+        )
+        assert obj.contact is obj.sensors[0]
+        assert any("contact2d" in w for w in warnings_collected)
+
+    def test_configured_sensor_is_the_objects_sensor(self, env_factory, tmp_path):
+        env = env_factory(_yaml(tmp_path, _sensor_world()))
+        robot = env.robot
+        assert robot.sensors == [robot.contact]
+        assert robot.lidar is None
+        assert robot.contact.parent is robot
+        for _ in range(25):
+            env.step([1.0, 0.0])
+        assert robot.contact.in_contact
+        assert len(robot.contact.reports) == 1
+        assert robot.contact.reports[0].other is env.obstacle_list[0]
+        # the same sensor is what the message reads
+        state = env.get_msg().robots[0]
+        assert state.contacts[0].other_id == env.obstacle_list[0].id
+        assert state.scans == []
+
+    def test_plot_draws_points_and_force_lines(self, env_factory, tmp_path):
+        env = env_factory(_yaml(tmp_path, _sensor_world()))
+        robot = env.robot
+        sensor = robot.contact
+        for _ in range(25):
+            env.step([1.0, 0.0])
+        env.render(0.01)
+        xs, ys = sensor._point_artist.get_data()
+        report = robot.contact.reports[0]
+        assert list(xs) == [pytest.approx(report.point[0])]
+        assert list(ys) == [pytest.approx(report.point[1])]
+        (segment,) = sensor._force_artist.get_segments()
+        length = float(np.linalg.norm(segment[1] - segment[0]))
+        assert length == pytest.approx(report.force * sensor.force_scale)
+        assert report.force > 0
+
+        env.reset()
+        env.render(0.01)
+        xs, _ = sensor._point_artist.get_data()
+        assert len(xs) == 0  # nothing touches after the reset
+        sensor.plot_clear()
+        assert sensor._point_artist is None
+        sensor.step_plot()  # nothing to update once cleared
+
+    def test_plot_skips_3d_axes(self, env_factory, tmp_path):
+        env = env_factory(_yaml(tmp_path, _sensor_world()), projection="3d")
+        env.step([1.0, 0.0])
+        env.render(0.01)
+        assert env.robot.contact._point_artist is None

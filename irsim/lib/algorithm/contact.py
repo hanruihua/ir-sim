@@ -138,6 +138,46 @@ class Contact:
     point: np.ndarray | None = None
     force: float = 0.0
 
+    def report(self, obj: Any) -> ContactReport:
+        """This contact as seen from ``obj``, one of its two objects."""
+        mine = self.a is obj
+        return ContactReport(
+            other=self.b if mine else self.a,
+            point=np.zeros(2) if self.point is None else self.point,
+            normal=self.normal if mine else -self.normal,
+            depth=self.depth,
+            force=self.force,
+        )
+
+
+@dataclass(slots=True)
+class ContactReport:
+    """One contact of an object, seen from its own side: what a contact
+    sensor mounted on it would report.
+
+    Attributes:
+        other: The object it touched.
+        point: World-frame contact point ``(2,)``.
+        normal: Unit normal ``(2,)`` pointing from ``other`` toward the object,
+            the direction it is being pushed in.
+        depth: Overlap that was pushed apart in meters; zero or negative for
+            a resting contact.
+        force: Contact force along ``normal`` in newtons.
+    """
+
+    other: Any
+    point: np.ndarray
+    normal: np.ndarray
+    depth: float
+    force: float
+
+    def __str__(self) -> str:
+        return (
+            f"{self.other.name} ({self.other.mass:g} kg) at "
+            f"({self.point[0]:.2f}, {self.point[1]:.2f}), {self.force:.1f} N "
+            f"along ({self.normal[0]:.2f}, {self.normal[1]:.2f})"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Convex decomposition
@@ -862,8 +902,8 @@ class _ContactSolver:
                 if pushing and float(obj.drive_velocity_xy.ravel() @ into) > 0:
                     contact.force = min(contact.force, obj.friction_force)
             push = contact.force * contact.normal
-            contact.a.add_contact_force(push)
-            contact.b.add_contact_force(-push)
+            contact.a.contact.add_force(push)
+            contact.b.contact.add_force(-push)
         # restitution: a bouncy pair must separate at the pair's restitution
         # times its approach speed; whatever the position fold left short of
         # that is added to the passive bodies, shared by inverse mass
@@ -879,9 +919,9 @@ class _ContactSolver:
             if missing <= 0:
                 continue
             if w_a > 0:
-                pair.a.add_contact_velocity(missing * w_a / (w_a + w_b) * normal)
+                pair.a.apply_contact_velocity(missing * w_a / (w_a + w_b) * normal)
             if w_b > 0:
-                pair.b.add_contact_velocity(-missing * w_b / (w_a + w_b) * normal)
+                pair.b.apply_contact_velocity(-missing * w_b / (w_a + w_b) * normal)
 
 
 def _lever(r: np.ndarray, n: np.ndarray) -> float:
@@ -1009,6 +1049,6 @@ def _anchored_order(pairs: list[tuple[Any, Any]]) -> list[tuple[Any, Any]]:
 
 
 def _mark_contact(contact: Contact) -> None:
-    """Hand the contact record to both of its objects."""
-    contact.a.add_contact(contact)
-    contact.b.add_contact(contact)
+    """Hand the contact record to the sensors of both of its objects."""
+    contact.a.contact.add(contact)
+    contact.b.contact.add(contact)
