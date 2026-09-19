@@ -400,8 +400,49 @@ class LaserScan(Message):
 
 
 @dataclass(slots=True)
+class ContactState(Message):
+    """One contact of an object in the last step (``collision_mode: contact``).
+
+    ``normal`` points from the partner toward the object, ``point`` is the
+    world-frame contact point, ``depth`` the overlap that was pushed apart
+    (zero or negative for a resting contact) and ``force`` the contact force
+    in newtons along the normal.
+    """
+
+    ros_type: ClassVar[str] = "irsim_msgs/ContactState"
+
+    other_id: int = -1
+    other: str = ""
+    point: Point = field(default_factory=Point)
+    normal: Vector3 = field(default_factory=Vector3)
+    depth: float = 0.0
+    force: float = 0.0
+
+    @classmethod
+    def from_contact(cls, contact: Any, obj: Any) -> ContactState:
+        """Describe ``contact`` from ``obj``'s side."""
+        other = contact.b if contact.a is obj else contact.a
+        normal = contact.normal if contact.a is obj else -contact.normal
+        point = contact.point if contact.point is not None else np.zeros(2)
+        return cls(
+            other_id=int(other.id),
+            other=str(other.name),
+            point=Point(x=float(point[0]), y=float(point[1])),
+            normal=Vector3(x=float(normal[0]), y=float(normal[1])),
+            depth=float(contact.depth),
+            force=float(contact.force),
+        )
+
+
+@dataclass(slots=True)
 class ObjectState(Message):
-    """Topic-shaped messages and simulator metadata for one object."""
+    """Topic-shaped messages and simulator metadata for one object.
+
+    In ``collision_mode: contact`` the state also carries what a contact
+    sensor reports: the net ``contact_force``, one ``ContactState`` per
+    contact, and how long the object has been touching (``contact_time``)
+    or free (``air_time``).
+    """
 
     header: Header
     id: int
@@ -417,6 +458,10 @@ class ObjectState(Message):
     collision: bool
     collision_ids: list[int] = field(default_factory=list)
     scans: list[LaserScan] = field(default_factory=list)
+    contact_force: Vector3 = field(default_factory=Vector3)
+    contact_time: float = 0.0
+    air_time: float = 0.0
+    contacts: list[ContactState] = field(default_factory=list)
 
     @classmethod
     def from_object(
@@ -464,6 +509,12 @@ class ObjectState(Message):
             collision=bool(obj.collision),
             collision_ids=[int(other.id) for other in obj.collision_obj],
             scans=scans,
+            contact_force=Vector3(
+                x=float(obj.contact_force[0, 0]), y=float(obj.contact_force[1, 0])
+            ),
+            contact_time=float(obj.contact_time),
+            air_time=float(obj.air_time),
+            contacts=[ContactState.from_contact(c, obj) for c in obj.contacts],
         )
 
     @property

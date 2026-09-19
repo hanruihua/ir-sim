@@ -30,7 +30,7 @@ from irsim.config.world_param import WorldParam
 from irsim.env.env_config import EnvConfig
 from irsim.gui.mouse_control import MouseControl
 from irsim.lib import random_generate_polygon
-from irsim.lib.algorithm.contact import CONTACT_SLOP, contact_step
+from irsim.lib.algorithm.contact import CONTACT_SLOP, Contact, contact_step
 from irsim.msg import ObjectState, Odometry, WorldState
 from irsim.util import (
     bind_env,
@@ -175,6 +175,7 @@ class EnvBase:
         self._id = next(EnvBase._id_iter)
         self._env_param = EnvParam(env_id=self._id)
         self._world_param = WorldParam()
+        self._contacts: list[Contact] = []
         self._path_manager = PathManager()
         self._bind_config()
 
@@ -516,10 +517,12 @@ class EnvBase:
         3. Refresh: when anything moved, the geometry tree is rebuilt so the
            sensor step and the status check see the separated scene.
 
-        The contact flags and forces describe the last step only, so they
-        are cleared first and the solver sets them on the pairs it resolved.
+        The contact flags, records and forces describe the last step only,
+        so they are cleared first and the solver sets them on the pairs it
+        resolved; the contact and air timers of every object then advance.
         """
         objects = self.objects
+        self._contacts = []
         if self._env_param.GeometryTree is None or not objects:
             return
 
@@ -528,13 +531,14 @@ class EnvBase:
 
         margin = self._contact_margin()
         pairs = self._contact_candidates(margin)
-        if not pairs:
-            return
-        contacts = contact_step(
-            pairs, margin=margin, step_time=self._world_param.step_time
-        )
-        if any(contact.depth > 0 for contact in contacts):
-            self.build_tree()  # something moved; resting contacts change nothing
+        if pairs:
+            self._contacts = contact_step(
+                pairs, margin=margin, step_time=self._world_param.step_time
+            )
+            if any(contact.depth > 0 for contact in self._contacts):
+                self.build_tree()  # something moved; resting contacts change nothing
+        for obj in objects:
+            obj.tick_contact_time(self._world_param.step_time)
 
     def _contact_margin(self) -> float:
         """Distance within which two objects may still touch after this step.
@@ -987,6 +991,7 @@ class EnvBase:
             >>> # Reset and re-sample random distributions / shapes
             >>> env.reset(random=True)
         """
+        self._contacts = []
 
         if random:
             self._rebuild_from_cached_parse()
@@ -1708,6 +1713,22 @@ class EnvBase:
     def step_mode(self) -> str:
         """Get the active state-advancement mode."""
         return self._world_param.step_mode
+
+    @property
+    def contacts(self) -> list[Contact]:
+        """
+        The contacts resolved in the last step (``collision_mode: contact``
+        only), the whole scene's contact report.
+
+        Each :class:`~irsim.lib.algorithm.contact.Contact` names the two
+        objects and carries the contact point, normal, depth and force; the
+        per-object view is :attr:`~irsim.world.object_base.ObjectBase.contacts`.
+
+        Returns:
+            list: Contact records, in the solver's order; empty in the other
+            collision modes.
+        """
+        return list(self._contacts)
 
     @property
     def world_param(self):

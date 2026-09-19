@@ -595,6 +595,10 @@ class ObjectBase:
         self.contact_flag = False
         self.contact_obj: list[ObjectBase] = []
         self._contact_force = np.zeros((2, 1))
+        self._contacts: list[Any] = []
+        # how long the object has been touching something, or been free, in s
+        self.contact_time = 0.0
+        self.air_time = 0.0
         self.unobstructed = unobstructed
 
         self.plot_kwargs = kwargs.get("plot", {})
@@ -1198,10 +1202,29 @@ class ObjectBase:
         ).reshape(2, 1)
 
     def clear_contact(self) -> None:
-        """Forget last step's contacts: flag, partners, and force."""
+        """Forget last step's contacts: flag, partners, records, and force."""
         self.contact_flag = False
         self.contact_obj = []
+        self._contacts = []
         self._contact_force = np.zeros((2, 1))
+
+    def add_contact(self, contact: Any) -> None:
+        """Record a contact the solver resolved against this object."""
+        self.contact_flag = True
+        other = contact.b if contact.a is self else contact.a
+        if other not in self.contact_obj:
+            self.contact_obj.append(other)
+        self._contacts.append(contact)
+
+    def tick_contact_time(self, step_time: float) -> None:
+        """Advance ``contact_time`` or ``air_time`` by one step, as a contact
+        sensor does: one runs while the other is held at zero."""
+        if self.contact_flag:
+            self.contact_time += step_time
+            self.air_time = 0.0
+        else:
+            self.air_time += step_time
+            self.contact_time = 0.0
 
     def _resolve_mass(self, mass: float | None, static: bool) -> float:
         """Validate the configured mass, or pick the default for this object."""
@@ -1611,6 +1634,8 @@ class ObjectBase:
 
         self.collision_flag = False
         self.clear_contact()
+        self.contact_time = 0.0
+        self.air_time = 0.0
         self.arrive_flag = False
         self.stop_flag = False
         self.trajectory = []
@@ -2085,6 +2110,25 @@ class ObjectBase:
         """
 
         return self._contact_force
+
+    @property
+    def contacts(self) -> list[Any]:
+        """
+        The contacts resolved against this object in the last step
+        (``collision_mode: contact`` only), what a contact sensor reports.
+
+        Each :class:`~irsim.lib.algorithm.contact.Contact` carries the two
+        objects, the world-frame contact ``point``, the unit ``normal``
+        pointing from its ``b`` to its ``a``, the ``depth`` that was pushed
+        apart (zero or negative for a resting contact) and the ``force`` in
+        newtons. ``contact_time`` and ``air_time`` say for how many seconds
+        the object has been touching something, or free.
+
+        Returns:
+            list: The contact records, in the solver's order.
+        """
+
+        return list(self._contacts)
 
     @property
     def pushable(self) -> bool:

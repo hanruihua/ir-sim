@@ -949,6 +949,37 @@ class TestContactMode:
         assert box.state[1, 0] == pytest.approx(4.1, abs=1e-5)
         assert np.allclose(robot.state, start)  # the driver keeps its motion
 
+    def test_contact_report_records_and_timing(self, env_factory, tmp_path):
+        """What a contact sensor reports: the records with point, normal and
+        force on the environment and on each object, and how long an object
+        has been touching or free."""
+        env = env_factory(_yaml(tmp_path, _push_world(wall=False)))
+        robot, box = env.robot, env.obstacle_list[0]
+        assert env.contacts == []
+        assert robot.contacts == []
+        self._drive(env, 20)
+        (contact,) = env.contacts
+        assert {contact.a, contact.b} == {robot, box}
+        assert robot.contacts == [contact]
+        assert box.contacts == [contact]
+        assert contact.force == pytest.approx(0.5 * 1.0 * 9.81)
+        assert contact.point[1] == pytest.approx(5.0)  # on the box's left face
+        # midway through this step's overlap, just inside the face
+        assert box.state[0, 0] - 0.4 - 0.06 < contact.point[0] < box.state[0, 0] - 0.4
+        toward_robot = contact.normal if contact.a is robot else -contact.normal
+        assert np.allclose(toward_robot, [-1, 0])
+        assert robot.contact_time == pytest.approx(0.7)  # touching since step 14
+        assert box.contact_time == pytest.approx(0.7)
+        assert robot.air_time == 0.0
+        robot.set_state([1, 9, 0])
+        self._drive(env, 3, action=(0.0, 0.0))
+        assert env.contacts == []
+        assert robot.contacts == []
+        assert robot.air_time == pytest.approx(0.3)
+        assert robot.contact_time == 0.0
+        env.reset()
+        assert (robot.contact_time, robot.air_time, env.contacts) == (0.0, 0.0, [])
+
     def test_unobstructed_objects_take_no_part(self, env_factory, tmp_path):
         text = _push_world(wall=False).replace(
             "    mass: 1.0\nobstacle", "    mass: 1.0\n    unobstructed: true\nobstacle"
@@ -1067,6 +1098,10 @@ class TestContactMode:
         assert robot.state[0, 0] == pytest.approx(2.3)
         assert box.state[0, 0] == pytest.approx(3.0)
         assert not robot.contact
+        assert env.contacts == []
+        assert robot.contacts == []
+        assert robot.contact_time == 0.0
+        assert robot.air_time == 0.0
 
     def test_external_step_mode_leaves_states_alone(self, env_factory, tmp_path):
         env = env_factory(
@@ -1090,6 +1125,16 @@ class TestContactMode:
         assert box.static is False
         assert box.odom.twist.twist.linear.x == pytest.approx(1.0, abs=1e-3)
         assert env.robot.contact
+        # the contact report travels with the object state
+        robot_state = msg.robots[0]
+        (report,) = robot_state.contacts
+        assert report.other == env.obstacle_list[0].name
+        assert report.force == pytest.approx(0.5 * 9.81)
+        assert report.normal.x == pytest.approx(-1.0)  # from the box toward the robot
+        assert robot_state.contact_force.x == pytest.approx(-0.5 * 9.81)
+        assert robot_state.contact_time > 0
+        assert robot_state.air_time == 0
+        assert msg.to_dict()["objects"][0]["contacts"][0]["other"] == report.other
 
     def test_grip_bounds_launch_and_braking(self, env_factory, tmp_path):
         """Wheels change a robot's speed by at most friction * g per second in

@@ -755,7 +755,7 @@ class _ContactSolver:
             contact = Contact(pair.a, pair.b, normal, depth, point)
             self._by_pair[key] = contact
             self.contacts.append(contact)
-            _mark_contact(pair.a, pair.b)
+            _mark_contact(contact)
         elif depth > contact.depth:
             contact.normal, contact.depth, contact.point = normal, depth, point
 
@@ -1008,8 +1008,7 @@ def _anchored_order(pairs: list[tuple[Any, Any]]) -> list[tuple[Any, Any]]:
     return sorted(pairs, key=rank)
 
 
-def _mark_contact(a: Any, b: Any) -> None:
-    for obj, other in ((a, b), (b, a)):
-        obj.contact_flag = True
-        if other not in obj.contact_obj:
-            obj.contact_obj.append(other)
+def _mark_contact(contact: Contact) -> None:
+    """Hand the contact record to both of its objects."""
+    contact.a.add_contact(contact)
+    contact.b.add_contact(contact)
