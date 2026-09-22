@@ -22,6 +22,11 @@ Attributes:
         their kinematics set 'tau' (default 0: commands are tracked instantly,
         as Isaac's stiff default drives do at this step size; 0.2 models a
         small base with a soft velocity loop)
+    lidar_batch: cast every 'lidar2d' sensor of a step in one batched pass
+        (default True; the compiled kernel when numba is installed, NumPy
+        otherwise); 'numpy' / 'numba' force a kernel, 'analytic' treats
+        circle bodies as true circles (approximate), False restores the
+        per-sensor scan
 """
 
 import sys
@@ -45,6 +50,11 @@ class WorldParam:
         friction: Default ground friction coefficient of objects.
         restitution: Default bounciness of objects.
         drive_tau: Default drive lag of driven objects in ``contact`` mode (s).
+        lidar_batch: Cast all ``lidar2d`` sensors of a step in one batched
+            pass (default ``True``: compiled kernel when numba is installed,
+            NumPy otherwise); ``"numpy"`` / ``"numba"`` force a kernel,
+            ``"analytic"`` treats circle bodies as true circles (approximate),
+            ``False`` steps each sensor separately.
     """
 
     time: float = 0.0
@@ -57,6 +67,7 @@ class WorldParam:
     friction: float = 0.5
     restitution: float = 0.0
     drive_tau: float = 0.0
+    lidar_batch: bool | str = True
 
 
 # Multi-env storage (default index 0)

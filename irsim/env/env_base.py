@@ -443,8 +443,33 @@ class EnvBase:
         self.build_tree()
 
     def _objects_sensor_step(self) -> None:
-        """step the sensors of all objects with updated states"""
-        [obj.sensor_step() for obj in self.objects]
+        """Step the sensors of all objects with their updated states.
+
+        With ``world.lidar_batch`` (the default) every plain ``Lidar2D`` sensor
+        is cast in one vectorized pass by
+        :class:`~irsim.lib.algorithm.lidar_batch.LidarBatchCaster`; other
+        sensors, and all sensors when the option is off, step individually.
+        """
+        mode = getattr(self._world_param, "lidar_batch", True)
+        if not mode:
+            [obj.sensor_step() for obj in self.objects]
+            return
+        if not hasattr(self, "_lidar_batch"):
+            from irsim.lib.algorithm.lidar_batch import LidarBatchCaster
+
+            # ``true``: exact (same result as the per-sensor scan) with the
+            # compiled kernel when numba is installed; ``numpy`` / ``numba``
+            # force a kernel; ``analytic``: circle bodies as true circles
+            # (faster, approximate).
+            self._lidar_batch = LidarBatchCaster(
+                analytic_circles=(mode == "analytic"),
+                backend=mode if mode in ("numpy", "numba") else "auto",
+            )
+        stepped = self._lidar_batch.step(self.objects)
+        for obj in self.objects:
+            for sensor in obj.sensors:
+                if id(sensor) not in stepped:
+                    sensor.step(obj.state[0:3])
 
     def _object_step(
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0

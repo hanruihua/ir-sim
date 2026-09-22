@@ -125,6 +125,12 @@ class Lidar2D:
         self.time_inc = 0.0
         self.range_data = range_max * np.ones(number)
 
+        # Beam geometry is rebuilt lazily from ``_scan_origin`` and
+        # ``_scan_directions`` the first time ``_geometry`` is read after a step.
+        self._geometry_cache = None
+        self._scan_origin = None
+        self._scan_directions = None
+
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
 
         self._state = state
@@ -246,13 +252,68 @@ class Lidar2D:
     def _rebuild_scan_geometry(
         self, origin: np.ndarray, directions: np.ndarray
     ) -> None:
-        """Rebuild each clipped beam from its origin and measured range."""
-        endpoints = origin + self.range_data[:, None] * directions
-        origins = np.broadcast_to(origin, endpoints.shape)
-        beam_coordinates = np.stack([origins, endpoints], axis=1)
-        self._geometry = shapely.multilinestrings(
-            shapely.linestrings(beam_coordinates),
+        """Record the scan origin and directions; the clipped beam geometry is
+        built lazily by :attr:`_geometry` when something reads it."""
+        self._scan_origin = np.asarray(origin, dtype=float).reshape(2)
+        self._scan_directions = directions
+        self._geometry_cache = None
+
+    @property
+    def _geometry(self):
+        if self._geometry_cache is None and self._scan_origin is not None:
+            endpoints = self._scan_origin + self.range_data[:, None] * self._scan_directions
+            origins = np.broadcast_to(self._scan_origin, endpoints.shape)
+            beam_coordinates = np.stack([origins, endpoints], axis=1)
+            self._geometry_cache = shapely.multilinestrings(
+                shapely.linestrings(beam_coordinates),
+            )
+        return self._geometry_cache
+
+    @_geometry.setter
+    def _geometry(self, value) -> None:
+        self._geometry_cache = value
+        self._scan_origin = None
+        self._scan_directions = None
+
+    def apply_batch_result(
+        self,
+        state: np.ndarray,
+        origin: np.ndarray,
+        base_angle: float,
+        directions: np.ndarray,
+        ranges: np.ndarray,
+        hit_object_indices: np.ndarray,
+        objects,
+    ) -> None:
+        """Store a scan computed by :class:`~irsim.lib.algorithm.lidar_batch.LidarBatchCaster`.
+
+        Args:
+            state: Owner state ``[x, y, theta]`` used for this scan.
+            origin: Sensor origin in the world frame ``(2,)``.
+            base_angle: World heading of the sensor frame (owner + offset).
+            directions: Unit beam directions ``(number, 2)``.
+            ranges: Beam ranges ``(number,)`` clamped to ``range_max``.
+            hit_object_indices: Index into ``objects`` per beam, ``-1`` on a
+                miss; ``None`` when the caster did not track hit objects.
+            objects: The environment's object list (for beam velocities).
+        """
+        self._state = state
+        self.lidar_origin = np.array(
+            [[origin[0]], [origin[1]], [base_angle]], dtype=float
         )
+        if self.noise:
+            self.range_data[:] = ranges + rng.normal(0, self.std, self.number)
+        else:
+            self.range_data[:] = ranges
+        self._rebuild_scan_geometry(origin, directions)
+        if self.has_velocity:
+            self.velocity[:] = 0.0
+            if hit_object_indices is None:
+                return
+            for beam_index in np.flatnonzero(hit_object_indices >= 0):
+                self.velocity[:, beam_index : beam_index + 1] = objects[
+                    hit_object_indices[beam_index]
+                ].velocity_xy
 
     def _assign_velocities(
         self,

@@ -51,6 +51,7 @@ class World:
         "friction",
         "restitution",
         "drive_tau",
+        "lidar_batch",
         "obstacle_map",
         "mdownsample",
         "fog_map",
@@ -74,6 +75,7 @@ class World:
         friction: float = 0.5,
         restitution: float = 0.0,
         drive_tau: float = 0.0,
+        lidar_batch: bool = True,
         obstacle_map: Any | None = None,
         mdownsample: int = 1,
         fog_map: bool = False,
@@ -112,6 +114,13 @@ class World:
             drive_tau (float): Drive lag in seconds of driven objects in
                 ``contact`` mode unless their kinematics set ``tau``; ``0``
                 (the default) tracks commands instantly.
+            lidar_batch (bool | str): Cast all ``lidar2d`` sensors of a step
+                in one batched pass. ``True`` (default) uses the compiled
+                kernel when ``numba`` is installed and NumPy otherwise;
+                ``"numpy"`` / ``"numba"`` force a kernel; ``"analytic"``
+                treats circle bodies as true circles (faster, approximate);
+                ``False`` steps every sensor on its own. All batched modes
+                but ``"analytic"`` reproduce the per-sensor scan.
             obstacle_map: ``None``, image path (str), grid ndarray, or generator spec dict.
             mdownsample (int): Downsampling factor for the obstacle map.
             plot (dict): Plot configuration.
@@ -187,6 +196,9 @@ class World:
         self._wp.step_mode = self.step_mode
         self._wp.control_mode = control_mode
         self._wp.collision_mode = collision_mode
+        # True (default, exact batched scan), "analytic" (circle bodies as true
+        # circles: faster, approximate) or False (per-sensor scan).
+        self._wp.lidar_batch = lidar_batch if isinstance(lidar_batch, str) else bool(lidar_batch)
         self._wp.gravity = check_number(
             gravity, "gravity", low=0.0, strict_low=True, context="world"
         )
