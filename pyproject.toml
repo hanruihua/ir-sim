@@ -39,7 +39,8 @@ dependencies = [
 
 [project.optional-dependencies]
 keyboard = ['pynput']
-all = ['pynput', 'imageio[ffmpeg]', 'pyrvo']
+fast = ['numba']
+all = ['pynput', 'imageio[ffmpeg]', 'pyrvo', 'numba']
 
 [dependency-groups]
 docs = [
