@@ -181,19 +181,13 @@ class LidarBatchCaster:
                 ``"numba"`` force one of them (``"numba"`` raises without numba).
         """
         self.analytic_circles = analytic_circles
-        self._kernel = None
         if backend not in ("auto", "numpy", "numba"):
             raise ValueError(f"lidar_batch backend must be 'auto', 'numpy' or 'numba', got {backend!r}")
-        if backend != "numpy":
-            try:
-                from irsim.lib.algorithm import lidar_batch_numba
-            except ImportError:
-                lidar_batch_numba = None
-            if lidar_batch_numba is not None and lidar_batch_numba.AVAILABLE:
-                self._kernel = lidar_batch_numba.cast_kernel
-            elif backend == "numba":
-                raise ImportError("lidar_batch 'numba' needs numba: pip install ir-sim[fast]")
-        self.backend = "numba" if self._kernel is not None else "numpy"
+        self._requested_backend = backend
+        self._kernel = None
+        self._backend = "numpy" if backend == "numpy" else None
+        if backend == "numba":
+            self._resolve_backend()     # fail early when numba is missing
         self._static_cache: dict[int, tuple] = {}   # obj id -> (geom id, start, end, box)
         self._local_cache: dict[int, tuple] = {}    # obj id -> (geom id, start, end) body frame
         self._circle_cache: dict[int, tuple] = {}   # obj id -> (geom id, arrays or None)
@@ -203,6 +197,28 @@ class LidarBatchCaster:
         self._circles = None
         self._sensor_key = None
         self._sensor_const = None
+
+    def _resolve_backend(self) -> None:
+        """Pick the kernel on first use, so worlds without lidars never import numba."""
+        if self._backend is not None:
+            return
+        try:
+            from irsim.lib.algorithm import lidar_batch_numba
+        except ImportError:
+            lidar_batch_numba = None
+        if lidar_batch_numba is not None and lidar_batch_numba.AVAILABLE:
+            self._kernel = lidar_batch_numba.cast_kernel
+            self._backend = "numba"
+        elif self._requested_backend == "numba":
+            raise ImportError("lidar_batch 'numba' needs numba: pip install ir-sim[fast]")
+        else:
+            self._backend = "numpy"
+
+    @property
+    def backend(self) -> str:
+        """``"numba"`` or ``"numpy"``: the kernel in use (resolved on first query or cast)."""
+        self._resolve_backend()
+        return self._backend
 
     # ---------------------------------------------------------------- scene
     def _static_arrays(self, obj, geometry):
@@ -456,6 +472,7 @@ class LidarBatchCaster:
         n_sensors, n_beams = D.shape[:2]
         best = np.full((n_sensors, n_beams), np.inf)
         segments, circles = self._gather_scene(objects)
+        self._resolve_backend()
         if self._kernel is not None:
             best_obj = self._cast_compiled(origins, D, ranges, owner, segments, circles, best)
             if not track:
