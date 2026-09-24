@@ -198,7 +198,9 @@ class World:
         self._wp.collision_mode = collision_mode
         # True (default, exact batched scan), "analytic" (circle bodies as true
         # circles: faster, approximate) or False (per-sensor scan).
-        self._wp.lidar_batch = lidar_batch if isinstance(lidar_batch, str) else bool(lidar_batch)
+        self._wp.lidar_batch = (
+            lidar_batch if isinstance(lidar_batch, str) else bool(lidar_batch)
+        )
         self._wp.gravity = check_number(
             gravity, "gravity", low=0.0, strict_low=True, context="world"
         )
