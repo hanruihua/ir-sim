@@ -274,3 +274,19 @@ msgstr "**color**（str，默认调色板的 `marker` 颜色）：标记和线�
 #: ../../source/usage/configure_sensor.md:354
 msgid "The complete runnable example is available under `usage/26push_box_world/`."
 msgstr "完整可运行示例位于 `usage/26push_box_world/`。"
+
+#: ../../source/usage/configure_sensor.md
+msgid "Batched scanning and accuracy"
+msgstr "批量扫描与精度"
+
+#: ../../source/usage/configure_sensor.md
+msgid "`world.lidar_batch: true` (the default) batches ordinary `lidar2d` scans using the same polygon and map boundaries as individual scans. NumPy is always available; installing `ir-sim[fast]` enables the optional compiled Numba kernel. Use `lidar_batch: numpy` or `lidar_batch: numba` to select a backend, or `lidar_batch: false` to use the per-sensor reference path."
+msgstr "`world.lidar_batch: true`（默认值）使用与逐传感器扫描相同的多边形和地图边界，对普通 `lidar2d` 扫描进行批量计算。NumPy 始终可用；安装 `ir-sim[fast]` 可启用可选的 Numba 编译内核。使用 `lidar_batch: numpy` 或 `lidar_batch: numba` 选择后端，或使用 `lidar_batch: false` 切换到逐传感器参考路径。"
+
+#: ../../source/usage/configure_sensor.md
+msgid "Exact batching preserves beam coordinates, target velocities and seeded sensor-noise order, including scenes that mix ordinary and FMCW LiDAR. Scans near numerical boundaries, such as tangencies, segment endpoints, maximum range or tied target distances, use the reference path. Regression tests compare both backends with individual scans and independent GEOS intersections at an absolute range tolerance of `1e-9` metres."
+msgstr "精确批量扫描保留光束坐标、目标速度以及固定种子下的传感器噪声顺序，也适用于普通激光雷达与 FMCW 激光雷达混合使用的场景。对于接近数值边界的扫描，例如相切、线段端点、最大量程或目标距离并列的情况，系统使用参考路径。回归测试将两个后端与逐传感器扫描和独立的 GEOS 相交计算进行比较，距离绝对容差为 `1e-9` 米。"
+
+#: ../../source/usage/configure_sensor.md
+msgid "`lidar_batch: analytic` is an explicit approximation: it replaces circle polygons with mathematical circles. Grazing beams can change between a hit and a maximum-range miss, so use `true`, `numpy` or `numba` when scan accuracy must be preserved."
+msgstr "`lidar_batch: analytic` 是显式启用的近似模式：它将圆形多边形替换为数学意义上的圆。掠射光束可能在命中与最大量程未命中之间变化，因此需要保持扫描精度时，请使用 `true`、`numpy` 或 `numba`。"

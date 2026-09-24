@@ -454,7 +454,7 @@ class EnvBase:
         if not mode:
             [obj.sensor_step() for obj in self.objects]
             return
-        if not hasattr(self, "_lidar_batch"):
+        if getattr(self, "_lidar_batch_mode", None) != mode:
             from irsim.lib.algorithm.lidar_batch import LidarBatchCaster
 
             # ``true``: exact (same result as the per-sensor scan) with the
@@ -465,11 +465,8 @@ class EnvBase:
                 analytic_circles=(mode == "analytic"),
                 backend=mode if mode in ("numpy", "numba") else "auto",
             )
-        stepped = self._lidar_batch.step(self.objects)
-        for obj in self.objects:
-            for sensor in obj.sensors:
-                if id(sensor) not in stepped:
-                    sensor.step(obj.state[0:3])
+            self._lidar_batch_mode = mode
+        self._lidar_batch.step(self.objects, step_other_sensors=True)
 
     def _object_step(
         self, action: np.ndarray | list[Any] | None, obj_id: int = 0

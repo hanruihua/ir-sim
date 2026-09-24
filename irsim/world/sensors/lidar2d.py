@@ -261,7 +261,9 @@ class Lidar2D:
     @property
     def _geometry(self):
         if self._geometry_cache is None and self._scan_origin is not None:
-            endpoints = self._scan_origin + self.range_data[:, None] * self._scan_directions
+            endpoints = (
+                self._scan_origin + self.range_data[:, None] * self._scan_directions
+            )
             origins = np.broadcast_to(self._scan_origin, endpoints.shape)
             beam_coordinates = np.stack([origins, endpoints], axis=1)
             self._geometry_cache = shapely.multilinestrings(
