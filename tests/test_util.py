@@ -525,6 +525,26 @@ def test_points_to_xy_list_none():
     assert y == []
 
 
+def test_points_to_xy_list_two_coordinate_points_draw_at_z_zero():
+    """A 2 x N lidar point cloud (and 2-element list points) in 3D get z = 0."""
+    cloud = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    x, y, z = util.points_to_xy_list(cloud, three_d=True)
+    assert x == [1.0, 2.0, 3.0]
+    assert y == [4.0, 5.0, 6.0]
+    assert z == [0.0, 0.0, 0.0]
+
+    x, y, z = util.points_to_xy_list([[1.0, 2.0], [3.0, 4.0]], three_d=True)
+    assert (x, y, z) == ([1.0, 3.0], [2.0, 4.0], [0.0, 0.0])
+
+    _, _, z = util.points_to_xy_list(np.array([[7.0], [8.0]]), three_d=True)
+    assert z == [0.0]
+
+    _, _, z = util.points_to_xy_list(
+        np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]), three_d=True
+    )
+    assert z == [5.0, 6.0]
+
+
 def test_points_to_xy_list_invalid_type():
     """points_to_xy_list with invalid type raises ValueError (line 975)."""
     with pytest.raises(ValueError, match="Invalid points type"):

@@ -1022,7 +1022,8 @@ def points_to_xy_list(
 
     Args:
         points (list or np.ndarray): list of points or array of points [x, y].
-        three_d (bool): Whether the points are 3D.
+        three_d (bool): Whether the points are 3D. Two-coordinate points
+            (for example a 2D lidar point cloud) are placed at ``z = 0``.
     Returns:
         tuple: A tuple of lists containing x and y coordinates of the points
             x_list (list): List of x coordinates.
@@ -1032,22 +1033,25 @@ def points_to_xy_list(
     if points is None:
         return [], []
 
+    def _z(point):
+        return point[2] if len(point) > 2 else 0.0
+
     if isinstance(points, list):
         x_list = [point[0] for point in points]
         y_list = [point[1] for point in points]
         if three_d:
-            z_list = [point[2] for point in points]
+            z_list = [_z(point) for point in points]
     elif isinstance(points, np.ndarray):
         if points.shape[1] > 1:
             x_list = [point[0] for point in points.T]
             y_list = [point[1] for point in points.T]
             if three_d:
-                z_list = [point[2] for point in points.T]
+                z_list = [_z(point) for point in points.T]
         else:
             x_list = [points[0]]
             y_list = [points[1]]
             if three_d:
-                z_list = [points[2]]
+                z_list = [_z(points)]
     else:
         raise ValueError(f"Invalid points type: {type(points)}")
 

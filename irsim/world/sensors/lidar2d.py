@@ -45,7 +45,7 @@ class Lidar2D:
 
     Attr:
         - sensor_type (str): Type of sensor ("lidar2d"). Default is "lidar2d".
-        - range_min (float): Minimum detection range in meters. Default is 0.
+        - range_min (float): Minimum detection range in meters. Default is 0. A return closer than this is reported at ``range_min``: the beam counts as blocked but carries no measurement.
         - range_max (float): Maximum detection range in meters. Default is 10.
         - angle_range (float): Total angle range of the sensor in radians. Default is pi. Clipped to [0, 2*pi].
         - angle_min (float): Starting angle of the sensor's scan relative to the forward direction in radians. Calculated as -angle_range / 2.
@@ -56,7 +56,7 @@ class Lidar2D:
         - scan_time (float): Time taken to complete one full scan in seconds. Default is 0.1.
         - noise (bool): Whether to add noise to the measurements. Default is False.
         - std (float): Standard deviation for range noise in meters. Effective only if `noise` is True. Default is 0.2.
-        - angle_std (float): Standard deviation for angle noise in radians. Effective only if `noise` is True. Default is 0.02.
+        - angle_std (float): Standard deviation of each beam's direction in radians, applied when `noise` is True. Default is 0, which keeps the directions exact.
         - offset (np.ndarray): Offset of the sensor relative to the object's position, formatted as [x, y, theta]. Default is [0, 0, 0].
         - lidar_origin (np.ndarray): Origin position of the Lidar sensor, considering offset and the object's state.
         - alpha (float): Transparency level for plotting the laser beams. Default is 0.3.
@@ -64,6 +64,7 @@ class Lidar2D:
         - velocity (np.ndarray): Velocity data for each laser beam, formatted as (2, number) array. Effective only if `has_velocity` is True. Initialized to zeros.
         - time_inc (float): Time increment for each scan, simulating the sensor's time resolution. Default is 5e-4.
         - range_data (np.ndarray): Array storing range data for each laser beam. Initialized to `range_max` for all beams.
+        - valid (np.ndarray): Boolean per beam, True for a usable return: a hit whose range lies inside ``[range_min, range_max]``. Misses and returns inside the blind zone are False (the latter read ``range_min``).
         - angle_list (np.ndarray): Array of angles corresponding to each laser beam, distributed linearly from `angle_min` to `angle_max`.
         - color (str): Color of the sensor's representation in visualizations. Default is ``palette_param.lidar``.
         - obj_id (int): ID of the associated object, used to differentiate between multiple sensors or objects in the environment. Default is 0.
@@ -83,7 +84,7 @@ class Lidar2D:
         scan_time: float = 0.1,
         noise: bool = False,
         std: float = 0.2,
-        angle_std: float = 0.02,
+        angle_std: float = 0.0,
         offset: list[float] | None = None,
         alpha: float = 0.3,
         has_velocity: bool = False,
@@ -124,8 +125,10 @@ class Lidar2D:
         # All beams use one instantaneous geometry snapshot.
         self.time_inc = 0.0
         self.range_data = range_max * np.ones(number)
+        self.valid = np.zeros(number, dtype=bool)
 
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
+        self._cast_angles = self.angle_list
 
         self._state = state
         self.init_geometry(self._state)
@@ -157,26 +160,27 @@ class Lidar2D:
         Args:
             state (np.ndarray): Current state of the sensor.
         """
-        segment_point_list = []
-
-        for i in range(self.number):
-            x = self.range_data[i] * cos(self.angle_list[i])
-            y = self.range_data[i] * sin(self.angle_list[i])
-
-            point0 = np.zeros((1, 2))
-            point = np.array([[x], [y]]).T
-
-            segment = np.concatenate((point0, point), axis=0)
-
-            segment_point_list.append(segment)
-
         self.origin_state = self.offset
-        geometry = MultiLineString(segment_point_list)
-        self._original_geometry = geometry_transform(geometry, self.origin_state)
+        self._original_geometry = self._beam_geometry(self.angle_list)
         self.lidar_origin = transform_point_with_state(self.offset, state)
 
         self._geometry = geometry_transform(self._original_geometry, state)
         self._init_geometry = self._geometry
+
+    def _beam_geometry(self, angles: np.ndarray) -> MultiLineString:
+        """Max-range beams along ``angles``, in the body frame of the carrier.
+
+        Each beam runs from the sensor origin to ``range_max``; the mounting
+        ``offset`` places the bundle on the carrier.
+
+        Returns:
+            MultiLineString: One segment per beam.
+        """
+        angles = np.asarray(angles, dtype=float)
+        ends = self.range_max * np.column_stack((np.cos(angles), np.sin(angles)))
+        coordinates = np.stack((np.zeros_like(ends), ends), axis=1)
+        geometry = shapely.multilinestrings(shapely.linestrings(coordinates))
+        return geometry_transform(geometry, self.offset)
 
     def step(self, state: np.ndarray) -> None:
         """
@@ -202,10 +206,15 @@ class Lidar2D:
             self.range_max,
         )
 
-        if self.noise:
-            self.range_data[:] = ranges + rng.normal(0, self.std, self.number)
-        else:
-            self.range_data[:] = ranges
+        hits = hit_object_indices >= 0
+
+        if self.noise and hits.any():
+            ranges = np.array(ranges, dtype=float, copy=True)
+            ranges[hits] += rng.normal(0, self.std, int(hits.sum()))
+
+        in_band = (ranges >= self.range_min) & (ranges <= self.range_max)
+        self.valid[:] = hits & in_band
+        self.range_data[:] = np.clip(ranges, self.range_min, self.range_max)
 
         self._rebuild_scan_geometry(origin, directions)
 
@@ -234,8 +243,19 @@ class Lidar2D:
         return detected_objects
 
     def _world_geometry(self, state: np.ndarray) -> MultiLineString:
-        """Build the max-range beam geometry in world coordinates."""
-        world_geometry = geometry_transform(self._original_geometry, state)
+        """Build the max-range beam geometry in world coordinates.
+
+        With ``noise`` on and ``angle_std > 0`` every beam is cast slightly
+        off its nominal direction; the scan still reports the nominal angles,
+        as a real sensor does.
+        """
+        beams = self._original_geometry
+        self._cast_angles = self.angle_list
+        if self.noise and self.angle_std > 0:
+            jitter = rng.normal(0, self.angle_std, self.number)
+            self._cast_angles = self.angle_list + jitter
+            beams = self._beam_geometry(self._cast_angles)
+        world_geometry = geometry_transform(beams, state)
         self.lidar_origin = transform_point_with_state(self.offset, state)
         # Use the beam geometry's exact start coordinate. Computing the same
         # point through a separate transform can differ by one floating-point
@@ -243,10 +263,25 @@ class Lidar2D:
         self.lidar_origin[:2, 0] = shapely.get_coordinates(world_geometry)[0]
         return world_geometry
 
+    @property
+    def cast_angles(self) -> np.ndarray:
+        """Per-beam angles the last scan was cast along, in the sensor frame.
+
+        Equal to ``angle_list`` unless angle noise is on, in which case each
+        beam carries that step's jitter. Consumers that pair a measured range
+        with a direction (fog reveal, drawn beams) use these; the scan itself
+        reports the nominal ``angle_list``, as a real sensor does.
+        """
+        return self._cast_angles
+
     def _rebuild_scan_geometry(
         self, origin: np.ndarray, directions: np.ndarray
     ) -> None:
         """Rebuild each clipped beam from its origin and measured range."""
+        # Kept for consumers that need the directions the beams were actually
+        # cast along (they differ from the nominal angles under angle noise).
+        self._beam_origin = origin
+        self._beam_directions = directions
         endpoints = origin + self.range_data[:, None] * directions
         origins = np.broadcast_to(origin, endpoints.shape)
         beam_coordinates = np.stack([origins, endpoints], axis=1)
@@ -290,6 +325,7 @@ class Lidar2D:
         scan_data["ranges"] = self.range_data
         scan_data["intensities"] = None
         scan_data["velocity"] = self.velocity
+        scan_data["valid"] = self.valid
 
         return scan_data
 
@@ -529,8 +565,12 @@ class Lidar2D:
         """
         Convert the Lidar scan data to a point cloud.
 
+        Only beams with a usable return (``valid``) become points, at their
+        nominal angles; misses, returns inside the blind zone and returns
+        pushed out of band by noise are left out.
+
         Returns:
-            np.ndarray: Point cloud (2xN).
+            np.ndarray: Point cloud (2xN), or ``None`` when no beam is valid.
         """
         point_cloud = []
 
@@ -541,7 +581,7 @@ class Lidar2D:
             scan_range = ranges[i]
             angle = angles[i]
 
-            if scan_range < (self.range_max - 0.02):
+            if self.valid[i] and scan_range < (self.range_max - 0.02):
                 point = np.array([[scan_range * cos(angle)], [scan_range * sin(angle)]])
                 point_cloud.append(point)
 

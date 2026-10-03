@@ -271,7 +271,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">scan_time</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">noise</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">both variants</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.2</span></div>
-      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.02</span></div>
+      <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_std</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.0</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0, 0]</span></div>
       <div class="yt-utabpanels">
         <div class="yt-utabpanel">
@@ -1292,14 +1292,14 @@ env.step(env.robot.vel_world2body(world_vel))
 **`sensors`**:
   Attaches sensors to the object for environmental perception. Each sensor is defined by a dictionary indicating its type and specific parameters. Currently supported sensor `name` (or `type`) include:
   - `lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
-    - `range_min` (float/`0.0`): Minimum detection range.
+    - `range_min` (float/`0.0`): Minimum detection range; a closer return is reported at this value.
     - `range_max` (float/`10.0`): Maximum detection range.
     - `angle_range` (float/`pi`): Total angle range of the sensor, clipped to `[0, 2*pi]` (`6.283185` gives a full 360° scan).
     - `number` (int/`100`): Number of laser beams.
     - `scan_time` (float/`0.1`): Time taken for one complete scan.
     - `noise` (bool/`False`): Whether noise is added to measurements.
-    - `std` (float/`0.2`): Standard deviation for range noise if `noise` is `True`.
-    - `angle_std` (float/`0.02`): Standard deviation for angle noise if `noise` is `True`.
+    - `std` (float/`0.2`): Standard deviation for range noise on hit beams if `noise` is `True`; noisy ranges stay within `[range_min, range_max]`.
+    - `angle_std` (float/`0.0`): Standard deviation of each beam's direction if `noise` is `True`; `0` keeps the directions exact.
     - `offset` (list/`[0, 0, 0]`): Offset of the sensor from the object's position (x, y, theta).
     - `has_velocity` (bool/`False`): Whether measures the lidar point velocity.
 

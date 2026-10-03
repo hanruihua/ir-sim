@@ -2062,6 +2062,44 @@ class TestObjectVelocityProperties:
             env.end()
 
 
+class TestInitialSensorStep:
+    """Sensors are stepped once when the scene is built."""
+
+    def test_scan_is_taken_at_construction(self, env_factory):
+        """A scan read right after make() already sees the scene, and it is the
+        same scan an explicit sensor step would take at that pose."""
+        env = env_factory("test_grid_map.yaml")
+        robot = env.robot
+        before = np.array(env.get_lidar_scan()["ranges"], copy=True)
+        assert before.min() < robot.lidar.range_max
+
+        robot.sensor_step()
+        np.testing.assert_allclose(robot.lidar.range_data, before)
+
+    def test_get_msg_scan_is_finite_unless_use_inf(self, env_factory):
+        """``get_msg()`` keeps the finite scan; ``use_inf=True`` uses infinities."""
+        env = env_factory("test_grid_map.yaml")
+        env.step()
+        finite = env.get_msg().robots[0].scan.ranges
+        np.testing.assert_allclose(finite, env.get_lidar_scan()["ranges"], rtol=1e-6)
+        rep = env.get_msg(use_inf=True).robots[0].scan.ranges
+        valid = env.get_lidar_scan()["valid"]
+        assert np.all(np.isfinite(rep[valid]))
+        assert np.all(np.isposinf(rep[~valid]))
+
+    def test_scan_is_taken_after_reload(self, env_factory):
+        env = env_factory("test_grid_map.yaml")
+        env.reload()
+        assert np.min(env.get_lidar_scan()["ranges"]) < env.robot.lidar.range_max
+
+    def test_scan_is_taken_after_random_reset(self, env_factory):
+        """``reset(random=True)`` rebuilds the scene; the scan is real before
+        any step, as after construction and ``reload()``."""
+        env = env_factory("test_grid_map.yaml")
+        env.reset(random=True)
+        assert np.min(env.get_lidar_scan()["ranges"]) < env.robot.lidar.range_max
+
+
 class TestAssignKeyboardAction:
     """Tests for _assign_keyboard_action with different kinematics."""
 

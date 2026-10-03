@@ -152,13 +152,17 @@ def _legacy_fmcw_scan(sensor):
             continue
         if sensor.noise:
             best_distance += rng.normal(0, sensor.std)
-        if sensor.range_min <= best_distance <= sensor.range_max:
-            ranges[beam] = best_distance
-            valid[beam] = True
-            velocity = sensor._compute_radial_velocity(best_object, direction)
-            if sensor.velocity_noise_std > 0:
-                velocity += rng.normal(0, sensor.velocity_noise_std)
-            velocities[beam] = velocity
+        if best_distance > sensor.range_max:
+            continue  # lost: stays a miss at range_max
+        if best_distance < sensor.range_min:
+            ranges[beam] = sensor.range_min  # blocked inside the blind zone
+            continue
+        ranges[beam] = best_distance
+        valid[beam] = True
+        velocity = sensor._compute_radial_velocity(best_object, direction)
+        if sensor.velocity_noise_std > 0:
+            velocity += rng.normal(0, sensor.velocity_noise_std)
+        velocities[beam] = velocity
 
     return ranges, velocities, valid
 
@@ -544,9 +548,13 @@ class TestFMCWLidar2D:
             sensor.step(sensor.state)
             if not sensor.valid[0]:
                 invalidated_at_max += 1
-                # Invalidated beams must report range_max and zero Doppler so
-                # consumers see a coherent "no usable return" signal.
-                assert sensor.range_data[0] == pytest.approx(5.0, abs=1e-9)
+                # Invalidated beams report range_max (return lost past the
+                # band) or range_min (return inside the blind zone, the beam
+                # is blocked) and zero Doppler, so consumers see a coherent
+                # "no usable return" signal.
+                assert sensor.range_data[0] == pytest.approx(
+                    5.0, abs=1e-9
+                ) or sensor.range_data[0] == pytest.approx(sensor.range_min, abs=1e-9)
                 assert sensor.radial_velocity[0] == pytest.approx(0.0, abs=1e-9)
             else:
                 # Valid hits must always lie within the documented bounds.
@@ -779,6 +787,7 @@ class TestFMCWLidar2D:
             offset=[0.2, -0.1, 0.15],
             noise=True,
             std=0.05,
+            angle_std=0.0,  # the legacy scan casts along the nominal angles
             velocity_noise_std=0.02,
         )
         sensor.parent = _DummySensorParent([0.3, 0.1], env)
@@ -868,6 +877,7 @@ class TestFMCWLidar2D:
                 range_max=8.0,
                 offset=offset,
                 noise=scene % 2 == 0,
+                angle_std=0.0,  # the legacy scan casts along the nominal angles
                 std=0.03,
                 velocity_noise_std=0.02,
             )
@@ -1320,6 +1330,7 @@ def test_lidar_scan_fields_velocity_and_geometry_are_beam_aligned():
         "ranges",
         "intensities",
         "velocity",
+        "valid",
     )
     assert scan["intensities"] is None
     assert scan["angle_min"] == lidar.angle_min
@@ -1561,6 +1572,7 @@ class TestLidar2DNoise:
                 range_max=8.0,
                 noise=noise,
                 std=0.2,
+                angle_std=0.0,  # range noise only, so the draws are predictable
             )
             lidar.parent = _Parent(env_param)
             lidar.step(lidar.state)
@@ -1570,9 +1582,19 @@ class TestLidar2DNoise:
         noisy_b = run(True)
         clean = run(False)
         np.testing.assert_array_equal(noisy_a, noisy_b)  # seeded reproducible
+        # Noise is drawn for the hit beams only, in beam order, and the result
+        # is kept inside [range_min, range_max]; misses stay exactly at
+        # range_max.
+        hits = clean < 8.0
+        assert hits.any()
+        assert (~hits).any()
         set_seed(9)
-        expected = clean + rng.normal(0, 0.2, len(clean))
+        expected = clean.copy()
+        expected[hits] = np.clip(
+            clean[hits] + rng.normal(0, 0.2, int(hits.sum())), 0.0, 8.0
+        )
         np.testing.assert_allclose(noisy_a, expected, atol=1e-12, rtol=0)
+        np.testing.assert_array_equal(noisy_a[~hits], 8.0)
         assert np.any(noisy_a != clean)  # noise actually changed the scan
         assert np.all(np.isfinite(noisy_a))
 
@@ -1581,10 +1603,11 @@ class TestLidar2DScanToPointcloud:
     """Lidar2D conversion from a scan to a 2D point cloud."""
 
     def test_scan_to_pointcloud_with_hits(self):
-        """Beams shorter than range_max convert into 2D points."""
+        """Valid beams shorter than range_max convert into 2D points."""
         state = np.array([[0.0], [0.0], [0.0]])
         lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
         lidar.range_data[:5] = 2.0  # half of the beams hit something
+        lidar.valid[:5] = True  # ...and those returns are usable
         result = lidar.scan_to_pointcloud()
         assert result is not None
         assert result.shape[0] == 2  # 2D points
@@ -1597,3 +1620,183 @@ class TestLidar2DScanToPointcloud:
         lidar.range_data[:] = 5.0
         result = lidar.scan_to_pointcloud()
         assert result is None
+
+
+# ===================================================================
+# Noise on hits only, range band, angle noise, blind zone
+# ===================================================================
+
+
+def _single_beam_lidar(obstacles, **kwargs):
+    tree = STRtree([o.geometry for o in obstacles]) if obstacles else None
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+        **kwargs,
+    )
+    lidar.parent = _Parent(_EnvParam(obstacles, tree))
+    return lidar
+
+
+def test_lidar_noise_applies_to_hits_only_and_stays_in_band():
+    """Misses stay exactly at range_max under noise, and noisy hits are kept in
+    [range_min, range_max] instead of going negative or past range_max."""
+    wall = _Obstacle(2, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+    hit = _single_beam_lidar([wall], noise=True, std=3.0, angle_std=0.0)
+    miss = _single_beam_lidar([], noise=True, std=3.0, angle_std=0.0)
+
+    set_seed(0)
+    for _ in range(200):
+        hit.step(hit.state)
+        miss.step(miss.state)
+        assert 0.0 <= hit.range_data[0] <= 5.0
+        assert miss.range_data[0] == 5.0
+    assert miss.get_points() is None
+
+
+def test_lidar_range_min_reports_blocked_close_returns():
+    """A return closer than range_min is reported at range_min, not ignored."""
+    wall = _Obstacle(2, shapely.box(0.5, -1.0, 1.0, 1.0), shape="rectangle")
+    lidar = _single_beam_lidar([wall], range_min=1.0)
+    lidar.step(lidar.state)
+    assert lidar.range_data[0] == pytest.approx(1.0)
+    assert lidar.get_scan()["range_min"] == 1.0
+
+
+def test_lidar_angle_noise_jitters_the_cast_directions():
+    """angle_std perturbs the direction each beam is cast along, while the scan
+    keeps reporting the nominal angles."""
+    wall = _Obstacle(2, shapely.box(2.0, -3.0, 2.5, 3.0), shape="rectangle")
+    env_param = _EnvParam([wall], STRtree([wall.geometry]))
+
+    def make(angle_std):
+        lidar = Lidar2D(
+            state=np.array([[0.0], [0.0], [0.0]]),
+            obj_id=1,
+            number=9,
+            angle_range=1.0,
+            range_max=5.0,
+            noise=True,
+            std=0.0,
+            angle_std=angle_std,
+        )
+        lidar.parent = _Parent(env_param)
+        return lidar
+
+    def cast_angles(lidar):
+        coords = shapely.get_coordinates(lidar._geometry).reshape(-1, 2, 2)
+        d = coords[:, 1] - coords[:, 0]
+        return np.arctan2(d[:, 1], d[:, 0])
+
+    set_seed(0)
+    steady = make(0.0)
+    steady.step(steady.state)
+    np.testing.assert_allclose(cast_angles(steady), steady.angle_list, atol=1e-9)
+
+    jittered = make(0.05)
+    jittered.step(jittered.state)
+    deviation = cast_angles(jittered) - jittered.angle_list
+    assert np.any(np.abs(deviation) > 1e-4)
+    assert np.all(np.abs(deviation) < 0.3)
+    # the sensor exposes the angles it cast along, for fog reveal and drawing
+    np.testing.assert_allclose(jittered.cast_angles, cast_angles(jittered), atol=1e-9)
+    np.testing.assert_array_equal(steady.cast_angles, steady.angle_list)
+    assert jittered.get_scan()["angle_min"] == pytest.approx(-0.5)
+    assert jittered.get_scan()["angle_max"] == pytest.approx(0.5)
+
+
+def test_fmcw_return_inside_range_min_blocks_the_beam():
+    """A hit inside the blind zone is reported at range_min and invalid, so the
+    beam still counts as blocked rather than as free space to range_max."""
+    wall = _Obstacle(2, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+    sensor = FMCWLidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_min=0.5,
+        range_max=5.0,
+    )
+    sensor.parent = _Parent(_EnvParam([wall], STRtree([wall.geometry])))
+    sensor.step(sensor.state)
+    assert sensor.range_data[0] == pytest.approx(0.5)
+    assert not sensor.valid[0]
+    assert sensor.radial_velocity[0] == 0.0
+
+
+def test_lidar_valid_mask_marks_usable_returns():
+    """``valid`` is True only for hits inside the band: misses and returns
+    inside the blind zone are invalid, as a ROS consumer would treat them."""
+    wall = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    near = _Obstacle(3, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+
+    hit = _single_beam_lidar([wall])
+    hit.step(hit.state)
+    assert hit.valid[0]
+    assert hit.get_scan()["valid"] is hit.valid
+
+    miss = _single_beam_lidar([])
+    miss.step(miss.state)
+    assert not miss.valid[0]
+    assert miss.range_data[0] == 5.0
+
+    blocked = _single_beam_lidar([near], range_min=1.0)
+    blocked.step(blocked.state)
+    assert not blocked.valid[0]
+    assert blocked.range_data[0] == pytest.approx(1.0)
+
+
+def test_laser_scan_message_keeps_finite_ranges_unless_use_inf():
+    """By default the message carries the sensor's finite ranges, so learning
+    snapshots are unchanged; ``use_inf=True`` maps a miss to +inf and a return
+    inside range_min to -inf."""
+    wall = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    near = _Obstacle(3, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+
+    hit = _single_beam_lidar([wall])
+    hit.step(hit.state)
+    assert LaserScan.from_sensor(hit).ranges[0] == pytest.approx(2.0, abs=1e-6)
+    assert LaserScan.from_sensor(hit, use_inf=True).ranges[0] == pytest.approx(
+        2.0, abs=1e-6
+    )
+
+    miss = _single_beam_lidar([])
+    miss.step(miss.state)
+    assert LaserScan.from_sensor(miss).ranges[0] == 5.0
+    assert LaserScan.from_sensor(miss, use_inf=True).ranges[0] == np.inf
+    assert miss.get_scan()["ranges"][0] == 5.0
+
+    blocked = _single_beam_lidar([near], range_min=1.0)
+    blocked.step(blocked.state)
+    assert LaserScan.from_sensor(blocked).ranges[0] == pytest.approx(1.0)
+    assert LaserScan.from_sensor(blocked, use_inf=True).ranges[0] == -np.inf
+
+
+def test_lidar_point_cloud_keeps_valid_beams_only():
+    """A blind-zone return and a noise-lost return produce no point; a valid
+    hit does. FMCW inherits the same rule."""
+    near = _Obstacle(3, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+    blocked = _single_beam_lidar([near], range_min=1.0)
+    blocked.step(blocked.state)
+    assert blocked.range_data[0] == pytest.approx(1.0)
+    assert blocked.get_points() is None
+
+    wall = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    hit = _single_beam_lidar([wall])
+    hit.step(hit.state)
+    np.testing.assert_allclose(hit.get_points(), [[2.0], [0.0]], atol=1e-6)
+
+    fmcw = FMCWLidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_min=1.0,
+        range_max=5.0,
+    )
+    fmcw.parent = _Parent(_EnvParam([near], STRtree([near.geometry])))
+    fmcw.step(fmcw.state)
+    assert fmcw.get_points() is None

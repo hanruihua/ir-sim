@@ -56,7 +56,7 @@ robot:
         number: 200
         noise: False
         std: 0.2
-        angle_std: 0.2
+        angle_std: 0.01
         offset: [0.1, 0.1, 0.5]
         plot:
           alpha: 0.3
@@ -102,7 +102,7 @@ The environment updates sensors after all objects have moved in a step. This avo
 
 To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined in the `sensors` section of the robot. Key parameters of the LiDAR sensor are explained below:
 
-- **range_min**: The minimum range of the laser beam.
+- **range_min**: The minimum range of the laser beam. A return closer than this is reported at `range_min`: the beam counts as blocked but carries no measurement.
 - **range_max**: The maximum range of the laser beam.
 - **angle_range**: The angle range of the laser beam. Use `6.283185` or `2 * pi` in Python for a full 360-degree scan.
 - **number**: The number of beams.
@@ -166,7 +166,7 @@ robot:
         number: 200
         noise: True
         std: 0.1
-        angle_std: 0.2
+        angle_std: 0.01
         offset: [0, 0, 0]
         alpha: 0.3
       
@@ -189,11 +189,13 @@ obstacle:
 :::
 ::::
 
-Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` parameters. The `std` parameter is the standard deviation of the range noise, and the `angle_std` parameter is the standard deviation of the angle noise. 
+Gaussian noise is added to the beams that hit something: `std` is the standard deviation of the range noise and `angle_std`, off at its default of `0`, that of each beam's direction. Noisy ranges stay within `[range_min, range_max]`, a hit pushed beyond `range_max` becomes a miss, and misses stay at `range_max` without noise.
+
+**Range conventions.** A beam that hits nothing reads `range_max`, the value Isaac Sim's LaserScan bridge publishes as well, so `ranges` stays finite for learning pipelines. `get_scan()["valid"]` marks the beams with a usable return: a hit whose range lies inside `[range_min, range_max]`. Misses and returns inside the blind zone are invalid, and the latter read `range_min` so the beam still counts as blocked; `get_points()` turns only valid beams into points. The ROS-style {py:class}`~irsim.msg.LaserScan` from `env.get_msg()` carries the same finite ranges by default, so snapshots used for learning are unchanged; `env.get_msg(use_inf=True)` follows REP 117 instead, as Gazebo does: `+inf` for no return and `-inf` for a return too close to measure.
 
 ## FMCW LiDAR Configuration Parameters
 
-IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR, but each valid beam additionally reports a scalar `radial_velocity` measurement. This makes it useful for demonstrating how Doppler measurements can help interpret dynamic obstacles.
+IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR, but each valid beam additionally reports a scalar `radial_velocity` measurement. This makes it useful for demonstrating how Doppler measurements can help interpret dynamic obstacles. `valid` marks the beams whose range lies inside `[range_min, range_max]`; a return closer than `range_min` is reported at `range_min` and left invalid, so the beam still counts as blocked.
 
 The example below uses a stationary ego sensor with a forward 120-degree field of view and multiple moving obstacles. When plotting is enabled, valid returns are colorized by radial velocity and marked at their endpoints.
 

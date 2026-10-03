@@ -131,17 +131,23 @@ class FMCWLidar2D(Lidar2D):
             distance = ranges[beam]
             if self.noise:
                 distance += rng.normal(0, self.std)
-            # A hit counts only if its (possibly noisy) range stays in band, so
-            # range_data/valid stay consistent for get_points.
-            if self.range_min <= distance <= self.range_max:
-                self.range_data[beam] = distance
-                self.valid[beam] = True
-                velocity = self._compute_radial_velocity(
-                    detected_objects[hit_object_indices[beam]], directions[beam]
-                )
-                if self.velocity_noise_std > 0:
-                    velocity += rng.normal(0, self.velocity_noise_std)
-                self.radial_velocity[beam] = velocity
+            if distance > self.range_max:
+                # Pushed out of band by noise: the return is lost, a miss.
+                continue
+            if distance < self.range_min:
+                # Inside the blind zone: the beam is blocked at range_min but
+                # carries no usable measurement, so it stays invalid. Reporting
+                # range_max here would read as free space through the object.
+                self.range_data[beam] = self.range_min
+                continue
+            self.range_data[beam] = distance
+            self.valid[beam] = True
+            velocity = self._compute_radial_velocity(
+                detected_objects[hit_object_indices[beam]], directions[beam]
+            )
+            if self.velocity_noise_std > 0:
+                velocity += rng.normal(0, self.velocity_noise_std)
+            self.radial_velocity[beam] = velocity
 
     def _plot(self, ax, state, **kwargs):
         """Plot beams, then color them from radial velocity for visualization."""
@@ -255,19 +261,21 @@ class FMCWLidar2D(Lidar2D):
         origin_xy = np.array([self.lidar_origin[0, 0], self.lidar_origin[1, 0]])
         colors, _ = self._get_velocity_visuals()
 
+        # Under angle noise the beams were cast off their nominal angles; use
+        # the cast directions so the markers sit on the drawn beam ends.
+        cast_directions = getattr(self, "_beam_directions", None)
         points = []
         point_colors = []
-        for is_valid, beam_angle, beam_range, color in zip(
-            self.valid,
-            self.angle_list,
-            self.range_data,
-            colors,
-            strict=True,
+        for beam, (is_valid, beam_angle, beam_range, color) in enumerate(
+            zip(self.valid, self.angle_list, self.range_data, colors, strict=True)
         ):
             if not is_valid:
                 continue
-            world_angle = lidar_theta + beam_angle
-            direction = np.array([cos(world_angle), sin(world_angle)])
+            if cast_directions is not None:
+                direction = cast_directions[beam]
+            else:
+                world_angle = lidar_theta + beam_angle
+                direction = np.array([cos(world_angle), sin(world_angle)])
             points.append(origin_xy + beam_range * direction)
             point_colors.append(color)
 
@@ -282,6 +290,7 @@ class FMCWLidar2D(Lidar2D):
         """
         scan_data = super().get_scan()
         scan_data.pop("velocity", None)
+        scan_data.pop("valid", None)  # re-added last, after radial_velocity
         scan_data["intensities"] = None
         scan_data["radial_velocity"] = self.radial_velocity
         scan_data["valid"] = self.valid

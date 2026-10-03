@@ -24,7 +24,7 @@ robot:
         number: 200
         noise: False
         std: 0.2
-        angle_std: 0.2
+        angle_std: 0.01
         offset: [0, 0, 0]
         plot:
           alpha: 0.5
