@@ -47,7 +47,11 @@ world:
   offset: [0, 0] # the offset of the world origin [x, y]
   step_mode: 'internal' # state advancement: 'internal' or 'external'
   control_mode: 'auto' # control mode: 'auto', 'keyboard'
-  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop' # collision behavior: 'stop', 'unobstructed', 'unobstructed_obstacles', 'contact'
+  gravity: 9.81 # contact mode physics: gravity, default friction, restitution and drive lag of objects
+  friction: 0.5
+  restitution: 0.0
+  drive_tau: 0.0
   obstacle_map: null # path to obstacle map file (optional)
 
 robot:
@@ -94,6 +98,8 @@ The configuration file defines the world and the robot that the main loop advanc
   - `'stop'`: Stop simulation when collision occurs (default)
   - `'unobstructed'`: Ignore all collisions
   - `'unobstructed_obstacles'`: Ignore only obstacle collisions
+  - `'contact'`: Resolve overlaps as rigid-body contacts with `mass`, `friction`, `inertia` and `restitution` instead of stopping, so robots push boxes, stall against heavy ones and turn them (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))
+- **`gravity`**, **`friction`**, **`restitution`**, **`drive_tau`**: Physics of the `contact` mode, set once for the world: gravity (m/s²), and the friction, bounciness and drive lag every object starts from unless it sets its own (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))
 - **`obstacle_map`**: Optional. Path to an obstacle map image, or a generator spec (e.g. `{ name: perlin, ... }`). See [Configure grid map](configure_grid_map).
 
 ### Performance Considerations
@@ -232,6 +238,8 @@ payload = msg.to_dict()  # JSON-compatible lists and scalar values
 Message types expose a stable logical `ros_type` hint, for example `robot.odom.ros_type == "nav_msgs/Odometry"`. Its slash form is retained for compatibility and does not select ROS 1. The bridge chooses the native ROS 1 or ROS 2 class and converts IR-SIM's floating-point timestamp and sequence number to the corresponding Header layout. The `scans` list contains every LiDAR reading, and `scan` aliases its first item as the primary reading.
 
 {py:class}`~irsim.msg.LaserScan` contains only the shared `sensor_msgs/LaserScan` data fields; when intensity data is unavailable, `intensities` is an empty array. Its angle metadata exactly reconstructs the simulated beam directions. Because IR-SIM evaluates all beams from one geometry snapshot, `time_increment` is zero; `scan_time` is the configured interval between scans. IR-SIM-specific measurements such as Cartesian target velocity, FMCW radial velocity, and validity remain available from `sensor.get_scan()` or `env.get_lidar_scan()`.
+
+In `collision_mode: 'contact'` each object state also carries the readings of its contact sensor: `contact_force`, one {py:class}`~irsim.msg.ContactState` per contact under `contacts` (partner, point, normal, depth and force), and `contact_time` / `air_time`.
 
 Odometry and scan messages use conventional `world`, `base_link`, and sensor frame names. A ROS bridge remains responsible for publishing the corresponding `/tf`, `/tf_static`, and `/clock` messages.
 

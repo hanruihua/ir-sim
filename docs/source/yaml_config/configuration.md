@@ -29,7 +29,11 @@ In a combined configuration for multiple simulators, these keys may be nested un
   <div class="yt-leaf"><a class="yt-key" href="#p-w-offset">offset</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[0, 0]</span><span class="yt-desc">world origin offset [x, y]</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-step-mode">step_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"internal"</span><span class="yt-desc">internal | external</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-control-mode">control_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"auto"</span><span class="yt-desc">auto | keyboard</span></div>
-  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-collision-mode">collision_mode</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"stop"</span><span class="yt-desc">stop | unobstructed | unobstructed_obstacles | contact</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-physics">gravity</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">9.81</span><span class="yt-desc">m/s², contact mode</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-physics">friction</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span><span class="yt-desc">default object friction</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-physics">restitution</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span><span class="yt-desc">default object bounciness</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-w-physics">drive_tau</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span><span class="yt-desc">default drive lag, s</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-status">status</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"None"</span><span class="yt-desc">initial display label</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-obstacle-map">obstacle_map</a><span class="yt-type yt-t-mix"><b class="yt-pill">str/dict/null</b></span><span class="yt-def">null</span><span class="yt-desc">occupancy-grid source</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-w-mdownsample">mdownsample</a><span class="yt-type yt-t-num"><b class="yt-pill">int</b></span><span class="yt-def">1</span><span class="yt-desc">obstacle-map downsample factor</span></div>
@@ -61,6 +65,10 @@ In a combined configuration for multiple simulators, these keys may be nested un
   <div class="yt-leaf"><a class="yt-key" href="#object-properties">role</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">top-level key</span><span class="yt-desc">robot | obstacle</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-color">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">role/kinematics</span><span class="yt-desc">matplotlib color or 'cycle'; defaults in palette_param</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-static">static</a><span class="yt-type yt-t-bool"><b class="yt-pill">bool</b></span><span class="yt-def">false</span><span class="yt-desc">immobile object</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-mass">mass</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.0 | inf</span><span class="yt-desc">kg, contact mode</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-friction">friction</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.5</span><span class="yt-desc">ground friction, contact mode</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-inertia">inertia</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">shape</span><span class="yt-desc">kg·m², contact mode</span></div>
+  <div class="yt-leaf"><a class="yt-key" href="#p-o-restitution">restitution</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span><span class="yt-desc">bounciness, contact mode</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_min</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[-1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-vel-min">vel_max</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[1]·dim</span></div>
   <div class="yt-leaf"><a class="yt-key" href="#p-o-acce">acce</a><span class="yt-type yt-t-list"><b class="yt-pill">list</b></span><span class="yt-def">[inf]·dim</span><span class="yt-desc">accel limits</span></div>
@@ -258,12 +266,13 @@ In a combined configuration for multiple simulators, these keys may be nested un
   </div>
   </details>
   <details>
-  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">lidar2d or fmcw_lidar2d</span></summary>
+  <summary><a class="yt-key" href="#p-o-sensors">sensors</a><span class="yt-type yt-t-list">list</span><span class="yt-note">lidar2d, fmcw_lidar2d or contact2d</span></summary>
   <div class="yt-body">
     <div class="yt-utabs">
       <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-lidar2d" checked>
       <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-fmcw">
-      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-sen-lidar2d">lidar2d</label><label for="yt-v-sen-fmcw">fmcw_lidar2d</label></span></div>
+      <input class="yt-utab-radio" type="radio" name="yt-v-sensors" id="yt-v-sen-contact">
+      <div class="yt-leaf yt-uvar-row"><a class="yt-key" href="#p-o-sensors">name</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-uvar-tabbar"><label for="yt-v-sen-lidar2d">lidar2d</label><label for="yt-v-sen-fmcw">fmcw_lidar2d</label><label for="yt-v-sen-contact">contact2d</label></span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_min</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">range_max</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10</span></div>
       <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">angle_range</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">pi</span></div>
@@ -306,6 +315,19 @@ In a combined configuration for multiple simulators, these keys may be nested un
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">positive_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC3311"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">negative_velocity_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#0072B2"</span></div>
             <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">no_hit_color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"lightgray"</span></div>
+          </div>
+          </details>
+        </div>
+        <div class="yt-utabpanel">
+          <div class="yt-leaf yt-uvar-note"><span class="yt-desc">no beam parameters, the shared keys above do not apply. Built into every object; listing it draws the contact points and force lines.</span></div>
+          <details>
+          <summary><a class="yt-key" href="#p-o-sensors">plot</a><span class="yt-type yt-t-dict">dict</span><span class="yt-note">contact visualization · flat keys also accepted</span></summary>
+          <div class="yt-body">
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">force_scale</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.05</span><span class="yt-desc">force line length per newton (m)</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">marker_size</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">6</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">linewidth</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.5</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">alpha</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.9</span></div>
+            <div class="yt-leaf"><a class="yt-key" href="#p-o-sensors">color</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"#CC79A7"</span></div>
           </div>
           </details>
         </div>
@@ -508,7 +530,7 @@ world:
   sample_time: 0.1  # 10 Hz for render and data extraction 
   offset: [0, 0] # the offset of the world on x and y 
   step_mode: 'internal'  # 'internal' or 'external'
-  collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles'
+  collision_mode: 'stop'  # 'stop', 'unobstructed', 'unobstructed_obstacles', 'contact'
   plot:
     show_title: true
     figure_pixels: [1000, 800]
@@ -573,7 +595,11 @@ This section outlines the configuration parameters available for the `world` sec
 | `offset`         | `list` of `float` | `[0, 0]`    | Offset for the world's position in `[x, y]` coordinates                                                    |
 | `step_mode`      | `str`             | `"internal"` | State advancement mode. Support mode: `internal` or `external`                                          |
 | `control_mode`   | `str`             | `"auto"`    | Control mode of the simulation. Support mode: `auto` or `keyboard`                                         |
-| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`)                  |
+| `collision_mode` | `str`             | `"stop"`    | Collision handling mode (Support: `"stop"`, `"unobstructed"`, `"unobstructed_obstacles"`, `"contact"`)                  |
+| `gravity`        | `float`           | `9.81`      | Gravitational acceleration in m/s² for the `contact` collision mode; with a body's `friction` and `mass` it gives the ground friction force |
+| `friction`       | `float`           | `0.5`       | Ground friction coefficient objects get unless they set their own `friction` (the PhysX material default) |
+| `restitution`    | `float`           | `0`         | Bounciness objects get unless they set their own `restitution` (the Isaac Lab material default: no bounce) |
+| `drive_tau`      | `float`           | `0`         | Drive lag in seconds of driven objects in the `contact` collision mode unless their `kinematics` set `tau` |
 | `status`         | `str`             | `"None"`    | Initial display label; replaced by the runtime status after the first completed step |
 | `obstacle_map`   | `str`, `ndarray`, `dict`, or `null` | `None`      | Generator spec **dict** (e.g. `{ name: image, path: '…' }` or `{ name: perlin, resolution: 0.1, … }`). String path is shorthand for image generator. See [Configure grid map](../usage/configure_grid_map.md). |
 | `mdownsample`    | `int`             | `1`         | Downsampling factor for the obstacle map to reduce resolution and decrease computational load.             |
@@ -642,6 +668,21 @@ This section outlines the configuration parameters available for the `world` sec
   - `stop`: Stops the movement of objects upon collision. (default)
   - `unobstructed`: Allows objects to pass through each other without consideration of any collision.
   - `unobstructed_obstacles`: Only allows obstacles to pass through each other without consideration of any collision. The robots will stop when they are in collision with the obstacles.
+  - `contact`: Objects are not stopped. After every step, overlapping objects are pushed apart along their contact normal as rigid bodies in a physics engine are, using [`mass`](#p-o-mass) and [`friction`](#p-o-friction): a robot pushes a box at its own speed while its traction beats the box's ground friction and stalls against a box too heavy for it, a box hit off-center turns, a released box slides to a stop, and an object without mass (a wall, a static obstacle, or the grid map) stops it while it slides along the surface. See [Physical properties and contact mode](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode).
+
+(p-w-physics)=
+**`gravity`**, **`friction`**, **`restitution`**, **`drive_tau`** (`float`, defaults: `9.81`, `0.5`, `0`, `0`)
+: The physics the [`contact`](#p-w-collision-mode) collision mode works with, set once for the whole world. `gravity` is the acceleration that turns a body's `friction * mass` into its ground friction force. `friction`, `restitution` and `drive_tau` are what every object starts from: an object's own [`friction`](#p-o-friction) or [`restitution`](#p-o-restitution), or a `tau` under its [`kinematics`](#p-o-kinematics), overrides them. The defaults are the material defaults of PhysX and Isaac Lab, and robots track their commands instantly as Isaac's stiff default drives do at this step size, so a scene without these keys behaves like one of theirs; lower `friction` for a slippery floor, or set `drive_tau`, `0.2` s for a small base with a soft velocity loop, to give every robot a drive that follows commands with a lag.
+
+  ```yaml
+  # Example usage
+  world:
+    collision_mode: 'contact'
+    gravity: 9.81
+    friction: 0.3        # a slippery floor for every box
+    restitution: 0.0
+    drive_tau: 0.0        # 0.2 would give every robot a small base's drive lag
+  ```
 
 (p-w-status)=
 **`status`** (`str`, default: `"None"`)
@@ -735,7 +776,7 @@ world:
   offset: [0, 0]                      # Positional offset of the world on the x and y axes
   step_mode: 'internal'               # State advancement mode ('internal' or 'external')
   control_mode: 'keyboard'            # Control mode ('auto' or 'keyboard')
-  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles')
+  collision_mode: 'stop'              # Collision handling mode ('stop', 'unobstructed', 'unobstructed_obstacles', 'contact')
   obstacle_map: "path/to/map.png"     # Path to the obstacle map image file
   mdownsample: 2                      # Downsampling factor for the obstacle map
   status: "Ready"                     # Initial display label (does not control execution)
@@ -776,14 +817,18 @@ All `robot` and `obstacle` entities in the simulation are configured as objects 
 | `behavior`       | `dict`                                           | `None`           | Behavior configuration dictating object movement. Support name: `dash`, `rvo`, `sfm` (availability depends on `kinematics`; see [Configure behavior](../usage/configure_behavior.md))   |
 | `group_behavior` | `dict`                                           | `None`           | Group-level behavior for objects in the same group. Support name: `orca`, `sfm`                                    |
 | `role`           | `str`                                            | inferred from top-level key | Role of the object in the simulation (`"robot"` under `robot`, `"obstacle"` under `obstacle`).                    |
-| `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black. `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`. |
-| `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise the object is always static. Set `true` to freeze an object that has kinematics. |
+| `color`          | `str`                                            | inferred from role and kinematics | Visualization color of the object in the simulation. Robots default to green (`#009E73`, or `#117733` for `acker`); obstacles default to black, or orange (`#E69F00`) for a pushable body without kinematics (see [`mass`](#p-o-mass)). `'cycle'` gives each object of a group the next color of the palette cycle. All defaults are parameters of `irsim.config.palette_param`. |
+| `static`         | `bool`                                           | derived          | `False` when kinematics are present; otherwise `True` unless a finite [`mass`](#p-o-mass) makes the object pushable. Set `true` to freeze any object. |
+| `mass`           | `float`                                          | `1.0` with kinematics, `inf` without | Mass in kg for the `contact` collision mode; with `friction` it sets the ground friction force that decides what a robot can push, `inf` never moves. A finite mass on an object without kinematics makes it a pushable body. |
+| `friction`       | `float`                                          | `0.5`            | Ground friction coefficient for the `contact` collision mode: slows a released body to a stop and, with `mass`, decides whether a robot can push it and whether it slides along a wall. |
+| `inertia`        | `float`                                          | from shape and mass | Moment of inertia about the center of mass in kg·m² for the `contact` collision mode, from the shape and mass unless set; an off-center push turns a pushable body through it. |
+| `restitution`    | `float`                                          | `0`              | Bounciness of the material for the `contact` collision mode, `0` (no bounce) to `1` (elastic); only passive bodies bounce. |
 | `vel_min`        | `list` of `float`                                | `[-1] * action_dim` | Minimum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `vel_max`        | `list` of `float`                                | `[1] * action_dim`  | Maximum velocity limits for each control dimension. Length matches the kinematics action dimension.                 |
 | `acce`           | `list` of `float`                                | `[inf] * action_dim` | Acceleration limits. Length matches the kinematics action dimension.                                               |
 | `angle_range`    | `list` of `float`                                | `[-pi, pi]`      | Range of orientation angles in radians.                                                                            |
 | `goal_threshold` | `float`                                          | `0.1`            | Threshold distance to determine goal arrival.                                                                      |
-| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`, `fmcw_lidar2d`                     |
+| `sensors`        | `list` of `dict`                                 | `None`           | List of sensor configurations attached to the object. Support name: `lidar2d`, `fmcw_lidar2d`, `contact2d`                     |
 | `arrive_mode`    | `str`                                            | `'position'`     | Mode for arrival detection.                                                                                        |
 | `description`    | `str`                                            | `None`           | Image description or label for the object.                                                                         |
 | `group`          | `int`                                            | `0`              | Group identifier for organizational purposes, allowing objects to be grouped.                                      |
@@ -1041,7 +1086,14 @@ env.step(env.robot.vel_world2body(world_vel))
     ```
   
 
-  Any other key under `kinematics` is passed to the handler's constructor. This is how a model registered with `@register_kinematics` receives its own parameters, e.g. `kinematics: {name: 'lag', tau: 0.5}`.
+  - `tau` (`float`, every model, default: the world's `drive_tau`, `0`): drive lag in seconds, used by `collision_mode: 'contact'` only. The robot's velocity then follows its command as a first-order response, as the PD-driven wheels of a base do in Isaac Sim, so a step in the command takes about `3 tau` to complete and a robot cannot reverse within a step; `0` tracks the command instantly, which matches Isaac's stiff default drives at this step size, and `0.2` models a small base with a soft velocity loop. A stalled robot keeps pushing at its full command while its body velocity reads zero. The other collision modes always track commands instantly.
+
+    ```yaml
+    # Example usage
+    kinematics: {name: 'diff', tau: 0.3}
+    ```
+
+  Any other key under `kinematics` is passed to the handler's constructor. This is how a model registered with `@register_kinematics` receives its own parameters, e.g. `kinematics: {name: 'slip', ratio: 0.5}`.
 
 (p-o-vel-min)=
 **`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** (`list` of `float`, default: `[1, 1]`)
@@ -1269,11 +1321,65 @@ env.step(env.robot.vel_world2body(world_vel))
 
 (p-o-static)=
 **`static`**:
-  A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state.
+  A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state, and contacts never move them. When not set, an object with kinematics is not static, and an object without kinematics is static unless a finite [`mass`](#p-o-mass) makes it pushable.
 
   **Example:**
   ```yaml
   static: True
+  ```
+
+(p-o-mass)=
+**`mass`** (`float`, default: `1.0` with kinematics, `inf` without)
+: Mass in kilograms, used by the [`contact`](#p-w-collision-mode) collision mode. With [`friction`](#p-o-friction) it gives the object's ground friction force `friction * mass * gravity`: a robot pushes a body while its own value is at least that of the body and everything it pushes ahead, so with equal materials it pushes up to its own mass in boxes and stalls against more, and two passive bodies that collide share the overlap in inverse proportion to their masses, as in an inelastic collision. An object with `inf` mass never moves. Objects without kinematics are immovable by default; giving one a finite mass turns it into a pushable body that does not move on its own. A list gives each object of a `number` group its own mass. Such a body is drawn in orange (`#E69F00`, colour-blind safe and distinct from black in grayscale print) unless `color` is set; objects with kinematics keep their usual color. Static objects ignore their mass. In other collision modes the value is unused, but an obstacle given a mass is still stepped and redrawn as a pushable body.
+
+  ```yaml
+  # Example usage
+  obstacle:
+    - shape: {name: 'rectangle', length: 0.8, width: 0.8}
+      state: [3, 5, 0]
+      mass: 2.0            # pushable box
+    - shape: {name: 'rectangle', length: 0.4, width: 6}
+      state: [8, 5, 0]     # no mass: immovable wall
+  ```
+
+(p-o-friction)=
+**`friction`** (`float`, default: the world's `friction`, `0.5`)
+: Coulomb friction coefficient with the ground, used by the [`contact`](#p-w-collision-mode) collision mode; the default is the material value physics engines such as PhysX use. A released body decelerates by `friction * gravity`, 9.81 m/s² by default, until it stops, about 5 cm from 1 m/s, and `0` lets it slide forever. With [`mass`](#p-o-mass) it decides whether a robot can push a body, and for a robot it also caps how fast the wheels can change its speed, `friction * gravity` per second, so a robot with `0` cannot move. A body pressed against a wall slides along it only when the push leaves the friction cone of the two surfaces (their mean coefficient); a robot always slides. A list gives each object of a `number` group its own coefficient.
+
+  ```yaml
+  # Example usage
+  obstacle:
+    - shape: {name: 'rectangle', length: 0.8, width: 0.8}
+      state: [3, 5, 0]
+      mass: 2.0
+      friction: 0.1        # slides far once released
+  ```
+
+(p-o-inertia)=
+**`inertia`** (`float`, default: from the shape and mass)
+: Moment of inertia about the object's center of mass, the centroid of its shape, in kg·m², used by the [`contact`](#p-w-collision-mode) collision mode to turn a pushable body when a push misses its center: the contact point and normal give a torque that this value resists, as in a physics engine. Unless set it is computed from the shape and [`mass`](#p-o-mass): `m r² / 2` for a circle, `m (l² + w²) / 12` for a rectangle, and the exact polar moment of the area for a polygon; other shapes use a disc of the bounding radius. A robot keeps its heading while it pushes; stopped by a wall or a load it cannot move, an off-center contact deflects it. A spinning body slows under [`friction`](#p-o-friction) like a sliding one. A list gives each object of a `number` group its own value.
+
+  ```yaml
+  # Example usage
+  obstacle:
+    - shape: {name: 'rectangle', length: 0.8, width: 0.8}
+      state: [3, 5, 0]
+      mass: 2.0
+      inertia: 1.0         # harder to spin than its shape suggests
+  ```
+
+(p-o-restitution)=
+**`restitution`** (`float`, default: the world's `restitution`, `0`)
+: Bounciness of the object's material, used by the [`contact`](#p-w-collision-mode) collision mode: `0` is a perfectly inelastic contact, the default material of physics engines such as Isaac Lab, and `1` an elastic one. Two bodies that collide separate at the mean of their two values times their approach speed, on top of being pushed apart. Only passive bodies bounce, since a robot's drive re-asserts its velocity every step, and only off a contact that could move them, so a box a robot cannot push is not hammered forward. A list gives each object of a `number` group its own value.
+
+  ```yaml
+  # Example usage
+  obstacle:
+    - shape: {name: 'circle', radius: 0.3}
+      state: [3, 5, 0]
+      mass: 0.5
+      friction: 0.05
+      restitution: 0.8     # a ball that bounces off walls
   ```
 ::::
 
@@ -1284,6 +1390,7 @@ env.step(env.robot.vel_world2body(world_vel))
 :class-card: sd-bg-light sd-rounded-3
 - **`lidar2d`**: 2D laser scanner (`range_min/max`, `angle_range`, `noise`)
 - **`fmcw_lidar2d`**: 2D FMCW LiDAR (`range/radial_velocity`, `motion_compensate`, Doppler visualization)
+- **`contact2d`**: Contact sensor of the `contact` collision mode (contact points and forces, `force_scale` visualization)
 - **`fov`**: Field of view angle (radians)
 - **`fov_radius`**: Maximum detection distance
 ```
@@ -1360,6 +1467,21 @@ env.step(env.robot.vel_world2body(world_vel))
           velocity_marker_size: 45
     ```
 
+  - `contact2d`: Contact sensor for the [`contact`](#p-w-collision-mode) collision mode. Every object has one built in as `obj.contact`, written by the contact solver, so `obj.contact.in_contact`, `obj.contact.partners`, `obj.contact.reports`, `obj.contact.force`, `obj.contact.contact_time`, `obj.contact.air_time`, `obj.contact.started` and `obj.contact.ended` are always available; listing it here draws a marker at each contact point and a line along the contact normal scaled by the contact force. It has no functional parameters. Visualization options go under the sensor's **`plot:`** sub-dict (flat top-level keys are also accepted):
+    - `force_scale` (float/`0.05`): Length of the force line per newton, in meters.
+    - `marker_size` (float/`6`): Size of the contact point markers.
+    - `linewidth` (float/`1.5`): Width of the force lines.
+    - `alpha` (float/`0.9`): Transparency of the drawing.
+    - `color` (str/`"#CC79A7"`): Color of the markers and lines.
+
+    **Example:**
+    ```yaml
+    sensors:
+      - type: 'contact2d'
+        plot:
+          force_scale: 0.05
+    ```
+
 (p-o-fov)=
 **`fov`** and **`fov_radius`**:
   Define the field of view (FOV) for the object's sensors. The FOV is the angular range within which the sensor can detect objects. The `fov` parameter specifies the angular range in radians, while `fov_radius` sets the maximum detection distance.
@@ -1420,7 +1542,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
 (p-o-color)=
 **`color`** (`str`, default: inferred from role and kinematics)
-: Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
+: Specifies the object's color in visualizations for easy identification. Robots with registered kinematics use the color defined by the kinematics handler, green `#009E73` for the built-in models and `#117733` for `acker`; obstacles default to black, or to orange (`#E69F00`, `palette_param.pushable`) when a finite [`mass`](#p-o-mass) makes an obstacle without kinematics pushable. `'cycle'` gives each object of a `number` group the next color of `palette_param.cycle`, which tells robots apart in a crowd. These and every other default color are parameters of {py:mod}`irsim.config.palette_param`, a colour-blind-safe set that also prints well in grayscale; set them before `irsim.make()` to restyle a scene, for example `palette_param.robot = '#0072B2'`. Detailed color options can be found in [matplotlib color](https://matplotlib.org/stable/gallery/color/named_colors.html).
 
   **Example:**
   ```yaml

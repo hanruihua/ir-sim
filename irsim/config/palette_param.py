@@ -17,6 +17,9 @@ Attributes:
     robot: Robots with ``diff``, ``omni``, ``omni_angular`` or custom kinematics.
     robot_acker: Car-like (``acker``) robots.
     obstacle: Obstacles, grid maps and any object without a role color.
+    pushable: Pushable objects (finite ``mass``, not static) without
+        kinematics, which only move when ``collision_mode: contact`` pushes
+        them, so they stand out from static obstacles.
     arrow: Heading arrow drawn on top of a body.
     fov: Field-of-view fill.
     fov_edge: Field-of-view outline.
@@ -56,6 +59,7 @@ class PaletteParam:
     robot: str = "#009E73"
     robot_acker: str = "#117733"
     obstacle: str = "k"
+    pushable: str = "#E69F00"
     arrow: str = "#F0E442"
     fov: str = "#56B4E9"
     fov_edge: str = "#0072B2"

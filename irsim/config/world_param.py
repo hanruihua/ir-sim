@@ -7,9 +7,21 @@ Attributes:
         (an external system supplies object states)
     control_mode: 'auto' (robot controlled automatically) or 'keyboard' (robot controlled by keyboard)
     collision_mode: 'stop' (default, all objects stop on collision), 'unobstructed' (no collision check),
-        or 'unobstructed_obstacles' (only obstacles pass through each other)
+        'unobstructed_obstacles' (only obstacles pass through each other), or 'contact'
+        (overlaps are resolved as rigid-body contacts with mass, friction, inertia and restitution)
     step_time: time of the simulation step, default is 0.1
     count: count of the simulation, time = count * step_time
+    gravity: gravitational acceleration in m/s^2 (default 9.81); with a body's
+        friction coefficient and mass it gives the ground friction force the
+        'contact' collision mode works with
+    friction: ground friction coefficient objects get unless they set their
+        own (default 0.5, the material default of PhysX)
+    restitution: bounciness objects get unless they set their own (default 0,
+        the Isaac Lab material default: no bounce)
+    drive_tau: drive lag in seconds of driven objects in 'contact' mode unless
+        their kinematics set 'tau' (default 0: commands are tracked instantly,
+        as Isaac's stiff default drives do at this step size; 0.2 models a
+        small base with a soft velocity loop)
 """
 
 import sys
@@ -29,6 +41,10 @@ class WorldParam:
         collision_mode: Collision handling mode.
         step_time: Simulation time step.
         count: Number of elapsed simulation steps.
+        gravity: Gravitational acceleration used for ground friction (m/s^2).
+        friction: Default ground friction coefficient of objects.
+        restitution: Default bounciness of objects.
+        drive_tau: Default drive lag of driven objects in ``contact`` mode (s).
     """
 
     time: float = 0.0
@@ -37,6 +53,10 @@ class WorldParam:
     collision_mode: str = "stop"
     step_time: float = 0.1
     count: int = 0
+    gravity: float = 9.81
+    friction: float = 0.5
+    restitution: float = 0.0
+    drive_tau: float = 0.0
 
 
 # Multi-env storage (default index 0)

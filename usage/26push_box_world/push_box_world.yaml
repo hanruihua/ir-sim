@@ -1,0 +1,58 @@
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  sample_time: 0.1
+  offset: [0, 0]
+  collision_mode: 'contact'   # touching objects push each other apart by mass
+  control_mode: 'auto'
+
+
+# Three identical robots push three boxes of different mass toward a wall.
+# In 'contact' mode a robot pushes a box at its own speed as long as its
+# traction (friction * mass * g) is at least the box's ground friction, so
+# the 0.25 kg and the 1 kg box travel at robot speed while the 2 kg box is
+# too heavy for a 1 kg robot and stalls it. The wall has no mass (infinite),
+# so once a box reaches it the whole chain stops, while the robots keep
+# asking for full speed. Released boxes slide to a stop under friction 0.5.
+# The robots aim at the box centers, so the boxes only slide; hit one
+# off-center and it turns, as in a physics engine. Set drive_tau: 0.2 under
+# world to give the robots the sluggish drive of a small real base.
+robot:
+  - number: 3
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    mass: 1.0
+    state:
+      - [1, 2, 0]
+      - [1, 6, 0]
+      - [1, 10, 0]
+    goal:
+      - [11.5, 2, 0]
+      - [11.5, 6, 0]
+      - [11.5, 10, 0]
+    behavior: {name: 'dash'}
+    vel_max: [1.0, 1.0]
+    sensors:
+      - type: 'contact2d'       # draws the contact points and force lines
+    plot:
+      show_trail: true
+      trail_freq: 5
+      show_goal: false
+
+obstacle:
+  - number: 3
+    distribution: {name: 'manual'}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state:
+      - [3, 2, 0]
+      - [3, 6, 0]
+      - [3, 10, 0]
+    mass: [0.25, 2.0, 1.0]        # a finite mass makes an obstacle pushable (drawn in orange)
+    plot:
+      show_text: true
+
+  - shape: {name: 'rectangle', length: 0.4, width: 11}   # no mass: immovable wall
+    state: [10.5, 6, 0]
+    color: 'k'

@@ -72,7 +72,7 @@ A **behavior** maps an object's state (and, for reactive ones, its neighbours) t
 
 ## Sensors: perceiving the world
 
-**Sensors** are attached to objects and produce measurements from the world each step: a 2D LiDAR, a 2D FMCW LiDAR (range *and* per-beam radial velocity), and a field-of-view detector. Sensors are refreshed **after** objects move, so a reading always reflects the latest world state.
+**Sensors** are attached to objects and produce measurements from the world each step: a 2D LiDAR, a 2D FMCW LiDAR (range *and* per-beam radial velocity), a contact sensor (partners, forces and contact time in the `contact` collision mode), and a field-of-view detector. Sensors are refreshed **after** objects move, so a reading always reflects the latest world state.
 
 ## From YAML to a running scene
 

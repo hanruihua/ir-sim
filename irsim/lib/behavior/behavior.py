@@ -61,11 +61,7 @@ class Behavior:
                         f"Behavior not defined for {self.object_info.name}. auto control will be static. Available behaviors: rvo, dash"
                     )
 
-            action_dim = (
-                ego_object.kf.action_dim
-                if ego_object is not None and ego_object.kf is not None
-                else 2
-            )
+            action_dim = ego_object.kf.action_dim if ego_object is not None else 2
             return np.zeros((action_dim, 1))
 
         target_roles = self.behavior_dict.get("target_roles", "all")
