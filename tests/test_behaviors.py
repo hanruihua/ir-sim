@@ -740,6 +740,30 @@ class TestOrcaGroupBehavior:
         assert result[0][0, 0] == pytest.approx(0.0, abs=1e-6)
         assert abs(result[0][1, 0]) > 0.0
 
+    def test_orca_omni_pref_velocity_uses_speed_cap(self):
+        """omni members head for the goal at their speed cap, not at 1 m/s."""
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "omni"
+        member.state = np.array([[0.0], [0.0], [0.0]])
+        member.radius = 0.2
+        member.max_speed = 3.0
+        member.get_desired_omni_vel = Mock(return_value=np.array([[3.0], [0.0]]))
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        assert OrcaGroupBehavior([member])._pref_velocity(member) == pytest.approx(
+            [3.0, 0.0]
+        )
+        assert OrcaGroupBehavior([member], maxSpeed=2.0)._pref_velocity(
+            member
+        ) == pytest.approx([2.0, 0.0])
+
+        member.get_desired_omni_vel = Mock(return_value=np.zeros((2, 1)))
+        assert OrcaGroupBehavior([member])._pref_velocity(member) == [0.0, 0.0]
+
     def test_orca_diff_zero_when_no_goal(self):
         """diff preferred velocity is zero when a member has no goal."""
         pytest.importorskip("pyrvo")

@@ -134,8 +134,8 @@ class reciprocal_vel_obs:
         """Build one RVO cone for a circular obstacle.
 
         Args:
-            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
-                static circular obstacle state ``[x, y, radius]``.
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
+                neighbour has zero velocity).
 
         Returns:
             list: ``[apex, left_vector, right_vector]`` cone description.
@@ -146,28 +146,10 @@ class reciprocal_vel_obs:
         vy = self.state[3]
         r = self.state[4]
 
-        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
-
-        if mode == "moving":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = obstacle[2]
-            mvy = obstacle[3]
-            mr = obstacle[4]
-
-            rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
-
-        elif mode == "sta_circular":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = 0
-            mvy = 0
-            mr = obstacle[2] + 0.2
-
-            vo_apex = [mvx, mvy]
-            rvo_apex = vo_apex  # vo
-        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
-            log_error("wrong rvo mode")
+        # Neighbours always carry their velocity; a static one has zero
+        # velocity, which the reciprocal apex handles without a special case.
+        mx, my, mvx, mvy, mr = obstacle[:5]
+        rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
 
         line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
@@ -192,11 +174,11 @@ class reciprocal_vel_obs:
         """Build one HRVO cone for a circular obstacle.
 
         Args:
-            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
-                static circular obstacle state ``[x, y, radius]``.
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
+                neighbour has zero velocity).
 
         Returns:
-            list | None: ``[apex, left_vector, right_vector]`` cone description.
+            list: ``[apex, left_vector, right_vector]`` cone description.
         """
         x = self.state[0]
         y = self.state[1]
@@ -204,25 +186,7 @@ class reciprocal_vel_obs:
         vy = self.state[3]
         r = self.state[4]
 
-        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
-
-        if mode == "moving":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = obstacle[2]
-            mvy = obstacle[3]
-            mr = obstacle[4]
-
-        elif mode == "sta_circular":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = 0
-            mvy = 0
-            mr = obstacle[2] + 0.2
-
-        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
-            log_error("wrong hrvo mode")
-
+        mx, my, mvx, mvy, mr = obstacle[:5]
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
         vo_apex = [mvx, mvy]
 
@@ -232,39 +196,34 @@ class reciprocal_vel_obs:
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
         line_right_vector = [cos(line_right_ori), sin(line_right_ori)]
 
-        if mode == "moving":
-            cl_vector = [mx - x, my - y]
+        cl_vector = [mx - x, my - y]
 
-            cur_v = [vx - rvo_apex[0], vy - rvo_apex[1]]
+        cur_v = [vx - rvo_apex[0], vy - rvo_apex[1]]
 
-            dis_rv = dist_hypot(rvo_apex[0], rvo_apex[1], vo_apex[0], vo_apex[1])
-            radians_rv = atan2(rvo_apex[1] - vo_apex[1], rvo_apex[0] - vo_apex[0])
+        dis_rv = dist_hypot(rvo_apex[0], rvo_apex[1], vo_apex[0], vo_apex[1])
+        radians_rv = atan2(rvo_apex[1] - vo_apex[1], rvo_apex[0] - vo_apex[0])
 
-            diff = line_left_ori - radians_rv
+        diff = line_left_ori - radians_rv
 
-            temp = pi - 2 * half_angle
+        temp = pi - 2 * half_angle
 
-            if temp == 0:
-                temp = temp + 0.01
+        if temp == 0:
+            temp = temp + 0.01
 
-            dis_diff = dis_rv * sin(diff) / sin(temp)
+        dis_diff = dis_rv * sin(diff) / sin(temp)
 
-            if reciprocal_vel_obs.cross_product(cl_vector, cur_v) <= 0:
-                hrvo_apex = [
-                    rvo_apex[0] - dis_diff * cos(line_right_ori),
-                    rvo_apex[1] - dis_diff * sin(line_right_ori),
-                ]
-            else:
-                hrvo_apex = [
-                    vo_apex[0] + dis_diff * cos(line_right_ori),
-                    vo_apex[1] + dis_diff * sin(line_right_ori),
-                ]
+        if reciprocal_vel_obs.cross_product(cl_vector, cur_v) <= 0:
+            hrvo_apex = [
+                rvo_apex[0] - dis_diff * cos(line_right_ori),
+                rvo_apex[1] - dis_diff * sin(line_right_ori),
+            ]
+        else:
+            hrvo_apex = [
+                vo_apex[0] + dis_diff * cos(line_right_ori),
+                vo_apex[1] + dis_diff * sin(line_right_ori),
+            ]
 
-            return [hrvo_apex, line_left_vector, line_right_vector]
-
-        if mode == "sta_circular":
-            return [vo_apex, line_left_vector, line_right_vector]
-        return None
+        return [hrvo_apex, line_left_vector, line_right_vector]
 
     def config_vo(self):
         """Build standard velocity-obstacle cones for all obstacles."""
@@ -282,37 +241,17 @@ class reciprocal_vel_obs:
         """Build one VO cone for a circular obstacle.
 
         Args:
-            obstacle: Moving obstacle state ``[x, y, vx, vy, radius]`` or
-                static circular obstacle state ``[x, y, radius]``.
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
+                neighbour has zero velocity).
 
         Returns:
             list: ``[apex, left_vector, right_vector]`` cone description.
         """
         x = self.state[0]
         y = self.state[1]
-        vx = self.state[2]
-        vy = self.state[3]
         r = self.state[4]
 
-        mode = "sta_circular" if vx == 0 and vy == 0 else "moving"
-
-        if mode == "moving":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = obstacle[2]
-            mvy = obstacle[3]
-            mr = obstacle[4]
-
-        elif mode == "sta_circular":
-            mx = obstacle[0]
-            my = obstacle[1]
-            mvx = 0
-            mvy = 0
-            mr = obstacle[2] + 0.2
-
-        else:  # pragma: no cover - unreachable; mode is "moving" or "sta_circular"
-            log_error("wrong obstacle mode")
-
+        mx, my, mvx, mvy, mr = obstacle[:5]
         vo_apex = [mvx, mvy]
         line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]
@@ -396,6 +335,21 @@ class reciprocal_vel_obs:
         velocities, outside = self._candidate_velocities(rvo_list)
         return velocities[outside].tolist(), velocities[~outside].tolist()
 
+    def _axis_candidates(self, current, vmax):
+        """Velocities reachable along one axis within ``acce`` of ``current``.
+
+        The window is clipped to ``[-vmax, vmax]``. When the current velocity
+        lies more than ``acce`` outside that range (an initial or externally
+        set velocity above the limit), the window would be empty and the
+        selection would fail, so the nearest admissible velocity is the one
+        candidate instead.
+        """
+        low = max(current - self.acce, -vmax)
+        high = min(current + self.acce, vmax)
+        if high <= low:
+            return np.array([float(np.clip(current, -vmax, vmax))])
+        return np.arange(low, high, 0.05)
+
     def _candidate_velocities(self, rvo_list):
         """Reachable velocity grid and a mask of those outside every cone.
 
@@ -403,19 +357,8 @@ class reciprocal_vel_obs:
         the nested ``vx``/``vy`` loops would produce it so that
         :meth:`vel_select` picks the same velocity.
         """
-        cur_vx = self.state[2]
-        cur_vy = self.state[3]
-
-        vxs = np.arange(
-            max(cur_vx - self.acce, -self.vxmax),
-            min(cur_vx + self.acce, self.vxmax),
-            0.05,
-        )
-        vys = np.arange(
-            max(cur_vy - self.acce, -self.vymax),
-            min(cur_vy + self.acce, self.vymax),
-            0.05,
-        )
+        vxs = self._axis_candidates(self.state[2], self.vxmax)
+        vys = self._axis_candidates(self.state[3], self.vymax)
         grid_x, grid_y = np.meshgrid(vxs, vys, indexing="ij")
         vx, vy = grid_x.ravel(), grid_y.ravel()
 

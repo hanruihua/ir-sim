@@ -2029,6 +2029,38 @@ class TestObjectVelocityProperties:
         vel = robot.get_desired_omni_vel()
         assert np.allclose(vel, np.zeros((2, 1)))
 
+    def test_desired_omni_vel_points_at_goal_for_diff(self, tmp_path):
+        """A diff robot's vel_max is [linear, angular]; the desired velocity
+        must follow the goal bearing at the linear limit, not scale y by the
+        angular limit (which sent rvo/sfm diff robots away from the goal)."""
+        config = tmp_path / "diff_desired.yaml"
+        config.write_text(
+            "world: {height: 10, width: 10, step_time: 0.1}\n"
+            "robot:\n"
+            "  - kinematics: {name: 'diff'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [1, 1, 0.785]\n"
+            "    goal: [9, 9, 0]\n"
+            "    vel_max: [3, 1]\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [1, 2, 0]\n"
+            "    goal: [9, 10, 0]\n"
+            "    vel_max: [3, 1]\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            diff, omni = env.robot_list
+            vel = diff.get_desired_omni_vel().flatten()
+            assert np.arctan2(vel[1], vel[0]) == pytest.approx(np.pi / 4, abs=1e-9)
+            assert np.hypot(*vel) == pytest.approx(3.0)
+            assert np.allclose(diff.desired_omni_vel, diff.get_desired_omni_vel())
+            # omni keeps its per-axis translational bounds
+            vel = omni.get_desired_omni_vel().flatten()
+            assert vel == pytest.approx([3 * np.cos(np.pi / 4), 1 * np.sin(np.pi / 4)])
+        finally:
+            env.end()
+
 
 class TestAssignKeyboardAction:
     """Tests for _assign_keyboard_action with different kinematics."""

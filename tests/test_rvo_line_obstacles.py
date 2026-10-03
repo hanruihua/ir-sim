@@ -498,3 +498,80 @@ class TestCalVelRobustness:
                 for mode in ("rvo", "hrvo", "vo"):
                     vel = rvo.cal_vel(mode)
                     assert np.all(np.isfinite(vel))
+
+
+# ===================================================================
+# Neighbour cones with the ego at rest, and the candidate grid
+# ===================================================================
+
+
+class TestRestStateCones:
+    """A neighbour is always ``[x, y, vx, vy, r]``; the ego's own velocity must
+    not switch the cone to a legacy 3-element layout that reads ``vx`` as the
+    radius."""
+
+    @staticmethod
+    def _half_angle(cone):
+        left, right = np.array(cone[1]), np.array(cone[2])
+        return 0.5 * np.arccos(np.clip(np.dot(left, right), -1.0, 1.0))
+
+    @pytest.mark.parametrize(
+        "config", ["config_rvo_mode", "config_hrvo_mode", "config_vo_mode"]
+    )
+    def test_cone_is_the_same_at_rest_and_moving(self, config):
+        neighbour = [1.0, 0.0, 0.0, 0.0, 0.5]
+        expected = np.arcsin((0.2 + 0.5) / 1.0)
+        at_rest = reciprocal_vel_obs(_agent_state(vx=0.0, vy=0.0, r=0.2))
+        moving = reciprocal_vel_obs(_agent_state(vx=0.0, vy=1e-3, r=0.2))
+        rest_cone = getattr(at_rest, config)(neighbour)
+        move_cone = getattr(moving, config)(neighbour)
+        assert self._half_angle(rest_cone) == pytest.approx(expected, abs=1e-9)
+        assert self._half_angle(move_cone) == pytest.approx(expected, abs=1e-9)
+
+    def test_rest_apex_is_reciprocal(self):
+        """RVO apex at rest is half the neighbour velocity, not the origin."""
+        rvo = reciprocal_vel_obs(_agent_state(vx=0.0, vy=0.0, r=0.2))
+        cone = rvo.config_rvo_mode([3.0, 0.0, -1.0, 0.0, 0.3])
+        assert cone[0] == pytest.approx([-0.5, 0.0])
+
+    @pytest.mark.parametrize("mode", ["rvo", "hrvo", "vo"])
+    def test_rest_ego_does_not_drive_into_approaching_neighbour(self, mode):
+        """Ego at rest, neighbour 3 m ahead closing at 1 m/s: heading straight
+        at it is infeasible, so the chosen velocity is not the straight dash."""
+        rvo = reciprocal_vel_obs(
+            _agent_state(vx=0.0, vy=0.0, r=0.2, vx_des=1.0, vy_des=0.0),
+            obs_state_list=[[3.0, 0.0, -1.0, 0.0, 0.3]],
+            vxmax=1.0,
+            vymax=1.0,
+            acce=1.0,
+        )
+        rvo_list = getattr(rvo, f"config_{mode}")()
+        assert rvo.vo_out(1.0, 0.0, rvo_list) is False
+        vx, vy = rvo.cal_vel(mode)
+        assert not (vx > 0.9 and abs(vy) < 1e-6)
+
+
+class TestCandidateGridNeverEmpty:
+    """A current velocity beyond the limit by more than ``acce`` used to leave
+    an empty grid and crash ``vel_select`` with ``argmin`` of an empty array."""
+
+    def test_axis_candidates_clamp_to_limit(self):
+        rvo = reciprocal_vel_obs(_agent_state(), vxmax=1.5, vymax=1.5, acce=1.0)
+        assert rvo._axis_candidates(3.0, 1.5).tolist() == [1.5]
+        assert rvo._axis_candidates(-3.0, 1.5).tolist() == [-1.5]
+        inside = rvo._axis_candidates(0.0, 1.5)
+        assert inside[0] == pytest.approx(-1.0)
+        assert inside[-1] < 1.0
+
+    @pytest.mark.parametrize("mode", ["rvo", "hrvo", "vo"])
+    def test_cal_vel_with_velocity_beyond_limit(self, mode):
+        rvo = reciprocal_vel_obs(
+            _agent_state(vx=3.0, vy=0.0, vx_des=1.0),
+            obs_state_list=[[5.0, 0.0, 0.0, 0.0, 0.3]],
+            vxmax=1.5,
+            vymax=1.5,
+            acce=1.0,
+        )
+        vx, vy = rvo.cal_vel(mode)
+        assert -1.5 <= vx <= 1.5
+        assert -1.5 <= vy <= 1.5
