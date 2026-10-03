@@ -199,10 +199,14 @@ class EnvConfig:
         objects = robot_collection + obstacle_collection + map_collection
         objects.sort(key=attrgetter("id"))
 
-        # Initialize groups (unique and inclusive)
-        group_ids = sorted({obj.group for obj in objects})
+        # Initialize groups (unique and inclusive). Map objects are static
+        # scenery rather than agents, so they never join a group: the map's
+        # default ``group`` of 0 would otherwise make it a member of the first
+        # robot group and an agent of that group's behavior (orca, sfm).
+        grouped = [obj for obj in objects if obj.shape != "map"]
+        group_ids = sorted({obj.group for obj in grouped})
         object_groups = [
-            ObjectGroup([obj for obj in objects if obj.group == gid], gid)
+            ObjectGroup([obj for obj in grouped if obj.group == gid], gid)
             for gid in group_ids
         ]
 

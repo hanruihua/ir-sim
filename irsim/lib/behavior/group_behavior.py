@@ -72,22 +72,28 @@ class GroupBehavior:
         """
         self.members = members
 
+    def _no_actions(self) -> list[None]:
+        """One ``None`` per member, so the result stays aligned with ``members``."""
+        return [None] * len(self.members)
+
     def gen_group_vel(self) -> list[Any]:
         """Generate per-member actions for one step.
 
         Returns:
-            list: A list of actions aligned with `members`. Each element is
-                  behavior-specific (e.g., 2x1 numpy arrays for velocity).
+            list: A list of actions aligned with `members` (always
+                  ``len(members)`` entries). Each element is behavior-specific
+                  (e.g., 2x1 numpy arrays for velocity), or ``None`` when the
+                  member gets no group action.
 
         Behavior:
             - Uses a class-based handler if one was registered and initialized.
             - Otherwise looks up a function behavior in the registry.
-            - If no behavior is configured, returns `[None]` (one sentinel
-              element) and logs a warning periodically in auto mode.
+            - If no behavior is configured, returns ``None`` for every member
+              and logs a warning periodically in auto mode.
         """
 
         if not self.behavior_dict:
-            return [None]
+            return self._no_actions()
 
         if self.name is None or self.kinematics is None:
             # Access params via first member if available
@@ -98,7 +104,7 @@ class GroupBehavior:
                         f"Group behavior not defined for the group of {self.members[0].name}. "
                         "Auto control will be static. Available behaviors: orca"
                     )
-            return [None]
+            return self._no_actions()
 
         # Prefer class-based handler if initialized
         if callable(self._invoke_func):
@@ -112,7 +118,7 @@ class GroupBehavior:
                 f"No group behavior method found for category '{self.kinematics}' "
                 f"and action '{self.name}'."
             )
-            return [None]
+            return self._no_actions()
         return func(self.members, **self.behavior_dict)
 
     def load_group_behaviors(self, group_behaviors: str = ".group_behavior_methods"):

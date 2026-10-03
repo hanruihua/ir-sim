@@ -539,14 +539,26 @@ class EnvBase:
 
     def _assign_group_action(self, action: list[Any]) -> list[Any]:
         """
-        Assign the group action to the action list.
+        Assign the group actions to the action list.
+
+        Each group behavior returns one action per group member, aligned with
+        ``group.members``. Actions are matched to ``self.objects`` by object
+        identity rather than by position, since group membership is neither
+        contiguous nor ordered like ``self.objects`` (e.g. obstacle groups,
+        explicit ``group`` ids, or objects deleted at runtime). An action
+        already present in ``action`` (keyboard or user supplied) takes
+        priority over the group action.
         """
-        group_actions = [
-            ga for group in self._object_groups for ga in group.gen_group_vel()
-        ]
-        for i, (a, ga) in enumerate(zip(action, group_actions, strict=False)):
-            if a is None and ga is not None:
-                action[i] = ga
+        position = {id(obj): i for i, obj in enumerate(self.objects)}
+
+        for group in self._object_groups:
+            group_actions = group.gen_group_vel()
+            for member, ga in zip(group.members, group_actions, strict=False):
+                if ga is None:
+                    continue
+                index = position.get(id(member))
+                if index is not None and action[index] is None:
+                    action[index] = ga
 
         return action
 
