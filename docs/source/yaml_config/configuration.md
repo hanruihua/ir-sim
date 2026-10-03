@@ -1045,7 +1045,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
 (p-o-vel-min)=
 **`vel_min`** (`list` of `float`, default: `[-1, -1]`) and **`vel_max`** (`list` of `float`, default: `[1, 1]`)
-: Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds.
+: Set the minimum and maximum velocity limits for each control dimension (e.g., linear and angular velocities). These constraints ensure the object's motion stays within feasible and safe bounds. For `diff` and `acker` the second entry is an angular or steering limit; reactive behaviors (`rvo`, `sfm`, `orca`) head for the goal at the first, translational, limit.
 
 (p-o-acce)=
 **`acce`** (`list` of `float`, default: `[inf, inf]`)
@@ -1236,7 +1236,7 @@ env.step(env.robot.vel_world2body(world_vel))
     - `timeHorizon` (float/`20.0`): Time horizon for computing safe velocities with respect to other agents.
     - `timeHorizonObst` (float/`10.0`): Time horizon for computing safe velocities with respect to static obstacles.
     - `safe_radius` (float/`0.1`): Additional safety radius padding.
-    - `maxSpeed` (float/`None`): Max speed for the agents. If `None`, uses the object's `vel_max`.
+    - `maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. It is never above the fastest speed a member can hold in every direction (the smaller `vel_max` component for `omni`, the linear limit for `diff`), which is also the default when `None`.
 
     **Example:**
     ```yaml

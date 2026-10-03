@@ -1468,8 +1468,9 @@ class ObjectBase:
         dis, radian = relative_position(self.state, self.goal)
 
         if dis > goal_threshold:
-            vx = self.vel_max[0, 0] * cos(radian)
-            vy = self.vel_max[1, 0] * sin(radian)
+            speed_x, speed_y = self._desired_speed_bounds()
+            vx = speed_x * cos(radian)
+            vy = speed_y * sin(radian)
         else:
             vx = 0
             vy = 0
@@ -1482,6 +1483,21 @@ class ObjectBase:
                 vy = vy / length
 
         return np.array([[vx], [vy]])
+
+    def _desired_speed_bounds(self) -> tuple[float, float]:
+        """Speed bounds along the world x and y axes for the desired velocity.
+
+        ``vel_max`` is laid out per kinematics: ``omni`` and ``omni_angular``
+        bound two translational components, while ``diff`` and ``acker`` bound
+        a translational speed and an angular or steering rate. For the latter
+        the translational bound applies to both axes; scaling the y component
+        by the angular limit would skew the desired direction away from the
+        goal bearing.
+        """
+        speed_x = float(self.vel_max[0, 0])
+        if self.kinematics in ("diff", "acker"):
+            return speed_x, speed_x
+        return speed_x, float(self.vel_max[1, 0])
 
     @property
     def name(self) -> str:
@@ -1911,19 +1927,7 @@ class ObjectBase:
             np.ndarray: Desired velocity [vx, vy].
         """
 
-        if self.goal is None:
-            return np.zeros((2, 1))
-
-        dis, radian = relative_position(self.state, self.goal)
-
-        if dis > goal_threshold:
-            vx = self.vel_max[0, 0] * cos(radian)
-            vy = self.vel_max[1, 0] * sin(radian)
-        else:
-            vx = 0
-            vy = 0
-
-        return np.array([[vx], [vy]])
+        return self.get_desired_omni_vel(goal_threshold)
 
     @property
     def rvo_neighbors(self):

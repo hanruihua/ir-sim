@@ -174,8 +174,8 @@ msgid ""
 msgstr "**`vxmax`/`vymax`：** x/y 方向最大速度（默认 `1.5`）"
 
 #: ../../source/usage/configure_behavior.md:97
-msgid "**`acce`:** Maximum acceleration (default: `1.0`)"
-msgstr "**`acce`：** 最大加速度（默认 `1.0`）"
+msgid "**`acce`:** Maximum change of velocity per step (default: `1.0`). Candidates are sampled within `acce` of the current velocity and clipped to `vxmax`/`vymax`; a velocity already beyond those limits brakes to the nearest admissible value"
+msgstr "**`acce`：** 每步速度的最大变化量（默认 `1.0`）。候选速度在当前速度 ± `acce` 内采样，并裁剪到 `vxmax`/`vymax`；已超出限幅的速度会减速到最近的可行值"
 
 #: ../../source/usage/configure_behavior.md:98
 msgid ""
@@ -346,12 +346,8 @@ msgstr ""
 "智能体无需额外配置即可绕开墙体或折线："
 
 #: ../../source/usage/configure_behavior.md:244
-msgid ""
-"This works for both `omni` and `diff` kinematics; non-`linestring` obstacles "
-"continue to participate as agent neighbors."
-msgstr ""
-"该机制对 `omni` 与 `diff` 机动学都生效；非 `linestring` 障碍物仍按邻居智能体"
-"参与计算。"
+msgid "This works for both `omni` and `diff` kinematics; non-`linestring` obstacles continue to participate as agent neighbors. A neighbor is a disc carrying its current velocity, zero when it is stopped, and the cones are the same whether the robot itself is moving or at rest."
+msgstr "该机制对 `omni` 与 `diff` 机动学都生效；非 `linestring` 障碍物仍按邻居智能体参与计算。邻居是带有自身当前速度的圆盘（静止时速度为零），无论机器人本身在运动还是静止，构造的速度锥都相同。"
 
 #: ../../source/usage/configure_behavior.md:247
 msgid "Group Behavior"
@@ -447,19 +443,8 @@ msgstr ""
 "有数百个智能体，也能确保平滑无碰撞的导航。"
 
 #: ../../source/usage/configure_behavior.md:264
-msgid ""
-"ORCA supports both `omni` and `diff` kinematics. It plans a holonomic "
-"velocity `(vx, vy)` for every member: `omni` robots use it directly, while "
-"`diff` robots map it to a `(linear, angular)` command, so a differential-"
-"drive robot turns toward the planned direction and slows down when it is not "
-"yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the "
-"differential-drive variant; all ORCA parameters below stay the same."
-msgstr ""
-"ORCA 同时支持 `omni` 和 `diff` 运动学模型。它为每个成员规划一个完整（全向）速"
-"度 `(vx, vy)`：`omni` 机器人直接使用该速度，而 `diff` 机器人会将其映射为 `(线"
-"速度, 角速度)` 指令，因此差速机器人会朝规划方向转向，并在尚未对准时减速。在群"
-"组上设置 `kinematics: {name: 'diff'}` 即可使用差速变体；下方的所有 ORCA 参数"
-"保持不变。"
+msgid "ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way."
+msgstr "ORCA 同时支持 `omni` 和 `diff` 运动学模型。它为每个成员规划一个完整（全向）速度 `(vx, vy)`：`omni` 机器人直接使用该速度，而 `diff` 机器人会将其映射为 `(线速度, 角速度)` 指令，因此差速机器人会朝规划方向转向，并在尚未对准时减速。在群组上设置 `kinematics: {name: 'diff'}` 即可使用差速变体；下方的所有 ORCA 参数保持不变。每个成员的期望速度指向其目标，大小为该智能体的速度上限：成员在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），若设置了 `maxSpeed` 则再降到该值，因此在无遮挡时成员以全速行进。"
 
 #: ../../source/usage/configure_behavior.md:267
 msgid ""
@@ -590,8 +575,8 @@ msgid "`None`"
 msgstr "无"
 
 #: ../../source/usage/configure_behavior.md:333
-msgid "Maximum speed override (uses robot's `max_speed` if not set)"
-msgstr "最大速度覆盖值（未设置时使用机器人的 `max_speed`）"
+msgid "Speed cap of each agent and the speed it heads for its goal at; never above the fastest speed the robot can hold in every direction (smaller `vel_max` component for `omni`, linear limit for `diff`), which is the default"
+msgstr "每个智能体的速度上限，也是其朝目标行进的速度；不超过机器人在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），默认即为该速度"
 
 #: ../../source/usage/configure_behavior.md:333
 msgid "`wander`"

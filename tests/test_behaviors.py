@@ -679,6 +679,7 @@ class TestOrcaGroupBehavior:
             member.state = np.array([[0], [0]])
             member.radius = 0.5
             member.max_speed = 1.0
+            member.vel_max = np.array([[1.0], [1.0]])
 
             with pytest.raises(ImportError, match="pyrvo"):
                 OrcaGroupBehavior([member])
@@ -694,6 +695,7 @@ class TestOrcaGroupBehavior:
             m.state = np.array([[x], [y], [0.0]])
             m.radius = 0.5
             m.max_speed = 1.0
+            m.vel_max = np.array([[1.0], [1.0]])
             m.get_desired_omni_vel = Mock(return_value=np.array([[vx], [vy]]))
             m._world_param = Mock()
             m._world_param.step_time = 0.1
@@ -739,6 +741,41 @@ class TestOrcaGroupBehavior:
         result = orca([backward])
         assert result[0][0, 0] == pytest.approx(0.0, abs=1e-6)
         assert abs(result[0][1, 0]) > 0.0
+
+    def test_orca_omni_pref_velocity_uses_speed_cap(self):
+        """omni members head for the goal at their speed cap, not at 1 m/s, and
+        the cap is a speed the member can hold in every direction."""
+        pytest.importorskip("pyrvo")
+        from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
+
+        member = Mock(spec=ObjectBase)
+        member.kinematics = "omni"
+        member.state = np.array([[0.0], [0.0], [0.0]])
+        member.radius = 0.2
+        member.vel_max = np.array([[3.0], [3.0]])
+        member.max_speed = float(np.hypot(3.0, 3.0))  # the L2 norm, as omni reports
+        member.get_desired_omni_vel = Mock(return_value=np.array([[3.0], [0.0]]))
+        member._world_param = Mock()
+        member._world_param.step_time = 0.1
+
+        # the smaller component, not the 4.24 norm, so no component is clipped
+        assert OrcaGroupBehavior([member])._pref_velocity(member) == pytest.approx(
+            [3.0, 0.0]
+        )
+        assert OrcaGroupBehavior([member], maxSpeed=2.0)._pref_velocity(
+            member
+        ) == pytest.approx([2.0, 0.0])
+        # a maxSpeed above what the member can execute is lowered to it
+        assert OrcaGroupBehavior([member], maxSpeed=5.0)._pref_velocity(
+            member
+        ) == pytest.approx([3.0, 0.0])
+        member.vel_max = np.array([[3.0], [1.0]])
+        assert OrcaGroupBehavior([member])._pref_velocity(member) == pytest.approx(
+            [1.0, 0.0]
+        )
+
+        member.get_desired_omni_vel = Mock(return_value=np.zeros((2, 1)))
+        assert OrcaGroupBehavior([member])._pref_velocity(member) == [0.0, 0.0]
 
     def test_orca_diff_zero_when_no_goal(self):
         """diff preferred velocity is zero when a member has no goal."""
@@ -935,6 +972,7 @@ class TestOmniVelocityFrame:
         member.state = np.array([[0.0], [0.0], [np.pi]])
         member.radius = 0.5
         member.max_speed = 1.0
+        member.vel_max = np.array([[1.0], [1.0]])
         member.get_desired_omni_vel = Mock(return_value=np.array([[1.0], [0.0]]))
         member._world_param = Mock()
         member._world_param.step_time = 0.1
@@ -1129,9 +1167,11 @@ class TestOrcaGroupBehaviorMockedPyrvo:
     @staticmethod
     def _make_member(x, y, vx, vy):
         member = MagicMock()
-        member.state = np.array([[x], [y]])
+        member.kinematics = "omni"
+        member.state = np.array([[x], [y], [0.0]])
         member.radius = 0.5
         member.max_speed = 1.0
+        member.vel_max = np.array([[1.0], [1.0]])
         member._world_param = MagicMock()
         member._world_param.step_time = 0.1
         member.get_desired_omni_vel = MagicMock(return_value=np.array([[vx], [vy]]))

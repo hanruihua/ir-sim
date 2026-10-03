@@ -93,7 +93,7 @@ robot:
 
 **RVO-specific Parameters:**
 - **`vxmax`/`vymax`:** Maximum velocities in x/y directions (default: `1.5`)
-- **`acce`:** Maximum acceleration (default: `1.0`)
+- **`acce`:** Maximum change of velocity per step (default: `1.0`). Candidates are sampled within `acce` of the current velocity and clipped to `vxmax`/`vymax`; a velocity already beyond those limits brakes to the nearest admissible value
 - **`factor`:** Collision penalty weight (default: `1.0`, higher = more conservative)
 - **`mode`:** Algorithm variant - `'rvo'` (default), `'hrvo'`, or `'vo'`
 - **`neighbor_threshold`:** Detection range for nearby objects (default: `3.0` meters)
@@ -237,7 +237,7 @@ obstacle:
   - shape: {name: 'linestring', vertices: [[2, 2], [2, 8], [8, 8]]}
 ```
 
-This works for both `omni` and `diff` kinematics; non-`linestring` obstacles continue to participate as agent neighbors.
+This works for both `omni` and `diff` kinematics; non-`linestring` obstacles continue to participate as agent neighbors. A neighbor is a disc carrying its current velocity, zero when it is stopped, and the cones are the same whether the robot itself is moving or at rest.
 
 
 ## Group Behavior
@@ -257,7 +257,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 
 ORCA is a classical built-in group-level collision avoidance algorithm that computes optimal velocities for multiple agents simultaneously. It ensures smooth, collision-free navigation even with hundreds of agents.
 
-ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same.
+ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way.
 
 :::{note}
 ORCA requires the `pyrvo` library, which is a python binding for the ORCA C++ algorithm. Install it using:
@@ -343,7 +343,7 @@ robot:
 | `timeHorizon` | `float` | `20.0` | Time horizon for agent-agent collision avoidance (seconds) |
 | `timeHorizonObst` | `float` | `10.0` | Time horizon for agent-obstacle collision avoidance (seconds) |
 | `safe_radius` | `float` | `0.1` | Additional safety margin added to agent radius |
-| `maxSpeed` | `float` | `None` | Maximum speed override (uses robot's `max_speed` if not set) |
+| `maxSpeed` | `float` | `None` | Speed cap of each agent and the speed it heads for its goal at; never above the fastest speed the robot can hold in every direction (smaller `vel_max` component for `omni`, linear limit for `diff`), which is the default |
 | `wander` | `bool` | `False` | Generate random goals when current goal is reached |
 | `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 | `range_low` | `list` | - | Lower bounds for random goal generation `[x, y, theta]` |
