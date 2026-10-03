@@ -201,14 +201,18 @@ class World:
         self._reveal_fog(objects)
 
     def _reveal_fog(self, objects: list[Any] | None) -> None:
-        """Reveal the fog-of-map for each sensing object.
+        """Reveal the fog-of-map for each robot.
 
-        Uses the lidar's line of sight when present, otherwise the object's
+        Uses the robot's lidar line of sight when present, otherwise its
         field-of-view sector (``fov`` / ``fov_radius``) if one is configured.
+        Obstacles never reveal fog, even when they carry a lidar or a fov: the
+        fog is what the robots have explored.
         """
         if self.fog_map is None or not objects:
             return
         for obj in objects:
+            if obj.role != "robot":
+                continue
             if obj.lidar is not None:
                 self.fog_map.reveal_from_lidar(
                     obj.lidar.lidar_origin[:, 0],

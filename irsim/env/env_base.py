@@ -222,6 +222,9 @@ class EnvBase:
 
         self.build_tree()
         self._env_param.objects = self._objects
+        # Sensors read the scene through env_param; take the first scan now so
+        # a scan requested before the first step is not blank.
+        self._objects_sensor_step()
         self.validate_unique_names()
 
         self.keyboard = None
@@ -1084,6 +1087,9 @@ class EnvBase:
         self.build_tree()
         self.validate_unique_names()
         self._env_param.objects = self._objects
+        # Sensors read the scene through env_param; take the first scan now so
+        # a scan requested before the first step is not blank.
+        self._objects_sensor_step()
         self.reload_flag = False
 
     def _rebuild_from_cached_parse(self) -> None:
@@ -1111,6 +1117,9 @@ class EnvBase:
         self.build_tree()
         self.validate_unique_names()
         self._env_param.objects = self._objects
+        # Sensors read the scene through env_param; take the first scan now so
+        # a scan requested before the first step is not blank.
+        self._objects_sensor_step()
         self.set_status("Reset")
         self.pause_flag = False
         self.debug_flag = False
@@ -1259,12 +1268,19 @@ class EnvBase:
 
         return self.robot._state
 
-    def get_msg(self) -> WorldState:
+    def get_msg(self, use_inf: bool = False) -> WorldState:
         """Get a snapshot of the complete simulation environment.
 
         The returned message owns copies of all state and sensor arrays. It
         therefore remains a stable point-in-time record when the environment
         advances or its objects are modified later.
+
+        Args:
+            use_inf (bool): When True, each ``scan`` reports beams without a
+                usable return as ``+inf`` (nothing within ``range_max``) or
+                ``-inf`` (return inside ``range_min``), as ROS drivers and
+                Gazebo do under REP 117. The default keeps the sensor's finite
+                ranges, ``range_max`` for a miss.
 
         Returns:
             WorldState: Current world metadata with ``odom`` and
@@ -1280,7 +1296,7 @@ class EnvBase:
             array([...])
         """
 
-        return WorldState.from_env(self)
+        return WorldState.from_env(self, use_inf=use_inf)
 
     def receive_msg(
         self,

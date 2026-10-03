@@ -95,8 +95,8 @@ msgstr ""
 "参数如下："
 
 #: ../../source/usage/configure_sensor.md:106
-msgid "**range_min**: The minimum range of the laser beam."
-msgstr "**range_min**：激光束的最小量程。"
+msgid "**range_min**: The minimum range of the laser beam. A return closer than this is reported at `range_min`: the beam counts as blocked but carries no measurement."
+msgstr "**range_min**：激光束的最小量程。比它更近的回波按 `range_min` 报告：该光束视为被遮挡，但不携带测量值。"
 
 #: ../../source/usage/configure_sensor.md:107
 msgid "**range_max**: The maximum range of the laser beam."
@@ -139,31 +139,16 @@ msgid "LiDAR scan with Gaussian noise"
 msgstr "带高斯噪声的 LiDAR 扫描"
 
 #: ../../source/usage/configure_sensor.md:194
-msgid ""
-"Gaussian noise is added to the LiDAR sensor with the `std` and `angle_std` "
-"parameters. The `std` parameter is the standard deviation of the range "
-"noise, and the `angle_std` parameter is the standard deviation of the angle "
-"noise."
-msgstr ""
-"通过 `std` 与 `angle_std` 参数为 LiDAR 添加高斯噪声。其中 `std` 为距离噪声的"
-"标准差，`angle_std` 为角度噪声的标准差。"
+msgid "Gaussian noise is added to the beams that hit something: `std` is the standard deviation of the range noise and `angle_std`, off at its default of `0`, that of each beam's direction. Noisy ranges stay within `[range_min, range_max]`, a hit pushed beyond `range_max` becomes a miss, and misses stay at `range_max` without noise."
+msgstr "高斯噪声只加在击中物体的光束上：`std` 是距离噪声的标准差，`angle_std`（默认 `0`，即关闭）是每条光束方向噪声的标准差。带噪声的距离保持在 `[range_min, range_max]` 内，被推到 `range_max` 之外的击中会变成未命中，未命中的光束保持 `range_max` 且不加噪声。"
 
 #: ../../source/usage/configure_sensor.md:196
 msgid "FMCW LiDAR Configuration Parameters"
 msgstr "FMCW 激光雷达配置参数"
 
 #: ../../source/usage/configure_sensor.md:198
-msgid ""
-"IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. "
-"It keeps the same beam geometry as the standard 2D LiDAR, but each valid "
-"beam additionally reports a scalar `radial_velocity` measurement. This makes "
-"it useful for demonstrating how Doppler measurements can help interpret "
-"dynamic obstacles."
-msgstr ""
-"IR-SIM 还提供了一个简化的 2D FMCW 激光雷达传感器，名为 `fmcw_lidar2d`。它保持"
-"与标准 2D 激光雷达相同的光束几何结构，但每条有效光束会额外返回一个标量 "
-"`radial_velocity`（径向速度）测量值。这便于演示多普勒测量如何帮助理解动态障碍"
-"物。"
+msgid "IR-SIM also provides a simplified 2D FMCW LiDAR sensor named `fmcw_lidar2d`. It keeps the same beam geometry as the standard 2D LiDAR, but each valid beam additionally reports a scalar `radial_velocity` measurement. This makes it useful for demonstrating how Doppler measurements can help interpret dynamic obstacles. `valid` marks the beams whose range lies inside `[range_min, range_max]`; a return closer than `range_min` is reported at `range_min` and left invalid, so the beam still counts as blocked."
+msgstr "IR-SIM 还提供了一个简化的 2D FMCW 激光雷达传感器，名为 `fmcw_lidar2d`。它保持与标准 2D 激光雷达相同的光束几何结构，但每条有效光束会额外返回一个标量 `radial_velocity`（径向速度）测量值。这便于演示多普勒测量如何帮助理解动态障碍物。`valid` 标记距离位于 `[range_min, range_max]` 内的光束；比 `range_min` 更近的回波按 `range_min` 报告并保持无效，因此该光束仍视为被遮挡。"
 
 #: ../../source/usage/configure_sensor.md:200
 msgid ""
@@ -247,3 +232,8 @@ msgstr ""
 "下方的 YAML 配置与 Python 脚本展示了 FOV 中的对象示例。FOV 由对象配置中的 "
 "`fov`（角度）与 `fov_radius`（半径）参数定义。每个对象都拥有 FOV，可通过 "
 "`fov_detect_object()` 检测视场内的机器人。"
+
+#: ../../source/usage/configure_sensor.md:194
+msgid "**Range conventions.** A beam that hits nothing reads `range_max`, the value Isaac Sim's LaserScan bridge publishes as well, so `ranges` stays finite for learning pipelines. `get_scan()[\"valid\"]` marks the beams with a usable return: a hit whose range lies inside `[range_min, range_max]`. Misses and returns inside the blind zone are invalid, and the latter read `range_min` so the beam still counts as blocked. The ROS-style {py:class}`~irsim.msg.LaserScan` from `env.get_msg()` carries the same finite ranges by default, so snapshots used for learning are unchanged; `env.get_msg(use_inf=True)` follows REP 117 instead, as Gazebo does: `+inf` for no return and `-inf` for a return too close to measure."
+msgstr "**量程约定。** 未击中任何物体的光束读数为 `range_max`，这也是 Isaac Sim 的 LaserScan 桥接所发布的值，因此 `ranges` 对学习流水线始终是有限值。`get_scan()[\"valid\"]` 标记有可用回波的光束：距离位于 `[range_min, range_max]` 内的击中。未命中以及盲区内的回波为无效，后者读数为 `range_min`，因此该光束仍视为被遮挡。`env.get_msg()` 返回的 ROS 风格 {py:class}`~irsim.msg.LaserScan` 默认携带同样的有限距离，因此用于学习的快照不受影响；`env.get_msg(use_inf=True)` 则遵循 REP 117（与 Gazebo 一致）：无回波为 `+inf`，距离过近无法测量的回波为 `-inf`。"
+

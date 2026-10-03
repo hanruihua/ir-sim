@@ -1000,6 +1000,40 @@ class TestFogIntegration:
         finally:
             env.end()
 
+    def test_fog_not_revealed_by_obstacles(self, tmp_path):
+        """Only robots reveal fog: an obstacle with a fov and a lidar does not."""
+        import irsim
+
+        config = tmp_path / "fog_obstacle.yaml"
+        config.write_text(
+            "world:\n"
+            "  height: 12\n"
+            "  width: 12\n"
+            "  step_time: 0.1\n"
+            "  fog_map: true\n"
+            "robot:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [1, 1, 0]\n"
+            "obstacle:\n"
+            "  - kinematics: {name: 'omni'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [6, 6, 0]\n"
+            "    fov: 1.57\n"
+            "    fov_radius: 4.0\n"
+            "    sensors:\n"
+            "      - type: 'lidar2d'\n"
+            "        range_max: 4.0\n"
+            "        number: 36\n"
+        )
+        env = irsim.make(str(config), display=False, save_ani=False)
+        try:
+            for _ in range(5):
+                env.step()
+            assert env._world.fog_map.explored_ratio == 0.0
+        finally:
+            env.end()
+
     def test_fog_disabled_by_default(self, tmp_path):
         env = self._make_fog_env(tmp_path, fog=False)
         try:

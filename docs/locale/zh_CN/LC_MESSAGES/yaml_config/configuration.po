@@ -1983,8 +1983,8 @@ msgid "`lidar2d`: 2D LiDAR sensor for distance measurements. Parameters include:
 msgstr "`lidar2d`：用于距离测量的 2D LiDAR，参数包括："
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1246
-msgid "`range_min` (float/`0.0`): Minimum detection range."
-msgstr "`range_min`（float）：最小探测距离，默认 `0.0`。"
+msgid "`range_min` (float/`0.0`): Minimum detection range; a closer return is reported at this value."
+msgstr "`range_min`（float）：最小探测距离，默认 `0.0`；更近的回波按该值报告。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1247
 msgid "`range_max` (float/`10.0`): Maximum detection range."
@@ -2011,16 +2011,12 @@ msgid "`noise` (bool/`False`): Whether noise is added to measurements."
 msgstr "`noise`（bool）：测量是否加入噪声，默认 `False`。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1252
-msgid ""
-"`std` (float/`0.2`): Standard deviation for range noise if `noise` is "
-"`True`."
-msgstr "`std`（float）：当 `noise=True` 时距离噪声的标准差，默认 `0.2`。"
+msgid "`std` (float/`0.2`): Standard deviation for range noise on hit beams if `noise` is `True`; noisy ranges stay within `[range_min, range_max]`."
+msgstr "`std`（float）：当 `noise=True` 时击中光束的距离噪声标准差，默认 `0.2`；带噪声的距离保持在 `[range_min, range_max]` 内。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1253
-msgid ""
-"`angle_std` (float/`0.02`): Standard deviation for angle noise if `noise`"
-" is `True`."
-msgstr "`angle_std`（float）：`noise=True` 时的角度噪声标准差，默认 `0.02`。"
+msgid "`angle_std` (float/`0.0`): Standard deviation of each beam's direction if `noise` is `True`; `0` keeps the directions exact."
+msgstr "`angle_std`（float）：`noise=True` 时每条光束方向的噪声标准差，默认 `0.0`；为 `0` 时方向保持精确。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1254
 msgid ""

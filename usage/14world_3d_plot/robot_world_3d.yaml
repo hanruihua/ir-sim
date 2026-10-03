@@ -28,6 +28,6 @@ robot:
         number: 200
         noise: False
         std: 0.2
-        angle_std: 0.2
+        angle_std: 0.01
         alpha: 0.3
     

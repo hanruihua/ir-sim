@@ -371,9 +371,25 @@ class LaserScan(Message):
         stamp: float = 0.0,
         seq: int = 0,
         frame_id: str | None = None,
+        use_inf: bool = False,
     ) -> LaserScan:
-        """Capture a LiDAR sensor without sharing its mutable arrays."""
+        """Capture a LiDAR sensor without sharing its mutable arrays.
+
+        By default ``ranges`` are the sensor's own finite values, ``range_max``
+        for a miss, so snapshots used for learning are unchanged. With
+        ``use_inf=True`` a beam without a usable return becomes ``+inf`` when
+        nothing came back within ``range_max`` and ``-inf`` when the return
+        was too close to measure, as Gazebo publishes it under REP 117, so
+        ROS consumers read the scan as they would a real driver's.
+        """
         scan = sensor.get_scan()
+        ranges = _float32_array(scan["ranges"])
+        valid = scan.get("valid")
+        if use_inf and valid is not None and np.size(valid) == ranges.size:
+            invalid = ~np.asarray(valid, dtype=bool).reshape(-1)
+            lost = invalid & (ranges >= np.float32(scan["range_max"]))
+            ranges[lost] = np.inf
+            ranges[invalid & ~lost] = -np.inf
         return cls(
             header=Header(
                 seq=int(seq),
@@ -387,7 +403,7 @@ class LaserScan(Message):
             scan_time=float(scan["scan_time"]),
             range_min=float(scan["range_min"]),
             range_max=float(scan["range_max"]),
-            ranges=_float32_array(scan["ranges"]),
+            ranges=ranges,
             intensities=_float32_array(scan.get("intensities")),
         )
 
@@ -419,8 +435,12 @@ class ObjectState(Message):
         stamp: float = 0.0,
         seq: int = 0,
         frame_id: str = "world",
+        use_inf: bool = False,
     ) -> ObjectState:
-        """Capture an object as conventional ``odom`` and ``scan`` topics."""
+        """Capture an object as conventional ``odom`` and ``scan`` topics.
+
+        ``use_inf`` is passed to :meth:`LaserScan.from_sensor`.
+        """
         lidar_sensors = [
             sensor
             for sensor in obj.sensors
@@ -434,6 +454,7 @@ class ObjectState(Message):
                 frame_id=(
                     f"{obj.name}/laser" if index == 0 else f"{obj.name}/laser_{index}"
                 ),
+                use_inf=use_inf,
             )
             for index, sensor in enumerate(lidar_sensors)
         ]
@@ -476,8 +497,13 @@ class WorldState(Message):
     objects: list[ObjectState] = field(default_factory=list)
 
     @classmethod
-    def from_env(cls, env: Any, frame_id: str = "world") -> WorldState:
-        """Capture the current state and sensor data from an environment."""
+    def from_env(
+        cls, env: Any, frame_id: str = "world", use_inf: bool = False
+    ) -> WorldState:
+        """Capture the current state and sensor data from an environment.
+
+        ``use_inf`` is passed to every :meth:`LaserScan.from_sensor`.
+        """
         seq = int(env.world_param.count)
         stamp = float(env.time)
         return cls(
@@ -491,6 +517,7 @@ class WorldState(Message):
                     stamp=stamp,
                     seq=seq,
                     frame_id=frame_id,
+                    use_inf=use_inf,
                 )
                 for obj in env.objects
             ],
