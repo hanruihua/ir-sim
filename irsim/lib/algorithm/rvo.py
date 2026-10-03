@@ -118,6 +118,20 @@ class reciprocal_vel_obs:
 
         return angle_mr + half_angle, angle_mr - half_angle, half_angle
 
+    @staticmethod
+    def _neighbour_state(obstacle):
+        """Unpack a neighbour as ``(x, y, vx, vy, r)``.
+
+        Accepts the moving form ``[x, y, vx, vy, r]`` and the static form
+        ``[x, y, r]``, which is a neighbour with zero velocity. The layout is
+        told from the length of ``obstacle``; the ego's own velocity plays no
+        part in it.
+        """
+        if len(obstacle) == 3:
+            x, y, r = obstacle
+            return x, y, 0.0, 0.0, r
+        return obstacle[0], obstacle[1], obstacle[2], obstacle[3], obstacle[4]
+
     def config_rvo(self):
         """Build reciprocal velocity-obstacle cones for all obstacles."""
         rvo_list = []
@@ -134,8 +148,8 @@ class reciprocal_vel_obs:
         """Build one RVO cone for a circular obstacle.
 
         Args:
-            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
-                neighbour has zero velocity).
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]``, or the
+                static form ``[x, y, radius]`` (zero velocity).
 
         Returns:
             list: ``[apex, left_vector, right_vector]`` cone description.
@@ -146,9 +160,9 @@ class reciprocal_vel_obs:
         vy = self.state[3]
         r = self.state[4]
 
-        # Neighbours always carry their velocity; a static one has zero
-        # velocity, which the reciprocal apex handles without a special case.
-        mx, my, mvx, mvy, mr = obstacle[:5]
+        # A static neighbour is one with zero velocity; the reciprocal apex
+        # handles it without a special case.
+        mx, my, mvx, mvy, mr = self._neighbour_state(obstacle)
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
 
         line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
@@ -174,8 +188,8 @@ class reciprocal_vel_obs:
         """Build one HRVO cone for a circular obstacle.
 
         Args:
-            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
-                neighbour has zero velocity).
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]``, or the
+                static form ``[x, y, radius]`` (zero velocity).
 
         Returns:
             list: ``[apex, left_vector, right_vector]`` cone description.
@@ -186,7 +200,7 @@ class reciprocal_vel_obs:
         vy = self.state[3]
         r = self.state[4]
 
-        mx, my, mvx, mvy, mr = obstacle[:5]
+        mx, my, mvx, mvy, mr = self._neighbour_state(obstacle)
         rvo_apex = [(vx + mvx) / 2, (vy + mvy) / 2]
         vo_apex = [mvx, mvy]
 
@@ -241,8 +255,8 @@ class reciprocal_vel_obs:
         """Build one VO cone for a circular obstacle.
 
         Args:
-            obstacle: Neighbour state ``[x, y, vx, vy, radius]`` (a static
-                neighbour has zero velocity).
+            obstacle: Neighbour state ``[x, y, vx, vy, radius]``, or the
+                static form ``[x, y, radius]`` (zero velocity).
 
         Returns:
             list: ``[apex, left_vector, right_vector]`` cone description.
@@ -251,7 +265,7 @@ class reciprocal_vel_obs:
         y = self.state[1]
         r = self.state[4]
 
-        mx, my, mvx, mvy, mr = obstacle[:5]
+        mx, my, mvx, mvy, mr = self._neighbour_state(obstacle)
         vo_apex = [mvx, mvy]
         line_left_ori, line_right_ori, _ = self._cone_angles(x, y, r, mx, my, mr)
         line_left_vector = [cos(line_left_ori), sin(line_left_ori)]

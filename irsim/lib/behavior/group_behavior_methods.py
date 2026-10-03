@@ -96,19 +96,37 @@ class OrcaGroupBehavior:
 
         return sim
 
+    @staticmethod
+    def _realizable_speed(member: ObjectBase) -> float:
+        """Fastest speed ``member`` can hold in every direction.
+
+        ``max_speed`` of an ``omni`` member is the norm of its component
+        limits, which is reachable only on the diagonal; a plan above the
+        smaller component would be clipped per component on execution and
+        leave ORCA's collision-free direction. ``diff`` members are bounded by
+        their linear limit, which ``max_speed`` already is.
+        """
+        if member.kinematics in ("omni", "omni_angular"):
+            return float(np.min(np.asarray(member.vel_max, dtype=float)[:2, 0]))
+        return float(member.max_speed)
+
     def _agent_speed(self, member: ObjectBase) -> float:
-        """Speed cap of one agent: ``maxSpeed`` if set, else the member's."""
-        return float(self._maxSpeed) if self._maxSpeed is not None else member.max_speed
+        """Speed cap of one agent: its realizable speed, lowered to ``maxSpeed``."""
+        realizable = self._realizable_speed(member)
+        if self._maxSpeed is not None:
+            return min(float(self._maxSpeed), realizable)
+        return realizable
 
     def _pref_velocity(self, member: ObjectBase) -> list[float]:
         """ORCA preferred velocity for one member as world-frame ``[vx, vy]``.
 
         The direction is the goal bearing and the magnitude the agent's speed
-        cap, the same cap the simulator enforces, so members head for their
-        goals at full speed when nothing blocks them. ``diff`` members take the
-        bearing from the goal directly; ``omni`` members take it from the
-        desired omni velocity, whose magnitude is discarded (it used to be
-        clipped to 1 m/s, which held omni members at that speed).
+        cap (:meth:`_agent_speed`), the same cap the simulator enforces, so
+        members head for their goals at full speed when nothing blocks them
+        and the plan stays within what the member can execute. ``diff``
+        members take the bearing from the goal directly; ``omni`` members take
+        it from the desired omni velocity, whose magnitude is discarded (it
+        used to be clipped to 1 m/s, which held omni members at that speed).
         """
         speed = self._agent_speed(member)
         if self._kinematics == "diff":

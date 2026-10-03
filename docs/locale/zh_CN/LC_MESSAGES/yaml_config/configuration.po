@@ -1936,8 +1936,8 @@ msgid "`safe_radius` (float/`0.1`): Additional safety radius padding."
 msgstr "`safe_radius`（float/`0.1`）：额外的安全半径填充。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1208
-msgid "`maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. If `None`, uses each member's `max_speed`."
-msgstr "`maxSpeed`（float/`None`）：智能体的速度上限，成员以该速度朝目标行进。若为 `None`，使用各成员的 `max_speed`。"
+msgid "`maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. It is never above the fastest speed a member can hold in every direction (the smaller `vel_max` component for `omni`, the linear limit for `diff`), which is also the default when `None`."
+msgstr "`maxSpeed`（float/`None`）：智能体的速度上限，成员以该速度朝目标行进。它不会超过成员在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），`None` 时即采用该速度。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1222
 msgid ""

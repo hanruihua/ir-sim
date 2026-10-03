@@ -257,7 +257,7 @@ While `behavior` controls individual object movement, **`group_behavior`** enabl
 
 ORCA is a classical built-in group-level collision avoidance algorithm that computes optimal velocities for multiple agents simultaneously. It ensures smooth, collision-free navigation even with hundreds of agents.
 
-ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap, `maxSpeed` if set and the member's `max_speed` otherwise, so members cruise at full speed when nothing is in the way.
+ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way.
 
 :::{note}
 ORCA requires the `pyrvo` library, which is a python binding for the ORCA C++ algorithm. Install it using:
@@ -343,7 +343,7 @@ robot:
 | `timeHorizon` | `float` | `20.0` | Time horizon for agent-agent collision avoidance (seconds) |
 | `timeHorizonObst` | `float` | `10.0` | Time horizon for agent-obstacle collision avoidance (seconds) |
 | `safe_radius` | `float` | `0.1` | Additional safety margin added to agent radius |
-| `maxSpeed` | `float` | `None` | Speed cap of each agent and the speed it heads for its goal at (uses the robot's `max_speed` if not set) |
+| `maxSpeed` | `float` | `None` | Speed cap of each agent and the speed it heads for its goal at; never above the fastest speed the robot can hold in every direction (smaller `vel_max` component for `omni`, linear limit for `diff`), which is the default |
 | `wander` | `bool` | `False` | Generate random goals when current goal is reached |
 | `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 | `range_low` | `list` | - | Lower bounds for random goal generation `[x, y, theta]` |

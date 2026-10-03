@@ -528,6 +528,17 @@ class TestRestStateCones:
         assert self._half_angle(rest_cone) == pytest.approx(expected, abs=1e-9)
         assert self._half_angle(move_cone) == pytest.approx(expected, abs=1e-9)
 
+    @pytest.mark.parametrize(
+        "config", ["config_rvo_mode", "config_hrvo_mode", "config_vo_mode"]
+    )
+    def test_static_three_element_form_is_a_zero_velocity_neighbour(self, config):
+        """``[x, y, r]`` is accepted and equals ``[x, y, 0, 0, r]``."""
+        rvo = reciprocal_vel_obs(_agent_state(vx=0.3, vy=0.1, r=0.2))
+        short = getattr(rvo, config)([1.0, 0.0, 0.5])
+        full = getattr(rvo, config)([1.0, 0.0, 0.0, 0.0, 0.5])
+        for a, b in zip(short, full, strict=True):
+            assert np.allclose(a, b)
+
     def test_rest_apex_is_reciprocal(self):
         """RVO apex at rest is half the neighbour velocity, not the origin."""
         rvo = reciprocal_vel_obs(_agent_state(vx=0.0, vy=0.0, r=0.2))

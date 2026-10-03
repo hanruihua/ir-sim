@@ -1236,7 +1236,7 @@ env.step(env.robot.vel_world2body(world_vel))
     - `timeHorizon` (float/`20.0`): Time horizon for computing safe velocities with respect to other agents.
     - `timeHorizonObst` (float/`10.0`): Time horizon for computing safe velocities with respect to static obstacles.
     - `safe_radius` (float/`0.1`): Additional safety radius padding.
-    - `maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. If `None`, uses each member's `max_speed`.
+    - `maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. It is never above the fastest speed a member can hold in every direction (the smaller `vel_max` component for `omni`, the linear limit for `diff`), which is also the default when `None`.
 
     **Example:**
     ```yaml
