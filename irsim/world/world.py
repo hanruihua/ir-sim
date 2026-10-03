@@ -214,9 +214,11 @@ class World:
             if obj.role != "robot":
                 continue
             if obj.lidar is not None:
+                # The angles the beams were cast along (nominal plus angle
+                # noise), so the ranges are revealed along the right rays.
                 self.fog_map.reveal_from_lidar(
                     obj.lidar.lidar_origin[:, 0],
-                    obj.lidar.angle_list,
+                    obj.lidar.cast_angles,
                     obj.lidar.range_data,
                 )
             elif obj.fov and obj.fov_radius:

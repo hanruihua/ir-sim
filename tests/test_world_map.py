@@ -1874,3 +1874,29 @@ class TestWorldTimeValidation:
             assert not world.sampling
         world.step([])
         assert world.sampling
+
+
+def test_fog_reveal_uses_the_cast_angles():
+    """With angle noise the fog is revealed along the rays that were cast, not
+    along the nominal angles paired with jittered ranges."""
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+
+    from irsim.world.world import World
+
+    nominal = np.array([-0.1, 0.0, 0.1])
+    cast = nominal + np.array([0.02, -0.03, 0.01])
+    lidar = SimpleNamespace(
+        lidar_origin=np.array([[1.0], [2.0], [0.3]]),
+        angle_list=nominal,
+        cast_angles=cast,
+        range_data=np.array([3.0, 4.0, 5.0]),
+    )
+    robot = SimpleNamespace(role="robot", lidar=lidar, fov=None, fov_radius=None)
+    fog = MagicMock()
+    World._reveal_fog(SimpleNamespace(fog_map=fog), [robot])
+
+    fog.reveal_from_lidar.assert_called_once()
+    _origin, angles, ranges = fog.reveal_from_lidar.call_args[0]
+    np.testing.assert_array_equal(angles, cast)
+    np.testing.assert_array_equal(ranges, lidar.range_data)

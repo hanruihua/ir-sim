@@ -2092,6 +2092,13 @@ class TestInitialSensorStep:
         env.reload()
         assert np.min(env.get_lidar_scan()["ranges"]) < env.robot.lidar.range_max
 
+    def test_scan_is_taken_after_random_reset(self, env_factory):
+        """``reset(random=True)`` rebuilds the scene; the scan is real before
+        any step, as after construction and ``reload()``."""
+        env = env_factory("test_grid_map.yaml")
+        env.reset(random=True)
+        assert np.min(env.get_lidar_scan()["ranges"]) < env.robot.lidar.range_max
+
 
 class TestAssignKeyboardAction:
     """Tests for _assign_keyboard_action with different kinematics."""

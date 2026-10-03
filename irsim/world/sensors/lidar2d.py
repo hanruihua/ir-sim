@@ -128,6 +128,7 @@ class Lidar2D:
         self.valid = np.zeros(number, dtype=bool)
 
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
+        self._cast_angles = self.angle_list
 
         self._state = state
         self.init_geometry(self._state)
@@ -249,9 +250,11 @@ class Lidar2D:
         as a real sensor does.
         """
         beams = self._original_geometry
+        self._cast_angles = self.angle_list
         if self.noise and self.angle_std > 0:
             jitter = rng.normal(0, self.angle_std, self.number)
-            beams = self._beam_geometry(self.angle_list + jitter)
+            self._cast_angles = self.angle_list + jitter
+            beams = self._beam_geometry(self._cast_angles)
         world_geometry = geometry_transform(beams, state)
         self.lidar_origin = transform_point_with_state(self.offset, state)
         # Use the beam geometry's exact start coordinate. Computing the same
@@ -259,6 +262,17 @@ class Lidar2D:
         # step across platforms, which breaks exact GEOS origin predicates.
         self.lidar_origin[:2, 0] = shapely.get_coordinates(world_geometry)[0]
         return world_geometry
+
+    @property
+    def cast_angles(self) -> np.ndarray:
+        """Per-beam angles the last scan was cast along, in the sensor frame.
+
+        Equal to ``angle_list`` unless angle noise is on, in which case each
+        beam carries that step's jitter. Consumers that pair a measured range
+        with a direction (fog reveal, drawn beams) use these; the scan itself
+        reports the nominal ``angle_list``, as a real sensor does.
+        """
+        return self._cast_angles
 
     def _rebuild_scan_geometry(
         self, origin: np.ndarray, directions: np.ndarray
@@ -551,8 +565,12 @@ class Lidar2D:
         """
         Convert the Lidar scan data to a point cloud.
 
+        Only beams with a usable return (``valid``) become points, at their
+        nominal angles; misses, returns inside the blind zone and returns
+        pushed out of band by noise are left out.
+
         Returns:
-            np.ndarray: Point cloud (2xN).
+            np.ndarray: Point cloud (2xN), or ``None`` when no beam is valid.
         """
         point_cloud = []
 
@@ -563,7 +581,7 @@ class Lidar2D:
             scan_range = ranges[i]
             angle = angles[i]
 
-            if scan_range < (self.range_max - 0.02):
+            if self.valid[i] and scan_range < (self.range_max - 0.02):
                 point = np.array([[scan_range * cos(angle)], [scan_range * sin(angle)]])
                 point_cloud.append(point)
 

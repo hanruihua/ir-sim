@@ -1603,10 +1603,11 @@ class TestLidar2DScanToPointcloud:
     """Lidar2D conversion from a scan to a 2D point cloud."""
 
     def test_scan_to_pointcloud_with_hits(self):
-        """Beams shorter than range_max convert into 2D points."""
+        """Valid beams shorter than range_max convert into 2D points."""
         state = np.array([[0.0], [0.0], [0.0]])
         lidar = Lidar2D(state=state, obj_id=1, number=10, range_max=5.0)
         lidar.range_data[:5] = 2.0  # half of the beams hit something
+        lidar.valid[:5] = True  # ...and those returns are usable
         result = lidar.scan_to_pointcloud()
         assert result is not None
         assert result.shape[0] == 2  # 2D points
@@ -1700,6 +1701,9 @@ def test_lidar_angle_noise_jitters_the_cast_directions():
     deviation = cast_angles(jittered) - jittered.angle_list
     assert np.any(np.abs(deviation) > 1e-4)
     assert np.all(np.abs(deviation) < 0.3)
+    # the sensor exposes the angles it cast along, for fog reveal and drawing
+    np.testing.assert_allclose(jittered.cast_angles, cast_angles(jittered), atol=1e-9)
+    np.testing.assert_array_equal(steady.cast_angles, steady.angle_list)
     assert jittered.get_scan()["angle_min"] == pytest.approx(-0.5)
     assert jittered.get_scan()["angle_max"] == pytest.approx(0.5)
 
@@ -1769,3 +1773,30 @@ def test_laser_scan_message_keeps_finite_ranges_unless_use_inf():
     blocked.step(blocked.state)
     assert LaserScan.from_sensor(blocked).ranges[0] == pytest.approx(1.0)
     assert LaserScan.from_sensor(blocked, use_inf=True).ranges[0] == -np.inf
+
+
+def test_lidar_point_cloud_keeps_valid_beams_only():
+    """A blind-zone return and a noise-lost return produce no point; a valid
+    hit does. FMCW inherits the same rule."""
+    near = _Obstacle(3, shapely.box(0.3, -1.0, 0.8, 1.0), shape="rectangle")
+    blocked = _single_beam_lidar([near], range_min=1.0)
+    blocked.step(blocked.state)
+    assert blocked.range_data[0] == pytest.approx(1.0)
+    assert blocked.get_points() is None
+
+    wall = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    hit = _single_beam_lidar([wall])
+    hit.step(hit.state)
+    np.testing.assert_allclose(hit.get_points(), [[2.0], [0.0]], atol=1e-6)
+
+    fmcw = FMCWLidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_min=1.0,
+        range_max=5.0,
+    )
+    fmcw.parent = _Parent(_EnvParam([near], STRtree([near.geometry])))
+    fmcw.step(fmcw.state)
+    assert fmcw.get_points() is None
