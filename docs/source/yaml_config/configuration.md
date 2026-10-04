@@ -1386,7 +1386,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
   **Options:**
   - `'position'`: Arrival is based solely on proximity to the goal position (`[x, y]`).
-  - `'state'`: Considers both position and orientation in the arrival check (`[x, y, theta]`).
+  - `'state'`: Considers both position and orientation in the arrival check (`[x, y, theta]`). The heading difference is wrapped to `[-pi, pi]`, and a goal given without `theta` is checked by position only.
 
   **Example:**
   ```yaml

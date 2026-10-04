@@ -183,9 +183,9 @@ class EnvBase:
         if seed is not None:
             self._env_param.rng = np.random.default_rng(seed)
 
-        # headless builds no figure, so the process backend is left alone:
-        # switching it breaks the windows of other environments in this process
-        if not self.display and not self.headless:
+        # headless builds no figure, so the process backend is left alone.
+        # Offscreen rendering uses Agg, but switching the backend closes every open figure and freezes other environments' windows, so the switch happens only while no figure exists yet.
+        if not self.display and not self.headless and not plt.get_fignums():
             matplotlib.use("Agg")
 
         self.save_ani = save_ani
@@ -231,11 +231,7 @@ class EnvBase:
         self.mouse = None
         if self._env_plot is None:
             # No figure for keyboard/mouse control to attach to.
-            if self._world_param.control_mode == "keyboard":
-                self.logger.warning(
-                    "Keyboard control needs a figure; headless mode forces auto control."
-                )
-            self._world_param.control_mode = "auto"
+            self._fallback_to_auto()
         else:
             # Try to initialize keyboard control (pynput or MPL backend inside KeyboardControl)
             try:
@@ -246,7 +242,7 @@ class EnvBase:
                     f"Keyboard control unavailable error: {e}. Auto control applied. "
                     "Install 'pynput' or set backend='mpl' in YAML keyboard config."
                 )
-                self._world_param.control_mode = "auto"
+                self._fallback_to_auto()
 
             mouse_config = self.env_config.parse["gui"].get("mouse", {})
             self.mouse = MouseControl(self._env_plot.ax, **mouse_config)
@@ -312,6 +308,22 @@ class EnvBase:
                 "env.create_robot()/env.create_obstacle() so they take ids from "
                 "this environment."
             )
+
+    def _fallback_to_auto(self) -> None:
+        """Switch ``control_mode`` from ``keyboard`` to ``auto`` when no keyboard exists.
+
+        There is no keyboard in headless mode or when its initialisation
+        failed; in ``keyboard`` mode the first step would then dereference the
+        missing controller. ``World`` re-applies the YAML ``control_mode``
+        every time the scene is rebuilt (``reset(random=True)``, ``reload``),
+        so this runs after each rebuild as well as at construction.
+        """
+        if self.keyboard is None and self._world_param.control_mode == "keyboard":
+            self.logger.warning_once(
+                "Keyboard control needs a figure and a keyboard; auto control applied.",
+                key="control_mode:no_keyboard",
+            )
+            self._world_param.control_mode = "auto"
 
     def _wire_env_to_objects(self) -> None:
         """Set env reference on all objects for param access."""
@@ -511,6 +523,7 @@ class EnvBase:
 
         if (
             self._world_param.control_mode == "keyboard"
+            and self.keyboard is not None
             and self.key_id < len(action)
             and self.key_id < len(self.robot_list)
         ):
@@ -736,6 +749,8 @@ class EnvBase:
         self.logger.info(
             f"Simulation Environment '{self._world.name}' ended. Total time {self._world.time:.2f} seconds."
         )
+        # This environment's console and file sinks go with it.
+        self._env_param.logger.close()
 
     def close(self, ending_time: float = 3.0, **kwargs: Any) -> None:
         """Alias for :py:meth:`end` for Gym-style API compatibility."""
@@ -1090,6 +1105,7 @@ class EnvBase:
         # Sensors read the scene through env_param; take the first scan now so
         # a scan requested before the first step is not blank.
         self._objects_sensor_step()
+        self._fallback_to_auto()
         self.reload_flag = False
 
     def _rebuild_from_cached_parse(self) -> None:
@@ -1120,6 +1136,7 @@ class EnvBase:
         # Sensors read the scene through env_param; take the first scan now so
         # a scan requested before the first step is not blank.
         self._objects_sensor_step()
+        self._fallback_to_auto()
         self.set_status("Reset")
         self.pause_flag = False
         self.debug_flag = False
@@ -1753,8 +1770,11 @@ class EnvBase:
         """Get current keyboard velocity command.
 
         Returns:
-            Any: A 3x1 vector ``[[linear], [lateral], [angular]]`` from keyboard input.
+            Any: A 3x1 vector ``[[linear], [lateral], [angular]]`` from keyboard
+            input; zeros when the environment has no keyboard.
         """
+        if self.keyboard is None:
+            return np.zeros((3, 1))
         return self.keyboard.key_vel
 
     @property
@@ -1762,8 +1782,11 @@ class EnvBase:
         """Get current keyboard-controlled robot id.
 
         Returns:
-            int: The robot id currently controlled by keyboard.
+            int: The robot id currently controlled by keyboard; 0 when the
+            environment has no keyboard.
         """
+        if self.keyboard is None:
+            return 0
         return self.keyboard.key_id
 
     @property

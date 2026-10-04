@@ -1761,14 +1761,56 @@ class TestDisableAllPlotSkipsFigure:
         env_factory("test_collision_world.yaml", headless=True, full=True)
         assert plt.get_fignums() == []
 
-    def test_headless_leaves_matplotlib_backend_alone(self, env_factory):
+    def test_offscreen_switches_backend_only_when_no_figure_is_open(self, env_factory):
+        """Headless never touches the backend; display=False switches to Agg
+        only while no figure exists, since switching closes every open figure
+        and would freeze another environment's window."""
         with patch("irsim.env.env_base.matplotlib.use") as use:
             env_factory("test_collision_world.yaml", headless=True)
         use.assert_not_called()
 
-        with patch("irsim.env.env_base.matplotlib.use") as use:
+        with (
+            patch("irsim.env.env_base.matplotlib.use") as use,
+            patch("irsim.env.env_base.plt.get_fignums", return_value=[]),
+        ):
             env_factory("test_collision_world.yaml", display=False)
         use.assert_called_once_with("Agg")
+
+        with (
+            patch("irsim.env.env_base.matplotlib.use") as use,
+            patch("irsim.env.env_base.plt.get_fignums", return_value=[1]),
+        ):
+            env_factory("test_collision_world.yaml", display=False)
+        use.assert_not_called()
+
+    def test_headless_keyboard_scene_survives_rebuilds(self, env_factory):
+        """A headless scene configured for keyboard control stays in auto mode
+        across reset(random=True) and reload(), which rebuild the world and
+        re-apply the YAML control_mode; the first step after each used to
+        dereference the missing keyboard."""
+        env = env_factory("test_keyboard_control.yaml", headless=True)
+        assert env.keyboard is None
+        assert env._world_param.control_mode == "auto"
+        env.step()
+        env.reset(random=True)
+        assert env._world_param.control_mode == "auto"
+        env.step()
+        env.reload()
+        assert env._world_param.control_mode == "auto"
+        env.step()
+        assert env.key_id == 0
+        assert np.allclose(env.key_vel, 0.0)
+
+    def test_step_keeps_docstring_and_signature(self):
+        """The action normaliser must not hide step's docstring from the docs."""
+        import inspect
+
+        from irsim.env.env_base import EnvBase
+
+        assert EnvBase.step.__name__ == "step"
+        assert "single simulation step" in (EnvBase.step.__doc__ or "")
+        params = list(inspect.signature(EnvBase.step).parameters)
+        assert params[:3] == ["self", "action", "action_id"]
 
     def test_headless_argument_and_alias(self, env_factory):
         env = env_factory("test_collision_world.yaml", headless=True, display=True)
@@ -2098,6 +2140,45 @@ class TestInitialSensorStep:
         env = env_factory("test_grid_map.yaml")
         env.reset(random=True)
         assert np.min(env.get_lidar_scan()["ranges"]) < env.robot.lidar.range_max
+
+
+class TestStateArrival:
+    """arrive_mode 'state' wraps the heading and tolerates goals without theta."""
+
+    @staticmethod
+    def _scene(tmp_path, goal, loop=False):
+        config = tmp_path / "state_arrival.yaml"
+        config.write_text(
+            "world: {height: 10, width: 10, step_time: 0.1}\n"
+            "robot:\n"
+            "  - kinematics: {name: 'diff'}\n"
+            "    shape: {name: 'circle', radius: 0.2}\n"
+            "    state: [5, 5, -3.1]\n"
+            f"    goal: {goal}\n"
+            "    arrive_mode: 'state'\n"
+            f"    behavior: {{name: 'dash', loop: {loop}}}\n"
+        )
+        return str(config)
+
+    def test_heading_difference_is_wrapped(self, tmp_path, env_factory):
+        """theta -3.1 and 3.1 are 0.08 rad apart, so the robot has arrived."""
+        env = env_factory(self._scene(tmp_path, "[5, 5, 3.1]"))
+        assert env.robot.check_arrive(env.robot.goal)
+
+    def test_goal_without_theta_is_checked_by_position(self, tmp_path, env_factory):
+        """A two-element goal used to raise a shape mismatch in state mode."""
+        env = env_factory(self._scene(tmp_path, "[5, 5, 3.1]"))
+        env.robot.set_goal([5.0, 5.0])
+        assert env.robot.check_arrive(env.robot.goal)
+        env.step()  # check_status runs the same comparison
+
+    def test_loop_keeps_theta_in_state_mode(self, tmp_path, env_factory):
+        """loop rebuilds the waypoints with their headings, so a single-goal
+        loop in state mode no longer crashes after the first arrival."""
+        env = env_factory(self._scene(tmp_path, "[5.05, 5, 0]", loop=True))
+        for _ in range(60):
+            env.step()
+        assert all(len(g) == 3 for g in env.robot._goal)
 
 
 class TestAssignKeyboardAction:
@@ -2626,6 +2707,48 @@ class TestBackendAndLoggerSetup:
         logger.warning("file sink test")
         assert log_file.exists()
         assert "file sink test" in log_file.read_text()
+
+    def test_each_env_keeps_its_own_log_sinks(self, tmp_path, env_factory):
+        """A second environment neither removes the first one's sinks nor
+        receives its messages, and end() releases an environment's sinks."""
+        log_a, log_b = tmp_path / "a.log", tmp_path / "b.log"
+        env_a = env_factory(
+            "test_collision_world.yaml", log_file=str(log_a), log_level="INFO"
+        )
+        env_b = env_factory(
+            "test_collision_world.yaml", log_file=str(log_b), log_level="ERROR"
+        )
+        env_a.logger.warning("from-a-after-b")
+        env_b.logger.error("from-b")
+        env_b.logger.warning("b-below-level")
+
+        a_text, b_text = log_a.read_text(), log_b.read_text()
+        assert "from-a-after-b" in a_text
+        assert "from-a-after-b" not in b_text
+        assert "from-b" in b_text
+        assert "from-b" not in a_text
+        assert "b-below-level" not in b_text
+
+        env_a.end()
+        env_a.logger.warning("a-after-end")
+        assert "a-after-end" not in log_a.read_text()
+
+    def test_output_root_falls_back_to_cwd_without_a_script(
+        self, monkeypatch, tmp_path
+    ):
+        """Under python -c, a REPL or a notebook sys.path[0] is empty; the
+        output folders then go under the working directory, not under '/'."""
+        import sys
+
+        from irsim.config.path_param import PathManager, output_root
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(sys, "path", ["", *sys.path[1:]])
+        assert output_root() == str(tmp_path)
+        assert PathManager().fig_path == str(tmp_path) + "/figure"
+
+        monkeypatch.setattr(sys, "path", ["/some/script/dir", *sys.path[1:]])
+        assert PathManager().ani_path == "/some/script/dir/animation"
 
 
 class TestStatusAndActionEdgeCases:
