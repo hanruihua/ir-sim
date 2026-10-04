@@ -25,7 +25,7 @@ The `make` function creates an environment from a configuration file. Supported 
 - **`display`** (bool): Whether to display the environment visualization (default: True)
 - **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
 - **`log_level`** (str): Logging level for the environment (default: "INFO")
-- **`log_file`** (str, optional): Path of this environment's log file (default: "irsim_error.log"). Every environment owns its own console and file sinks, so creating a second environment does not change the first one's logging.
+- **`log_file`** (str, optional): Path of this environment's log file (default: `None`, so file logging is disabled). Every environment owns its own console and optional file sinks, so creating a second environment does not change the first one's logging.
 - **`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided,
   random elements produced by IR-SIM become reproducible. If omitted/``None``,
   a new unseeded generator is used (non-reproducible). Custom extensions using
