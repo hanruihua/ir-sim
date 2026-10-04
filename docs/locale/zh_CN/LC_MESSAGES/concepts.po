@@ -273,15 +273,8 @@ msgid "Sensors: perceiving the world"
 msgstr "传感器：感知世界"
 
 #: ../../source/concepts.md:75
-msgid ""
-"**Sensors** are attached to objects and produce measurements from the world "
-"each step: a 2D LiDAR, a 2D FMCW LiDAR (range *and* per-beam radial "
-"velocity), and a field-of-view detector. Sensors are refreshed **after** "
-"objects move, so a reading always reflects the latest world state."
-msgstr ""
-"**传感器**附着在对象上，每一步从世界产生测量：2D 激光雷达、2D FMCW 激光雷达"
-"（距离*以及*每束的径向速度）和视场检测器。传感器在对象移动**之后**刷新，因此"
-"读数始终反映最新的世界状态。"
+msgid "**Sensors** are attached to objects and produce measurements from the world each step: a 2D LiDAR, a 2D FMCW LiDAR (range *and* per-beam radial velocity), a contact sensor (partners, forces and contact time in the `contact` collision mode), and a field-of-view detector. Sensors are refreshed **after** objects move, so a reading always reflects the latest world state."
+msgstr "**传感器**附着在对象上，每一步从世界产生测量：2D 激光雷达、2D FMCW 激光雷达（距离*以及*每束的径向速度）、接触传感器（`contact` 碰撞模式下的接触对象、力与接触时间）和视场检测器。传感器在对象移动**之后**刷新，因此读数始终反映最新的世界状态。"
 
 #: ../../source/concepts.md:77
 msgid "From YAML to a running scene"

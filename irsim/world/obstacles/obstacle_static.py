@@ -13,6 +13,7 @@ class ObjectStatic(ObjectBase):
             state_dim (int): State vector dimension (>=3).
             **kwargs: Forwarded to ``ObjectBase``.
         """
-        super().__init__(color=color, role=role, state_dim=state_dim, **kwargs)
-
-        self.static = True
+        kwargs.pop("static", None)
+        super().__init__(
+            color=color, role=role, state_dim=state_dim, static=True, **kwargs
+        )

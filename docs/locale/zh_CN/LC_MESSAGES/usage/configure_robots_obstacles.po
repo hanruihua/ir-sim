@@ -345,8 +345,8 @@ msgid "**Configuration Tips:**"
 msgstr "**配置提示：**"
 
 #: ../../source/usage/configure_robots_obstacles.md:198
-msgid "Objects without `kinematics` are static"
-msgstr "未设置 `kinematics` 的对象是静态对象"
+msgid "Objects without `kinematics` are static, unless they are given a finite `mass` for the `contact` collision mode"
+msgstr "未设置 `kinematics` 的对象是静态对象，除非为 `contact` 碰撞模式赋予了有限的 `mass`"
 
 #: ../../source/usage/configure_robots_obstacles.md:199
 msgid "Add `kinematics` + `behavior` to create moving robots or obstacles"
@@ -431,3 +431,75 @@ msgstr ""
 #: ../../source/usage/configure_robots_obstacles.md:212
 msgid "Robots in a group share the default robot color. Set `color: 'cycle'` on the group to give each robot the next color of the palette cycle instead, which helps telling them apart in a crowd; a list of colors still assigns them one by one. The defaults themselves are parameters of {py:mod}`irsim.config.palette_param` and can be changed before `irsim.make()`."
 msgstr "同一分组中的机器人共用默认的机器人颜色。在分组上设置 `color: 'cycle'` 可让每个机器人依次使用调色板循环中的下一种颜色，便于在人群中区分它们；颜色列表仍会逐个分配。默认颜色本身是 {py:mod}`irsim.config.palette_param` 的参数，可以在 `irsim.make()` 之前修改。"
+
+#: ../../source/usage/configure_robots_obstacles.md:186
+msgid "**mass**: Mass in kilograms. Only used by `collision_mode: 'contact'`, where a finite mass makes the obstacle a pushable body and no mass leaves it immovable. Pushable obstacles without kinematics are drawn in orange (`#E69F00`) by default. See [Physical properties and contact mode](#physical-properties-and-contact-mode)."
+msgstr "**mass**：质量（千克）。仅在 `collision_mode: 'contact'` 下使用：有限质量使障碍物成为可推动的物体，不设置质量则保持不可移动。没有运动学的可推动障碍物默认以橙色（`#E69F00`）绘制。参见[物理属性与接触模式](#physical-properties-and-contact-mode)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:187
+msgid "**friction**: Coulomb friction coefficient with the ground, `0.5` by default. Only used by `collision_mode: 'contact'`, where it slows a released body to a stop and, with `mass`, decides whether a robot can push it. See [Physical properties and contact mode](#physical-properties-and-contact-mode)."
+msgstr "**friction**：与地面的库仑摩擦系数，默认 `0.5`。仅在 `collision_mode: 'contact'` 下使用：它让松开的物体减速停下，并与 `mass` 一起决定机器人能否推动它。参见[物理属性与接触模式](#physical-properties-and-contact-mode)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:188
+msgid "**inertia**: Moment of inertia in kg·m², computed from the shape and mass unless set. Only used by `collision_mode: 'contact'`, where a push that misses a pushable obstacle's center turns it. See [Physical properties and contact mode](#physical-properties-and-contact-mode)."
+msgstr "**inertia**：转动惯量（kg·m²），未设置时由形状和质量计算。仅在 `collision_mode: 'contact'` 下使用：没有对准可推动障碍物中心的推力会让它转动。参见[物理属性与接触模式](#physical-properties-and-contact-mode)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:189
+msgid "**restitution**: Bounciness of the material from `0` (default, no bounce) to `1`. Only used by `collision_mode: 'contact'`. See [Physical properties and contact mode](#physical-properties-and-contact-mode)."
+msgstr "**restitution**：材料的弹性，从 `0`（默认，不反弹）到 `1`。仅在 `collision_mode: 'contact'` 下使用。参见[物理属性与接触模式](#physical-properties-and-contact-mode)。"
+
+#: ../../source/usage/configure_robots_obstacles.md:209
+msgid "Physical Properties and Contact Mode"
+msgstr "物理属性与接触模式"
+
+#: ../../source/usage/configure_robots_obstacles.md:211
+msgid "By default (`collision_mode: 'stop'`) objects halt when they touch. Setting `collision_mode: 'contact'` in the `world` section turns collisions into contacts: after every step, overlapping objects are pushed apart along their contact normal, following the rules a physics engine such as PhysX (Isaac Sim, CARLA) applies to rigid bodies, reduced to `mass`, `friction`, `inertia` and `restitution`. A robot pushes a box at its own speed as long as its traction beats the box's ground friction, a box too heavy for it stalls it, its wheels' grip also bounds how fast it can launch or stop, a box hit off-center turns, a released box slides to a stop, a wall stops whatever presses on it, and the robot's drive can be given the lag of a real base."
+msgstr "默认情况下（`collision_mode: 'stop'`），对象一旦相触就会停下。在 `world` 部分设置 `collision_mode: 'contact'` 会把碰撞变成接触：每一步之后，重叠的对象沿接触法线被推开，遵循 PhysX 等物理引擎（Isaac Sim、CARLA）处理刚体的规则，并简化为 `mass`、`friction`、`inertia` 和 `restitution` 几个属性。只要机器人的牵引力胜过箱子的地面摩擦，它就以自身速度推动箱子；过重的箱子会让它停滞；轮子的抓地力也限制着它启动和停下的快慢；偏心被撞的箱子会转动；松开的箱子滑行一段后停下；墙壁会挡住一切压向它的物体；还可以让机器人的驱动具有真实底盘的滞后。"
+
+#: ../../source/usage/configure_robots_obstacles.md:213
+msgid "**`mass`** (`float`, kg): Objects with kinematics default to `1.0`. Objects without kinematics have no mass (`inf`) and never move; give one a finite `mass` and it becomes a pushable body that does not move on its own. A list under `number` sets one mass per object. Such a body is drawn in orange (`#E69F00`) unless you set `color`, so you can tell at a glance what moves only when pushed, while obstacles with kinematics keep their usual color; the shade is the colour-blind-safe Okabe-Ito orange and stays distinct from black when printed in grayscale. With `friction` the mass gives an object's ground friction force, `friction * mass * g`: a robot pushes a body while its own value is at least that of the body plus everything the body pushes ahead of it, so with equal materials it pushes up to its own mass in boxes, in one or in a row, and stalls against more. Static objects and the grid map are immovable regardless."
+msgstr "**`mass`**（`float`，千克）：有运动学的对象默认为 `1.0`。没有运动学的对象没有质量（`inf`），永不移动；为其设置有限 `mass` 后，它会成为可被推动但不会自行移动的物体。在 `number` 下给出列表可为每个对象设置各自的质量。这类物体在未设置 `color` 时以橙色（`#E69F00`）绘制，一眼就能看出哪些只会被推动，而有运动学的障碍物保持原有颜色；该色调是色盲友好的 Okabe-Ito 橙色，灰度打印时仍与黑色区分明显。质量与 `friction` 一起给出对象的地面摩擦力 `friction * mass * g`：机器人只有在自身的值不小于该物体及其前方所推动的一切物体之和时才能推动它，因此材料相同时，机器人能推动总计不超过自身质量的箱子（单个或成排），超过则会停滞。静态对象和栅格地图始终不可移动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:214
+msgid "**`friction`** (`float`, default: the world's `friction`, `0.5`): Coulomb friction coefficient with the ground, the default material value of PhysX. A released body decelerates by `friction * gravity`, 9.81 m/s² by default, until it stops, so from 1 m/s it slides about 5 cm, and `friction: 0` lets it slide forever. A body pressed against a wall slides along it only when the push leaves the friction cone of the two surfaces (their mean coefficient; at 0.5, pushes more than 27° from the wall normal slide), while a robot always slides, since its wheels can drive along the wall. A list under `number` sets one coefficient per object."
+msgstr "**`friction`**（`float`，默认：世界的 `friction`，即 `0.5`）：与地面的库仑摩擦系数，即 PhysX 的默认材料值。松开的物体以 `friction * gravity`（默认 9.81 m/s²）减速直到停下，因此从 1 m/s 开始约滑行 5 cm；`friction: 0` 会让它一直滑行。压在墙上的物体只有当推力离开两表面的摩擦锥（取二者系数的平均值；为 0.5 时，与墙面法线夹角超过 27° 的推力才会滑动）时才沿墙滑动，而机器人总能滑动，因为它的轮子可以沿墙行驶。在 `number` 下给出列表可为每个对象设置各自的系数。"
+
+#: ../../source/usage/configure_robots_obstacles.md:215
+msgid "**`inertia`** (`float`, kg·m²): moment of inertia about the object's center of mass (its centroid), computed from its shape and mass unless set: `m r² / 2` for a disc, `m (l² + w²) / 12` for a rectangle, the exact polar moment for a polygon. A box is turned by any off-center push; a robot keeps its heading while it pushes, but stopped by a wall or a load it cannot move, an off-center contact deflects it as slipping wheels would. A spinning body slows under friction like a sliding one."
+msgstr "**`inertia`**（`float`，kg·m²）：绕对象质心的转动惯量，未设置时由形状和质量计算：圆盘为 `m r² / 2`，矩形为 `m (l² + w²) / 12`，多边形为精确的极惯性矩。任何偏心的推力都会让箱子转动；机器人在推动时保持朝向，但被墙或推不动的负载挡住时，偏心的接触会像打滑的轮子那样使它偏转。旋转的物体像滑动的物体一样在摩擦下减速。"
+
+#: ../../source/usage/configure_robots_obstacles.md:216
+msgid "**`restitution`** (`float`, default: the world's `restitution`, `0`): bounciness of the material, `0` for a perfectly inelastic contact as in Isaac Lab's default material, `1` for an elastic one. Two bodies that collide separate at the mean of their values times their approach speed: a frictionless disc with `restitution: 1` pushed at 1 m/s by a robot of the same material leaves it at 2 m/s and comes back off a wall of that material at the speed it arrived, while the default `0` on the robot or the wall halves the bounce. Only passive bodies bounce, and only off a contact that could move them: a box a robot cannot push is not hammered forward by repeated kicks. A robot's drive re-asserts its velocity."
+msgstr "**`restitution`**（`float`，默认：世界的 `restitution`，即 `0`）：材料的弹性，`0` 表示完全非弹性接触（与 Isaac Lab 的默认材料相同），`1` 表示弹性接触。两个物体相撞后以二者取平均的恢复系数乘以接近速度分离：`restitution: 1` 的无摩擦圆盘被同种材料、以 1 m/s 推动的机器人推出时速度为 2 m/s，撞上同种材料的墙后以到达时的速度弹回；机器人或墙保持默认值 `0` 时反弹减半。只有被动物体会反弹，且只在能推动它的接触上反弹：机器人推不动的箱子不会被反复撞击而向前挪动。机器人的驱动会重新施加它的速度。"
+
+#: ../../source/usage/configure_robots_obstacles.md:217
+msgid "**Traction limit**: in contact mode a robot's wheels can only change its speed by `friction * gravity` per second, since that is all the grip they have on the floor. With the default `0.5` a launch or a stop from 1 m/s takes three 0.1 s steps and about 5 cm, so a controller cannot stop or reverse a robot within a step, and a robot with `friction: 0` cannot move at all, as in a physics engine. Set `friction: 1.0` on a robot for rubber wheels that both push and accelerate harder."
+msgstr "**牵引限制**：在接触模式下，机器人的轮子每秒最多只能把速度改变 `friction * gravity`，因为它们对地面的抓地力仅此而已。默认 `0.5` 时，从 1 m/s 启动或停下需要三个 0.1 s 的步长、约 5 cm，因此控制器无法让机器人在一步之内停下或反向；`friction: 0` 的机器人完全无法移动，如同物理引擎中那样。为机器人设置 `friction: 1.0` 相当于橡胶轮，推力和加速都更强。"
+
+#: ../../source/usage/configure_robots_obstacles.md:217
+msgid "**Drive lag** (`kinematics: {name: 'diff', tau: 0.2}`): in contact mode a robot's actual velocity can follow its command as a first-order response with time constant `tau`, as a base with a soft velocity loop does, so it cannot stop or reverse within a step. The default is `0`, instant tracking, which matches Isaac's stiff default drives at this step size and which the other collision modes always use. A stalled robot keeps pushing at its full command while its body velocity reads zero, like slipping wheels."
+msgstr "**驱动滞后**（`kinematics: {name: 'diff', tau: 0.2}`）：在接触模式下，机器人的实际速度可以按时间常数 `tau` 的一阶响应跟随指令，如同速度环较软的底盘，因此它无法在一步之内停下或反向。默认为 `0`，即时跟随，这与 Isaac 的默认刚性驱动在此步长下的表现一致，其他碰撞模式也始终即时跟随。停滞的机器人仍以全指令持续推动，而其本体速度读数为零，如同打滑的轮子。"
+
+#: ../../source/usage/configure_robots_obstacles.md:218
+msgid "**World defaults**: `gravity` (`9.81`), `friction` (`0.5`), `restitution` (`0`) and `drive_tau` (`0`) under the `world` section are the physics every object starts from; a per-object `friction` or `restitution`, or a `tau` under its `kinematics`, overrides them. Lower the world `friction` for a slippery floor, or set `drive_tau: 0.2` to give every robot the drive lag of a small base."
+msgstr "**世界默认值**：`world` 部分下的 `gravity`（`9.81`）、`friction`（`0.5`）、`restitution`（`0`）和 `drive_tau`（`0`）是每个对象起始的物理参数；对象自己的 `friction` 或 `restitution`，或其 `kinematics` 下的 `tau`，会覆盖它们。地面较滑时降低世界的 `friction`，设置 `drive_tau: 0.2` 可让所有机器人具有小型底盘的驱动滞后。"
+
+#: ../../source/usage/configure_robots_obstacles.md:214
+msgid "**What the contact does**: a pushed body moves with its pusher, so a 1 kg robot commanding 1 m/s pushes a 0.25 kg or a 1 kg box at 1 m/s, while a 4 kg box stalls it, since the robot's traction `0.5 * 1 kg * g` is below the box's ground friction `0.5 * 4 kg * g`; a box against a wall stops the robot. Between two passive bodies, or two robots, the overlap is split in inverse proportion to `mass`, which is a perfectly inelastic collision: a 1 kg box sliding at 1 m/s into a resting 3 kg box leaves both at 0.25 m/s. A push that misses a body's center also turns it: the contact point and normal give a torque that the body's moment of inertia resists, so a box hit near a corner spins as it is pushed and a box pressed into a wall by one corner pivots around it, while a push through the center only slides it. The pushed displacement and rotation are folded into each object's velocity, so lidar, RVO and SFM neighbors, and `env.get_msg()` see the box moving."
+msgstr "**接触的作用**：被推动的物体随推动者一起运动，因此指令速度为 1 m/s 的 1 kg 机器人会以 1 m/s 推动 0.25 kg 或 1 kg 的箱子，而 4 kg 的箱子会让它停滞，因为机器人的牵引力 `0.5 * 1 kg * g` 小于箱子的地面摩擦力 `0.5 * 4 kg * g`；顶在墙上的箱子会挡住机器人。两个被动物体之间，或两个机器人之间，重叠量按 `mass` 的倒数比例分摊，即完全非弹性碰撞：以 1 m/s 滑行的 1 kg 箱子撞上静止的 3 kg 箱子后，两者都以 0.25 m/s 运动。没有对准物体中心的推力还会让它转动：接触点和法线给出一个力矩，由物体的转动惯量抵抗，因此靠近角落被撞的箱子会边被推边旋转，被一个角压到墙上的箱子会绕这个角转动，而穿过中心的推力只会让它滑动。推动产生的位移和转动会并入各对象的速度，因此激光雷达、RVO 和 SFM 的邻居以及 `env.get_msg()` 都能看到箱子在动。"
+
+#: ../../source/usage/configure_robots_obstacles.md:215
+msgid "**What it does not do**: a robot that pushes successfully is never turned, since its drive holds its heading, and nothing bounces unless a `restitution` is set. Objects are never stopped by contacts, so `collision` stays `False` and `env.done()` only reports arrival; the readings of the object's contact sensor, `obj.contact`, are available instead: `obj.contact.in_contact`, `obj.contact.partners` and `obj.contact.force` (newtons, world frame, estimated from the constraint impulse as XPBD does) tell which objects touched in the last step and how hard, a box pushed steadily reporting the ground friction it overcomes and a stalled robot its traction, the most its slipping wheels can push with; `obj.contact.reports` gives each contact from the object's own side, `other`, `point`, `normal` toward the object, `depth` and `force`, printable as a sentence, and `env.contacts` the raw pair records; `obj.contact.contact_time` and `obj.contact.air_time` say for how long the object has been touching something or free, and `obj.contact.started` and `obj.contact.ended` flag the step that changed which; and `env.get_msg()` carries all of it as `contact_force`, `contacts`, `contact_time` and `air_time` on every object state. Add `sensors: [{type: 'contact2d'}]` to an object to draw its contact points and force lines, see [Configure Sensors](configure_sensor.md). Contacts are skipped in `step_mode: 'external'`, and keep `speed * step_time` below an object's radius so it cannot tunnel through a thin `linestring` wall in one step."
+msgstr "**它不做什么**：成功推动时机器人不会被转动，因为它的驱动保持着朝向；除非设置了 `restitution`，否则没有任何反弹。接触不会让对象停止，因此 `collision` 保持 `False`，`env.done()` 只报告到达；取而代之的是可改用对象自带接触传感器 `obj.contact` 的读数：`obj.contact.in_contact`、`obj.contact.partners` 与 `obj.contact.force`（牛顿，世界坐标系，按 XPBD 的方式由约束冲量估算）给出上一步相触的对象以及推力多大，被持续推动的箱子报告它克服的地面摩擦力，停滞的机器人报告它的牵引力，即打滑的轮子最多能推出的力；`obj.contact.reports` 从对象自身的角度给出每个接触：`other`、`point`、指向该对象的 `normal`、`depth` 和 `force`，可直接打印成一句话，`env.contacts` 则是原始的成对记录；`obj.contact.contact_time` 和 `obj.contact.air_time` 说明对象已持续接触或自由了多久，`obj.contact.started` 和 `obj.contact.ended` 标记接触开始或结束的那一步；`env.get_msg()` 则以每个对象状态上的 `contact_force`、`contacts`、`contact_time` 和 `air_time` 携带全部这些信息。为对象添加 `sensors: [{type: 'contact2d'}]` 可绘制其接触点和力线，见[配置传感器](configure_sensor.md)。`step_mode: 'external'` 下不解算接触；请让 `speed * step_time` 小于对象半径，以免一步之内穿过细的 `linestring` 墙。"
+
+#: ../../source/usage/configure_robots_obstacles.md:217
+msgid "The example below (`usage/26push_box_world/`) has three identical robots push boxes of 0.25, 2 and 1 kg toward a wall:"
+msgstr "下面的示例（`usage/26push_box_world/`）中，三个相同的机器人把 0.25、2 和 1 kg 的箱子推向一堵墙："
+
+#: ../../source/usage/configure_robots_obstacles.md:270
+msgid "The 0.25 kg and the 1 kg box travel at the robot's speed, while the 2 kg box is too heavy for a 1 kg robot to push and stalls it; once a box reaches the wall the whole chain stops although the robots keep asking for full speed. The script labels each box with the force it feels and prints the robots' contact reports, partner, point, normal and force, as contacts start and end. `push_box_keyboard.yaml` in the same folder lets you shove boxes around with the keyboard."
+msgstr "0.25 kg 和 1 kg 的箱子以机器人的速度前进，而 2 kg 的箱子对 1 kg 的机器人来说太重，会让它停滞；一旦某个箱子顶到墙上，整条链就会停下，尽管机器人仍在请求全速。脚本会在每个箱子上标注它受到的力，并在接触开始和结束时打印机器人的接触报告：对方、接触点、法线和力。同一目录下的 `push_box_keyboard.yaml` 可以用键盘推着箱子到处走。"
+
+#: ../../source/usage/configure_robots_obstacles.md:273
+msgid "Contacts are resolved by the separating axis theorem between convex pieces of the two shapes (circles, convex polygons, and line segments; non-convex polygons are triangulated), so every shape takes part: `compound` bodies, `linestring` walls, and grid maps. See {py:mod}`irsim.lib.algorithm.contact`."
+msgstr "接触通过分离轴定理在两个形状的凸片段之间求解（圆、凸多边形和线段；非凸多边形会被三角剖分），因此所有形状都能参与：`compound` 物体、`linestring` 墙和栅格地图。参见 {py:mod}`irsim.lib.algorithm.contact`。"

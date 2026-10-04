@@ -356,8 +356,7 @@ class ObjectPlot:
     def init(self, ax: Any, **kwargs: Any) -> list[str]:
         """Create the object's artists at its original state."""
         if (
-            self.owner.kf is not None
-            and not self.owner.static
+            not self.owner.static
             and "show_arrow" not in self.owner.plot_kwargs
             and "show_arrow" not in kwargs
         ):

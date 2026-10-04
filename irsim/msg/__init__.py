@@ -1,6 +1,7 @@
 """Public message types for dependency-free snapshots."""
 
 from .messages import (
+    ContactState,
     Header,
     LaserScan,
     Message,
@@ -17,6 +18,7 @@ from .messages import (
 )
 
 __all__ = [
+    "ContactState",
     "Header",
     "LaserScan",
     "Message",

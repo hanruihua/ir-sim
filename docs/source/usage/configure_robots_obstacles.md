@@ -183,6 +183,10 @@ obstacle:
 ### Important Parameters Explained
 
 - **unobstructed**: If `True`, there is no collision detection with the object. 
+- **mass**: Mass in kilograms. Only used by `collision_mode: 'contact'`, where a finite mass makes the obstacle a pushable body and no mass leaves it immovable. Pushable obstacles without kinematics are drawn in orange (`#E69F00`) by default. See [Physical properties and contact mode](#physical-properties-and-contact-mode).
+- **friction**: Coulomb friction coefficient with the ground, `0.5` by default. Only used by `collision_mode: 'contact'`, where it slows a released body to a stop and, with `mass`, decides whether a robot can push it. See [Physical properties and contact mode](#physical-properties-and-contact-mode).
+- **inertia**: Moment of inertia in kg·m², computed from the shape and mass unless set. Only used by `collision_mode: 'contact'`, where a push that misses a pushable obstacle's center turns it. See [Physical properties and contact mode](#physical-properties-and-contact-mode).
+- **restitution**: Bounciness of the material from `0` (default, no bounce) to `1`. Only used by `collision_mode: 'contact'`. See [Physical properties and contact mode](#physical-properties-and-contact-mode).
 
 :::{note}
 **Robot vs Obstacle - Key Differences:**
@@ -195,7 +199,7 @@ obstacle:
 | `behavior` | `None` (static unless configured or externally controlled) | `None` (static unless configured or externally controlled) |
 
 **Configuration Tips:**
-- Objects without `kinematics` are static
+- Objects without `kinematics` are static, unless they are given a finite `mass` for the `contact` collision mode
 - Add `kinematics` + `behavior` to create moving robots or obstacles
 - Pass a velocity to `env.step(velocity)` when using your own controller instead of a configured behavior
 - Use `-` to define each new robot/obstacle in the list
@@ -203,6 +207,83 @@ obstacle:
 
 :::{warning}
 Please make sure that the obstacles are not placed in the initial position of the robot. Otherwise, the robot will collide with the obstacles at the beginning of the simulation.
+:::
+
+## Physical Properties and Contact Mode
+
+By default (`collision_mode: 'stop'`) objects halt when they touch. Setting `collision_mode: 'contact'` in the `world` section turns collisions into contacts: after every step, overlapping objects are pushed apart along their contact normal, following the rules a physics engine such as PhysX (Isaac Sim, CARLA) applies to rigid bodies, reduced to `mass`, `friction`, `inertia` and `restitution`. A robot pushes a box at its own speed as long as its traction beats the box's ground friction, a box too heavy for it stalls it, its wheels' grip also bounds how fast it can launch or stop, a box hit off-center turns, a released box slides to a stop, a wall stops whatever presses on it, and the robot's drive can be given the lag of a real base.
+
+- **`mass`** (`float`, kg): Objects with kinematics default to `1.0`. Objects without kinematics have no mass (`inf`) and never move; give one a finite `mass` and it becomes a pushable body that does not move on its own. A list under `number` sets one mass per object. Such a body is drawn in orange (`#E69F00`) unless you set `color`, so you can tell at a glance what moves only when pushed, while obstacles with kinematics keep their usual color; the shade is the colour-blind-safe Okabe-Ito orange and stays distinct from black when printed in grayscale. With `friction` the mass gives an object's ground friction force, `friction * mass * g`: a robot pushes a body while its own value is at least that of the body plus everything the body pushes ahead of it, so with equal materials it pushes up to its own mass in boxes, in one or in a row, and stalls against more. Static objects and the grid map are immovable regardless.
+- **`friction`** (`float`, default: the world's `friction`, `0.5`): Coulomb friction coefficient with the ground, the default material value of PhysX. A released body decelerates by `friction * gravity`, 9.81 m/s² by default, until it stops, so from 1 m/s it slides about 5 cm, and `friction: 0` lets it slide forever. A body pressed against a wall slides along it only when the push leaves the friction cone of the two surfaces (their mean coefficient; at 0.5, pushes more than 27° from the wall normal slide), while a robot always slides, since its wheels can drive along the wall. A list under `number` sets one coefficient per object.
+- **`inertia`** (`float`, kg·m²): moment of inertia about the object's center of mass (its centroid), computed from its shape and mass unless set: `m r² / 2` for a disc, `m (l² + w²) / 12` for a rectangle, the exact polar moment for a polygon. A box is turned by any off-center push; a robot keeps its heading while it pushes, but stopped by a wall or a load it cannot move, an off-center contact deflects it as slipping wheels would. A spinning body slows under friction like a sliding one.
+- **`restitution`** (`float`, default: the world's `restitution`, `0`): bounciness of the material, `0` for a perfectly inelastic contact as in Isaac Lab's default material, `1` for an elastic one. Two bodies that collide separate at the mean of their values times their approach speed: a frictionless disc with `restitution: 1` pushed at 1 m/s by a robot of the same material leaves it at 2 m/s and comes back off a wall of that material at the speed it arrived, while the default `0` on the robot or the wall halves the bounce. Only passive bodies bounce, and only off a contact that could move them: a box a robot cannot push is not hammered forward by repeated kicks. A robot's drive re-asserts its velocity.
+- **Traction limit**: in contact mode a robot's wheels can only change its speed by `friction * gravity` per second, since that is all the grip they have on the floor. With the default `0.5` a launch or a stop from 1 m/s takes three 0.1 s steps and about 5 cm, so a controller cannot stop or reverse a robot within a step, and a robot with `friction: 0` cannot move at all, as in a physics engine. Set `friction: 1.0` on a robot for rubber wheels that both push and accelerate harder.
+- **Drive lag** (`kinematics: {name: 'diff', tau: 0.2}`): in contact mode a robot's actual velocity can follow its command as a first-order response with time constant `tau`, as a base with a soft velocity loop does, so it cannot stop or reverse within a step. The default is `0`, instant tracking, which matches Isaac's stiff default drives at this step size and which the other collision modes always use. A stalled robot keeps pushing at its full command while its body velocity reads zero, like slipping wheels.
+- **World defaults**: `gravity` (`9.81`), `friction` (`0.5`), `restitution` (`0`) and `drive_tau` (`0`) under the `world` section are the physics every object starts from; a per-object `friction` or `restitution`, or a `tau` under its `kinematics`, overrides them. Lower the world `friction` for a slippery floor, or set `drive_tau: 0.2` to give every robot the drive lag of a small base.
+- **What the contact does**: a pushed body moves with its pusher, so a 1 kg robot commanding 1 m/s pushes a 0.25 kg or a 1 kg box at 1 m/s, while a 4 kg box stalls it, since the robot's traction `0.5 * 1 kg * g` is below the box's ground friction `0.5 * 4 kg * g`; a box against a wall stops the robot. Between two passive bodies, or two robots, the overlap is split in inverse proportion to `mass`, which is a perfectly inelastic collision: a 1 kg box sliding at 1 m/s into a resting 3 kg box leaves both at 0.25 m/s. A push that misses a body's center also turns it: the contact point and normal give a torque that the body's moment of inertia resists, so a box hit near a corner spins as it is pushed and a box pressed into a wall by one corner pivots around it, while a push through the center only slides it. The pushed displacement and rotation are folded into each object's velocity, so lidar, RVO and SFM neighbors, and `env.get_msg()` see the box moving.
+- **What it does not do**: a robot that pushes successfully is never turned, since its drive holds its heading, and nothing bounces unless a `restitution` is set. Objects are never stopped by contacts, so `collision` stays `False` and `env.done()` only reports arrival; the readings of the object's contact sensor, `obj.contact`, are available instead: `obj.contact.in_contact`, `obj.contact.partners` and `obj.contact.force` (newtons, world frame, estimated from the constraint impulse as XPBD does) tell which objects touched in the last step and how hard, a box pushed steadily reporting the ground friction it overcomes and a stalled robot its traction, the most its slipping wheels can push with; `obj.contact.reports` gives each contact from the object's own side, `other`, `point`, `normal` toward the object, `depth` and `force`, printable as a sentence, and `env.contacts` the raw pair records; `obj.contact.contact_time` and `obj.contact.air_time` say for how long the object has been touching something or free, and `obj.contact.started` and `obj.contact.ended` flag the step that changed which; and `env.get_msg()` carries all of it as `contact_force`, `contacts`, `contact_time` and `air_time` on every object state. Add `sensors: [{type: 'contact2d'}]` to an object to draw its contact points and force lines, see [Configure Sensors](configure_sensor.md). Contacts are skipped in `step_mode: 'external'`, and keep `speed * step_time` below an object's radius so it cannot tunnel through a thin `linestring` wall in one step.
+
+The example below (`usage/26push_box_world/`) has three identical robots push boxes of 0.25, 2 and 1 kg toward a wall:
+
+::::{tab-set}
+
+:::{tab-item} Python Script
+
+```python
+import irsim
+
+env = irsim.make("push_box_world.yaml")
+boxes = env.obstacle_list[:3]
+
+for _ in range(200):
+    env.step()
+    env.render(0.02)
+
+for robot, box in zip(env.robot_list, boxes, strict=True):
+    print(f"{box.name} ({box.mass:g} kg) moved {box.state[0, 0] - 3:.2f} m")
+
+env.end(3)
+```
+:::
+
+:::{tab-item} YAML Configuration
+
+```yaml
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  collision_mode: 'contact'   # touching objects push each other apart by mass
+
+robot:
+  - number: 3
+    distribution: {name: 'manual'}
+    kinematics: {name: 'diff'}
+    shape: [{name: 'circle', radius: 0.3}]
+    mass: 1.0
+    state: [[1, 2, 0], [1, 6, 0], [1, 10, 0]]
+    goal: [[11.5, 2, 0], [11.5, 6, 0], [11.5, 10, 0]]
+    behavior: {name: 'dash'}
+    vel_max: [1.0, 1.0]
+
+obstacle:
+  - number: 3
+    distribution: {name: 'manual'}
+    shape: [{name: 'rectangle', length: 0.8, width: 0.8}]
+    state: [[3, 2, 0], [3, 6, 0], [3, 10, 0]]
+    mass: [0.25, 2.0, 1.0]      # a finite mass makes an obstacle pushable (drawn in orange)
+
+  - shape: {name: 'rectangle', length: 0.4, width: 11}   # no mass: immovable wall
+    state: [10.5, 6, 0]
+```
+:::
+
+::::
+
+The 0.25 kg and the 1 kg box travel at the robot's speed, while the 2 kg box is too heavy for a 1 kg robot to push and stalls it; once a box reaches the wall the whole chain stops although the robots keep asking for full speed. The script labels each box with the force it feels and prints the robots' contact reports, partner, point, normal and force, as contacts start and end. `push_box_keyboard.yaml` in the same folder lets you shove boxes around with the keyboard.
+
+:::{note}
+Contacts are resolved by the separating axis theorem between convex pieces of the two shapes (circles, convex polygons, and line segments; non-convex polygons are triangulated), so every shape takes part: `compound` bodies, `linestring` walls, and grid maps. See {py:mod}`irsim.lib.algorithm.contact`.
 :::
 
 ## Advanced Configurations for Multiple Robots and Obstacles
@@ -297,27 +378,25 @@ from irsim.lib import register_kinematics
 from irsim.lib.handler.kinematics_handler import DifferentialKinematics
 
 
-@register_kinematics("lag_diff")
-class LagDiffKinematics(DifferentialKinematics):
-    """Differential drive whose velocity follows the command with a first-order lag."""
+@register_kinematics("slip_diff")
+class SlipDiffKinematics(DifferentialKinematics):
+    """Differential drive whose wheels slip: only part of the commanded speed reaches the ground."""
 
-    def __init__(self, name, noise=False, alpha=None, tau=0.5):
+    def __init__(self, name, noise=False, alpha=None, ratio=0.8):
         super().__init__(name, noise, alpha)
-        self.tau = tau  # time constant of the lag, in seconds
-        self._vel = None
+        self.ratio = ratio  # fraction of the commanded linear speed that is achieved
 
     def step(self, state, velocity, step_time):
-        if self._vel is None:
-            self._vel = np.zeros_like(velocity)
-        self._vel = self._vel + (velocity - self._vel) * min(step_time / self.tau, 1.0)
-        return super().step(state, self._vel, step_time)
+        achieved = np.array(velocity, dtype=float)
+        achieved[0, 0] *= self.ratio
+        return super().step(state, achieved, step_time)
 ```
 
-Any key under `kinematics` other than `name`, `noise`, and `alpha` is passed to the handler's `__init__`, so the model's parameters are set directly in YAML:
+Any key under `kinematics` other than `name`, `noise`, `alpha`, and the built-in drive lag `tau` is passed to the handler's `__init__`, so the model's parameters are set directly in YAML:
 
 ```yaml
 robot:
-  - kinematics: {name: 'lag_diff', tau: 0.5}
+  - kinematics: {name: 'slip_diff', ratio: 0.8}
     shape: {name: 'circle', radius: 0.2}
     state: [1, 1, 0]
 ```

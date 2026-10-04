@@ -1681,16 +1681,15 @@ def test_robot_arrow_explicit_false(scenario_factory):
 
 
 def test_kf_none_robot_has_no_arrow():
-    """A robot constructed with `kinematics=None` (i.e. `kf is None`) gets
-    `self.static = True` from ObjectBase, so the dynamic-only handler
-    default does not apply and no arrow is drawn."""
+    """A robot constructed with `kinematics=None` gets the passive model,
+    which is static without a mass and never shows an arrow."""
     obj = ObjectBase(
         kinematics=None,
         shape={"name": "circle", "radius": 0.2},
         state=[1, 1, 0],
         role="robot",
     )
-    assert obj.kf is None
+    assert obj.kinematics is None
     assert obj.static is True
 
     fig, ax = plt.subplots()
