@@ -1,6 +1,32 @@
 # Changelog
 
-> **Release schedule:** By default, IR-SIM publishes a new release on the first day of each month.
+## 2.12.0 (2026-10-04)
+
+This release adds Contact mode for realistic collision handling, a default Okabe-Ito palette for academic figures, the social force model as a group behavior, and fixes to reactive behaviors, lidar readings, and the environment lifecycle.
+
+<!-- <p align="center">
+  <img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/robots_obstacles/push_box_keyboard.gif" width="120" alt="A keyboard-driven robot pushes boxes of different mass in contact mode."/>
+</p> -->
+
+- **Features**:
+  - **Contact mode resolves collisions like a rigid-body physics engine.** In YAML, set `collision_mode: contact`; it uses each object's `mass`, `friction`, `inertia`, and `restitution`; an obstacle with a finite `mass` can be pushed, and every object reports its contacts through `obj.contact`. See [`usage/26push_box_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/26push_box_world) for details. ([#374](https://github.com/hanruihua/ir-sim/pull/374))
+  - **Add default Okabe-Ito palette for academic figures.** Rendering now uses the Okabe-Ito set for the colors of robots, obstacles, and other objects. They are runtime parameters in `irsim.config.palette_param`; `color: 'cycle'` gives each robot of a group its own palette color. See [`usage/06multi_objects_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/06multi_objects_world) for details. ([#373](https://github.com/hanruihua/ir-sim/pull/373))
+  - **Add group behavior of the social force model.** `group_behavior: {name: sfm}` steps a whole crowd at once, 2 to 2.6x faster than per-object `sfm`, and `social_groups` keeps pedestrians walking together. See [`usage/23sfm_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/23sfm_world) for details. ([#369](https://github.com/hanruihua/ir-sim/pull/369))
+  - **Lidar scans report validity and infinite ranges.** Both lidars expose a per-beam `valid` mask, `angle_std` adds direction noise, and `env.get_msg(use_inf=True)` publishes REP 117 infinities for misses. See [`usage/05lidar_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/05lidar_world) for details. ([#379](https://github.com/hanruihua/ir-sim/pull/379))
+
+- **Fix**:
+  - **Group actions reach the right robots.** The grid map also no longer joins a group as a phantom agent. ([#377](https://github.com/hanruihua/ir-sim/pull/377))
+  - **RVO builds the right cone for a robot at rest.** A stationary robot no longer drives into an approaching neighbour. ([#378](https://github.com/hanruihua/ir-sim/pull/378))
+  - **Diff and acker robots aim at their goal under `rvo` and `sfm`.** They used to turn away from it. ([#378](https://github.com/hanruihua/ir-sim/pull/378))
+  - **ORCA drives omni members at their speed cap.** They were held at 1 m/s. ([#378](https://github.com/hanruihua/ir-sim/pull/378))
+  - **Lidar noise applies to hits only.** Every range stays within `[range_min, range_max]`, and `range_min` is applied. ([#379](https://github.com/hanruihua/ir-sim/pull/379))
+  - **Headless scenes with `control_mode: keyboard` fall back to auto.** They used to crash after a reset or reload. ([#380](https://github.com/hanruihua/ir-sim/pull/380))
+  - **Each environment keeps its own logging and figure.** Creating or closing one no longer affects another. ([#380](https://github.com/hanruihua/ir-sim/pull/380))
+  - **`arrive_mode: state` accepts goals without a heading.** The heading difference is wrapped. ([#380](https://github.com/hanruihua/ir-sim/pull/380))
+  - **Smaller fixes.** RVO no longer crashes above the speed limit, FMCW returns inside `range_min` stay blocked, sensors scan at construction, only robots reveal the fog map, 2D points draw in 3D, output folders follow the script or working directory, sensors on static objects are redrawn, and the custom group behavior example moves. ([#378](https://github.com/hanruihua/ir-sim/pull/378), [#379](https://github.com/hanruihua/ir-sim/pull/379), [#380](https://github.com/hanruihua/ir-sim/pull/380), [#381](https://github.com/hanruihua/ir-sim/pull/381))
+
+- **Docs**:
+  - **The documentation GIFs are regenerated with the palette.** They are hosted in the [ir-sim-gifs](https://github.com/IR-SIM/ir-sim-gifs) repository, and the README gallery adds fog-of-map, contact, and social force model demos. ([#381](https://github.com/hanruihua/ir-sim/pull/381))
 
 ## 2.11.0 (2026-09-01)
 

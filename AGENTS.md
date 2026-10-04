@@ -225,7 +225,7 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 
 ## Citation
 
-- IR-SIM has an accompanying arXiv paper: *IR-SIM: A Lightweight Skill-Native Simulator for Navigation, Learning, and Benchmarking* ([arXiv:2606.08729](https://arxiv.org/abs/2606.08729)).
+- IR-SIM has an accompanying arXiv paper: *IR-SIM: A Lightweight Declarative Simulator for Navigation Learning and Benchmarking* ([arXiv:2606.08729](https://arxiv.org/abs/2606.08729)).
 - The canonical paper citation (BibTeX) lives in the README's `## Citation` section, alongside the arXiv badge in the header.
 - `CITATION.cff` at the repo root is the *software* citation (separate from the paper); keep its `version`/`date-released` in sync with releases.
 
@@ -251,11 +251,12 @@ Rules for writing entries in `changelog.md`:
 
 - **Scope**: only include changes merged into `main`. Do not list work still on feature branches. Skip dependency-only PRs (`chore(deps)`, `chore(deps-dev)`).
 - **Section structure**: use `## <version>` as the top heading, then grouped subsections in this order — `Features`, `Performance`, `Fix`, `Refactor`, `Docs`, `Tests`. Include only the categories that apply.
-- **Entry format**: bullets mirror the PR-message style — a bold one-sentence headline, then one to three plain sentences describing the symptom, mechanism, or motivation, ending with the PR link. For example:
-  - "**A global seed survives `make()`.** Creating an environment without a seed used to replace the shared generator with a fresh unseeded one, so `set_seed(0)` followed by `irsim.make()` was not reproducible. It is now. ([#365](https://github.com/hanruihua/ir-sim/pull/365))"
-- **Read the PR body, not just the title**: a feat PR can carry fix/perf items and a refactor PR can list several fixes; each item becomes its own bullet in the section that matches the item (a fix inside a feat PR goes under `Fix`), all linking the same PR. Multi-bug fix PRs stay flat — one bullet per bug, no grouping parent.
+- **Entry format**: one short bullet per change, in the style of the scikit-learn and pandas release notes — a bold one-sentence headline saying what was added or changed, then at most one more sentence on how to use it or what users will see differently, ending with the PR link. Root causes and mechanisms stay in the PR. Feature bullets end with a pointer to the usage example: `See [`usage/<example>`](https://github.com/hanruihua/ir-sim/tree/main/usage/<example>) for details.` For example:
+  - "**Contact mode resolves collisions like a rigid-body physics engine.** `collision_mode: contact` uses each object's `mass`, `friction`, `inertia`, and `restitution`. See [`usage/26push_box_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/26push_box_world) for details. ([#374](https://github.com/hanruihua/ir-sim/pull/374))"
+  - "**ORCA drives omni members at their speed cap.** They were held at 1 m/s. ([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+- **Read the PR body, not just the title**: a feat PR can carry fix/perf items and a refactor PR can list several fixes; each item becomes its own bullet in the section that matches the item (a fix inside a feat PR goes under `Fix`), all linking the same PR. Fixes that change simulation results or fix crashes get their own bullet; the release's minor fixes are grouped into one `**Smaller fixes**` bullet that lists them in a sentence and links all their PRs.
 - **PR link**: end every entry with the PR link: `([#NNN](https://github.com/hanruihua/ir-sim/pull/NNN))`.
 - **Contributor credit**: for PRs not authored by `hanruihua`, append the GitHub handle after the PR link: `([#NNN](...)) (@username)`.
-- **Performance metrics**: quote concrete numbers — measured speedups, coordinate/linestring counts, memory reductions, etc. (e.g., "~48% faster lidar step", "~3× fewer linestrings").
+- **Performance metrics**: quote concrete numbers — measured speedups, coordinate/linestring counts, memory reductions, etc. (e.g., "~48% faster lidar step", "~3× fewer linestrings"). A speedup that belongs to a new feature goes into that feature's bullet as a headline number instead of a separate `Performance` entry.
 - **Version boundary**: if the current version in `pyproject.toml` has already been tagged/released, open a new `## <next-version>` section at the top instead of appending to the released one.
 - **PR and commit alignment**: when opening a PR or writing the commit that introduces a changelog entry, mirror the same summary in the PR description and commit message so the three sources stay in sync.

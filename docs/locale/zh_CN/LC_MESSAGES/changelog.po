@@ -22,8 +22,84 @@ msgid "Changelog"
 msgstr "更新日志"
 
 #: ../../../../../../../Users/han/tech/ir-sim/changelog.md:3
-msgid "**Release schedule:** By default, IR-SIM publishes a new release on the first day of each month."
-msgstr "**发布计划：** 默认情况下，IR-SIM 于每月 1 日发布新版本。"
+msgid "2.12.0 (2026-10-04)"
+msgstr "2.12.0 (2026-10-04)"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:5
+msgid "This release adds Contact mode for realistic collision handling, a default Okabe-Ito palette for academic figures, the social force model as a group behavior, and fixes to reactive behaviors, lidar readings, and the environment lifecycle."
+msgstr "本版本新增用于真实碰撞处理的 contact 模式、面向学术论文配图的默认 Okabe-Ito 调色板、作为群体行为的社会力模型，并修复了反应式行为、激光雷达读数和环境生命周期中的问题。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:12
+msgid "**Contact mode resolves collisions like a rigid-body physics engine.** In YAML, set `collision_mode: contact`; it uses each object's `mass`, `friction`, `inertia`, and `restitution`; an obstacle with a finite `mass` can be pushed, and every object reports its contacts through `obj.contact`. See [`usage/26push_box_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/26push_box_world) for details. ([#374](https://github.com/hanruihua/ir-sim/pull/374))"
+msgstr "**contact 模式像刚体物理引擎一样解算碰撞。** 在 YAML 中设置 `collision_mode: contact`；它依据每个对象的 `mass`、`friction`、`inertia` 和 `restitution`；具有有限 `mass` 的障碍物可以被推动，每个对象通过 `obj.contact` 报告其接触。详见 [`usage/26push_box_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/26push_box_world)。([#374](https://github.com/hanruihua/ir-sim/pull/374))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:13
+msgid "**Add default Okabe-Ito palette for academic figures.** Rendering now uses the Okabe-Ito set for the colors of robots, obstacles, and other objects. They are runtime parameters in `irsim.config.palette_param`; `color: 'cycle'` gives each robot of a group its own palette color. See [`usage/06multi_objects_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/06multi_objects_world) for details. ([#373](https://github.com/hanruihua/ir-sim/pull/373))"
+msgstr "**新增面向学术论文配图的默认 Okabe-Ito 调色板。** 渲染现在使用 Okabe-Ito 配色设置机器人、障碍物和其他对象的颜色。它们是 `irsim.config.palette_param` 中的运行时参数；`color: 'cycle'` 为群组中的每个机器人分配各自的调色板颜色。详见 [`usage/06multi_objects_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/06multi_objects_world)。([#373](https://github.com/hanruihua/ir-sim/pull/373))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:14
+msgid "**Add group behavior of the social force model.** `group_behavior: {name: sfm}` steps a whole crowd at once, 2 to 2.6x faster than per-object `sfm`, and `social_groups` keeps pedestrians walking together. See [`usage/23sfm_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/23sfm_world) for details. ([#369](https://github.com/hanruihua/ir-sim/pull/369))"
+msgstr "**新增社会力模型的群体行为。** `group_behavior: {name: sfm}` 一次推进整个人群，比逐对象的 `sfm` 快 2 到 2.6 倍；`social_groups` 让行人结伴同行。详见 [`usage/23sfm_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/23sfm_world)。([#369](https://github.com/hanruihua/ir-sim/pull/369))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:11
+msgid "**Lidar scans report validity and infinite ranges.** Both lidars expose a per-beam `valid` mask, `angle_std` adds direction noise, and `env.get_msg(use_inf=True)` publishes REP 117 infinities for misses. See [`usage/05lidar_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/05lidar_world) for details. ([#379](https://github.com/hanruihua/ir-sim/pull/379))"
+msgstr "**激光雷达扫描报告有效性与无穷远距离。** 两种激光雷达都提供逐束的 `valid` 掩码，`angle_std` 为光束方向加入噪声，`env.get_msg(use_inf=True)` 按 REP 117 对未命中发布无穷大。详见 [`usage/05lidar_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/05lidar_world)。([#379](https://github.com/hanruihua/ir-sim/pull/379))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:14
+msgid "**Group actions reach the right robots.** The grid map also no longer joins a group as a phantom agent. ([#377](https://github.com/hanruihua/ir-sim/pull/377))"
+msgstr "**群体动作落到正确的机器人上。** 栅格地图也不再作为幻影智能体加入群组。([#377](https://github.com/hanruihua/ir-sim/pull/377))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:15
+msgid "**RVO builds the right cone for a robot at rest.** A stationary robot no longer drives into an approaching neighbour. ([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+msgstr "**RVO 为静止的机器人构建正确的速度锥。** 静止的机器人不再撞向迎面而来的邻居。([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:16
+msgid "**Diff and acker robots aim at their goal under `rvo` and `sfm`.** They used to turn away from it. ([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+msgstr "**差速和阿克曼机器人在 `rvo` 与 `sfm` 下朝向目标行驶。** 此前它们会转开。([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:17
+msgid "**ORCA drives omni members at their speed cap.** They were held at 1 m/s. ([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+msgstr "**ORCA 以速度上限驱动全向成员。** 此前它们被固定在 1 m/s。([#378](https://github.com/hanruihua/ir-sim/pull/378))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:18
+msgid "**Lidar noise applies to hits only.** Every range stays within `[range_min, range_max]`, and `range_min` is applied. ([#379](https://github.com/hanruihua/ir-sim/pull/379))"
+msgstr "**激光雷达噪声只作用于命中的光束。** 所有距离保持在 `[range_min, range_max]` 内，`range_min` 也已生效。([#379](https://github.com/hanruihua/ir-sim/pull/379))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:19
+msgid "**Headless scenes with `control_mode: keyboard` fall back to auto.** They used to crash after a reset or reload. ([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+msgstr "**无头模式下 `control_mode: keyboard` 的场景回退到 auto。** 此前它们在重置或重新加载后会崩溃。([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:20
+msgid "**Each environment keeps its own logging and figure.** Creating or closing one no longer affects another. ([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+msgstr "**每个环境拥有独立的日志和图窗。** 创建或关闭一个环境不再影响其他环境。([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:21
+msgid "**`arrive_mode: state` accepts goals without a heading.** The heading difference is wrapped. ([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+msgstr "**`arrive_mode: state` 接受没有朝向的目标。** 朝向差会做角度回绕。([#380](https://github.com/hanruihua/ir-sim/pull/380))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:22
+msgid "**Smaller fixes.** RVO no longer crashes above the speed limit, FMCW returns inside `range_min` stay blocked, sensors scan at construction, only robots reveal the fog map, 2D points draw in 3D, output folders follow the script or working directory, sensors on static objects are redrawn, and the custom group behavior example moves. ([#378](https://github.com/hanruihua/ir-sim/pull/378), [#379](https://github.com/hanruihua/ir-sim/pull/379), [#380](https://github.com/hanruihua/ir-sim/pull/380), [#381](https://github.com/hanruihua/ir-sim/pull/381))"
+msgstr "**其他修复。** RVO 在超过速度上限时不再崩溃，FMCW 在 `range_min` 以内的回波仍视为遮挡，传感器在构建时完成扫描，只有机器人能揭开迷雾地图，二维点可在三维中绘制，输出目录跟随脚本目录或工作目录，静止对象上的传感器会被重绘，自定义群体行为示例动起来了。([#378](https://github.com/hanruihua/ir-sim/pull/378), [#379](https://github.com/hanruihua/ir-sim/pull/379), [#380](https://github.com/hanruihua/ir-sim/pull/380), [#381](https://github.com/hanruihua/ir-sim/pull/381))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:25
+msgid "**The documentation GIFs are regenerated with the palette.** They are hosted in the [ir-sim-gifs](https://github.com/IR-SIM/ir-sim-gifs) repository, and the README gallery adds fog-of-map, contact, and social force model demos. ([#381](https://github.com/hanruihua/ir-sim/pull/381))"
+msgstr "**文档 GIF 已用新调色板重新生成。** 它们托管在 [ir-sim-gifs](https://github.com/IR-SIM/ir-sim-gifs) 仓库中，README 画廊新增迷雾地图、contact 模式和社会力模型演示。([#381](https://github.com/hanruihua/ir-sim/pull/381))"
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md
+msgid "**Docs**:"
+msgstr "**文档**："
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md
+msgid "**Fix**:"
+msgstr "**修复**："
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md
+msgid "**Features**:"
+msgstr "**新功能**："
+
+#: ../../../../../../../Users/han/tech/ir-sim/changelog.md:36
+msgid "**Courses using IR-SIM are listed.** The README and the documentation landing page link the HKU and SUSTech robotics courses that use the simulator. ([7c086d9](https://github.com/hanruihua/ir-sim/commit/7c086d9))"
+msgstr "**列出了使用 IR-SIM 的课程。** README 和文档首页链接了使用本仿真器的香港大学与南方科技大学机器人课程。([7c086d9](https://github.com/hanruihua/ir-sim/commit/7c086d9))"
 
 #: ../../../../../../../Users/han/tech/ir-sim/changelog.md:4
 msgid "2.11.0 (2026-09-01)"
