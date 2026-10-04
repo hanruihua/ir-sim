@@ -87,7 +87,7 @@ class EnvLogger:
                 logger.remove(sink_id)
 
     def close(self) -> None:
-        """Remove this environment's sinks; later messages go nowhere."""
+        """Remove this environment's console and file sinks."""
         self._finalizer()
         self._sink_ids = []
 
