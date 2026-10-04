@@ -61,7 +61,6 @@ robot:
   state: [1, 1, 0]
   goal: [9, 9, 0]
   behavior: {name: dash}
-  color: g
   plot:
     show_trajectory: true
     show_goal: true

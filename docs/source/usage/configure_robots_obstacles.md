@@ -39,7 +39,6 @@ robot:
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
   behavior: {name: 'dash'}
-  color: 'g'
   plot:
     show_trajectory: True
     show_goal: True
@@ -142,7 +141,6 @@ robot:
   state: [1, 1, 0]  
   goal: [9, 9, 0] 
   behavior: {name: 'dash'}
-  color: 'g'
   plot:
     show_trajectory: True
     show_goal: True
@@ -171,7 +169,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/robots_obstacles/robot_obstacle.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/robots_obstacles/robot_obstacle.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -338,6 +336,7 @@ robot:
   
   - number: 4
     distribution: {name: 'random'}
+    color: ['#E69F00', '#CC79A7', '#56B4E9', '#D55E00']   # Okabe-Ito colors after the first group's
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius
@@ -350,7 +349,6 @@ obstacle:
     shape:
       - {name: 'circle', radius: 0.2}  # radius
       - {name: 'circle', radius: 0.1}  # radius
-    color: 'k'
 ```
 
 :::{note}
@@ -360,7 +358,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/robots_obstacles/multi_objects.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/robots_obstacles/multi_objects.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

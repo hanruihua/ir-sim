@@ -51,7 +51,6 @@ robot:
     vel_max: [4, 1]
     plot:
       show_trail: True
-      traj_color: 'g'
       show_trajectory: True
       show_goal: False
 
@@ -69,7 +68,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/keyboard.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/keyboard_mouse/keyboard.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -197,7 +196,6 @@ robot:
     behavior: {name: 'dash'} 
     plot:
       show_trajectory: True
-      traj_color: 'g'
       show_goals: True
 
     sensors:
@@ -225,7 +223,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/keyboard_mouse/mouse.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/keyboard_mouse/mouse.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

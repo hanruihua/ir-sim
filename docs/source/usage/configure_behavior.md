@@ -75,7 +75,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/rvo.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/rvo.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -211,7 +211,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/sfm_world.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/sfm_world.gif
 :alt: SFM cross-corridor crowd
 :width: 400px
 :align: center
@@ -300,6 +300,7 @@ world:
 
 robot:
   - number: 200
+    color: 'cycle'   # one palette color per robot, in order
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'circle', radius: 140}
@@ -324,7 +325,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/orca_world.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/orca_world.gif
 :alt: ORCA Basic Configuration
 :width: 400px
 :align: center
@@ -385,6 +386,7 @@ world:
 
 robot:
   - number: 100
+    color: 'cycle'   # one palette color per robot, in order
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 1.0}
     distribution: {name: 'random', range_low: [-100, -100, -3.14], range_high: [100, 100, 3.14]}
@@ -412,7 +414,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/orca_random.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/orca_random.gif
 :alt: ORCA Random Wandering
 :width: 400px
 :align: center
@@ -722,10 +724,12 @@ world:
 
 robot:
   - number: 5
+    color: 'cycle'   # one palette color per robot, in order
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 0.3}
-    distribution: {name: 'circle', radius: 3, center: [10, 10]}
-    goal: [15, 15]
+    distribution: {name: 'manual'}
+    state: [[10, 13, 0], [7.15, 10.93, 0], [8.24, 7.57, 0], [11.76, 7.57, 0], [12.85, 10.93, 0]]   # a ring of radius 3 around (10, 10)
+    goal: [15, 15, 0]   # shared goal: the formation moves its centroid there
     vel_max: [2, 2]
     vel_min: [-2, -2]
     group_behavior:
@@ -955,7 +959,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/custom_behavior.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/custom_behavior.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

@@ -54,7 +54,6 @@ robot:
     behavior: {name: 'dash'}
     plot:
       show_trail: true
-      traj_color: 'g'
       show_trajectory: true
       show_goal: false
     sensors:
@@ -80,7 +79,7 @@ obstacle:
 
 :::{tab-item} Demonstration
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/grid_map/grid_map.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/grid_map.gif
 :alt: Grid map demo
 :width: 400px
 :align: center

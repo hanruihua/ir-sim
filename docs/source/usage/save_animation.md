@@ -83,7 +83,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/save_animation/save_ani.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/save_animation/save_ani.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -175,7 +175,6 @@ robot:
   goal: [9, 9, 0] 
   # acce: [3, .inf]   # acce of [linear, angular]  or [v_x, v_y] or [linear, steer]
   behavior: {name: 'dash'} # move toward to the goal directly 
-  color: 'g'
   plot:
     show_trajectory: True
     show_trail: True
@@ -198,7 +197,7 @@ robot:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/save_animation/3d_plot.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/save_animation/3d_plot.gif
 :alt: Select Parameters
 :width: 400px
 :align: center

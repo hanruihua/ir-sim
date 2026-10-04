@@ -1982,10 +1982,12 @@ msgstr "`maxSpeed`（float/`None`）：智能体的速度上限，成员以该�
 msgid ""
 "**`static`**:   A boolean indicating whether the object is static (does "
 "not move). Static objects ignore kinematics and behaviors, remaining at "
-"their initial state, and contacts never move them. When not set, an "
-"object with kinematics is not static, and an object without kinematics "
-"is static unless a finite [`mass`](#p-o-mass) makes it pushable."
-msgstr "**`static`**：布尔值，表示对象是否静止。静止对象忽略运动学与行为，保持初始状态，接触也不会移动它们。未设置时，具有运动学模型的对象不是静态的；没有运动学模型的对象为静态，除非有限的 [`mass`](#p-o-mass) 使其可被推动。"
+"their initial state, and contacts never move them. Sensors mounted on a "
+"static object are still updated and redrawn every step, so a fixed lidar "
+"keeps scanning moving obstacles. When not set, an object with kinematics "
+"is not static, and an object without kinematics is static unless a "
+"finite [`mass`](#p-o-mass) makes it pushable."
+msgstr "**`static`**：布尔值，表示对象是否静止。静止对象忽略运动学与行为，保持初始状态，接触也不会移动它们。安装在静止对象上的传感器仍会在每一步更新并重绘，因此固定的激光雷达可以持续扫描移动的障碍物。未设置时，具有运动学模型的对象不是静态的；没有运动学模型的对象为静态，除非有限的 [`mass`](#p-o-mass) 使其可被推动。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md
 msgid "**object sensors**"
