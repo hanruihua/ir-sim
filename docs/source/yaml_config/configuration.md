@@ -1321,7 +1321,7 @@ env.step(env.robot.vel_world2body(world_vel))
 
 (p-o-static)=
 **`static`**:
-  A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state, and contacts never move them. When not set, an object with kinematics is not static, and an object without kinematics is static unless a finite [`mass`](#p-o-mass) makes it pushable.
+  A boolean indicating whether the object is static (does not move). Static objects ignore kinematics and behaviors, remaining at their initial state, and contacts never move them. Sensors mounted on a static object are still updated and redrawn every step, so a fixed lidar keeps scanning moving obstacles. When not set, an object with kinematics is not static, and an object without kinematics is static unless a finite [`mass`](#p-o-mass) makes it pushable.
 
   **Example:**
   ```yaml

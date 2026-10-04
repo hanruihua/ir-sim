@@ -62,7 +62,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/rvo.gif
            :width: 70%
            :alt: Multi-Robot RVO Collision Avoidance
 
@@ -73,7 +73,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/162cf52e-070d-4588-b9b2-bf21c487fbc8
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/orca_world.gif
            :width: 70%
            :alt: 200-Agent ORCA via pyrvo
 
@@ -84,7 +84,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/behavior/sfm_world.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/sfm_world.gif
            :width: 70%
            :alt: Social Force Model (SFM)
 
@@ -95,7 +95,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/grid_map.gif
            :width: 70%
            :alt: Ackermann Robot with 2D LiDAR
 
@@ -106,7 +106,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/fov.gif
            :width: 70%
            :alt: Field-of-View Detection
 
@@ -117,7 +117,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/0fac81e7-60c0-46b2-91f0-efe4762bb758
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/grid_map_hm3d.gif
            :width: 70%
            :alt: HM3D / MatterPort3D Grid Map
 
@@ -128,7 +128,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/dynamic_random_env/random_obstacles.gif
            :width: 70%
            :alt: Dynamic Random Obstacles
 
@@ -150,7 +150,7 @@ See IR-SIM in action
         :shadow: lg
         :text-align: center
 
-        .. image:: https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/grid_map/fog_grid_map.gif
+        .. image:: https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/fog_grid_map.gif
            :width: 70%
            :alt: Fog-of-Map Exploration
 

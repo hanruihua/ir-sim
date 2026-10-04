@@ -29,6 +29,7 @@ robot:
   
   - number: 4
     distribution: {name: 'random'}
+    color: ['#E69F00', '#CC79A7', '#56B4E9', '#D55E00']   # Okabe-Ito colors after the first group's
     kinematics: {name: 'diff'}
     shape: 
       - {name: 'circle', radius: 0.2}  # radius

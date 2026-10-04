@@ -7,6 +7,7 @@ world:
 
 robot:
   - number: 200
+    color: 'cycle'   # one palette color per robot, in order
     kinematics: {name: 'omni'}  
     shape: {name: 'circle', radius: 1.0}  
     distribution: {name: 'circle', radius: 140}

@@ -4,10 +4,12 @@ world:
 
 robot:
   - number: 5
+    color: 'cycle'   # one palette color per robot, in order
     kinematics: {name: 'omni'}
     shape: {name: 'circle', radius: 0.3}
-    distribution: {name: 'circle', radius: 3, center: [10, 10]}
-    goal: [15, 15]
+    distribution: {name: 'manual'}
+    state: [[10, 13, 0], [7.15, 10.93, 0], [8.24, 7.57, 0], [11.76, 7.57, 0], [12.85, 10.93, 0]]   # a ring of radius 3 around (10, 10)
+    goal: [15, 15, 0]   # shared goal: the formation moves its centroid there
     vel_max: [2, 2]
     vel_min: [-2, -2]
     group_behavior:

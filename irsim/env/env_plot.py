@@ -235,7 +235,13 @@ class EnvPlot:
         if objects is None:
             objects = []
         if mode == "dynamic":
-            [obj._step_plot(**kwargs) for obj in objects if not obj.static]
+            # A sensor on a static object still watches a changing scene, so
+            # the object is refreshed whenever it carries sensors.
+            [
+                obj._step_plot(**kwargs)
+                for obj in objects
+                if not obj.static or obj.sensors
+            ]
         elif mode == "static":
             [obj._step_plot(**kwargs) for obj in objects if obj.static]
         elif mode == "all":

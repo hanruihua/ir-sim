@@ -24,7 +24,7 @@ goal_xy = robot_info.goal[:2, 0].tolist()
 trajectory = planner.planning(robot_state, goal_xy, show_animation=True)
 
 if trajectory is not None:
-    env.draw_trajectory(np.array(trajectory), traj_type="r-")
+    env.draw_trajectory(np.array(trajectory))
     path_cost = planner.end.cost
     n_nodes = len(planner.node_list)
     print(f"[RRT] path cost = {path_cost:.3f}, tree nodes = {n_nodes}")

@@ -1768,3 +1768,54 @@ class TestGoalPatchVisibility:
         robot.set_goal(None)
         env.render(0.01)
         assert goal_patch.get_visible() is False
+
+
+def test_static_object_with_sensor_is_refreshed(scenario_factory):
+    """A lidar on a static robot is redrawn every step: the scene it scans
+    keeps changing even though the robot itself never moves."""
+    env = scenario_factory(
+        {
+            "world": BASE_WORLD,
+            "robot": [
+                {
+                    "kinematics": {"name": "diff"},
+                    "shape": {"name": "circle", "radius": 0.2},
+                    "state": [2, 5, 0],
+                    "static": True,
+                    "sensors": [
+                        {
+                            "type": "lidar2d",
+                            "range_max": 8.0,
+                            "angle_range": 1.0,
+                            "number": 11,
+                        }
+                    ],
+                }
+            ],
+            "obstacle": [
+                {
+                    "kinematics": {"name": "omni"},
+                    "shape": {"name": "circle", "radius": 0.3},
+                    "state": [7, 5, 0],
+                    "goal": [3, 5, 0],
+                    "behavior": {"name": "dash"},
+                    "vel_max": [1.0, 1.0],
+                }
+            ],
+        }
+    )
+    robot = env.robot
+    assert robot.static
+    centre = robot.lidar.number // 2
+
+    def drawn_centre_range():
+        segment = robot.lidar.laser_LineCollection.get_segments()[centre]
+        return float(np.linalg.norm(segment[1] - segment[0]))
+
+    env.render()
+    before = drawn_centre_range()
+    for _ in range(10):
+        env.step()
+        env.render()
+    after = drawn_centre_range()
+    assert after < before - 0.5, "the drawn beam should shorten as the obstacle nears"

@@ -55,4 +55,3 @@ obstacle:
 
   - shape: {name: 'rectangle', length: 0.4, width: 11}   # no mass: immovable wall
     state: [10.5, 6, 0]
-    color: 'k'

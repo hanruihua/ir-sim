@@ -48,36 +48,53 @@
 <table>
 <tr>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/5930b088-d400-4943-8ded-853c22eae75b" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/rvo.gif" width="240"/><br/>
 <b>Multi-Robot RVO Collision Avoidance</b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/11collision_avoidance/collision_avoidance.py">Source</a>
 </td>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/3257abc1-8bed-40d8-9b51-e5d90b06ee06" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/grid_map.gif" width="240"/><br/>
 <b>Ackermann Robot with 2D LiDAR</b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/10grid_map/grid_map.py">Source</a>
 </td>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/0fac81e7-60c0-46b2-91f0-efe4762bb758" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/grid_map_hm3d.gif" width="240"/><br/>
 <b>HM3D / MatterPort3D Grid Map</b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/10grid_map/grid_map_hm3d.py">Source</a>
 </td>
 </tr>
 <tr>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/7aa809c2-3a44-4377-a22d-728b9dbdf8bc" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/fov.gif" width="240"/><br/>
 <b>Field-of-View Detection</b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/15fov_world/fov_world.py">Source</a>
 </td>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/1cc8a4a6-2f41-4bc9-bc59-a7faff443223" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/dynamic_random_env/random_obstacles.gif" width="240"/><br/>
 <b>Dynamic Random Obstacles</b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/08random_obstacle/dynamic_random.py">Source</a>
 </td>
 <td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/162cf52e-070d-4588-b9b2-bf21c487fbc8" width="240"/><br/>
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/orca_world.gif" width="240"/><br/>
 <b>200-Agent ORCA via <a href="https://github.com/hanruihua/pyrvo">pyrvo</a></b><br/>
 <a href="https://github.com/hanruihua/ir-sim/blob/main/usage/19orca_world/orca_behavior_world.py">Source</a>
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/grid_map/fog_grid_map.gif" width="240"/><br/>
+<b>Fog-of-Map Exploration</b><br/>
+<a href="https://github.com/hanruihua/ir-sim/blob/main/usage/24fog_world/fog_grid_map.py">Source</a>
+</td>
+<td align="center" width="33%">
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/robots_obstacles/push_box_keyboard.gif" width="240"/><br/>
+<b>Rigid-Body Contact: Pushing Boxes</b><br/>
+<a href="https://github.com/hanruihua/ir-sim/blob/main/usage/26push_box_world/push_box_keyboard.py">Source</a>
+</td>
+<td align="center" width="33%">
+<img src="https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/behavior/sfm_world.gif" width="240"/><br/>
+<b>Social Force Model Pedestrians</b><br/>
+<a href="https://github.com/hanruihua/ir-sim/blob/main/usage/23sfm_world/sfm_world.py">Source</a>
 </td>
 </tr>
 </table>

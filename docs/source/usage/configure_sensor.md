@@ -84,7 +84,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/lidar2d.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/lidar2d.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
@@ -180,7 +180,7 @@ obstacle:
 
 :::{tab-item} Demonstration
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/noise.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/noise.gif
 :alt: LiDAR scan with Gaussian noise
 :width: 400px
 :align: center
@@ -264,7 +264,6 @@ robot:
         offset: [0.0, 0.0, 0.0]
         plot:
           alpha: 0.8
-          color: 'cyan'
           velocity_linewidth: 2.0
           no_hit_linewidth: 0.25
           no_hit_alpha: 0.01
@@ -272,9 +271,6 @@ robot:
           velocity_marker_size: 45
           velocity_marker_edge_color: 'black'
           velocity_marker_edge_width: 0.5
-          zero_velocity_color: 'cyan'
-          positive_velocity_color: 'red'
-          negative_velocity_color: 'blue'
           velocity_color_max: 0.6
 
 obstacle:
@@ -285,7 +281,6 @@ obstacle:
     vel_min: [-0.8, -0.8]
     vel_max: [0.8, 0.8]
     behavior: {name: 'dash'}
-    color: 'orangered'
     plot: {show_goal: True}
 
   - kinematics: {name: 'omni'}
@@ -295,7 +290,6 @@ obstacle:
     vel_min: [-0.4, -0.4]
     vel_max: [0.4, 0.4]
     behavior: {name: 'dash'}
-    color: 'gold'
     plot: {show_goal: True}
 
   - kinematics: {name: 'omni'}
@@ -305,7 +299,6 @@ obstacle:
     vel_min: [-1.2, -1.2]
     vel_max: [1.2, 1.2]
     behavior: {name: 'dash'}
-    color: 'limegreen'
     plot: {show_goal: True}
 
   - kinematics: {name: 'omni'}
@@ -315,7 +308,6 @@ obstacle:
     vel_min: [-0.2, -0.2]
     vel_max: [0.2, 0.2]
     behavior: {name: 'dash'}
-    color: 'mediumorchid'
     plot: {show_goal: True}
 ```
 
@@ -495,7 +487,7 @@ obstacle:
 :::{tab-item} Demonstration
 :selected:
 
-```{image} https://raw.githubusercontent.com/IR-SIM/IR-SIM-GIFs/main/sensors/fov.gif
+```{image} https://raw.githubusercontent.com/IR-SIM/ir-sim-gifs/main/sensors/fov.gif
 :alt: Select Parameters
 :width: 400px
 :align: center
