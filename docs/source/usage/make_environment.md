@@ -25,6 +25,7 @@ The `make` function creates an environment from a configuration file. Supported 
 - **`display`** (bool): Whether to display the environment visualization (default: True)
 - **`save_ani`** (bool): Whether to save the simulation as an animation (default: False)
 - **`log_level`** (str): Logging level for the environment (default: "INFO")
+- **`log_file`** (str, optional): Path of this environment's log file (default: "irsim_error.log"). Every environment owns its own console and file sinks, so creating a second environment does not change the first one's logging.
 - **`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided,
   random elements produced by IR-SIM become reproducible. If omitted/``None``,
   a new unseeded generator is used (non-reproducible). Custom extensions using
@@ -168,7 +169,7 @@ Pass `headless=True` to run without any figure, window, or keyboard/mouse contro
 env = irsim.make("config.yaml", headless=True)
 ```
 
-`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead.
+`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead. Offscreen rendering switches the process to the Agg backend only while no figure is open; once another environment has a window, the backend is left alone so that window keeps working. Figures and animations are saved under `figure/` and `animation/` next to the running script, or under the current working directory when there is no script, as in a REPL or notebook.
 
 ### Internal and External Step Modes
 

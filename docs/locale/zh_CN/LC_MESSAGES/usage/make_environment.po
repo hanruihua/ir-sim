@@ -92,6 +92,10 @@ msgid ""
 "**`log_level`** (str): Logging level for the environment (default: \"INFO\")"
 msgstr "**`log_level`**（str）：环境日志级别（默认 \"INFO\"）"
 
+#: ../../source/usage/make_environment.md:28
+msgid "**`log_file`** (str, optional): Path of this environment's log file (default: \"irsim_error.log\"). Every environment owns its own console and file sinks, so creating a second environment does not change the first one's logging."
+msgstr "**`log_file`**（str，可选）：该环境日志文件的路径（默认 \"irsim_error.log\"）。每个环境拥有自己的控制台与文件日志接收器，因此创建第二个环境不会改变第一个环境的日志。"
+
 #: ../../source/usage/make_environment.md:27
 msgid ""
 "**`seed`** (int, optional): Seed for IR-SIM's project RNG. If provided, "
@@ -747,9 +751,5 @@ msgstr ""
 "`save_figure()` 都会变成空操作，因此同一脚本无需修改即可运行："
 
 #: ../../source/usage/make_environment.md
-msgid ""
-"`disable_all_plot=True` is kept as an alias. To render offscreen while still "
-"saving animations or figures, use `display=False` instead."
-msgstr ""
-"`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 "
-"`display=False`。"
+msgid "`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead. Offscreen rendering switches the process to the Agg backend only while no figure is open; once another environment has a window, the backend is left alone so that window keeps working. Figures and animations are saved under `figure/` and `animation/` next to the running script, or under the current working directory when there is no script, as in a REPL or notebook."
+msgstr "`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 `display=False`。 离屏渲染只在尚无任何图窗打开时才把进程切换到 Agg 后端；一旦其他环境已有窗口，后端保持不变，以便该窗口继续工作。图片与动画保存在运行脚本旁的 `figure/` 与 `animation/` 目录下；没有脚本时（如 REPL 或 notebook）则保存在当前工作目录下。"

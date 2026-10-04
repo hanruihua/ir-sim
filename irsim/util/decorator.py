@@ -129,6 +129,7 @@ def normalize_actions(func):
     are dropped with a warning; an unknown id or name raises.
     """
 
+    @functools.wraps(func)
     def wrapper(self, action=None, action_id=None, *args, **kwargs):
         objects = getattr(self, "objects", [])
         actions = [None] * len(objects)
