@@ -93,8 +93,8 @@ msgid ""
 msgstr "**`log_level`**（str）：环境日志级别（默认 \"INFO\"）"
 
 #: ../../source/usage/make_environment.md:28
-msgid "**`log_file`** (str, optional): Path of this environment's log file (default: \"irsim_error.log\"). Every environment owns its own console and file sinks, so creating a second environment does not change the first one's logging."
-msgstr "**`log_file`**（str，可选）：该环境日志文件的路径（默认 \"irsim_error.log\"）。每个环境拥有自己的控制台与文件日志接收器，因此创建第二个环境不会改变第一个环境的日志。"
+msgid "**`log_file`** (str, optional): Path of this environment's log file (default: `None`, so file logging is disabled). Every environment owns its own console and optional file sinks, so creating a second environment does not change the first one's logging."
+msgstr "**`log_file`**（str，可选）：该环境日志文件的路径（默认 `None`，即不写入日志文件）。每个环境拥有自己的控制台与可选文件日志接收器，因此创建第二个环境不会改变第一个环境的日志。"
 
 #: ../../source/usage/make_environment.md:27
 msgid ""
