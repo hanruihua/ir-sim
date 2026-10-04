@@ -2175,10 +2175,8 @@ msgid ""
 msgstr "`'position'`：仅根据与目标位置 (`[x, y]`) 的距离判断。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1340
-msgid ""
-"`'state'`: Considers both position and orientation in the arrival check "
-"(`[x, y, theta]`)."
-msgstr "`'state'`：同时考虑位置与朝向 (`[x, y, theta]`)。"
+msgid "`'state'`: Considers both position and orientation in the arrival check (`[x, y, theta]`). The heading difference is wrapped to `[-pi, pi]`, and a goal given without `theta` is checked by position only."
+msgstr "`'state'`：同时考虑位置与朝向 (`[x, y, theta]`)。朝向差会归一化到 `[-pi, pi]`；若目标未给出 `theta`，则只按位置判断。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1348
 msgid "**`unobstructed`** (`bool`, default: `False`)"

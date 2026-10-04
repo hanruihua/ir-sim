@@ -1,9 +1,20 @@
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 import irsim
+
+
+def output_root() -> str:
+    """Directory the output folders are created under.
+
+    The folder of the running script when there is one, otherwise the current
+    working directory: under ``python -c``, a REPL or a notebook ``sys.path[0]``
+    is empty, and ``"" + "/figure"`` would point at the filesystem root.
+    """
+    base = sys.path[0] if sys.path else ""
+    return base if base else os.getcwd()
 
 
 @dataclass
@@ -14,12 +25,16 @@ class PathManager:
         - ani_buffer_path: path of the animation buffer
         - ani_path: path of the animation
         - fig_path: path of the saved figure
+
+    The three output paths default to folders under :func:`output_root`.
     """
 
     root_path: str = os.path.dirname(cast(str, irsim.__file__))
-    ani_buffer_path: str = sys.path[0] + "/animation_buffer"
-    ani_path: str = sys.path[0] + "/animation"
-    fig_path: str = sys.path[0] + "/figure"
+    ani_buffer_path: str = field(
+        default_factory=lambda: output_root() + "/animation_buffer"
+    )
+    ani_path: str = field(default_factory=lambda: output_root() + "/animation")
+    fig_path: str = field(default_factory=lambda: output_root() + "/figure")
 
 
 # Multi-env storage (default index 0)

@@ -684,10 +684,16 @@ class ObjectBase:
         if threshold is None:
             threshold = self.goal_threshold
 
+        goal = np.asarray(goal, dtype=float).reshape(-1)
         if self.arrive_mode == "state":
-            diff = np.linalg.norm(self.state[:3] - goal[:3])
+            position_diff = self.state[:2, 0] - goal[:2]
+            if goal.size < 3:
+                diff = np.linalg.norm(position_diff)
+            else:
+                heading_diff = WrapToPi(float(self.state[2, 0] - goal[2]))
+                diff = np.sqrt(position_diff @ position_diff + heading_diff**2)
         elif self.arrive_mode == "position":
-            diff = np.linalg.norm(self.state[:2] - goal[:2])
+            diff = np.linalg.norm(self.state[:2, 0] - goal[:2])
         else:
             raise ValueError(
                 f"Unsupported arrive_mode '{self.arrive_mode}'. "
@@ -810,9 +816,14 @@ class ObjectBase:
             if len(self._init_goal) > 1:
                 self._goal = self._init_goal.copy()
             else:
-                # Single goal: cycle between start position and goal
-                start_pos = self._init_state[0:2, 0].tolist()
-                goal_pos = self._init_goal[0][0:2]
+                # Single goal: cycle between the start pose and the goal. In
+                # arrive_mode 'state' both keep their heading so the arrival
+                # check can compare it; in 'position' mode they stay [x, y],
+                # as before, so behaviors that turn toward a waypoint heading
+                # (omni_angular dash) are unaffected.
+                keep = 3 if self.arrive_mode == "state" else 2
+                start_pos = self._init_state[0:keep, 0].tolist()
+                goal_pos = list(self._init_goal[0][0:keep])
                 self._goal = deque([goal_pos, start_pos])
             self.arrive_flag = False
 
