@@ -496,57 +496,67 @@ class TestImageGridGenerator:
         assert grid is not None
         assert grid.shape[0] > 0
 
+    def _write_temp_png(self, arr, **kwargs):
+        """Write an image to a temporary PNG and return its path.
+
+        The NamedTemporaryFile handle is closed before the caller deletes the
+        file. Keeping it open for the duration of the test makes the cleanup
+        os.unlink() fail on Windows with PermissionError (WinError 32), because
+        Windows does not allow deleting a file that still has an open handle.
+        POSIX does, so this only surfaced on Windows.
+        """
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            path = f.name
+        plt.imsave(path, arr, **kwargs)
+        return path
+
     def test_load_rgb_image_uses_grayscale(self):
         """RGB image is converted to grayscale (covers _rgb2gray branch)."""
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            # 5x5 RGB image
-            rgb = np.random.randint(0, 255, (5, 5, 3), dtype=np.uint8)
-            plt.imsave(f.name, rgb)
-            try:
-                gen = ImageGridGenerator(path=f.name).generate()
-                assert gen.grid.shape == (5, 5)
-                assert gen.grid.dtype == np.float64
-            finally:
-                os.unlink(f.name)
+        # 5x5 RGB image
+        rgb = np.random.randint(0, 255, (5, 5, 3), dtype=np.uint8)
+        path = self._write_temp_png(rgb)
+        try:
+            gen = ImageGridGenerator(path=path).generate()
+            assert gen.grid.shape == (5, 5)
+            assert gen.grid.dtype == np.float64
+        finally:
+            os.unlink(path)
 
     def test_load_integer_image_normalized(self):
         """Integer dtype image is normalized by iinfo max (covers integer branch)."""
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            arr = np.random.randint(0, 255, (4, 4), dtype=np.uint8)
-            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=255)
-            try:
-                gen = ImageGridGenerator(path=f.name).generate()
-                assert gen.grid.dtype == np.float64
-                assert gen.grid.min() >= 0
-                assert gen.grid.max() <= 100
-            finally:
-                os.unlink(f.name)
+        arr = np.random.randint(0, 255, (4, 4), dtype=np.uint8)
+        path = self._write_temp_png(arr, cmap="gray", vmin=0, vmax=255)
+        try:
+            gen = ImageGridGenerator(path=path).generate()
+            assert gen.grid.dtype == np.float64
+            assert gen.grid.min() >= 0
+            assert gen.grid.max() <= 100
+        finally:
+            os.unlink(path)
 
     def test_load_float_max_gt_one_normalized(self):
         """Float image with max > 1 is normalized by max (covers max>1 branch)."""
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            arr = np.random.rand(4, 4).astype(np.float64) * 10
-            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=10)
-            try:
-                gen = ImageGridGenerator(path=f.name).generate()
-                assert gen.grid.dtype == np.float64
-                assert gen.grid.min() >= 0
-                assert gen.grid.max() <= 100
-            finally:
-                os.unlink(f.name)
+        arr = np.random.rand(4, 4).astype(np.float64) * 10
+        path = self._write_temp_png(arr, cmap="gray", vmin=0, vmax=10)
+        try:
+            gen = ImageGridGenerator(path=path).generate()
+            assert gen.grid.dtype == np.float64
+            assert gen.grid.min() >= 0
+            assert gen.grid.max() <= 100
+        finally:
+            os.unlink(path)
 
     def test_load_float_in_zero_one_passthrough(self):
         """Float image already in [0, 1] is cast to float64 (covers else branch)."""
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
-            arr = np.random.rand(4, 4).astype(np.float64)  # max <= 1
-            plt.imsave(f.name, arr, cmap="gray", vmin=0, vmax=1)
-            try:
-                gen = ImageGridGenerator(path=f.name).generate()
-                assert gen.grid.dtype == np.float64
-                assert gen.grid.min() >= 0
-                assert gen.grid.max() <= 100
-            finally:
-                os.unlink(f.name)
+        arr = np.random.rand(4, 4).astype(np.float64)  # max <= 1
+        path = self._write_temp_png(arr, cmap="gray", vmin=0, vmax=1)
+        try:
+            gen = ImageGridGenerator(path=path).generate()
+            assert gen.grid.dtype == np.float64
+            assert gen.grid.min() >= 0
+            assert gen.grid.max() <= 100
+        finally:
+            os.unlink(path)
 
 
 # ---------------------------------------------------------------------------
