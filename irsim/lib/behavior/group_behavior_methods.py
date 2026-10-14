@@ -33,7 +33,11 @@ class OrcaGroupBehavior:
     ORCA plans a collision-free holonomic velocity ``(vx, vy)`` in the world
     frame for every member. ``omni`` members have it rotated into their body
     frame; ``diff`` members map it to a ``(linear, angular)`` command via
-    :func:`vel_world2diff`.
+    :func:`vel_world2diff`. The static objects around the group (walls,
+    polygon and circle obstacles, the grid map) are obstacles to the
+    simulator, added once from their geometry when the group first moves
+    (:meth:`_add_obstacles`); ``timeHorizonObst`` sets how far ahead they
+    are considered. Moving objects outside the group are not seen.
     """
 
     def __init__(
@@ -94,7 +98,65 @@ class OrcaGroupBehavior:
                 agent_max_speed,
             )
 
+        # The surroundings are read from the environment on the first call,
+        # when every object of the scene exists.
+        self._obstacles_loaded = False
         return sim
+
+    def _add_obstacles(self, members: list[ObjectBase]) -> int:
+        """Hand the static objects around the group to the simulator.
+
+        Every static object outside the group that is not ``unobstructed``
+        enters pyrvo through its geometry: a polygon (circle, rectangle and
+        polygon obstacles) as one obstacle ring in counter-clockwise order,
+        a line (linestring obstacles) as one two-vertex obstacle per segment,
+        which pyrvo treats as a wall facing both ways. The grid map enters
+        as the boundary of its occupied cells (:func:`_map_boundaries`),
+        simplified to half a cell and grown by as much. Moving objects
+        outside the group are not added.
+
+        Args:
+            members: the members of the group
+
+        Returns:
+            int: the number of obstacles added
+        """
+        from itertools import pairwise
+
+        from shapely.geometry.polygon import orient
+
+        self._obstacles_loaded = True
+        if not members:
+            return 0
+        member_ids = {id(m) for m in members}
+        count = 0
+        for obj in members[0].external_objects:
+            if id(obj) in member_ids or not obj.static or obj.unobstructed:
+                continue
+            if obj.shape == "map":
+                parts = _map_boundaries(obj)
+            else:
+                geometry = getattr(obj, "geometry", None)
+                if geometry is None or geometry.is_empty:
+                    continue
+                parts = list(getattr(geometry, "geoms", [geometry]))
+            for part in parts:
+                if part.geom_type == "Polygon":
+                    ring = orient(part, sign=1.0).exterior.simplify(0)
+                    coords = [[float(x), float(y)] for x, y in ring.coords[:-1]]
+                    if len(coords) >= 2:
+                        self._sim.add_obstacle(coords)
+                        count += 1
+                elif part.geom_type in ("LineString", "LinearRing"):
+                    coords = list(part.simplify(0).coords)
+                    for (x1, y1), (x2, y2) in pairwise(coords):
+                        self._sim.add_obstacle(
+                            [[float(x1), float(y1)], [float(x2), float(y2)]]
+                        )
+                        count += 1
+        if count:
+            self._sim.process_obstacles()
+        return count
 
     @staticmethod
     def _realizable_speed(member: ObjectBase) -> float:
@@ -184,6 +246,9 @@ class OrcaGroupBehavior:
         except Exception:
             self._sim = self._build_sim(members, **kwargs)
 
+        if not self._obstacles_loaded:
+            self._add_obstacles(members)
+
         for i, member in enumerate(members):
             self._sim.set_agent_pref_velocity(i, self._pref_velocity(member))
             self._sim.set_agent_position(i, member.state[:2, 0].tolist())
@@ -194,6 +259,59 @@ class OrcaGroupBehavior:
             self._to_action(members[i], self._sim.get_agent_velocity(i).to_tuple())
             for i in range(self._sim.get_num_agents())
         ]
+
+
+def _map_boundaries(obj: ObjectBase) -> list:
+    """Boundary rings of a grid map's occupied cells, in world coordinates.
+
+    The map object's own geometry is one box per boundary cell, far too many
+    segments for the simulator. The edges between occupied and free cells are
+    merged into closed rings instead; each ring is simplified to half a cell,
+    which straightens the staircase of a diagonal wall, and then grown by the
+    same half cell (a ring around a free pocket shrinks the pocket), so the
+    true wall always lies inside the ring handed to the simulator.
+    """
+    from shapely.geometry import LinearRing, MultiLineString, Polygon
+    from shapely.ops import linemerge
+
+    grid = np.asarray(obj.grid_map, dtype=float)
+    if grid.size == 0 or grid.max() <= 0:
+        return []
+    occ = np.pad(grid > grid.max() / 2, 1)  # a free margin closes rings at the edge
+    reso = np.asarray(obj.grid_reso, dtype=float).ravel()
+    rx, ry = float(reso[0]), float(reso[-1])
+    # padded cell (i, j) spans [ox + i rx, ox + (i + 1) rx] x [oy + j ry, oy + (j + 1) ry]
+    ox = float(obj.world_offset[0]) - rx
+    oy = float(obj.world_offset[1]) - ry
+    segments = []
+    for i, j in np.argwhere(occ[:-1, :] != occ[1:, :]):  # edge between (i, j), (i+1, j)
+        x = ox + (i + 1) * rx
+        segments.append(((x, oy + j * ry), (x, oy + (j + 1) * ry)))
+    for i, j in np.argwhere(occ[:, :-1] != occ[:, 1:]):  # edge between (i, j), (i, j+1)
+        y = oy + (j + 1) * ry
+        segments.append(((ox + i * rx, y), (ox + (i + 1) * rx, y)))
+    if not segments:
+        return []
+    merged = linemerge(MultiLineString(segments))
+    tolerance = 0.5 * max(rx, ry)
+    rings = []
+    for ring in getattr(merged, "geoms", [merged]):
+        if not ring.is_ring:
+            continue
+        ring = LinearRing(ring.coords)
+        # what the ring encloses: the cell just inside its first edge
+        (x0, y0), (x1, y1) = ring.coords[0], ring.coords[1]
+        side = 1.0 if ring.is_ccw else -1.0
+        px = (x0 + x1) / 2 - side * (y1 - y0) / 2
+        py = (y0 + y1) / 2 + side * (x1 - x0) / 2
+        i = min(occ.shape[0] - 1, max(0, int((px - ox) / rx)))
+        j = min(occ.shape[1] - 1, max(0, int((py - oy) / ry)))
+        grow = tolerance if occ[i, j] else -tolerance
+        poly = Polygon(ring).simplify(tolerance).buffer(grow, join_style="mitre")
+        for part in getattr(poly, "geoms", [poly]):
+            if not part.is_empty:
+                rings.append(part.exterior)
+    return rings
 
 
 @register_group_behavior_class("omni", "sfm")

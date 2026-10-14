@@ -1945,10 +1945,16 @@ msgstr "同组内所有对象的群体行为。对于协同行为（如群体或
 msgid ""
 "`'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent "
 "navigation. Requires `pyrvo` package (`pip install pyrvo`). The "
-"simulation will attempt to import it only when this behavior is used."
+"simulation will attempt to import it only when this behavior is used. "
+"Members avoid each other and the static objects around the group: "
+"linestrings, polygons, circles and the grid map enter the pyrvo simulator "
+"as obstacles (`timeHorizonObst` sets how far ahead they are considered); "
+"objects that move are not seen."
 msgstr ""
 "`'orca'`：用于多智能体导航的最优互惠碰撞避免（ORCA）。需要 `pyrvo` 包（`pip install "
-"pyrvo`）。仅在使用该行为时仿真才会尝试导入它。"
+"pyrvo`）。仅在使用该行为时仿真才会尝试导入它。成员之间互相避让，并避开群组周围的静态对象："
+"linestring、多边形、圆形以及栅格地图会作为障碍物进入 pyrvo 仿真器（`timeHorizonObst` "
+"设置向前考虑它们的时间范围）；移动中的对象不会被看到。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1203
 msgid "`neighborDist` (float/`15.0`): Max distance to search for neighbors."
