@@ -259,6 +259,8 @@ ORCA is a classical built-in group-level collision avoidance algorithm that comp
 
 ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way.
 
+The static objects around the group are obstacles to ORCA. When the group first moves, every `linestring`, polygon, rectangle and circle obstacle and the boundary of the grid map are handed to the pyrvo simulator, so a crowd steers around walls as well as around each other; `timeHorizonObst` sets how far ahead a wall is considered. Objects that move, such as dynamic obstacles or another group, are not part of this. ORCA is a local method: a member whose goal lies straight behind a wall slides along it and can stall at a flat wall, so give members waypoints with a clear line of sight, as a path planner does.
+
 :::{note}
 ORCA requires the `pyrvo` library, which is a python binding for the ORCA C++ algorithm. Install it using:
 ```bash
