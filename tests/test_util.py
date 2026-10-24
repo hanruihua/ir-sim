@@ -9,7 +9,95 @@ import pytest
 
 from irsim.msg import Header, ObjectState, Odometry, WorldState
 from irsim.util import time_it, time_it2, util
+from irsim.util.decorator import _target_positions
 from irsim.util.message import resolve_message_targets
+
+
+class _CountedActionTarget:
+    """Count identity reads and equality work without a wall-clock assertion."""
+
+    def __init__(self, object_id, name, counts):
+        self._id = object_id
+        self._name = name
+        self.counts = counts
+
+    @property
+    def id(self):
+        self.counts["id"] += 1
+        return self._id
+
+    @property
+    def name(self):
+        self.counts["name"] += 1
+        return self._name
+
+    def __eq__(self, other):
+        self.counts["equality"] += 1
+        return self is other
+
+
+class TestActionTargetLookup:
+    @pytest.mark.parametrize("kind", ["id", "name", "mixed"])
+    def test_bulk_lookup_has_linear_identity_work(self, kind):
+        counts = {"id": 0, "name": 0, "equality": 0}
+        number = 256
+        objects = [
+            _CountedActionTarget(100 + 2 * i, f"agent_{i}", counts)
+            for i in range(number)
+        ]
+        keys = [
+            f"agent_{i}"
+            if kind == "name" or (kind == "mixed" and i % 2)
+            else 100 + 2 * i
+            for i in reversed(range(number))
+        ]
+        assert _target_positions(objects, keys, number) == list(reversed(range(number)))
+        assert sum(counts.values()) <= 4 * number
+        if kind == "id":
+            assert counts["name"] == 0
+        elif kind == "name":
+            assert counts["id"] == 0
+
+    @pytest.mark.parametrize(
+        ("key", "count", "expected"),
+        [
+            (None, 2, [0, 1]),
+            (30, 2, [1, 2]),
+            ("beta", 5, [1, 2]),
+            ([70, "alpha", 30, 70], 4, [2, 0, 1, 2]),
+            ([], 1, []),
+            (None, 0, []),
+        ],
+    )
+    def test_target_order_broadcast_start_and_surplus(self, key, count, expected):
+        objects = [
+            SimpleNamespace(id=10, name="alpha"),
+            SimpleNamespace(id=30, name="beta"),
+            SimpleNamespace(id=70, name="gamma"),
+        ]
+        assert _target_positions(objects, key, count) == expected
+
+    @pytest.mark.parametrize("key", [999, "ghost", "", ["alpha", 999]])
+    def test_unknown_target_is_rejected(self, key):
+        objects = [SimpleNamespace(id=10, name="alpha")]
+        with pytest.raises(ValueError, match="no object with id or name"):
+            _target_positions(objects, key, 1)
+
+    def test_first_match_and_mapping_refresh(self):
+        objects = [
+            SimpleNamespace(id=10, name="alpha"),
+            SimpleNamespace(id=10, name="beta"),
+            SimpleNamespace(id=30, name="alpha"),
+        ]
+        assert _target_positions(objects, [10, "alpha", "beta"], 3) == [0, 0, 1]
+        objects.pop(0)
+        assert _target_positions(objects, [10, "alpha"], 2) == [0, 1]
+
+    def test_default_targets_do_not_read_identity(self):
+        counts = {"id": 0, "name": 0, "equality": 0}
+        objects = [_CountedActionTarget(10, "alpha", counts)]
+        assert _target_positions(objects, None, 1) == [0]
+        assert not any(counts.values())
 
 
 def test_WrapToPi():
