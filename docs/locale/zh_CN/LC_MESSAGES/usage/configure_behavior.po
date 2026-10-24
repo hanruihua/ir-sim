@@ -1035,8 +1035,8 @@ msgid "Complex multi-agent algorithms (e.g., ORCA)"
 msgstr "复杂的多智能体算法（如 ORCA）"
 
 #: ../../source/usage/configure_behavior.md:1031
-msgid "All decorators take two arguments:"
-msgstr "所有装饰器接受两个参数："
+msgid "All decorators take two positional arguments:"
+msgstr "所有装饰器接受两个位置参数："
 
 #: ../../source/usage/configure_behavior.md:1032
 msgid "**Kinematics type**: `'omni'`, `'omni_angular'`, `'diff'`, or `'acker'`"
@@ -1237,3 +1237,19 @@ msgstr "到达当前目标后生成随机目标"
 #: ../../source/usage/configure_behavior.md:456
 msgid "The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros)."
 msgstr "批量求解与社会群组力遵循 [PySocialForce](https://github.com/yuxiang-gao/PySocialForce)（扩展社会力模型的 NumPy 实现），并采用 [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros) 的力定义。"
+
+#: ../../source/usage/configure_behavior.md
+msgid "Neighbor-free Individual Behaviors"
+msgstr "无需邻居的单对象行为"
+
+#: ../../source/usage/configure_behavior.md
+msgid "`register_behavior` and `register_behavior_class` also accept the keyword-only option `requires_neighbors=False`. Use it when the handler does not read other objects. Automatic behavior dispatch then passes an empty `external_objects` list without scanning the world:"
+msgstr "`register_behavior` 和 `register_behavior_class` 还接受仅限关键字的选项 `requires_neighbors=False`。当处理器不读取其他对象时可启用它。自动行为调度会直接传入空的 `external_objects` 列表，省去全量世界扫描："
+
+#: ../../source/usage/configure_behavior.md
+msgid "The default is `requires_neighbors=True`: existing custom handlers retain their live neighbor list, including `target_roles` filtering and object order. The requirement belongs to the registered handler, not its behavior name. An undeclared replacement retains neighbors; a class-based handler keeps its initialized requirement until `env.load_behavior()` reinitializes it."
+msgstr "默认值为 `requires_neighbors=True`：现有自定义处理器仍会收到实时邻居列表，保留 `target_roles` 过滤与对象顺序。邻居需求属于实际注册的处理器，不由行为名称决定。未声明需求的替换处理器会保留邻居；类处理器保留初始化时的需求，直到 `env.load_behavior()` 将其重新初始化。"
+
+#: ../../source/usage/configure_behavior.md
+msgid "Built-in `dash` handlers for `diff`, `omni`, `omni_angular` and `acker` use this option automatically. RVO, SFM, collision detection and sensor updates keep their existing inputs and execution order. This is a Python registration option, not a YAML behavior parameter."
+msgstr "`diff`、`omni`、`omni_angular` 和 `acker` 的内置 `dash` 处理器会自动使用此选项。RVO、SFM、碰撞检测和传感器更新保留原有输入与执行顺序。该选项属于 Python 注册接口，不是 YAML 行为参数。"

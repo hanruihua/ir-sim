@@ -1726,6 +1726,18 @@ class TestStepActionIds:
         env = self._make(env_factory, tmp_path)
         assert self._step_and_moved(env, [[1.0, 0.0]] * 2, action_id=1) == [1, 2]
 
+    def test_mixed_duplicate_targets_keep_last_action_after_deletion(
+        self, env_factory, tmp_path
+    ):
+        env = self._make(env_factory, tmp_path)
+        env.delete_object(0)
+        env.step(
+            [[0.1, 0.0], [0.2, 0.0], [0.3, 0.0]],
+            action_id=[1, "robot_1", 1],
+        )
+        assert env.get_object_by_id(1).velocity[0, 0] == pytest.approx(0.3)
+        assert env.get_object_by_id(2).velocity[0, 0] == 0.0
+
 
 class TestDisableAllPlotSkipsFigure:
     """``disable_all_plot`` creates no figure and turns the plot helpers into no-ops."""

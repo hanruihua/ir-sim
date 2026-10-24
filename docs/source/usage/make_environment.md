@@ -196,6 +196,8 @@ Actions follow the usual single- and multi-agent conventions:
 
 Surplus actions are dropped with a warning; an unknown id or name raises `ValueError`.
 
+Bulk targets are resolved with per-call ID/name indexes. A target list may mix IDs and names; repeated targets keep the last paired action. Indexes are rebuilt as needed on the next call, so object deletion, insertion and reload do not leave cached positions behind. Object IDs remain distinct from list positions.
+
 In `external` mode, another simulator or system owns the state update. Supply
 the new state and velocity first, then call `env.step()` without an action:
 

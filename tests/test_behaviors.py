@@ -135,7 +135,7 @@ class TestNeighborDispatch:
             assert dict(observed[0][1])[1] == 3.0
             assert dict(observed[1][1])[0] == pytest.approx(1.02)
 
-    @pytest.mark.parametrize("handler_kind", ["function", "class"])
+    @pytest.mark.parametrize("handler_kind", ["function", "class", "factory"])
     def test_custom_handler_can_explicitly_skip_neighbors(
         self, dispatch_env, dispatch_registries, monkeypatch, handler_kind
     ):
@@ -151,15 +151,21 @@ class TestNeighborDispatch:
             )(custom)
         else:
 
-            @behavior_registry.register_behavior_class(
-                "diff", "dispatch_without_neighbors", requires_neighbors=False
-            )
             class Custom:
+                __slots__ = ()
+
                 def __init__(self, object_info, **kwargs):
                     pass
 
                 def __call__(self, **kwargs):
                     return custom(**kwargs)
+
+            def factory(object_info, **kwargs):
+                return Custom(object_info, **kwargs)
+
+            behavior_registry.register_behavior_class(
+                "diff", "dispatch_without_neighbors", requires_neighbors=False
+            )(Custom if handler_kind == "class" else factory)
 
         env = dispatch_env(behavior={"name": "dispatch_without_neighbors"})
         self._forbid_neighbors(monkeypatch)
@@ -205,6 +211,49 @@ class TestNeighborDispatch:
             robot.obj_behavior.behavior_dict["name"] = "dispatch_dependent"
         env.step()
         assert observed == [0, 0, 0, 4, 4, 4]
+
+    def test_class_requirement_follows_cached_instance_and_reload(
+        self, dispatch_env, dispatch_registries
+    ):
+        observed = []
+        key = ("diff", "dispatch_reloaded")
+
+        @behavior_registry.register_behavior_class(*key, requires_neighbors=False)
+        class Original:
+            def __init__(self, object_info, **kwargs):
+                pass
+
+            def __call__(self, ego_object, external_objects, **kwargs):
+                observed.append(("original", len(external_objects)))
+                return np.zeros((2, 1))
+
+        class Replacement:
+            def __init__(self, object_info, **kwargs):
+                pass
+
+            def __call__(self, ego_object, external_objects, **kwargs):
+                observed.append(("replacement", len(external_objects)))
+                return np.zeros((2, 1))
+
+        env = dispatch_env(behavior={"name": key[1]})
+        env.step()
+        behavior_registry.behaviors_class_map[key] = Replacement
+        env.step()
+        env.load_behavior("irsim.lib.behavior.behavior_methods")
+        env.step()
+        assert observed == [("original", 0)] * 6 + [("replacement", 4)] * 3
+
+    def test_failed_class_initialization_uses_function_requirement(
+        self, dispatch_env, dispatch_registries, monkeypatch
+    ):
+        def failing_class(object_info, **kwargs):
+            raise ValueError("Cannot initialize custom class")
+
+        behavior_registry.behaviors_class_map["diff", "dash"] = failing_class
+        env = dispatch_env()
+        self._forbid_neighbors(monkeypatch)
+        env.step()
+        assert env.robot.state[0, 0] > 1.0
 
 
 class TestBehavior:
