@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-24",
+  "scope": "Standalone optional MCP/Gemma integration on upstream main; independent of dispatch PR #386",
+  "tdd": {
+    "initial_red": {
+      "result": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0,
+        "time": 1.099
+      },
+      "cause": "ModuleNotFoundError: irsim_mcp, before implementation"
+    },
+    "live_read_red": {
+      "result": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "time": 22.42
+      },
+      "cause": "Readers could see only command boundaries; no intermediate complete frame was published"
+    },
+    "focused_green": {
+      "result": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1,
+        "time": 29.496
+      },
+      "command": "python -m pytest tests/test_mcp.py --no-cov -q"
+    }
+  },
+  "full_suite": {
+    "result": {
+      "tests": 1249,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 53,
+      "time": 210.389
+    },
+    "passed": 1196,
+    "warnings": 44,
+    "coverage_core_percent": 97,
+    "pytest_wall_seconds": 210.41,
+    "skips": {
+      "pyrvo_unavailable": 7,
+      "pynput_unavailable": 45,
+      "live_model_explicit_opt_in": 1
+    }
+  },
+  "checks": {
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "bandit_core_and_mcp": "passed",
+    "wheel_contains_all_five_mcp_modules": true,
+    "simulator_core_diff_empty": true
+  },
+  "live_model_test": {
+    "status": "passed",
+    "command": "IRSIM_LIVE_GEMMA=1 python -m pytest tests/test_mcp.py::test_live_gemma_thinking_controls_robot --no-cov -q",
+    "result": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time": 73.317
+    },
+    "thinking_verified": true,
+    "model_selected_commands": 2,
+    "checks": {
+      "visited_in_order": true,
+      "no_collision": true,
+      "final_distance": 0.11416017000175899,
+      "arrived": true,
+      "physical_goal_passed": true
+    }
+  },
+  "recorded_e2e": {
+    "status": "passed",
+    "baseline_commit": "39ed2f0e4ca006f5061d8808b19b46b2cfff2fca",
+    "report": "../../usage/27mcp_robot/assets/e2e-report.json",
+    "video": "../../usage/27mcp_robot/assets/gemma-thinking-window.mp4",
+    "video_sha256": "c31b031525871f8aae1b031e028af6438154f193a88b52bf8cac595e4ad5937a",
+    "video_full_decode_verified": true,
+    "video_duration_seconds": 98.6,
+    "video_dimensions": [
+      1378,
+      1196
+    ],
+    "elapsed_seconds": 105.166,
+    "thinking_verified": true,
+    "model_selected_commands": 2,
+    "frame": 119,
+    "sim_time": 11.9,
+    "checks": {
+      "visited_in_order": true,
+      "no_collision": true,
+      "final_distance": 0.11416017000175899,
+      "arrived": true,
+      "physical_goal_passed": true
+    },
+    "native_model_arguments_forwarded_unchanged": true,
+    "poster_visual_inspection": "Final native-window frame inspected; labelled grey obstacle, lidar and completed robot trajectory visible"
+  },
+  "ci": "Local results only; no successful hosted CI run claimed",
+  "baseline_commit": "39ed2f0e4ca006f5061d8808b19b46b2cfff2fca"
+}

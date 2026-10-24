@@ -1,0 +1,46 @@
+world:
+  width: 10
+  height: 9
+  step_time: 0.1
+  sample_time: 0.1
+  collision_mode: stop
+  control_mode: auto
+  plot:
+    figure_pixels: [920, 760]
+    show_title: true
+
+robot:
+  - kinematics: {name: omni}
+    shape: {name: circle, radius: 0.18}
+    state: [1, 1, 0]
+    goal: [1, 1, 0]
+    vel_max: [1, 1]
+    vel_min: [-1, -1]
+    goal_threshold: 0.15
+    behavior: {name: dash}
+    plot:
+      show_trajectory: true
+      show_goal: true
+      traj_width: 0.04
+      traj_alpha: 0.8
+    sensors:
+      - {type: lidar2d, number: 60, range_max: 6, angle_range: 6.283185307179586, alpha: 0.15}
+
+obstacle:
+  - shape: {name: rectangle, length: 2, width: 2}
+    name: central_wall
+    state: [5, 4.5, 0]
+    color: '#cbd5e1'
+    plot:
+      show_text: true
+      text_color: '#334155'
+      text_size: 12
+      text_position: [-0.65, 0.1]
+
+custom:
+  labels:
+    central_wall: "Obstacle\n(no entry)"
+  waypoints:
+    blue: [2, 7]
+    green: [8, 7]
+    orange: [8, 2]

@@ -1,0 +1,298 @@
+{
+  "passed": true,
+  "model": "gemma-4-e2b-it",
+  "base_url": "http://127.0.0.1:8000/v1",
+  "mission": "Visit blue, then green. Stop after reaching green.",
+  "expected_visits": [
+    "blue",
+    "green"
+  ],
+  "enable_thinking": true,
+  "thinking_verified": true,
+  "model_selected_commands": 2,
+  "turns": [
+    {
+      "turn": 1,
+      "seconds": 46.84,
+      "finish_reason": "tool_calls",
+      "usage": {
+        "prompt_tokens": 489,
+        "total_tokens": 609,
+        "completion_tokens": 120,
+        "prompt_tokens_details": null
+      },
+      "thinking_chars": 293,
+      "reasoning_sha256": "f0340732c22f162ef2596448b82ca0756f51c664f745bc53d7aeff2354d21650"
+    },
+    {
+      "turn": 2,
+      "seconds": 35.213,
+      "finish_reason": "tool_calls",
+      "usage": {
+        "prompt_tokens": 831,
+        "total_tokens": 927,
+        "completion_tokens": 96,
+        "prompt_tokens_details": null
+      },
+      "thinking_chars": 213,
+      "reasoning_sha256": "1fef6dc44b6d86ebbe6026614b4c11b565c7194a047c6f014cdfa0f45c09419f"
+    }
+  ],
+  "started_at_unix": 1792853794.546629,
+  "python": "3.13.13 (main, May 10 2026, 19:31:06) [MSC v.1944 64 bit (AMD64)]",
+  "dependencies": {
+    "mcp": "1.30.0",
+    "httpx": "0.28.1",
+    "numpy": "2.3.2",
+    "matplotlib": "3.10.9",
+    "shapely": "2.1.2"
+  },
+  "source_sha256": {
+    "gemma_demo.py": "845f2a12f33216c74a9999e0cd625b549b06cb2db8503422ca1fc9a032fa26a6",
+    "recording.py": "d77da98195eb29bb53fb0046556ce6b3c9c5cb78565e49e949490bd54fb80b66",
+    "runtime.py": "3569ddbdd13ef255ca9ad7990f5857afd4f07d275c64e1dd674dcb0858e2cd8d",
+    "server.py": "97597b0a95c83a6ec3ac1ec7a1d7752a6d4457704bf7471f6a1a02ebc7ea977c",
+    "__init__.py": "5819995fdb9e778939281c417cc2b8b840b2700cdcfb7b96d455fbdd1903ad75"
+  },
+  "world_sha256": "c0176102e73ce5047fef332115ac8be5c9829b4ed82a7df0914df4b4a935001b",
+  "checks": {
+    "visited_in_order": true,
+    "no_collision": true,
+    "final_distance": 0.11416017000175899,
+    "arrived": true,
+    "physical_goal_passed": true
+  },
+  "final_state": {
+    "schema_version": 1,
+    "publication_sequence": 124,
+    "command_in_progress": false,
+    "session": "e0fa4ebe08544d6fa9dabab0b06867c5",
+    "epoch": 0,
+    "revision": 123,
+    "version": "e0fa4ebe08544d6fa9dabab0b06867c5:0:123",
+    "frame": 119,
+    "sim_time": 11.9,
+    "step_time": 0.1,
+    "captured_at_unix": 1792853894.9131067,
+    "worker_pid": 80540,
+    "window_title": "IR-SIM MCP Robot Demo [e0fa4ebe]",
+    "world_bounds": [
+      0,
+      10,
+      0,
+      9
+    ],
+    "robots": [
+      {
+        "id": 0,
+        "name": "robot_0",
+        "pose": [
+          7.885850347750427,
+          6.998450385166533,
+          0.0
+        ],
+        "velocity": [
+          0.9999078684607252,
+          0.013574041046385866
+        ],
+        "goal": [
+          8.0,
+          7.0
+        ],
+        "arrived": true,
+        "collision": false,
+        "scan": {
+          "beam_count": 60,
+          "valid_count": 7,
+          "nearest_valid_range": 2.5126297804741333,
+          "ranges": [
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            3.626346068134773,
+            2.9516472927000352,
+            2.5126297804741333,
+            2.5665714363186347,
+            2.8638082920115635,
+            3.280952773560174,
+            3.8919553409444245,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0
+          ],
+          "valid": [
+            false,
+            false,
+            false,
+            false,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "range_max": 6.0
+        }
+      }
+    ],
+    "obstacles": [
+      {
+        "id": 1,
+        "bounds": [
+          4.0,
+          3.5,
+          6.0,
+          5.5
+        ]
+      }
+    ],
+    "waypoints": {
+      "blue": [
+        2,
+        7
+      ],
+      "green": [
+        8,
+        7
+      ],
+      "orange": [
+        8,
+        2
+      ]
+    },
+    "visits": [
+      {
+        "waypoint": "blue",
+        "robot_id": 0,
+        "frame": 60
+      },
+      {
+        "waypoint": "green",
+        "robot_id": 0,
+        "frame": 119
+      }
+    ]
+  },
+  "recording": {
+    "path": "gemma-thinking-window.mp4",
+    "capture": "gdigrab",
+    "window_title": "IR-SIM MCP Robot Demo [e0fa4ebe]",
+    "bytes": 733026,
+    "sha256": "c31b031525871f8aae1b031e028af6438154f193a88b52bf8cac595e4ad5937a",
+    "full_decode_verified": true,
+    "poster": "gemma-thinking-window.png"
+  },
+  "elapsed_seconds": 105.166,
+  "baseline_commit": "39ed2f0e4ca006f5061d8808b19b46b2cfff2fca",
+  "model_server": {
+    "engine": "vLLM",
+    "version": "0.22.1",
+    "hf_model": "google/gemma-4-E2B-it",
+    "flags": [
+      "--enable-auto-tool-choice",
+      "--tool-call-parser",
+      "gemma4",
+      "--reasoning-parser",
+      "gemma4"
+    ]
+  },
+  "capture_note": "Full uncut native-window recording on standalone upstream main baseline; actual model waiting included."
+}

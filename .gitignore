@@ -166,6 +166,9 @@ docs/.DS_Store
 /skills/
 /skills-lock.json
 
+# Local MCP demonstrations contain video and model transcripts.
+/artifacts/
+
 # auto-generated API gettext catalogs (API ref isn't translated)
 docs/locale/zh_CN/LC_MESSAGES/api/
 
