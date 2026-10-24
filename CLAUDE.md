@@ -140,8 +140,10 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (16 test files)
-usage/                  # Example YAML configs and scripts (26 examples)
+irsim_mcp/              # Optional process-isolated MCP server and local Gemma host
+
+tests/                  # Pytest test suite (17 test files)
+usage/                  # Example YAML configs and scripts (27 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```
 
@@ -163,7 +165,8 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 **Optional dependencies**:
 - `pynput`: Keyboard control (`pip install ir-sim[keyboard]`)
 - `pyrvo`: ORCA group behavior (`pip install pyrvo`)
-- All extras: `pip install ir-sim[all]` (includes pynput, imageio[ffmpeg], pyrvo)
+- `mcp`: Local MCP server and Gemma demo (`pip install ir-sim[mcp]`; see `docs/mcp/README.md`)
+- Simulation extras: `pip install ir-sim[all]` (includes pynput, imageio[ffmpeg], pyrvo); MCP is installed separately
 
 ## Testing Notes
 
