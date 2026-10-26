@@ -59,8 +59,8 @@ IMAGE_BACKENDS = {
 }
 
 DISPLAY_HINT = (
-    "No matplotlib GUI backend could be loaded, so the environment will not be "
-    "displayed. Install Tk for your Python (Arch: 'sudo pacman -S tk', Debian/Ubuntu: "
+    "The matplotlib backend is Agg, so the environment will not be displayed. "
+    "Install Tk for your Python (Arch: 'sudo pacman -S tk', Debian/Ubuntu: "
     "'sudo apt install python3-tk', Fedora: 'sudo dnf install python3-tkinter', "
     "Homebrew: 'brew install python-tk') or a Qt binding ('pip install PyQt6'), "
     "or run with display=False."
@@ -73,11 +73,11 @@ def _set_matplotlib_backend(logger: EnvLogger) -> None:
     A backend the user named (``MPLBACKEND``, matplotlibrc, ``matplotlib.use()``)
     is kept as it is.
     """
-    backend = matplotlib.get_backend(auto_select=False)  # None until one is named
-    if backend is not None and backend not in IMAGE_BACKENDS:
-        return
-    plt.switch_backend(rcsetup._auto_backend_sentinel)  # matplotlib's own GUI search
-    if matplotlib.get_backend() == "agg":
+    if matplotlib.get_backend() in IMAGE_BACKENDS:  # resolved by matplotlib if unnamed
+        plt.switch_backend(
+            rcsetup._auto_backend_sentinel
+        )  # matplotlib's own GUI search
+    if matplotlib.get_backend().lower() == "agg":
         logger.warning(DISPLAY_HINT)
 
 
@@ -100,7 +100,7 @@ class EnvBase:
             needs a matplotlib GUI backend: one you set through ``MPLBACKEND``
             or ``matplotlib.use()`` is kept, the still-image backends of
             PyCharm SciView and Jupyter are replaced by the one matplotlib
-            finds, and when none loads a warning says what to install.
+            finds, and when the backend is Agg a warning says what to install.
         disable_all_plot (bool): Same as ``headless``; kept for backward compatibility.
             When True, no visualization will be created even if display is True.
             Default is False.
@@ -200,10 +200,10 @@ class EnvBase:
 
         self._env_param.logger = EnvLogger(log_file, log_level)
 
-        if not self.headless and not plt.get_fignums():
+        if not self.headless:
             if self.display:
                 _set_matplotlib_backend(self.logger)
-            else:
+            elif not plt.get_fignums():  # switching closes every open figure
                 matplotlib.use("Agg")
 
         try:

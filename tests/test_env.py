@@ -2805,49 +2805,59 @@ class TestBatchedCollisionQuery:
 class TestDisplayBackend:
     """A displayed environment opens a window, never an IDE's still image."""
 
-    def test_user_backend_is_kept(self):
-        """The Agg that conftest chose for the test process is a user choice."""
-        with (
-            patch("irsim.env.env_base.plt.switch_backend") as switch,
-            patch("irsim.env.env_base.plt.get_fignums", return_value=[]),
-        ):
+    @staticmethod
+    def _make_and_collect_warnings():
+        from loguru import logger as loguru_logger
+
+        records = []
+        sink = loguru_logger.add(lambda m: records.append(m.record), level="WARNING")
+        try:
             irsim.make("test_collision_world.yaml", display=True).end(0.01)
+        finally:
+            loguru_logger.remove(sink)
+        return [
+            r["message"] for r in records if "will not be displayed" in r["message"]
+        ]
+
+    def test_agg_warns_without_searching(self):
+        """Agg, named by conftest or resolved earlier, is kept but shows no window."""
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            messages = self._make_and_collect_warnings()
         switch.assert_not_called()
+        assert len(messages) == 1
+        assert "python3-tk" in messages[0]
+
+    def test_gui_backend_is_kept_silently(self, monkeypatch):
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "tkagg")
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            messages = self._make_and_collect_warnings()
+        switch.assert_not_called()
+        assert messages == []
 
     def test_inline_backend_is_replaced_by_the_matplotlib_search(self, monkeypatch):
         """PyCharm SciView renders still images, so a plt.pause loop cannot animate."""
         monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
-        with (
-            patch("irsim.env.env_base.plt.switch_backend") as switch,
-            patch("irsim.env.env_base.plt.get_fignums", return_value=[]),
-        ):
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            irsim.make("test_collision_world.yaml", display=True).end(0.01)
+        switch.assert_called_once_with(matplotlib.rcsetup._auto_backend_sentinel)
+
+    def test_inline_figure_does_not_block_the_search(self, monkeypatch):
+        """A figure drawn earlier in the notebook cell is a still image, not a window."""
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
+        plt.figure()
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
             irsim.make("test_collision_world.yaml", display=True).end(0.01)
         switch.assert_called_once_with(matplotlib.rcsetup._auto_backend_sentinel)
 
     def test_warns_when_the_search_ends_on_agg(self, monkeypatch):
         """Without a GUI toolkit, as on Arch Linux without tk, the search ends on Agg."""
-        from loguru import logger as loguru_logger
-
         monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
 
         def search_ends_on_agg(_backend):
             matplotlib.rcParams["backend"] = "agg"
 
-        records = []
-        sink = loguru_logger.add(lambda m: records.append(m.record), level="WARNING")
-        try:
-            with (
-                patch(
-                    "irsim.env.env_base.plt.switch_backend",
-                    side_effect=search_ends_on_agg,
-                ),
-                patch("irsim.env.env_base.plt.get_fignums", return_value=[]),
-            ):
-                irsim.make("test_collision_world.yaml", display=True).end(0.01)
-        finally:
-            loguru_logger.remove(sink)
-        messages = [
-            r["message"] for r in records if "will not be displayed" in r["message"]
-        ]
+        with patch(
+            "irsim.env.env_base.plt.switch_backend", side_effect=search_ends_on_agg
+        ):
+            messages = self._make_and_collect_warnings()
         assert len(messages) == 1
-        assert "python3-tk" in messages[0]

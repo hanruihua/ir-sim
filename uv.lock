@@ -751,7 +751,7 @@ requires-dist = [
     { name = "imageio" },
     { name = "imageio", extras = ["ffmpeg"], marker = "extra == 'all'" },
     { name = "loguru" },
-    { name = "matplotlib", specifier = ">=3.10" },
+    { name = "matplotlib" },
     { name = "numpy" },
     { name = "pynput", marker = "extra == 'all'" },
     { name = "pynput", marker = "extra == 'keyboard'" },
