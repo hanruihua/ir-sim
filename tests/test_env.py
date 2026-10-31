@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -2689,14 +2690,8 @@ class TestEnvConfigInvalidKey:
             EnvConfig(str(yaml_file))
 
 
-class TestBackendAndLoggerSetup:
-    """Matplotlib backend selection and file-based logging."""
-
-    def test_set_matplotlib_backend_fallback(self):
-        """An unusable backend list falls back to Agg and returns False."""
-        from irsim.env.env_base import _set_matplotlib_backend
-
-        assert _set_matplotlib_backend(["definitely_not_a_backend"]) is False
+class TestLoggerSetup:
+    """File-based logging."""
 
     def test_env_logger_with_file(self, tmp_path):
         """EnvLogger writes to the log file when one is given."""
@@ -2805,3 +2800,64 @@ class TestBatchedCollisionQuery:
             }
             assert {o.id for o in batched[obj.id]} == expected
             assert obj.collision_flag == bool(expected)
+
+
+class TestDisplayBackend:
+    """A displayed environment opens a window, never an IDE's still image."""
+
+    @staticmethod
+    def _make_and_collect_warnings():
+        from loguru import logger as loguru_logger
+
+        records = []
+        sink = loguru_logger.add(lambda m: records.append(m.record), level="WARNING")
+        try:
+            irsim.make("test_collision_world.yaml", display=True).end(0.01)
+        finally:
+            loguru_logger.remove(sink)
+        return [
+            r["message"] for r in records if "will not be displayed" in r["message"]
+        ]
+
+    def test_agg_warns_without_searching(self):
+        """Agg, named by conftest or resolved earlier, is kept but shows no window."""
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            messages = self._make_and_collect_warnings()
+        switch.assert_not_called()
+        assert len(messages) == 1
+        assert "python3-tk" in messages[0]
+
+    def test_gui_backend_is_kept_silently(self, monkeypatch):
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "tkagg")
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            messages = self._make_and_collect_warnings()
+        switch.assert_not_called()
+        assert messages == []
+
+    def test_inline_backend_is_replaced_by_the_matplotlib_search(self, monkeypatch):
+        """PyCharm SciView renders still images, so a plt.pause loop cannot animate."""
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            irsim.make("test_collision_world.yaml", display=True).end(0.01)
+        switch.assert_called_once_with(matplotlib.rcsetup._auto_backend_sentinel)
+
+    def test_inline_figure_does_not_block_the_search(self, monkeypatch):
+        """A figure drawn earlier in the notebook cell is a still image, not a window."""
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
+        plt.figure()
+        with patch("irsim.env.env_base.plt.switch_backend") as switch:
+            irsim.make("test_collision_world.yaml", display=True).end(0.01)
+        switch.assert_called_once_with(matplotlib.rcsetup._auto_backend_sentinel)
+
+    def test_warns_when_the_search_ends_on_agg(self, monkeypatch):
+        """Without a GUI toolkit, as on Arch Linux without tk, the search ends on Agg."""
+        monkeypatch.setitem(matplotlib.rcParams, "backend", "module://backend_interagg")
+
+        def search_ends_on_agg(_backend):
+            matplotlib.rcParams["backend"] = "agg"
+
+        with patch(
+            "irsim.env.env_base.plt.switch_backend", side_effect=search_ends_on_agg
+        ):
+            messages = self._make_and_collect_warnings()
+        assert len(messages) == 1

@@ -750,13 +750,9 @@ msgstr ""
 "丢弃环境时也不会留下任何残留，这在训练循环需要创建大量环境时很重要；`render()`、各绘图辅助函数和 "
 "`save_figure()` 都会变成空操作，因此同一脚本无需修改即可运行："
 
-#: ../../source/usage/make_environment.md
-msgid ""
-"`disable_all_plot=True` is kept as an alias. To render offscreen while still "
-"saving animations or figures, use `display=False` instead."
-msgstr ""
-"`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 "
-"`display=False`。"
+#: ../../source/usage/make_environment.md:177
+msgid "`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead. Offscreen rendering switches the process to the Agg backend only while no figure is open; once another environment has a window, the backend is left alone so that window keeps working. A displayed environment opens its window through the GUI backend Matplotlib finds, replacing the still-image backends of PyCharm SciView and Jupyter. When no GUI toolkit loads, as on a Linux Python without Tk, `irsim.make()` warns with the package to install. Figures and animations are saved under `figure/` and `animation/` next to the running script, or under the current working directory when there is no script, as in a REPL or notebook."
+msgstr "`disable_all_plot=True` 作为别名保留。如果需要离屏渲染并仍然保存动画或图片，请改用 `display=False`。离屏渲染只会在没有打开任何图窗时把进程切换到 Agg 后端；一旦其他环境已经有了窗口，后端就保持不变，以保证该窗口继续工作。带显示的环境会通过 Matplotlib 找到的 GUI 后端打开窗口，并替换 PyCharm SciView 和 Jupyter 的静态图片后端。若没有可加载的 GUI 工具包（例如缺少 Tk 的 Linux Python），`irsim.make()` 会给出警告并说明需要安装的软件包。图片和动画保存在运行脚本旁的 `figure/` 和 `animation/` 目录中；没有脚本时（例如在 REPL 或 notebook 中）则保存在当前工作目录下。"
 
 #: ../../source/usage/make_environment.md:97
 msgid "`'contact'`: Resolve overlaps as rigid-body contacts with `mass`, `friction`, `inertia` and `restitution` instead of stopping, so robots push boxes, stall against heavy ones and turn them (see [Physical properties and contact mode](configure_robots_obstacles.md#physical-properties-and-contact-mode))"

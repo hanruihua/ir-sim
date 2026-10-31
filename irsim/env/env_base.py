@@ -20,6 +20,7 @@ import matplotlib
 import numpy as np
 import shapely
 from matplotlib import pyplot as plt
+from matplotlib import rcsetup
 from shapely import Polygon
 from shapely.strtree import STRtree
 
@@ -49,32 +50,35 @@ from .env_logger import EnvLogger
 with contextlib.suppress(ImportError):  # KeyboardControl needs pynput or an MPL backend
     from irsim.gui.keyboard_control import KeyboardControl
 
-# Define backend preferences for different operating systems
-BACKEND_PREFERENCES = {
-    "Darwin": ["MacOSX", "TkAgg", "Qt5Agg", "Agg"],  # macOS
-    "Windows": ["TkAgg", "Qt5Agg", "Agg"],  # Windows
-    "Linux": ["TkAgg", "Qt5Agg", "Agg"],  # Linux
+# Still-image backends an IDE injects through MPLBACKEND (PyCharm SciView,
+# Jupyter inline). A plt.pause loop cannot animate there, so a window replaces them.
+IMAGE_BACKENDS = {
+    "module://backend_interagg",
+    "module://matplotlib_inline.backend_inline",
+    "module://ipykernel.pylab.backend_inline",
 }
 
-
-def _set_matplotlib_backend(backend_list: list[str]) -> bool:
-    """Attempt to set matplotlib backend from preference list."""
-    for backend in backend_list:
-        try:
-            matplotlib.use(backend)
-            return True
-        except Exception as e:
-            print(f"Failed to use '{backend}' backend: {e}")
-
-    print(
-        "All backends failed. Falling back to 'Agg' backend. The environment will not be displayed."
-    )
-    matplotlib.use("Agg")
-    return False
+DISPLAY_HINT = (
+    "The matplotlib backend is Agg, so the environment will not be displayed. "
+    "Install Tk for your Python (Arch: 'sudo pacman -S tk', Debian/Ubuntu: "
+    "'sudo apt install python3-tk', Fedora: 'sudo dnf install python3-tkinter', "
+    "Homebrew: 'brew install python-tk') or a Qt binding ('pip install PyQt6'), "
+    "or run with display=False."
+)
 
 
-# Get the current operating system from env_param and set backend
-_set_matplotlib_backend(BACKEND_PREFERENCES.get(env_param.platform_name, ["Agg"]))
+def _set_matplotlib_backend(logger: EnvLogger) -> None:
+    """Open the figure in a window, not in the image pane of PyCharm or Jupyter.
+
+    A backend the user named (``MPLBACKEND``, matplotlibrc, ``matplotlib.use()``)
+    is kept as it is.
+    """
+    if matplotlib.get_backend() in IMAGE_BACKENDS:  # resolved by matplotlib if unnamed
+        plt.switch_backend(
+            rcsetup._auto_backend_sentinel
+        )  # matplotlib's own GUI search
+    if matplotlib.get_backend().lower() == "agg":
+        logger.warning(DISPLAY_HINT)
 
 
 class EnvBase:
@@ -92,7 +96,11 @@ class EnvBase:
             If None, the environment will attempt to find a default configuration
             or use a minimal setup.
         display (bool): Whether to display the environment visualization.
-            Set to False for headless operation. Default is True.
+            Set to False for headless operation. Default is True. The window
+            needs a matplotlib GUI backend: one you set through ``MPLBACKEND``
+            or ``matplotlib.use()`` is kept, the still-image backends of
+            PyCharm SciView and Jupyter are replaced by the one matplotlib
+            finds, and when the backend is Agg a warning says what to install.
         disable_all_plot (bool): Same as ``headless``; kept for backward compatibility.
             When True, no visualization will be created even if display is True.
             Default is False.
@@ -185,17 +193,18 @@ class EnvBase:
         if seed is not None:
             self._env_param.rng = np.random.default_rng(seed)
 
-        # headless builds no figure, so the process backend is left alone.
-        # Offscreen rendering uses Agg, but switching the backend closes every open figure and freezes other environments' windows, so the switch happens only while no figure exists yet.
-        if not self.display and not self.headless and not plt.get_fignums():
-            matplotlib.use("Agg")
-
         self.save_ani = save_ani
         # Copy so later external mutation of the caller's dict can't change
         # this env's default animation-save behavior.
         self.ani_kwargs: dict[str, Any] = dict(ani_kwargs) if ani_kwargs else {}
 
         self._env_param.logger = EnvLogger(log_file, log_level)
+
+        if not self.headless:
+            if self.display:
+                _set_matplotlib_backend(self.logger)
+            elif not plt.get_fignums():  # switching closes every open figure
+                matplotlib.use("Agg")
 
         try:
             self.env_config = EnvConfig(

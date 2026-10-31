@@ -174,7 +174,7 @@ Pass `headless=True` to run without any figure, window, or keyboard/mouse contro
 env = irsim.make("config.yaml", headless=True)
 ```
 
-`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead. Offscreen rendering switches the process to the Agg backend only while no figure is open; once another environment has a window, the backend is left alone so that window keeps working. Figures and animations are saved under `figure/` and `animation/` next to the running script, or under the current working directory when there is no script, as in a REPL or notebook.
+`disable_all_plot=True` is kept as an alias. To render offscreen while still saving animations or figures, use `display=False` instead. Offscreen rendering switches the process to the Agg backend only while no figure is open; once another environment has a window, the backend is left alone so that window keeps working. A displayed environment opens its window through the GUI backend Matplotlib finds, replacing the still-image backends of PyCharm SciView and Jupyter. When no GUI toolkit loads, as on a Linux Python without Tk, `irsim.make()` warns with the package to install. Figures and animations are saved under `figure/` and `animation/` next to the running script, or under the current working directory when there is no script, as in a REPL or notebook.
 
 ### Internal and External Step Modes
 
