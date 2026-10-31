@@ -11,19 +11,25 @@ group_behaviors_class_map: dict[tuple[str, str], Callable[..., Any]] = {}
 
 def _make_register(
     target_map: dict[tuple[str, str], Any], duplicate_fmt: str
-) -> Callable[[str, str], Callable[[Any], Any]]:
+) -> Callable[..., Callable[[Any], Any]]:
     """
     Create a decorator that registers objects (functions or classes) into a map
     keyed by (kinematics, action).
+
+    ``requires_neighbors=False`` marks the handler as never reading
+    ``external_objects``: dispatch then hands it an empty list instead of
+    collecting every other object each step.
     """
 
-    def register(kinematics: str, action: str):
+    def register(kinematics: str, action: str, *, requires_neighbors: bool = True):
         def decorator(obj: Any) -> Any:
             key = (kinematics, action)
             if key in target_map:
                 raise ValueError(
                     duplicate_fmt.format(kinematics=kinematics, action=action)
                 )
+            if not requires_neighbors:
+                obj.requires_neighbors = False
             target_map[key] = obj
             return obj
 

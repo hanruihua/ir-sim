@@ -1156,9 +1156,26 @@ IR-SIM provides four behavior registration decorators:
 | `@register_group_behavior` | Group | Function | Simple multi-agent coordination |
 | `@register_group_behavior_class` | Group | Class | Complex multi-agent algorithms (e.g., ORCA) |
 
-All decorators take two arguments:
+All decorators take two positional arguments:
 1. **Kinematics type**: `'omni'`, `'omni_angular'`, `'diff'`, or `'acker'`
 2. **Behavior name**: The name used in YAML configuration
+
+### Neighbor-free Individual Behaviors
+
+`register_behavior` and `register_behavior_class` also accept the keyword-only option `requires_neighbors=False`. Use it when the handler never reads other objects: dispatch then passes an empty `external_objects` list instead of collecting every other object in the world each step, the main per-step cost in large scenes.
+
+```python
+import numpy as np
+
+from irsim.lib import register_behavior
+
+
+@register_behavior("diff", "cruise", requires_neighbors=False)
+def cruise(ego_object, external_objects, **kwargs):
+    return np.array([[0.5], [0.0]])
+```
+
+The default is `requires_neighbors=True`, so existing custom handlers keep receiving the live neighbor list with `target_roles` filtering. The built-in `dash` handlers for `diff`, `omni`, `omni_angular` and `acker` opt out. The flag is stored on the handler itself, so a different handler installed under the same name receives neighbors again. This is a Python registration option, not a YAML behavior parameter.
 
 :::{tip}
 Choose the right decorator based on your needs:

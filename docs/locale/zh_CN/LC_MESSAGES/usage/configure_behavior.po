@@ -1035,8 +1035,8 @@ msgid "Complex multi-agent algorithms (e.g., ORCA)"
 msgstr "复杂的多智能体算法（如 ORCA）"
 
 #: ../../source/usage/configure_behavior.md:1031
-msgid "All decorators take two arguments:"
-msgstr "所有装饰器接受两个参数："
+msgid "All decorators take two positional arguments:"
+msgstr "所有装饰器接受两个位置参数："
 
 #: ../../source/usage/configure_behavior.md:1032
 msgid "**Kinematics type**: `'omni'`, `'omni_angular'`, `'diff'`, or `'acker'`"
@@ -1237,3 +1237,15 @@ msgstr "到达当前目标后生成随机目标"
 #: ../../source/usage/configure_behavior.md:456
 msgid "The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros)."
 msgstr "批量求解与社会群组力遵循 [PySocialForce](https://github.com/yuxiang-gao/PySocialForce)（扩展社会力模型的 NumPy 实现），并采用 [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros) 的力定义。"
+
+#: ../../source/usage/configure_behavior.md:1163
+msgid "Neighbor-free Individual Behaviors"
+msgstr "无需邻居的单对象行为"
+
+#: ../../source/usage/configure_behavior.md:1165
+msgid "`register_behavior` and `register_behavior_class` also accept the keyword-only option `requires_neighbors=False`. Use it when the handler never reads other objects: dispatch then passes an empty `external_objects` list instead of collecting every other object in the world each step, the main per-step cost in large scenes."
+msgstr "`register_behavior` 和 `register_behavior_class` 还接受仅限关键字的选项 `requires_neighbors=False`。当处理器从不读取其他对象时可启用它：调度会直接传入空的 `external_objects` 列表，而不是每一步收集世界中的所有其他对象，这正是大型场景每步的主要开销。"
+
+#: ../../source/usage/configure_behavior.md:1178
+msgid "The default is `requires_neighbors=True`, so existing custom handlers keep receiving the live neighbor list with `target_roles` filtering. The built-in `dash` handlers for `diff`, `omni`, `omni_angular` and `acker` opt out. The flag is stored on the handler itself, so a different handler installed under the same name receives neighbors again. This is a Python registration option, not a YAML behavior parameter."
+msgstr "默认值为 `requires_neighbors=True`，因此现有自定义处理器仍会收到带 `target_roles` 过滤的实时邻居列表。`diff`、`omni`、`omni_angular` 和 `acker` 的内置 `dash` 处理器已选择退出。该标记保存在处理器自身上，因此以同一名称安装的另一个处理器会重新收到邻居。这是 Python 注册选项，不是 YAML 行为参数。"
