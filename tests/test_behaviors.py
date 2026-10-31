@@ -699,6 +699,7 @@ class TestOrcaGroupBehavior:
             m.get_desired_omni_vel = Mock(return_value=np.array([[vx], [vy]]))
             m._world_param = Mock()
             m._world_param.step_time = 0.1
+            m.external_objects = []
             return m
 
         member1 = make_member(0, 0, 1, 0)
@@ -723,6 +724,7 @@ class TestOrcaGroupBehavior:
             m.vel_max = np.array([[1.5], [1.0]])
             m._world_param = Mock()
             m._world_param.step_time = 0.1
+            m.external_objects = []
             return m
 
         # Single isolated robot already facing its goal: the holonomic plan
@@ -809,6 +811,7 @@ class TestOrcaGroupBehavior:
         member.max_speed = 1.5
         member.vel_max = np.array([[1.5], [1.0]])
         member._world_param = Mock()
+        member.external_objects = []
         member._world_param.step_time = 0.1
 
         orca = OrcaGroupBehavior([member])

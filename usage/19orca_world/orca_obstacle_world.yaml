@@ -1,0 +1,61 @@
+# Eight ORCA robots cross a room along chords of a circle: the pillars and the
+# wall segments are obstacles to the group, so the members steer around them
+# as well as around each other. ORCA is local, so nothing here faces a member
+# head-on; a goal straight behind a flat wall would stall it.
+world:
+  height: 12
+  width: 12
+  step_time: 0.1
+  sample_time: 0.1
+  collision_mode: 'unobstructed'
+
+robot:
+  - number: 8
+    color: 'cycle'
+    kinematics: {name: 'omni'}
+    shape: {name: 'circle', radius: 0.3}
+    distribution: {name: 'manual'}
+    state:
+      - [10.6, 6.0, 3.14]
+      - [9.25, 9.25, 3.93]
+      - [6.0, 10.6, 4.71]
+      - [2.75, 9.25, 5.5]
+      - [1.4, 6.0, 6.28]
+      - [2.75, 2.75, 7.07]
+      - [6.0, 1.4, 7.85]
+      - [9.25, 2.75, 8.64]
+    goal:
+      - [2.75, 9.25, 0.0]
+      - [1.4, 6.0, 0.0]
+      - [2.75, 2.75, 0.0]
+      - [6.0, 1.4, 0.0]
+      - [9.25, 2.75, 0.0]
+      - [10.6, 6.0, 0.0]
+      - [9.25, 9.25, 0.0]
+      - [6.0, 10.6, 0.0]
+    goal_threshold: 0.2
+    vel_max: [1.5, 1.5]
+    vel_min: [-1.5, -1.5]
+    plot:
+      show_trajectory: true
+      show_goal: true
+    group_behavior:
+      name: 'orca'
+      neighborDist: 4.0
+      maxNeighbors: 8
+      timeHorizon: 2.0
+      timeHorizonObst: 1.5
+      safe_radius: 0.1
+      maxSpeed: 1.5
+
+obstacle:
+  - shape: {name: 'circle', radius: 0.5}
+    state: [6.9, 6.3, 0]
+  - shape: {name: 'circle', radius: 0.5}
+    state: [4.2, 4.6, 0]
+  - shape: {name: 'circle', radius: 0.5}
+    state: [8.0, 3.9, 0]
+  - shape: {name: 'linestring', vertices: [[2.2, 6.0], [3.4, 6.0]]}
+    state: [0, 0, 0]
+  - shape: {name: 'linestring', vertices: [[8.6, 6.0], [9.8, 6.0]]}
+    state: [0, 0, 0]

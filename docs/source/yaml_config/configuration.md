@@ -1279,7 +1279,7 @@ env.step(env.robot.vel_world2body(world_vel))
 : Group-level behavior for all objects within the same group. This is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. Must include `name` plus behavior-specific parameters.
 
   **Options:**
-  - `'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used.
+  - `'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used. Members avoid each other and the static objects around the group: linestrings, polygons, circles and the grid map enter the pyrvo simulator as obstacles (`timeHorizonObst` sets how far ahead they are considered); objects that move are not seen.
     - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
     - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
     - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
