@@ -65,33 +65,22 @@ def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
     ``action_id`` is an object id (``obj.id``) or name, or a list of them. A
     single id (``None`` means the first object) selects ``count`` consecutive
     objects starting from it; an unknown id or name raises ``ValueError``.
-
-    Each required identity map is built at most once per call, so K targets
-    take O(N + K) work without retaining stale positions across object changes.
     """
+
     if action_id is None:
         return list(range(min(count, len(objects))))
 
-    id_positions: dict[int, int] | None = None
-    name_positions: dict[str, int] | None = None
+    ids: dict[int, int] = {}
+    names: dict[str, int] = {}
+    for index, obj in enumerate(objects):  # first match wins, as before
+        ids.setdefault(obj.id, index)
+        names.setdefault(obj.name, index)
 
     def position(key):
-        nonlocal id_positions, name_positions
         if isinstance(key, str):
-            if not key:
-                raise ValueError(f"no object with id or name {key!r}")
-            if name_positions is None:
-                name_positions = {}
-                for index, obj in enumerate(objects):
-                    name_positions.setdefault(obj.name, index)
-            found = name_positions.get(key)
+            found = names.get(key) if key else None
         else:
-            object_id = int(key)
-            if id_positions is None:
-                id_positions = {}
-                for index, obj in enumerate(objects):
-                    id_positions.setdefault(obj.id, index)
-            found = id_positions.get(object_id)
+            found = ids.get(int(key))
         if found is None:
             raise ValueError(f"no object with id or name {key!r}")
         return found

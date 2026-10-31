@@ -946,9 +946,7 @@ class ObjectBase:
                 )
 
             external_objects = (
-                self.external_objects
-                if getattr(self.obj_behavior, "requires_neighbors", True)
-                else []
+                self.external_objects if self.obj_behavior.requires_neighbors else []
             )
             behavior_vel = self.obj_behavior.gen_vel(self.ego_object, external_objects)
 

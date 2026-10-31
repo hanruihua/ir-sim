@@ -769,7 +769,3 @@ msgstr "**`gravity`**、**`friction`**、**`restitution`**、**`drive_tau`**：`
 #: ../../source/usage/make_environment.md:242
 msgid "In `collision_mode: 'contact'` each object state also carries the readings of its contact sensor: `contact_force`, one {py:class}`~irsim.msg.ContactState` per contact under `contacts` (partner, point, normal, depth and force), and `contact_time` / `air_time`."
 msgstr "在 `collision_mode: 'contact'` 下，每个对象状态还携带其接触传感器的读数：`contact_force`、`contacts` 下每个接触一条 {py:class}`~irsim.msg.ContactState`（对方、接触点、法线、深度和力），以及 `contact_time` / `air_time`。"
-
-#: ../../source/usage/make_environment.md
-msgid "Bulk targets are resolved with per-call ID/name indexes. A target list may mix IDs and names; repeated targets keep the last paired action. Indexes are rebuilt as needed on the next call, so object deletion, insertion and reload do not leave cached positions behind. Object IDs remain distinct from list positions."
-msgstr "批量目标通过每次调用内的 ID／名称索引解析。目标列表可以混用 ID 和名称；重复目标采用最后配对的动作。下一次调用会按需重新建立索引，因此删除、新增或重新加载对象不会留下过期位置。对象 ID 与列表位置仍然是不同的概念。"

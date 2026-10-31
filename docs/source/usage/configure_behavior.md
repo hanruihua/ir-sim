@@ -1162,7 +1162,7 @@ All decorators take two positional arguments:
 
 ### Neighbor-free Individual Behaviors
 
-`register_behavior` and `register_behavior_class` also accept the keyword-only option `requires_neighbors=False`. Use it when the handler does not read other objects. Automatic behavior dispatch then passes an empty `external_objects` list without scanning the world:
+`register_behavior` and `register_behavior_class` also accept the keyword-only option `requires_neighbors=False`. Use it when the handler never reads other objects: dispatch then passes an empty `external_objects` list instead of collecting every other object in the world each step, the main per-step cost in large scenes.
 
 ```python
 import numpy as np
@@ -1175,9 +1175,7 @@ def cruise(ego_object, external_objects, **kwargs):
     return np.array([[0.5], [0.0]])
 ```
 
-The default is `requires_neighbors=True`: existing custom handlers retain their live neighbor list, including `target_roles` filtering and object order. The requirement belongs to the registered handler, not its behavior name. An undeclared replacement retains neighbors; a class-based handler keeps its initialized requirement until `env.load_behavior()` reinitializes it.
-
-Built-in `dash` handlers for `diff`, `omni`, `omni_angular` and `acker` use this option automatically. RVO, SFM, collision detection and sensor updates keep their existing inputs and execution order. This is a Python registration option, not a YAML behavior parameter.
+The default is `requires_neighbors=True`, so existing custom handlers keep receiving the live neighbor list with `target_roles` filtering. The built-in `dash` handlers for `diff`, `omni`, `omni_angular` and `acker` opt out. The flag is stored on the handler itself, so a different handler installed under the same name receives neighbors again. This is a Python registration option, not a YAML behavior parameter.
 
 :::{tip}
 Choose the right decorator based on your needs:

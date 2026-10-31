@@ -3,12 +3,7 @@ from typing import Any
 
 import numpy as np
 
-from irsim.lib.behavior.behavior_registry import (
-    behavior_class_neighbor_requirements,
-    behavior_neighbor_requirements,
-    behaviors_class_map,
-    behaviors_map,
-)
+from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
 from irsim.util.util import log_error
 
 
@@ -41,27 +36,6 @@ class Behavior:
 
         self._invoke_func = None
         self._init_behavior_class()
-
-    @property
-    def requires_neighbors(self) -> bool:
-        """Whether the active handler needs the live external-object list.
-
-        Undeclared handlers and registry replacements retain the original list.
-        Class capabilities follow the initialized instance; function capabilities
-        follow the current registration, just like function invocation does.
-        """
-        if callable(self._invoke_func):
-            return self._invoke_func is not self._neighbor_free_handler
-        key = (
-            getattr(self.object_info, "kinematics", None),
-            self.behavior_dict.get("name"),
-        )
-        requirement = behavior_neighbor_requirements.get(key)
-        return (
-            requirement is None
-            or requirement[0] is not behaviors_map.get(key)
-            or requirement[1]
-        )
 
     def gen_vel(self, ego_object, external_objects=None):
         """Generate a velocity for the agent based on configured behavior.
@@ -119,41 +93,31 @@ class Behavior:
         Looks up a class in `behaviors_class_map` using the tuple
         (kinematics, behavior_name). If found, instantiates it and stores
         the resulting callable in `self._invoke_func`; otherwise leaves it
-        as None.
+        as None. ``requires_neighbors`` is read from the handler that will
+        run; handlers registered with ``requires_neighbors=False`` carry it.
         """
-
-        self._neighbor_free_handler = None
 
         # Resolve keys safely
         kinematics = getattr(self.object_info, "kinematics", None)
         behavior_name = self.behavior_dict.get("name") if self.behavior_dict else None
+        self._invoke_func = None
+        self.requires_neighbors = False  # no handler: gen_vel returns zeros
 
         if not kinematics or not behavior_name:
-            self._invoke_func = None
             return
 
         key = (kinematics, behavior_name)
         init_cls = behaviors_class_map.get(key)
-        if init_cls is None:
-            self._invoke_func = None
-            return
+        if init_cls is not None:
+            try:
+                # Instantiate class-based handler once
+                self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
+            except Exception as e:
+                log_error(f"Failed to init behavior class for {key}: {e!s}")
 
-        try:
-            # Instantiate class-based handler once
-            self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
-            requirement = behavior_class_neighbor_requirements.get(key)
-            if (
-                requirement is not None
-                and requirement[0] is init_cls
-                and not requirement[1]
-            ):
-                self._neighbor_free_handler = self._invoke_func
-        except Exception as e:
-            self._invoke_func = None
-            # Use global logger as fallback since we don't have ego_object here
-            from irsim.config import env_param
-
-            env_param.logger.error(f"Failed to init behavior class for {key}: {e!s}")
+        # gen_vel calls the class instance when there is one, else the function
+        handler = init_cls if self._invoke_func is not None else behaviors_map.get(key)
+        self.requires_neighbors = getattr(handler, "requires_neighbors", True)
 
     def load_behavior(self, behaviors: str = ".behavior_methods"):
         """

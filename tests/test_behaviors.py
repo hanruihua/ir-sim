@@ -24,15 +24,11 @@ from irsim.world.object_base import ObjectBase
 def dispatch_registries():
     """Keep temporary behavior registrations local to the dispatch tests."""
     with ExitStack() as stack:
-        for name in (
-            "behaviors_map",
-            "behaviors_class_map",
-            "behavior_neighbor_requirements",
-            "behavior_class_neighbor_requirements",
+        for registry in (
+            behavior_registry.behaviors_map,
+            behavior_registry.behaviors_class_map,
         ):
-            registry = getattr(behavior_registry, name, None)
-            if registry is not None:
-                stack.enter_context(patch.dict(registry))
+            stack.enter_context(patch.dict(registry))
         yield
 
 
@@ -171,77 +167,6 @@ class TestNeighborDispatch:
         self._forbid_neighbors(monkeypatch)
         env.step()
         assert observed == [[], [], []]
-
-    def test_replaced_neighbor_free_function_receives_neighbors(
-        self, dispatch_env, dispatch_registries
-    ):
-        key = ("diff", "dispatch_replaced")
-        observed = []
-
-        @behavior_registry.register_behavior(*key, requires_neighbors=False)
-        def original(ego_object, external_objects, **kwargs):
-            return np.zeros((2, 1))
-
-        env = dispatch_env(behavior={"name": key[1]})
-
-        def replacement(ego_object, external_objects, **kwargs):
-            observed.append([obj.id for obj in external_objects])
-            return np.zeros((2, 1))
-
-        behavior_registry.behaviors_map[key] = replacement
-        env.step()
-        assert observed == [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4]]
-
-    def test_neighbor_requirement_belongs_to_registration(
-        self, dispatch_env, dispatch_registries
-    ):
-        observed = []
-
-        def shared(ego_object, external_objects, **kwargs):
-            observed.append(len(external_objects))
-            return np.zeros((2, 1))
-
-        behavior_registry.register_behavior(
-            "diff", "dispatch_independent", requires_neighbors=False
-        )(shared)
-        behavior_registry.register_behavior("diff", "dispatch_dependent")(shared)
-        env = dispatch_env(behavior={"name": "dispatch_independent"})
-        env.step()
-        for robot in env.robot_list:
-            robot.obj_behavior.behavior_dict["name"] = "dispatch_dependent"
-        env.step()
-        assert observed == [0, 0, 0, 4, 4, 4]
-
-    def test_class_requirement_follows_cached_instance_and_reload(
-        self, dispatch_env, dispatch_registries
-    ):
-        observed = []
-        key = ("diff", "dispatch_reloaded")
-
-        @behavior_registry.register_behavior_class(*key, requires_neighbors=False)
-        class Original:
-            def __init__(self, object_info, **kwargs):
-                pass
-
-            def __call__(self, ego_object, external_objects, **kwargs):
-                observed.append(("original", len(external_objects)))
-                return np.zeros((2, 1))
-
-        class Replacement:
-            def __init__(self, object_info, **kwargs):
-                pass
-
-            def __call__(self, ego_object, external_objects, **kwargs):
-                observed.append(("replacement", len(external_objects)))
-                return np.zeros((2, 1))
-
-        env = dispatch_env(behavior={"name": key[1]})
-        env.step()
-        behavior_registry.behaviors_class_map[key] = Replacement
-        env.step()
-        env.load_behavior("irsim.lib.behavior.behavior_methods")
-        env.step()
-        assert observed == [("original", 0)] * 6 + [("replacement", 4)] * 3
 
     def test_failed_class_initialization_uses_function_requirement(
         self, dispatch_env, dispatch_registries, monkeypatch
