@@ -70,9 +70,9 @@ def _orca(env):
 def test_static_surroundings_become_obstacles(env):
     """Walls and polygon obstacles enter the simulator once the group moves."""
     orca = _orca(env)
-    assert not orca._obstacles_loaded
+    assert orca._loaded is None
     env.step()
-    assert orca._obstacles_loaded
+    assert orca._loaded is not None
     # one two-vertex obstacle for the wall segment, one ring each for the
     # rectangle and the circle: unobstructed turns collisions off, not avoidance.
     # pyrvo may split segments while building its obstacle tree, so at least.
@@ -105,15 +105,19 @@ def test_members_go_around_walls(env):
 
 
 @pyrvo_required
-def test_rebuilt_simulator_reloads_obstacles(env):
-    """A simulator rebuilt for a new member count gets the obstacles again."""
+def test_moved_wall_reloads_obstacles(env):
+    """A static object moved after the first step is reloaded where it now is."""
     orca = _orca(env)
     env.step()
-    before = orca._sim.get_num_obstacle_vertices()
-    orca._sim = orca._build_sim(env.robot_list)
-    assert not orca._obstacles_loaded
+    before = orca._sim
+    env.obstacle_list[1].set_state([8, 2, 0])  # the rectangle, from y 4.8..5.2
     env.step()
-    assert orca._sim.get_num_obstacle_vertices() == before
+    assert orca._sim is not before
+    lowest = min(
+        orca._sim.get_obstacle_vertex(i).to_tuple()[1]
+        for i in range(orca._sim.get_num_obstacle_vertices())
+    )
+    assert lowest == pytest.approx(1.8)
 
 
 @pyrvo_required
@@ -193,7 +197,6 @@ class TestAddObstacles:
     def test_nothing_outside_adds_nothing(self):
         orca = _orca_with_fake_sim()
         assert orca._add_obstacles([]) == 0
-        assert orca._obstacles_loaded
 
     def test_polygon_holes_become_walls_too(self):
         courtyard = Polygon(
@@ -269,6 +272,23 @@ class TestMovingObjects:
         assert orca._moving_objects([_static(), mover]) == [mover]
         assert orca._moving_objects([]) == []
 
+    def test_scene_follows_agents_and_walls(self):
+        member = SimpleNamespace(id=0)
+        wall = _static(id=1, state=np.zeros((3, 1)))
+        box = _static(id=2, state=np.ones((3, 1)))
+        mover = _static(id=3, static=False)
+        scene = OrcaGroupBehavior._scene([member], [mover], [wall, box, mover])
+        assert scene == OrcaGroupBehavior._scene([member], [mover], [wall, box, mover])
+        # the mover left, or another object took its place
+        assert scene != OrcaGroupBehavior._scene([member], [], [wall, box])
+        other = _static(id=4, static=False)
+        assert scene != OrcaGroupBehavior._scene([member], [other], [wall, box, other])
+        # the box moved
+        moved = _static(id=2, state=np.full((3, 1), 2.0))
+        assert scene != OrcaGroupBehavior._scene(
+            [member], [mover], [wall, moved, mover]
+        )
+
 
 @pyrvo_required
 def test_moving_objects_are_avoided_as_agents(moving_env):
@@ -337,4 +357,25 @@ def test_simulator_follows_moving_objects_removed(moving_env):
     moving_env.delete_object(moving_env.obstacle_list[0].id)
     moving_env.step()
     assert orca._sim.get_num_agents() == 2
-    assert orca._obstacles_loaded
+    assert orca._loaded is not None
+
+
+@pyrvo_required
+def test_replaced_moving_object_gets_its_own_agent(moving_env):
+    """A mover swapped for a bigger one between steps gets an agent of its size."""
+    orca = _orca(moving_env)
+    moving_env.step()
+    assert orca._sim.get_agent_radius(2) == pytest.approx(0.4 + 0.05)
+    moving_env.delete_object(moving_env.obstacle_list[0].id)
+    moving_env.add_object(
+        moving_env.create_obstacle(
+            kinematics={"name": "omni"},
+            shape={"name": "circle", "radius": 0.8},
+            state=[5, 2.5, 0],
+            goal=[5, 9, 0],
+            behavior={"name": "dash"},
+        )
+    )
+    moving_env.step()
+    assert orca._sim.get_num_agents() == 3
+    assert orca._sim.get_agent_radius(2) == pytest.approx(0.8 + 0.05)

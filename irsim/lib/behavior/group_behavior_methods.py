@@ -42,8 +42,9 @@ class OrcaGroupBehavior:
     too: the obstacles by default, so a crowd does not make way for a robot
     crossing it, every outside object with ``target_roles: 'all'``. Static
     ones (walls, polygon and circle obstacles, the grid map) are obstacles to
-    the simulator, added once from their geometry when the group first moves
-    (:meth:`_add_obstacles`); ``timeHorizonObst`` sets how far ahead they are
+    the simulator, added from their geometry when the group first moves
+    (:meth:`_add_obstacles`) and again whenever the surroundings change
+    (:meth:`_scene`); ``timeHorizonObst`` sets how far ahead they are
     considered. Moving ones (dynamic obstacles, and robots when selected) are
     agents of the simulator (:meth:`_moving_objects`): their position and
     velocity are fed in every step, so members avoid them as they avoid each
@@ -68,7 +69,9 @@ class OrcaGroupBehavior:
         self._safe_radius = safe_radius
         self._maxSpeed = maxSpeed
         self._kinematics = members[0].kinematics if members else None
-        self._sim = self._build_sim(members)
+        self._ensure_pyrvo()
+        self._sim = None
+        self._loaded = None  # the scene the simulator was built for (:meth:`_scene`)
 
     def _ensure_pyrvo(self):
         try:
@@ -120,9 +123,6 @@ class OrcaGroupBehavior:
                 float(obj.max_speed),
             )
 
-        # The surroundings are read from the environment on the first call,
-        # when every object of the scene exists.
-        self._obstacles_loaded = False
         return sim
 
     @staticmethod
@@ -134,6 +134,22 @@ class OrcaGroupBehavior:
         the members avoid them; what the simulator plans for them is ignored.
         """
         return [obj for obj in outside if not obj.static]
+
+    @staticmethod
+    def _scene(
+        members: list[ObjectBase],
+        moving: Sequence[ObjectBase],
+        outside: Sequence[ObjectBase],
+    ) -> tuple:
+        """What the simulator holds: the agents in order, the static objects in place.
+
+        The simulator is built again when this changes (:meth:`__call__`):
+        an agent came, went or was replaced by another object, or a static
+        object was added, removed or moved.
+        """
+        agents = tuple(obj.id for obj in (*members, *moving))
+        walls = tuple((obj.id, obj.state.tobytes()) for obj in outside if obj.static)
+        return agents, walls
 
     def _add_obstacles(self, outside: Sequence[ObjectBase]) -> int:
         """Hand the static outside objects to the simulator.
@@ -155,7 +171,6 @@ class OrcaGroupBehavior:
         Returns:
             int: the number of obstacles added
         """
-        self._obstacles_loaded = True
         count = 0
         for obj in outside:
             if not obj.static:
@@ -276,16 +291,14 @@ class OrcaGroupBehavior:
         if members:
             self._kinematics = members[0].kinematics
 
-        # If agent count mismatches (members or moving objects came or went), rebuild
+        # Start over when the surroundings changed: an agent came, went or was
+        # replaced, or a static object was added, removed or moved
         moving = self._moving_objects(external_objects)
-        try:
-            if self._sim.get_num_agents() != len(members) + len(moving):
-                self._sim = self._build_sim(members, moving)
-        except Exception:
+        scene = self._scene(members, moving, external_objects)
+        if scene != self._loaded:
             self._sim = self._build_sim(members, moving)
-
-        if not self._obstacles_loaded:
             self._add_obstacles(external_objects)
+            self._loaded = scene
 
         for i, member in enumerate(members):
             self._sim.set_agent_pref_velocity(i, self._pref_velocity(member))

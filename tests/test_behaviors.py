@@ -1210,66 +1210,48 @@ class TestOrcaGroupBehaviorMockedPyrvo:
         return mock_pyrvo, mock_sim
 
     def test_orca_build_sim_and_call(self):
-        """Construction builds the sim; __call__ steps it and returns actions."""
+        """The first call builds the sim for its members, steps it and returns actions."""
         mock_pyrvo, mock_sim = self._make_pyrvo()
-        mock_sim.get_num_agents.return_value = 2
 
         with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
             from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
 
             members = [self._make_member(0, 0, 1, 0), self._make_member(2, 2, 0, 1)]
             orca = OrcaGroupBehavior(members, maxSpeed=2.0)
+            assert not mock_pyrvo.RVOSimulator.called
+
+            result = orca(members)
 
             assert mock_pyrvo.RVOSimulator.called
             assert mock_sim.set_time_step.called
             assert mock_sim.add_agent.call_count == 2
-
-            result = orca(members)
-
             assert mock_sim.set_agent_pref_velocity.call_count == 2
             assert mock_sim.set_agent_position.call_count == 2
             assert mock_sim.do_step.called
             assert len(result) == 2
 
     def test_orca_rebuild_on_mismatch(self):
-        """The sim is rebuilt when the member count no longer matches."""
-        mock_pyrvo, mock_sim = self._make_pyrvo(velocity=(0.5, 0.5))
-        mock_sim.get_num_agents.return_value = 1
+        """The sim is kept while the members stay and rebuilt when they change."""
+        mock_pyrvo, _ = self._make_pyrvo(velocity=(0.5, 0.5))
 
         with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
             from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
 
             member1 = self._make_member(0, 0, 1, 0)
             orca = OrcaGroupBehavior([member1])
-            initial_call_count = mock_pyrvo.RVOSimulator.call_count
+            orca([member1])
+            orca([member1])
+            assert mock_pyrvo.RVOSimulator.call_count == 1
 
-            # get_num_agents still reports 1 for two members -> rebuild
             member2 = self._make_member(1, 1, 0, 1)
             result = orca([member1, member2])
 
-            assert mock_pyrvo.RVOSimulator.call_count > initial_call_count
-            assert len(result) == 2  # one action per member
-
-    def test_orca_rebuild_on_exception(self):
-        """A failing sim query triggers a rebuild instead of propagating."""
-        mock_pyrvo, mock_sim = self._make_pyrvo(velocity=(0.5, 0.5))
-        mock_sim.get_num_agents.side_effect = [RuntimeError("Sim error"), 1, 1]
-
-        with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
-            from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
-
-            member = self._make_member(0, 0, 1, 0)
-            orca = OrcaGroupBehavior([member])
-
-            result = orca([member])
-
             assert mock_pyrvo.RVOSimulator.call_count == 2
-            assert len(result) == 1
+            assert len(result) == 2  # one action per member
 
     def test_orca_ensure_pyrvo_success(self):
         """_ensure_pyrvo returns the pyrvo module when importable."""
-        mock_pyrvo, mock_sim = self._make_pyrvo()
-        mock_sim.get_num_agents.return_value = 0
+        mock_pyrvo, _ = self._make_pyrvo()
 
         with patch.dict("sys.modules", {"pyrvo": mock_pyrvo}):
             from irsim.lib.behavior.group_behavior_methods import OrcaGroupBehavior
