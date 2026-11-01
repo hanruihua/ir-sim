@@ -945,9 +945,10 @@ class ObjectBase:
                     self._world_param.gravity,
                 )
 
-            behavior_vel = self.obj_behavior.gen_vel(
-                self.ego_object, self.external_objects
+            external_objects = (
+                self.external_objects if self.obj_behavior.requires_neighbors else []
             )
+            behavior_vel = self.obj_behavior.gen_vel(self.ego_object, external_objects)
 
         else:
             velocity = to_numpy(velocity, expected_shape=self.vel_shape)

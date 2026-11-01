@@ -9,7 +9,45 @@ import pytest
 
 from irsim.msg import Header, ObjectState, Odometry, WorldState
 from irsim.util import time_it, time_it2, util
+from irsim.util.decorator import _target_positions
 from irsim.util.message import resolve_message_targets
+
+
+class TestActionTargetLookup:
+    @pytest.mark.parametrize(
+        ("key", "count", "expected"),
+        [
+            (None, 2, [0, 1]),
+            (30, 2, [1, 2]),
+            ("beta", 5, [1, 2]),
+            ([70, "alpha", 30, 70], 4, [2, 0, 1, 2]),
+            ([], 1, []),
+            (None, 0, []),
+        ],
+    )
+    def test_target_order_broadcast_start_and_surplus(self, key, count, expected):
+        objects = [
+            SimpleNamespace(id=10, name="alpha"),
+            SimpleNamespace(id=30, name="beta"),
+            SimpleNamespace(id=70, name="gamma"),
+        ]
+        assert _target_positions(objects, key, count) == expected
+
+    @pytest.mark.parametrize("key", [999, "ghost", "", ["alpha", 999]])
+    def test_unknown_target_is_rejected(self, key):
+        objects = [SimpleNamespace(id=10, name="alpha")]
+        with pytest.raises(ValueError, match="no object with id or name"):
+            _target_positions(objects, key, 1)
+
+    def test_first_match_and_mapping_refresh(self):
+        objects = [
+            SimpleNamespace(id=10, name="alpha"),
+            SimpleNamespace(id=10, name="beta"),
+            SimpleNamespace(id=30, name="alpha"),
+        ]
+        assert _target_positions(objects, [10, "alpha", "beta"], 3) == [0, 0, 1]
+        objects.pop(0)
+        assert _target_positions(objects, [10, "alpha"], 2) == [0, 1]
 
 
 def test_WrapToPi():

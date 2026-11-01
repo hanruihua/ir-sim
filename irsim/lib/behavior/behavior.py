@@ -93,32 +93,31 @@ class Behavior:
         Looks up a class in `behaviors_class_map` using the tuple
         (kinematics, behavior_name). If found, instantiates it and stores
         the resulting callable in `self._invoke_func`; otherwise leaves it
-        as None.
+        as None. ``requires_neighbors`` is read from the handler that will
+        run; handlers registered with ``requires_neighbors=False`` carry it.
         """
 
         # Resolve keys safely
         kinematics = getattr(self.object_info, "kinematics", None)
         behavior_name = self.behavior_dict.get("name") if self.behavior_dict else None
+        self._invoke_func = None
+        self.requires_neighbors = False  # no handler: gen_vel returns zeros
 
         if not kinematics or not behavior_name:
-            self._invoke_func = None
             return
 
         key = (kinematics, behavior_name)
         init_cls = behaviors_class_map.get(key)
-        if init_cls is None:
-            self._invoke_func = None
-            return
+        if init_cls is not None:
+            try:
+                # Instantiate class-based handler once
+                self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
+            except Exception as e:
+                log_error(f"Failed to init behavior class for {key}: {e!s}")
 
-        try:
-            # Instantiate class-based handler once
-            self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
-        except Exception as e:
-            self._invoke_func = None
-            # Use global logger as fallback since we don't have ego_object here
-            from irsim.config import env_param
-
-            env_param.logger.error(f"Failed to init behavior class for {key}: {e!s}")
+        # gen_vel calls the class instance when there is one, else the function
+        handler = init_cls if self._invoke_func is not None else behaviors_map.get(key)
+        self.requires_neighbors = getattr(handler, "requires_neighbors", True)
 
     def load_behavior(self, behaviors: str = ".behavior_methods"):
         """
