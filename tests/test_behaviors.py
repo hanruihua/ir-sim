@@ -5,6 +5,7 @@ Covers individual behaviors, group behaviors, and custom behaviors.
 """
 
 import types
+from contextlib import ExitStack
 from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
@@ -12,10 +13,247 @@ import pytest
 import yaml
 
 from irsim.config import world_param
+from irsim.lib.behavior import behavior_registry
 from irsim.lib.behavior.behavior import Behavior
 from irsim.lib.behavior.behavior_registry import behaviors_class_map
 from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.world.object_base import ObjectBase
+
+
+@pytest.fixture
+def dispatch_registries():
+    """Keep temporary behavior registrations local to the dispatch tests."""
+    with ExitStack() as stack:
+        for name in (
+            "behaviors_map",
+            "behaviors_class_map",
+            "behavior_neighbor_requirements",
+            "behavior_class_neighbor_requirements",
+        ):
+            registry = getattr(behavior_registry, name, None)
+            if registry is not None:
+                stack.enter_context(patch.dict(registry))
+        yield
+
+
+@pytest.fixture
+def dispatch_env(tmp_path, env_factory):
+    """A small scene with ordered robots and both robot/obstacle neighbours."""
+
+    def make(kinematics="diff", behavior=None):
+        states = [[1.0, 1.0, 0.0], [3.0, 1.0, 0.0], [5.0, 1.0, 0.0]]
+        goals = [[20.0, 1.0, 0.0]] * 3
+        if kinematics == "acker":
+            states = [[*state, 0.0] for state in states]
+            goals = [[*goal, 0.0] for goal in goals]
+        config = {
+            "world": {"width": 30, "height": 10, "step_time": 0.1},
+            "robot": {
+                "number": 3,
+                "kinematics": {"name": kinematics},
+                "shape": {"name": "circle", "radius": 0.1},
+                "state": states,
+                "goal": goals,
+                "behavior": {"name": "dash"} if behavior is None else behavior,
+            },
+            "obstacle": {
+                "number": 2,
+                "shape": {"name": "circle", "radius": 0.1},
+                "state": [[1.0, 5.0, 0.0], [3.0, 5.0, 0.0]],
+            },
+        }
+        path = tmp_path / "dispatch.yaml"
+        path.write_text(yaml.safe_dump(config), encoding="utf-8")
+        return env_factory(str(path), headless=True, seed=42, log_level="ERROR")
+
+    return make
+
+
+class TestNeighborDispatch:
+    """Neighbour-free kernels skip collection without changing plugin inputs."""
+
+    @staticmethod
+    def _forbid_neighbors(monkeypatch):
+        def unexpected_read(_obj):
+            pytest.fail("A neighbour-free behavior scanned the world")
+
+        monkeypatch.setattr(ObjectBase, "external_objects", property(unexpected_read))
+
+    @pytest.mark.parametrize("kinematics", ["diff", "omni", "omni_angular", "acker"])
+    def test_builtin_dash_does_not_scan_world(
+        self, dispatch_env, monkeypatch, kinematics
+    ):
+        env = dispatch_env(kinematics)
+        self._forbid_neighbors(monkeypatch)
+        env.step()
+        assert all(
+            robot.state[0, 0] > robot.init_state[0, 0] for robot in env.robot_list
+        )
+
+    @pytest.mark.parametrize("handler_kind", ["function", "class"])
+    @pytest.mark.parametrize("target_roles", ["all", "obstacle"])
+    def test_custom_dash_keeps_neighbors_and_sequential_observations(
+        self, dispatch_env, dispatch_registries, handler_kind, target_roles
+    ):
+        observed = []
+
+        def custom(ego_object, external_objects, **kwargs):
+            assert isinstance(external_objects, list)
+            observed.append(
+                (
+                    ego_object.id,
+                    [(obj.id, float(obj.state[0, 0])) for obj in external_objects],
+                )
+            )
+            return np.array([[0.2], [0.0]])
+
+        if handler_kind == "function":
+            behavior_registry.behaviors_map["diff", "dash"] = custom
+        else:
+
+            class CustomDash:
+                def __init__(self, object_info, **kwargs):
+                    pass
+
+                def __call__(self, **kwargs):
+                    return custom(**kwargs)
+
+            behavior_registry.behaviors_class_map["diff", "dash"] = CustomDash
+
+        env = dispatch_env(behavior={"name": "dash", "target_roles": target_roles})
+        env.step()
+        assert [ego_id for ego_id, _ in observed] == [0, 1, 2]
+        for ego_id, neighbors in observed:
+            expected = [
+                obj.id
+                for obj in env.objects
+                if obj.id != ego_id
+                and (target_roles == "all" or obj.role == target_roles)
+            ]
+            assert [object_id for object_id, _ in neighbors] == expected
+        if target_roles == "all":
+            assert dict(observed[0][1])[1] == 3.0
+            assert dict(observed[1][1])[0] == pytest.approx(1.02)
+
+    @pytest.mark.parametrize("handler_kind", ["function", "class", "factory"])
+    def test_custom_handler_can_explicitly_skip_neighbors(
+        self, dispatch_env, dispatch_registries, monkeypatch, handler_kind
+    ):
+        observed = []
+
+        def custom(ego_object, external_objects, **kwargs):
+            observed.append(external_objects)
+            return np.zeros((2, 1))
+
+        if handler_kind == "function":
+            behavior_registry.register_behavior(
+                "diff", "dispatch_without_neighbors", requires_neighbors=False
+            )(custom)
+        else:
+
+            class Custom:
+                __slots__ = ()
+
+                def __init__(self, object_info, **kwargs):
+                    pass
+
+                def __call__(self, **kwargs):
+                    return custom(**kwargs)
+
+            def factory(object_info, **kwargs):
+                return Custom(object_info, **kwargs)
+
+            behavior_registry.register_behavior_class(
+                "diff", "dispatch_without_neighbors", requires_neighbors=False
+            )(Custom if handler_kind == "class" else factory)
+
+        env = dispatch_env(behavior={"name": "dispatch_without_neighbors"})
+        self._forbid_neighbors(monkeypatch)
+        env.step()
+        assert observed == [[], [], []]
+
+    def test_replaced_neighbor_free_function_receives_neighbors(
+        self, dispatch_env, dispatch_registries
+    ):
+        key = ("diff", "dispatch_replaced")
+        observed = []
+
+        @behavior_registry.register_behavior(*key, requires_neighbors=False)
+        def original(ego_object, external_objects, **kwargs):
+            return np.zeros((2, 1))
+
+        env = dispatch_env(behavior={"name": key[1]})
+
+        def replacement(ego_object, external_objects, **kwargs):
+            observed.append([obj.id for obj in external_objects])
+            return np.zeros((2, 1))
+
+        behavior_registry.behaviors_map[key] = replacement
+        env.step()
+        assert observed == [[1, 2, 3, 4], [0, 2, 3, 4], [0, 1, 3, 4]]
+
+    def test_neighbor_requirement_belongs_to_registration(
+        self, dispatch_env, dispatch_registries
+    ):
+        observed = []
+
+        def shared(ego_object, external_objects, **kwargs):
+            observed.append(len(external_objects))
+            return np.zeros((2, 1))
+
+        behavior_registry.register_behavior(
+            "diff", "dispatch_independent", requires_neighbors=False
+        )(shared)
+        behavior_registry.register_behavior("diff", "dispatch_dependent")(shared)
+        env = dispatch_env(behavior={"name": "dispatch_independent"})
+        env.step()
+        for robot in env.robot_list:
+            robot.obj_behavior.behavior_dict["name"] = "dispatch_dependent"
+        env.step()
+        assert observed == [0, 0, 0, 4, 4, 4]
+
+    def test_class_requirement_follows_cached_instance_and_reload(
+        self, dispatch_env, dispatch_registries
+    ):
+        observed = []
+        key = ("diff", "dispatch_reloaded")
+
+        @behavior_registry.register_behavior_class(*key, requires_neighbors=False)
+        class Original:
+            def __init__(self, object_info, **kwargs):
+                pass
+
+            def __call__(self, ego_object, external_objects, **kwargs):
+                observed.append(("original", len(external_objects)))
+                return np.zeros((2, 1))
+
+        class Replacement:
+            def __init__(self, object_info, **kwargs):
+                pass
+
+            def __call__(self, ego_object, external_objects, **kwargs):
+                observed.append(("replacement", len(external_objects)))
+                return np.zeros((2, 1))
+
+        env = dispatch_env(behavior={"name": key[1]})
+        env.step()
+        behavior_registry.behaviors_class_map[key] = Replacement
+        env.step()
+        env.load_behavior("irsim.lib.behavior.behavior_methods")
+        env.step()
+        assert observed == [("original", 0)] * 6 + [("replacement", 4)] * 3
+
+    def test_failed_class_initialization_uses_function_requirement(
+        self, dispatch_env, dispatch_registries, monkeypatch
+    ):
+        def failing_class(object_info, **kwargs):
+            raise ValueError("Cannot initialize custom class")
+
+        behavior_registry.behaviors_class_map["diff", "dash"] = failing_class
+        env = dispatch_env()
+        self._forbid_neighbors(monkeypatch)
+        env.step()
+        assert env.robot.state[0, 0] > 1.0
 
 
 class TestBehavior:

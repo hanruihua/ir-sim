@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from irsim.util.util import find_object_by_identity, is_list_of_numbers
+from irsim.util.util import is_list_of_numbers
 
 
 def time_it(name: str = "Function") -> Any:
@@ -65,20 +65,40 @@ def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
     ``action_id`` is an object id (``obj.id``) or name, or a list of them. A
     single id (``None`` means the first object) selects ``count`` consecutive
     objects starting from it; an unknown id or name raises ``ValueError``.
+
+    Each required identity map is built at most once per call, so K targets
+    take O(N + K) work without retaining stale positions across object changes.
     """
+    if action_id is None:
+        return list(range(min(count, len(objects))))
+
+    id_positions: dict[int, int] | None = None
+    name_positions: dict[str, int] | None = None
 
     def position(key):
+        nonlocal id_positions, name_positions
         if isinstance(key, str):
-            obj = find_object_by_identity(objects, name=key)
+            if not key:
+                raise ValueError(f"no object with id or name {key!r}")
+            if name_positions is None:
+                name_positions = {}
+                for index, obj in enumerate(objects):
+                    name_positions.setdefault(obj.name, index)
+            found = name_positions.get(key)
         else:
-            obj = find_object_by_identity(objects, object_id=int(key))
-        if obj is None:
+            object_id = int(key)
+            if id_positions is None:
+                id_positions = {}
+                for index, obj in enumerate(objects):
+                    id_positions.setdefault(obj.id, index)
+            found = id_positions.get(object_id)
+        if found is None:
             raise ValueError(f"no object with id or name {key!r}")
-        return objects.index(obj)
+        return found
 
     if isinstance(action_id, list):
         return [position(i) for i in action_id]
-    start = 0 if action_id is None else position(action_id)
+    start = position(action_id)
     return list(range(start, min(start + count, len(objects))))
 
 

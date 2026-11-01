@@ -3,7 +3,12 @@ from typing import Any
 
 import numpy as np
 
-from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
+from irsim.lib.behavior.behavior_registry import (
+    behavior_class_neighbor_requirements,
+    behavior_neighbor_requirements,
+    behaviors_class_map,
+    behaviors_map,
+)
 from irsim.util.util import log_error
 
 
@@ -36,6 +41,27 @@ class Behavior:
 
         self._invoke_func = None
         self._init_behavior_class()
+
+    @property
+    def requires_neighbors(self) -> bool:
+        """Whether the active handler needs the live external-object list.
+
+        Undeclared handlers and registry replacements retain the original list.
+        Class capabilities follow the initialized instance; function capabilities
+        follow the current registration, just like function invocation does.
+        """
+        if callable(self._invoke_func):
+            return self._invoke_func is not self._neighbor_free_handler
+        key = (
+            getattr(self.object_info, "kinematics", None),
+            self.behavior_dict.get("name"),
+        )
+        requirement = behavior_neighbor_requirements.get(key)
+        return (
+            requirement is None
+            or requirement[0] is not behaviors_map.get(key)
+            or requirement[1]
+        )
 
     def gen_vel(self, ego_object, external_objects=None):
         """Generate a velocity for the agent based on configured behavior.
@@ -96,6 +122,8 @@ class Behavior:
         as None.
         """
 
+        self._neighbor_free_handler = None
+
         # Resolve keys safely
         kinematics = getattr(self.object_info, "kinematics", None)
         behavior_name = self.behavior_dict.get("name") if self.behavior_dict else None
@@ -113,6 +141,13 @@ class Behavior:
         try:
             # Instantiate class-based handler once
             self._invoke_func = init_cls(self.object_info, **self.behavior_dict)
+            requirement = behavior_class_neighbor_requirements.get(key)
+            if (
+                requirement is not None
+                and requirement[0] is init_cls
+                and not requirement[1]
+            ):
+                self._neighbor_free_handler = self._invoke_func
         except Exception as e:
             self._invoke_func = None
             # Use global logger as fallback since we don't have ego_object here
