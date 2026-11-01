@@ -5,7 +5,7 @@ from irsim.lib.behavior.behavior_registry import (
     group_behaviors_class_map,
     group_behaviors_map,
 )
-from irsim.util.util import log_error, log_warning_once
+from irsim.util.util import filter_by_role, log_error, log_warning_once
 from irsim.world.object_base import ObjectBase
 
 
@@ -15,6 +15,9 @@ class GroupBehavior:
 
     - If a class-based handler is registered, it is instantiated once and reused.
     - Otherwise, a function-based behavior is invoked each step.
+    - ``target_roles`` is read here, as :class:`~irsim.lib.behavior.behavior.Behavior`
+      does for one object: the handler receives the outside objects it selects,
+      the obstacles unless set, as ``external_objects`` (:attr:`target_objects`).
     """
 
     def __init__(self, members: list[ObjectBase], **behavior_dict: Any) -> None:
@@ -35,6 +38,7 @@ class GroupBehavior:
         self.behavior_dict = behavior_dict or {}
         self.kinematics: str | None = members[0].kinematics if members else None
         self.name: str | None = self.behavior_dict.get("name")
+        self.target_roles: str = self.behavior_dict.get("target_roles", "obstacle")
 
         self.load_group_behaviors()
         self._invoke_func = None
@@ -72,6 +76,22 @@ class GroupBehavior:
         """
         self.members = members
 
+    @property
+    def target_objects(self) -> list[ObjectBase]:
+        """The objects outside the group that ``target_roles`` selects.
+
+        Handed to the handler as ``external_objects`` every step: what
+        :attr:`ObjectBase.external_objects` is for one object, with the
+        members left out and the role filter applied.
+        """
+        if not self.members:
+            return []
+        member_ids = {id(m) for m in self.members}
+        outside = [
+            obj for obj in self.members[0].external_objects if id(obj) not in member_ids
+        ]
+        return filter_by_role(outside, self.target_roles)
+
     def _no_actions(self) -> list[None]:
         """One ``None`` per member, so the result stays aligned with ``members``."""
         return [None] * len(self.members)
@@ -88,6 +108,10 @@ class GroupBehavior:
         Behavior:
             - Uses a class-based handler if one was registered and initialized.
             - Otherwise looks up a function behavior in the registry.
+            - Either one is called with the members and, as the keyword
+              ``external_objects``, the outside objects ``target_roles``
+              selects (:attr:`target_objects`); a handler written as
+              ``(members, **kwargs)`` keeps working.
             - If no behavior is configured, returns ``None`` for every member
               and logs a warning periodically in auto mode.
         """
@@ -108,7 +132,11 @@ class GroupBehavior:
 
         # Prefer class-based handler if initialized
         if callable(self._invoke_func):
-            return self._invoke_func(self.members, **self.behavior_dict)
+            return self._invoke_func(
+                self.members,
+                external_objects=self.target_objects,
+                **self.behavior_dict,
+            )
 
         # Fallback to function-based behavior
         key = (self.kinematics, self.name)
@@ -119,7 +147,9 @@ class GroupBehavior:
                 f"and action '{self.name}'."
             )
             return self._no_actions()
-        return func(self.members, **self.behavior_dict)
+        return func(
+            self.members, external_objects=self.target_objects, **self.behavior_dict
+        )
 
     def load_group_behaviors(self, group_behaviors: str = ".group_behavior_methods"):
         """Dynamically import user/group behavior methods.

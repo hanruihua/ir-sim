@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 
 from irsim.lib.behavior.behavior_registry import behaviors_class_map, behaviors_map
-from irsim.util.util import log_error
+from irsim.util.util import filter_by_role, log_error
 
 
 class Behavior:
@@ -64,12 +64,9 @@ class Behavior:
             action_dim = ego_object.kf.action_dim if ego_object is not None else 2
             return np.zeros((action_dim, 1))
 
-        target_roles = self.behavior_dict.get("target_roles", "all")
-
-        if target_roles in ("robot", "obstacle"):
-            external_objects = [
-                obj for obj in external_objects if obj.role == target_roles
-            ]
+        external_objects = filter_by_role(
+            external_objects, self.behavior_dict.get("target_roles", "all")
+        )
 
         # Prefer class-based behavior when registered
         if callable(self._invoke_func):
