@@ -128,6 +128,44 @@ class ObstacleMap(ObjectBase):
             self.world_offset,
         )
 
+    def occupied_polygons(self) -> list:
+        """The occupied region of the grid as polygons in world coordinates.
+
+        The occupied cells (above ``OCCUPANCY_THRESHOLD``, the rule collision
+        detection uses) are unioned, so walls that touch only at a corner stay
+        connected and the free pockets they enclose become holes. Each polygon
+        is simplified to half a cell, which straightens the staircase of a
+        diagonal wall, and then grown by the same half cell (a hole shrinks by
+        as much), so the true wall always lies inside the returned polygons.
+        This is the form a planner such as ORCA takes the map in.
+
+        Returns:
+            list: Shapely polygons, empty when the map has no grid or no
+            occupied cell.
+        """
+        if self.grid_map is None:
+            return []
+        grid = np.asarray(self.grid_map, dtype=float)
+        reso = np.asarray(self.grid_reso, dtype=float).ravel()
+        rx, ry = float(reso[0]), float(reso[-1])
+        ox, oy = float(self.world_offset[0]), float(self.world_offset[1])
+        occupied = np.argwhere(grid > OCCUPANCY_THRESHOLD)
+        if len(occupied) == 0:
+            return []
+        i, j = occupied[:, 0], occupied[:, 1]
+        cells = shapely.box(
+            ox + i * rx, oy + j * ry, ox + (i + 1) * rx, oy + (j + 1) * ry
+        )
+        tolerance = 0.5 * max(rx, ry)
+        solid = (
+            shapely.coverage_union_all(cells)
+            .simplify(tolerance)
+            .buffer(tolerance, join_style="mitre", mitre_limit=2.0)
+        )
+        # one connected region comes back as a Polygon, several as a MultiPolygon
+        parts = solid.geoms if solid.geom_type == "MultiPolygon" else [solid]
+        return [part for part in parts if not part.is_empty]
+
     def is_collision(self, geometry) -> bool:
         """Check collision against grid (if present) and map geometry."""
         if self.grid_map is not None and self.check_grid_collision(geometry):

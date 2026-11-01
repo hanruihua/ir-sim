@@ -239,6 +239,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">timeHorizonObst</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">10.0</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">safe_radius</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">0.1</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">maxSpeed</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">falls back to vel_max</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"obstacle"</span><span class="yt-desc">all | robot | obstacle</span></div>
         </div>
         <div class="yt-utabpanel">
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">vmax</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">1.5</span><span class="yt-desc">speed cap after force integration</span></div>
@@ -259,7 +260,7 @@ In a combined configuration for multiple simulators, these keys may be nested un
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">group_repulsion_threshold</a><span class="yt-type yt-t-mix"><b class="yt-pill">float/null</b></span><span class="yt-def">null</span><span class="yt-desc">repel below this centre distance; null = sum of radii</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">force_factor_gaze</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">3.0</span><span class="yt-desc">brake when the group leaves the field of view</span></div>
           <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">gaze_vision_angle</a><span class="yt-type yt-t-num"><b class="yt-pill">float</b></span><span class="yt-def">90.0</span><span class="yt-desc">field-of-view half-angle (deg)</span></div>
-          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"all"</span><span class="yt-desc">all | robot | obstacle</span></div>
+          <div class="yt-leaf"><a class="yt-key" href="#p-o-group-behavior">target_roles</a><span class="yt-type yt-t-str"><b class="yt-pill">str</b></span><span class="yt-def">"obstacle"</span><span class="yt-desc">all | robot | obstacle</span></div>
         </div>
       </div>
     </div>
@@ -1279,7 +1280,7 @@ env.step(env.robot.vel_world2body(world_vel))
 : Group-level behavior for all objects within the same group. This is more efficient for coordinated behaviors (like swarm or crowd simulation) as it computes actions for all members in a single step. Must include `name` plus behavior-specific parameters.
 
   **Options:**
-  - `'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used.
+  - `'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used. Members avoid each other and the outside objects `target_roles` selects, the obstacles by default: static ones (`timeHorizonObst` sets how far ahead they are considered) and moving ones.
     - `wander` (bool/`False`): Whether to add random wandering to the movement. If `True`, the object will have a random goal when reach current goal.
     - `range_low`(list/`[0, 0, -3.14]`): Lower bounds for random wandering.
     - `range_high`(list/`[10, 10, 3.14]`): Upper bounds for random wandering.
@@ -1289,6 +1290,7 @@ env.step(env.robot.vel_world2body(world_vel))
     - `timeHorizonObst` (float/`10.0`): Time horizon for computing safe velocities with respect to static obstacles.
     - `safe_radius` (float/`0.1`): Additional safety radius padding.
     - `maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. It is never above the fastest speed a member can hold in every direction (the smaller `vel_max` component for `omni`, the linear limit for `diff`), which is also the default when `None`.
+    - `target_roles` (str/`'obstacle'`): Which outside objects members avoid: `'all'`, `'robot'` or `'obstacle'`; `'all'` makes the crowd give way to robots too.
 
     **Example:**
     ```yaml
@@ -1308,7 +1310,7 @@ env.step(env.robot.vel_world2body(world_vel))
     - `group_repulsion_threshold` (float/`None`): Centre distance below which members repel; `None` uses the sum of their radii.
     - `force_factor_gaze` (float/`3.0`): Weight of the brake applied when the other members leave the field of view.
     - `gaze_vision_angle` (float/`90.0`): Half-angle in degrees of the field of view around the walking direction.
-    - `target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`.
+    - `target_roles` (str/`'obstacle'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`.
 
     **Example:**
     ```yaml

@@ -699,8 +699,6 @@ class ObjectBase:
 
         if self.static or self.stop_flag:
             self._velocity = np.zeros(self.vel_shape)
-            # velocity just got zeroed; invalidate per-tick caches so
-            # other agents don't perceive a stopped object as still moving.
             self._invalidate_reactive_cache()
             return self.state
         self.pre_process()
@@ -712,15 +710,7 @@ class ObjectBase:
         self._state = next_state
         self._velocity = drive_vel
         self._geometry = self.gf.step(self.state)
-        # a rigid transform with finite parameters keeps a valid shape valid
         self._geometry_valid = self._shape_valid and bool(np.isfinite(next_state).all())
-        # state/velocity/geometry changed; invalidate per-tick caches
-        # used by reactive behaviors (SFM/RVO read these once per
-        # neighbour). Non-static linestring objects have their vertices
-        # re-transformed by ``gf.step(state)`` above, so the segment
-        # cache must drop too; static objects skip this whole method
-        # (early-return at top), so their segment cache remains valid
-        # for the lifetime of the env.
         self._invalidate_reactive_cache()
 
         if sensor_step:

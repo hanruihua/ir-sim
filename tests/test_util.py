@@ -859,6 +859,18 @@ def test_find_object_by_identity():
     assert util.find_object_by_identity(objects) is None
 
 
+def test_filter_by_role():
+    """One filter serves the per-object Behavior and the GroupBehavior facade."""
+    robot = SimpleNamespace(role="robot")
+    obstacle = SimpleNamespace(role="obstacle")
+    objects = [robot, obstacle]
+
+    assert util.filter_by_role(objects, "all") is objects
+    assert util.filter_by_role(objects, "robot") == [robot]
+    assert util.filter_by_role(objects, "obstacle") == [obstacle]
+    assert util.filter_by_role([], "robot") == []
+
+
 def _target(name, object_id):
     return SimpleNamespace(name=name, id=object_id)
 

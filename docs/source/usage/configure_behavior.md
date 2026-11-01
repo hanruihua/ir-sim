@@ -259,6 +259,8 @@ ORCA is a classical built-in group-level collision avoidance algorithm that comp
 
 ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way.
 
+ORCA also avoids the objects around the group that `target_roles` selects, the obstacles by default. Static ones, such as `linestring`, polygon and circle obstacles and the grid map, enter the pyrvo simulator as obstacles when the group first moves and again whenever the surroundings change, and `timeHorizonObst` sets how far ahead they are considered; moving ones, such as dynamic obstacles, are tracked as agents every step. Set `target_roles: 'all'` to make the crowd give way to a robot crossing it as well. ORCA is a local method, so give members waypoints with a clear line of sight rather than one goal behind a wall. See `usage/19orca_world/orca_obstacle_world` for an example in a perlin map with patrolling obstacles.
+
 :::{note}
 ORCA requires the `pyrvo` library, which is a python binding for the ORCA C++ algorithm. Install it using:
 ```bash
@@ -345,6 +347,7 @@ robot:
 | `timeHorizonObst` | `float` | `10.0` | Time horizon for agent-obstacle collision avoidance (seconds) |
 | `safe_radius` | `float` | `0.1` | Additional safety margin added to agent radius |
 | `maxSpeed` | `float` | `None` | Speed cap of each agent and the speed it heads for its goal at; never above the fastest speed the robot can hold in every direction (smaller `vel_max` component for `omni`, linear limit for `diff`), which is the default |
+| `target_roles` | `str` | `'obstacle'` | Which outside objects members avoid: `'all'`, `'robot'` or `'obstacle'` |
 | `wander` | `bool` | `False` | Generate random goals when current goal is reached |
 | `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 | `range_low` | `list` | - | Lower bounds for random goal generation `[x, y, theta]` |
@@ -450,7 +453,7 @@ Use `group_behavior` in YAML for most cases as it handles initialization automat
 - **Vectorized.** The pairwise social force is one NumPy pass over all member pairs instead of a Python loop per member, so large crowds stay cheap.
 - **Social groups.** `social_groups` optionally partitions the members into pedestrians walking together, which adds the three group forces of Moussaid et al. (2010): a *coherence* pull toward the group's centre of mass, an intra-group *repulsion* once two members' discs touch, and a *gaze* brake that slows a member down when the rest of the group leaves its field of view.
 
-Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles`, `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours.
+Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles` selects those outside objects, the obstacles by default; `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours.
 
 The batched evaluation and the social-group forces follow [PySocialForce](https://github.com/yuxiang-gao/PySocialForce), a NumPy implementation of the extended social force model, using the force definitions of [pedsim_ros](https://github.com/srl-freiburg/pedsim_ros).
 
@@ -569,7 +572,7 @@ All per-object SFM parameters (`vmax`, `neighbor_threshold`, `relaxation_time`, 
 | `group_repulsion_threshold` | `float` | `None` | Centre-to-centre distance below which two members repel each other. `None` uses the sum of their radii, so members push apart as soon as their discs touch |
 | `force_factor_gaze` | `float` | `3.0` | Weight of the brake `-alpha * v` applied when the other members' centre of mass leaves the field of view; `alpha` is the missing head rotation in radians |
 | `gaze_vision_angle` | `float` | `90.0` | Half-angle, in degrees, of the field of view around the walking direction |
-| `target_roles` | `str` | `'all'` | Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'` |
+| `target_roles` | `str` | `'obstacle'` | Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'` |
 | `wander` | `bool` | `False` | Generate random goals when the current goal is reached |
 | `loop` | `bool` | `False` | Loop through waypoints continuously when reaching the last goal |
 
@@ -811,6 +814,7 @@ def beh_omni_swarm(members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]
 - Use `@register_group_behavior` for simple stateless behaviors
 - The first argument is the kinematics type (`'omni'`, `'omni_angular'`, `'diff'`, `'acker'`)
 - The second argument is the behavior name used in YAML `group_behavior: {name: 'your_name'}`
+- Besides `members`, the handler receives `external_objects`: the objects outside the group that `target_roles` selects (`'obstacle'` by default), filtered as the `external_objects` of a per-object behavior are
 :::
 
 

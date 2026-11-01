@@ -21,6 +21,7 @@ import numpy as np
 import pytest
 from shapely.geometry import MultiLineString, Point, box
 from shapely.geometry import Point as ShapelyPoint
+from shapely.ops import unary_union
 
 from irsim.world import map as world_map_module
 from irsim.world.map import (
@@ -1329,6 +1330,68 @@ class TestObstacleMapGridInit:
         )
 
         assert obstacle_map.world_offset == [5.0, 10.0]
+
+
+def _grid_obstacle_map(values, reso=(1.0, 1.0)):
+    """An ObstacleMap over a grid given in percent, as image maps store it."""
+    points = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+    return ObstacleMap(
+        shape={"name": "map", "reso": 0.1, "points": points},
+        grid_map=np.asarray(values, dtype=float),
+        grid_reso=np.array([[reso[0]], [reso[1]]]),
+        world_offset=[0.0, 0.0],
+    )
+
+
+class TestOccupiedPolygons:
+    """ObstacleMap.occupied_polygons: the occupied grid region as polygons."""
+
+    def test_cells_touching_at_a_corner_are_all_walled(self):
+        grid = np.zeros((5, 5))
+        grid[1, 1] = grid[2, 2] = grid[3, 3] = 100
+        solid = unary_union(_grid_obstacle_map(grid).occupied_polygons())
+        assert all(solid.contains(Point(i + 0.5, i + 0.5)) for i in (1, 2, 3))
+
+    def test_free_pocket_is_a_hole_shrunk_by_half_a_cell(self):
+        grid = np.full((7, 7), 100.0)
+        grid[1:-1, 1:-1] = 0  # a room inside one-cell walls
+        solid = unary_union(_grid_obstacle_map(grid).occupied_polygons())
+        assert not solid.contains(Point(3.5, 3.5))  # the room stays free
+        assert solid.contains(Point(1.25, 3.5))  # the wall face moved half a cell in
+        assert not solid.contains(Point(1.75, 3.5))
+
+    def test_separate_blobs_come_back_as_separate_polygons(self):
+        grid = np.zeros((6, 6))
+        grid[0, 0] = grid[4, 4] = 100
+        parts = _grid_obstacle_map(grid).occupied_polygons()
+        assert len(parts) == 2
+        assert all(part.geom_type == "Polygon" for part in parts)
+
+    def test_anisotropic_cells_keep_a_thin_wall(self):
+        grid = np.zeros((20, 20))
+        grid[5:15, 10] = 100  # one cell thick
+        solid = unary_union(
+            _grid_obstacle_map(grid, reso=(0.05, 0.01)).occupied_polygons()
+        )
+        assert all(
+            solid.contains(Point((i + 0.5) * 0.05, 10.5 * 0.01)) for i in range(5, 15)
+        )
+
+    def test_occupancy_threshold_matches_collision_detection(self):
+        grid = np.zeros((3, 3))
+        grid[1, 1], grid[0, 0] = 60, 40  # grid_collision_geometry: occupied above 50
+        solid = unary_union(_grid_obstacle_map(grid).occupied_polygons())
+        assert solid.contains(Point(1.5, 1.5))
+        assert not solid.contains(Point(0.5, 0.5))
+
+    @pytest.mark.parametrize("grid", [np.zeros((0, 0)), np.zeros((4, 4))])
+    def test_no_occupied_cells_gives_nothing(self, grid):
+        assert _grid_obstacle_map(grid).occupied_polygons() == []
+
+    def test_no_grid_gives_nothing(self):
+        points = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])
+        gridless = ObstacleMap(shape={"name": "map", "reso": 0.1, "points": points})
+        assert gridless.occupied_polygons() == []
 
 
 class TestCheckGridCollision:

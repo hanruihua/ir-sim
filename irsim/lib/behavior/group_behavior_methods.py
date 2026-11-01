@@ -1,7 +1,10 @@
+from collections.abc import Sequence
+from itertools import pairwise
 from math import cos, sin
 from typing import Any
 
 import numpy as np
+from shapely.geometry.polygon import orient
 
 from irsim.lib.algorithm.social_force_model import SocialForceModelBatch
 from irsim.lib.behavior.behavior_registry import register_group_behavior_class
@@ -33,7 +36,19 @@ class OrcaGroupBehavior:
     ORCA plans a collision-free holonomic velocity ``(vx, vy)`` in the world
     frame for every member. ``omni`` members have it rotated into their body
     frame; ``diff`` members map it to a ``(linear, angular)`` command via
-    :func:`vel_world2diff`.
+    :func:`vel_world2diff`. The objects outside the group that
+    ``target_roles`` selects, handed in as ``external_objects`` by
+    :class:`~irsim.lib.behavior.group_behavior.GroupBehavior`, are avoided
+    too: the obstacles by default, so a crowd does not make way for a robot
+    crossing it, every outside object with ``target_roles: 'all'``. Static
+    ones (walls, polygon and circle obstacles, the grid map) are obstacles to
+    the simulator, added from their geometry when the group first moves
+    (:meth:`_add_obstacles`) and again whenever the surroundings change
+    (:meth:`_scene`); ``timeHorizonObst`` sets how far ahead they are
+    considered. Moving ones (dynamic obstacles, and robots when selected) are
+    agents of the simulator (:meth:`_moving_objects`): their position and
+    velocity are fed in every step, so members avoid them as they avoid each
+    other, and the velocity the simulator plans for them is discarded.
     """
 
     def __init__(
@@ -54,7 +69,9 @@ class OrcaGroupBehavior:
         self._safe_radius = safe_radius
         self._maxSpeed = maxSpeed
         self._kinematics = members[0].kinematics if members else None
-        self._sim = self._build_sim(members, **kwargs)
+        self._ensure_pyrvo()
+        self._sim = None
+        self._loaded = None  # the scene the simulator was built for (:meth:`_scene`)
 
     def _ensure_pyrvo(self):
         try:
@@ -66,12 +83,12 @@ class OrcaGroupBehavior:
                 "pyrvo is not installed. Please install it using `pip install pyrvo`."
             ) from e
 
-    def _build_sim(self, members: list[ObjectBase], **kwargs: Any):
+    def _build_sim(self, members: list[ObjectBase], moving: Sequence[ObjectBase] = ()):
         """
-        Add members to the simulator.
+        Add the members and the moving objects around them to the simulator.
         Args:
             members: the members of the group
-            kwargs: the keyword arguments
+            moving: the objects outside the group that move (:meth:`_moving_objects`)
         Returns:
             pyrvo.RVOSimulator: the simulator
         """
@@ -94,7 +111,96 @@ class OrcaGroupBehavior:
                 agent_max_speed,
             )
 
+        for obj in moving:
+            # seen by the members but never planned for: no neighbors of its own
+            sim.add_agent(
+                obj.state[:2, 0].tolist(),
+                self._neighborDist,
+                0,
+                self._timeHorizon,
+                self._timeHorizonObst,
+                float(obj.radius + self._safe_radius),
+                float(obj.max_speed),
+            )
+
         return sim
+
+    @staticmethod
+    def _moving_objects(outside: Sequence[ObjectBase]) -> list[ObjectBase]:
+        """The outside objects that move.
+
+        They are agents of the simulator (:meth:`_build_sim`) placed at their
+        position and velocity in the scene every step (:meth:`__call__`), so
+        the members avoid them; what the simulator plans for them is ignored.
+        """
+        return [obj for obj in outside if not obj.static]
+
+    @staticmethod
+    def _scene(
+        members: list[ObjectBase],
+        moving: Sequence[ObjectBase],
+        outside: Sequence[ObjectBase],
+    ) -> tuple:
+        """What the simulator holds: the agents in order, the static objects in place.
+
+        The simulator is built again when this changes (:meth:`__call__`):
+        an agent came, went or was replaced by another object, or a static
+        object was added, removed or moved.
+        """
+        agents = tuple(obj.id for obj in (*members, *moving))
+        walls = tuple((obj.id, obj.state.tobytes()) for obj in outside if obj.static)
+        return agents, walls
+
+    def _add_obstacles(self, outside: Sequence[ObjectBase]) -> int:
+        """Hand the static outside objects to the simulator.
+
+        Every static object among ``outside`` enters pyrvo through its
+        geometry: a polygon (circle, rectangle and
+        polygon obstacles) as its outer ring in counter-clockwise order plus
+        one clockwise ring per hole, a line (linestring obstacles) as one
+        two-vertex obstacle per segment, which pyrvo treats as a wall facing
+        both ways. The grid map enters as its occupied region
+        (:meth:`~irsim.world.map.obstacle_map.ObstacleMap.occupied_polygons`),
+        polygons whose holes are the free pockets;
+        a map without a grid enters through its geometry like any other
+        object. Moving objects are agents instead (:meth:`_moving_objects`).
+
+        Args:
+            outside: the objects outside the group (:meth:`__call__`)
+
+        Returns:
+            int: the number of obstacles added
+        """
+        count = 0
+        for obj in outside:
+            if not obj.static:
+                continue
+            if obj.shape == "map" and obj.grid_map is not None:
+                parts = obj.occupied_polygons()
+            else:
+                parts = list(getattr(obj.geometry, "geoms", [obj.geometry]))
+            for part in parts:
+                if part.geom_type == "Polygon":
+                    # pyrvo: a solid is counter-clockwise, the pocket it bounds clockwise
+                    oriented = orient(part, sign=1.0)
+                    for ring in (oriented.exterior, *oriented.interiors):
+                        coords = [
+                            [float(x), float(y)]
+                            for x, y in ring.simplify(0).coords[:-1]
+                        ]
+                        if len(coords) >= 2:
+                            self._sim.add_obstacle(coords)
+                            count += 1
+                elif part.geom_type in ("LineString", "LinearRing"):
+                    coords = list(part.simplify(0).coords)
+                    for (x1, y1), (x2, y2) in pairwise(coords):
+                        self._sim.add_obstacle(
+                            [[float(x1), float(y1)], [float(x2), float(y2)]]
+                        )
+                        count += 1
+        if count:
+            self._sim.process_obstacles()
+        return count
 
     @staticmethod
     def _realizable_speed(member: ObjectBase) -> float:
@@ -162,12 +268,20 @@ class OrcaGroupBehavior:
 
         return np.c_[list(vel_xy)]
 
-    def __call__(self, members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:
+    def __call__(
+        self,
+        members: list[ObjectBase],
+        external_objects: Sequence[ObjectBase] = (),
+        **kwargs: Any,
+    ) -> list[np.ndarray]:
         """
         Generate the velocity for the group.
         Args:
             members: the members of the group
-            kwargs: the keyword arguments
+            external_objects: the objects outside the group that
+                ``target_roles`` selects, gathered by
+                :class:`~irsim.lib.behavior.group_behavior.GroupBehavior`
+            kwargs: unused; the parameters are fixed at construction
         Returns:
             list[np.ndarray]: the velocities of the members
         """
@@ -177,22 +291,30 @@ class OrcaGroupBehavior:
         if members:
             self._kinematics = members[0].kinematics
 
-        # If agent count mismatches, rebuild
-        try:
-            if self._sim.get_num_agents() != len(members):
-                self._sim = self._build_sim(members, **kwargs)
-        except Exception:
-            self._sim = self._build_sim(members, **kwargs)
+        # Start over when the surroundings changed: an agent came, went or was
+        # replaced, or a static object was added, removed or moved
+        moving = self._moving_objects(external_objects)
+        scene = self._scene(members, moving, external_objects)
+        if scene != self._loaded:
+            self._sim = self._build_sim(members, moving)
+            self._add_obstacles(external_objects)
+            self._loaded = scene
 
         for i, member in enumerate(members):
             self._sim.set_agent_pref_velocity(i, self._pref_velocity(member))
             self._sim.set_agent_position(i, member.state[:2, 0].tolist())
 
+        for i, obj in enumerate(moving, start=len(members)):
+            velocity = obj.velocity_xy[:2, 0].tolist()
+            self._sim.set_agent_position(i, obj.state[:2, 0].tolist())
+            self._sim.set_agent_velocity(i, velocity)
+            self._sim.set_agent_pref_velocity(i, velocity)
+
         self._sim.do_step()
 
         return [
-            self._to_action(members[i], self._sim.get_agent_velocity(i).to_tuple())
-            for i in range(self._sim.get_num_agents())
+            self._to_action(member, self._sim.get_agent_velocity(i).to_tuple())
+            for i, member in enumerate(members)
         ]
 
 
@@ -227,8 +349,9 @@ class SfmGroupBehavior:
 
     Objects outside the group still take part: linestring obstacles enter as
     walls, every other object as a circular neighbour that pushes members
-    but is not moved by them. ``target_roles`` filters those outside objects
-    exactly as it does for the per-object behavior.
+    but is not moved by them. They are the ``external_objects`` that
+    :class:`~irsim.lib.behavior.group_behavior.GroupBehavior` hands in, the
+    ones ``target_roles`` selects, the obstacles by default.
 
     ``social_groups`` optionally partitions the members into pedestrians
     walking together (Moussaid et al. 2010): those receive coherence,
@@ -262,11 +385,9 @@ class SfmGroupBehavior:
         group_repulsion_threshold: float | None = None,
         force_factor_gaze: float = 3.0,
         gaze_vision_angle: float = 90.0,
-        target_roles: str = "all",
         **kwargs: Any,
     ) -> None:
         self._vmax = float(vmax)
-        self._target_roles = target_roles
         self._kinematics = members[0].kinematics if members else None
         self._step_time = members[0]._world_param.step_time if members else 0.1
         self._sfm = SocialForceModelBatch(
@@ -298,16 +419,21 @@ class SfmGroupBehavior:
         return self._sfm
 
     def _collect_inputs(
-        self, members: list[ObjectBase]
+        self, members: list[ObjectBase], external_objects: Sequence[ObjectBase] = ()
     ) -> tuple[np.ndarray, list[list[float]], list[list[float]]]:
         """Snapshot member states and the outside objects they react to.
+
+        Args:
+            members: the members of the group
+            external_objects: the objects outside the group (:meth:`__call__`)
 
         Returns:
             tuple: ``(states, circles, segments)`` where ``states`` is the
             ``(N, 8)`` member array with the desired velocity renormalised to
             ``vmax`` along the goal bearing (``rvo_state`` scales it by the
             kinematics-specific ``vel_max``), ``circles`` the neighbour
-            states of non-member objects and ``segments`` the line obstacles.
+            states of the outside objects and ``segments`` their line
+            obstacles.
         """
         states = np.array([m.rvo_state for m in members], dtype=float).reshape(-1, 8)
         v_des = states[:, 5:7]
@@ -317,17 +443,7 @@ class SfmGroupBehavior:
 
         circles: list[list[float]] = []
         segments: list[list[float]] = []
-        if not members:
-            return states, circles, segments
-
-        member_ids = {id(m) for m in members}
-        externals = [
-            obj for obj in members[0].external_objects if id(obj) not in member_ids
-        ]
-        if self._target_roles in ("robot", "obstacle"):
-            externals = [obj for obj in externals if obj.role == self._target_roles]
-
-        for obj in externals:
+        for obj in external_objects:
             segs = obj.rvo_line_segments
             if segs:
                 segments.extend(segs)
@@ -357,12 +473,20 @@ class SfmGroupBehavior:
 
         return np.array([[vx], [vy]])
 
-    def __call__(self, members: list[ObjectBase], **kwargs: Any) -> list[np.ndarray]:
+    def __call__(
+        self,
+        members: list[ObjectBase],
+        external_objects: Sequence[ObjectBase] = (),
+        **kwargs: Any,
+    ) -> list[np.ndarray]:
         """
         Generate the velocity for every member from one shared snapshot.
 
         Args:
             members: the members of the group
+            external_objects: the objects outside the group that
+                ``target_roles`` selects, gathered by
+                :class:`~irsim.lib.behavior.group_behavior.GroupBehavior`
             kwargs: unused; the parameters are fixed at construction
 
         Returns:
@@ -371,7 +495,7 @@ class SfmGroupBehavior:
         if members:
             self._kinematics = members[0].kinematics
 
-        states, circles, segments = self._collect_inputs(members)
+        states, circles, segments = self._collect_inputs(members, external_objects)
         self._sfm.update(states, circles, segments)
         vel = self._sfm.cal_vel()
 

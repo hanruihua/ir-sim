@@ -75,8 +75,9 @@ cd docs && make html
   - `omni_angular`: `dash`
   - `acker`: `dash`
 - Group behaviors in `group_behavior.py` and `group_behavior_methods.py`:
-  - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package
+  - `orca` (optimal reciprocal collision avoidance) - requires `pyrvo` package; static outside objects enter pyrvo as obstacles, moving ones as agents
   - `sfm` (vectorized social force model stepping all members from one snapshot, with optional Moussaid 2010 social groups: coherence, repulsion, gaze)
+- `target_roles` (`all` | `robot` | `obstacle`) is applied by the facades only, through `irsim.util.util.filter_by_role`: `Behavior.gen_vel` for one object, `GroupBehavior.target_objects` for a group. Handlers receive the selected objects as `external_objects` (group handlers as a keyword, so `(members, **kwargs)` still works) and never filter by role themselves; the facades hold the only defaults, `'all'` for one object and `'obstacle'` for a group, and the YAML overrides them
 - SFM algorithm implementation: `irsim/lib/algorithm/social_force_model.py` (anisotropic Moussaid-Helbing 2009 variant; `social_force_model` per agent, `SocialForceModelBatch` for a whole crowd)
 
 **Contact / Physics** (`irsim/lib/algorithm/contact.py`):
@@ -100,7 +101,7 @@ cd docs && make html
 - `sensor_factory.py`: Factory for sensor instantiation
 
 **Map** (`irsim/world/map/`):
-- `obstacle_map.py`: Obstacle map representation
+- `obstacle_map.py`: Obstacle map representation; `ObstacleMap.occupied_polygons()` returns the occupied grid cells as polygons (union, simplified and grown by half a cell, free pockets as holes), the form ORCA hands to pyrvo
 - `fog_map.py`: Fog-of-map overlay (`FogMap`, subclass of `Map`) revealed by lidar line of sight or robot field of view
 - `grid_map_generator_base.py`: Base grid map generator
 - `image_map_generator.py`: Image-based map generation
@@ -140,7 +141,7 @@ irsim/                  # Main package
 ├── util/               # Utility functions
 └── config/             # Configuration parameters
 
-tests/                  # Pytest test suite (16 test files)
+tests/                  # Pytest test suite (17 test files)
 usage/                  # Example YAML configs and scripts (26 examples)
 docs/                   # Sphinx documentation (multilingual: en, zh_CN)
 ```

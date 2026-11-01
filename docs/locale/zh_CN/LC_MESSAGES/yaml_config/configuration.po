@@ -1942,13 +1942,8 @@ msgid ""
 msgstr "同组内所有对象的群体行为。对于协同行为（如群体或人群仿真）更高效，因为它在单步中为所有成员计算动作。必须包含 `name` 及行为特定参数。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1199
-msgid ""
-"`'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent "
-"navigation. Requires `pyrvo` package (`pip install pyrvo`). The "
-"simulation will attempt to import it only when this behavior is used."
-msgstr ""
-"`'orca'`：用于多智能体导航的最优互惠碰撞避免（ORCA）。需要 `pyrvo` 包（`pip install "
-"pyrvo`）。仅在使用该行为时仿真才会尝试导入它。"
+msgid "`'orca'`: Optimal Reciprocal Collision Avoidance (ORCA) for multi-agent navigation. Requires `pyrvo` package (`pip install pyrvo`). The simulation will attempt to import it only when this behavior is used. Members avoid each other and the outside objects `target_roles` selects, the obstacles by default: static ones (`timeHorizonObst` sets how far ahead they are considered) and moving ones."
+msgstr "`'orca'`：用于多智能体导航的最优互惠碰撞避免（ORCA）。需要 `pyrvo` 包（`pip install pyrvo`）。仅在使用该行为时仿真才会尝试导入它。成员会避开彼此以及群组外由 `target_roles` 选定的对象（默认为障碍物）：静态对象（`timeHorizonObst` 设置向前考虑它们的时间范围）和移动的对象。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1203
 msgid "`neighborDist` (float/`15.0`): Max distance to search for neighbors."
@@ -1977,6 +1972,10 @@ msgstr "`safe_radius`（float/`0.1`）：额外的安全半径填充。"
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1208
 msgid "`maxSpeed` (float/`None`): Speed cap of the agents; members head for their goals at this speed. It is never above the fastest speed a member can hold in every direction (the smaller `vel_max` component for `omni`, the linear limit for `diff`), which is also the default when `None`."
 msgstr "`maxSpeed`（float/`None`）：智能体的速度上限，成员以该速度朝目标行进。它不会超过成员在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），`None` 时即采用该速度。"
+
+#: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1209
+msgid "`target_roles` (str/`'obstacle'`): Which outside objects members avoid: `'all'`, `'robot'` or `'obstacle'`; `'all'` makes the crowd give way to robots too."
+msgstr "`target_roles`（str/`'obstacle'`）：成员避让哪些外部对象：`'all'`、`'robot'` 或 `'obstacle'`；`'all'` 可让群组也为机器人让路。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1222
 msgid ""
@@ -3121,8 +3120,8 @@ msgid "`gaze_vision_angle` (float/`90.0`): Half-angle in degrees of the field of
 msgstr "`gaze_vision_angle`（float/`90.0`）：以行走方向为中心的视野半角（度）。"
 
 #: ../../../../../../../Users/han/tech/ir-sim/docs/source/yaml_config/configuration.md:1218
-msgid "`target_roles` (str/`'all'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`."
-msgstr "`target_roles`（str/`'all'`）：成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`。"
+msgid "`target_roles` (str/`'obstacle'`): Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`."
+msgstr "`target_roles`（str/`'obstacle'`）：成员对哪些外部对象作出反应：`'all'`、`'robot'` 或 `'obstacle'`。"
 
 #: ../../source/yaml_config/configuration.md:645
 msgid "`contact`: Objects are not stopped. After every step, overlapping objects are pushed apart along their contact normal as rigid bodies in a physics engine are, using [`mass`](#p-o-mass) and [`friction`](#p-o-friction): a robot pushes a box at its own speed while its traction beats the box's ground friction and stalls against a box too heavy for it, a box hit off-center turns, a released box slides to a stop, and an object without mass (a wall, a static obstacle, or the grid map) stops it while it slides along the surface. See [Physical properties and contact mode](../usage/configure_robots_obstacles.md#physical-properties-and-contact-mode)."

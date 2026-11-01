@@ -349,6 +349,27 @@ def find_object_by_identity(
     return id_match
 
 
+def filter_by_role(objects: list, target_roles: str) -> list:
+    """
+    The objects a behavior reacts to, picked by ``target_roles``.
+
+    ``'all'`` keeps every object, ``'robot'`` or ``'obstacle'`` keeps that
+    role only. The per-object ``Behavior`` applies it to one object's
+    surroundings and ``GroupBehavior`` to a group's, so the behavior functions
+    and classes never read ``target_roles`` themselves.
+
+    Args:
+        objects (list): Objects to pick from, each with a ``role``.
+        target_roles (str): ``'all'``, ``'robot'`` or ``'obstacle'``.
+
+    Returns:
+        list: The selected objects; ``objects`` itself for ``'all'``.
+    """
+    if target_roles in ("robot", "obstacle"):
+        return [obj for obj in objects if obj.role == target_roles]
+    return objects
+
+
 def relative_position(
     position1: np.ndarray, position2: np.ndarray, topi: bool = True
 ) -> tuple[float, float]:

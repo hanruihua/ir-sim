@@ -27,6 +27,7 @@ from irsim.lib.behavior.behavior_registry import (
     behaviors_map,
     group_behaviors_class_map,
 )
+from irsim.lib.behavior.group_behavior import GroupBehavior
 from irsim.lib.behavior.group_behavior_methods import SfmGroupBehavior
 from irsim.world.object_base import ObjectBase
 
@@ -511,7 +512,7 @@ class TestSfmGroupBehavior:
         other = _mock_circle(1.0, 0.0)
         member = _mock_member("diff", vx=1.0, externals=[wall, other])
         beh = SfmGroupBehavior([member], vmax=2.0)
-        states, circles, segments = beh._collect_inputs([member])
+        states, circles, segments = beh._collect_inputs([member], [wall, other])
         assert circles == [other.rvo_neighbor_state]
         assert segments == [[-1.0, 0.5, 1.0, 0.5]]
         beh.sfm.update(states, circles, segments)
@@ -523,23 +524,29 @@ class TestSfmGroupBehavior:
         b = _mock_member("diff", x=1.0)
         a.external_objects = [b]
         b.external_objects = [a]
-        beh = SfmGroupBehavior([a, b])
-        _, circles, segments = beh._collect_inputs([a, b])
+        group = GroupBehavior([a, b], name="sfm")
+        assert group.target_objects == []
+        _, circles, segments = group._invoke_func._collect_inputs(
+            [a, b], group.target_objects
+        )
         assert circles == []
         assert segments == []
 
     def test_target_roles_filters_outside_objects(self):
+        """The group facade applies target_roles; the obstacles by default."""
         wall = _mock_wall([[-1.0, 0.5, 1.0, 0.5]], role="obstacle")
         other = _mock_circle(1.0, 0.0, role="robot")
         member = _mock_member("diff", externals=[wall, other])
-        _, circles, segments = SfmGroupBehavior(
-            [member], target_roles="robot"
-        )._collect_inputs([member])
-        assert circles == [other.rvo_neighbor_state]
-        assert segments == []
-        _, circles, segments = SfmGroupBehavior(
-            [member], target_roles="obstacle"
-        )._collect_inputs([member])
+        assert GroupBehavior([member], name="sfm").target_objects == [wall]
+        group = GroupBehavior([member], name="sfm", target_roles="all")
+        assert group.target_objects == [wall, other]
+        group = GroupBehavior([member], name="sfm", target_roles="robot")
+        assert group.target_objects == [other]
+        group = GroupBehavior([member], name="sfm", target_roles="obstacle")
+        assert group.target_objects == [wall]
+        _, circles, segments = group._invoke_func._collect_inputs(
+            [member], group.target_objects
+        )
         assert circles == []
         assert segments == [[-1.0, 0.5, 1.0, 0.5]]
 
@@ -549,13 +556,9 @@ class TestSfmGroupBehavior:
         alone = _mock_member("omni", vx=1.0, vx_des=0.0, vy_des=0.0)
         out = SfmGroupBehavior([alone], vmax=2.0)([alone])
         assert out[0][0, 0] < 1.0
-        pushed = _mock_member(
-            "omni",
-            vx_des=0.0,
-            vy_des=0.0,
-            externals=[_mock_circle(0.6, 0.05, vx=-1.0)],
-        )
-        out = SfmGroupBehavior([pushed], vmax=2.0)([pushed])
+        pushed = _mock_member("omni", vx_des=0.0, vy_des=0.0)
+        neighbour = _mock_circle(0.6, 0.05, vx=-1.0)
+        out = SfmGroupBehavior([pushed], vmax=2.0)([pushed], [neighbour])
         assert np.abs(out[0]).max() > 0.0
 
     def test_call_refreshes_kinematics_from_members(self):

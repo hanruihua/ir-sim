@@ -446,6 +446,10 @@ msgstr ""
 msgid "ORCA supports both `omni` and `diff` kinematics. It plans a holonomic velocity `(vx, vy)` for every member: `omni` robots use it directly, while `diff` robots map it to a `(linear, angular)` command, so a differential-drive robot turns toward the planned direction and slows down when it is not yet aligned. Set `kinematics: {name: 'diff'}` on the group to use the differential-drive variant; all ORCA parameters below stay the same. Each member's preferred velocity points at its goal at the agent's speed cap: the fastest speed the member can hold in every direction (the smaller component of `vel_max` for `omni`, the linear limit for `diff`), lowered to `maxSpeed` when that is set, so members cruise at full speed when nothing is in the way."
 msgstr "ORCA 同时支持 `omni` 和 `diff` 运动学模型。它为每个成员规划一个完整（全向）速度 `(vx, vy)`：`omni` 机器人直接使用该速度，而 `diff` 机器人会将其映射为 `(线速度, 角速度)` 指令，因此差速机器人会朝规划方向转向，并在尚未对准时减速。在群组上设置 `kinematics: {name: 'diff'}` 即可使用差速变体；下方的所有 ORCA 参数保持不变。每个成员的期望速度指向其目标，大小为该智能体的速度上限：成员在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），若设置了 `maxSpeed` 则再降到该值，因此在无遮挡时成员以全速行进。"
 
+#: ../../source/usage/configure_behavior.md:266
+msgid "ORCA also avoids the objects around the group that `target_roles` selects, the obstacles by default. Static ones, such as `linestring`, polygon and circle obstacles and the grid map, enter the pyrvo simulator as obstacles when the group first moves and again whenever the surroundings change, and `timeHorizonObst` sets how far ahead they are considered; moving ones, such as dynamic obstacles, are tracked as agents every step. Set `target_roles: 'all'` to make the crowd give way to a robot crossing it as well. ORCA is a local method, so give members waypoints with a clear line of sight rather than one goal behind a wall. See `usage/19orca_world/orca_obstacle_world` for an example in a perlin map with patrolling obstacles."
+msgstr "ORCA 也会避开群组周围由 `target_roles` 选定的对象，默认为障碍物。静态对象（如 `linestring`、多边形和圆形障碍物以及栅格地图）在群组首次移动时以及周围环境发生变化时作为障碍物进入 pyrvo 仿真器，`timeHorizonObst` 设置向前考虑它们的时间范围；移动的对象（如动态障碍物）则作为智能体逐步跟踪。设置 `target_roles: 'all'` 可让群组也为穿过它的机器人让路。ORCA 是一种局部方法，因此请为成员提供视线畅通的路径点，而不是一个位于墙后的目标。参见 `usage/19orca_world/orca_obstacle_world`：在 perlin 地图中带有巡逻障碍物的示例。"
+
 #: ../../source/usage/configure_behavior.md:267
 msgid ""
 "ORCA requires the `pyrvo` library, which is a python binding for the ORCA C+"
@@ -577,6 +581,10 @@ msgstr "无"
 #: ../../source/usage/configure_behavior.md:333
 msgid "Speed cap of each agent and the speed it heads for its goal at; never above the fastest speed the robot can hold in every direction (smaller `vel_max` component for `omni`, linear limit for `diff`), which is the default"
 msgstr "每个智能体的速度上限，也是其朝目标行进的速度；不超过机器人在任意方向都能保持的最高速度（`omni` 取 `vel_max` 中较小的分量，`diff` 取线速度限幅），默认即为该速度"
+
+#: ../../source/usage/configure_behavior.md:333
+msgid "Which outside objects members avoid: `'all'`, `'robot'` or `'obstacle'`"
+msgstr "成员避让哪些外部对象：`'all'`、`'robot'` 或 `'obstacle'`"
 
 #: ../../source/usage/configure_behavior.md:333
 msgid "`wander`"
@@ -819,6 +827,10 @@ msgid ""
 "{name: 'your_name'}`"
 msgstr ""
 "第二个参数是在 YAML 中使用的行为名称 `group_behavior: {name: 'your_name'}`"
+
+#: ../../source/usage/configure_behavior.md:689
+msgid "Besides `members`, the handler receives `external_objects`: the objects outside the group that `target_roles` selects (`'obstacle'` by default), filtered as the `external_objects` of a per-object behavior are"
+msgstr "除 `members` 外，处理器还会收到 `external_objects`：由 `target_roles` 选定的群组之外的对象（默认为 `'obstacle'`），筛选方式与单对象行为的 `external_objects` 相同"
 
 #: ../../source/usage/configure_behavior.md:689
 msgid "Advanced Configuration for Custom Behavior"
@@ -1131,8 +1143,8 @@ msgid "**Social groups.** `social_groups` optionally partitions the members into
 msgstr "**社会群组。** `social_groups` 可选地把成员划分为结伴而行的行人，从而加入 Moussaid 等人（2010）的三种群组力：朝群组质心的*凝聚*拉力、两名成员的圆盘相触时的组内*排斥*力，以及当群组其余成员离开视野时让该成员减速的*注视*制动力。"
 
 #: ../../source/usage/configure_behavior.md:449
-msgid "Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles`, `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours."
-msgstr "群组之外的对象仍会参与其中：`linestring` 障碍物作为墙壁进入模型，其他所有对象则作为圆形邻居——它们会推开成员，但不会被成员推动。`target_roles`、`loop` 与 `wander` 的用法与逐对象行为相同。没有目标的成员会原地站立，但仍会为邻居让路。"
+msgid "Objects outside the group still take part: `linestring` obstacles enter as walls, and every other object as a circular neighbour that pushes members but is not moved by them. `target_roles` selects those outside objects, the obstacles by default; `loop` and `wander` work as for the per-object behavior. A member without a goal stands still but still yields to neighbours."
+msgstr "群组之外的对象仍会参与其中：`linestring` 障碍物作为墙壁进入模型，其他所有对象则作为圆形邻居——它们会推开成员，但不会被成员推动。`target_roles` 选定这些外部对象，默认为障碍物；`loop` 与 `wander` 的用法与逐对象行为相同。没有目标的成员会原地站立，但仍会为邻居让路。"
 
 #: ../../source/usage/configure_behavior.md:449
 msgid "The example below is `usage/23sfm_world/sfm_group_world.yaml`: two pairs and two triples walk a corridor in opposite directions, overlapping by one lane, while two singles thread through the middle. Each group slides sideways as a unit to pass the oncoming one."
@@ -1223,8 +1235,8 @@ msgid "`target_roles`"
 msgstr "`target_roles`"
 
 #: ../../source/usage/configure_behavior.md:449
-msgid "`'all'`"
-msgstr "`'all'`"
+msgid "`'obstacle'`"
+msgstr "`'obstacle'`"
 
 #: ../../source/usage/configure_behavior.md:449
 msgid "Which outside objects members react to: `'all'`, `'robot'` or `'obstacle'`"
