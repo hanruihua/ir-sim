@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Bandit security scan
-        run: pipx run 'bandit[toml]' -c pyproject.toml -r irsim
+        run: pipx run 'bandit[toml]' -c pyproject.toml -r irsim irsim_mcp
 
   type-check:
     runs-on: ubuntu-latest

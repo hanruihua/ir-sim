@@ -1,0 +1,299 @@
+{
+  "initialize": {
+    "meta": null,
+    "protocolVersion": "2025-11-25",
+    "capabilities": {
+      "experimental": {},
+      "logging": null,
+      "prompts": {
+        "listChanged": false
+      },
+      "resources": {
+        "subscribe": false,
+        "listChanged": false
+      },
+      "tools": {
+        "listChanged": false
+      },
+      "completions": null,
+      "tasks": null
+    },
+    "serverInfo": {
+      "name": "ir-sim",
+      "title": null,
+      "version": "1.30.0",
+      "websiteUrl": null,
+      "icons": null
+    },
+    "instructions": "Read irsim://world/latest or get_world_state. Only complete command boundaries are published. Re-read and replan after stale-version errors. Units: metres, radians, seconds. Navigation follows straight segments, not a global planner."
+  },
+  "tools": [
+    {
+      "name": "get_world_state",
+      "title": null,
+      "description": "Read version, frame, poses, goals, scan ranges/validity, obstacle bounds and named waypoints.",
+      "inputSchema": {
+        "properties": {},
+        "title": "get_world_stateArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "get_world_stateDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": null,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    },
+    {
+      "name": "set_robot_goal",
+      "title": null,
+      "description": "Set a bounded 2D goal. Does not advance simulation time.",
+      "inputSchema": {
+        "properties": {
+          "robot_id": {
+            "minimum": 0,
+            "title": "Robot Id",
+            "type": "integer"
+          },
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          },
+          "expected_version": {
+            "description": "Exact version from the latest world state",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expected Version",
+            "type": "string"
+          },
+          "command_id": {
+            "description": "Unique ID; reuse with identical arguments only when retrying",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot_id",
+          "x",
+          "y",
+          "expected_version",
+          "command_id"
+        ],
+        "title": "set_robot_goalArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "set_robot_goalDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    },
+    {
+      "name": "step_simulation",
+      "title": null,
+      "description": "Advance 1..200 complete IR-SIM ticks, stopping at collision or cancellation.",
+      "inputSchema": {
+        "properties": {
+          "steps": {
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Steps",
+            "type": "integer"
+          },
+          "expected_version": {
+            "description": "Exact version from the latest world state",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expected Version",
+            "type": "string"
+          },
+          "command_id": {
+            "description": "Unique ID; reuse with identical arguments only when retrying",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "steps",
+          "expected_version",
+          "command_id"
+        ],
+        "title": "step_simulationArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "step_simulationDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    },
+    {
+      "name": "navigate_to_waypoint",
+      "title": null,
+      "description": "Set a named waypoint and run the existing local controller until arrival/collision/step limit. Reject a blocked straight segment; choose intermediate waypoints to go around obstacles.",
+      "inputSchema": {
+        "properties": {
+          "robot_id": {
+            "minimum": 0,
+            "title": "Robot Id",
+            "type": "integer"
+          },
+          "waypoint": {
+            "title": "Waypoint",
+            "type": "string"
+          },
+          "max_steps": {
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Max Steps",
+            "type": "integer"
+          },
+          "expected_version": {
+            "description": "Exact version from the latest world state",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expected Version",
+            "type": "string"
+          },
+          "command_id": {
+            "description": "Unique ID; reuse with identical arguments only when retrying",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot_id",
+          "waypoint",
+          "max_steps",
+          "expected_version",
+          "command_id"
+        ],
+        "title": "navigate_to_waypointArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "navigate_to_waypointDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    },
+    {
+      "name": "reset_simulation",
+      "title": null,
+      "description": "Reset the simulation and start a new epoch, invalidating prior versions.",
+      "inputSchema": {
+        "properties": {
+          "expected_version": {
+            "description": "Exact version from the latest world state",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Expected Version",
+            "type": "string"
+          },
+          "command_id": {
+            "description": "Unique ID; reuse with identical arguments only when retrying",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Command Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_version",
+          "command_id"
+        ],
+        "title": "reset_simulationArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "reset_simulationDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    },
+    {
+      "name": "cancel_motion",
+      "title": null,
+      "description": "Request a running command to stop between ticks; its receipt reports the actual completed frame.",
+      "inputSchema": {
+        "properties": {},
+        "title": "cancel_motionArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "cancel_motionDictOutput",
+        "type": "object"
+      },
+      "icons": null,
+      "annotations": {
+        "title": null,
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "meta": null,
+      "execution": null
+    }
+  ]
+}

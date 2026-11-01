@@ -1,0 +1,52 @@
+[
+  {
+    "turn": 1,
+    "model": "gemma-4-e2b-it",
+    "finish_reason": "tool_calls",
+    "tool_calls": [
+      {
+        "id": "chatcmpl-tool-818189a2e124cc73",
+        "type": "function",
+        "function": {
+          "name": "navigate_to_waypoint",
+          "arguments": "{\"max_steps\": 150, \"robot_id\": 0, \"waypoint\": \"blue\"}"
+        }
+      }
+    ],
+    "thinking_observed": true,
+    "thinking_characters": 293,
+    "reasoning_sha256": "f0340732c22f162ef2596448b82ca0756f51c664f745bc53d7aeff2354d21650",
+    "arguments_forwarded_unchanged": true,
+    "usage": {
+      "prompt_tokens": 489,
+      "total_tokens": 609,
+      "completion_tokens": 120,
+      "prompt_tokens_details": null
+    }
+  },
+  {
+    "turn": 2,
+    "model": "gemma-4-e2b-it",
+    "finish_reason": "tool_calls",
+    "tool_calls": [
+      {
+        "id": "chatcmpl-tool-aa75e289a12153f8",
+        "type": "function",
+        "function": {
+          "name": "navigate_to_waypoint",
+          "arguments": "{\"max_steps\": 150, \"robot_id\": 0, \"waypoint\": \"green\"}"
+        }
+      }
+    ],
+    "thinking_observed": true,
+    "thinking_characters": 213,
+    "reasoning_sha256": "1fef6dc44b6d86ebbe6026614b4c11b565c7194a047c6f014cdfa0f45c09419f",
+    "arguments_forwarded_unchanged": true,
+    "usage": {
+      "prompt_tokens": 831,
+      "total_tokens": 927,
+      "completion_tokens": 96,
+      "prompt_tokens_details": null
+    }
+  }
+]

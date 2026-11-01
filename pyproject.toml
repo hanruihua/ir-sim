@@ -40,6 +40,12 @@ dependencies = [
 [project.optional-dependencies]
 keyboard = ['pynput']
 all = ['pynput', 'imageio[ffmpeg]', 'pyrvo']
+mcp = [
+    "httpx>=0.28,<1",
+    "imageio-ffmpeg>=0.6,<1",
+    "mcp>=1.26,<2",
+    "pydantic>=2.11,<3",
+]
 
 [dependency-groups]
 docs = [
