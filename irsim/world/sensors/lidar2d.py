@@ -328,7 +328,7 @@ class Lidar2D:
             origin: Sensor origin in the world frame ``(2,)``.
             base_angle: World heading of the sensor frame (owner + offset).
             directions: Unit beam directions ``(number, 2)``.
-            ranges: Beam ranges ``(number,)`` clamped to ``range_max``.
+            ranges: Beam ranges ``(number,)``, with ``inf`` for misses.
             hit_object_indices: Index into ``objects`` per beam, ``-1`` on a
                 miss; ``None`` when the caster did not track hit objects.
             objects: The environment's object list (for beam velocities).
@@ -337,19 +337,20 @@ class Lidar2D:
         self.lidar_origin = np.array(
             [[origin[0]], [origin[1]], [base_angle]], dtype=float
         )
-        if self.noise:
-            self.range_data[:] = ranges + rng.normal(0, self.std, self.number)
-        else:
-            self.range_data[:] = ranges
+        self._cast_angles = self.angle_list
+        hits = np.isfinite(ranges)
+        if self.noise and hits.any():
+            ranges = np.array(ranges, dtype=float, copy=True)
+            ranges[hits] += rng.normal(0, self.std, int(hits.sum()))
+        in_band = (ranges >= self.range_min) & (ranges <= self.range_max)
+        self.valid[:] = hits & in_band
+        self.range_data[:] = np.clip(ranges, self.range_min, self.range_max)
         self._rebuild_scan_geometry(origin, directions)
         if self.has_velocity:
             self.velocity[:] = 0.0
             if hit_object_indices is None:
                 return
-            for beam_index in np.flatnonzero(hit_object_indices >= 0):
-                self.velocity[:, beam_index : beam_index + 1] = objects[
-                    hit_object_indices[beam_index]
-                ].velocity_xy
+            self._assign_velocities(hit_object_indices, objects)
 
     def _assign_velocities(
         self,

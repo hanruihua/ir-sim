@@ -102,7 +102,7 @@ The environment updates sensors after all objects have moved in a step. This avo
 
 `world.lidar_batch: true` (the default) batches ordinary `lidar2d` scans using the same polygon and map boundaries as individual scans. NumPy is always available; installing `ir-sim[fast]` enables the optional compiled Numba kernel. Use `lidar_batch: numpy` or `lidar_batch: numba` to select a backend, or `lidar_batch: false` to use the per-sensor reference path.
 
-Exact batching preserves beam coordinates, target velocities and seeded sensor-noise order, including scenes that mix ordinary and FMCW LiDAR. Scans near numerical boundaries, such as tangencies, segment endpoints, maximum range or tied target distances, use the reference path. Regression tests compare both backends with individual scans and independent GEOS intersections at an absolute range tolerance of `1e-9` metres.
+Exact batching preserves beam coordinates, target velocities, the `valid` mask, range limits and seeded sensor-noise order, including scenes that mix ordinary and FMCW LiDAR. Range noise applies only to hits, while misses remain at `range_max`. Sensors with angular noise and scans near numerical boundaries, such as tangencies, segment endpoints, maximum range or tied target distances, use the reference path. Regression tests compare both backends with individual scans and independent GEOS intersections at an absolute range tolerance of `1e-9` metres.
 
 `lidar_batch: analytic` is an explicit approximation: it replaces circle polygons with mathematical circles. Grazing beams can change between a hit and a maximum-range miss, so use `true`, `numpy` or `numba` when scan accuracy must be preserved.
 

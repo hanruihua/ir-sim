@@ -68,6 +68,7 @@ def _assert_same_scans(cfg, lidar_batch, tmp_path, steps=25, atol=1e-9):
             for a, b in zip(ref.objects, env.objects, strict=True):
                 np.testing.assert_allclose(a.state, b.state, atol=atol, rtol=0)
             for a, b in zip(_lidars(ref), _lidars(env), strict=True):
+                np.testing.assert_array_equal(a.valid, b.valid)
                 np.testing.assert_allclose(
                     a.range_data, b.range_data, atol=atol, rtol=0
                 )
@@ -78,9 +79,12 @@ def _assert_same_scans(cfg, lidar_batch, tmp_path, steps=25, atol=1e-9):
                     np.testing.assert_allclose(
                         a.velocity, b.velocity, atol=atol, rtol=0
                     )
-                np.testing.assert_allclose(
-                    a.get_points(), b.get_points(), atol=1e-8, rtol=0
-                )
+                if a.get_points() is None:
+                    assert b.get_points() is None
+                else:
+                    np.testing.assert_allclose(
+                        a.get_points(), b.get_points(), atol=1e-8, rtol=0
+                    )
         return ref, env
     finally:
         ref.end(0)
@@ -356,7 +360,10 @@ def _accuracy_scene(sensors=None, obstacles=None):
 
 @pytest.mark.parametrize("backend", BACKENDS)
 @pytest.mark.parametrize("counts", [[9, 9, 9, 9], [9, 7, 11, 13]])
-def test_mixed_sensor_noise_keeps_seeded_draw_order(backend, counts, tmp_path):
+@pytest.mark.parametrize("angle_std", [0.0, 0.05])
+def test_mixed_sensor_noise_keeps_seeded_draw_order(
+    backend, counts, angle_std, tmp_path
+):
     cfg = _accuracy_scene(
         [
             {
@@ -364,6 +371,7 @@ def test_mixed_sensor_noise_keeps_seeded_draw_order(backend, counts, tmp_path):
                 "number": count,
                 "range_max": 10,
                 "noise": True,
+                "angle_std": angle_std,
                 "velocity_noise_std": 0.1,
             }
             for kind, count in zip(
@@ -383,8 +391,9 @@ def test_mixed_sensor_noise_keeps_seeded_draw_order(backend, counts, tmp_path):
                 np.testing.assert_allclose(
                     a.range_data, b.range_data, atol=1e-9, rtol=0
                 )
-                if hasattr(a, "valid"):
-                    np.testing.assert_array_equal(a.valid, b.valid)
+                np.testing.assert_array_equal(a.valid, b.valid)
+                np.testing.assert_allclose(a.cast_angles, b.cast_angles, atol=1e-9)
+                if hasattr(a, "radial_velocity"):
                     np.testing.assert_allclose(
                         a.radial_velocity, b.radial_velocity, atol=1e-9, rtol=0
                     )
@@ -395,6 +404,42 @@ def test_mixed_sensor_noise_keeps_seeded_draw_order(backend, counts, tmp_path):
     finally:
         ref.end(0)
         env.end(0)
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
+@pytest.mark.parametrize("distance", [0.25, 3.0, 10.0, 11.0])
+@pytest.mark.parametrize("std", [0.0, 3.0])
+def test_batch_preserves_validity_range_band_and_noise(
+    backend, distance, std, tmp_path
+):
+    """Batch scans retain blind-zone, max-range, miss and noisy-hit semantics."""
+    cfg = _accuracy_scene(
+        sensors=[
+            {
+                "type": "lidar2d",
+                "number": 1,
+                "range_min": 1.0,
+                "range_max": 10.0,
+                "noise": True,
+                "std": std,
+            }
+        ],
+        obstacles=[
+            {
+                "shape": {
+                    "name": "linestring",
+                    "vertices": [[distance, -2], [distance, 2]],
+                },
+                "state": [0, 0, 0],
+            }
+        ],
+    )
+    _, env = _assert_same_scans(cfg, backend, tmp_path, steps=5)
+    scan = env.robot.lidar
+    assert 1.0 <= scan.range_data[0] <= 10.0
+    if std == 0:
+        assert scan.valid[0] == (1.0 <= distance <= 10.0)
+        assert scan.range_data[0] == pytest.approx(np.clip(distance, 1.0, 10.0))
 
 
 @pytest.mark.parametrize("backend", BACKENDS)

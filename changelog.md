@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Performance:
+  - **All 2D lidars of a step are cast in one batched pass.** Every `lidar2d` sensor used to run its own scan through Shapely, so a swarm of lidar-equipped robots paid the per-sensor overhead N times. `world.lidar_batch` (default `true`) now gathers the beams of all sensors, culls obstacles by range, and intersects them with cached boundary segments and circle polygons in one NumPy pass; with `numba` installed (`pip install ir-sim[fast]`) a compiled kernel does the same in plain loops. The result matches the per-sensor scan to floating-point precision. Measured on one CPU core, 64-beam lidars in a 20 m arena with 14 boxes: 10 robots 6.5 ms -> 0.31 ms per `env.step()`, 100 robots 333 ms -> 3.5 ms (NumPy only: 0.67 ms and 16 ms). `lidar_batch: numpy` / `numba` force a kernel, `analytic` treats circle bodies as true circles (faster, approximate), `false` restores the per-sensor scan.
+
 ## 2.12.0 (2026-10-04)
 
 This release adds Contact mode for realistic collision handling, a default Okabe-Ito palette for academic figures, the social force model as a group behavior, and fixes to reactive behaviors, lidar readings, and the environment lifecycle.
@@ -27,11 +32,6 @@ This release adds Contact mode for realistic collision handling, a default Okabe
 
 - **Docs**:
   - **The documentation GIFs are regenerated with the palette.** They are hosted in the [ir-sim-gifs](https://github.com/IR-SIM/ir-sim-gifs) repository, and the README gallery adds fog-of-map, contact, and social force model demos. ([#381](https://github.com/hanruihua/ir-sim/pull/381))
-
-## Unreleased
-
-- Performance:
-  - **All 2D lidars of a step are cast in one batched pass.** Every `lidar2d` sensor used to run its own scan through Shapely, so a swarm of lidar-equipped robots paid the per-sensor overhead N times. `world.lidar_batch` (default `true`) now gathers the beams of all sensors, culls obstacles by range, and intersects them with cached boundary segments and circle polygons in one NumPy pass; with `numba` installed (`pip install ir-sim[fast]`) a compiled kernel does the same in plain loops. The result matches the per-sensor scan to floating-point precision. Measured on one CPU core, 64-beam lidars in a 20 m arena with 14 boxes: 10 robots 6.5 ms -> 0.31 ms per `env.step()`, 100 robots 333 ms -> 3.5 ms (NumPy only: 0.67 ms and 16 ms). `lidar_batch: numpy` / `numba` force a kernel, `analytic` treats circle bodies as true circles (faster, approximate), `false` restores the per-sensor scan.
 
 ## 2.11.0 (2026-09-01)
 

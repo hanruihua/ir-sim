@@ -647,7 +647,7 @@ class LidarBatchCaster:
         """Nearest hit per beam for a sensor set.
 
         Returns:
-            Ranges ``(S, N)``, hit object indices ``(S, N)`` (or ``None``
+            Ranges ``(S, N)`` (``inf`` for misses), hit object indices ``(S, N)`` (or ``None``
             without velocity tracking), and a reference-fallback mask ``(S,)``.
         """
         n_sensors, n_beams = D.shape[:2]
@@ -671,9 +671,6 @@ class LidarBatchCaster:
                 self._cast_circle_pairs(
                     origins, D, ranges, owner, circles, best, best_obj, uncertain
                 )
-        np.minimum(
-            best, ranges[:, None], out=best
-        )  # misses (inf) read the maximum range
         return best, best_obj, uncertain
 
     def _cast_compiled(
@@ -758,7 +755,8 @@ class LidarBatchCaster:
 
         Environments set ``step_other_sensors`` to also step custom/FMCW sensors
         in that same order, preserving seeded noise and sensor dependencies.
-        Numerically ambiguous scans use the reference sensor step.
+        Numerically ambiguous scans and sensors with angular noise use the
+        reference sensor step, keeping random draws in sensor order.
         """
         found, const = self._gather_sensors(objects)
         scans = {}
@@ -779,7 +777,9 @@ class LidarBatchCaster:
             for sensor in obj.sensors:
                 if id(sensor) in scans:
                     result, uncertain = scans[id(sensor)]
-                    if uncertain and not self.analytic_circles:
+                    if (sensor.noise and sensor.angle_std > 0) or (
+                        uncertain and not self.analytic_circles
+                    ):
                         sensor.step(obj.state[0:3])
                     else:
                         sensor.apply_batch_result(*result, objects)
