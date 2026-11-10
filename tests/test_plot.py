@@ -141,7 +141,8 @@ class TestEnvPlot2D:
     def test_clear_components_reports_invalid_mode(self, plot_2d, monkeypatch):
         """An unknown mode is reported rather than silently doing nothing."""
         logger = Mock()
-        monkeypatch.setattr(env_param, "logger", logger)
+        # Patch the bound instance, since the module delegates attribute writes.
+        monkeypatch.setattr(env_param[0], "logger", logger)
 
         plot_2d.clear_components("bogus", [])
 
