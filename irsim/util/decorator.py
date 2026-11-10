@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from irsim.util.util import find_object_by_identity, is_list_of_numbers
+from irsim.util.util import is_list_of_numbers
 
 
 def time_it(name: str = "Function") -> Any:
@@ -67,18 +67,27 @@ def _target_positions(objects: list, action_id: Any, count: int) -> list[int]:
     objects starting from it; an unknown id or name raises ``ValueError``.
     """
 
+    if action_id is None:
+        return list(range(min(count, len(objects))))
+
+    ids: dict[int, int] = {}
+    names: dict[str, int] = {}
+    for index, obj in enumerate(objects):  # first match wins, as before
+        ids.setdefault(obj.id, index)
+        names.setdefault(obj.name, index)
+
     def position(key):
         if isinstance(key, str):
-            obj = find_object_by_identity(objects, name=key)
+            found = names.get(key) if key else None
         else:
-            obj = find_object_by_identity(objects, object_id=int(key))
-        if obj is None:
+            found = ids.get(int(key))
+        if found is None:
             raise ValueError(f"no object with id or name {key!r}")
-        return objects.index(obj)
+        return found
 
     if isinstance(action_id, list):
         return [position(i) for i in action_id]
-    start = 0 if action_id is None else position(action_id)
+    start = position(action_id)
     return list(range(start, min(start + count, len(objects))))
 
 

@@ -135,7 +135,7 @@ def beh_diff_rvo(
     )
 
 
-@register_behavior("diff", "dash")
+@register_behavior("diff", "dash", requires_neighbors=False)
 def beh_diff_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
 ) -> np.ndarray:
@@ -170,7 +170,7 @@ def beh_diff_dash(
     return np.clip(vel, min_step, max_step)
 
 
-@register_behavior("omni", "dash")
+@register_behavior("omni", "dash", requires_neighbors=False)
 def beh_omni_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
 ) -> np.ndarray:
@@ -332,7 +332,7 @@ def beh_omni_sfm(
     return vel_world2omni(ego_object.state[2, 0], np.array([[vx], [vy]]))
 
 
-@register_behavior("omni_angular", "dash")
+@register_behavior("omni_angular", "dash", requires_neighbors=False)
 def beh_omni_angular_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
 ) -> np.ndarray:
@@ -367,7 +367,7 @@ def beh_omni_angular_dash(
     return np.clip(vel, min_step, max_step)
 
 
-@register_behavior("acker", "dash")
+@register_behavior("acker", "dash", requires_neighbors=False)
 def beh_acker_dash(
     ego_object: Any, external_objects: list[Any], **kwargs: Any
 ) -> np.ndarray:
