@@ -941,6 +941,116 @@ def test_an_object_moved_after_the_cast_is_seen_at_its_new_place(
         env.end(0)
 
 
+def _count_casts(monkeypatch):
+    """Record every cast of all lidars made by the process caster."""
+    caster = ray_cast2d_batch._caster
+    casts = []
+    scan_group = caster._scan_group
+
+    def counted(group, objects):
+        casts.append(len(group.sensors))
+        return scan_group(group, objects)
+
+    monkeypatch.setattr(caster, "_scan_group", counted)
+    return casts
+
+
+def _assert_scans_match_cast_alone(env):
+    for robot in env.robot_list:
+        scan = robot.lidar.range_data.copy()
+        robot.lidar._cast_alone(robot.state[:3])
+        np.testing.assert_array_equal(scan, robot.lidar.range_data)
+
+
+def _robots_before_a_wall(count=3):
+    cfg = _accuracy_scene(
+        obstacles=[
+            {
+                "shape": {"name": "linestring", "vertices": [[3, -1], [3, 7]]},
+                "state": [0, 0, 0],
+            }
+        ]
+    )
+    cfg["robot"] = [
+        {**cfg["robot"][0], "state": [0, 2 * i + 0.1, 0]} for i in range(count)
+    ]
+    return cfg
+
+
+def test_a_manual_move_then_scan_loop_never_recasts_every_lidar(
+    backend, tmp_path, monkeypatch
+):
+    """Each robot moved by hand scans alone: one move does not recast the
+    lidars of every robot, and every scan matches the per-sensor scan."""
+    env = _make(_robots_before_a_wall(), tmp_path, "manual_loop")
+    try:
+        casts = _count_casts(monkeypatch)
+        for robot in env.robot_list:
+            robot.step([0.5, 0.0])  # moves, then steps its own lidar
+        assert casts == []
+        _assert_scans_match_cast_alone(env)
+
+        env.step([[0.5, 0.0]] * len(env.robot_list))
+        assert len(casts) == 1  # a new step casts every lidar once
+        _assert_scans_match_cast_alone(env)
+    finally:
+        env.end(0)
+
+
+def test_moves_by_hand_then_scans_cast_every_lidar_once(backend, tmp_path, monkeypatch):
+    """After many objects are moved by hand, the first lidar casts alone and
+    the next one casts every lidar, whose scans the rest reuse."""
+    env = _make(_robots_before_a_wall(), tmp_path, "moves_then_scans")
+    try:
+        casts = _count_casts(monkeypatch)
+        for robot in env.robot_list:
+            x, y, theta = robot.state[:3, 0]
+            robot.set_state([x + 0.05, y, theta])
+        for robot in env.robot_list:
+            robot.sensor_step()
+        assert len(casts) == 1
+        _assert_scans_match_cast_alone(env)
+    finally:
+        env.end(0)
+
+
+def test_a_contact_step_still_casts_every_lidar_once(backend, tmp_path, monkeypatch):
+    """Contact pushes move objects after the step's tree rebuild; the step's
+    lidars are still cast together, once, and match the per-sensor scan."""
+    lidar = {"type": "lidar2d", "number": 9, "range_max": 10}
+    cfg = {
+        "world": {"collision_mode": "contact"},
+        "robot": [
+            {
+                "kinematics": {"name": "omni"},
+                "shape": {"name": "circle", "radius": 0.2},
+                "state": [0, 2 * i + 0.1, 0],
+                "sensors": [lidar],
+            }
+            for i in range(2)
+        ],
+        "obstacle": [
+            {
+                "shape": {"name": "rectangle", "length": 0.4, "width": 0.4},
+                "mass": 1.0,
+                "state": [0.45, 0.1, 0],
+            }
+        ],
+    }
+    env = _make(cfg, tmp_path, "contact_lidars")
+    try:
+        box = env.obstacle_list[0]
+        start = box.state[0, 0]
+        casts = _count_casts(monkeypatch)
+        for _ in range(10):
+            env.step([[1.0, 0.0], [0.0, 0.0]])
+        assert box.state[0, 0] > start + 0.1  # the box was pushed
+        assert len(casts) == 10
+        _assert_scans_match_cast_alone(env)
+    finally:
+        env.end(0)
+
+
 def test_a_pose_other_than_the_carriers_scans_from_that_pose(backend, tmp_path):
     """lidar.step(state) casts from ``state`` even when its batched scan is
     waiting to be taken."""

@@ -36,9 +36,13 @@ running along a segment, a hit at a segment end, the range limit or the sensor
 origin, or two targets at the same distance. The batch hands out no ambiguous
 scan, so those sensors cast alone, as do sensors with angular noise or a
 requested pose different from the cached pose. Scans are reused until the
-geometry tree changes;
-reading it through ``EnvParam.geometry_tree()`` refreshes it after manual
-moves too, so the next sensor step casts the updated scene.
+environment rebuilds its geometry tree, which it does in every step. A sensor
+stepped after an object was moved by hand (``EnvParam.geometry_changed``)
+casts alone and sees the move; the batch takes the tree rebuilt for it as its
+own and casts every lidar on it at the next sensor step that finds nothing
+moved in between. A loop of manual moves and scans so costs one scan per move
+rather than a cast of every lidar, and many moves followed by many scans cast
+every lidar once.
 
 Bit for bit: every other scan repeats the arithmetic of the per-sensor cast
 (:func:`~irsim.lib.algorithm.ray_casting_2d.cast_ray_segments`) exactly. The
@@ -284,7 +288,8 @@ class RayCast2DBatch:
         # The compiled cast_kernel, or None for the NumPy kernels.
         self._kernel = cast_kernel if NUMBA_AVAILABLE else None
         self._tree = None  # the geometry tree of the scene the scans were cast in
-        self._scans: dict = {}  # Lidar2D -> _Scan of that cast
+        # Lidar2D -> _Scan of that cast; None: the tree is not cast yet
+        self._scans: dict | None = None
         self._boundaries: dict = {}  # obj id -> (geometry, (start, end))
         self._circle_polygons: dict = {}  # obj id -> (geometry, CirclePolygon | None)
         self._sensor_groups = _LastBuilt()
@@ -300,15 +305,24 @@ class RayCast2DBatch:
         """The scan of ``sensor`` from ``state``, out of one cast of all lidars
         of its environment.
 
-        Read the current geometry tree, rebuilding it after any object moves,
-        and recast all lidars when it changes. Returns ``None`` when the sensor
-        must cast alone: the batch does not cast it (a ``Lidar2D`` subclass or
-        angular noise), its scan is ambiguous, or ``state`` differs from the
-        carrier pose the scan was cast from.
+        All lidars are recast when the environment has rebuilt its geometry
+        tree since the last cast, as it does in every step. Returns ``None``
+        when the sensor must cast alone: the batch does not cast it (a
+        ``Lidar2D`` subclass or angular noise), its scan is ambiguous,
+        ``state`` differs from the carrier pose the scan was cast from, or an
+        object was moved by hand since the cast. In that last case the batch
+        takes the tree rebuilt for the move as its own and casts every lidar
+        on it at the next sensor step that finds nothing moved in between:
+        a loop of single moves and scans casts each scan alone, while many
+        moves followed by many scans cast every lidar once.
         """
         env_param = sensor._env_param
+        if env_param.geometry_changed and env_param.GeometryTree is self._tree:
+            self._tree = env_param.geometry_tree()  # rebuilt after the manual move
+            self._scans = None
+            return None
         tree = env_param.geometry_tree()
-        if tree is not self._tree:
+        if tree is not self._tree or self._scans is None:
             self._tree = tree
             self._scans = {}
             for group in self._groups(env_param.objects):
