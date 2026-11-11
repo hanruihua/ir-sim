@@ -314,7 +314,11 @@ class RayCast2DBatch:
             for group in self._groups(env_param.objects):
                 self._scans.update(self._scan_group(group, env_param.objects))
         scan = self._scans.get(sensor)
-        if scan is None or not np.array_equal(scan.state, state):
+        if (
+            scan is None
+            or (sensor.noise and sensor.angle_std > 0)
+            or not np.array_equal(scan.state, state)
+        ):
             return None
         return scan
 
