@@ -263,3 +263,15 @@ msgstr "**color**（str，默认调色板的 `marker` 颜色）：标记和线�
 #: ../../source/usage/configure_sensor.md:354
 msgid "The complete runnable example is available under `usage/26push_box_world/`."
 msgstr "完整可运行示例位于 `usage/26push_box_world/`。"
+
+#: ../../source/usage/configure_sensor.md
+msgid "Batched scanning and accuracy"
+msgstr "批量扫描与精度"
+
+#: ../../source/usage/configure_sensor.md
+msgid "All ordinary `lidar2d` sensors of an environment are cast together in one batched pass: the first one to step after objects move casts every lidar, and the others read their scans from that pass. It uses the same polygon and map boundaries as individual scans. NumPy is always available; installing `ir-sim[fast]` adds a compiled Numba kernel, which is then used automatically. `ir-sim[all]` skips Numba on Intel macOS, where it has no prebuilt wheels, and if an installed Numba cannot compile the kernel, IR-SIM warns once and scans with NumPy."
+msgstr "环境中所有普通 `lidar2d` 传感器在一次批量计算中一起扫描：物体移动后第一个更新的激光雷达会计算全部激光雷达，其余激光雷达直接读取这次计算的结果。批量计算使用与逐传感器扫描相同的多边形和地图边界。NumPy 始终可用；安装 `ir-sim[fast]` 会添加 Numba 编译内核，并自动启用。`ir-sim[all]` 在 Intel macOS 上不安装 Numba（该平台没有预编译 wheel）；若已安装的 Numba 无法编译该内核，IR-SIM 会给出一次警告并改用 NumPy 扫描。"
+
+#: ../../source/usage/configure_sensor.md
+msgid "Batched scans are bit-for-bit identical to individual scans, with either kernel: ranges, beam coordinates, target velocities, the `valid` mask, range limits and seeded sensor-noise order, including scenes that mix ordinary and FMCW LiDAR. Range noise applies only to hits, while misses remain at `range_max`. Sensors with angular noise, scans near numerical boundaries, such as tangencies, segment endpoints, maximum range or tied target distances, and lidars whose carrier you moved yourself since the last pass (for example with `robot.step(action)`) use the per-sensor reference path. Regression tests check the bit-for-bit match with individual scans, and compare both with independent GEOS intersections at an absolute range tolerance of `1e-9` metres."
+msgstr "无论使用哪种内核，批量扫描都与逐传感器扫描逐位一致：距离、光束坐标、目标速度、`valid` 有效标记、量程限制以及固定种子下的传感器噪声顺序，也适用于普通激光雷达与 FMCW 激光雷达混合使用的场景。距离噪声只作用于命中光束，未命中光束保持 `range_max`。带有角度噪声的传感器、接近数值边界的扫描（例如相切、线段端点、最大量程或目标距离并列），以及自上次批量计算后载体被你自行移动过的激光雷达（例如通过 `robot.step(action)`），使用逐传感器参考路径。回归测试检查批量扫描与逐传感器扫描逐位一致，并将两者与独立的 GEOS 相交计算进行比较，距离绝对容差为 `1e-9` 米。"

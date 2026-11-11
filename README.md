@@ -107,10 +107,17 @@
 
 ```bash
 pip install ir-sim
-
-# Optional: keyboard control and all extras
-pip install ir-sim[all]
 ```
+
+Optional extras:
+
+```bash
+pip install "ir-sim[keyboard]"  # keyboard control (pynput)
+pip install "ir-sim[fast]"      # compiled kernel for faster lidar scans (numba)
+pip install "ir-sim[all]"       # all optional features, listed below
+```
+
+`ir-sim[all]` installs keyboard control (`pynput`), video export (`imageio[ffmpeg]`), the ORCA group behavior (`pyrvo`), and the compiled lidar kernel (`numba`, except on Intel macOS).
 
 ### From source
 

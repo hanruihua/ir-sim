@@ -98,6 +98,12 @@ Update order
 The environment updates sensors after all objects have moved in a step. This avoids temporal skew in readings. If you control objects manually, either pass `sensor_step=True` to `ObjectBase.step(...)` or call `obj.sensor_step()` after updating object states.
 ```
 
+### Batched scanning and accuracy
+
+All ordinary `lidar2d` sensors of an environment are cast together in one batched pass: the first one to step after objects move casts every lidar, and the others read their scans from that pass. It uses the same polygon and map boundaries as individual scans. NumPy is always available; installing `ir-sim[fast]` adds a compiled Numba kernel, which is then used automatically. `ir-sim[all]` skips Numba on Intel macOS, where it has no prebuilt wheels, and if an installed Numba cannot compile the kernel, IR-SIM warns once and scans with NumPy.
+
+Batched scans are bit-for-bit identical to individual scans, with either kernel: ranges, beam coordinates, target velocities, the `valid` mask, range limits and seeded sensor-noise order, including scenes that mix ordinary and FMCW LiDAR. Range noise applies only to hits, while misses remain at `range_max`. Sensors with angular noise, scans near numerical boundaries, such as tangencies, segment endpoints, maximum range or tied target distances, and lidars whose carrier you moved yourself since the last pass (for example with `robot.step(action)`) use the per-sensor reference path. Regression tests check the bit-for-bit match with individual scans, and compare both with independent GEOS intersections at an absolute range tolerance of `1e-9` metres.
+
 ### Important Parameters Explained
 
 To configure the 2D LiDAR sensor, the sensor name of `lidar2d` should be defined in the `sensors` section of the robot. Key parameters of the LiDAR sensor are explained below:

@@ -148,6 +148,20 @@ msgid "`pynput`_ - For keyboard and mouse input handling"
 msgstr "`pynput`_ —— 处理键盘与鼠标输入"
 
 #: ../../source/get_started/install.rst
+msgid "Faster LiDAR Scans"
+msgstr "更快的激光雷达扫描"
+
+#: ../../source/get_started/install.rst
+msgid ""
+"IR-SIM casts all LiDAR sensors of a scene in one batched pass with NumPy. "
+"For larger swarms, install the optional compiled kernel:"
+msgstr "IR-SIM 使用 NumPy 在一次批量计算中扫描场景中的全部激光雷达。对于更大规模的集群，可安装可选的编译内核："
+
+#: ../../source/get_started/install.rst
+msgid "`numba`_ - Compiles the batched LiDAR kernel (not available on Intel macOS)"
+msgstr "`numba`_ —— 编译批量激光雷达内核（Intel macOS 上不可用）"
+
+#: ../../source/get_started/install.rst
 msgid "Linting"
 msgstr "代码检查"
 
@@ -234,6 +248,10 @@ msgstr "增强的视频支持（`imageio[ffmpeg]`）"
 #: ../../source/get_started/install.rst:136
 msgid "ORCA group behavior (`pyrvo`)"
 msgstr "ORCA 群组行为（`pyrvo`）"
+
+#: ../../source/get_started/install.rst
+msgid "Compiled LiDAR kernel (`numba`, except on Intel macOS)"
+msgstr "激光雷达编译内核（`numba`，Intel macOS 除外）"
 
 #: ../../source/get_started/install.rst:140
 msgid "Developer Setup"

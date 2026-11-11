@@ -95,7 +95,7 @@ cd docs && make html
 - `probabilistic_road_map.py`: PRM path planning
 
 **Sensors** (`irsim/world/sensors/`):
-- `lidar2d.py`: 2D LiDAR simulation
+- `lidar2d.py`: 2D LiDAR simulation; `Lidar2D.step` takes its scan from `irsim/lib/algorithm/ray_cast2d_batch.py`, which casts all plain lidars of an environment in one pass, bit-identical to the per-sensor cast (NumPy, or a compiled numba kernel with `ir-sim[fast]`; keep both kernels' arithmetic elementwise and in the per-sensor order, no BLAS or fused math), and recasts when the env rebuilds its geometry tree; ambiguous scans, angular noise and carriers moved since the pass cast alone (`_cast_alone`, through `ray_casting_2d.cast_rays`)
 - `fmcw_lidar2d.py`: Simplified 2D FMCW LiDAR with per-beam radial velocity
 - `contact2d.py`: `Contact2D` (`type: contact2d`, named like `lidar2d`), the contact bookkeeping of one object (`in_contact`, `partners`, `records`, `force`, `contact_time`/`air_time`, `started`/`ended`) written by the env (`clear`/`tick`) and the contact solver (`add`/`add_force`); every object gets one built in as `obj.contact`, a plain attribute like `obj.lidar` (the boolean reading is `obj.contact.in_contact`; the object has no `contact_*` mirror properties, and a sensor and a flag never share a name), one listed under `sensors` is also drawn (contact points and force lines scaled by `force_scale`)
 - `sensor_factory.py`: Factory for sensor instantiation
@@ -135,7 +135,7 @@ irsim/                  # Main package
 │   └── description/    # Robot/vehicle visualization assets (PNG)
 ├── lib/                # Algorithms and behaviors
 │   ├── behavior/       # Robot behaviors (dash, rvo, sfm, orca)
-│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, contact, generation)
+│   ├── algorithm/      # Core algorithms (kinematics, rvo, sfm, contact, generation, ray casting)
 │   ├── path_planners/  # Path planning (A*, RRT, RRT*, Informed RRT*, JPS, PRM)
 │   └── handler/        # Geometry and kinematics handlers
 ├── gui/                # Keyboard/mouse controls
@@ -165,7 +165,8 @@ Type checking uses `ty` with custom rule configurations in `pyproject.toml`.
 **Optional dependencies**:
 - `pynput`: Keyboard control (`pip install ir-sim[keyboard]`)
 - `pyrvo`: ORCA group behavior (`pip install pyrvo`)
-- All extras: `pip install ir-sim[all]` (includes pynput, imageio[ffmpeg], pyrvo)
+- `numba`: compiled kernel of the batched lidar cast (`pip install ir-sim[fast]`)
+- All extras: `pip install ir-sim[all]` (includes pynput, imageio[ffmpeg], pyrvo, and numba except on Intel macOS)
 
 ## Testing Notes
 
