@@ -52,6 +52,7 @@ class _DummyObstacleObject:
         geometry_valid=True,
     ):
         self._id = obj_id
+        self.sensors = []
         self._geometry = geometry
         self._geometry_valid = geometry_valid
         self.shape = shape
@@ -72,6 +73,7 @@ class _DummyMapObject:
 
     def __init__(self, obj_id, linestrings):
         self._id = obj_id
+        self.sensors = []
         self.linestrings = list(linestrings)
         self._geometry = shapely.MultiLineString(self.linestrings)
         self._geometry_valid = True
@@ -978,6 +980,7 @@ class _MapObject:
 
     def __init__(self, obj_id, linestrings):
         self._id = obj_id
+        self.sensors = []
         self.linestrings = list(linestrings)
         self._geometry = shapely.MultiLineString(self.linestrings)
         self._geometry_valid = True
@@ -995,6 +998,7 @@ class _Obstacle:
 
     def __init__(self, obj_id, geometry, shape="circle", velocity_xy=(0.0, 0.0)):
         self._id = obj_id
+        self.sensors = []
         self._geometry = geometry
         self._geometry_valid = True
         self.shape = shape
@@ -1103,6 +1107,27 @@ def test_lidar_single_beam_tof():
     assert len(shapely.get_parts(tof._geometry)) == 1
     assert np.asarray(tof.get_scan()["ranges"]).shape == (1,)
     assert tof.get_points().shape == (2, 1)
+
+
+def test_lidar_geometry_follows_the_latest_scan():
+    """Beam geometry built lazily after a step reflects that step, not an older one."""
+    obstacle = _Obstacle(2, shapely.box(2.0, -1.0, 2.5, 1.0), shape="rectangle")
+    env_param = _EnvParam([obstacle], STRtree([obstacle.geometry]))
+    lidar = Lidar2D(
+        state=np.array([[0.0], [0.0], [0.0]]),
+        obj_id=1,
+        number=1,
+        angle_range=0.0,
+        range_max=5.0,
+    )
+    lidar.parent = _Parent(env_param)
+    lidar.step(lidar.state)
+    assert shapely.length(lidar._geometry) == pytest.approx(2.0, abs=1e-6)
+
+    lidar.step(np.array([[1.0], [0.0], [0.0]]))
+
+    assert shapely.length(lidar._geometry) == pytest.approx(1.0, abs=1e-6)
+    np.testing.assert_allclose(lidar.get_points()[:, 0], [1.0, 0.0], atol=1e-6)
 
 
 def _geos_difference_ranges(lidar, obstacle_geometries):

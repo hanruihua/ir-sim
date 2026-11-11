@@ -10,10 +10,12 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from shapely import MultiLineString
 
 from irsim.config import palette_param
+from irsim.lib.algorithm import ray_cast2d_batch
 from irsim.lib.algorithm.ray_casting_2d import cast_rays
 from irsim.util.random import rng
 from irsim.util.util import (
     ClipTo2Pi,
+    WrapToPi,
     geometry_transform,
     transform_point_with_state,
 )
@@ -127,6 +129,12 @@ class Lidar2D:
         self.range_data = range_max * np.ones(number)
         self.valid = np.zeros(number, dtype=bool)
 
+        # Beam geometry is rebuilt lazily from ``_scan_origin`` and
+        # ``_scan_directions`` the first time ``_geometry`` is read after a step.
+        self._geometry_cache = None
+        self._scan_origin = None
+        self._scan_directions = None
+
         self.angle_list = np.linspace(self.angle_min, self.angle_max, num=number)
         self._cast_angles = self.angle_list
 
@@ -184,16 +192,30 @@ class Lidar2D:
 
     def step(self, state: np.ndarray) -> None:
         """
-        Update the Lidar's state and compute per-beam ranges via ray casting.
+        Update the Lidar's state and compute per-beam ranges.
+
+        The scan comes from one batched cast of all lidars of the environment
+        (:mod:`~irsim.lib.algorithm.ray_cast2d_batch`), which gives the same
+        ranges; the first lidar to step after objects moved makes it. When the
+        batch cannot reproduce this sensor's scan, the sensor casts alone.
+
+        Args:
+            state (np.ndarray): New state of the sensor.
+        """
+        scan = ray_cast2d_batch.scan(self, state)
+        if scan is None:
+            self._cast_alone(state)
+        else:
+            self._apply_scan(scan)
+
+    def _cast_alone(self, state: np.ndarray) -> None:
+        """Cast this sensor's beams by itself.
 
         Each beam is intersected analytically against the boundary segments of
         nearby obstacles (polygons, linestrings, and map segments); the nearest
         hit along the beam is its range. This reproduces the previous geometry
         ``difference`` result to floating-point precision when the sensor origin
         is in free space, while avoiding the expensive GEOS overlay.
-
-        Args:
-            state (np.ndarray): New state of the sensor.
         """
         self._state = state
 
@@ -205,9 +227,27 @@ class Lidar2D:
             detected_objects,
             self.range_max,
         )
+        self._store_ranges(ranges, hit_object_indices >= 0)
+        self._rebuild_scan_geometry(origin, directions)
 
-        hits = hit_object_indices >= 0
+        if self.has_velocity:
+            self._assign_velocities(hit_object_indices, detected_objects)
 
+    def _apply_scan(self, scan) -> None:
+        """Store this sensor's scan from the batched cast (see :meth:`step`)."""
+        self._state = scan.state
+        self.lidar_origin = np.array(
+            [[scan.origin[0]], [scan.origin[1]], [WrapToPi(scan.heading)]],
+            dtype=float,
+        )
+        self._cast_angles = self.angle_list
+        self._store_ranges(scan.distance, np.isfinite(scan.distance))
+        self._rebuild_scan_geometry(scan.origin, scan.direction)
+        if self.has_velocity:
+            self._assign_velocities(scan.target, scan.objects)
+
+    def _store_ranges(self, ranges: np.ndarray, hits: np.ndarray) -> None:
+        """Add range noise to the hits, then set ``valid`` and ``range_data``."""
         if self.noise and hits.any():
             ranges = np.array(ranges, dtype=float, copy=True)
             ranges[hits] += rng.normal(0, self.std, int(hits.sum()))
@@ -215,11 +255,6 @@ class Lidar2D:
         in_band = (ranges >= self.range_min) & (ranges <= self.range_max)
         self.valid[:] = hits & in_band
         self.range_data[:] = np.clip(ranges, self.range_min, self.range_max)
-
-        self._rebuild_scan_geometry(origin, directions)
-
-        if self.has_velocity:
-            self._assign_velocities(hit_object_indices, detected_objects)
 
     def _get_detected_objects(self, lidar_geometry) -> list:
         """Select objects that may produce a return for this lidar geometry.
@@ -277,17 +312,33 @@ class Lidar2D:
     def _rebuild_scan_geometry(
         self, origin: np.ndarray, directions: np.ndarray
     ) -> None:
-        """Rebuild each clipped beam from its origin and measured range."""
+        """Record the scan for lazy clipped-beam geometry construction."""
         # Kept for consumers that need the directions the beams were actually
         # cast along (they differ from the nominal angles under angle noise).
         self._beam_origin = origin
         self._beam_directions = directions
-        endpoints = origin + self.range_data[:, None] * directions
-        origins = np.broadcast_to(origin, endpoints.shape)
-        beam_coordinates = np.stack([origins, endpoints], axis=1)
-        self._geometry = shapely.multilinestrings(
-            shapely.linestrings(beam_coordinates),
-        )
+        self._scan_origin = np.asarray(origin, dtype=float).reshape(2)
+        self._scan_directions = directions
+        self._geometry_cache = None
+
+    @property
+    def _geometry(self):
+        if self._geometry_cache is None and self._scan_origin is not None:
+            endpoints = (
+                self._scan_origin + self.range_data[:, None] * self._scan_directions
+            )
+            origins = np.broadcast_to(self._scan_origin, endpoints.shape)
+            beam_coordinates = np.stack([origins, endpoints], axis=1)
+            self._geometry_cache = shapely.multilinestrings(
+                shapely.linestrings(beam_coordinates),
+            )
+        return self._geometry_cache
+
+    @_geometry.setter
+    def _geometry(self, value) -> None:
+        self._geometry_cache = value
+        self._scan_origin = None
+        self._scan_directions = None
 
     def _assign_velocities(
         self,

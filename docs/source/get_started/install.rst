@@ -121,6 +121,20 @@ Install with Additional Features
     * `pynput`_ - For keyboard and mouse input handling
 
 
+.. dropdown:: Faster LiDAR Scans
+
+    IR-SIM casts all LiDAR sensors of a scene in one batched pass with NumPy.
+    For larger swarms, install the optional compiled kernel:
+
+    ::
+
+        python -m pip install "ir-sim[fast]"
+
+    This installs:
+
+    * `numba`_ - Compiles the batched LiDAR kernel (not available on Intel macOS)
+
+
 .. dropdown:: All Features
 
     To install all optional runtime dependencies and features:
@@ -134,6 +148,7 @@ Install with Additional Features
     * Keyboard control (`pynput`)
     * Enhanced video support (`imageio[ffmpeg]`)
     * ORCA group behavior (`pyrvo`)
+    * Compiled LiDAR kernel (`numba`, except on Intel macOS)
 
 
 Developer Setup
@@ -228,6 +243,7 @@ They are not required to run normal simulations.
 .. _SciPy: https://www.scipy.org/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pynput: https://pypi.org/project/pynput/
+.. _numba: https://numba.pydata.org/
 .. _IR-SIM git repository: https://github.com/hanruihua/ir-sim
 .. _pip: https://pip.pypa.io/
 .. _pyproject.toml: https://github.com/hanruihua/ir-sim/blob/main/pyproject.toml
