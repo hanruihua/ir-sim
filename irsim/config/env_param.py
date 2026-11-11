@@ -13,6 +13,7 @@ from types import ModuleType
 from typing import Any
 
 import numpy as np
+from shapely import STRtree
 
 from irsim.world.object_base import ObjectBase
 
@@ -24,7 +25,12 @@ class EnvParam:
     Attributes:
         objects: Objects currently managed by the environment.
         logger: Environment logger instance.
-        GeometryTree: Spatial index used for geometry queries, when available.
+        GeometryTree: Spatial index of the objects' world geometry, for
+            collision and sensor queries; read it through
+            :meth:`geometry_tree`, which keeps it current.
+        geometry_changed: An object's world geometry changed since
+            ``GeometryTree`` was built (set by every geometry update of an
+            object), so the tree is rebuilt at its next query.
         platform_name: Name of the current operating system platform.
         id_iter: Counter handing out object ids; each environment numbers its
             objects from 0.
@@ -38,10 +44,25 @@ class EnvParam:
     objects: list[ObjectBase] = field(default_factory=list)
     logger: Any | None = None
     GeometryTree: Any | None = None
+    geometry_changed: bool = False
     platform_name: str = field(default_factory=platform.system)
     id_iter: Iterator[int] = field(default_factory=itertools.count)
     env_id: int | None = None
     rng: np.random.Generator | None = None
+
+    def build_tree(self) -> None:
+        """Index the world geometry of every object."""
+        self.GeometryTree = STRtree([obj.geometry for obj in self.objects])
+        self.geometry_changed = False
+
+    def geometry_tree(self) -> STRtree | None:
+        """The geometry index, rebuilt first if an object moved or changed shape
+        since it was built, so objects moved by hand between steps (for
+        example with ``set_state``) are found at their new place. Many changes
+        cost one rebuild, at the next query."""
+        if self.geometry_changed:
+            self.build_tree()
+        return self.GeometryTree
 
 
 # Multi-env storage (default index 0)

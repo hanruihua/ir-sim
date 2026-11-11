@@ -133,7 +133,8 @@ Each environment instance creates and binds its own parameter objects:
 |-----------|------|-------------|
 | `objects` | `list[ObjectBase]` | List of all objects in the environment |
 | `logger` | `EnvLogger` | Logger instance for this environment |
-| `GeometryTree` | `STRtree` | Spatial index for collision detection |
+| `GeometryTree` | `STRtree` | Spatial index for collision detection and lidar queries; `geometry_tree()` returns it, rebuilt first after any object moved |
+| `geometry_changed` | `bool` | An object moved or changed shape since `GeometryTree` was built |
 | `platform_name` | `str` | Operating system name |
 | `id_iter` | `Iterator[int]` | Counter that numbers this environment's objects from 0 |
 | `env_id` | `int` | Number of the owning environment (`env.id`), assigned in creation order and never reused in a process |

@@ -205,8 +205,22 @@ msgid "`STRtree`"
 msgstr "`STRtree`"
 
 #: ../../source/usage/multiple_environments.md:81
-msgid "Spatial index for collision detection"
-msgstr "用于碰撞检测的空间索引"
+msgid ""
+"Spatial index for collision detection and lidar queries; `geometry_tree()` "
+"returns it, rebuilt first after any object moved"
+msgstr "用于碰撞检测和激光雷达查询的空间索引；`geometry_tree()` 返回它，若有对象移动过则先重建"
+
+#: ../../source/usage/multiple_environments.md:81
+msgid "`geometry_changed`"
+msgstr "`geometry_changed`"
+
+#: ../../source/usage/multiple_environments.md:81
+msgid "`bool`"
+msgstr "`bool`"
+
+#: ../../source/usage/multiple_environments.md:81
+msgid "An object moved or changed shape since `GeometryTree` was built"
+msgstr "自 `GeometryTree` 构建以来，有对象移动或改变了形状"
 
 #: ../../source/usage/multiple_environments.md:81
 msgid "`platform_name`"

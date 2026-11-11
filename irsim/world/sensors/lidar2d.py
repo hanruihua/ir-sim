@@ -230,7 +230,7 @@ class Lidar2D:
         geometry-only ray-casting operation.
         """
         objects = self._env_param.objects
-        geometry_tree = self._env_param.GeometryTree
+        geometry_tree = self._env_param.geometry_tree()
         if geometry_tree is None:
             return []
 
