@@ -62,10 +62,16 @@ def _nonparallel_hit_distances(
         distance matrix, its intersection denominator, and the per-segment
         cross product used to identify collinear segments.
     """
-    perpendicular_directions = np.column_stack((-directions[:, 1], directions[:, 0]))
+    dx, dy = directions[:, 0], directions[:, 1]
+    vx, vy = segment_vectors[:, 0:1], segment_vectors[:, 1:2]
+    ox, oy = start_to_origin[:, 0:1], start_to_origin[:, 1:2]
     with np.errstate(all="ignore"):
-        denominator = segment_vectors @ perpendicular_directions.T
-        segment_position = (start_to_origin @ perpendicular_directions.T) / denominator
+        # Dot products with the perpendicular direction ``(-dy, dx)``, written
+        # out instead of ``@``: a BLAS product rounds differently with the
+        # matrix size, which the batched cast (ray_cast2d_batch) could not
+        # reproduce bit for bit.
+        denominator = vy * dx - vx * dy
+        segment_position = (oy * dx - ox * dy) / denominator
         line_cross = (
             segment_vectors[:, 0] * start_to_origin[:, 1]
             - segment_vectors[:, 1] * start_to_origin[:, 0]
