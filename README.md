@@ -185,7 +185,7 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 | **Sensors**      | 2D LiDAR · 2D FMCW LiDAR · Contact Sensor · FOV Detector                                                                                                                                                 |
 | **Geometries**   | Circle · Rectangle · Polygon · LineString · Binary Grid Map · Fog of Map                                                                                                                |
 | **Behaviors**    | dash (move directly toward goal) · RVO (Reciprocal Velocity Obstacle) · ORCA (Optimal Reciprocal Collision Avoidance) · SFM (Social Force Model, per-object and group with social groups) |
-| **Collision**    | stop · unobstructed · unobstructed_obstacles · contact (rigid-body pushing with mass, friction and inertia: robots push what they can overcome, stall against heavier boxes, off-center pushes turn boxes, released boxes slide to a stop, walls block)                                            |
+| **Collision**    | stop · unobstructed · unobstructed_obstacles · contact                                           |
 
 ## Documentation
 
@@ -193,6 +193,8 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 - **Chinese (中文):** [https://ir-sim.readthedocs.io/zh-cn](https://ir-sim.readthedocs.io/zh-cn)
 
 ## Projects Using IR-SIM
+
+*If your publication, project, or course uses IR-SIM, we welcome proposals for inclusion via an issue or pull request.*
 
 ### Academic Publications
 
@@ -216,8 +218,6 @@ For more examples, see the [usage directory](https://github.com/hanruihua/ir-sim
 
 - **The University of Hong Kong (HKU):** [COMP3356 Robotics](https://www.cs.hku.hk/index.php/programmes/course-offered?infile=2026/comp3356.html)
 - **Southern University of Science and Technology (SUSTech):** [CS401 Intelligent Robotics](https://github.com/Intelligent-Robot-Course)
-
-*If your publication, project, or course uses IR-SIM, we welcome proposals for inclusion via an issue or pull request.*
 
 ## Citation
 
