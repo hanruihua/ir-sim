@@ -39,7 +39,14 @@ dependencies = [
 
 [project.optional-dependencies]
 keyboard = ['pynput']
-all = ['pynput', 'imageio[ffmpeg]', 'pyrvo']
+fast = ['numba']
+# numba ships no Intel-macOS wheels; `all` skips it there instead of failing to build
+all = [
+    'pynput',
+    'imageio[ffmpeg]',
+    'pyrvo',
+    "numba; sys_platform != 'darwin' or platform_machine != 'x86_64'",
+]
 
 [dependency-groups]
 docs = [
