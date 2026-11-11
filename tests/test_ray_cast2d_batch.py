@@ -705,10 +705,11 @@ def test_only_regular_circle_buffers_are_cast_as_circles():
 
     from irsim.lib.algorithm.ray_cast2d_batch import _as_circle_polygon
 
-    angles, edge_start, edge_end, center, radius = _as_circle_polygon(
+    angles, edge_start, edge_end, center, radius, vertices = _as_circle_polygon(
         shapely.Point(1, 2).buffer(0.5, quad_segs=4)
     )
     assert angles.shape == (16,)
+    assert vertices.shape == (16, 2)
     assert np.all(np.diff(angles) > 0)
     # Every ring edge once, with its ends in the ring's direction.
     assert set(zip(edge_start.tolist(), edge_end.tolist(), strict=True)) == {
@@ -899,3 +900,183 @@ def test_batched_sensor_heading_is_wrapped_like_the_reference(backend, tmp_path)
         np.testing.assert_array_equal(sensor.lidar_origin, expected)
     finally:
         env.end(0)
+
+
+_MOVED_OBSTACLES = {
+    "wall": {"shape": {"name": "linestring", "vertices": [[0, -2], [0, 2]]}},
+    "circle": {"shape": {"name": "circle", "radius": 0.5}},
+    "box": {"shape": {"name": "rectangle", "length": 1.0, "width": 1.0}},
+}
+
+
+@pytest.mark.parametrize("moved", ["wall", "circle", "box", "robot"])
+@pytest.mark.parametrize("sensor_index", [0, 1], ids=["already_read", "not_yet_read"])
+def test_an_object_moved_after_the_cast_is_seen_at_its_new_place(
+    backend, moved, sensor_index, tmp_path
+):
+    """A manual move refreshes every scan, including one not yet read."""
+    obstacle = dict(_MOVED_OBSTACLES.get(moved, _MOVED_OBSTACLES["wall"]))
+    obstacle["state"] = [3.5, 0.1, 0]  # off the beam axis, so no vertex is hit
+    sensors = [{"type": "lidar2d", "number": 1, "range_max": 10}] * 2
+    env = _make(
+        _accuracy_scene(sensors=sensors, obstacles=[obstacle]),
+        tmp_path,
+        f"moved_{moved}",
+    )
+    try:
+        first, second = env.robot.sensors
+        env.build_tree()
+        first.step(env.robot.state[:3])  # second's cached scan is still unread
+        before = first.range_data.copy()
+        body = env.robot if moved == "robot" else env.obstacle_list[0]
+        x, y, theta = body.state[:3, 0]
+        body.set_state([x + 1, y, theta])  # one metre along the beam
+        lidar = (first, second)[sensor_index]
+        lidar.step(env.robot.state[:3])
+        after = lidar.range_data.copy()
+        lidar._cast_alone(env.robot.state[:3])
+        np.testing.assert_array_equal(after, lidar.range_data)
+        assert after[0] != before[0]
+    finally:
+        env.end(0)
+
+
+def test_a_pose_other_than_the_carriers_scans_from_that_pose(backend, tmp_path):
+    """lidar.step(state) casts from ``state`` even when its batched scan is
+    waiting to be taken."""
+    env = _make(_accuracy_scene(), tmp_path, "other_pose")
+    try:
+        env.build_tree()  # a new pass: the scan from the carrier's pose waits
+        lidar = env.robot.lidar
+        lidar.step(np.array([[1.0], [0.0], [0.0]]))
+        assert lidar.range_data[0] == pytest.approx(2.0)
+        np.testing.assert_array_equal(lidar.state[:2, 0], [1.0, 0.0])
+    finally:
+        env.end(0)
+
+
+def test_unchanged_scene_reuses_scans_with_fresh_range_noise(
+    backend, tmp_path, monkeypatch
+):
+    """Repeated sensor steps reuse intersections but draw range noise again."""
+    from irsim.util.random import set_seed
+
+    env = _make(_accuracy_scene(), tmp_path, "reused_scan")
+    try:
+        lidar = env.robot.lidar
+        lidar.noise, lidar.std = True, 0.1
+        state = env.robot.state[:3]
+        set_seed(7)
+        expected = []
+        for _ in range(3):
+            lidar._cast_alone(state)
+            expected.append(lidar.range_data.copy())
+
+        def unexpected_cast(*args):
+            pytest.fail("An unchanged scene should reuse the cached intersections")
+
+        monkeypatch.setattr(ray_cast2d_batch._caster, "_cast", unexpected_cast)
+        monkeypatch.setattr(lidar, "_cast_alone", unexpected_cast)
+        set_seed(7)
+        for ranges in expected:
+            lidar.step(state)
+            np.testing.assert_array_equal(lidar.range_data, ranges)
+        assert expected[0][0] != expected[1][0]
+    finally:
+        env.end(0)
+
+
+@pytest.mark.parametrize("quad_segs", [4, 16], ids=["different_count", "same_count"])
+@pytest.mark.parametrize("moving", [False, True], ids=["static", "moving"])
+@pytest.mark.parametrize("fresh_caster", [False, True], ids=["cached", "first_scan"])
+def test_pending_circle_replacement_keeps_the_placed_shape(
+    backend, quad_segs, moving, fresh_caster, tmp_path, monkeypatch
+):
+    """A replacement may shrink the radius or change the vertex count before
+    the next placement; a tree rebuild must still scan the current body."""
+    import shapely
+
+    obstacle = {"shape": {"name": "circle", "radius": 1}, "state": [4, 0.8, 0]}
+    if moving:
+        obstacle["kinematics"] = {"name": "omni"}
+    cfg = _accuracy_scene(obstacles=[obstacle])
+    cfg["robot"][0]["shape"] = {"name": "rectangle", "length": 0.4, "width": 0.4}
+    env = _make(cfg, tmp_path, "pending_circle")
+    try:
+        body, sensor = env.obstacle_list[0], env.robot.lidar
+        sensor._cast_alone(env.robot.state[:3])
+        original = sensor.range_data.copy()
+        assert original[0] < sensor.range_max
+
+        body.set_original_geometry(shapely.Point(0, 0).buffer(0.5, quad_segs=quad_segs))
+        if fresh_caster:
+            monkeypatch.setattr(ray_cast2d_batch, "_caster", RayCast2DBatch())
+        _batch_step(env)
+        np.testing.assert_array_equal(sensor.range_data, original)
+        assert ray_cast2d_batch._caster.backend == backend
+
+        body.set_state([4, 0.8, 0])
+        env.robot.sensor_step()
+        assert sensor.range_data[0] == sensor.range_max  # the smaller body is missed
+        sensor._cast_alone(env.robot.state[:3])
+        assert sensor.range_data[0] == sensor.range_max
+    finally:
+        env.end(0)
+
+
+@pytest.mark.parametrize("kind", ["segments", "circles"])
+@pytest.mark.parametrize("counts", [(5, 3), (3, 17), (0, 17), (5, 0)])
+def test_numpy_candidates_are_generated_in_bounded_chunks(kind, counts, monkeypatch):
+    """Even one sensor with more primitives than the limit stays bounded;
+    dense results are yielded on demand, in sensor order."""
+    n_sensors, n_items = counts
+    rays = ray_cast2d_batch.Rays(
+        np.zeros((n_sensors, 2)),
+        np.tile([1.0, 0.0], (n_sensors, 1, 1)),
+        np.ones(n_sensors),
+        np.arange(n_sensors),
+    )
+    centers = np.tile([0.5, 0.0], (n_items, 1))
+    owners = np.arange(n_items)
+    if n_items:
+        centers[-1, 0] = 10  # out of range
+    nonzero = np.nonzero
+    tested_sizes = []
+
+    def bounded_nonzero(near):
+        assert near.size <= 7
+        tested_sizes.append(near.size)
+        return nonzero(near)
+
+    monkeypatch.setattr(ray_cast2d_batch, "MAX_BLOCK_ELEMENTS", 7)
+    monkeypatch.setattr(np, "nonzero", bounded_nonzero)
+    if kind == "segments":
+        offset = np.array([0.0, 0.1])
+        segments = ray_cast2d_batch.Segments.of(
+            centers - offset, centers + offset, owner=0
+        )._replace(owner=owners)
+        chunks = ray_cast2d_batch._segments_in_range(rays, segments)
+    else:
+        circles = ray_cast2d_batch._NO_CIRCLES._replace(
+            owner=owners, radius=np.full(n_items, 0.1)
+        )
+        chunks = ray_cast2d_batch._circles_in_range(rays, centers, circles)
+    assert tested_sizes == []  # no full candidate list is allocated up front
+    found = []
+    for sensor, item in chunks:
+        assert len(sensor) <= 7
+        found.extend(zip(sensor.tolist(), item.tolist(), strict=True))
+    assert found == [
+        (sensor, item)
+        for sensor in range(n_sensors)
+        for item in range(n_items - 1)
+        if sensor != item
+    ]
+    assert sum(tested_sizes) == n_sensors * n_items
+
+
+def test_small_candidate_blocks_preserve_scans(backend, tmp_path, monkeypatch):
+    monkeypatch.setattr(ray_cast2d_batch, "MAX_BLOCK_ELEMENTS", 7)
+    _assert_same_scans(
+        _load(TESTS / "test_collision_avoidance.yaml", _ensure_lidar), tmp_path, steps=3
+    )

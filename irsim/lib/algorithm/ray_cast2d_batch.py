@@ -14,7 +14,9 @@ cast has four stages:
 2. **Scene.** Each body lidars can see becomes boundary segments
    (:class:`Segments`), except ``circle`` bodies, which stay circle polygons
    (:class:`CircleBodies`). Segments and polygon vertices are read from each
-   body's world geometry; those of static bodies are cached.
+   body's world geometry; those of static bodies are cached. Circle source
+   vertices are checked against that geometry; a replacement waiting to be
+   placed uses the current world's boundary segments instead.
 3. **Cast.** A sensor only meets the segments and circles within its range. For
    each such (sensor, primitive) pair, all beams of the sensor are intersected
    at once, and the nearest hit of each beam is kept (:class:`Hits`). A beam is
@@ -23,6 +25,8 @@ cast has four stages:
    starting inside, it may cross any edge. With numba installed
    (``pip install ir-sim[fast]``), the compiled :func:`cast_kernel` at the end
    of this module runs this stage in plain loops instead of the NumPy kernels.
+   NumPy generates and consumes candidate pairs in bounded chunks, so large
+   maps do not require the full sensor-by-segment matrix in memory.
 4. **Scans.** Each sensor's share of the hits becomes its scan
    (:class:`_Scan`). Sensors still apply their own range noise in their own
    step, so seeded noise is drawn in object order, as without the batch.
@@ -30,9 +34,11 @@ cast has four stages:
 A scan that rounding could decide is *ambiguous*: a beam grazing a circle or
 running along a segment, a hit at a segment end, the range limit or the sensor
 origin, or two targets at the same distance. The batch hands out no ambiguous
-scan, so those sensors cast alone, as do sensors with angular noise and
-sensors whose carrier moved since the cast (stepped before the tree is
-rebuilt).
+scan, so those sensors cast alone, as do sensors with angular noise or a
+requested pose different from the cached pose. Scans are reused until the
+geometry tree changes;
+reading it through ``EnvParam.geometry_tree()`` refreshes it after manual
+moves too, so the next sensor step casts the updated scene.
 
 Bit for bit: every other scan repeats the arithmetic of the per-sensor cast
 (:func:`~irsim.lib.algorithm.ray_casting_2d.cast_ray_segments`) exactly. The
@@ -89,7 +95,8 @@ except ImportError:  # pragma: no cover - optional dependency
 # Whether the compiled cast_kernel (end of this module) can be built.
 NUMBA_AVAILABLE = njit is not None
 
-# Largest (pair x beam) block intersected at once, in array elements.
+# Largest candidate (sensor x primitive) or intersection (pair x beam) block,
+# in array elements (intersection work always includes at least one pair).
 MAX_BLOCK_ELEMENTS = 1 << 22
 # Relative tolerance of "rounding could decide this". It only sends scans to
 # the sensor's own step; it never widens what counts as a hit.
@@ -162,6 +169,7 @@ class CirclePolygon(NamedTuple):
     edge_end: np.ndarray  # (M,) ring index where edge k ends
     center: np.ndarray  # (2,)
     radius: float
+    vertices: np.ndarray  # (M, 2) source vertices, in ring order
 
 
 class CircleBodies(NamedTuple):
@@ -288,23 +296,25 @@ class RayCast2DBatch:
         """``"numba"`` or ``"numpy"``: the kernel in use."""
         return "numpy" if self._kernel is None else "numba"
 
-    def scan(self, sensor) -> _Scan | None:
-        """The scan of ``sensor`` from one cast of all lidars of its environment.
+    def scan(self, sensor, state) -> _Scan | None:
+        """The scan of ``sensor`` from ``state``, out of one cast of all lidars
+        of its environment.
 
-        The cast is made again whenever the environment has rebuilt its
-        geometry tree, which it does after objects move. Returns ``None`` when
-        the sensor must cast alone: the batch does not cast it (a ``Lidar2D``
-        subclass, or angular noise), its scan is ambiguous, or its carrier
-        moved since the cast.
+        Read the current geometry tree, rebuilding it after any object moves,
+        and recast all lidars when it changes. Returns ``None`` when the sensor
+        must cast alone: the batch does not cast it (a ``Lidar2D`` subclass or
+        angular noise), its scan is ambiguous, or ``state`` differs from the
+        carrier pose the scan was cast from.
         """
         env_param = sensor._env_param
-        if env_param.GeometryTree is not self._tree:
-            self._tree = env_param.GeometryTree
+        tree = env_param.geometry_tree()
+        if tree is not self._tree:
+            self._tree = tree
             self._scans = {}
             for group in self._groups(env_param.objects):
                 self._scans.update(self._scan_group(group, env_param.objects))
         scan = self._scans.get(sensor)
-        if scan is None or scan.carrier is not sensor.parent._geometry:
+        if scan is None or not np.array_equal(scan.state, state):
             return None
         return scan
 
@@ -329,8 +339,7 @@ class RayCast2DBatch:
         heading = poses[:, 2] + np.array([s.offset[2, 0] for s in group.sensors])
         return {
             sensor: _Scan(
-                state=objects[owner].state[0:3],
-                carrier=objects[owner]._geometry,
+                state=poses[k, :, None],
                 origin=origin[k],
                 heading=heading[k],
                 direction=direction[k],
@@ -338,9 +347,7 @@ class RayCast2DBatch:
                 target=hits.target[k],
                 objects=objects,
             )
-            for k, (sensor, owner) in enumerate(
-                zip(group.sensors, group.owner, strict=True)
-            )
+            for k, sensor in enumerate(group.sensors)
             if not hits.ambiguous[k]
         }
 
@@ -401,6 +408,14 @@ class RayCast2DBatch:
             # cast them as plain polygons, moved to their poses every step.
             moving += [(index, obj) for index, obj, _ in circle]
             circle = []
+        if circle:
+            placed = _placed_circles(circle)
+            moving += [
+                (i, obj)
+                for (i, obj, _), ok in zip(circle, placed, strict=True)
+                if not ok
+            ]
+            circle = [item for item, ok in zip(circle, placed, strict=True) if ok]
         static_segments = self._static_segments.get(
             tuple((i, obj._id, id(geometry)) for i, obj, geometry in static),
             lambda: Segments.concat(
@@ -409,7 +424,7 @@ class RayCast2DBatch:
             ),
         )
         circles = self._circle_bodies.get(
-            tuple((i, obj._id, id(obj.gf._original_geometry)) for i, obj, _ in circle),
+            tuple((i, id(obj), id(polygon)) for i, obj, polygon in circle),
             lambda: CircleBodies.gather(circle),
         )
         moving_segments = [self._moved_segments(i, obj) for i, obj in moving]
@@ -441,15 +456,16 @@ class RayCast2DBatch:
         return _memo(self._boundaries, obj, geometry, _boundary_arrays)
 
     def _circle_polygon(self, obj) -> CirclePolygon | None:
-        """The circle polygon of ``obj``, or ``None`` if its shape is not one (cached)."""
+        """Metadata and source vertices of the base shape (cached). The scene
+        verifies that this shape has been placed before using the metadata."""
         return _memo(
             self._circle_polygons, obj, obj.gf._original_geometry, _as_circle_polygon
         )
 
 
-def scan(sensor) -> _Scan | None:
-    """The batched scan of ``sensor`` (see :meth:`RayCast2DBatch.scan`)."""
-    return _caster.scan(sensor)
+def scan(sensor, state) -> _Scan | None:
+    """The batched scan of ``sensor`` from ``state`` (see :meth:`RayCast2DBatch.scan`)."""
+    return _caster.scan(sensor, state)
 
 
 # ------------------------------------------------------------------- sensors
@@ -467,7 +483,6 @@ class _Scan(NamedTuple):
     """One sensor's share of a batched cast, before its range noise."""
 
     state: np.ndarray  # pose of the carrier the scan was cast from
-    carrier: object  # the carrier's geometry then; replaced when it moves
     origin: np.ndarray  # (2,) sensor position
     heading: float  # world heading of the sensor frame (carrier + offset)
     direction: np.ndarray  # (N, 2) unit beam directions
@@ -566,7 +581,26 @@ def _as_circle_polygon(geometry) -> CirclePolygon | None:
     forward = following == (order + 1) % len(coords)
     edge_start = np.where(forward, order, following)
     edge_end = np.where(forward, following, order)
-    return CirclePolygon(angles, edge_start, edge_end, center, radius)
+    return CirclePolygon(angles, edge_start, edge_end, center, radius, coords)
+
+
+def _placed_circles(items) -> np.ndarray:
+    """Which circle sources match their current world geometry, including
+    vertex order? Unplaced replacements must be cast as boundary segments.
+    All sources in ``items`` have the same vertex count."""
+    geometries = np.array([obj._geometry for _, obj, _ in items], dtype=object)
+    count = len(items[0][2].vertices)
+    placed = shapely.get_num_coordinates(geometries) == count + 1
+    matching = np.flatnonzero(placed)
+    if matching.size:
+        sources = np.stack([items[i][2].vertices for i in matching])
+        poses = np.array([_pose(items[i][1]) for i in matching])
+        expected = _beams_to_world(sources, poses)
+        world = shapely.get_coordinates(geometries[matching]).reshape(-1, count + 1, 2)
+        placed[matching] = np.all(world[:, :count] == expected, axis=(1, 2)) & np.all(
+            world[:, count] == expected[:, 0], axis=1
+        )
+    return placed
 
 
 def _pose(obj) -> np.ndarray:
@@ -600,91 +634,104 @@ def _beams_to_world(beams: np.ndarray, poses: np.ndarray) -> np.ndarray:
 # ------------------------------------------------------------- NumPy kernels
 # A cast pairs sensors with the primitives within their range, intersects all
 # beams of a sensor with a pair's primitive in one array operation, and folds
-# the distances into ``hits``. Pairs come sorted by sensor (``np.nonzero``
-# order) and are processed in blocks of at most MAX_BLOCK_ELEMENTS values.
+# the distances into ``hits``. Candidate pairs are generated and consumed in
+# bounded blocks, sorted by sensor (``np.nonzero`` order).
 
 
 def _cast_segments(rays: Rays, segments: Segments, hits: Hits, track: bool) -> None:
     """Intersect every beam with the segments whose box is within its range."""
-    sensor, segment = _segments_in_range(rays, segments)
-    for block in _blocks(len(sensor), rays.direction.shape[1]):
-        s, e = sensor[block], segment[block]
-        distance, ambiguous = _crossings(
-            rays.origin[s][:, None],
-            rays.direction[s],
-            rays.max_range[s][:, None],
-            segments.start[e][:, None],
-            segments.end[e][:, None],
-        )
-        hits.ambiguous[s[ambiguous.any(axis=1)]] = True
-        _keep_nearest(hits, s, distance, segments.owner[e], track)
+    for sensor, segment in _segments_in_range(rays, segments):
+        for block in _blocks(len(sensor), rays.direction.shape[1]):
+            s, e = sensor[block], segment[block]
+            distance, ambiguous = _crossings(
+                rays.origin[s][:, None],
+                rays.direction[s],
+                rays.max_range[s][:, None],
+                segments.start[e][:, None],
+                segments.end[e][:, None],
+            )
+            hits.ambiguous[s[ambiguous.any(axis=1)]] = True
+            _keep_nearest(hits, s, distance, segments.owner[e], track)
 
 
 def _cast_circles(rays: Rays, circles: CircleBodies, hits: Hits, track: bool) -> None:
     """Intersect every beam with the circle polygons within its range."""
     poses = circles.poses()
     centers = circles.centers(poses)
-    sensor, circle = _circles_in_range(rays, centers, circles)
     vertices = circles.ring_vertices()
-    for block in _blocks(len(sensor), rays.direction.shape[1]):
-        s, c = sensor[block], circle[block]
-        origin, direction = rays.origin[s], rays.direction[s]
-        max_range = rays.max_range[s]
-        t_in, touches, ambiguous = _circle_crossings(
-            origin, direction, max_range, centers[c], circles.radius[c]
-        )
-        hits.ambiguous[s[ambiguous]] = True
-        pair, beam = np.nonzero(touches)
-        if len(pair) == 0:
-            continue
-        near, unsure = _polygon_distances(
-            origin[pair],
-            direction[pair, beam],
-            max_range[pair],
-            t_in[pair, beam],
-            c[pair],
-            poses,
-            centers,
-            vertices,
-            circles,
-        )
-        hits.ambiguous[s[pair[unsure]]] = True
-        distance = np.full(touches.shape, np.inf)
-        distance[pair, beam] = near
-        _keep_nearest(hits, s, distance, circles.owner[c], track)
+    for sensor, circle in _circles_in_range(rays, centers, circles):
+        for block in _blocks(len(sensor), rays.direction.shape[1]):
+            s, c = sensor[block], circle[block]
+            origin, direction = rays.origin[s], rays.direction[s]
+            max_range = rays.max_range[s]
+            t_in, touches, ambiguous = _circle_crossings(
+                origin, direction, max_range, centers[c], circles.radius[c]
+            )
+            hits.ambiguous[s[ambiguous]] = True
+            pair, beam = np.nonzero(touches)
+            if len(pair) == 0:
+                continue
+            near, unsure = _polygon_distances(
+                origin[pair],
+                direction[pair, beam],
+                max_range[pair],
+                t_in[pair, beam],
+                c[pair],
+                poses,
+                centers,
+                vertices,
+                circles,
+            )
+            hits.ambiguous[s[pair[unsure]]] = True
+            distance = np.full(touches.shape, np.inf)
+            distance[pair, beam] = near
+            _keep_nearest(hits, s, distance, circles.owner[c], track)
 
 
 def _segments_in_range(rays: Rays, segments: Segments):
-    """``(sensor, segment)`` index pairs whose segment box is within the
-    sensor's range square; a sensor never sees its own body."""
-    x, y, r = rays.origin[:, 0:1], rays.origin[:, 1:2], rays.max_range[:, None]
-    box = segments.box
-    near = (
-        (box[None, :, 0] <= x + r)
-        & (box[None, :, 1] >= x - r)
-        & (box[None, :, 2] <= y + r)
-        & (box[None, :, 3] >= y - r)
-        & (segments.owner[None, :] != rays.owner[:, None])
-    )
-    return np.nonzero(near)
+    """Yield bounded ``(sensor, segment)`` candidate arrays; a sensor never
+    sees its own body."""
+    for sensors, items in _pair_blocks(len(rays.origin), len(segments.start)):
+        x, y = rays.origin[sensors, 0:1], rays.origin[sensors, 1:2]
+        r = rays.max_range[sensors, None]
+        box = segments.box[items]
+        near = (
+            (box[None, :, 0] <= x + r)
+            & (box[None, :, 1] >= x - r)
+            & (box[None, :, 2] <= y + r)
+            & (box[None, :, 3] >= y - r)
+            & (segments.owner[None, items] != rays.owner[sensors, None])
+        )
+        s, i = np.nonzero(near)
+        yield s + sensors.start, i + items.start
 
 
 def _circles_in_range(rays: Rays, centers: np.ndarray, circles: CircleBodies):
-    """``(sensor, circle)`` index pairs whose circle is within the sensor's range."""
-    dx = centers[None, :, 0] - rays.origin[:, 0:1]
-    dy = centers[None, :, 1] - rays.origin[:, 1:2]
-    reach = rays.max_range[:, None] + circles.radius[None, :]
-    reach += ROUND_OFF * np.maximum(1.0, reach)
-    near = (dx * dx + dy * dy <= reach**2) & (
-        circles.owner[None, :] != rays.owner[:, None]
-    )
-    return np.nonzero(near)
+    """Yield bounded ``(sensor, circle)`` candidate arrays within range."""
+    for sensors, items in _pair_blocks(len(rays.origin), len(centers)):
+        dx = centers[None, items, 0] - rays.origin[sensors, 0:1]
+        dy = centers[None, items, 1] - rays.origin[sensors, 1:2]
+        reach = rays.max_range[sensors, None] + circles.radius[None, items]
+        reach += ROUND_OFF * np.maximum(1.0, reach)
+        near = (dx * dx + dy * dy <= reach**2) & (
+            circles.owner[None, items] != rays.owner[sensors, None]
+        )
+        s, i = np.nonzero(near)
+        yield s + sensors.start, i + items.start
 
 
-def _blocks(n_pairs: int, n_beams: int):
-    """Slices over the pairs, each holding at most MAX_BLOCK_ELEMENTS values."""
-    size = max(1, MAX_BLOCK_ELEMENTS // n_beams)
-    return (slice(start, start + size) for start in range(0, n_pairs, size))
+def _pair_blocks(n_sensors: int, n_items: int):
+    """Tile the sensor x primitive test, bounding both dimensions. Split the
+    primitives too when a single sensor's row exceeds MAX_BLOCK_ELEMENTS."""
+    for sensors in _blocks(n_sensors, n_items):
+        for items in _blocks(n_items, sensors.stop - sensors.start):
+            yield sensors, items
+
+
+def _blocks(n_rows: int, row_size: int):
+    """Slices holding at most MAX_BLOCK_ELEMENTS values, or one row at least."""
+    size = max(1, MAX_BLOCK_ELEMENTS // max(1, row_size))
+    return (slice(start, min(start + size, n_rows)) for start in range(0, n_rows, size))
 
 
 def _cross(a: np.ndarray, b: np.ndarray) -> np.ndarray:

@@ -202,7 +202,7 @@ class Lidar2D:
         Args:
             state (np.ndarray): New state of the sensor.
         """
-        scan = ray_cast2d_batch.scan(self)
+        scan = ray_cast2d_batch.scan(self, state)
         if scan is None:
             self._cast_alone(state)
         else:
