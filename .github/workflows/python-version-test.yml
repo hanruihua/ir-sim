@@ -37,6 +37,11 @@ jobs:
 
     - name: Test with pytest (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
+      env:
+        # Coverage cannot trace numba-compiled code, so the job that uploads
+        # coverage runs the lidar kernel as plain Python; the other jobs test
+        # the compiled kernel.
+        NUMBA_DISABLE_JIT: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       run: |
         xvfb-run -s "-screen 0 1024x768x24" uv run pytest --cov-report=xml --cov-report=html
 
