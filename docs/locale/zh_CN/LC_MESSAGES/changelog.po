@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version:  IR-SIM\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-01 13:22+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-11-12 00:35+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
 "Language-Team: zh_CN <LL@li.org>\n"
@@ -20,6 +20,130 @@ msgstr ""
 #: ../../../../../../../Users/han/tech/ir-sim/changelog.md:2
 msgid "Changelog"
 msgstr "更新日志"
+
+#: ../../changelog.md:3
+msgid "2.12.1 (2026-11-12)"
+msgstr "2.12.1 (2026-11-12)"
+
+#: ../../changelog.md:6
+msgid "This release casts all 2D lidars of a step in one batched pass, lets ORCA groups avoid the obstacles around them, and keeps lidar and collision checks in step with objects moved by hand."
+msgstr "此版本将每一步的所有二维激光雷达放在一次批量计算中扫描，使 ORCA 群组能够避让周围的障碍物，并让激光雷达和碰撞检测及时反映手动移动的物体。"
+
+#: ../../changelog.md:8
+msgid "Measured headless on one CPU core of a Linux machine against 2.12.0 (median step time, mean of two runs):"
+msgstr "在一台 Linux 机器的单个 CPU 核心上以无头模式与 2.12.0 对比测得（步进耗时取中位数，两次运行取平均）："
+
+#: ../../changelog.md:1
+msgid "`env.step()`, 1000 robots with 64-beam lidar (`usage/27thousand__robot_world`)"
+msgstr "`env.step()`：1000 个配备 64 束激光雷达的机器人（`usage/27thousand__robot_world`）"
+
+#: ../../changelog.md:1
+msgid "`env.step()`, 1000 robots with 64-beam lidar, `ir-sim[fast]` (numba)"
+msgstr "`env.step()`：1000 个配备 64 束激光雷达的机器人，`ir-sim[fast]`（numba）"
+
+#: ../../changelog.md:1
+msgid "`env.step()`, 1000 dash robots"
+msgstr "`env.step()`：1000 个 dash 机器人"
+
+#: ../../changelog.md:1
+msgid "`env.step()`, 1000 robots with explicit-ID actions"
+msgstr "`env.step()`：1000 个通过显式 ID 接收动作的机器人"
+
+#: ../../changelog.md:1
+msgid "15.4x"
+msgstr "15.4x"
+
+#: ../../changelog.md:1
+msgid "26.7x"
+msgstr "26.7x"
+
+#: ../../changelog.md:1
+msgid "3.2x"
+msgstr "3.2x"
+
+#: ../../changelog.md:1
+msgid "2.3x"
+msgstr "2.3x"
+
+#: ../../changelog.md:8
+msgid "**ORCA groups avoid walls, grid maps and moving obstacles.** Static objects around the group, including occupied grid-map cells, enter ORCA as obstacles and moving ones as agents, so members no longer pass through them. See [`usage/19orca_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/19orca_world) for details. ([#390](https://github.com/hanruihua/ir-sim/pull/390))"
+msgstr "**ORCA 群组可避让墙体、栅格地图和移动障碍物。** 群组周围的静态物体（包括栅格地图中被占用的单元）作为障碍物、移动物体作为智能体加入 ORCA，成员不再穿过它们。详见 [`usage/19orca_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/19orca_world)。([#390](https://github.com/hanruihua/ir-sim/pull/390))"
+
+#: ../../changelog.md:6
+msgid "Features and Performance"
+msgstr "新功能与性能"
+
+#: ../../changelog.md:8
+msgid "**Batched 2D lidar is up to 26.7× faster.** All `lidar2d` sensors are cast together in one pass per step, and each scan matches a single sensor's scan bit for bit. `pip install ir-sim[fast]` installs numba, which compiles the lidar cast for extra speed. See [`usage/27thousand__robot_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/27thousand__robot_world) for details. ([#392](https://github.com/hanruihua/ir-sim/pull/392))"
+msgstr "**批量二维激光雷达最高提速 26.7 倍。** 每一步中所有 `lidar2d` 传感器在一次批量计算中一起扫描，每次扫描结果与单个传感器的扫描逐位一致。`pip install ir-sim[fast]` 会安装 numba，对激光雷达扫描进行编译加速。详见 [`usage/27thousand__robot_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/27thousand__robot_world)。([#392](https://github.com/hanruihua/ir-sim/pull/392))"
+
+#: ../../changelog.md:10
+msgid "**Dash behavior is 3.2× faster for 1000 robots.** Dash robots no longer collect the list of all other objects every step, which they never used. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)"
+msgstr "**1000 个机器人的 dash 行为加速 3.2 倍。** dash 机器人不再在每一步收集它们从不使用的其他所有物体列表。轨迹保持不变。([#389](https://github.com/hanruihua/ir-sim/pull/389)，基于 [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)"
+
+#: ../../changelog.md:11
+msgid "**Explicit-ID actions are 2.3× faster for 1000 robots.** `env.step(action, action_id=...)` finds each object through a lookup table instead of searching the object list once per ID. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)"
+msgstr "**1000 个机器人通过显式 ID 接收动作时加速 2.3 倍。** `env.step(action, action_id=...)` 通过查找表定位每个物体，不再为每个 ID 遍历一次物体列表。轨迹保持不变。([#389](https://github.com/hanruihua/ir-sim/pull/389)，基于 [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)"
+
+#: ../../changelog.md:1
+msgid "2.12.0"
+msgstr "2.12.0"
+
+#: ../../changelog.md:1
+msgid "2.12.1"
+msgstr "2.12.1"
+
+#: ../../changelog.md:1
+msgid "2211 ms"
+msgstr "2211 ms"
+
+#: ../../changelog.md:1
+msgid "143.9 ms"
+msgstr "143.9 ms"
+
+#: ../../changelog.md:1
+msgid "82.9 ms"
+msgstr "82.9 ms"
+
+#: ../../changelog.md:1
+msgid "79.4 ms"
+msgstr "79.4 ms"
+
+#: ../../changelog.md:1
+msgid "24.7 ms"
+msgstr "24.7 ms"
+
+#: ../../changelog.md:1
+msgid "50.1 ms"
+msgstr "50.1 ms"
+
+#: ../../changelog.md:15
+msgid "Fix"
+msgstr "修复"
+
+#: ../../changelog.md:17
+msgid "**Lidar and collision checks immediately see objects moved between environment steps.** Before, objects moved with `set_state()` or `robot.step()` were still searched at their old places until the next `env.step()`; now the geometry tree is rebuilt at the next query. ([#393](https://github.com/hanruihua/ir-sim/pull/393))"
+msgstr "**激光雷达和碰撞检测可立即感知在环境步进之间移动的对象。** 以前，通过 `set_state()` 或 `robot.step()` 移动的对象在下一次 `env.step()` 之前仍按旧位置被检索；现在几何树会在下一次查询时重建。([#393](https://github.com/hanruihua/ir-sim/pull/393))"
+
+#: ../../changelog.md:18
+msgid "**GUI backend selection respects user settings and installed toolkits.** IR-SIM no longer forces a backend: `MPLBACKEND` and `matplotlib.use()` are preserved, and Matplotlib can discover Qt6 and GTK backends as well as Tk. ([#388](https://github.com/hanruihua/ir-sim/pull/388))"
+msgstr "**GUI 后端选择遵循用户设置和已安装的图形工具包。** IR-SIM 不再强制指定后端：保留 `MPLBACKEND` 和 `matplotlib.use()` 的设置，Matplotlib 除 Tk 外还可发现 Qt6 和 GTK 后端。([#388](https://github.com/hanruihua/ir-sim/pull/388))"
+
+#: ../../changelog.md:19
+msgid "**Smaller fixes.** Missing GUI toolkits produce an installation hint, and lidar range calculations no longer depend on BLAS matrix-size rounding. ([#388](https://github.com/hanruihua/ir-sim/pull/388), [#392](https://github.com/hanruihua/ir-sim/pull/392))"
+msgstr "**其他修复。** 缺少 GUI 工具包时会给出安装提示，激光雷达距离计算不再受 BLAS 随矩阵大小变化的舍入方式影响。([#388](https://github.com/hanruihua/ir-sim/pull/388), [#392](https://github.com/hanruihua/ir-sim/pull/392))"
+
+#: ../../changelog.md:21
+msgid "Refactor"
+msgstr "重构"
+
+#: ../../changelog.md:23
+msgid "**Group behaviors share `target_roles` filtering.** ORCA and SFM groups now default to `'obstacle'`; set `target_roles: all` to include robots outside the group. ([#390](https://github.com/hanruihua/ir-sim/pull/390))"
+msgstr "**群体行为共用 `target_roles` 筛选。** ORCA 和 SFM 群组现在均默认为 `'obstacle'`；设置 `target_roles: all` 可将群组外的机器人纳入考虑。([#390](https://github.com/hanruihua/ir-sim/pull/390))"
+
+#: ../../changelog.md:27
+msgid "**Image-map tests clean up temporary PNG files on Windows.** Four tests no longer fail with `PermissionError` after their assertions pass. ([#383](https://github.com/hanruihua/ir-sim/pull/383)) (@dhyey-gosa)"
+msgstr "**图像地图测试可在 Windows 上清理临时 PNG 文件。** 四项测试不再在断言通过后因 `PermissionError` 失败。([#383](https://github.com/hanruihua/ir-sim/pull/383)) (@dhyey-gosa)"
 
 #: ../../../../../../../Users/han/tech/ir-sim/changelog.md:3
 msgid "2.12.0 (2026-10-04)"

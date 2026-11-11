@@ -1,12 +1,35 @@
 # Changelog
 
-## Unreleased
+## 2.12.1 (2026-11-12)
 
-- Performance:
-  - **All 2D lidars of a step are cast in one batched pass.** Every `lidar2d` sensor used to run its own scan through Shapely, so a swarm of lidar-equipped robots paid the per-sensor overhead N times. Now the first lidar to step after objects move gathers the beams of all sensors, culls obstacles by range, and intersects them with cached boundary segments and circle polygons in one NumPy pass; with `numba` installed (`pip install ir-sim[fast]`) a compiled kernel does the same in plain loops. The result is bit-for-bit identical to the per-sensor scan, with no option to set. Measured on one CPU core, 64-beam lidars in a 20 m arena with 14 boxes: 10 robots 6.5 ms -> 0.31 ms per `env.step()`, 100 robots 333 ms -> 3.5 ms (NumPy only: 0.67 ms and 16 ms). See [Batched scanning and accuracy](https://ir-sim.readthedocs.io/en/latest/usage/configure_sensor.html#batched-scanning-and-accuracy) for details.
+This release casts all 2D lidars of a step in one batched pass, lets ORCA groups avoid the obstacles around them, and keeps lidar and collision checks in step with objects moved by hand.
 
-- Fix:
-  - **Lidar ranges no longer depend on the BLAS library.** The per-sensor scan computes its intersections elementwise instead of with a BLAS product, whose last bits change with the matrix size; ranges can move by about one unit in the last place.
+Measured headless on one CPU core of a Linux machine against 2.12.0 (median step time, mean of two runs):
+
+| Time cost | 2.12.0 | 2.12.1 | Speedup |
+| --- | ---: | ---: | ---: |
+| `env.step()`, 1000 robots with 64-beam lidar (`usage/27thousand__robot_world`) | 2211 ms | 143.9 ms | 15.4x |
+| `env.step()`, 1000 robots with 64-beam lidar, `ir-sim[fast]` (numba) | 2211 ms | 82.9 ms | 26.7x |
+| `env.step()`, 1000 dash robots | 79.4 ms | 24.7 ms | 3.2x |
+| `env.step()`, 1000 robots with explicit-ID actions | 50.1 ms | 21.6 ms | 2.3x |
+
+### Features and Performance
+
+- **Batched 2D lidar is up to 26.7× faster.** All `lidar2d` sensors are cast together in one pass per step, and each scan matches a single sensor's scan bit for bit. `pip install ir-sim[fast]` installs numba, which compiles the lidar cast for extra speed. See [`usage/27thousand__robot_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/27thousand__robot_world) for details. ([#392](https://github.com/hanruihua/ir-sim/pull/392))
+- **ORCA groups avoid walls, grid maps and moving obstacles.** Static objects around the group, including occupied grid-map cells, enter ORCA as obstacles and moving ones as agents, so members no longer pass through them. See [`usage/19orca_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/19orca_world) for details. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
+- **Dash behavior is 3.2× faster for 1000 robots.** Dash robots no longer collect the list of all other objects every step, which they never used. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
+- **Explicit-ID actions are 2.3× faster for 1000 robots.** `env.step(action, action_id=...)` finds each object through a lookup table instead of searching the object list once per ID. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
+
+### Fix
+
+- **Lidar and collision checks immediately see objects moved between environment steps.** Before, objects moved with `set_state()` or `robot.step()` were still searched at their old places until the next `env.step()`; now the geometry tree is rebuilt at the next query. ([#393](https://github.com/hanruihua/ir-sim/pull/393))
+- **GUI backend selection respects user settings and installed toolkits.** IR-SIM no longer forces a backend: `MPLBACKEND` and `matplotlib.use()` are preserved, and Matplotlib can discover Qt6 and GTK backends as well as Tk. ([#388](https://github.com/hanruihua/ir-sim/pull/388))
+- **Image-map tests clean up temporary PNG files on Windows.** Four tests no longer fail with `PermissionError` after their assertions pass. ([#383](https://github.com/hanruihua/ir-sim/pull/383)) (@dhyey-gosa)
+- **Smaller fixes.** Missing GUI toolkits produce an installation hint, and lidar range calculations no longer depend on BLAS matrix-size rounding. ([#388](https://github.com/hanruihua/ir-sim/pull/388), [#392](https://github.com/hanruihua/ir-sim/pull/392))
+
+### Refactor
+
+- **Group behaviors share `target_roles` filtering.** ORCA and SFM groups now default to `'obstacle'`; set `target_roles: all` to include robots outside the group. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
 
 ## 2.12.0 (2026-10-04)
 
