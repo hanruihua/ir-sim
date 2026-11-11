@@ -2814,6 +2814,63 @@ class TestBatchedCollisionQuery:
             assert obj.collision_flag == bool(expected)
 
 
+class TestManualMoves:
+    """Objects moved by hand, between env steps, are seen at their new place
+    by the queries of the geometry tree."""
+
+    YAML = """
+world: {height: 10, width: 20}
+robot:
+  - kinematics: {name: 'diff'}
+    shape: {name: 'circle', radius: 0.2}
+    state: [1, 5, 0]
+    sensors:
+      - {type: 'lidar2d', range_min: 0, range_max: 5, angle_range: 0.2, number: 3}
+obstacle:
+  - shape: {name: 'circle', radius: 0.5}
+    state: [15, 5, 0]
+"""
+
+    @pytest.fixture
+    def env(self, env_factory, tmp_path):
+        path = tmp_path / "manual_moves.yaml"
+        path.write_text(self.YAML)
+        return env_factory(str(path))
+
+    def test_a_lidar_sees_an_obstacle_moved_into_its_range(self, env):
+        lidar = env.robot.lidar
+        assert min(lidar.range_data) == 5  # the obstacle is out of range
+        env.obstacle_list[0].set_state([3, 5, 0])
+        env.robot.sensor_step()
+        assert min(lidar.range_data) == pytest.approx(1.5, abs=0.01)
+
+    def test_a_collision_with_an_obstacle_moved_onto_a_robot_is_found(self, env):
+        env.obstacle_list[0].set_state([1.5, 5, 0])
+        env.robot.check_collision_status()
+        assert env.robot.collision_flag
+
+    def test_the_tree_is_rebuilt_once_per_change_not_per_query(self, env):
+        env_param = env._env_param
+        tree = env_param.geometry_tree()
+        assert env_param.geometry_tree() is tree
+        env.obstacle_list[0].set_state([3, 5, 0])
+        moved = env_param.geometry_tree()
+        assert moved is not tree
+        assert env_param.geometry_tree() is moved
+
+    def test_a_move_in_one_env_leaves_another_env_untouched(
+        self, env, env_factory, tmp_path
+    ):
+        other = env_factory(str(tmp_path / "manual_moves.yaml"))
+        tree = other._env_param.geometry_tree()
+        env.obstacle_list[0].set_state([3, 5, 0])
+        env.robot.sensor_step()
+        other.robot.sensor_step()
+        assert min(env.robot.lidar.range_data) == pytest.approx(1.5, abs=0.01)
+        assert min(other.robot.lidar.range_data) == 5
+        assert other._env_param.geometry_tree() is tree
+
+
 class TestDisplayBackend:
     """A displayed environment opens a window, never an IDE's still image."""
 

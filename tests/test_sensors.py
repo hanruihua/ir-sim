@@ -22,6 +22,9 @@ class _DummySensorEnvParam:
         self.objects = objects
         self.GeometryTree = geometry_tree
 
+    def geometry_tree(self):
+        return self.GeometryTree
+
 
 class _DummySensorEnv:
     def __init__(self, env_param):
@@ -955,6 +958,9 @@ class _EnvParam:
     def __init__(self, objects, tree):
         self.objects = objects
         self.GeometryTree = tree
+
+    def geometry_tree(self):
+        return self.GeometryTree
 
 
 class _Env:

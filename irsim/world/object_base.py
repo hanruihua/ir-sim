@@ -1913,6 +1913,19 @@ class ObjectBase:
         return self._geometry
 
     @property
+    def _geometry(self) -> BaseGeometry | None:
+        """World geometry of the object, placed from its state."""
+        return self._world_geometry
+
+    @_geometry.setter
+    def _geometry(self, geometry: BaseGeometry | None) -> None:
+        # Every geometry update of an object passes here, the env's own steps
+        # and moves by hand alike: the env's geometry tree is then rebuilt at
+        # its next query (EnvParam.geometry_tree).
+        self._world_geometry = geometry
+        self._env_param.geometry_changed = True
+
+    @property
     def centroid(self) -> np.ndarray:
         """
         Get the centroid of the object.
@@ -2289,7 +2302,7 @@ class ObjectBase:
         Returns:
             list: The possible collision objects that could collide with this object.
         """
-        tree = self._env_param.GeometryTree
+        tree = self._env_param.geometry_tree()
         possible = []
 
         if tree is None:

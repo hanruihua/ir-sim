@@ -22,7 +22,6 @@ import shapely
 from matplotlib import pyplot as plt
 from matplotlib import rcsetup
 from shapely import Polygon
-from shapely.strtree import STRtree
 
 from irsim.config import env_param, path_param, world_param
 from irsim.config.env_param import EnvParam
@@ -231,8 +230,8 @@ class EnvBase:
         # Wire env reference to all objects for param access
         self._wire_env_to_objects()
 
-        self.build_tree()
         self._env_param.objects = self._objects
+        self.build_tree()
         # Sensors read the scene through env_param; take the first scan now so
         # a scan requested before the first step is not blank.
         self._objects_sensor_step()
@@ -497,7 +496,7 @@ class EnvBase:
         but with a single spatial query and a single vectorized ``intersects``
         instead of one of each per object. Map objects keep their own test.
         """
-        tree, objects = self._env_param.GeometryTree, self.objects
+        tree, objects = self._env_param.geometry_tree(), self.objects
         if tree is None or not objects:
             return {}
 
@@ -530,16 +529,17 @@ class EnvBase:
     def _contact_step(self) -> None:
         """Push overlapping objects apart by mass (``collision_mode: contact``).
 
-        Runs after the kinematic step, in three stages:
+        Runs after the kinematic step, in two stages:
 
         1. Broad phase: :meth:`_contact_candidates` collects the object pairs
            close enough to touch after this step, within
            :meth:`_contact_margin`. ``unobstructed`` objects take no part.
         2. Solve: :func:`~irsim.lib.algorithm.contact.contact_step` separates
            the candidates that overlap by the contact rules (traction, mass,
-           friction cone, inertia, restitution) and moves the objects.
-        3. Refresh: when anything moved, the geometry tree is rebuilt so the
-           sensor step and the status check see the separated scene.
+           friction cone, inertia, restitution) and moves the objects. Every
+           push marks the geometry tree stale, so the sensor step and the
+           status check rebuild it at their first query and see the
+           separated scene.
 
         Each object's contact sensor (``obj.contact``) describes the last step
         only: every sensor is cleared first, the solver fills the sensors of
@@ -548,7 +548,7 @@ class EnvBase:
         """
         objects = self.objects
         self._contacts = []
-        if self._env_param.GeometryTree is None or not objects:
+        if self._env_param.geometry_tree() is None or not objects:
             return
 
         for obj in objects:
@@ -560,8 +560,6 @@ class EnvBase:
             self._contacts = contact_step(
                 pairs, margin=margin, step_time=self._world_param.step_time
             )
-            if any(contact.depth > 0 for contact in self._contacts):
-                self.build_tree()  # something moved; resting contacts change nothing
         for obj in objects:
             obj.contact.tick(self._world_param.step_time)
 
@@ -597,7 +595,7 @@ class EnvBase:
         and pairs with an ``unobstructed`` member are dropped.
         """
         objects = self.objects
-        tree = self._env_param.GeometryTree
+        tree = self._env_param.geometry_tree()
 
         # 1. Grow every object's bounding box by the margin.
         bounds = shapely.bounds(
@@ -1215,9 +1213,9 @@ class EnvBase:
         ) = self.env_config.reload_yaml_objects(world_name)
         # Wire env reference to newly created objects
         self._wire_env_to_objects()
-        self.build_tree()
         self.validate_unique_names()
         self._env_param.objects = self._objects
+        self.build_tree()
         # Sensors read the scene through env_param; take the first scan now so
         # a scan requested before the first step is not blank.
         self._objects_sensor_step()
@@ -1246,9 +1244,9 @@ class EnvBase:
             self._object_groups,
         ) = self.env_config.reload_objects()
         self._wire_env_to_objects()
-        self.build_tree()
         self.validate_unique_names()
         self._env_param.objects = self._objects
+        self.build_tree()
         # Sensors read the scene through env_param; take the first scan now so
         # a scan requested before the first step is not blank.
         self._objects_sensor_step()
@@ -1370,9 +1368,12 @@ class EnvBase:
     def build_tree(self) -> None:
         """
         Build the geometry tree for the objects in the environment to detect the possible collision objects.
+
+        The tree also rebuilds itself at its next query after any object moves
+        or changes shape, so calling this is needed only to rebuild it now.
         """
 
-        self._env_param.GeometryTree = STRtree([obj.geometry for obj in self.objects])
+        self._env_param.build_tree()
 
     def validate_unique_names(self) -> None:
         """Validate that all object names are unique.
