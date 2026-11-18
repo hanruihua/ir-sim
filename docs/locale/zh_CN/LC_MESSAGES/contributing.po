@@ -129,25 +129,29 @@ msgstr "文档"
 #: ../../source/contributing.md:50
 msgid ""
 "IR-SIM's documentation lives in the `docs/` directory and uses the [PyData "
-"Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). To "
-"build the docs locally:"
+"Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). Building "
+"the docs requires Python 3.11 or newer and `sphinx-design>=0.8.0`. From the "
+"repository root, create a separate documentation environment and build both "
+"English and Chinese with warnings treated as errors:"
 msgstr ""
 "IR-SIM 的文档位于 `docs/` 目录，使用 [PyData Sphinx Theme](https://pydata-"
-"sphinx-theme.readthedocs.io/en/stable/)。要在本地构建文档："
+"sphinx-theme.readthedocs.io/en/stable/)。构建文档需要 Python 3.11 或更高版本"
+"以及 `sphinx-design>=0.8.0`。在仓库根目录创建独立的文档环境，并将警告视为"
+"错误来构建中英文文档："
 
-#: ../../source/contributing.md:57
+#: ../../source/contributing.md:60
 msgid "New tutorials or guides belong in `docs/` or under `usage/`"
 msgstr "新的教程或指南应放在 `docs/` 或 `usage/` 目录下"
 
-#: ../../source/contributing.md:58
+#: ../../source/contributing.md:61
 msgid "The API reference is auto-generated from docstrings"
 msgstr "API 参考文档由 docstring 自动生成"
 
-#: ../../source/contributing.md:62
+#: ../../source/contributing.md:65
 msgid "Adding New Features"
 msgstr "添加新功能"
 
-#: ../../source/contributing.md:64
+#: ../../source/contributing.md:67
 msgid ""
 "Current support of sensors, behaviors, and robot kinematics models can be "
 "seen in the [support](https://github.com/hanruihua/ir-sim?tab=readme-ov-"
@@ -156,7 +160,7 @@ msgstr ""
 "当前支持的传感器、行为和机器人运动学模型可在 [support](https://github.com/"
 "hanruihua/ir-sim?tab=readme-ov-file#support) 中查看。"
 
-#: ../../source/contributing.md:66
+#: ../../source/contributing.md:69
 msgid ""
 "New features to support more platforms and scenarios to make IR-SIM more "
 "versatile are welcome. Please open an issue to discuss the design. If you "
@@ -165,23 +169,23 @@ msgstr ""
 "欢迎添加新功能以支持更多平台和场景，使 IR-SIM 更加通用。请提交 issue 讨论设计"
 "方案。如果您愿意，也可以发送邮件至 `hanrh@connect.hku.hk` 进行设计讨论。"
 
-#: ../../source/contributing.md:70
+#: ../../source/contributing.md:73
 msgid "Testing"
 msgstr "测试"
 
-#: ../../source/contributing.md:72
+#: ../../source/contributing.md:75
 msgid "We use **pytest** for our test suite. To run all tests:"
 msgstr "我们使用 **pytest** 作为测试框架。要运行所有测试："
 
-#: ../../source/contributing.md:78
+#: ../../source/contributing.md:81
 msgid "Please add tests for any new functionality or bug fix."
 msgstr "请为任何新功能或错误修复添加测试。"
 
-#: ../../source/contributing.md:82
+#: ../../source/contributing.md:85
 msgid "Pull Requests"
 msgstr "Pull Request"
 
-#: ../../source/contributing.md:84
+#: ../../source/contributing.md:87
 msgid ""
 "Open pull requests against the `main` branch, and keep each PR focused on a "
 "single change. Before submitting, run `ruff check` and `pytest`."
@@ -189,7 +193,7 @@ msgstr ""
 "请向 `main` 分支提交 pull request，并让每个 PR 聚焦于单一改动。提交前请运行 "
 "`ruff check` 与 `pytest`。"
 
-#: ../../source/contributing.md:86
+#: ../../source/contributing.md:89
 msgid ""
 "Use a [Conventional Commits](https://www.conventionalcommits.org/)-style "
 "title, `<type>(<scope>): <subject>`, where `<type>` is one of `feat`, `fix`, "
@@ -199,6 +203,6 @@ msgstr ""
 "题 —— `<type>(<scope>): <subject>` —— 其中 `<type>` 为 `feat`、`fix`、"
 "`docs`、`style`、`refactor`、`test` 或 `chore` 之一（scope 可选）："
 
-#: ../../source/contributing.md:96
+#: ../../source/contributing.md:99
 msgid "Thanks again for helping make IR-SIM better!"
 msgstr "再次感谢您帮助改进 IR-SIM！"

@@ -6,7 +6,7 @@ importlib-metadata
 sphinx_copybutton
 pydata-sphinx-theme
 pynput
-sphinx_design
+sphinx-design>=0.8.0
 sphinx_inline_tabs
 sphinx-autoapi
 sphinx-intl

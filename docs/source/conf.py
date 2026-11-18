@@ -83,6 +83,9 @@ ENABLE_AUTOAPI = True
 # description" warnings; :ivar: keeps the descriptions without a second target.
 napoleon_use_ivar = True
 
+# Cards use explicit header/footer directives instead of legacy separators.
+sd_card_legacy_separators = False
+
 myst_enable_extensions = [
     "amsmath",
     "deflist",

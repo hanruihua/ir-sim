@@ -42,7 +42,7 @@ html-main:
 
 html-zh: translations-zh
 	@echo "[sphinx] building language '$*' into $(BUILDDIR)/$*/html"
-	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/$(I18N_LANGUAGE)" -D language=$(I18N_LANGUAGE)
+	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/$(I18N_LANGUAGE)" -D language=$(I18N_LANGUAGE) $(SPHINXOPTS) $(O)
 
 html-i18n: translations-zh
 	@$(MAKE) html-zh

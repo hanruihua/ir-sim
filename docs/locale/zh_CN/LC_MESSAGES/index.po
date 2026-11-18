@@ -18,39 +18,39 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:257
+#: ../../source/index.rst:266
 msgid "Getting Started"
 msgstr "快速开始"
 
-#: ../../source/index.rst:257
+#: ../../source/index.rst:266
 msgid "User Guide"
 msgstr "用户指南"
 
-#: ../../source/index.rst:257
+#: ../../source/index.rst:266
 msgid "Configuration"
 msgstr "配置"
 
-#: ../../source/index.rst:257
+#: ../../source/index.rst:266
 msgid "API Reference"
 msgstr "API 参考"
 
-#: ../../source/index.rst:257
+#: ../../source/index.rst:266
 msgid "Documentation"
 msgstr "文档"
 
-#: ../../source/index.rst:267
+#: ../../source/index.rst:276
 msgid "Contributing"
 msgstr "贡献指南"
 
-#: ../../source/index.rst:267
+#: ../../source/index.rst:276
 msgid "Changelog"
 msgstr "更新日志"
 
-#: ../../source/index.rst:267
+#: ../../source/index.rst:276
 msgid "About Us"
 msgstr "关于我们"
 
-#: ../../source/index.rst:267
+#: ../../source/index.rst:276
 msgid "Development"
 msgstr "开发"
 
@@ -126,137 +126,137 @@ msgstr "适用于多智能体与机器人学习研究"
 msgid "See IR-SIM in action"
 msgstr "实际运行效果"
 
-#: ../../source/index.rst:65 ../../source/index.rst:70
+#: ../../source/index.rst:65 ../../source/index.rst:71
 msgid "Multi-Robot RVO Collision Avoidance"
 msgstr "多机器人 RVO 避障"
 
-#: ../../source/index.rst:76 ../../source/index.rst:81
+#: ../../source/index.rst:77 ../../source/index.rst:83
 msgid "200-Agent ORCA via pyrvo"
 msgstr "基于 pyrvo 的 200 智能体 ORCA"
 
-#: ../../source/index.rst:87 ../../source/index.rst:92
+#: ../../source/index.rst:89 ../../source/index.rst:95
 msgid "Social Force Model (SFM)"
 msgstr "社会力模型（SFM）"
 
-#: ../../source/index.rst:98 ../../source/index.rst:103
+#: ../../source/index.rst:101 ../../source/index.rst:107
 msgid "Ackermann Robot with 2D LiDAR"
 msgstr "搭载 2D 激光雷达的阿克曼机器人"
 
-#: ../../source/index.rst:109 ../../source/index.rst:114
+#: ../../source/index.rst:113 ../../source/index.rst:119
 msgid "Field-of-View Detection"
 msgstr "视场（FOV）检测"
 
-#: ../../source/index.rst:120 ../../source/index.rst:125
+#: ../../source/index.rst:125 ../../source/index.rst:131
 msgid "HM3D / MatterPort3D Grid Map"
 msgstr "HM3D / MatterPort3D 栅格地图"
 
-#: ../../source/index.rst:131 ../../source/index.rst:136
+#: ../../source/index.rst:137 ../../source/index.rst:143
 msgid "Dynamic Random Obstacles"
 msgstr "动态随机障碍物"
 
-#: ../../source/index.rst:142 ../../source/index.rst:147
+#: ../../source/index.rst:149 ../../source/index.rst:155
 msgid "Keyboard Control"
 msgstr "键盘控制"
 
-#: ../../source/index.rst:153 ../../source/index.rst:158
+#: ../../source/index.rst:161 ../../source/index.rst:167
 msgid "Fog-of-Map Exploration"
 msgstr "迷雾地图探索"
 
-#: ../../source/index.rst:161
+#: ../../source/index.rst:170
 msgid "Capabilities"
 msgstr "功能支持"
 
-#: ../../source/index.rst:166
+#: ../../source/index.rst:175
 msgid "**Kinematics**"
 msgstr "**运动学**"
 
-#: ../../source/index.rst:167
+#: ../../source/index.rst:176
 msgid ""
 "Differential drive · Omnidirectional · Omnidirectional (angular) · Ackermann "
 "steering"
 msgstr "差速驱动 · 全向 · 全向（带角速度控制） · 阿克曼转向"
 
-#: ../../source/index.rst:168
+#: ../../source/index.rst:177
 msgid "**Sensors**"
 msgstr "**传感器**"
 
-#: ../../source/index.rst:169
+#: ../../source/index.rst:178
 msgid "2D LiDAR · 2D FMCW LiDAR · Contact sensor · FOV detector"
 msgstr "2D 激光雷达 · 2D FMCW 激光雷达 · 接触传感器 · 视场（FOV）检测器"
 
-#: ../../source/index.rst:170
+#: ../../source/index.rst:179
 msgid "**Geometries**"
 msgstr "**几何形状**"
 
-#: ../../source/index.rst:171
+#: ../../source/index.rst:180
 msgid "Circle · Rectangle · Polygon · LineString · Binary grid map"
 msgstr "圆形 · 矩形 · 多边形 · 折线 · 二值栅格地图"
 
-#: ../../source/index.rst:172
+#: ../../source/index.rst:181
 msgid "**Behaviors**"
 msgstr "**行为**"
 
-#: ../../source/index.rst:173
+#: ../../source/index.rst:182
 msgid "dash · RVO · ORCA · SFM (Social Force Model)"
 msgstr "dash · RVO · ORCA · SFM（社会力模型）"
 
-#: ../../source/index.rst:176
+#: ../../source/index.rst:185
 msgid "Installation"
 msgstr "安装"
 
-#: ../../source/index.rst:178
+#: ../../source/index.rst:187
 msgid "Install the latest release from PyPI:"
 msgstr "从 PyPI 安装最新版本："
 
-#: ../../source/index.rst:184
+#: ../../source/index.rst:193
 msgid "Prefer conda or uv? Pick your installation method:"
 msgstr "更喜欢 conda 或 uv？选择你的安装方式："
 
-#: ../../source/index.rst:194
+#: ../../source/index.rst:205
 msgid ":bdg-success:`Recommended`"
 msgstr ":bdg-success:`推荐`"
 
-#: ../../source/index.rst:188
+#: ../../source/index.rst:197
 msgid "📦 pip"
 msgstr "📦 pip"
 
-#: ../../source/index.rst:198
+#: ../../source/index.rst:207
 msgid "Quick installation with pip"
 msgstr "使用 pip 快速安装"
 
-#: ../../source/index.rst:206
+#: ../../source/index.rst:217
 msgid ":bdg-info:`Popular`"
 msgstr ":bdg-info:`热门`"
 
-#: ../../source/index.rst:200
+#: ../../source/index.rst:209
 msgid "🐍 conda"
 msgstr "🐍 conda"
 
-#: ../../source/index.rst:210
+#: ../../source/index.rst:219
 msgid "Installation in conda environment"
 msgstr "在 conda 环境中安装"
 
-#: ../../source/index.rst:218
+#: ../../source/index.rst:229
 msgid ":bdg-warning:`Fast`"
 msgstr ":bdg-warning:`极速`"
 
-#: ../../source/index.rst:212
+#: ../../source/index.rst:221
 msgid "⚡ uv"
 msgstr "⚡ uv"
 
-#: ../../source/index.rst:222
+#: ../../source/index.rst:231
 msgid "Lightning-fast installation"
 msgstr "闪电般的安装速度"
 
-#: ../../source/index.rst:225
+#: ../../source/index.rst:234
 msgid "Projects using IR-SIM"
 msgstr "基于 IR-SIM 的项目"
 
-#: ../../source/index.rst:229
+#: ../../source/index.rst:238
 msgid "Academic Publications"
 msgstr "学术论文"
 
-#: ../../source/index.rst:232
+#: ../../source/index.rst:241
 msgid ""
 "`rl-rvo-nav (RAL & ICRA2023) <https://github.com/hanruihua/rl_rvo_nav>`_ - "
 "Reinforcement learning-based RVO behavior for multi-robot navigation."
@@ -264,7 +264,7 @@ msgstr ""
 "`rl-rvo-nav（RAL & ICRA2023） <https://github.com/hanruihua/rl_rvo_nav>`_ - "
 "基于强化学习的 RVO 行为，用于多机器人导航。"
 
-#: ../../source/index.rst:233
+#: ../../source/index.rst:242
 msgid ""
 "`RDA_planner (RAL & IROS2023) <https://github.com/hanruihua/RDA_planner>`_ - "
 "Accelerated collision-free motion planner for cluttered environments."
@@ -272,7 +272,7 @@ msgstr ""
 "`RDA_planner（RAL & IROS2023） <https://github.com/hanruihua/RDA_planner>`_ "
 "- 面向密集环境的加速无碰撞运动规划器。"
 
-#: ../../source/index.rst:234
+#: ../../source/index.rst:243
 msgid ""
 "`NeuPAN (T-RO 2025) <https://github.com/hanruihua/NeuPAN>`_ - Direct point "
 "robot navigation with end-to-end model-based learning."
@@ -280,7 +280,7 @@ msgstr ""
 "`NeuPAN（T-RO 2025） <https://github.com/hanruihua/NeuPAN>`_ - 端到端、基于模"
 "型学习的点云直接驱动机器人导航。"
 
-#: ../../source/index.rst:236
+#: ../../source/index.rst:245
 msgid ""
 "`MfNeuPAN (ROBIO 2025) <https://doi.org/10.1109/ROBIO66223.2025.11377233>`_ "
 "- Proactive end-to-end navigation in dynamic environments using direct multi-"
@@ -289,7 +289,7 @@ msgstr ""
 "`MfNeuPAN（ROBIO 2025） <https://doi.org/10.1109/ROBIO66223.2025.11377233>`_ "
 "- 基于直接多帧点约束的动态环境前瞻式端到端导航。"
 
-#: ../../source/index.rst:238
+#: ../../source/index.rst:247
 msgid ""
 "`SDLW (IROS 2026) <https://github.com/williamleong/sdlw>`_ - Decentralized "
 "scalable exploration using sensor-driven Lévy walks for minimal-sensing robot "
@@ -298,7 +298,7 @@ msgstr ""
 "`SDLW（IROS 2026） <https://github.com/williamleong/sdlw>`_ - 面向最小感知机"
 "器人团队的基于传感器驱动列维游走的分布式可扩展探索。"
 
-#: ../../source/index.rst:238
+#: ../../source/index.rst:247
 msgid ""
 "`PPO-GAT-Follow (Sensors 2026) <https://doi.org/10.3390/s26154711>`_ - "
 "Graph-attention reinforcement learning for robot person following in dense "
@@ -307,7 +307,7 @@ msgstr ""
 "`PPO-GAT-Follow（Sensors 2026） <https://doi.org/10.3390/s26154711>`_ - 面"
 "向密集人群中机器人跟随任务的图注意力强化学习方法。"
 
-#: ../../source/index.rst:239
+#: ../../source/index.rst:248
 msgid ""
 "`Energy-Efficient Federated Edge Learning for Small-Scale Datasets in Large "
 "IoT Networks (TWC 2026) <https://doi.org/10.1109/TWC.2026.3683911>`_ - "
@@ -318,7 +318,7 @@ msgstr ""
 "10.1109/TWC.2026.3683911>`_ - 通过 IR-SIM 中的自主导航与避障验证联邦边缘"
 "学习方法。"
 
-#: ../../source/index.rst:240
+#: ../../source/index.rst:249
 msgid ""
 "If your publication, project, or course uses IR-SIM, we welcome you to propose "
 "it for inclusion via an issue or pull request."
@@ -326,11 +326,11 @@ msgstr ""
 "如果您的论文、项目或课程使用了 IR-SIM，欢迎通过 issue 或 pull request 提交收录"
 "建议。"
 
-#: ../../source/index.rst:236
+#: ../../source/index.rst:245
 msgid "Community Projects"
 msgstr "社区项目"
 
-#: ../../source/index.rst:239
+#: ../../source/index.rst:248
 msgid ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_ - Deep reinforcement learning for robot navigation."
@@ -338,7 +338,7 @@ msgstr ""
 "`DRL-robot-navigation-IR-SIM <https://github.com/reiniscimurs/DRL-robot-"
 "navigation-IR-SIM>`_ - 用于机器人导航的深度强化学习。"
 
-#: ../../source/index.rst:240
+#: ../../source/index.rst:249
 msgid ""
 "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - Autonomous "
 "navigation using reinforcement learning."
@@ -346,7 +346,7 @@ msgstr ""
 "`AutoNavRL <https://github.com/harshmahesheka/AutoNavRL>`_ - 基于强化学习的自"
 "主导航。"
 
-#: ../../source/index.rst:241
+#: ../../source/index.rst:250
 msgid ""
 "`IRSIM-3DGS-Bridge <https://github.com/Wayneyujie/IRSIM-3DGS-Bridge>`_ - A "
 "closed-loop bridge from 3D Gaussian Splatting scenes to IR-SIM planning/"
@@ -356,7 +356,7 @@ msgstr ""
 "闭环桥梁，将三维高斯泼溅（3D Gaussian Splatting）场景接入 IR-SIM 进行规划与跟"
 "随，再返回 Habitat-GS 进行轨迹回放。"
 
-#: ../../source/index.rst:242
+#: ../../source/index.rst:251
 msgid ""
 "`EdgeVox <https://github.com/nrl-ai/edgevox>`_ - Offline voice-agent framework "
 "with an IR-SIM mobile-navigation backend."
@@ -364,11 +364,11 @@ msgstr ""
 "`EdgeVox <https://github.com/nrl-ai/edgevox>`_ - 以 IR-SIM 移动导航后端为基础的"
 "离线语音智能体框架。"
 
-#: ../../source/index.rst:250
+#: ../../source/index.rst:259
 msgid "Courses Using IR-SIM"
 msgstr "使用 IR-SIM 的课程"
 
-#: ../../source/index.rst:253
+#: ../../source/index.rst:262
 msgid ""
 "`COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?"
 "infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU)."
@@ -376,7 +376,7 @@ msgstr ""
 "`COMP3356 机器人学 <https://www.cs.hku.hk/index.php/programmes/course-offered?"
 "infile=2026/comp3356.html>`_ - 香港大学（HKU）。"
 
-#: ../../source/index.rst:254
+#: ../../source/index.rst:263
 msgid ""
 "`CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - "
 "Southern University of Science and Technology (SUSTech)."
@@ -384,11 +384,11 @@ msgstr ""
 "`CS401 智能机器人 <https://github.com/Intelligent-Robot-Course>`_ - "
 "南方科技大学（SUSTech）。"
 
-#: ../../source/index.rst:244
+#: ../../source/index.rst:253
 msgid "Citation"
 msgstr "引用"
 
-#: ../../source/index.rst:246
+#: ../../source/index.rst:255
 msgid ""
 "If you find IR-SIM useful, please consider starring ⭐ the project on GitHub "
 "and citing our paper:"

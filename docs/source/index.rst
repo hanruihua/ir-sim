@@ -66,8 +66,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Multi-Robot RVO Collision Avoidance
 
-        +++
-        Multi-Robot RVO Collision Avoidance
+        .. card-footer::
+
+            Multi-Robot RVO Collision Avoidance
 
     .. grid-item-card::
         :shadow: lg
@@ -77,8 +78,9 @@ See IR-SIM in action
            :width: 70%
            :alt: 200-Agent ORCA via pyrvo
 
-        +++
-        200-Agent ORCA via pyrvo
+        .. card-footer::
+
+            200-Agent ORCA via pyrvo
 
     .. grid-item-card::
         :shadow: lg
@@ -88,8 +90,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Social Force Model (SFM)
 
-        +++
-        Social Force Model (SFM)
+        .. card-footer::
+
+            Social Force Model (SFM)
 
     .. grid-item-card::
         :shadow: lg
@@ -99,8 +102,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Ackermann Robot with 2D LiDAR
 
-        +++
-        Ackermann Robot with 2D LiDAR
+        .. card-footer::
+
+            Ackermann Robot with 2D LiDAR
 
     .. grid-item-card::
         :shadow: lg
@@ -110,8 +114,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Field-of-View Detection
 
-        +++
-        Field-of-View Detection
+        .. card-footer::
+
+            Field-of-View Detection
 
     .. grid-item-card::
         :shadow: lg
@@ -121,8 +126,9 @@ See IR-SIM in action
            :width: 70%
            :alt: HM3D / MatterPort3D Grid Map
 
-        +++
-        HM3D / MatterPort3D Grid Map
+        .. card-footer::
+
+            HM3D / MatterPort3D Grid Map
 
     .. grid-item-card::
         :shadow: lg
@@ -132,8 +138,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Dynamic Random Obstacles
 
-        +++
-        Dynamic Random Obstacles
+        .. card-footer::
+
+            Dynamic Random Obstacles
 
     .. grid-item-card::
         :shadow: lg
@@ -143,8 +150,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Keyboard Control
 
-        +++
-        Keyboard Control
+        .. card-footer::
+
+            Keyboard Control
 
     .. grid-item-card::
         :shadow: lg
@@ -154,8 +162,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Fog-of-Map Exploration
 
-        +++
-        Fog-of-Map Exploration
+        .. card-footer::
+
+            Fog-of-Map Exploration
 
 Capabilities
 ============
@@ -191,9 +200,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-success:`Recommended`
+        .. card-header::
 
-        ^^^
+            :bdg-success:`Recommended`
 
         Quick installation with pip
 
@@ -203,9 +212,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-info:`Popular`
+        .. card-header::
 
-        ^^^
+            :bdg-info:`Popular`
 
         Installation in conda environment
 
@@ -215,9 +224,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-warning:`Fast`
+        .. card-header::
 
-        ^^^
+            :bdg-warning:`Fast`
 
         Lightning-fast installation
 

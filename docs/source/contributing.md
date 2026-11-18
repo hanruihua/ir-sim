@@ -47,11 +47,14 @@ pre-commit install
 
 ## Documentation
 
-IR-SIM's documentation lives in the `docs/` directory and uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). To build the docs locally:
+IR-SIM's documentation lives in the `docs/` directory and uses the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/). Building the docs requires Python 3.11 or newer and `sphinx-design>=0.8.0`. From the repository root, create a separate documentation environment and build both English and Chinese with warnings treated as errors:
 
 ```bash
+uv venv --python 3.11 docs/.venv
+uv pip install --python docs/.venv/bin/python -r docs/requirements.txt -e .
+source docs/.venv/bin/activate
 cd docs
-make html
+make html SPHINXOPTS="-W --keep-going"
 ```
 
 - New tutorials or guides belong in `docs/` or under `usage/`
