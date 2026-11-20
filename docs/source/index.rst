@@ -257,8 +257,7 @@ Projects using IR-SIM
     .. grid-item-card:: Courses Using IR-SIM
         :shadow: md
 
-        * `COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU).
-        * `CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - Southern University of Science and Technology (SUSTech).
+        :doc:`Browse the course list <courses>`
 
 If your publication, project, or course uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
 
@@ -290,6 +289,7 @@ If you find IR-SIM useful, please consider starring ⭐ the project on GitHub an
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
+   courses
 
 .. toctree::
    :maxdepth: 2

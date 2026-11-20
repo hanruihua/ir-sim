@@ -369,20 +369,8 @@ msgid "Courses Using IR-SIM"
 msgstr "使用 IR-SIM 的课程"
 
 #: ../../source/index.rst:262
-msgid ""
-"`COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?"
-"infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU)."
-msgstr ""
-"`COMP3356 机器人学 <https://www.cs.hku.hk/index.php/programmes/course-offered?"
-"infile=2026/comp3356.html>`_ - 香港大学（HKU）。"
-
-#: ../../source/index.rst:263
-msgid ""
-"`CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - "
-"Southern University of Science and Technology (SUSTech)."
-msgstr ""
-"`CS401 智能机器人 <https://github.com/Intelligent-Robot-Course>`_ - "
-"南方科技大学（SUSTech）。"
+msgid ":doc:`Browse the course list <courses>`"
+msgstr ":doc:`查看课程列表 <courses>`"
 
 #: ../../source/index.rst:253
 msgid "Citation"
