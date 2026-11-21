@@ -257,7 +257,8 @@ Projects using IR-SIM
     .. grid-item-card:: Courses Using IR-SIM
         :shadow: md
 
-        :doc:`Browse the course list <courses>`
+        .. include:: courses.rst
+           :start-after: .. course-list-start
 
 If your publication, project, or course uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
 

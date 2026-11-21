@@ -16,12 +16,3 @@ msgstr "**香港大学**：`COMP3356 机器人学 <https://www.cs.hku.hk/program
 
 msgid "**Southern University of Science and Technology**: `CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_"
 msgstr "**南方科技大学**：`CS401 智能机器人 <https://github.com/Intelligent-Robot-Course>`_"
-
-msgid "**Aarhus University**: `Autonomous Agents and Multi-Agent Systems <https://kursuskatalog.au.dk/da/linkedexams/97618>`_"
-msgstr "**奥胡斯大学**：`自主智能体与多智能体系统 <https://kursuskatalog.au.dk/da/linkedexams/97618>`_"
-
-msgid "**Otto von Guericke University Magdeburg**: `Estimation for Autonomous Mobile Robots <https://www.ams.ovgu.de/Teaching/Winter%2BSemester%2B2025_2026/Lecture%2BAMR.html>`_"
-msgstr "**马格德堡大学**：`自主移动机器人状态估计 <https://www.ams.ovgu.de/Teaching/Winter%2BSemester%2B2025_2026/Lecture%2BAMR.html>`_"
-
-msgid "**University of Oulu & Nanjing Institute of Technology**: `Special Course in Software Engineering <https://opas.peppi.oulu.fi/fi/ohjelma/42579?period=2024-2025>`_"
-msgstr "**奥卢大学与南京工程学院**：`软件工程专题课 <https://opas.peppi.oulu.fi/fi/ohjelma/42579?period=2024-2025>`_"
