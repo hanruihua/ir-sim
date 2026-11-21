@@ -13,23 +13,21 @@ Measured headless on one CPU core of a Linux machine against 2.12.0 (median step
 | `env.step()`, 1000 dash robots | 79.4 ms | 24.7 ms | 3.2x |
 | `env.step()`, 1000 robots with explicit-ID actions | 50.1 ms | 21.6 ms | 2.3x |
 
-### Features and Performance
+**Features and Performance**
 
-- **Batched 2D lidar is up to 26.7× faster.** All `lidar2d` sensors are cast together in one pass per step, and each scan matches a single sensor's scan bit for bit. `pip install ir-sim[fast]` installs numba, which compiles the lidar cast for extra speed. See [`usage/27thousand__robot_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/27thousand__robot_world) for details. ([#392](https://github.com/hanruihua/ir-sim/pull/392))
-- **ORCA groups avoid walls, grid maps and moving obstacles.** Static objects around the group, including occupied grid-map cells, enter ORCA as obstacles and moving ones as agents, so members no longer pass through them. See [`usage/19orca_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/19orca_world) for details. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
-- **Dash behavior is 3.2× faster for 1000 robots.** Dash robots no longer collect the list of all other objects every step, which they never used. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
-- **Explicit-ID actions are 2.3× faster for 1000 robots.** `env.step(action, action_id=...)` finds each object through a lookup table instead of searching the object list once per ID. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
+  - **Batched 2D lidar is up to 26.7× faster.** All `lidar2d` sensors are cast together in one pass per step, and each scan matches a single sensor's scan bit for bit. `pip install ir-sim[fast]` installs numba, which compiles the lidar cast for extra speed. See [`usage/27thousand__robot_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/27thousand__robot_world) for details. ([#392](https://github.com/hanruihua/ir-sim/pull/392))
+  - **ORCA groups avoid walls, grid maps and moving obstacles.** Static objects around the group, including occupied grid-map cells, enter ORCA as obstacles and moving ones as agents, so members no longer pass through them. See [`usage/19orca_world`](https://github.com/hanruihua/ir-sim/tree/main/usage/19orca_world) for details. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
+  - **Dash behavior is 3.2× faster for 1000 robots.** Dash robots no longer collect the list of all other objects every step, which they never used. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
+  - **Explicit-ID actions are 2.3× faster for 1000 robots.** `env.step(action, action_id=...)` finds each object through a lookup table instead of searching the object list once per ID. Trajectories are unchanged. ([#389](https://github.com/hanruihua/ir-sim/pull/389), based on [#386](https://github.com/hanruihua/ir-sim/pull/386)) (@KataDavidXD)
 
-### Fix
+**Fix**
+  - **Lidar and collision checks immediately see objects moved between environment steps.** Before, objects moved with `set_state()` or `robot.step()` were still searched at their old places until the next `env.step()`; now the geometry tree is rebuilt at the next query. ([#393](https://github.com/hanruihua/ir-sim/pull/393))
+  - **GUI backend selection respects user settings and installed toolkits.** IR-SIM no longer forces a backend: `MPLBACKEND` and `matplotlib.use()` are preserved, and Matplotlib can discover Qt6 and GTK backends as well as Tk. ([#388](https://github.com/hanruihua/ir-sim/pull/388))
+  - **Image-map tests clean up temporary PNG files on Windows.** Four tests no longer fail with `PermissionError` after their assertions pass. ([#383](https://github.com/hanruihua/ir-sim/pull/383)) (@dhyey-gosa)
+  - **Smaller fixes.** Missing GUI toolkits produce an installation hint, and lidar range calculations no longer depend on BLAS matrix-size rounding. ([#388](https://github.com/hanruihua/ir-sim/pull/388), [#392](https://github.com/hanruihua/ir-sim/pull/392))
 
-- **Lidar and collision checks immediately see objects moved between environment steps.** Before, objects moved with `set_state()` or `robot.step()` were still searched at their old places until the next `env.step()`; now the geometry tree is rebuilt at the next query. ([#393](https://github.com/hanruihua/ir-sim/pull/393))
-- **GUI backend selection respects user settings and installed toolkits.** IR-SIM no longer forces a backend: `MPLBACKEND` and `matplotlib.use()` are preserved, and Matplotlib can discover Qt6 and GTK backends as well as Tk. ([#388](https://github.com/hanruihua/ir-sim/pull/388))
-- **Image-map tests clean up temporary PNG files on Windows.** Four tests no longer fail with `PermissionError` after their assertions pass. ([#383](https://github.com/hanruihua/ir-sim/pull/383)) (@dhyey-gosa)
-- **Smaller fixes.** Missing GUI toolkits produce an installation hint, and lidar range calculations no longer depend on BLAS matrix-size rounding. ([#388](https://github.com/hanruihua/ir-sim/pull/388), [#392](https://github.com/hanruihua/ir-sim/pull/392))
-
-### Refactor
-
-- **Group behaviors share `target_roles` filtering.** ORCA and SFM groups now default to `'obstacle'`; set `target_roles: all` to include robots outside the group. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
+**Refactor**
+  - **Group behaviors share `target_roles` filtering.** ORCA and SFM groups now default to `'obstacle'`; set `target_roles: all` to include robots outside the group. ([#390](https://github.com/hanruihua/ir-sim/pull/390))
 
 ## 2.12.0 (2026-10-04)
 

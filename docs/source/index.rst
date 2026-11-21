@@ -66,8 +66,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Multi-Robot RVO Collision Avoidance
 
-        +++
-        Multi-Robot RVO Collision Avoidance
+        .. card-footer::
+
+            Multi-Robot RVO Collision Avoidance
 
     .. grid-item-card::
         :shadow: lg
@@ -77,8 +78,9 @@ See IR-SIM in action
            :width: 70%
            :alt: 200-Agent ORCA via pyrvo
 
-        +++
-        200-Agent ORCA via pyrvo
+        .. card-footer::
+
+            200-Agent ORCA via pyrvo
 
     .. grid-item-card::
         :shadow: lg
@@ -88,8 +90,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Social Force Model (SFM)
 
-        +++
-        Social Force Model (SFM)
+        .. card-footer::
+
+            Social Force Model (SFM)
 
     .. grid-item-card::
         :shadow: lg
@@ -99,8 +102,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Ackermann Robot with 2D LiDAR
 
-        +++
-        Ackermann Robot with 2D LiDAR
+        .. card-footer::
+
+            Ackermann Robot with 2D LiDAR
 
     .. grid-item-card::
         :shadow: lg
@@ -110,8 +114,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Field-of-View Detection
 
-        +++
-        Field-of-View Detection
+        .. card-footer::
+
+            Field-of-View Detection
 
     .. grid-item-card::
         :shadow: lg
@@ -121,8 +126,9 @@ See IR-SIM in action
            :width: 70%
            :alt: HM3D / MatterPort3D Grid Map
 
-        +++
-        HM3D / MatterPort3D Grid Map
+        .. card-footer::
+
+            HM3D / MatterPort3D Grid Map
 
     .. grid-item-card::
         :shadow: lg
@@ -132,8 +138,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Dynamic Random Obstacles
 
-        +++
-        Dynamic Random Obstacles
+        .. card-footer::
+
+            Dynamic Random Obstacles
 
     .. grid-item-card::
         :shadow: lg
@@ -143,8 +150,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Keyboard Control
 
-        +++
-        Keyboard Control
+        .. card-footer::
+
+            Keyboard Control
 
     .. grid-item-card::
         :shadow: lg
@@ -154,8 +162,9 @@ See IR-SIM in action
            :width: 70%
            :alt: Fog-of-Map Exploration
 
-        +++
-        Fog-of-Map Exploration
+        .. card-footer::
+
+            Fog-of-Map Exploration
 
 Capabilities
 ============
@@ -191,9 +200,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-success:`Recommended`
+        .. card-header::
 
-        ^^^
+            :bdg-success:`Recommended`
 
         Quick installation with pip
 
@@ -203,9 +212,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-info:`Popular`
+        .. card-header::
 
-        ^^^
+            :bdg-info:`Popular`
 
         Installation in conda environment
 
@@ -215,9 +224,9 @@ Prefer conda or uv? Pick your installation method:
         :text-align: center
         :shadow: md
 
-        :bdg-warning:`Fast`
+        .. card-header::
 
-        ^^^
+            :bdg-warning:`Fast`
 
         Lightning-fast installation
 
@@ -248,8 +257,8 @@ Projects using IR-SIM
     .. grid-item-card:: Courses Using IR-SIM
         :shadow: md
 
-        * `COMP3356 Robotics <https://www.cs.hku.hk/index.php/programmes/course-offered?infile=2026/comp3356.html>`_ - The University of Hong Kong (HKU).
-        * `CS401 Intelligent Robotics <https://github.com/Intelligent-Robot-Course>`_ - Southern University of Science and Technology (SUSTech).
+        .. include:: courses.rst
+           :start-after: .. course-list-start
 
 If your publication, project, or course uses IR-SIM, we welcome you to propose it for inclusion via an issue or pull request.
 
@@ -281,6 +290,7 @@ If you find IR-SIM useful, please consider starring ⭐ the project on GitHub an
    User Guide <usage/index>
    Configuration <yaml_config/index>
    API Reference <api/index>
+   courses
 
 .. toctree::
    :maxdepth: 2
